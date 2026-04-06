@@ -12,6 +12,7 @@ import { initAudio, playShockSound, playROSCSound, playDrugAlert } from '../util
 import { exportCasePDF } from '../utils/exportPDF';
 import { calculateScore } from '../utils/scoring';
 import { LineChart, Line, XAxis, YAxis, ReferenceLine, ResponsiveContainer } from 'recharts';
+import CPRDashboard from '../components/CPRDashboard';
 
 // ==========================================
 // ACLS Systematic Approach — Step by Step
@@ -70,6 +71,7 @@ export default function Recording() {
   const [showLog, setShowLog] = useState(false);
   const [showPatient, setShowPatient] = useState(false);
   const [showTeam, setShowTeam] = useState(false);
+  const [showShockModal, setShowShockModal] = useState(false);
   const [witnessed, setWitnessed] = useState(null);
   const [bystanderCPR, setBystanderCPR] = useState(null);
 
@@ -433,12 +435,13 @@ export default function Recording() {
         return <ShockStep onShocked={() => goStep(STEPS.CPR_CYCLE)} onSkip={() => goStep(STEPS.CPR_CYCLE)} isTraining={isTraining} />;
 
       case STEPS.CPR_CYCLE:
-        return <CPRCycleStep
+        return <CPRDashboard
           onCheckRhythm={() => goStep(STEPS.RHYTHM_CHECK)}
           onGiveDrug={() => goStep(STEPS.GIVE_DRUG)}
           onAirway={() => goStep(STEPS.AIRWAY_MANAGEMENT)}
           onROSC={() => handleEndCase('ROSC')}
           onSecondary={() => goStep(STEPS.SECONDARY_SURVEY)}
+          onShock={() => setShowShockModal(true)}
           isTraining={isTraining}
         />;
 
@@ -525,6 +528,7 @@ export default function Recording() {
       {showLog && <EventLogPanel onClose={() => setShowLog(false)} />}
       {showPatient && <PatientInfoPanel onClose={() => setShowPatient(false)} />}
       {showTeam && <TeamPanel onClose={() => setShowTeam(false)} />}
+      {showShockModal && <ShockModal onClose={() => setShowShockModal(false)} isTraining={isTraining} />}
     </div>
   );
 }
@@ -1188,6 +1192,42 @@ function TimerBar({ onToggleLog, showLog, isTraining }) {
           📋 {events.length}
         </button>
       </div>
+    </div>
+  );
+}
+
+// ===== SHOCK MODAL (Quick shock from CPR Dashboard) =====
+function ShockModal({ onClose, isTraining }) {
+  const { shockCount, currentRhythm, addShock, addEvent } = useCaseStore();
+  const soundEnabled = useSettingsStore(s => s.soundEnabled);
+  const elapsed = useTimerStore(s => s.elapsed);
+  const energy = currentRhythm?.energyBiphasic
+    ? (shockCount === 0 ? currentRhythm.energyBiphasic.first : currentRhythm.energyBiphasic.subsequent)
+    : 200;
+
+  return (
+    <div className="absolute bottom-0 left-0 right-0 z-50 animate-slide-up bg-white rounded-t-2xl border-t border-bg-tertiary p-4 space-y-3"
+      style={{ boxShadow: '0 -4px 24px rgba(0,0,0,0.15)' }}>
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-text-primary">⚡ Defibrillation — Shock #{shockCount + 1}</span>
+        <button onClick={onClose} className="text-text-muted text-sm font-bold">✕</button>
+      </div>
+      <div className="text-sm text-text-secondary">
+        {currentRhythm?.abbreviation} → {energy}J Biphasic
+      </div>
+      {isTraining && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-xs text-blue-700">
+          Charge during CPR → pause &lt;5s → Clear → Shock → Resume CPR immediately
+        </div>
+      )}
+      <button onClick={() => {
+        if (soundEnabled) playShockSound();
+        addShock();
+        addEvent({ elapsed, category: 'shock', type: `⚡ Shock #${shockCount + 1}`, details: { energy: `${energy}J` } });
+        onClose();
+      }} className="w-full btn-action btn-shock py-5 text-xl font-black animate-pulse">
+        ⚡ SHOCK {energy}J
+      </button>
     </div>
   );
 }
