@@ -18,6 +18,8 @@ import AirwayPanel from '../components/AirwayPanel';
 import LabsPanel from '../components/LabsPanel';
 import ReversibleCausesPanel from '../components/ReversibleCausesPanel';
 import FloatingStatus from '../components/FloatingStatus';
+import BradycardiaPathway from '../components/BradycardiaPathway';
+import TachycardiaPathway from '../components/TachycardiaPathway';
 
 // ==========================================
 // ACLS Systematic Approach — Step by Step
@@ -320,19 +322,21 @@ export default function Recording() {
         );
 
       case STEPS.PULSE_BRADYCARDIA:
-        return <BradycardiaStep
+        return <BradycardiaPathway
           onLog={log}
           onMonitor={() => goStep(STEPS.PULSE_NORMAL)}
           onRecheckPulse={() => goStep(STEPS.CHECK_PULSE)}
           onArrest={() => { goStep(STEPS.START_CPR); }}
+          isTraining={isTraining}
         />;
 
       case STEPS.PULSE_TACHYCARDIA:
-        return <TachycardiaStep
+        return <TachycardiaPathway
           onLog={log}
           onMonitor={() => goStep(STEPS.PULSE_NORMAL)}
           onRecheckPulse={() => goStep(STEPS.CHECK_PULSE)}
           onArrest={() => { goStep(STEPS.START_CPR); }}
+          isTraining={isTraining}
         />;
 
       case STEPS.PULSE_NORMAL:
