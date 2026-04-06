@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#DC2626"/>
+  <text x="256" y="200" text-anchor="middle" font-size="120" font-family="system-ui,-apple-system,sans-serif" font-weight="900" fill="white" letter-spacing="-4">ACLS</text>
+  <text x="256" y="320" text-anchor="middle" font-size="36" font-family="system-ui,-apple-system,sans-serif" font-weight="600" fill="rgba(255,255,255,0.8)">EMR</text>
+  <circle cx="256" cy="410" r="50" fill="rgba(255,255,255,0.15)"/>
+  <text x="256" y="425" text-anchor="middle" font-size="50" font-family="system-ui" fill="white">♥</text>
+</svg>

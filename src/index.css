@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+@theme {
+  /* Light clean theme — medical-grade */
+  --color-bg-primary: #F1F5F9;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-tertiary: #E2E8F0;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+  --color-danger: #EF4444;
+  --color-danger-dark: #DC2626;
+  --color-info: #2563EB;
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-purple: #7C3AED;
+  --color-shock: #EA580C;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 2px; }
+
+button, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+}
+.animate-pulse-red { animation: pulse-red 2s ease-in-out infinite; }
+
+@keyframes flash-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-flash-green { animation: flash-green 1s ease-in-out infinite; }
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up { animation: slide-up 0.2s ease-out; }
+
+/* ===== CARD ===== */
+.glass-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* ===== BUTTON STYLES ===== */
+.btn-action {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.btn-action:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-danger {
+  background: #EF4444;
+  color: white;
+}
+.btn-info {
+  background: #2563EB;
+  color: white;
+}
+.btn-success {
+  background: #16A34A;
+  color: white;
+}
+.btn-warning {
+  background: #F59E0B;
+  color: #1E293B;
+}
+.btn-purple {
+  background: #7C3AED;
+  color: white;
+}
+.btn-shock {
+  background: #EA580C;
+  color: white;
+}
+.btn-ghost {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.btn-ghost:active {
+  background: #F8FAFC;
+}
+
+/* ===== TAB STYLES ===== */
+.tab-group {
+  display: flex;
+  gap: 2px;
+  background: #E2E8F0;
+  padding: 3px;
+  border-radius: 0.75rem;
+}
+.tab-item {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  transition: all 0.15s ease;
+  color: var(--color-text-muted);
+  min-height: auto;
+}
+.tab-item.active {
+  background: #FFFFFF;
+  color: #2563EB;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ===== INSTRUCTION LIST ===== */
+.instruction-list {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+}
+.instruction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  padding: 0.25rem 0;
+}
+.instruction-item::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2563EB;
+  margin-top: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-track {
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* ===== TIMER BAR ===== */
+.timer-bar {
+  background: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* ===== BADGE ===== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

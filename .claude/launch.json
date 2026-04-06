@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "acls-dev",
+      "runtimeExecutable": "/Users/apple/.nvm/versions/node/v22.22.2/bin/node",
+      "runtimeArgs": ["/Users/apple/Desktop/acls-emr/node_modules/vite/bin/vite.js", "--port", "5173"],
+      "port": 5173,
+      "env": {
+        "PATH": "/Users/apple/.nvm/versions/node/v22.22.2/bin:/usr/bin:/bin"
+      }
+    }
+  ]
+}
