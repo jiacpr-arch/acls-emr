@@ -68,6 +68,10 @@ export const useCaseStore = create((set, get) => ({
   // Set team
   setTeam: (team) => set({ team }),
 
+  // Airway details
+  airway: { device: null, tubeSize: null, tubeDepth: null, cuffPressure: null, attempts: 0, confirmMethod: null, ventMode: null, placedAt: null },
+  updateAirway: (data) => set((s) => ({ airway: { ...s.airway, ...data, placedAt: s.airway.placedAt || useTimerStore.getState().elapsed } })),
+
   // Add event to timeline
   addEvent: async (event) => {
     const state = get();

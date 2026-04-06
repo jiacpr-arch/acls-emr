@@ -13,6 +13,11 @@ import { exportCasePDF } from '../utils/exportPDF';
 import { calculateScore } from '../utils/scoring';
 import { LineChart, Line, XAxis, YAxis, ReferenceLine, ResponsiveContainer } from 'recharts';
 import CPRDashboard from '../components/CPRDashboard';
+import VitalsPanel from '../components/VitalsPanel';
+import AirwayPanel from '../components/AirwayPanel';
+import LabsPanel from '../components/LabsPanel';
+import ReversibleCausesPanel from '../components/ReversibleCausesPanel';
+import FloatingStatus from '../components/FloatingStatus';
 
 // ==========================================
 // ACLS Systematic Approach — Step by Step
@@ -72,6 +77,10 @@ export default function Recording() {
   const [showPatient, setShowPatient] = useState(false);
   const [showTeam, setShowTeam] = useState(false);
   const [showShockModal, setShowShockModal] = useState(false);
+  const [showVitals, setShowVitals] = useState(false);
+  const [showAirway, setShowAirway] = useState(false);
+  const [showLabs, setShowLabs] = useState(false);
+  const [showHT, setShowHT] = useState(false);
   const [witnessed, setWitnessed] = useState(null);
   const [bystanderCPR, setBystanderCPR] = useState(null);
 
@@ -472,10 +481,10 @@ export default function Recording() {
         return <DrugStep onDone={() => goStep(STEPS.CPR_CYCLE)} isTraining={isTraining} />;
 
       case STEPS.AIRWAY_MANAGEMENT:
-        return <AirwayStep onDone={() => goStep(STEPS.CPR_CYCLE)} />;
+        return <AirwayPanel onClose={() => goStep(STEPS.CPR_CYCLE)} />;
 
       case STEPS.SECONDARY_SURVEY:
-        return <SecondarySurveyStep onDone={() => goStep(STEPS.CPR_CYCLE)} />;
+        return <ReversibleCausesPanel onClose={() => goStep(STEPS.CPR_CYCLE)} />;
 
       // ========== OUTCOMES ==========
 
@@ -510,18 +519,37 @@ export default function Recording() {
         </div>
       </div>
 
-      {/* Quick access bar (patient/team) — visible during CPR */}
+      {/* Quick access bar — visible during recording */}
       {(isRunning || elapsed > 0) && (
-        <div className="flex gap-2 px-4 py-1.5 bg-bg-secondary/80 border-t border-bg-tertiary/50 shrink-0">
+        <div className="flex gap-1.5 px-3 py-1.5 bg-bg-secondary/80 border-t border-bg-tertiary/50 shrink-0">
           <button onClick={() => setShowPatient(true)}
-            className="flex-1 text-xs py-2 rounded-lg bg-bg-primary text-text-secondary font-medium">
-            👤 Patient Info
+            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
+            👤 Patient
           </button>
           <button onClick={() => setShowTeam(true)}
-            className="flex-1 text-xs py-2 rounded-lg bg-bg-primary text-text-secondary font-medium">
+            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
             👥 Team
           </button>
+          <button onClick={() => setShowVitals(true)}
+            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
+            📊 Vitals
+          </button>
+          <button onClick={() => setShowLabs(true)}
+            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
+            🔬 Labs
+          </button>
         </div>
+      )}
+
+      {/* Floating status buttons */}
+      {(isRunning || elapsed > 0) && (
+        <FloatingStatus
+          currentStep={step}
+          onNoPulse={() => { useTimerStore.getState().startCPR(); goStep(STEPS.START_CPR); }}
+          onUnresponsive={() => goStep(STEPS.CHECK_PULSE)}
+          onEKGChanged={() => goStep(STEPS.RHYTHM_CHECK)}
+          onROSC={() => handleEndCase('ROSC')}
+        />
       )}
 
       {/* Overlays */}
@@ -529,6 +557,10 @@ export default function Recording() {
       {showPatient && <PatientInfoPanel onClose={() => setShowPatient(false)} />}
       {showTeam && <TeamPanel onClose={() => setShowTeam(false)} />}
       {showShockModal && <ShockModal onClose={() => setShowShockModal(false)} isTraining={isTraining} />}
+      {showVitals && <VitalsPanel onClose={() => setShowVitals(false)} />}
+      {showAirway && <AirwayPanel onClose={() => setShowAirway(false)} />}
+      {showLabs && <LabsPanel onClose={() => setShowLabs(false)} />}
+      {showHT && <ReversibleCausesPanel onClose={() => setShowHT(false)} />}
     </div>
   );
 }
