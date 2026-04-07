@@ -169,13 +169,22 @@ export default function Recording() {
           <StepCard phase="BLS Survey" phaseColor="text-info" icon="👋" title="Check Responsiveness & Breathing"
             subtitle='Tap shoulders, shout "Are you okay?" + Look for breathing'
             instructions={['Tap both shoulders firmly', 'Shout clearly: "Are you okay?"', 'Look, listen, feel for breathing (5-10 sec)', 'Gasping = NOT normal breathing']}>
+            <TrainingHint show={isTraining}>
+              <p>Normal breathing = has pulse → assess further</p>
+              <p>Gasping or no breathing → check pulse → may need CPR</p>
+            </TrainingHint>
             <div className="grid grid-cols-1 gap-3 w-full">
-              <BigButton color="bg-danger" onClick={() => { log('other', '❌ Unresponsive + No breathing / Gasping'); goStep(STEPS.CALL_FOR_HELP); }}>
-                ❌ Unresponsive + Not Breathing / Gasping
+              <BigButton color="bg-danger" onClick={() => { log('other', '❌ Unresponsive + Not Breathing'); goStep(STEPS.CALL_FOR_HELP); }}>
+                ❌ Unresponsive + Not Breathing
+                <div className="text-[10px] font-normal mt-0.5">→ Call for help → Check Pulse</div>
               </BigButton>
-              <BigButton color="bg-warning text-black" onClick={() => { log('other', '❌ Unresponsive + Breathing'); goStep(STEPS.CALL_FOR_HELP); }}>
-                ❌ Unresponsive BUT Breathing
-                <div className="text-[10px] font-normal mt-0.5">Recovery position + Monitor</div>
+              <BigButton color="bg-danger" onClick={() => { log('other', '❌ Unresponsive + Gasping (agonal breathing)'); goStep(STEPS.CALL_FOR_HELP); }}>
+                ❌ Unresponsive + Gasping
+                <div className="text-[10px] font-normal mt-0.5">Gasping = NOT normal → treat as no breathing</div>
+              </BigButton>
+              <BigButton color="bg-warning text-black" onClick={() => { log('other', '❌ Unresponsive BUT Breathing normally → Recovery position'); goStep(STEPS.PULSE_PRESENT); }}>
+                ❌ Unresponsive BUT Breathing Normally
+                <div className="text-[10px] font-normal mt-0.5">Has pulse → Recovery position → Monitor</div>
               </BigButton>
               <BigButton color="bg-success" onClick={() => { log('other', '✅ Responsive + Breathing'); goStep(STEPS.PULSE_PRESENT); }}>
                 ✅ Responsive + Breathing
