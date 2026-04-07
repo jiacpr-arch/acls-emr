@@ -598,27 +598,12 @@ export default function Recording() {
 
       {/* Quick access bar — visible during recording */}
       {(isRunning || elapsed > 0) && (
-        <div className="flex gap-1.5 px-3 py-1.5 bg-bg-secondary/80 border-t border-bg-tertiary/50 shrink-0">
-          <button onClick={() => setShowPatient(true)}
-            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
-            👤 Patient
-          </button>
-          <button onClick={() => setShowTeam(true)}
-            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
-            👥 Team
-          </button>
-          <button onClick={() => setShowVitals(true)}
-            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
-            📊 Vitals
-          </button>
-          <button onClick={() => setShowLabs(true)}
-            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
-            🔬 Labs
-          </button>
-          <button onClick={() => setShowEKG(true)}
-            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
-            📈 EKG
-          </button>
+        <div className="floating-bar shrink-0">
+          <button onClick={() => setShowPatient(true)} className="bg-bg-primary text-text-secondary">👤 Patient</button>
+          <button onClick={() => setShowTeam(true)} className="bg-bg-primary text-text-secondary">👥 Team</button>
+          <button onClick={() => setShowVitals(true)} className="bg-bg-primary text-text-secondary">📊 Vitals</button>
+          <button onClick={() => setShowLabs(true)} className="bg-bg-primary text-text-secondary">🔬 Labs</button>
+          <button onClick={() => setShowEKG(true)} className="bg-bg-primary text-text-secondary">📈 EKG</button>
         </div>
       )}
 

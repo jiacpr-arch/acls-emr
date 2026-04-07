@@ -107,85 +107,77 @@ export default function CPRDashboard({
   const ccfColor = ccf >= 80 ? 'text-success' : ccf >= 60 ? 'text-warning' : 'text-danger';
 
   return (
-    <div className="text-center space-y-3 animate-slide-up px-2">
-      {/* Phase label */}
-      <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-success">
-        CPR — Cycle {cycleNumber}
+    <div className="text-center space-y-3 animate-slide-up">
+      {/* Total time header */}
+      <div className="dash-card !py-2 flex items-center justify-between px-4">
+        <div className="text-left">
+          <div className="text-[9px] text-text-muted font-semibold uppercase">Total Duration</div>
+          <div className="text-2xl font-mono font-black tabular-nums text-text-primary tracking-tight">{formatTimeLong(elapsed)}</div>
+        </div>
+        <div className="flex gap-3">
+          <div className="stat-box !p-2 min-w-[52px]">
+            <div className={`stat-value text-lg ${ccfColor}`}>{ccf}%</div>
+            <div className="stat-label">CCF</div>
+          </div>
+          <div className="stat-box !p-2 min-w-[52px]">
+            <div className="stat-value text-lg text-shock">{shockCount}</div>
+            <div className="stat-label">Shocks</div>
+          </div>
+        </div>
       </div>
 
       {/* Compressor rotation alert */}
       {compressorRotateDue && (
         <button onClick={dismissCompressorRotate}
-          className="w-full bg-warning/15 border border-warning/30 rounded-xl px-4 py-2 text-sm font-bold text-warning animate-pulse text-center">
-          🔄 Switch Compressor! (2 min) — Tap to dismiss
+          className="w-full bg-warning/10 border border-warning/30 rounded-xl px-4 py-2.5 text-sm font-bold text-warning animate-pulse text-center">
+          🔄 Switch Compressor! — Tap to dismiss
         </button>
       )}
 
       {/* Two circular timers side by side */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-start justify-center gap-3 px-2">
         {/* Compression Timer */}
-        <div className="flex flex-col items-center">
-          <CircularTimer
-            value={remaining}
-            max={cycleDuration}
-            size={140}
-            color={compressionColor}
-            alert={almostDone}
-          >
-            <div className={`text-2xl font-mono font-black tabular-nums ${almostDone ? 'text-danger' : 'text-success'}`}>
-              {formatTime(remaining)}
-            </div>
-            <div className="text-[9px] text-text-muted font-medium">/ {formatTime(cycleDuration)}</div>
-          </CircularTimer>
-          <div className="mt-1 text-[10px] text-text-muted font-semibold uppercase">Compressions</div>
-          <div className="text-xs font-bold text-text-primary">Cycles: {cycleNumber}</div>
-        </div>
-
-        {/* Center stats column */}
-        <div className="flex flex-col items-center gap-2">
-          {/* CCF */}
-          <div className={`text-center`}>
-            <div className={`text-xl font-mono font-black ${ccfColor}`}>{ccf}%</div>
-            <div className="text-[9px] text-text-muted font-semibold">CCF</div>
+        <CircularTimer
+          value={remaining}
+          max={cycleDuration}
+          size={150}
+          strokeWidth={10}
+          color={compressionColor}
+          alert={almostDone}
+          label="Compressions"
+          sublabel={`Cycles: ${cycleNumber}`}
+        >
+          <div className={`text-[1.75rem] font-mono font-black tabular-nums tracking-tight ${almostDone ? 'text-danger' : 'text-success'}`}>
+            {formatTime(remaining)}
           </div>
-          {/* Shock count */}
-          <div className="text-center">
-            <div className="text-xl font-mono font-black text-shock">⚡{shockCount}</div>
-            <div className="text-[9px] text-text-muted font-semibold">Shocks</div>
-          </div>
-          {/* Total time */}
-          <div className="text-center">
-            <div className="text-sm font-mono font-bold text-text-primary">{formatTimeLong(elapsed)}</div>
-            <div className="text-[9px] text-text-muted">Total</div>
-          </div>
-        </div>
+          <div className="text-[9px] text-text-muted font-semibold">/ {formatTime(cycleDuration)}</div>
+        </CircularTimer>
 
         {/* Epinephrine Timer */}
-        <div className="flex flex-col items-center">
-          <CircularTimer
-            value={epiRemaining !== null ? epiRemaining : 0}
-            max={epiTimer ? epiTimer.intervalSeconds : 240}
-            size={140}
-            color={epiColor}
-            alert={epiDue}
-          >
-            {epiRemaining !== null ? (
-              <>
-                <div className={`text-2xl font-mono font-black tabular-nums ${epiDue ? 'text-danger' : 'text-purple'}`}>
-                  {epiDue ? 'DUE' : formatTime(epiRemaining)}
-                </div>
-                <div className="text-[9px] text-text-muted font-medium">q3-5 min</div>
-              </>
-            ) : (
-              <>
-                <div className="text-lg font-bold text-text-muted">--:--</div>
-                <div className="text-[9px] text-text-muted">No Epi yet</div>
-              </>
-            )}
-          </CircularTimer>
-          <div className="mt-1 text-[10px] text-text-muted font-semibold uppercase">Epinephrine</div>
-          <div className="text-xs font-bold text-text-primary">Epis: {epiCount}</div>
-        </div>
+        <CircularTimer
+          value={epiRemaining !== null ? epiRemaining : 0}
+          max={epiTimer ? epiTimer.intervalSeconds : 240}
+          size={150}
+          strokeWidth={10}
+          color={epiColor}
+          alert={epiDue}
+          label="Epinephrine"
+          sublabel={`Epis: ${epiCount}`}
+        >
+          {epiRemaining !== null ? (
+            <>
+              <div className={`text-[1.75rem] font-mono font-black tabular-nums tracking-tight ${epiDue ? 'text-danger' : 'text-purple'}`}>
+                {epiDue ? 'DUE' : formatTime(epiRemaining)}
+              </div>
+              <div className="text-[9px] text-text-muted font-semibold">q3-5 min</div>
+            </>
+          ) : (
+            <>
+              <div className="text-xl font-bold text-text-muted">--:--</div>
+              <div className="text-[9px] text-text-muted">No Epi yet</div>
+            </>
+          )}
+        </CircularTimer>
       </div>
 
       {/* Training hint */}
