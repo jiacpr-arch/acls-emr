@@ -20,6 +20,8 @@ import ReversibleCausesPanel from '../components/ReversibleCausesPanel';
 import FloatingStatus from '../components/FloatingStatus';
 import BradycardiaPathway from '../components/BradycardiaPathway';
 import TachycardiaPathway from '../components/TachycardiaPathway';
+import MIACSPathway from '../components/MIACSPathway';
+import StrokePathway from '../components/StrokePathway';
 
 // ==========================================
 // ACLS Systematic Approach — Step by Step
@@ -40,6 +42,8 @@ const STEPS = {
   PULSE_BRADYCARDIA: 'pulse_bradycardia',
   PULSE_TACHYCARDIA: 'pulse_tachycardia',
   PULSE_NORMAL: 'pulse_normal',
+  PULSE_MI: 'pulse_mi',
+  PULSE_STROKE: 'pulse_stroke',
   // → No pulse → CPR
   START_CPR: 'start_cpr',
   ATTACH_MONITOR: 'attach_monitor',
@@ -301,22 +305,38 @@ export default function Recording() {
                 log('other', '🐢 Pulse present — Bradycardia');
                 goStep(STEPS.PULSE_BRADYCARDIA);
               }}>
-                🐢 Bradycardia (HR &lt; 60)
+                🐢 Bradycardia (HR &lt; 50)
               </BigButton>
               <BigButton color="bg-success" onClick={() => {
                 if (!isRunning) startTimer();
                 log('other', '✅ Pulse present — Normal rate');
                 goStep(STEPS.PULSE_NORMAL);
               }}>
-                ✅ Normal (HR 60-100)
+                ✅ Normal (HR 50-150)
               </BigButton>
               <BigButton color="bg-danger" onClick={() => {
                 if (!isRunning) startTimer();
                 log('other', '⚡ Pulse present — Tachycardia');
                 goStep(STEPS.PULSE_TACHYCARDIA);
               }}>
-                🐇 Tachycardia (HR &gt; 100)
+                🐇 Tachycardia (HR &gt; 150)
               </BigButton>
+              <div className="grid grid-cols-2 gap-3">
+                <BigButton color="bg-danger" onClick={() => {
+                  if (!isRunning) startTimer();
+                  log('other', '🫀 Suspected ACS/MI');
+                  goStep(STEPS.PULSE_MI);
+                }}>
+                  🫀 ACS / MI
+                </BigButton>
+                <BigButton color="bg-purple text-white" onClick={() => {
+                  if (!isRunning) startTimer();
+                  log('other', '🧠 Suspected Stroke');
+                  goStep(STEPS.PULSE_STROKE);
+                }}>
+                  🧠 Stroke
+                </BigButton>
+              </div>
             </div>
           </StepCard>
         );
@@ -332,6 +352,24 @@ export default function Recording() {
 
       case STEPS.PULSE_TACHYCARDIA:
         return <TachycardiaPathway
+          onLog={log}
+          onMonitor={() => goStep(STEPS.PULSE_NORMAL)}
+          onRecheckPulse={() => goStep(STEPS.CHECK_PULSE)}
+          onArrest={() => { goStep(STEPS.START_CPR); }}
+          isTraining={isTraining}
+        />;
+
+      case STEPS.PULSE_MI:
+        return <MIACSPathway
+          onLog={log}
+          onMonitor={() => goStep(STEPS.PULSE_NORMAL)}
+          onRecheckPulse={() => goStep(STEPS.CHECK_PULSE)}
+          onArrest={() => { goStep(STEPS.START_CPR); }}
+          isTraining={isTraining}
+        />;
+
+      case STEPS.PULSE_STROKE:
+        return <StrokePathway
           onLog={log}
           onMonitor={() => goStep(STEPS.PULSE_NORMAL)}
           onRecheckPulse={() => goStep(STEPS.CHECK_PULSE)}
