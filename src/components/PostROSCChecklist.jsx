@@ -115,6 +115,16 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
             <div className="text-xs font-semibold text-text-muted mb-1">Airway & Oxygenation</div>
             <Check id="airway_secure" label="Secure airway — confirm ETT position" sub="EtCO₂ waveform + auscultation + CXR" />
             <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" targetLow={92} targetHigh={98} alertLow={92} />
+            {spo2 < 92 && (
+              <div className="bg-danger/10 border border-danger/30 rounded-lg px-2 py-1.5 text-[10px] text-danger font-bold">
+                ⚠️ SpO₂ &lt;92% — Increase FiO₂ / check airway
+              </div>
+            )}
+            {spo2 > 98 && (
+              <div className="bg-warning/10 border border-warning/30 rounded-lg px-2 py-1.5 text-[10px] text-warning font-bold">
+                ⚠️ SpO₂ &gt;98% — Reduce FiO₂ (hyperoxia harmful)
+              </div>
+            )}
             <ScrollPicker label="FiO₂" value={fio2} onChange={setFio2} min={21} max={100} step={1} unit="%" />
             <Check id="o2_titrate" label={`SpO₂ ${spo2}% — ${spo2 > 98 ? '⚠️ Reduce FiO₂' : spo2 < 92 ? '⚠️ Increase FiO₂' : '✅ Target range'}`} />
             <ScrollPicker label="EtCO₂" value={etco2} onChange={setEtco2} min={0} max={80} step={1} unit="mmHg" targetLow={35} targetHigh={45} alertLow={35} />

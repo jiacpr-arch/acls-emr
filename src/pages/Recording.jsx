@@ -349,7 +349,10 @@ export default function Recording() {
         return <AirwayPanel onClose={() => goStep(STEPS.CPR_CYCLE)} />;
 
       case STEPS.SECONDARY_SURVEY:
-        return <ReversibleCausesPanel onClose={() => goStep(STEPS.CPR_CYCLE)} />;
+        return <ReversibleCausesPanel onClose={() => goStep(STEPS.CPR_CYCLE)}
+          onOpenAirway={() => goStep(STEPS.AIRWAY_MANAGEMENT)}
+          onOpenLabs={() => { setShowLabs(true); }}
+        />;
 
       // ========== OUTCOMES ==========
       case STEPS.ROSC:
@@ -423,7 +426,10 @@ export default function Recording() {
       {showVitals && <VitalsPanel onClose={() => setShowVitals(false)} />}
       {showAirway && <AirwayPanel onClose={() => setShowAirway(false)} />}
       {showLabs && <LabsPanel onClose={() => setShowLabs(false)} />}
-      {showHT && <ReversibleCausesPanel onClose={() => setShowHT(false)} />}
+      {showHT && <ReversibleCausesPanel onClose={() => setShowHT(false)}
+        onOpenAirway={() => { setShowHT(false); setShowAirway(true); }}
+        onOpenLabs={() => { setShowHT(false); setShowLabs(true); }}
+      />}
       {showEKG && <EKGCapture onClose={() => setShowEKG(false)} />}
       {showVent && <VentGuard onClose={() => setShowVent(false)} onNeedAirway={() => { setShowVent(false); setShowAirway(true); }} />}
       {showCheatSheet && <CheatSheet onClose={() => setShowCheatSheet(false)} />}

@@ -70,6 +70,17 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
           </div>
           <ScrollPicker label="Heart Rate" value={hr} onChange={setHr} min={20} max={250} step={5} unit="bpm" />
           <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" alertLow={94} />
+          {spo2 < 94 && (
+            <div className="bg-danger/10 border border-danger/30 rounded-lg px-2 py-1.5 space-y-1">
+              <div className="text-[10px] text-danger font-bold">⚠️ SpO₂ {spo2}% — Give O₂</div>
+              <div className="grid grid-cols-3 gap-1">
+                {[{l:'👃 Cannula',v:'Nasal Cannula 3L'},{l:'😷 Mask',v:'Simple Mask 8L'},{l:'🎭 NRB',v:'NRB 15L'}].map(o=>(
+                  <button key={o.l} onClick={()=>addEvent({elapsed,category:'airway',type:`🌬️ O₂: ${o.v}`,details:{}})}
+                    className="btn-action btn-ghost py-1 text-[8px] !min-h-[24px]">{o.l}</button>
+                ))}
+              </div>
+            </div>
+          )}
           <ScrollPicker label="RR" value={rr} onChange={setRr} min={4} max={40} step={1} unit="/min" />
 
           <AVPUSelect value={avpu} onChange={setAvpu} compact />
@@ -92,11 +103,16 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
 
         <button onClick={() => {
           saveVitals();
-          if (isStable) {
-            setPhase('disposition');
-          }
+          if (isStable) setPhase('disposition');
         }} className={`w-full btn-action py-3.5 text-sm font-bold ${isStable ? 'btn-success' : 'btn-warning'}`}>
           {isStable ? '✅ Stable → Disposition' : '⚠️ Save & Continue Monitoring'}
+        </button>
+
+        <button onClick={() => {
+          saveVitals();
+          onRecheckPulse();
+        }} className="w-full btn-action btn-info py-3 text-sm">
+          🔄 Re-assess — Rhythm/Rate Changed?
         </button>
 
         {/* If not stable, option to go back to treatment */}

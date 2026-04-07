@@ -5,7 +5,7 @@ import { reversibleCauses } from '../data/hs-and-ts';
 
 // Enhanced H's & T's panel — with treatment recommendations + correction tracking
 // Available from ALL pathways
-export default function ReversibleCausesPanel({ onClose }) {
+export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLabs }) {
   const addEvent = useCaseStore(s => s.addEvent);
   const elapsed = useTimerStore(s => s.elapsed);
   const [selectedCause, setSelectedCause] = useState(null);
@@ -62,6 +62,18 @@ export default function ReversibleCausesPanel({ onClose }) {
               ))}
             </div>
           </div>
+
+          {/* Open relevant panel */}
+          {selectedCause.name === 'Hypoxia' && onOpenAirway && (
+            <button onClick={onOpenAirway} className="w-full btn-action btn-info py-3 text-sm font-bold">
+              🫁 Open Airway Panel → Fix Now
+            </button>
+          )}
+          {(selectedCause.name === 'Hypo/Hyperkalemia' || selectedCause.name === 'Hydrogen ion (Acidosis)') && onOpenLabs && (
+            <button onClick={onOpenLabs} className="w-full btn-action btn-info py-3 text-sm font-bold">
+              🔬 Open Labs Panel → Check Values
+            </button>
+          )}
 
           <button onClick={() => setSelectedCause(null)}
             className="w-full btn-action btn-ghost py-3 text-sm">
