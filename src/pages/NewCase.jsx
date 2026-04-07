@@ -47,6 +47,7 @@ export default function NewCase() {
           </div>
           <h1 className="text-[1.75rem] font-black text-text-primary tracking-tight leading-tight">ACLS EMR</h1>
           <p className="text-text-muted text-xs mt-1 tracking-wide">Advanced Cardiac Life Support Recording</p>
+          <p className="text-text-muted text-[9px] font-mono mt-0.5">v2.0.0</p>
           <div className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-[11px] font-bold ${
             mode === 'clinical' ? 'bg-danger/10 text-danger' : 'bg-info/10 text-info'
           }`}>
