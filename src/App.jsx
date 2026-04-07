@@ -5,6 +5,7 @@ import NewCase from './pages/NewCase';
 import Recording from './pages/Recording';
 import Algorithm from './pages/Algorithm';
 import Settings from './pages/Settings';
+import ScenarioSelect from './pages/ScenarioSelect';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/history" element={<><Navbar /><Dashboard /></>} />
         <Route path="/algorithm" element={<><Navbar /><Algorithm /></>} />
         <Route path="/settings" element={<><Navbar /><Settings /></>} />
+        <Route path="/scenarios" element={<><Navbar /><ScenarioSelect /></>} />
       </Routes>
     </div>
   );

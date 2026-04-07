@@ -56,6 +56,18 @@ export default function NewCase() {
               Team arrived → Pulse Check → Assess
             </div>
           </button>
+          {/* Training scenarios */}
+          {mode === 'training' && (
+            <button
+              onClick={() => navigate('/scenarios')}
+              className="w-full py-5 btn-action bg-purple text-white text-lg"
+            >
+              🎮 Training Scenarios
+              <div className="text-[11px] font-medium opacity-90 mt-1">
+                Basic · Intermediate · Megacode
+              </div>
+            </button>
+          )}
         </div>
       </div>
 
@@ -63,6 +75,7 @@ export default function NewCase() {
       <div className="shrink-0 pb-[env(safe-area-inset-bottom)] bg-white border-t border-bg-tertiary">
         <div className="flex justify-around py-2.5 max-w-sm mx-auto">
           <NavItem icon="📋" label="History" onClick={() => navigate('/history')} />
+          <NavItem icon="🎮" label="Scenarios" onClick={() => navigate('/scenarios')} />
           <NavItem icon="📖" label="Algorithms" onClick={() => navigate('/algorithm')} />
           <NavItem icon="⚙️" label="Settings" onClick={() => navigate('/settings')} />
         </div>

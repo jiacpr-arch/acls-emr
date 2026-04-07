@@ -24,6 +24,8 @@ import MIACSPathway from '../components/MIACSPathway';
 import StrokePathway from '../components/StrokePathway';
 import PostROSCChecklist from '../components/PostROSCChecklist';
 import EKGCapture from '../components/EKGCapture';
+import ScenarioEngine, { StaffTakeover, ScenarioComplete } from '../components/ScenarioEngine';
+import { getScenarioById } from '../data/scenarios';
 
 // ==========================================
 // ACLS Systematic Approach — Step by Step
@@ -74,6 +76,13 @@ export default function Recording() {
   const mode = useSettingsStore(s => s.mode);
   const isTraining = mode === 'training';
 
+  // Scenario mode
+  const scenarioId = searchParams.get('scenario');
+  const scenarioMode = searchParams.get('mode') || 'learning'; // learning | exam
+  const scenario = scenarioId ? getScenarioById(scenarioId) : null;
+  const [scenarioState, setScenarioState] = useState(scenario ? 'active' : null); // active | complete | takeover
+  const [scenarioScore, setScenarioScore] = useState(null);
+
   // Initialize Web Worker timer + audio + metronome
   useTimerWorker();
   useMetronome();
@@ -98,6 +107,19 @@ export default function Recording() {
   }, [currentCase]);
 
   if (!currentCase) return null;
+
+  // Scenario complete/takeover screens
+  if (scenario && scenarioState === 'complete') {
+    return <ScenarioComplete scenario={scenario} score={scenarioScore} mode={scenarioMode}
+      onRetry={() => { setScenarioState('active'); setScenarioScore(null); navigate(`/recording?start=scenario&scenario=${scenarioId}&mode=${scenarioMode}`); window.location.reload(); }}
+      onNext={() => navigate('/scenarios')}
+      onDashboard={() => navigate('/history')} />;
+  }
+  if (scenario && scenarioState === 'takeover') {
+    return <StaffTakeover scenario={scenario} score={scenarioScore}
+      onRetry={() => { window.location.reload(); }}
+      onNext={() => navigate('/scenarios')} />;
+  }
 
   const log = (category, type, details = {}) => {
     addEvent({ elapsed: useTimerStore.getState().elapsed, category, type, details });
@@ -547,10 +569,20 @@ export default function Recording() {
   return (
     <div className={`h-[100dvh] flex flex-col overflow-hidden relative ${isTraining ? 'bg-blue-50 ring-4 ring-blue-300/30 ring-inset' : 'bg-bg-primary'}`}>
       {/* Training mode banner */}
-      {isTraining && (
+      {isTraining && !scenario && (
         <div className="bg-info text-white text-center text-[10px] font-bold py-1.5 tracking-wider shrink-0 z-50">
-          TRAINING MODE — ข้อมูลนี้ไม่ใช่ข้อมูลผู้ป่วยจริง
+          TRAINING MODE
         </div>
+      )}
+
+      {/* Scenario engine overlay */}
+      {scenario && scenarioState === 'active' && (
+        <ScenarioEngine
+          scenario={scenario}
+          mode={scenarioMode}
+          onComplete={(score) => { setScenarioScore(score); setScenarioState('complete'); }}
+          onStaffTakeover={(score) => { setScenarioScore(score); setScenarioState('takeover'); }}
+        />
       )}
       {/* Timer Bar — always visible after CPR starts */}
       {(isRunning || elapsed > 0) && (
