@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
+import AVPUSelect from './AVPUSelect';
 
 // Vitals Panel — shared across all pathways
 // Records: BP (sys/dia + MAP auto), HR, SpO2, RR, Temp, AVPU, GCS, Pain
@@ -93,29 +94,7 @@ export default function VitalsPanel({ onClose }) {
 
         {/* AVPU */}
         <div className="glass-card !p-3">
-          <div className="text-xs text-text-muted font-medium mb-2">Consciousness (AVPU)</div>
-          <div className="grid grid-cols-1 gap-1.5">
-            {[
-              { key: 'A', label: 'Alert', desc: 'Awake, oriented, responds normally', color: 'bg-success' },
-              { key: 'V', label: 'Voice', desc: 'Responds only when spoken to / called', color: 'bg-warning' },
-              { key: 'P', label: 'Pain', desc: 'Responds only to painful stimulus', color: 'bg-shock' },
-              { key: 'U', label: 'Unresponsive', desc: 'No response to any stimulus', color: 'bg-danger' },
-            ].map(a => (
-              <button key={a.key} onClick={() => setAvpu(a.key)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${
-                  avpu === a.key ? `${a.color} text-white` : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
-                }`}>
-                <span className="text-lg font-black w-8 text-center">{a.key}</span>
-                <div>
-                  <div className="text-xs font-bold">{a.label}</div>
-                  <div className={`text-[10px] ${avpu === a.key ? 'opacity-80' : 'text-text-muted'}`}>{a.desc}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-          {avpu !== 'A' && (
-            <div className="text-xs text-danger font-semibold mt-2">⚠️ Altered Mental Status — Unstable sign</div>
-          )}
+          <AVPUSelect value={avpu} onChange={setAvpu} />
         </div>
 
         {/* GCS (expandable) */}

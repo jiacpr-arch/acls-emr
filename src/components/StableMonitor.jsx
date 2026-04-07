@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
+import AVPUSelect from './AVPUSelect';
 
 // Stable Monitor — used after treatment when patient is stable
 // Re-assess vitals + EKG → stable? → disposition
@@ -71,15 +72,7 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
           <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" alertLow={94} />
           <ScrollPicker label="RR" value={rr} onChange={setRr} min={4} max={40} step={1} unit="/min" />
 
-          <div className="text-xs text-text-muted font-semibold mt-2 mb-1">AVPU</div>
-          <div className="grid grid-cols-4 gap-1.5">
-            {[{ k: 'A', c: 'bg-success' }, { k: 'V', c: 'bg-warning' }, { k: 'P', c: 'bg-shock' }, { k: 'U', c: 'bg-danger' }].map(a => (
-              <button key={a.k} onClick={() => setAvpu(a.k)}
-                className={`py-2 rounded-lg text-[10px] font-bold ${avpu === a.k ? `${a.c} text-white` : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
-                {a.k}
-              </button>
-            ))}
-          </div>
+          <AVPUSelect value={avpu} onChange={setAvpu} compact />
         </div>
 
         {/* Status */}

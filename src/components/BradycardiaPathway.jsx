@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
+import AVPUSelect from './AVPUSelect';
 
 // Bradycardia Pathway — AHA Guideline
 // HR < 50 + Symptomatic assessment
@@ -62,15 +63,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
           <ScrollPicker label="Heart Rate" value={hr} onChange={setHr} min={20} max={100} step={1} unit="bpm" alertLow={50} />
           <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" alertLow={94} />
 
-          <div className="text-xs text-text-muted font-semibold mb-1">AVPU</div>
-          <div className="grid grid-cols-4 gap-1.5">
-            {[{ k: 'A', l: 'Alert', c: 'bg-success' }, { k: 'V', l: 'Voice', c: 'bg-warning' }, { k: 'P', l: 'Pain', c: 'bg-shock' }, { k: 'U', l: 'Unrespon.', c: 'bg-danger' }].map(a => (
-              <button key={a.k} onClick={() => setAvpu(a.k)}
-                className={`py-2 rounded-lg text-[10px] font-bold ${avpu === a.k ? `${a.c} text-white` : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
-                {a.k}
-              </button>
-            ))}
-          </div>
+          <AVPUSelect value={avpu} onChange={setAvpu} compact />
         </div>
 
         {autoSymptomatic && (
