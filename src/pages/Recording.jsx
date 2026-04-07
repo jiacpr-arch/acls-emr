@@ -378,7 +378,7 @@ export default function Recording() {
       )}
 
       {/* Timer Bar */}
-      {(isRunning || elapsed > 0) && <TimerBar onToggleLog={() => setShowLog(!showLog)} showLog={showLog} isTraining={isTraining} />}
+      {(isRunning || elapsed > 0) && <TimerBar onToggleLog={() => setShowLog(!showLog)} showLog={showLog} isTraining={isTraining} currentStep={step} />}
 
       {/* Step Content */}
       <div className="flex-1 flex items-center justify-center px-5 py-4 overflow-y-auto">
@@ -608,31 +608,64 @@ function ShockModal({ onClose, isTraining }) {
   );
 }
 
-function TimerBar({ onToggleLog, showLog, isTraining }) {
+function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {
   const { elapsed, cycleElapsed, cycleNumber, cycleDuration, cprActive, isRunning } = useTimerStore();
-  const { shockCount, events } = useCaseStore();
+  const { shockCount, events, drugTimers } = useCaseStore();
   const cycleRemaining = cycleDuration - cycleElapsed;
   const cycleProgress = (cycleElapsed / cycleDuration) * 100;
 
+  // Only show CPR cycle info during cardiac arrest steps
+  const cprSteps = ['start_cpr', 'attach_monitor', 'initial_rhythm', 'shock_decision', 'cpr_cycle', 'rhythm_check', 'give_drug', 'airway_mgmt', 'secondary_survey'];
+  const showCPRCycle = cprSteps.includes(currentStep);
+
+  // Show drug interval timers for Brady/Tachy
+  const now = Date.now();
+  const activeTimers = drugTimers.filter(t => t.isActive);
+
   return (
     <div className="timer-bar px-4 py-2.5 shrink-0">
-      <div className="flex items-center gap-4">
-        <div className={`text-3xl font-mono font-black tabular-nums tracking-tight ${isRunning ? (isTraining ? 'text-info' : 'text-danger') : 'text-text-muted'}`}>
+      <div className="flex items-center gap-3">
+        <div className={`text-2xl font-mono font-black tabular-nums tracking-tight ${isRunning ? (isTraining ? 'text-info' : 'text-danger') : 'text-text-muted'}`}>
           {formatTimeLong(elapsed)}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] text-text-muted font-medium">Cycle {cycleNumber}</span>
-            <span className={`badge ${cprActive ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'}`}>
-              {cprActive ? '🫀 CPR' : '⏸ PAUSE'} · {formatTime(cycleRemaining)}
-            </span>
+
+        {showCPRCycle ? (
+          /* CPR mode — show cycle timer */
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-text-muted font-medium">Cycle {cycleNumber}</span>
+              <span className={`badge ${cprActive ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'}`}>
+                {cprActive ? '🫀 CPR' : '⏸ PAUSE'} · {formatTime(cycleRemaining)}
+              </span>
+            </div>
+            <div className="progress-track">
+              <div className={`progress-fill ${cycleProgress > 90 ? 'bg-danger animate-pulse' : cycleProgress > 75 ? 'bg-warning' : 'bg-info'}`}
+                style={{ width: `${cycleProgress}%` }} />
+            </div>
           </div>
-          <div className="progress-track">
-            <div className={`progress-fill ${cycleProgress > 90 ? 'bg-danger animate-pulse' : cycleProgress > 75 ? 'bg-warning' : 'bg-info'}`}
-              style={{ width: `${cycleProgress}%` }} />
+        ) : (
+          /* Non-CPR mode — show drug timers or just elapsed */
+          <div className="flex-1 min-w-0">
+            {activeTimers.length > 0 ? (
+              activeTimers.slice(0, 2).map(t => {
+                const rem = Math.max(0, Math.ceil((t.intervalSeconds * 1000 - (now - t.startedAt)) / 1000));
+                const due = rem <= 0;
+                return (
+                  <div key={t.id} className="flex items-center justify-between">
+                    <span className="text-[10px] text-text-muted font-medium truncate">💊 {t.drugName}</span>
+                    <span className={`badge ${due ? 'bg-danger/15 text-danger animate-pulse' : 'bg-purple/15 text-purple'}`}>
+                      {due ? '⚠️ DUE' : formatTime(rem)}
+                    </span>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-[10px] text-text-muted">Recording...</div>
+            )}
           </div>
-        </div>
-        <span className="badge bg-shock/15 text-shock">⚡ {shockCount}</span>
+        )}
+
+        {showCPRCycle && <span className="badge bg-shock/15 text-shock">⚡ {shockCount}</span>}
         <button onClick={onToggleLog} className={`badge transition-all ${showLog ? 'bg-info/20 text-info' : 'bg-bg-tertiary/50 text-text-muted'}`}>📋 {events.length}</button>
       </div>
     </div>

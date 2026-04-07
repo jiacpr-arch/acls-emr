@@ -51,12 +51,13 @@ export default function ReversibleCausesPanel({ onClose }) {
             <div className="text-sm font-bold text-success mb-2">Recommended Treatment</div>
             <div className="text-xs text-text-primary font-medium mb-3">{selectedCause.treatment}</div>
 
-            {/* Quick correction buttons */}
+            {/* Quick correction buttons — each logs + does the action */}
             <div className="space-y-2">
               {getCorrectionActions(selectedCause.name).map((action, i) => (
-                <button key={i} onClick={() => handleCorrection(selectedCause, action)}
+                <button key={i} onClick={() => handleCorrection(selectedCause, action.label)}
                   className="w-full btn-action btn-success py-3 text-sm text-left px-4">
-                  ✅ {action}
+                  ✅ {action.label}
+                  {action.detail && <div className="text-[10px] font-normal opacity-80 mt-0.5">{action.detail}</div>}
                 </button>
               ))}
             </div>
@@ -124,15 +125,50 @@ export default function ReversibleCausesPanel({ onClose }) {
 // Correction actions per cause
 function getCorrectionActions(causeName) {
   const actions = {
-    'Hypovolemia': ['IV Fluid Bolus (NSS/LR)', 'Blood Transfusion', 'Control Bleeding'],
-    'Hypoxia': ['Oxygen 100%', 'BVM Ventilation', 'Intubation'],
-    'Hydrogen ion (Acidosis)': ['NaHCO₃ 1mEq/kg IV', 'Increase Ventilation'],
-    'Hypo/Hyperkalemia': ['Ca Gluconate 10% 10ml IV', 'NaHCO₃ 1mEq/kg IV', 'Glucose + RI', 'K Replacement (if hypo)'],
-    'Hypothermia': ['Warm IV Fluid', 'Warm Blanket', 'Active Rewarming'],
-    'Tension Pneumothorax': ['Needle Decompression (2nd ICS MCL)', 'Chest Tube'],
-    'Tamponade': ['Pericardiocentesis', 'Echo/Ultrasound', 'Thoracotomy'],
-    'Toxins/OD': ['Naloxone (Opioid)', 'NaHCO₃ (TCA)', 'Lipid Emulsion', 'Specific Antidote'],
-    'Thrombosis (PE/MI)': ['Anticoagulation', 'Fibrinolytic (tPA)', 'PCI/Thrombectomy'],
+    'Hypovolemia': [
+      { label: 'IV Fluid Bolus (NSS 1000ml)', detail: 'Wide open IV → reassess after 500ml' },
+      { label: 'Blood Transfusion', detail: 'Type & cross → pRBC if Hb low' },
+      { label: 'Control Bleeding', detail: 'Direct pressure / tourniquet / surgery' },
+    ],
+    'Hypoxia': [
+      { label: 'BVM + O₂ 100%', detail: 'Bag-valve-mask with 15L O₂' },
+      { label: 'Intubation (ETT/SGA)', detail: 'Secure airway → confirm with EtCO₂' },
+      { label: 'Check ETT position', detail: 'May be displaced → auscultate both lungs' },
+    ],
+    'Hydrogen ion (Acidosis)': [
+      { label: 'NaHCO₃ 1mEq/kg IV', detail: 'Slow push. Flush before/after Ca' },
+      { label: 'Increase Ventilation', detail: 'Increase RR to blow off CO₂' },
+    ],
+    'Hypo/Hyperkalemia': [
+      { label: 'Ca Gluconate 10% 10-20ml IV', detail: 'Slow 2-5min + ECG monitoring. Stabilize membrane' },
+      { label: 'NaHCO₃ 1mEq/kg IV', detail: 'Shift K+ intracellular' },
+      { label: 'Glucose 50% 50ml + RI 10u IV', detail: 'Shift K+ intracellular' },
+      { label: 'K Replacement (if hypo)', detail: 'KCl 10-20 mEq/hr IV. Max 40mEq/hr via central' },
+    ],
+    'Hypothermia': [
+      { label: 'Warm IV Fluid (38-42°C)', detail: 'NSS/LR warmed' },
+      { label: 'Warm Blanket / Bair Hugger', detail: 'Active external rewarming' },
+      { label: 'Active Core Rewarming', detail: 'Warm lavage / ECMO if severe' },
+    ],
+    'Tension Pneumothorax': [
+      { label: 'Needle Decompression', detail: '14G needle, 2nd ICS midclavicular line' },
+      { label: 'Chest Tube (after needle)', detail: '28-32 Fr, 5th ICS anterior axillary line' },
+    ],
+    'Tamponade': [
+      { label: 'Pericardiocentesis', detail: 'Subxiphoid approach under ultrasound' },
+      { label: 'Echo/Ultrasound', detail: 'Confirm pericardial effusion' },
+      { label: 'IV Fluid Bolus', detail: 'Temporary bridge — increase preload' },
+    ],
+    'Toxins/OD': [
+      { label: 'Naloxone 0.4-2mg IV (Opioid)', detail: 'Titrate to breathing. May need repeat' },
+      { label: 'NaHCO₃ (TCA overdose)', detail: '1-2 mEq/kg IV bolus. Target pH 7.45-7.55' },
+      { label: 'Lipid Emulsion 20%', detail: '1.5 ml/kg IV bolus → 0.25 ml/kg/min infusion' },
+    ],
+    'Thrombosis (PE/MI)': [
+      { label: 'Heparin bolus 80u/kg', detail: 'Anticoagulation for PE' },
+      { label: 'tPA (Alteplase) for PE', detail: '50-100mg IV. Consider in massive PE during CPR' },
+      { label: 'Activate Cath Lab (MI)', detail: 'PCI for STEMI' },
+    ],
   };
-  return actions[causeName] || ['Treated — specific intervention'];
+  return actions[causeName] || [{ label: 'Treated — specific intervention', detail: '' }];
 }

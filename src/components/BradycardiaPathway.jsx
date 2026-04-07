@@ -10,6 +10,7 @@ import AVPUSelect from './AVPUSelect';
 export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onRecheckPulse, isTraining }) {
   const elapsed = useTimerStore(s => s.elapsed);
   const addEvent = useCaseStore(s => s.addEvent);
+  const addDrugTimer = useCaseStore(s => s.addDrugTimer);
   const [phase, setPhase] = useState('vitals'); // vitals → assess → ...
   const [atropineCount, setAtropineCount] = useState(0);
   const [rhythmType, setRhythmType] = useState(null);
@@ -174,6 +175,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
           const count = atropineCount + 1;
           setAtropineCount(count);
           onLog('drug', `💉 Atropine 1mg IV (dose ${count}/3)`);
+          if (count < 3) addDrugTimer('atropine', 'Atropine next dose', 180);
         }} disabled={atropineCount >= 3}
           className="w-full btn-action btn-purple py-4 text-sm font-bold disabled:opacity-40">
           💉 Atropine 1mg IV Push
