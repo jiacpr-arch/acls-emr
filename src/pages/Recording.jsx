@@ -22,6 +22,7 @@ import BradycardiaPathway from '../components/BradycardiaPathway';
 import TachycardiaPathway from '../components/TachycardiaPathway';
 import MIACSPathway from '../components/MIACSPathway';
 import StrokePathway from '../components/StrokePathway';
+import PostROSCChecklist from '../components/PostROSCChecklist';
 
 // ==========================================
 // ACLS Systematic Approach — Step by Step
@@ -531,7 +532,7 @@ export default function Recording() {
       // ========== OUTCOMES ==========
 
       case STEPS.ROSC:
-        return <ROSCStep onDone={() => navigate('/history')} isTraining={isTraining} />;
+        return <PostROSCChecklist onDone={() => navigate('/history')} isTraining={isTraining} />;
 
       case STEPS.TERMINATED:
         return <TerminatedStep onDone={() => navigate('/history')} isTraining={isTraining} />;

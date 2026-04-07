@@ -77,14 +77,28 @@ export default function CPRDashboard({
   const [showEtco2, setShowEtco2] = useState(false);
   const [etco2Val, setEtco2Val] = useState(35);
 
-  // Action sheet
-  const [showActions, setShowActions] = useState(false);
+  // Pause reason
+  const [showPauseReason, setShowPauseReason] = useState(false);
+  const [pauseCountdown, setPauseCountdown] = useState(null);
 
   // CPR pause for rhythm check
   const handleCheckRhythm = () => {
     stopCPR('rhythm_check');
     addEvent({ elapsed, category: 'cpr', type: `Rhythm Check (Cycle ${cycleNumber})`, details: {} });
     onCheckRhythm();
+  };
+
+  const handlePause = (reason, label, maxSec) => {
+    stopCPR(reason);
+    addEvent({ elapsed, category: 'cpr', type: `⏸ CPR Paused: ${label}`, details: { reason, maxSec } });
+    setPauseCountdown({ reason, label, maxSec, startedAt: Date.now() });
+    setShowPauseReason(false);
+  };
+
+  const handleResume = () => {
+    startCPR();
+    addEvent({ elapsed, category: 'cpr', type: '▶️ CPR Resumed', details: {} });
+    setPauseCountdown(null);
   };
 
   // Color logic
@@ -241,6 +255,16 @@ export default function CPRDashboard({
         );
       })}
 
+      {/* CPR Pause countdown (if paused) */}
+      {pauseCountdown && !cprActive && (
+        <PauseCountdown
+          data={pauseCountdown}
+          now={now}
+          onResume={handleResume}
+          isTraining={isTraining}
+        />
+      )}
+
       {/* Main action buttons — 2 rows */}
       <div className="grid grid-cols-2 gap-2.5">
         {/* ROSC */}
@@ -280,6 +304,55 @@ export default function CPRDashboard({
           🔍 H&T
         </button>
       </div>
+
+      {/* Pause reason modal */}
+      {showPauseReason && (
+        <div className="glass-card !p-3 space-y-1.5">
+          <div className="text-xs font-semibold text-text-muted mb-1">Why pause CPR?</div>
+          {[
+            { reason: 'rhythm_check', label: 'Rhythm/Pulse Check', max: 10, icon: '🔍' },
+            { reason: 'defibrillation', label: 'Defibrillation', max: 5, icon: '⚡' },
+            { reason: 'airway', label: 'Airway Placement', max: 15, icon: '🫁' },
+            { reason: 'switch', label: 'Switch Compressor', max: 5, icon: '🔄' },
+            { reason: 'rosc_check', label: 'Suspected ROSC', max: 10, icon: '💚' },
+          ].map(r => (
+            <button key={r.reason} onClick={() => handlePause(r.reason, r.label, r.max)}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-bg-primary border border-bg-tertiary text-xs">
+              <span className="font-semibold">{r.icon} {r.label}</span>
+              <span className="text-text-muted">≤{r.max}s</span>
+            </button>
+          ))}
+          <button onClick={() => setShowPauseReason(false)}
+            className="w-full text-text-muted text-[10px] underline mt-1">Cancel</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Pause countdown component
+function PauseCountdown({ data, now, onResume, isTraining }) {
+  const pauseDuration = Math.round((now - data.startedAt) / 1000);
+  const overTime = pauseDuration > data.maxSec;
+
+  return (
+    <div className={`glass-card !p-3 text-center ${overTime ? '!border-danger/50 animate-pulse' : '!border-warning/50'}`}>
+      <div className="text-xs text-text-muted font-semibold mb-1">⏸ CPR Paused: {data.label}</div>
+      <div className={`text-3xl font-mono font-black ${overTime ? 'text-danger' : 'text-warning'}`}>
+        {pauseDuration}s
+      </div>
+      {overTime && (
+        <div className="text-xs text-danger font-bold mt-1">
+          ⚠️ Exceeded {data.maxSec}s — Resume CPR NOW!
+        </div>
+      )}
+      {isTraining && overTime && (
+        <div className="text-[10px] text-danger mt-0.5">Pause too long = score penalty</div>
+      )}
+      <button onClick={onResume}
+        className="w-full btn-action btn-success py-3 text-sm font-bold mt-2">
+        ▶️ Resume CPR
+      </button>
     </div>
   );
 }
