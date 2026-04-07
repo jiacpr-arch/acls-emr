@@ -26,6 +26,7 @@ import EKGCapture from '../components/EKGCapture';
 import ScenarioEngine, { StaffTakeover, ScenarioComplete } from '../components/ScenarioEngine';
 import { getScenarioById } from '../data/scenarios';
 import StableMonitor from '../components/StableMonitor';
+import EndCaseModal from '../components/EndCaseModal';
 import { StepCard, BigButton, TrainingHint, CountdownHint } from '../components/StepUI';
 import { EventLogPanel, PatientInfoPanel, TeamPanel } from '../components/Panels';
 
@@ -102,6 +103,7 @@ export default function Recording() {
   const [showLabs, setShowLabs] = useState(false);
   const [showHT, setShowHT] = useState(false);
   const [showEKG, setShowEKG] = useState(false);
+  const [showEndCase, setShowEndCase] = useState(false);
   const [witnessed, setWitnessed] = useState(null);
   const [bystanderCPR, setBystanderCPR] = useState(null);
 
@@ -368,6 +370,7 @@ export default function Recording() {
           <button onClick={() => setShowVitals(true)} className="bg-bg-primary text-text-secondary">📊 Vitals</button>
           <button onClick={() => setShowLabs(true)} className="bg-bg-primary text-text-secondary">🔬 Labs</button>
           <button onClick={() => setShowEKG(true)} className="bg-bg-primary text-text-secondary">📈 EKG</button>
+          <button onClick={() => setShowEndCase(true)} className="bg-danger/10 text-danger">🏁 End</button>
         </div>
       )}
 
@@ -390,6 +393,12 @@ export default function Recording() {
       {showLabs && <LabsPanel onClose={() => setShowLabs(false)} />}
       {showHT && <ReversibleCausesPanel onClose={() => setShowHT(false)} />}
       {showEKG && <EKGCapture onClose={() => setShowEKG(false)} />}
+      {showEndCase && <EndCaseModal
+        onClose={() => setShowEndCase(false)}
+        onROSC={() => goStep(STEPS.ROSC)}
+        onTerminate={() => goStep(STEPS.TERMINATED)}
+        onDashboard={() => navigate('/history')}
+      />}
     </div>
   );
 }
