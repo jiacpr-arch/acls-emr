@@ -30,10 +30,15 @@ export default function CPRDashboard({
 
   const {
     shockCount, currentRhythm, drugTimers, addEvent,
-    etco2Readings, latestEtCO2, addEtCO2,
+    etco2Readings, latestEtCO2, addEtCO2, events,
   } = useCaseStore();
 
   const settings = useSettingsStore();
+
+  // Check if advanced airway placed (ETT/SGA)
+  const hasAdvancedAirway = events.some(e =>
+    e.category === 'airway' && (e.type?.includes('ETT') || e.type?.includes('SGA') || e.type?.includes('LMA'))
+  );
 
   // Ensure CPR is active when dashboard mounts
   const [cprMode, setCprMode] = useState('hand_only'); // hand_only | bvm_30_2 | advanced
@@ -207,7 +212,8 @@ export default function CPRDashboard({
         </div>
       )}
 
-      {/* EtCO₂ — always visible slider */}
+      {/* EtCO₂ — only visible after advanced airway */}
+      {hasAdvancedAirway ? (
       <div className={`glass-card !p-2.5 ${etco2Val > 40 ? '!border-success/50 animate-pulse' : etco2Val < 10 ? '!border-danger/50' : ''}`}>
         <div className="flex items-center gap-3">
           <span className="text-sm">🌬️</span>
@@ -237,6 +243,12 @@ export default function CPRDashboard({
           </div>
         )}
       </div>
+      ) : (
+      <div className="glass-card !p-2.5 flex items-center justify-between">
+        <span className="text-xs text-text-muted">🌬️ EtCO₂</span>
+        <span className="text-[10px] text-text-muted">Place ETT/SGA first to measure EtCO₂</span>
+      </div>
+      )}
 
       {/* Other drug timers (non-epi) */}
       {activeDrugTimers.filter(t => t.drugId !== 'epinephrine_arrest').map(t => {

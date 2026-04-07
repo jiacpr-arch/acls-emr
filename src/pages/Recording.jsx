@@ -353,7 +353,14 @@ export default function Recording() {
 
       // ========== OUTCOMES ==========
       case STEPS.ROSC:
-        return <PostROSCChecklist onDone={() => navigate('/history')} isTraining={isTraining} />;
+        return <PostROSCChecklist
+          onDone={() => navigate('/history')}
+          isTraining={isTraining}
+          onBrady={() => goStep(STEPS.PULSE_BRADYCARDIA)}
+          onTachy={() => goStep(STEPS.PULSE_TACHYCARDIA)}
+          onMI={() => goStep(STEPS.PULSE_MI)}
+          onArrest={() => goStep(STEPS.START_CPR)}
+        />;
 
       case STEPS.TERMINATED:
         return <TerminatedStep onDone={() => navigate('/history')} isTraining={isTraining} />;
@@ -418,7 +425,7 @@ export default function Recording() {
       {showLabs && <LabsPanel onClose={() => setShowLabs(false)} />}
       {showHT && <ReversibleCausesPanel onClose={() => setShowHT(false)} />}
       {showEKG && <EKGCapture onClose={() => setShowEKG(false)} />}
-      {showVent && <VentilatorSettings onClose={() => setShowVent(false)} />}
+      {showVent && <VentGuard onClose={() => setShowVent(false)} onNeedAirway={() => { setShowVent(false); setShowAirway(true); }} />}
       {showCheatSheet && <CheatSheet onClose={() => setShowCheatSheet(false)} />}
       {showEndCase && <EndCaseModal
         onClose={() => setShowEndCase(false)}
@@ -606,6 +613,29 @@ function ShockModal({ onClose, isTraining }) {
       }} className="w-full btn-action btn-shock py-5 text-xl font-black animate-pulse">⚡ SHOCK {energy}J</button>
     </div>
   );
+}
+
+function VentGuard({ onClose, onNeedAirway }) {
+  const events = useCaseStore(s => s.events);
+  const hasAirway = events.some(e => e.category === 'airway' && (e.type?.includes('ETT') || e.type?.includes('SGA') || e.type?.includes('LMA')));
+
+  if (!hasAirway) {
+    return (
+      <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+        <div className="glass-card !p-4 m-6 text-center space-y-3" onClick={e => e.stopPropagation()}>
+          <div className="text-3xl">🫁</div>
+          <div className="text-sm font-bold text-text-primary">Place ETT/SGA first</div>
+          <div className="text-xs text-text-muted">Ventilator settings require advanced airway</div>
+          <button onClick={onNeedAirway} className="w-full btn-action btn-info py-3 text-sm font-bold">
+            🫁 Open Airway Panel
+          </button>
+          <button onClick={onClose} className="text-text-muted text-xs underline">Cancel</button>
+        </div>
+      </div>
+    );
+  }
+
+  return <VentilatorSettings onClose={onClose} />;
 }
 
 function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {

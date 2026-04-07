@@ -10,7 +10,7 @@ import ScrollPicker from './ScrollPicker';
 
 // Post-ROSC Care Checklist — AHA Guideline
 // Must complete ALL items before case can end
-export default function PostROSCChecklist({ onDone, isTraining }) {
+export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy, onMI, onArrest }) {
   const { currentCase, events, patient, team, etco2Readings, shockCount } = useCaseStore();
   const elapsed = useTimerStore(s => s.elapsed);
   const addEvent = useCaseStore(s => s.addEvent);
@@ -141,10 +141,41 @@ export default function PostROSCChecklist({ onDone, isTraining }) {
         )}
 
         {tab === 'ecg' && (
-          <div className="space-y-0.5">
-            <div className="text-xs font-semibold text-text-muted mb-2">12-Lead ECG</div>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold text-text-muted mb-1">12-Lead ECG — What rhythm?</div>
             <Check id="ecg_12lead" label="📈 12-Lead ECG done" sub="📸 Take photo for record" />
-            <Check id="stemi_check" label="STEMI check" sub="⚠️ If STEMI → Cath lab immediately (even if unconscious)" />
+
+            <div className="text-xs font-semibold text-text-muted mt-2 mb-1">Rhythm Result → May need further treatment:</div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button onClick={() => { toggleCheck('rhythm_nsr', 'Rhythm: NSR'); }}
+                className={`py-2 rounded-lg text-[10px] font-bold ${checklist.rhythm_nsr ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                ✅ Normal Sinus
+              </button>
+              {onBrady && (
+                <button onClick={() => { addEvent({ elapsed, category: 'rhythm', type: '🐢 Post-ROSC: Bradycardia', details: {} }); onBrady(); }}
+                  className="py-2 rounded-lg text-[10px] font-bold bg-warning/10 border border-warning/30 text-warning">
+                  🐢 Bradycardia → Treat
+                </button>
+              )}
+              {onTachy && (
+                <button onClick={() => { addEvent({ elapsed, category: 'rhythm', type: '🐇 Post-ROSC: Tachycardia', details: {} }); onTachy(); }}
+                  className="py-2 rounded-lg text-[10px] font-bold bg-danger/10 border border-danger/30 text-danger">
+                  🐇 Tachycardia → Treat
+                </button>
+              )}
+              {onMI && (
+                <button onClick={() => { addEvent({ elapsed, category: 'rhythm', type: '🫀 Post-ROSC: STEMI', details: {} }); onMI(); }}
+                  className="py-2 rounded-lg text-[10px] font-bold bg-danger/10 border border-danger/30 text-danger">
+                  🫀 STEMI → Cath Lab
+                </button>
+              )}
+            </div>
+            {onArrest && (
+              <button onClick={() => { addEvent({ elapsed, category: 'other', type: '🔴 Re-arrest!', details: {} }); onArrest(); }}
+                className="w-full py-2 rounded-lg text-[10px] font-bold bg-danger text-white mt-1">
+                🔴 Re-arrest → CPR
+              </button>
+            )}
           </div>
         )}
 
