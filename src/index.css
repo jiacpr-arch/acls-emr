@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  /* Light clean theme — medical-grade */
-  --color-bg-primary: #F1F5F9;
+  /* Medical-grade UI — CodeBlue inspired */
+  --color-bg-primary: #F0F4F8;
   --color-bg-secondary: #FFFFFF;
-  --color-bg-tertiary: #E2E8F0;
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94A3B8;
-  --color-danger: #EF4444;
-  --color-danger-dark: #DC2626;
-  --color-info: #2563EB;
-  --color-success: #16A34A;
-  --color-warning: #F59E0B;
-  --color-purple: #7C3AED;
-  --color-shock: #EA580C;
+  --color-bg-tertiary: #DDE3EC;
+  --color-text-primary: #1A2332;
+  --color-text-secondary: #4A5568;
+  --color-text-muted: #8896A6;
+  --color-danger: #E53E3E;
+  --color-danger-dark: #C53030;
+  --color-info: #3182CE;
+  --color-success: #38A169;
+  --color-warning: #ECC94B;
+  --color-purple: #805AD5;
+  --color-shock: #DD6B20;
 }
 
 * {
@@ -24,7 +24,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   min-height: 100vh;
@@ -32,6 +32,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   overscroll-behavior: none;
+  line-height: 1.5;
 }
 
 ::-webkit-scrollbar { width: 4px; }
@@ -67,9 +68,9 @@ button, [role="button"] {
 /* ===== CARD ===== */
 .glass-card {
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #DDE3EC;
   border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.02);
 }
 
 /* ===== BUTTON STYLES ===== */
@@ -88,37 +89,37 @@ button, [role="button"] {
 }
 
 .btn-danger {
-  background: #EF4444;
+  background: linear-gradient(135deg, #E53E3E, #C53030);
   color: white;
 }
 .btn-info {
-  background: #2563EB;
+  background: linear-gradient(135deg, #3182CE, #2B6CB0);
   color: white;
 }
 .btn-success {
-  background: #16A34A;
+  background: linear-gradient(135deg, #38A169, #2F855A);
   color: white;
 }
 .btn-warning {
-  background: #F59E0B;
-  color: #1E293B;
+  background: linear-gradient(135deg, #ECC94B, #D69E2E);
+  color: #1A2332;
 }
 .btn-purple {
-  background: #7C3AED;
+  background: linear-gradient(135deg, #805AD5, #6B46C1);
   color: white;
 }
 .btn-shock {
-  background: #EA580C;
+  background: linear-gradient(135deg, #DD6B20, #C05621);
   color: white;
 }
 .btn-ghost {
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #DDE3EC;
   color: var(--color-text-primary);
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .btn-ghost:active {
-  background: #F8FAFC;
+  background: #F7FAFC;
 }
 
 /* ===== TAB STYLES ===== */
@@ -187,8 +188,8 @@ button, [role="button"] {
 /* ===== TIMER BAR ===== */
 .timer-bar {
   background: #FFFFFF;
-  border-bottom: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  border-bottom: 1px solid #DDE3EC;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 /* ===== BADGE ===== */

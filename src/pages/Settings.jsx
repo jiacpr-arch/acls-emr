@@ -57,11 +57,14 @@ export default function Settings() {
       </div>
 
       {/* About */}
-      <div className="bg-bg-secondary rounded-xl p-4 text-center text-text-muted text-xs space-y-1">
-        <div className="text-lg font-bold text-danger">♥ ACLS EMR</div>
-        <div>Advanced Cardiac Life Support Recording System</div>
-        <div>Version 1.0.0 — PWA Offline-First</div>
-        <div className="text-text-muted">JIA Trainer Center</div>
+      <div className="bg-bg-secondary rounded-xl p-4 text-center text-text-muted text-xs space-y-1.5">
+        <div className="w-12 h-12 mx-auto bg-danger rounded-xl flex items-center justify-center shadow-md mb-2">
+          <span className="text-2xl">🫀</span>
+        </div>
+        <div className="text-lg font-black text-text-primary">ACLS EMR</div>
+        <div className="text-text-secondary">Advanced Cardiac Life Support Recording</div>
+        <div className="font-mono text-[10px]">v2.0.0 — PWA Offline-First</div>
+        <div className="text-text-muted text-[10px]">JIA Trainer Center · jia1669.com</div>
       </div>
     </div>
   );
