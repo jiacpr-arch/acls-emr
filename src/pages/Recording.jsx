@@ -906,11 +906,24 @@ function DrugStep({ onDone, isTraining }) {
   const { addEvent, addDrugTimer, shockCount, currentRhythm } = useCaseStore();
   const elapsed = useTimerStore(s => s.elapsed);
   const isShockable = currentRhythm?.shockable;
+  const [showTech, setShowTech] = useState(null); // which drug's technique to show
 
   const give = (name, id, hasTimer = false, sec = 180) => {
     addEvent({ elapsed, category: 'drug', type: `💉 ${name}`, details: { drugId: id } });
     if (hasTimer) addDrugTimer(id, name, sec);
     onDone();
+  };
+
+  // Drug techniques — short, actionable
+  const techniques = {
+    epinephrine_arrest: 'Epi 1:1000 1ml + NSS 9ml = 1:10,000 → IV push fast → flush NSS 20ml → elevate arm',
+    amiodarone_first: '300mg undiluted or +D5W 4ml → push 1-3min → flush NSS 20ml. ⚠️ Do NOT mix with NSS!',
+    amiodarone_second: '150mg same technique. For maintenance: 150mg + D5W 100ml drip 10min.',
+    atropine: '1mg IV push fast (<1min) → flush 20ml. ⚠️ Slow push = paradoxical bradycardia!',
+    sodium_bicarb: '1mEq/kg IV push slow. ⚠️ Flush before/after Ca (precipitates).',
+    calcium_chloride: '10% 10-20ml IV push slow 2-5min + ECG monitoring. ⚠️ CI: Digoxin. Flush before/after NaHCO₃.',
+    magnesium: 'Arrest: 2g push 1-2min. Stable: drip 5-20min.',
+    naloxone: '0.4-2mg IV/IM/IN. Titrate to breathing. May need repeat.',
   };
 
   return (
@@ -920,37 +933,65 @@ function DrugStep({ onDone, isTraining }) {
 
       <TrainingHint show={isTraining}>
         {isShockable
-          ? <p>Shockable: Epi หลัง shock ครั้งที่ 2 → Amiodarone 300mg หลัง shock ครั้งที่ 3 → Amio 150mg ซ้ำได้</p>
-          : <p>Non-shockable: Epi 1mg IV ทันที แล้วให้ซ้ำทุก 3-5 นาที</p>
+          ? <p>Shockable: Epi after 2nd shock → Amiodarone 300mg after 3rd shock</p>
+          : <p>Non-shockable: Epi 1mg IV immediately → repeat q3-5 min</p>
         }
       </TrainingHint>
 
-      <BigButton color="bg-purple text-white" onClick={() => give('Epinephrine 1mg IV/IO (1:10,000)', 'epinephrine_arrest', true, 180)}>
-        💉 Epinephrine 1mg IV/IO
-        <div className="text-xs font-normal opacity-80 mt-1">1:10,000 (10ml) IV push · flush 20ml NSS · q3-5 min</div>
-      </BigButton>
-
-      {isShockable && (
-        <BigButton
-          color={shockCount >= 3 ? 'bg-info text-white' : 'bg-bg-secondary text-text-secondary'}
-          onClick={() => give('Amiodarone 300mg IV (mixed in D5W 20ml, push over 2min)', 'amiodarone_first')}>
-          💊 Amiodarone 300mg {shockCount >= 3 && '← recommended'}
-          <div className="text-xs font-normal opacity-70 mt-1">300mg + D5W 20ml → IV push/2min</div>
-        </BigButton>
+      {/* Technique popup */}
+      {showTech && (
+        <div className="glass-card !p-3 text-left text-xs text-text-secondary mb-2">
+          <div className="flex items-center justify-between mb-1">
+            <span className="font-bold text-text-primary text-xs">Technique</span>
+            <button onClick={() => setShowTech(null)} className="text-text-muted text-[10px]">✕</button>
+          </div>
+          <div>{techniques[showTech] || 'Standard IV push → flush 20ml'}</div>
+        </div>
       )}
 
-      <div className="grid grid-cols-3 gap-2.5">
+      <div className="space-y-2">
+        <button onClick={() => give('Epinephrine 1mg IV (1:10,000)', 'epinephrine_arrest', true, 180)}
+          className="w-full btn-action btn-purple py-3.5 text-sm text-left px-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-bold">💉 Epinephrine 1mg IV</div>
+              <div className="text-[10px] font-normal opacity-80">1:10,000 → IV push fast → flush 20ml → q3-5 min</div>
+            </div>
+            <button onClick={(e) => { e.stopPropagation(); setShowTech('epinephrine_arrest'); }}
+              className="text-[9px] underline opacity-60 shrink-0 ml-2">how?</button>
+          </div>
+        </button>
+
+        {isShockable && (
+          <button onClick={() => give('Amiodarone 300mg IV', 'amiodarone_first')}
+            className={`w-full btn-action py-3.5 text-sm text-left px-4 ${shockCount >= 3 ? 'btn-info' : 'btn-ghost'}`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-bold">💊 Amiodarone 300mg {shockCount >= 3 && '← recommended'}</div>
+                <div className="text-[10px] font-normal opacity-80">300mg (+D5W 4ml) → push 1-3min → flush NSS 20ml</div>
+              </div>
+              <button onClick={(e) => { e.stopPropagation(); setShowTech('amiodarone_first'); }}
+                className="text-[9px] underline opacity-60 shrink-0 ml-2">how?</button>
+            </div>
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
         {[
-          { label: 'Amio 150', id: 'amiodarone_second', detail: '150mg+D5W 20ml, push/2min' },
-          { label: 'Atropine', id: 'atropine', detail: '1mg IV push' },
-          { label: 'NaHCO₃', id: 'sodium_bicarb', detail: '1 mEq/kg IV' },
-          { label: 'CaCl₂', id: 'calcium_chloride', detail: '10% 10ml IV/10min' },
-          { label: 'MgSO₄', id: 'magnesium', detail: '2g + NSS 10ml IV/5min' },
+          { label: 'Amio 150', id: 'amiodarone_second', detail: '150mg+D5W, push/2min' },
+          { label: 'Atropine', id: 'atropine', detail: '1mg IV push fast' },
+          { label: 'NaHCO₃', id: 'sodium_bicarb', detail: '1mEq/kg IV slow' },
+          { label: 'Ca Gluc', id: 'calcium_chloride', detail: '10% 10-20ml slow' },
+          { label: 'MgSO₄', id: 'magnesium', detail: '2g IV' },
           { label: 'Naloxone', id: 'naloxone', detail: '0.4-2mg IV' },
         ].map(d => (
-          <button key={d.id} onClick={() => give(`${d.label} (${d.detail})`, d.id)}
-            className="btn-action btn-ghost py-3 text-xs" title={d.detail}>
-            {d.label}
+          <button key={d.id} className="btn-action btn-ghost py-2.5 text-[10px] relative"
+            onClick={() => give(`${d.label} (${d.detail})`, d.id)}>
+            <div className="font-semibold">{d.label}</div>
+            <div className="text-[8px] text-text-muted">{d.detail}</div>
+            <button onClick={(e) => { e.stopPropagation(); setShowTech(d.id); }}
+              className="absolute top-0.5 right-1 text-[8px] text-info">?</button>
           </button>
         ))}
       </div>
