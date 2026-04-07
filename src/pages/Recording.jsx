@@ -23,6 +23,7 @@ import TachycardiaPathway from '../components/TachycardiaPathway';
 import MIACSPathway from '../components/MIACSPathway';
 import StrokePathway from '../components/StrokePathway';
 import PostROSCChecklist from '../components/PostROSCChecklist';
+import EKGCapture from '../components/EKGCapture';
 
 // ==========================================
 // ACLS Systematic Approach — Step by Step
@@ -88,6 +89,7 @@ export default function Recording() {
   const [showAirway, setShowAirway] = useState(false);
   const [showLabs, setShowLabs] = useState(false);
   const [showHT, setShowHT] = useState(false);
+  const [showEKG, setShowEKG] = useState(false);
   const [witnessed, setWitnessed] = useState(null);
   const [bystanderCPR, setBystanderCPR] = useState(null);
 
@@ -581,6 +583,10 @@ export default function Recording() {
             className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
             🔬 Labs
           </button>
+          <button onClick={() => setShowEKG(true)}
+            className="flex-1 text-[10px] py-1.5 rounded-lg bg-bg-primary text-text-secondary font-medium">
+            📈 EKG
+          </button>
         </div>
       )}
 
@@ -604,6 +610,7 @@ export default function Recording() {
       {showAirway && <AirwayPanel onClose={() => setShowAirway(false)} />}
       {showLabs && <LabsPanel onClose={() => setShowLabs(false)} />}
       {showHT && <ReversibleCausesPanel onClose={() => setShowHT(false)} />}
+      {showEKG && <EKGCapture onClose={() => setShowEKG(false)} />}
     </div>
   );
 }
