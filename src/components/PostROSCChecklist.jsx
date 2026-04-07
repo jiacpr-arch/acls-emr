@@ -6,6 +6,8 @@ import { exportCasePDF } from '../utils/exportPDF';
 import { calculateScore } from '../utils/scoring';
 import ScrollPicker from './ScrollPicker';
 
+// Post-ROSC needs actual value entry, not just checkboxes
+
 // Post-ROSC Care Checklist — AHA Guideline
 // Must complete ALL items before case can end
 export default function PostROSCChecklist({ onDone, isTraining }) {
@@ -13,8 +15,20 @@ export default function PostROSCChecklist({ onDone, isTraining }) {
   const elapsed = useTimerStore(s => s.elapsed);
   const addEvent = useCaseStore(s => s.addEvent);
   const [checklist, setChecklist] = useState({});
-  const [tab, setTab] = useState('airway'); // airway, hemo, ecg, ttm, labs, neuro, consult
+  const [tab, setTab] = useState('airway');
   const [showScore, setShowScore] = useState(false);
+
+  // Actual values
+  const [bpSys, setBpSys] = useState(110);
+  const [bpDia, setBpDia] = useState(70);
+  const [hr, setHr] = useState(90);
+  const [spo2, setSpo2] = useState(96);
+  const [rr, setRr] = useState(14);
+  const [etco2, setEtco2] = useState(38);
+  const [temp, setTemp] = useState(37.0);
+  const [fio2, setFio2] = useState(100);
+  const [followCommand, setFollowCommand] = useState(null);
+  const map = Math.round((bpSys + 2 * bpDia) / 3);
 
   const toggleCheck = (key, label) => {
     setChecklist(prev => {
@@ -97,20 +111,32 @@ export default function PostROSCChecklist({ onDone, isTraining }) {
       {/* Tab content */}
       <div className="glass-card !p-3 text-left max-h-[45vh] overflow-y-auto">
         {tab === 'airway' && (
-          <div className="space-y-0.5">
-            <div className="text-xs font-semibold text-text-muted mb-2">Airway & Oxygenation</div>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold text-text-muted mb-1">Airway & Oxygenation</div>
             <Check id="airway_secure" label="Secure airway — confirm ETT position" sub="EtCO₂ waveform + auscultation + CXR" />
-            <Check id="etco2_confirm" label="EtCO₂ 35-45 mmHg" sub="Avoid hyperventilation (<35=bad). Adjust RR." />
-            <Check id="o2_titrate" label="SpO₂ 92-98% — titrate FiO₂" sub="Avoid hyperoxia (>98% harmful)" />
+            <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" targetLow={92} targetHigh={98} alertLow={92} />
+            <ScrollPicker label="FiO₂" value={fio2} onChange={setFio2} min={21} max={100} step={1} unit="%" />
+            <Check id="o2_titrate" label={`SpO₂ ${spo2}% — ${spo2 > 98 ? '⚠️ Reduce FiO₂' : spo2 < 92 ? '⚠️ Increase FiO₂' : '✅ Target range'}`} />
+            <ScrollPicker label="EtCO₂" value={etco2} onChange={setEtco2} min={0} max={80} step={1} unit="mmHg" targetLow={35} targetHigh={45} alertLow={35} />
+            <Check id="etco2_confirm" label={`EtCO₂ ${etco2} mmHg — ${etco2 < 35 ? '⚠️ Hypoventilation risk' : etco2 > 45 ? '⚠️ Hyperventilation' : '✅ Target range'}`} />
           </div>
         )}
 
         {tab === 'hemo' && (
-          <div className="space-y-0.5">
-            <div className="text-xs font-semibold text-text-muted mb-2">Hemodynamics</div>
-            <Check id="vitals_check" label="Vitals: BP, HR, SpO₂, RR, Temp" />
-            <Check id="map_65" label="MAP ≥ 65 mmHg" sub="⚠️ If MAP<65: IV fluid → Vasopressor (Norepi/Epi/Dopamine)" />
-            <Check id="fluid_vaso" label="IV fluid / Vasopressor if needed" sub="NSS bolus 250-500ml → Norepinephrine 0.1-0.5 mcg/kg/min" />
+          <div className="space-y-2">
+            <div className="text-xs font-semibold text-text-muted mb-1">Hemodynamics</div>
+            <ScrollPicker label="BP Systolic" value={bpSys} onChange={setBpSys} min={40} max={250} step={1} unit="mmHg" alertLow={90} />
+            <ScrollPicker label="BP Diastolic" value={bpDia} onChange={setBpDia} min={20} max={150} step={1} unit="mmHg" />
+            <div className="flex items-center justify-between px-1 py-1">
+              <span className="text-xs text-text-muted">MAP</span>
+              <span className={`text-lg font-mono font-black ${map < 65 ? 'text-danger' : 'text-success'}`}>{map} <span className="text-xs font-normal">mmHg</span></span>
+            </div>
+            <ScrollPicker label="Heart Rate" value={hr} onChange={setHr} min={20} max={250} step={5} unit="bpm" />
+            <ScrollPicker label="RR" value={rr} onChange={setRr} min={4} max={40} step={1} unit="/min" />
+            <ScrollPicker label="Temperature" value={temp} onChange={v => setTemp(Math.round(v * 10) / 10)} min={32} max={42} step={0.1} unit="°C" alertHigh={37.5} />
+            <Check id="vitals_check" label={`Vitals recorded: BP ${bpSys}/${bpDia} MAP ${map} HR ${hr}`} />
+            <Check id="map_65" label={map >= 65 ? '✅ MAP ≥ 65' : '⚠️ MAP < 65 — need vasopressor'} />
+            <Check id="fluid_vaso" label="IV fluid / Vasopressor if needed" sub="NSS 250-500ml → Norepinephrine 0.1-0.5 mcg/kg/min" />
           </div>
         )}
 
@@ -139,9 +165,25 @@ export default function PostROSCChecklist({ onDone, isTraining }) {
         )}
 
         {tab === 'neuro' && (
-          <div className="space-y-0.5">
-            <div className="text-xs font-semibold text-text-muted mb-2">Neurological</div>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold text-text-muted mb-1">Neurological</div>
             <Check id="neuro_gcs" label="GCS + Pupil assessment" sub="Bilateral fixed dilated = poor prognosis" />
+
+            <div className="text-xs text-text-muted font-semibold mt-2 mb-1">Follow Command?</div>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => { setFollowCommand(true); toggleCheck('follow_cmd', 'Follow Command: YES'); }}
+                className={`py-2.5 rounded-lg text-xs font-bold ${followCommand === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                ✅ Yes — follows command
+              </button>
+              <button onClick={() => { setFollowCommand(false); toggleCheck('follow_cmd', 'Follow Command: NO → TTM'); }}
+                className={`py-2.5 rounded-lg text-xs font-bold ${followCommand === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                ❌ No — consider TTM
+              </button>
+            </div>
+            {followCommand === false && (
+              <div className="text-xs text-warning font-bold mt-1">⚠️ No command → Start TTM 32-36°C ≥24hr</div>
+            )}
+
             <Check id="seizure_check" label="Seizure assessment" sub="If seizure → Levetiracetam 20mg/kg IV" />
           </div>
         )}
