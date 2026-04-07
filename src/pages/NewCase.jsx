@@ -130,9 +130,10 @@ export default function NewCase() {
       <div className="shrink-0 pb-[env(safe-area-inset-bottom)] bg-white border-t border-bg-tertiary/60">
         <div className="flex justify-around py-2 max-w-md mx-auto">
           <NavItem icon="📋" label="History" onClick={() => navigate('/history')} />
+          <NavItem icon="📊" label="Stats" onClick={() => navigate('/statistics')} />
+          <NavItem icon="🏋️" label="Drill" onClick={() => navigate('/drill')} />
           <NavItem icon="🎮" label="Scenarios" onClick={() => navigate('/scenarios')} />
-          <NavItem icon="💊" label="Drug Calc" onClick={() => navigate('/drug-calc')} />
-          <NavItem icon="📖" label="Algorithms" onClick={() => navigate('/algorithm')} />
+          <NavItem icon="💊" label="Drugs" onClick={() => navigate('/drug-calc')} />
           <NavItem icon="⚙️" label="Settings" onClick={() => navigate('/settings')} />
         </div>
       </div>

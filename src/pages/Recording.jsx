@@ -30,6 +30,7 @@ import EndCaseModal from '../components/EndCaseModal';
 import VentilatorSettings from '../components/VentilatorSettings';
 import CheatSheet from '../components/CheatSheet';
 import SBARHandover from '../components/SBARHandover';
+import DebriefingGuide from '../components/DebriefingGuide';
 import { StepCard, BigButton, TrainingHint, CountdownHint } from '../components/StepUI';
 import { EventLogPanel, PatientInfoPanel, TeamPanel } from '../components/Panels';
 
@@ -110,6 +111,7 @@ export default function Recording() {
   const [showVent, setShowVent] = useState(false);
   const [showCheatSheet, setShowCheatSheet] = useState(false);
   const [showSBAR, setShowSBAR] = useState(false);
+  const [showDebrief, setShowDebrief] = useState(false);
   const [witnessed, setWitnessed] = useState(null);
   const [bystanderCPR, setBystanderCPR] = useState(null);
 
@@ -408,6 +410,7 @@ export default function Recording() {
           <button onClick={() => setShowVent(true)} className="bg-bg-primary text-text-secondary">🖥️ Vent</button>
           <button onClick={() => setShowCheatSheet(true)} className="bg-bg-primary text-text-secondary">📖 Ref</button>
           <button onClick={() => setShowSBAR(true)} className="bg-bg-primary text-text-secondary">📋 SBAR</button>
+          <button onClick={() => setShowDebrief(true)} className="bg-bg-primary text-text-secondary">📊 Debrief</button>
           <button onClick={() => setShowEndCase(true)} className="bg-danger/10 text-danger">🏁 End</button>
         </div>
       )}
@@ -437,6 +440,7 @@ export default function Recording() {
       {showVent && <VentGuard onClose={() => setShowVent(false)} onNeedAirway={() => { setShowVent(false); setShowAirway(true); }} />}
       {showCheatSheet && <CheatSheet onClose={() => setShowCheatSheet(false)} />}
       {showSBAR && <SBARHandover onClose={() => setShowSBAR(false)} />}
+      {showDebrief && <DebriefingGuide onClose={() => setShowDebrief(false)} />}
       {showEndCase && <EndCaseModal
         onClose={() => setShowEndCase(false)}
         onROSC={() => goStep(STEPS.ROSC)}

@@ -9,6 +9,8 @@ import Algorithm from './pages/Algorithm';
 import Settings from './pages/Settings';
 import ScenarioSelect from './pages/ScenarioSelect';
 import DrugCalc from './pages/DrugCalc';
+import Statistics from './pages/Statistics';
+import DrillTimer from './pages/DrillTimer';
 
 function App() {
   const theme = useSettingsStore(s => s.theme);
@@ -30,6 +32,8 @@ function App() {
         <Route path="/settings" element={<><Navbar /><Settings /></>} />
         <Route path="/scenarios" element={<><Navbar /><ScenarioSelect /></>} />
         <Route path="/drug-calc" element={<><Navbar /><DrugCalc /></>} />
+        <Route path="/statistics" element={<><Navbar /><Statistics /></>} />
+        <Route path="/drill" element={<><Navbar /><DrillTimer /></>} />
       </Routes>
     </div>
   );
