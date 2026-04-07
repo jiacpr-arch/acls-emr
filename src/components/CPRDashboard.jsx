@@ -36,6 +36,8 @@ export default function CPRDashboard({
   const settings = useSettingsStore();
 
   // Ensure CPR is active when dashboard mounts
+  const [cprMode, setCprMode] = useState('hand_only'); // hand_only | bvm_30_2 | advanced
+
   useEffect(() => { if (!cprActive) startCPR(); }, []);
 
   // Cycle calculations
@@ -181,6 +183,20 @@ export default function CPRDashboard({
       </div>
 
       {/* Training hint */}
+      {/* CPR Mode indicator */}
+      <div className="flex items-center justify-center gap-2">
+        {['hand_only', 'bvm_30_2', 'advanced'].map(m => (
+          <button key={m} onClick={() => {
+            setCprMode(m);
+            addEvent({ elapsed, category: 'cpr', type: `CPR Mode: ${m === 'hand_only' ? 'Hand-only' : m === 'bvm_30_2' ? 'BVM 30:2' : 'Advanced Airway (continuous)'}`, details: { cprMode: m } });
+          }} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors ${
+            cprMode === m ? 'bg-info text-white' : 'bg-bg-primary border border-bg-tertiary text-text-muted'
+          }`}>
+            {m === 'hand_only' ? '🤲 Hand-only' : m === 'bvm_30_2' ? '🫁 BVM 30:2' : '🫁 Advanced'}
+          </button>
+        ))}
+      </div>
+
       {isTraining && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-left text-xs text-blue-700">
           <span className="font-bold text-[10px] text-blue-500">TIP: </span>
