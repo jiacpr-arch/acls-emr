@@ -2,6 +2,43 @@ import { create } from 'zustand';
 import { generateCaseId, saveCase, addEvent as addEventDB } from '../db/database';
 import { useTimerStore } from './timerStore';
 
+// Auto-save session state to localStorage
+const SESSION_KEY = 'acls_active_session';
+function saveSession(state) {
+  try {
+    const session = {
+      currentCase: state.currentCase,
+      events: state.events,
+      drugTimers: state.drugTimers,
+      currentRhythm: state.currentRhythm,
+      shockCount: state.shockCount,
+      epiCount: state.epiCount,
+      amiodaroneCount: state.amiodaroneCount,
+      patient: state.patient,
+      team: state.team,
+      etco2Readings: state.etco2Readings,
+      latestEtCO2: state.latestEtCO2,
+      airway: state.airway,
+      savedAt: Date.now(),
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  } catch (e) { /* localStorage full or unavailable */ }
+}
+
+export function getActiveSession() {
+  try {
+    const data = localStorage.getItem(SESSION_KEY);
+    if (!data) return null;
+    const session = JSON.parse(data);
+    if (!session.currentCase || session.currentCase.outcome !== 'ongoing') return null;
+    return session;
+  } catch (e) { return null; }
+}
+
+export function clearActiveSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
 export const useCaseStore = create((set, get) => ({
   // Current case
   currentCase: null,
@@ -170,11 +207,38 @@ export const useCaseStore = create((set, get) => ({
   },
 
   // Clear current case
-  clearCase: () => set({
-    currentCase: null, events: [], drugTimers: [], currentRhythm: null,
-    shockCount: 0, epiCount: 0, amiodaroneCount: 0,
-    etco2Readings: [], latestEtCO2: null, cprCycles: [],
-    patient: { hn: '', name: '', age: null, weight: null, gender: '', chiefComplaint: '', pmh: [], medications: [], allergies: [], witnessed: false, bystanderCPR: false, initialRhythm: '', location: '', timeFound: null },
-    team: { leader: '', airway: '', compressor: [], drugAdmin: '', recorder: '', others: [] }
-  })
+  // Clear current case
+  clearCase: () => {
+    clearActiveSession();
+    set({
+      currentCase: null, events: [], drugTimers: [], currentRhythm: null,
+      shockCount: 0, epiCount: 0, amiodaroneCount: 0,
+      etco2Readings: [], latestEtCO2: null, cprCycles: [],
+      patient: { hn: '', name: '', age: null, weight: null, gender: '', chiefComplaint: '', pmh: [], medications: [], allergies: [], witnessed: false, bystanderCPR: false, initialRhythm: '', location: '', timeFound: null },
+      team: { leader: '', airway: '', compressor: [], drugAdmin: '', recorder: '', others: [] }
+    });
+  },
+
+  // Restore session from localStorage
+  restoreSession: (session) => {
+    set({
+      currentCase: session.currentCase,
+      events: session.events || [],
+      drugTimers: session.drugTimers || [],
+      currentRhythm: session.currentRhythm,
+      shockCount: session.shockCount || 0,
+      epiCount: session.epiCount || 0,
+      amiodaroneCount: session.amiodaroneCount || 0,
+      patient: session.patient || {},
+      team: session.team || {},
+      etco2Readings: session.etco2Readings || [],
+      latestEtCO2: session.latestEtCO2,
+      airway: session.airway || {},
+    });
+  },
 }));
+
+// Auto-save to localStorage on every state change
+useCaseStore.subscribe((state) => {
+  if (state.currentCase) saveSession(state);
+});

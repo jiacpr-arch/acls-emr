@@ -1,19 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCaseStore } from '../stores/caseStore';
+import { getActiveSession, clearActiveSession } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
 
 export default function NewCase() {
   const navigate = useNavigate();
-  const { createCase } = useCaseStore();
+  const { createCase, restoreSession } = useCaseStore();
   const mode = useSettingsStore(s => s.mode);
   const [loading, setLoading] = useState(false);
+  const [activeSession, setActiveSession] = useState(null);
+
+  useEffect(() => {
+    const session = getActiveSession();
+    if (session) setActiveSession(session);
+  }, []);
 
   const handleStart = async (startMode) => {
     if (loading) return;
     setLoading(true);
+    clearActiveSession();
     await createCase(mode);
     navigate(`/recording?start=${startMode}`);
+  };
+
+  const handleResume = () => {
+    if (activeSession) {
+      restoreSession(activeSession);
+      navigate('/recording?start=resume');
+    }
+  };
+
+  const handleDismissSession = () => {
+    clearActiveSession();
+    setActiveSession(null);
   };
 
   return (
@@ -34,6 +54,27 @@ export default function NewCase() {
             {mode === 'clinical' ? 'CLINICAL' : 'TRAINING'}
           </div>
         </div>
+
+        {/* Resume active session */}
+        {activeSession && (
+          <div className="w-full max-w-sm mb-4">
+            <div className="glass-card !p-4 border-2 border-warning/50">
+              <div className="text-xs text-warning font-bold uppercase mb-1">Active Case Found</div>
+              <div className="text-sm text-text-primary font-semibold">#{activeSession.currentCase?.id}</div>
+              <div className="text-xs text-text-muted mt-0.5">
+                {activeSession.patient?.name || 'No patient info'} · {activeSession.events?.length || 0} events
+              </div>
+              <div className="flex gap-2 mt-3">
+                <button onClick={handleResume} className="flex-1 btn-action btn-warning py-2.5 text-xs font-bold">
+                  ▶️ Resume Case
+                </button>
+                <button onClick={handleDismissSession} className="btn-action btn-ghost py-2.5 text-xs px-4">
+                  Discard
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Start buttons */}
         <div className="w-full max-w-sm space-y-3">

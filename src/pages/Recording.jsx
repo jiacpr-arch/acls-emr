@@ -87,7 +87,12 @@ export default function Recording() {
   useMetronome();
   useEffect(() => { initAudio(); }, []);
 
-  const [step, setStep] = useState(startMode === 'rrt' ? STEPS.RRT_ARRIVED : STEPS.SCENE_SAFETY);
+  const getInitialStep = () => {
+    if (startMode === 'resume') return STEPS.CPR_CYCLE; // resume to dashboard
+    if (startMode === 'rrt') return STEPS.RRT_ARRIVED;
+    return STEPS.SCENE_SAFETY;
+  };
+  const [step, setStep] = useState(getInitialStep());
   const [showLog, setShowLog] = useState(false);
   const [showPatient, setShowPatient] = useState(false);
   const [showTeam, setShowTeam] = useState(false);
@@ -101,6 +106,18 @@ export default function Recording() {
   const [bystanderCPR, setBystanderCPR] = useState(null);
 
   useEffect(() => { if (!currentCase) navigate('/'); }, [currentCase]);
+
+  // Back button / tab close protection
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (currentCase && currentCase.outcome === 'ongoing') {
+        e.preventDefault();
+        e.returnValue = 'Recording in progress. Are you sure you want to leave?';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [currentCase]);
 
   if (!currentCase) return null;
 
