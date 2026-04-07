@@ -422,6 +422,7 @@ function ShockStep({ onShocked, onSkip, isTraining }) {
         if (soundEnabled) playShockSound();
         addShock();
         addEvent({ elapsed, category: 'shock', type: `⚡ Shock #${shockCount + 1}`, details: { energy: `${energy}J` } });
+        useTimerStore.getState().resetCycle();
         onShocked();
       }}>⚡ SHOCK DELIVERED</BigButton>
       <button onClick={onSkip} className="text-text-muted text-xs underline">Skip → Resume CPR</button>
@@ -547,6 +548,7 @@ function ShockModal({ onClose, isTraining }) {
         if (soundEnabled) playShockSound();
         addShock();
         addEvent({ elapsed, category: 'shock', type: `⚡ Shock #${shockCount + 1}`, details: { energy: `${energy}J` } });
+        useTimerStore.getState().resetCycle();
         onClose();
       }} className="w-full btn-action btn-shock py-5 text-xl font-black animate-pulse">⚡ SHOCK {energy}J</button>
     </div>

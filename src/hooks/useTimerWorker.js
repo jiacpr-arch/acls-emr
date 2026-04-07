@@ -20,13 +20,14 @@ export function useTimerWorker() {
         const store = useTimerStore.getState();
         const settings = useSettingsStore.getState();
 
-        // Calculate cycle position
-        const cycleElapsed = elapsed % store.cycleDuration;
+        // Calculate cycle position (relative to cycleStartElapsed)
+        const cycleElapsed = (elapsed - store.cycleStartElapsed) % store.cycleDuration;
         const remaining = store.cycleDuration - cycleElapsed;
-        const prevRemaining = store.cycleDuration - (prevElapsedRef.current % store.cycleDuration);
+        const prevCycleElapsed = (prevElapsedRef.current - store.cycleStartElapsed) % store.cycleDuration;
+        const prevRemaining = store.cycleDuration - prevCycleElapsed;
 
         // Cycle complete — auto new cycle + alert
-        if (prevElapsedRef.current > 0 && cycleElapsed < (prevElapsedRef.current % store.cycleDuration) && elapsed > store.cycleDuration) {
+        if (prevElapsedRef.current > 0 && cycleElapsed < prevCycleElapsed && (elapsed - store.cycleStartElapsed) > store.cycleDuration) {
           store.newCycle();
           if (settings.soundEnabled && settings.cycleAlertEnabled) {
             playCycleAlert();

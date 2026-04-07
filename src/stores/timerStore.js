@@ -50,7 +50,7 @@ export const useTimerStore = create((set, get) => ({
     if (state.worker) state.worker.postMessage({ type: 'RESET' });
     set({
       elapsed: 0, isRunning: false, startedAt: null,
-      cycleElapsed: 0, cycleNumber: 1,
+      cycleElapsed: 0, cycleNumber: 1, cycleStartElapsed: 0,
       cprActive: false, cprStartedAt: null, totalCPRTime: 0,
       totalPauseTime: 0, currentPauseStart: null, pauses: [],
       lastTickTime: null, lastCompressorRotateAt: 0, compressorRotateDue: false,
@@ -60,7 +60,7 @@ export const useTimerStore = create((set, get) => ({
   // Tick from web worker
   tick: (elapsed) => {
     const state = get();
-    const cycleElapsed = elapsed % state.cycleDuration;
+    const cycleElapsed = (elapsed - state.cycleStartElapsed) % state.cycleDuration;
     const now = Date.now();
     const dt = state.lastTickTime ? (now - state.lastTickTime) / 1000 : 0;
 
@@ -83,6 +83,10 @@ export const useTimerStore = create((set, get) => ({
 
   // New cycle
   newCycle: () => set((s) => ({ cycleNumber: s.cycleNumber + 1 })),
+
+  // Reset cycle timer (after shock — start fresh 2-min count)
+  cycleStartElapsed: 0,
+  resetCycle: () => set((s) => ({ cycleStartElapsed: s.elapsed, cycleNumber: s.cycleNumber + 1 })),
 
   // CPR controls
   startCPR: () => {
