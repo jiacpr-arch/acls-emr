@@ -1,16 +1,28 @@
 import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
+import ScrollPicker from './ScrollPicker';
 
 // Bradycardia Pathway — AHA Guideline
 // HR < 50 + Symptomatic assessment
-// Flow: Assess → Unstable auto-detect → Atropine → TCP → Vasopressors
+// Flow: Quick Vitals → Assess → Atropine → TCP → Vasopressors
 export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onRecheckPulse, isTraining }) {
   const elapsed = useTimerStore(s => s.elapsed);
-  const [phase, setPhase] = useState('assess');
+  const addEvent = useCaseStore(s => s.addEvent);
+  const [phase, setPhase] = useState('vitals'); // vitals → assess → ...
   const [atropineCount, setAtropineCount] = useState(0);
   const [rhythmType, setRhythmType] = useState(null);
   const [checklist, setChecklist] = useState({});
+
+  // Quick vitals
+  const [bpSys, setBpSys] = useState(120);
+  const [bpDia, setBpDia] = useState(80);
+  const [hr, setHr] = useState(40);
+  const [spo2, setSpo2] = useState(98);
+  const [avpu, setAvpu] = useState(null);
+
+  const map = Math.round((bpSys + 2 * bpDia) / 3);
+  const autoSymptomatic = bpSys < 90 || map < 65 || (avpu && avpu !== 'A');
 
   const toggleCheck = (key) => setChecklist(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -21,6 +33,61 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
   const [tcpOutput, setTcpOutput] = useState(0);
   const [tcpCaptured, setTcpCaptured] = useState(false);
   const [tcpThreshold, setTcpThreshold] = useState(null);
+
+  const saveVitals = () => {
+    addEvent({ elapsed, category: 'other', type: `📊 Vitals: BP ${bpSys}/${bpDia} (MAP ${map}) HR ${hr} SpO₂ ${spo2}% ${avpu || ''}`, details: { bpSys, bpDia, map, hr, spo2, avpu } });
+    if (autoSymptomatic) {
+      onLog('other', `⚠️ Symptomatic Bradycardia — BP ${bpSys}/${bpDia} MAP ${map}`);
+      setPhase('atropine');
+    } else {
+      setPhase('assess');
+    }
+  };
+
+  // ===== QUICK VITALS =====
+  if (phase === 'vitals') {
+    return (
+      <div className="text-center space-y-3 animate-slide-up px-2">
+        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">Bradycardia — Quick Vitals</div>
+        <div className="text-5xl">🐢</div>
+        <h1 className="text-xl font-black text-text-primary">HR &lt; 50 — Enter Vitals</h1>
+
+        <div className="glass-card !p-3 space-y-3">
+          <ScrollPicker label="BP Systolic" value={bpSys} onChange={setBpSys} min={40} max={250} step={1} unit="mmHg" alertLow={90} />
+          <ScrollPicker label="BP Diastolic" value={bpDia} onChange={setBpDia} min={20} max={150} step={1} unit="mmHg" />
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-text-muted">MAP</span>
+            <span className={`text-lg font-mono font-black ${map < 65 ? 'text-danger' : 'text-success'}`}>{map}</span>
+          </div>
+          <ScrollPicker label="Heart Rate" value={hr} onChange={setHr} min={20} max={100} step={1} unit="bpm" alertLow={50} />
+          <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" alertLow={94} />
+
+          <div className="text-xs text-text-muted font-semibold mb-1">AVPU</div>
+          <div className="grid grid-cols-4 gap-1.5">
+            {[{ k: 'A', l: 'Alert', c: 'bg-success' }, { k: 'V', l: 'Voice', c: 'bg-warning' }, { k: 'P', l: 'Pain', c: 'bg-shock' }, { k: 'U', l: 'Unrespon.', c: 'bg-danger' }].map(a => (
+              <button key={a.k} onClick={() => setAvpu(a.k)}
+                className={`py-2 rounded-lg text-[10px] font-bold ${avpu === a.k ? `${a.c} text-white` : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                {a.k}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {autoSymptomatic && (
+          <div className="bg-danger/10 border border-danger/30 rounded-xl px-4 py-2 text-sm text-danger font-bold animate-pulse">
+            ⚠️ Symptomatic! BP {bpSys}/{bpDia} MAP {map} → Atropine immediately
+          </div>
+        )}
+
+        <button onClick={saveVitals} className={`w-full btn-action py-4 text-sm font-bold ${autoSymptomatic ? 'btn-danger' : 'btn-info'}`}>
+          {autoSymptomatic ? '⚠️ Symptomatic → Atropine' : 'Continue → Assessment'}
+        </button>
+
+        <button onClick={() => setPhase('assess')} className="text-text-muted text-xs underline">Skip vitals →</button>
+        <button onClick={onRecheckPulse} className="text-text-muted text-xs underline">← Re-check pulse</button>
+      </div>
+    );
+  }
 
   // ===== ASSESS =====
   if (phase === 'assess') {

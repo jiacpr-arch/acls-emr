@@ -8,14 +8,87 @@ import ScrollPicker from './ScrollPicker';
 // Flow: Unstable assessment → Rhythm type → Treatment
 export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onRecheckPulse, isTraining }) {
   const elapsed = useTimerStore(s => s.elapsed);
-  const [phase, setPhase] = useState('unstable_check');
+  const addEvent = useCaseStore(s => s.addEvent);
+  const [phase, setPhase] = useState('vitals'); // vitals → unstable_check → ...
   const [unstableSigns, setUnstableSigns] = useState({});
   const [rhythmType, setRhythmType] = useState(null);
   const [cardioversionEnergy, setCardioversionEnergy] = useState(100);
   const [adenosineCount, setAdenosineCount] = useState(0);
 
+  // Quick vitals
+  const [bpSys, setBpSys] = useState(120);
+  const [bpDia, setBpDia] = useState(80);
+  const [hr, setHr] = useState(160);
+  const [spo2, setSpo2] = useState(98);
+  const [avpu, setAvpu] = useState(null);
+
+  const map = Math.round((bpSys + 2 * bpDia) / 3);
+  const autoUnstable = bpSys < 90 || map < 65;
+
   const toggleUnstable = (key) => setUnstableSigns(prev => ({ ...prev, [key]: !prev[key] }));
   const hasUnstable = Object.values(unstableSigns).some(v => v);
+
+  const saveVitals = () => {
+    addEvent({ elapsed, category: 'other', type: `📊 Vitals: BP ${bpSys}/${bpDia} (MAP ${map}) HR ${hr} SpO₂ ${spo2}% ${avpu || ''}`, details: { bpSys, bpDia, map, hr, spo2, avpu } });
+    // Auto-detect unstable from vitals
+    const auto = {};
+    if (bpSys < 90 || map < 65) auto.hypotension = true;
+    if (avpu && avpu !== 'A') auto.altered_ms = true;
+    if (spo2 < 94) auto.resp_distress = true;
+    setUnstableSigns(auto);
+
+    if (bpSys < 90 || map < 65) {
+      onLog('other', `⚠️ UNSTABLE Tachycardia — BP ${bpSys}/${bpDia} MAP ${map}`);
+      setPhase('cardioversion');
+    } else {
+      setPhase('unstable_check');
+    }
+  };
+
+  // ===== QUICK VITALS =====
+  if (phase === 'vitals') {
+    return (
+      <div className="text-center space-y-3 animate-slide-up px-2">
+        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Tachycardia — Quick Vitals</div>
+        <div className="text-5xl">🐇</div>
+        <h1 className="text-xl font-black text-text-primary">HR &gt; 150 — Enter Vitals</h1>
+
+        <div className="glass-card !p-3 space-y-3">
+          <ScrollPicker label="BP Systolic" value={bpSys} onChange={setBpSys} min={40} max={250} step={1} unit="mmHg" alertLow={90} />
+          <ScrollPicker label="BP Diastolic" value={bpDia} onChange={setBpDia} min={20} max={150} step={1} unit="mmHg" />
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-text-muted">MAP</span>
+            <span className={`text-lg font-mono font-black ${map < 65 ? 'text-danger' : 'text-success'}`}>{map} <span className="text-xs font-normal">mmHg</span></span>
+          </div>
+          <ScrollPicker label="Heart Rate" value={hr} onChange={setHr} min={20} max={250} step={5} unit="bpm" alertHigh={150} />
+          <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" alertLow={94} />
+
+          <div className="text-xs text-text-muted font-semibold mb-1">AVPU</div>
+          <div className="grid grid-cols-4 gap-1.5">
+            {[{ k: 'A', l: 'Alert', c: 'bg-success' }, { k: 'V', l: 'Voice', c: 'bg-warning' }, { k: 'P', l: 'Pain', c: 'bg-shock' }, { k: 'U', l: 'Unrespon.', c: 'bg-danger' }].map(a => (
+              <button key={a.k} onClick={() => setAvpu(a.k)}
+                className={`py-2 rounded-lg text-[10px] font-bold ${avpu === a.k ? `${a.c} text-white` : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                {a.k}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {autoUnstable && (
+          <div className="bg-danger/10 border border-danger/30 rounded-xl px-4 py-2 text-sm text-danger font-bold animate-pulse">
+            ⚠️ BP {bpSys}/{bpDia} MAP {map} — UNSTABLE → Cardioversion
+          </div>
+        )}
+
+        <button onClick={saveVitals} className={`w-full btn-action py-4 text-sm font-bold ${autoUnstable ? 'btn-danger animate-pulse' : 'btn-info'}`}>
+          {autoUnstable ? '⚡ UNSTABLE → Cardioversion' : 'Continue → Assessment'}
+        </button>
+
+        <button onClick={() => { setPhase('unstable_check'); }} className="text-text-muted text-xs underline">Skip vitals →</button>
+        <button onClick={onRecheckPulse} className="text-text-muted text-xs underline">← Re-check pulse</button>
+      </div>
+    );
+  }
 
   // ===== UNSTABLE CHECK =====
   if (phase === 'unstable_check') {
@@ -23,23 +96,23 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
       <div className="text-center space-y-4 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Tachycardia Algorithm</div>
         <div className="text-5xl">🐇</div>
-        <h1 className="text-2xl font-black text-text-primary">HR &gt; 150 — Stable or Unstable?</h1>
+        <h1 className="text-2xl font-black text-text-primary">Stable or Unstable?</h1>
 
         {isTraining && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-left text-xs text-blue-700">
             <span className="font-bold text-[10px] text-blue-500">TIP: </span>
-            If ANY unstable sign → Synchronized Cardioversion immediately. Don't delay for rhythm ID.
+            If ANY unstable sign → Synchronized Cardioversion immediately.
           </div>
         )}
 
         {/* Unstable signs checklist */}
         <div className="glass-card !p-3 text-left">
-          <div className="text-xs text-text-muted font-semibold mb-2">Unstable Signs (check all that apply)</div>
+          <div className="text-xs text-text-muted font-semibold mb-2">Unstable Signs (auto-detected from vitals + check manually)</div>
           {[
-            { key: 'hypotension', label: 'Hypotension / Shock (SBP < 90)', icon: '📉' },
-            { key: 'altered_ms', label: 'Altered Mental Status', icon: '😵' },
+            { key: 'hypotension', label: `Hypotension / Shock (SBP < 90)${bpSys < 90 ? ' ← detected' : ''}`, icon: '📉' },
+            { key: 'altered_ms', label: `Altered Mental Status${avpu && avpu !== 'A' ? ` ← AVPU=${avpu}` : ''}`, icon: '😵' },
             { key: 'chest_pain', label: 'Chest Pain / ACS Signs', icon: '💔' },
-            { key: 'resp_distress', label: 'Respiratory Distress / Acute HF', icon: '🫁' },
+            { key: 'resp_distress', label: `Respiratory Distress${spo2 < 94 ? ` ← SpO₂=${spo2}%` : ''}`, icon: '🫁' },
           ].map(s => (
             <button key={s.key} onClick={() => toggleUnstable(s.key)}
               className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg mb-1.5 transition-colors ${
