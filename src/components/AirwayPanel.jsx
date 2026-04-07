@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
+import OxygenDevice from './OxygenDevice';
 
 // Enhanced Airway Panel — device selection + details
 // Available from ALL pathways (not just cardiac arrest)
@@ -136,6 +137,9 @@ export default function AirwayPanel({ onClose }) {
             </button>
           </div>
         </div>
+
+        <div className="text-xs text-text-muted font-semibold uppercase mb-1 mt-4">Oxygen Delivery</div>
+        <OxygenDevice onClose={() => {}} />
 
         <div className="text-xs text-text-muted font-semibold uppercase mb-1 mt-4">Vascular Access</div>
         <div className="grid grid-cols-2 gap-2">
