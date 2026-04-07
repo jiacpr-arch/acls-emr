@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useSettingsStore } from './stores/settingsStore';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import NewCase from './pages/NewCase';
@@ -9,6 +11,12 @@ import ScenarioSelect from './pages/ScenarioSelect';
 import DrugCalc from './pages/DrugCalc';
 
 function App() {
+  const theme = useSettingsStore(s => s.theme);
+  useEffect(() => {
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+  }, [theme]);
+
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
       <Routes>

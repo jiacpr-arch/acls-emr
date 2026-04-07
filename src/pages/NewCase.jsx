@@ -97,7 +97,24 @@ export default function NewCase() {
             </div>
           </button>
 
-          {/* Training scenarios — always visible */}
+          {/* Quick Start Templates */}
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { icon: '🫀', label: 'Cardiac Arrest', sub: 'VF / Asystole', start: 'bls' },
+              { icon: '🐢', label: 'Bradycardia', sub: 'HR < 50', start: 'rrt' },
+              { icon: '🐇', label: 'Tachycardia', sub: 'HR > 150', start: 'rrt' },
+              { icon: '🧠', label: 'Stroke', sub: 'FAST track', start: 'rrt' },
+            ].map(t => (
+              <button key={t.label} onClick={() => handleStart(t.start)} disabled={loading}
+                className="btn-action btn-ghost py-3 text-xs disabled:opacity-50">
+                <div className="text-lg">{t.icon}</div>
+                {t.label}
+                <div className="text-[8px] text-text-muted mt-0.5">{t.sub}</div>
+              </button>
+            ))}
+          </div>
+
+          {/* Training scenarios */}
           <button onClick={() => navigate('/scenarios')}
             className="w-full py-4 btn-action btn-purple text-base">
             <div className="text-xl mb-0.5">🎮</div>

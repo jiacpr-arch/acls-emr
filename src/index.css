@@ -299,3 +299,52 @@ button, [role="button"] {
 .timer-ring circle {
   transition: stroke-dashoffset 0.5s ease;
 }
+
+/* ===== DARK MODE ===== */
+.dark {
+  --color-bg-primary: #0F1419;
+  --color-bg-secondary: #1A2332;
+  --color-bg-tertiary: #2D3748;
+  --color-text-primary: #E2E8F0;
+  --color-text-secondary: #A0AEC0;
+  --color-text-muted: #718096;
+}
+.dark .glass-card {
+  background: #1A2332;
+  border-color: #2D3748;
+}
+.dark .timer-bar {
+  background: #1A2332;
+  border-color: #2D3748;
+}
+.dark .btn-ghost {
+  background: #1A2332;
+  border-color: #2D3748;
+  color: #E2E8F0;
+}
+.dark .btn-ghost:active {
+  background: #2D3748;
+}
+.dark .instruction-list {
+  background: #1A2332;
+  border-color: #2D3748;
+}
+.dark .floating-bar {
+  background: rgba(26, 35, 50, 0.95);
+  border-color: #2D3748;
+}
+.dark .tab-group {
+  background: #2D3748;
+}
+.dark .tab-item.active {
+  background: #1A2332;
+}
+.dark .stat-box, .dark .dash-card-sm {
+  background: #0F1419;
+}
+.dark .progress-track {
+  background: #2D3748;
+}
+.dark input[type="range"] {
+  background: transparent;
+}

@@ -27,6 +27,12 @@ export default function Settings() {
           </div>
         </div>
 
+        {/* Dark Mode */}
+        <ToggleSetting label="Dark Mode" value={settings.theme === 'dark'} onToggle={() => {
+          settings.toggleTheme();
+          document.documentElement.classList.toggle('dark');
+        }} />
+
         {/* Sound Settings */}
         <ToggleSetting label="Sound Effects" value={settings.soundEnabled} onToggle={settings.toggleSound} />
         <ToggleSetting label="Metronome" value={settings.metronomeEnabled} onToggle={settings.toggleMetronome} />
