@@ -113,30 +113,30 @@ export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTake
 
   return (
     <div className="shrink-0 z-40">
-      {/* Scenario bar */}
-      <div className={`px-4 py-2.5 ${isLearning ? 'bg-blue-600' : 'bg-purple'} text-white`}>
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">
-            {isLearning ? 'LEARNING' : 'EXAM'} — {scenario.title_th}
+      {/* Scenario bar — large and visible on mobile */}
+      <div className={`px-4 py-3 ${isLearning ? 'bg-blue-600' : 'bg-purple'} text-white`}>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-bold uppercase tracking-wider">
+            {isLearning ? '📚 LEARNING' : '📝 EXAM'} — {scenario.title_th}
           </span>
-          <span className="text-[10px] font-mono opacity-80">
-            Step {currentStepIdx + 1}/{scenario.steps.length}
+          <span className="text-xs font-mono bg-white/20 px-2 py-0.5 rounded">
+            {currentStepIdx + 1}/{scenario.steps.length}
           </span>
         </div>
-        <div className="text-xs leading-relaxed whitespace-pre-line">
+        <div className="text-sm leading-relaxed whitespace-pre-line font-medium">
           {currentStep.scenario_th}
         </div>
 
         {/* EKG indicator */}
         {currentStep.ekg && (
-          <div className="mt-1 px-2 py-1 bg-white/20 rounded text-[10px] font-bold">
-            EKG: {currentStep.ekg.toUpperCase()}
+          <div className="mt-2 px-3 py-1.5 bg-white/20 rounded-lg text-sm font-bold">
+            📈 EKG: {currentStep.ekg.toUpperCase()}
           </div>
         )}
 
         {/* Learning hint */}
         {isLearning && currentStep.hint_th && (
-          <div className="mt-1.5 px-2 py-1 bg-white/10 rounded text-[10px] opacity-90">
+          <div className="mt-2 px-3 py-1.5 bg-white/15 rounded-lg text-xs">
             💡 {currentStep.hint_th}
           </div>
         )}

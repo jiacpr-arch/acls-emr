@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { scenarios, getScenariosByLevel } from '../data/scenarios';
+import { useCaseStore } from '../stores/caseStore';
 
 // Scenario Selection Page — choose scenario + mode (learning/exam)
 export default function ScenarioSelect() {
   const navigate = useNavigate();
+  const { createCase } = useCaseStore();
   const [filterLevel, setFilterLevel] = useState('all');
   const [mode, setMode] = useState('learning');
+  const [loading, setLoading] = useState(false);
 
   const filtered = filterLevel === 'all' ? scenarios : getScenariosByLevel(filterLevel);
 
@@ -24,8 +27,11 @@ export default function ScenarioSelect() {
     stroke: '🧠',
   };
 
-  const startScenario = (scenarioId) => {
-    navigate(`/recording?start=scenario&scenario=${scenarioId}&mode=${mode}`);
+  const startScenario = async (scenarioId) => {
+    if (loading) return;
+    setLoading(true);
+    await createCase('training');
+    navigate(`/recording?start=bls&scenario=${scenarioId}&mode=${mode}`);
   };
 
   return (
