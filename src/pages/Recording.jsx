@@ -25,6 +25,7 @@ import PostROSCChecklist from '../components/PostROSCChecklist';
 import EKGCapture from '../components/EKGCapture';
 import ScenarioEngine, { StaffTakeover, ScenarioComplete } from '../components/ScenarioEngine';
 import { getScenarioById } from '../data/scenarios';
+import StableMonitor from '../components/StableMonitor';
 import { StepCard, BigButton, TrainingHint, CountdownHint } from '../components/StepUI';
 import { EventLogPanel, PatientInfoPanel, TeamPanel } from '../components/Panels';
 
@@ -238,14 +239,11 @@ export default function Recording() {
         return <StrokePathway onLog={log} onMonitor={() => goStep(STEPS.PULSE_NORMAL)} onRecheckPulse={() => goStep(STEPS.CHECK_PULSE)} onArrest={() => goStep(STEPS.START_CPR)} isTraining={isTraining} />;
 
       case STEPS.PULSE_NORMAL:
-        return (
-          <StepCard phase="Assessment" phaseColor="text-success" icon="✅" title="Stable — Monitor"
-            subtitle="Pulse present, acceptable rate"
-            instructions={['Continue monitoring vital signs', 'Primary Assessment: ABCDE', 'Supplemental O₂ if SpO₂ < 94%', 'IV access + Labs', '12-Lead ECG', 'Treat underlying cause']}>
-            <BigButton color="bg-info" onClick={() => log('other', '📋 Continue Assessment (ABCDE)')}>📋 Continue Assessment (ABCDE)</BigButton>
-            <button onClick={() => goStep(STEPS.CHECK_PULSE)} className="text-text-muted text-xs underline mt-2">← Re-check pulse (deteriorating?)</button>
-          </StepCard>
-        );
+        return <StableMonitor
+          onRecheckPulse={() => goStep(STEPS.CHECK_PULSE)}
+          onArrest={() => goStep(STEPS.START_CPR)}
+          onDone={() => navigate('/history')}
+          isTraining={isTraining} />;
 
       // ========== CPR ==========
       case STEPS.START_CPR:
