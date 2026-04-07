@@ -191,45 +191,36 @@ export default function CPRDashboard({
         </div>
       )}
 
-      {/* EtCO₂ quick display */}
-      <button onClick={() => setShowEtco2(true)}
-        className={`glass-card flex items-center justify-between px-4 py-2 text-sm w-full ${
-          latestEtCO2 && latestEtCO2.value > 20 ? '!border-success/40' : ''
-        }`}>
-        <span className="text-text-muted font-medium">🌬️ EtCO₂</span>
-        <span className={`font-mono font-bold ${
-          latestEtCO2 ? (latestEtCO2.value < 10 ? 'text-danger' : latestEtCO2.value > 20 ? 'text-success' : 'text-text-primary') : 'text-text-muted'
-        }`}>
-          {latestEtCO2 ? `${latestEtCO2.value} mmHg` : 'Tap to record'}
-        </span>
-      </button>
-
-      {/* EtCO₂ scroll input */}
-      {showEtco2 && (
-        <div className="glass-card !p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold">🌬️ EtCO₂</span>
-            <span className="text-2xl font-mono font-black text-text-primary">{etco2Val}</span>
-            <span className="text-xs text-text-muted">mmHg</span>
+      {/* EtCO₂ — always visible slider */}
+      <div className={`glass-card !p-2.5 ${etco2Val > 40 ? '!border-success/50 animate-pulse' : etco2Val < 10 ? '!border-danger/50' : ''}`}>
+        <div className="flex items-center gap-3">
+          <span className="text-sm">🌬️</span>
+          <div className="flex-1">
+            <input type="range" min={0} max={80} value={etco2Val}
+              onChange={e => setEtco2Val(parseInt(e.target.value))}
+              className="w-full accent-info h-2" />
+            <div className="flex justify-between text-[8px] text-text-muted mt-0.5">
+              <span className="text-danger">&lt;10</span>
+              <span>EtCO₂</span>
+              <span className="text-success">&gt;20 ROSC?</span>
+            </div>
           </div>
-          <input type="range" min={0} max={100} value={etco2Val}
-            onChange={e => setEtco2Val(parseInt(e.target.value))}
-            className="w-full accent-info" />
-          <div className="flex justify-between text-[10px] text-text-muted">
-            <span className="text-danger">{'<10 Low quality'}</span>
-            <span>10-20 Normal</span>
-            <span className="text-success">{'>20 Possible ROSC'}</span>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => {
-              addEtCO2(etco2Val, 'during_cpr');
-              addEvent({ elapsed, category: 'etco2', type: `🌬️ EtCO₂: ${etco2Val} mmHg`, details: { value: etco2Val } });
-              setShowEtco2(false);
-            }} className="flex-1 btn-action btn-info py-2 text-xs">Save</button>
-            <button onClick={() => setShowEtco2(false)} className="btn-action btn-ghost py-2 text-xs px-4">✕</button>
-          </div>
+          <span className={`text-xl font-mono font-black min-w-[40px] text-right ${
+            etco2Val < 10 ? 'text-danger' : etco2Val > 40 ? 'text-success animate-pulse' : etco2Val > 20 ? 'text-success' : 'text-text-primary'
+          }`}>{etco2Val}</span>
+          <button onClick={() => {
+            addEtCO2(etco2Val, 'during_cpr');
+            addEvent({ elapsed, category: 'etco2', type: `🌬️ EtCO₂: ${etco2Val} mmHg`, details: { value: etco2Val } });
+          }} className="btn-action btn-info !min-h-[32px] !min-w-[32px] px-2 py-1 text-[10px] font-bold">
+            Save
+          </button>
         </div>
-      )}
+        {etco2Val > 40 && (
+          <div className="text-xs text-success font-bold mt-1 text-center">
+            ⚠️ EtCO₂ &gt;40 — Check Pulse NOW!
+          </div>
+        )}
+      </div>
 
       {/* Other drug timers (non-epi) */}
       {activeDrugTimers.filter(t => t.drugId !== 'epinephrine_arrest').map(t => {
