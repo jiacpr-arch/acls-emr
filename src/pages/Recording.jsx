@@ -23,7 +23,7 @@ import MIACSPathway from '../components/MIACSPathway';
 import StrokePathway from '../components/StrokePathway';
 import PostROSCChecklist from '../components/PostROSCChecklist';
 import EKGCapture from '../components/EKGCapture';
-import ScenarioEngine, { StaffTakeover, ScenarioComplete } from '../components/ScenarioEngine';
+import SimulationEngine, { StaffTakeover, ScenarioComplete } from '../components/SimulationEngine';
 import { getScenarioById } from '../data/scenarios';
 import StableMonitor from '../components/StableMonitor';
 import EndCaseModal from '../components/EndCaseModal';
@@ -347,9 +347,9 @@ export default function Recording() {
         <div className="bg-info text-white text-center text-[10px] font-bold py-1.5 tracking-wider shrink-0 z-50">TRAINING MODE</div>
       )}
 
-      {/* Scenario engine */}
+      {/* Simulation engine */}
       {scenario && scenarioState === 'active' && (
-        <ScenarioEngine scenario={scenario} mode={scenarioMode}
+        <SimulationEngine scenario={scenario} mode={scenarioMode}
           onComplete={(s) => { setScenarioScore(s); setScenarioState('complete'); }}
           onStaffTakeover={(s) => { setScenarioScore(s); setScenarioState('takeover'); }} />
       )}
