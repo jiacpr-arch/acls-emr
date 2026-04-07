@@ -6,6 +6,7 @@ import Recording from './pages/Recording';
 import Algorithm from './pages/Algorithm';
 import Settings from './pages/Settings';
 import ScenarioSelect from './pages/ScenarioSelect';
+import DrugCalc from './pages/DrugCalc';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/algorithm" element={<><Navbar /><Algorithm /></>} />
         <Route path="/settings" element={<><Navbar /><Settings /></>} />
         <Route path="/scenarios" element={<><Navbar /><ScenarioSelect /></>} />
+        <Route path="/drug-calc" element={<><Navbar /><DrugCalc /></>} />
       </Routes>
     </div>
   );

@@ -72,14 +72,53 @@ export default function VitalsPanel({ onClose }) {
           </div>
         </div>
 
+        {/* BP Actions */}
+        {mapDanger && (
+          <div className="bg-danger/10 border border-danger/30 rounded-xl px-3 py-2 space-y-1.5">
+            <div className="text-xs text-danger font-bold">⚠️ MAP &lt;65 — Hemodynamic support needed</div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button onClick={() => { addEvent({ elapsed, category: 'drug', type: '💉 IV Fluid Bolus (NSS 500ml)', details: {} }); }}
+                className="btn-action btn-info py-2 text-[10px] !min-h-[32px]">💉 IV Fluid 500ml</button>
+              <button onClick={() => { addEvent({ elapsed, category: 'drug', type: '💉 Norepinephrine started', details: {} }); }}
+                className="btn-action btn-purple py-2 text-[10px] !min-h-[32px]">💉 Vasopressor</button>
+            </div>
+          </div>
+        )}
+
         {/* HR + SpO2 */}
         <div className="glass-card !p-3 space-y-2">
           <ScrollPicker label="Heart Rate" value={hr} onChange={setHr}
             min={20} max={250} step={5} unit="bpm" alertLow={50} alertHigh={150}
             targetLow={60} targetHigh={100} />
+          {hr < 50 && (
+            <div className="bg-warning/10 border border-warning/30 rounded-lg px-2 py-1.5 text-[10px] text-warning font-bold">
+              ⚠️ HR &lt;50 → Consider Atropine 1mg IV
+            </div>
+          )}
+          {hr > 150 && (
+            <div className="bg-danger/10 border border-danger/30 rounded-lg px-2 py-1.5 text-[10px] text-danger font-bold">
+              ⚠️ HR &gt;150 → Assess stable/unstable → Cardioversion?
+            </div>
+          )}
+
           <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2}
             min={50} max={100} step={1} unit="%" alertLow={94}
             targetLow={94} targetHigh={100} color="accent-info" />
+          {spo2 < 94 && (
+            <div className="bg-danger/10 border border-danger/30 rounded-xl px-3 py-2 space-y-1.5">
+              <div className="text-xs text-danger font-bold">⚠️ SpO₂ {spo2}% — Give O₂ NOW</div>
+              <div className="grid grid-cols-4 gap-1">
+                <button onClick={() => { addEvent({ elapsed, category: 'airway', type: '🌬️ O₂: Nasal Cannula 3L/min', details: {} }); }}
+                  className="btn-action btn-ghost py-1.5 text-[9px] !min-h-[28px]">👃 Cannula</button>
+                <button onClick={() => { addEvent({ elapsed, category: 'airway', type: '🌬️ O₂: Simple Mask 8L/min', details: {} }); }}
+                  className="btn-action btn-ghost py-1.5 text-[9px] !min-h-[28px]">😷 Mask</button>
+                <button onClick={() => { addEvent({ elapsed, category: 'airway', type: '🌬️ O₂: NRB 15L/min', details: {} }); }}
+                  className="btn-action btn-ghost py-1.5 text-[9px] !min-h-[28px]">🎭 NRB</button>
+                <button onClick={() => { addEvent({ elapsed, category: 'airway', type: '🌬️ O₂: BVM 15L/min', details: {} }); }}
+                  className="btn-action btn-info py-1.5 text-[9px] !min-h-[28px]">🫁 BVM</button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* RR + Temp */}
@@ -87,9 +126,18 @@ export default function VitalsPanel({ onClose }) {
           <ScrollPicker label="Respiratory Rate" value={rr} onChange={setRr}
             min={4} max={40} step={1} unit="/min"
             targetLow={12} targetHigh={20} />
+          {rr < 8 && (
+            <div className="text-[10px] text-danger font-bold px-1">⚠️ RR &lt;8 — May need assisted ventilation (BVM)</div>
+          )}
           <ScrollPicker label="Temperature" value={temp} onChange={v => setTemp(Math.round(v * 10) / 10)}
             min={32} max={42} step={0.1} unit="°C"
             targetLow={36} targetHigh={37.5} alertLow={35} alertHigh={38.5} />
+          {temp > 38.5 && (
+            <div className="text-[10px] text-danger font-bold px-1">⚠️ Fever — Consider active cooling / antipyretics</div>
+          )}
+          {temp < 35 && (
+            <div className="text-[10px] text-danger font-bold px-1">⚠️ Hypothermia — Warm IV fluid + warm blanket</div>
+          )}
         </div>
 
         {/* AVPU */}

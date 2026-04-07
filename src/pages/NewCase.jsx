@@ -114,6 +114,7 @@ export default function NewCase() {
         <div className="flex justify-around py-2 max-w-md mx-auto">
           <NavItem icon="📋" label="History" onClick={() => navigate('/history')} />
           <NavItem icon="🎮" label="Scenarios" onClick={() => navigate('/scenarios')} />
+          <NavItem icon="💊" label="Drug Calc" onClick={() => navigate('/drug-calc')} />
           <NavItem icon="📖" label="Algorithms" onClick={() => navigate('/algorithm')} />
           <NavItem icon="⚙️" label="Settings" onClick={() => navigate('/settings')} />
         </div>
