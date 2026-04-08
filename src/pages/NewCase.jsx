@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useCaseStore } from '../stores/caseStore';
 import { getActiveSession, clearActiveSession } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
+import { t } from '../utils/i18n';
 
 export default function NewCase() {
   const navigate = useNavigate();
   const { createCase, restoreSession } = useCaseStore();
   const mode = useSettingsStore(s => s.mode);
+  const lang = useSettingsStore(s => s.language) || 'en';
   const [loading, setLoading] = useState(false);
   const [activeSession, setActiveSession] = useState(null);
 
@@ -129,13 +131,13 @@ export default function NewCase() {
       {/* Bottom tab bar */}
       <div className="shrink-0 pb-[env(safe-area-inset-bottom)] bg-white border-t border-bg-tertiary/60">
         <div className="flex justify-around py-2 max-w-md mx-auto">
-          <NavItem icon="📋" label="History" onClick={() => navigate('/history')} />
-          <NavItem icon="📊" label="Stats" onClick={() => navigate('/statistics')} />
-          <NavItem icon="🏋️" label="Drill" onClick={() => navigate('/drill')} />
-          <NavItem icon="🎮" label="Scenarios" onClick={() => navigate('/scenarios')} />
-          <NavItem icon="🏆" label="Cert" onClick={() => navigate('/certification')} />
-          <NavItem icon="💊" label="Drugs" onClick={() => navigate('/drug-calc')} />
-          <NavItem icon="⚙️" label="Settings" onClick={() => navigate('/settings')} />
+          <NavItem icon="📋" label={t('history', lang)} onClick={() => navigate('/history')} />
+          <NavItem icon="📊" label={t('statistics', lang)} onClick={() => navigate('/statistics')} />
+          <NavItem icon="🏋️" label={t('drill', lang)} onClick={() => navigate('/drill')} />
+          <NavItem icon="🎮" label={t('scenarios', lang)} onClick={() => navigate('/scenarios')} />
+          <NavItem icon="🏆" label={t('cert', lang)} onClick={() => navigate('/certification')} />
+          <NavItem icon="💊" label={t('drugs', lang)} onClick={() => navigate('/drug-calc')} />
+          <NavItem icon="⚙️" label={t('settings', lang)} onClick={() => navigate('/settings')} />
         </div>
       </div>
     </div>

@@ -12,8 +12,10 @@ export const useSettingsStore = create(
       cycleAlertEnabled: true,
       drugReminderEnabled: true,
       compressorRotateAlert: true,
+      language: 'en',              // 'en' | 'th'
 
       setMode: (mode) => set({ mode }),
+      setLanguage: (lang) => set({ language: lang }),
       toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),
       toggleMetronome: () => set((s) => ({ metronomeEnabled: !s.metronomeEnabled })),
       setMetronomeRate: (rate) => set({ metronomeRate: rate }),

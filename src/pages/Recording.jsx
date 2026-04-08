@@ -10,6 +10,7 @@ import { useMetronome } from '../hooks/useMetronome';
 import { initAudio, playShockSound, playROSCSound } from '../utils/sound';
 import { checkDrugInteraction, checkAllergy } from '../utils/drugInteractions';
 import { isPediatric } from '../utils/pediatricDose';
+import { t } from '../utils/i18n';
 import VoiceCommand from '../components/VoiceCommand';
 import { exportCasePDF } from '../utils/exportPDF';
 
@@ -84,6 +85,7 @@ export default function Recording() {
   const endCase = useCaseStore(s => s.endCase);
   const { isRunning, startTimer, elapsed } = useTimerStore();
   const mode = useSettingsStore(s => s.mode);
+  const lang = useSettingsStore(s => s.language) || 'en';
   const isTraining = mode === 'training';
 
   // Scenario mode
@@ -423,19 +425,19 @@ export default function Recording() {
       {/* Quick access bar */}
       {(isRunning || elapsed > 0) && (
         <div className="floating-bar shrink-0">
-          <button onClick={() => setShowPatient(true)} className="bg-bg-primary text-text-secondary">👤 Patient</button>
-          <button onClick={() => setShowTeam(true)} className="bg-bg-primary text-text-secondary">👥 Team</button>
-          <button onClick={() => setShowVitals(true)} className="bg-bg-primary text-text-secondary">📊 Vitals</button>
-          <button onClick={() => setShowLabs(true)} className="bg-bg-primary text-text-secondary">🔬 Labs</button>
-          <button onClick={() => setShowEKG(true)} className="bg-bg-primary text-text-secondary">📈 EKG</button>
-          <button onClick={() => setShowVent(true)} className="bg-bg-primary text-text-secondary">🖥️ Vent</button>
-          <button onClick={() => setShowCheatSheet(true)} className="bg-bg-primary text-text-secondary">📖 Ref</button>
-          <button onClick={() => setShowSBAR(true)} className="bg-bg-primary text-text-secondary">📋 SBAR</button>
-          <button onClick={() => setShowComm(true)} className="bg-bg-primary text-text-secondary">📞 Comm</button>
-          <button onClick={() => setShowIncident(true)} className="bg-bg-primary text-text-secondary">📄 Report</button>
-          <button onClick={() => setShowPhotoNote(true)} className="bg-bg-primary text-text-secondary">📸 Note</button>
-          <button onClick={() => setShowDebrief(true)} className="bg-bg-primary text-text-secondary">📊 Debrief</button>
-          <button onClick={() => setShowEndCase(true)} className="bg-danger/10 text-danger">🏁 End</button>
+          <button onClick={() => setShowPatient(true)} className="bg-bg-primary text-text-secondary">👤 {t('patient',lang)}</button>
+          <button onClick={() => setShowTeam(true)} className="bg-bg-primary text-text-secondary">👥 {t('team',lang)}</button>
+          <button onClick={() => setShowVitals(true)} className="bg-bg-primary text-text-secondary">📊 {t('vitals',lang)}</button>
+          <button onClick={() => setShowLabs(true)} className="bg-bg-primary text-text-secondary">🔬 {t('labs',lang)}</button>
+          <button onClick={() => setShowEKG(true)} className="bg-bg-primary text-text-secondary">📈 {t('ekg',lang)}</button>
+          <button onClick={() => setShowVent(true)} className="bg-bg-primary text-text-secondary">🖥️ {t('vent',lang)}</button>
+          <button onClick={() => setShowCheatSheet(true)} className="bg-bg-primary text-text-secondary">📖 {t('ref',lang)}</button>
+          <button onClick={() => setShowSBAR(true)} className="bg-bg-primary text-text-secondary">📋 {t('sbar',lang)}</button>
+          <button onClick={() => setShowComm(true)} className="bg-bg-primary text-text-secondary">📞 {t('comm',lang)}</button>
+          <button onClick={() => setShowIncident(true)} className="bg-bg-primary text-text-secondary">📄 {t('report',lang)}</button>
+          <button onClick={() => setShowPhotoNote(true)} className="bg-bg-primary text-text-secondary">📸 {t('note',lang)}</button>
+          <button onClick={() => setShowDebrief(true)} className="bg-bg-primary text-text-secondary">📊 {t('debrief',lang)}</button>
+          <button onClick={() => setShowEndCase(true)} className="bg-danger/10 text-danger">🏁 {t('end',lang)}</button>
         </div>
       )}
 

@@ -27,6 +27,19 @@ export default function Settings() {
           </div>
         </div>
 
+        {/* Language */}
+        <div>
+          <label className="text-sm text-text-secondary block mb-2">Language</label>
+          <div className="flex gap-2">
+            {[{ key: 'en', label: '🇬🇧 English' }, { key: 'th', label: '🇹🇭 ไทย' }].map(l => (
+              <button key={l.key} onClick={() => settings.setLanguage(l.key)}
+                className={`flex-1 py-3 rounded-xl font-semibold transition-colors ${
+                  settings.language === l.key ? 'bg-info text-white' : 'bg-bg-tertiary text-text-secondary'
+                }`}>{l.label}</button>
+            ))}
+          </div>
+        </div>
+
         {/* Dark Mode */}
         <ToggleSetting label="Dark Mode" value={settings.theme === 'dark'} onToggle={() => {
           settings.toggleTheme();
