@@ -1,3 +1,4 @@
+import PanelWrapper from './PanelWrapper';
 import { useState, useEffect } from 'react';
 
 // Teaching Annotation — instructor writes comments on student's case
@@ -53,13 +54,8 @@ export default function TeachingAnnotation({ caseId, onClose }) {
   const catColor = (cat) => categories.find(c => c.key === cat)?.color || 'bg-bg-primary text-text-primary';
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">📝 Instructor Comments</span>
-        <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+    <PanelWrapper title="Instructor Comments" icon="📝" onClose={onClose}>
+      <div className="space-y-2">
         {annotations.length === 0 && (
           <div className="text-center py-6 text-text-muted text-xs">No comments yet</div>
         )}
@@ -96,7 +92,7 @@ export default function TeachingAnnotation({ caseId, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </PanelWrapper>
   );
 }
 

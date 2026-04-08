@@ -1,3 +1,4 @@
+import PanelWrapper from './PanelWrapper';
 import { useCaseStore } from '../stores/caseStore';
 import { formatElapsed } from '../utils/formatTime';
 
@@ -45,12 +46,8 @@ export function PatientInfoPanel({ onClose }) {
   );
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">👤 Patient Information</span>
-        <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">Done ✕</button>
-      </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <PanelWrapper title="Patient Information" icon="👤" onClose={onClose}>
+      <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <Field label="HN" field="hn" placeholder="Hospital Number" />
           <Field label="Name" field="name" placeholder="Patient Name" />
@@ -100,7 +97,7 @@ export function PatientInfoPanel({ onClose }) {
           </div>
         </div>
       </div>
-    </div>
+    </PanelWrapper>
   );
 }
 
@@ -119,12 +116,8 @@ export function TeamPanel({ onClose }) {
   );
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">👥 Team Assignment</span>
-        <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">Done ✕</button>
-      </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <PanelWrapper title="Team Assignment" icon="👥" onClose={onClose}>
+      <div className="space-y-3">
         <RoleField icon="👑" label="Team Leader" field="leader" placeholder="Name" />
         <RoleField icon="🫁" label="Airway" field="airway" placeholder="Name" />
         <RoleField icon="💉" label="Drug / IV" field="drugAdmin" placeholder="Name" />
@@ -149,6 +142,6 @@ export function TeamPanel({ onClose }) {
           Rotate compressors every 2 minutes to maintain CPR quality
         </div>
       </div>
-    </div>
+    </PanelWrapper>
   );
 }

@@ -1,3 +1,4 @@
+import PanelWrapper from './PanelWrapper';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { formatTimeLong } from '../utils/formatTime';
@@ -89,13 +90,8 @@ export default function DebriefingGuide({ onClose }) {
   }
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">📊 Debriefing Guide</span>
-        <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <PanelWrapper title="Debriefing Guide" icon="📊" onClose={onClose}>
+      <div className="space-y-3">
         {/* Summary */}
         <div className="glass-card !p-3 text-center">
           <div className="text-2xl font-mono font-black text-text-primary">{formatTimeLong(elapsed)}</div>
@@ -156,6 +152,6 @@ export default function DebriefingGuide({ onClose }) {
           </div>
         </div>
       </div>
-    </div>
+    </PanelWrapper>
   );
 }

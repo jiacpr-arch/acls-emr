@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
+import PanelWrapper from './PanelWrapper';
 
 // Ventilator Settings — adjustable anytime
 export default function VentilatorSettings({ onClose }) {
@@ -30,16 +31,8 @@ export default function VentilatorSettings({ onClose }) {
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">🖥️ Ventilator Settings</span>
-        <div className="flex gap-2">
-          <button onClick={save} className="btn-action btn-info px-4 py-1.5 text-xs !min-h-0">Save</button>
-          <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <PanelWrapper title="Ventilator Settings" icon="🖥️" onClose={onClose} onSave={save}>
+      <div className="space-y-3">
         {/* Mode */}
         <div className="glass-card !p-3">
           <div className="text-xs text-text-muted font-semibold mb-2">Mode</div>
@@ -98,6 +91,6 @@ export default function VentilatorSettings({ onClose }) {
           <div className="text-[9px] text-text-muted mt-1">Based on weight: {weight}kg</div>
         </div>
       </div>
-    </div>
+    </PanelWrapper>
   );
 }
