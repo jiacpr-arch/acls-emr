@@ -83,7 +83,7 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
             {presets.map(cat => (
               <div key={cat.category}>
                 <div className="text-[10px] font-bold text-text-muted uppercase mb-1.5">{cat.category}</div>
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid-responsive">
                   {cat.items.map(item => (
                     <button key={item.id} onClick={() => handlePreset(item)}
                       className={`text-left px-4 py-3 rounded-lg transition-colors border-2 ${

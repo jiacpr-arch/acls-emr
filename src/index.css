@@ -332,17 +332,23 @@ button, [role="button"] {
 }
 
 /* ===== RESPONSIVE ===== */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
 @media (min-width: 768px) {
   .btn { font-size: 15px; }
+  .btn-action { font-size: 14px; }
   .glass-card { border-radius: 14px; }
-  .bottom-tab-bar button { font-size: 11px; min-width: 72px; }
-  .bottom-tab-bar button .tab-icon { font-size: 22px; }
+  .grid-responsive { grid-template-columns: repeat(3, 1fr); }
+  .bottom-pill-bar button { font-size: 11px; min-width: 60px; }
 }
 @media (min-width: 1024px) {
   .btn { height: 52px; font-size: 15px; }
   .btn-lg { height: 60px; }
-  .bottom-tab-bar { height: 60px; }
-  .bottom-tab-bar button { font-size: 11px; min-width: 80px; }
+  .grid-responsive { grid-template-columns: repeat(4, 1fr); }
+  .bottom-pill-bar button { font-size: 11px; min-width: 68px; }
 }
 
 /* ===== DARK MODE ===== */

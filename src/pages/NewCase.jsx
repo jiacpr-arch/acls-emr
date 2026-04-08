@@ -83,48 +83,34 @@ export default function NewCase() {
         {/* Start buttons */}
         <div className="w-full max-w-sm space-y-3">
           <button onClick={() => handleStart('bls')} disabled={loading}
-            className="w-full py-5 btn-action btn-danger text-base animate-pulse-red disabled:opacity-50">
-            <div className="text-xl mb-0.5">🚨</div>
-            BLS — First Responder
-            <div className="text-[10px] font-medium opacity-80 mt-0.5">
-              Scene Safety → Response → Pulse → CPR
-            </div>
+            className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50">
+            🚨 BLS — First Responder
           </button>
 
           <button onClick={() => handleStart('rrt')} disabled={loading}
-            className="w-full py-5 btn-action btn-info text-base disabled:opacity-50">
-            <div className="text-xl mb-0.5">🏥</div>
-            RRT / MET Team
-            <div className="text-[10px] font-medium opacity-80 mt-0.5">
-              Team Arrived → Pulse Check → Assess
-            </div>
+            className="btn btn-primary btn-xl btn-block disabled:opacity-50">
+            🏥 RRT / MET Team
           </button>
 
           {/* Quick Start Templates */}
           <div className="grid grid-cols-2 gap-2">
             {[
-              { icon: '🫀', label: 'Cardiac Arrest', sub: 'VF / Asystole', start: 'bls' },
-              { icon: '🐢', label: 'Bradycardia', sub: 'HR < 50', start: 'rrt' },
-              { icon: '🐇', label: 'Tachycardia', sub: 'HR > 150', start: 'rrt' },
-              { icon: '🧠', label: 'Stroke', sub: 'FAST track', start: 'rrt' },
+              { icon: '🫀', label: 'Cardiac Arrest', start: 'bls' },
+              { icon: '🐢', label: 'Bradycardia', start: 'rrt' },
+              { icon: '🐇', label: 'Tachycardia', start: 'rrt' },
+              { icon: '🧠', label: 'Stroke', start: 'rrt' },
             ].map(t => (
               <button key={t.label} onClick={() => handleStart(t.start)} disabled={loading}
-                className="btn-action btn-ghost py-3 text-xs disabled:opacity-50">
-                <div className="text-lg">{t.icon}</div>
-                {t.label}
-                <div className="text-[8px] text-text-muted mt-0.5">{t.sub}</div>
+                className="btn btn-ghost btn-lg btn-block disabled:opacity-50">
+                {t.icon} {t.label}
               </button>
             ))}
           </div>
 
           {/* Training scenarios */}
           <button onClick={() => navigate('/scenarios')}
-            className="w-full py-4 btn-action btn-purple text-base">
-            <div className="text-xl mb-0.5">🎮</div>
-            Training Scenarios
-            <div className="text-[10px] font-medium opacity-80 mt-0.5">
-              Basic · Intermediate · Megacode
-            </div>
+            className="btn btn-purple btn-lg btn-block">
+            🎮 Training Scenarios
           </button>
         </div>
       </div>
