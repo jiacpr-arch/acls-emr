@@ -21,44 +21,48 @@ export function exportCasePDF(caseData) {
 
   // =============== PAGE 1: Header + Patient + Event Timeline Table ===============
 
-  // Title bar
+  // Title bar with JIA branding
   doc.setFillColor(...headerColor);
-  doc.rect(0, 0, pw, 12, 'F');
-  doc.setFontSize(14);
+  doc.rect(0, 0, pw, 14, 'F');
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(255);
-  doc.text('ACLS Record Report', pw / 2, 8, { align: 'center' });
-  y = 16;
+  doc.text('ACLS Record Report', pw / 2, 7, { align: 'center' });
+  doc.setFontSize(7);
+  doc.text('JIA Trainer Center — jia1669.com', pw / 2, 12, { align: 'center' });
+  y = 18;
 
-  // Patient row
+  // Patient row (matching JIA form header: ชื่อ | อายุ | ตำหนิ/ชุด | วันที่)
   doc.setTextColor(0);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   const p = caseData.patient || {};
-  const patientLine = [
-    p.name || '-',
-    p.age ? `Age: ${p.age}` : '',
-    p.gender || '',
-    p.hn ? `HN: ${p.hn}` : '',
-    p.location || '',
-  ].filter(Boolean).join('  |  ');
-  doc.text(patientLine, 14, y);
-  y += 4;
+
+  // JIA form header row
+  doc.autoTable({
+    startY: y,
+    body: [[
+      p.name || '-',
+      p.age ? `${p.age}y ${p.gender || ''}` : '-',
+      p.hn || '-',
+      p.location || '-',
+      startTime ? startTime.toLocaleDateString('en-US') : '-',
+    ]],
+    head: [['Name', 'Age/Sex', 'HN', 'Location', 'Date']],
+    theme: 'grid',
+    headStyles: { fillColor: [100, 100, 100], fontSize: 7 },
+    styles: { fontSize: 8, cellPadding: 2 },
+    margin: { left: 10, right: 10 },
+  });
+  y = doc.lastAutoTable.finalY + 3;
 
   // Case info row
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  const caseInfoLine = [
-    `Case: ${caseData.id || '-'}`,
-    `Mode: ${(caseData.mode || 'clinical').toUpperCase()}`,
-    `Date: ${startTime ? startTime.toLocaleDateString('en-US') : '-'}`,
-    `Start: ${fmtClock(caseData.startTime)}`,
-    `End: ${fmtClock(caseData.endTime)}`,
-    `Duration: ${fmtSec(duration)}`,
-    `Outcome: ${caseData.outcome || '-'}`,
-  ].join('  |  ');
-  doc.text(caseInfoLine, 14, y);
-  y += 6;
+  doc.setFontSize(7);
+  doc.setTextColor(80);
+  doc.text(`Case: ${caseData.id || '-'}  |  Mode: ${(caseData.mode || 'clinical').toUpperCase()}  |  Start: ${fmtClock(caseData.startTime)}  |  End: ${fmtClock(caseData.endTime)}  |  Duration: ${fmtSec(duration)}  |  Outcome: ${caseData.outcome || '-'}`, 14, y);
+  doc.setTextColor(0);
+  y += 5;
 
   // ---- Event Timeline Table (JIA form format) ----
   // Columns: Time | Rhythm | Defib/Sync/Pacing | Medication/Procedure | Dose/Route | EtCO2 | Note
@@ -261,6 +265,16 @@ export function exportCasePDF(caseData) {
       styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
     });
     y = doc.lastAutoTable.finalY + 4;
+  }
+
+  // Recorder (ผู้จด) — from team data
+  if (caseData.team?.recorder) {
+    if (y > 265) { doc.addPage(); y = 15; }
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0);
+    doc.text(`Recorder: ${caseData.team.recorder}`, 14, y);
+    y += 6;
   }
 
   // =============== Footer + Watermark on ALL pages ===============
