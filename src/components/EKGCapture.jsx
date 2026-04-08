@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
+import PanelWrapper from './PanelWrapper';
 
 // EKG Capture Panel — available from all pathways
 // Features: preset rhythm selection + photo capture + notes
@@ -68,22 +69,14 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">📈 EKG / 12-Lead</span>
-        <div className="flex gap-2">
-          <button onClick={handleSave} className="btn-action btn-info px-4 py-1.5 text-xs !min-h-0">Done</button>
-          <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-        </div>
-      </div>
-
+    <PanelWrapper title="EKG / 12-Lead" icon="📈" onClose={onClose} onSave={handleSave} saveLabel="Done">
       {/* Tabs */}
-      <div className="tab-group mx-4 mt-2">
+      <div className="tab-group mb-4">
         <button onClick={() => setTab('preset')} className={`tab-item ${tab === 'preset' ? 'active' : ''}`}>Rhythm</button>
         <button onClick={() => setTab('photo')} className={`tab-item ${tab === 'photo' ? 'active' : ''}`}>12-Lead Photo</button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div>
         {/* Preset rhythms */}
         {tab === 'preset' && (
           <div className="space-y-3">
@@ -93,13 +86,13 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
                 <div className="grid grid-cols-2 gap-1.5">
                   {cat.items.map(item => (
                     <button key={item.id} onClick={() => handlePreset(item)}
-                      className={`text-left px-3 py-2.5 rounded-lg text-xs transition-colors ${
+                      className={`text-left px-4 py-3 rounded-lg transition-colors border-2 ${
                         selectedPreset?.id === item.id
-                          ? 'bg-info/15 border border-info/30'
-                          : 'bg-bg-primary border border-bg-tertiary'
+                          ? 'bg-info/10 border-info'
+                          : 'border-bg-tertiary hover:border-info/50'
                       }`}>
-                      <div className="font-bold text-text-primary">{item.label}</div>
-                      <div className="text-[9px] text-text-muted">{item.desc}</div>
+                      <div className="font-bold text-text-primary text-sm">{item.label}</div>
+                      <div className="text-xs text-text-muted mt-0.5">{item.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -164,7 +157,7 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
           </div>
         )}
       </div>
-    </div>
+    </PanelWrapper>
   );
 }
 
