@@ -11,6 +11,7 @@ import ScenarioSelect from './pages/ScenarioSelect';
 import DrugCalc from './pages/DrugCalc';
 import Statistics from './pages/Statistics';
 import DrillTimer from './pages/DrillTimer';
+import CaseCompare from './pages/CaseCompare';
 import { FeedbackButton } from './components/FeedbackButton';
 import OfflineIndicator from './components/OfflineIndicator';
 
@@ -38,6 +39,7 @@ function App() {
         <Route path="/drug-calc" element={<><Navbar /><DrugCalc /></>} />
         <Route path="/statistics" element={<><Navbar /><Statistics /></>} />
         <Route path="/drill" element={<><Navbar /><DrillTimer /></>} />
+        <Route path="/compare" element={<><Navbar /><CaseCompare /></>} />
       </Routes>
     </div>
   );

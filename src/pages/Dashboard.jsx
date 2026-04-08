@@ -4,13 +4,15 @@ import { getAllCases, deleteCase, getFullCase } from '../db/database';
 import { formatTimeLong, formatElapsed } from '../utils/formatTime';
 import { exportCasePDF } from '../utils/exportPDF';
 import { LineChart, Line, XAxis, YAxis, ReferenceLine, ResponsiveContainer } from 'recharts';
+import TeachingAnnotation, { AnnotationBadge } from '../components/TeachingAnnotation';
 
 export default function Dashboard() {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCase, setSelectedCase] = useState(null);
   const [detailData, setDetailData] = useState(null);
-  const [filterMode, setFilterMode] = useState('all'); // 'all' | 'clinical' | 'training'
+  const [filterMode, setFilterMode] = useState('all');
+  const [annotatingCase, setAnnotatingCase] = useState(null); // 'all' | 'clinical' | 'training'
 
   useEffect(() => { loadCases(); }, []);
 
@@ -57,10 +59,16 @@ export default function Dashboard() {
     <div className="p-4 max-w-4xl mx-auto space-y-4 pb-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
-        <Link to="/"
-          className="px-4 py-2 bg-danger text-white rounded-xl font-semibold hover:bg-danger-dark transition-colors">
+        <div className="flex gap-2">
+          <Link to="/compare"
+            className="px-3 py-2 bg-info/10 text-info rounded-xl font-semibold text-xs">
+            📊 Compare
+          </Link>
+          <Link to="/"
+            className="px-4 py-2 bg-danger text-white rounded-xl font-semibold hover:bg-danger-dark transition-colors">
           + New Case
         </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -153,6 +161,11 @@ export default function Dashboard() {
                         PDF
                       </button>
                     )}
+                    <button onClick={() => setAnnotatingCase(c.id)}
+                      className="text-xs px-2 py-1.5 bg-purple/10 text-purple rounded-lg font-medium">
+                      📝
+                    </button>
+                    <AnnotationBadge caseId={c.id} />
                     <button onClick={() => handleDelete(c.id)}
                       className="text-xs px-2 py-1.5 bg-danger/10 text-danger rounded-lg font-medium">
                       ✕
@@ -169,6 +182,11 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Teaching Annotation overlay */}
+      {annotatingCase && (
+        <TeachingAnnotation caseId={annotatingCase} onClose={() => setAnnotatingCase(null)} />
+      )}
     </div>
   );
 }
