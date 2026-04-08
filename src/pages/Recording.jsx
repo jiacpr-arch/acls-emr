@@ -32,6 +32,7 @@ import CheatSheet from '../components/CheatSheet';
 import SBARHandover from '../components/SBARHandover';
 import DebriefingGuide from '../components/DebriefingGuide';
 import PhotoNote from '../components/PhotoNote';
+import IncidentReport from '../components/IncidentReport';
 import { StepCard, BigButton, TrainingHint, CountdownHint } from '../components/StepUI';
 import { EventLogPanel, PatientInfoPanel, TeamPanel } from '../components/Panels';
 
@@ -114,6 +115,7 @@ export default function Recording() {
   const [showSBAR, setShowSBAR] = useState(false);
   const [showDebrief, setShowDebrief] = useState(false);
   const [showPhotoNote, setShowPhotoNote] = useState(false);
+  const [showIncident, setShowIncident] = useState(false);
   const [witnessed, setWitnessed] = useState(null);
   const [bystanderCPR, setBystanderCPR] = useState(null);
 
@@ -412,6 +414,7 @@ export default function Recording() {
           <button onClick={() => setShowVent(true)} className="bg-bg-primary text-text-secondary">🖥️ Vent</button>
           <button onClick={() => setShowCheatSheet(true)} className="bg-bg-primary text-text-secondary">📖 Ref</button>
           <button onClick={() => setShowSBAR(true)} className="bg-bg-primary text-text-secondary">📋 SBAR</button>
+          <button onClick={() => setShowIncident(true)} className="bg-bg-primary text-text-secondary">📄 Report</button>
           <button onClick={() => setShowPhotoNote(true)} className="bg-bg-primary text-text-secondary">📸 Note</button>
           <button onClick={() => setShowDebrief(true)} className="bg-bg-primary text-text-secondary">📊 Debrief</button>
           <button onClick={() => setShowEndCase(true)} className="bg-danger/10 text-danger">🏁 End</button>
@@ -445,6 +448,7 @@ export default function Recording() {
       {showSBAR && <SBARHandover onClose={() => setShowSBAR(false)} />}
       {showDebrief && <DebriefingGuide onClose={() => setShowDebrief(false)} />}
       {showPhotoNote && <PhotoNote onClose={() => setShowPhotoNote(false)} />}
+      {showIncident && <IncidentReport onClose={() => setShowIncident(false)} />}
       {showEndCase && <EndCaseModal
         onClose={() => setShowEndCase(false)}
         onROSC={() => goStep(STEPS.ROSC)}

@@ -11,6 +11,8 @@ import ScenarioSelect from './pages/ScenarioSelect';
 import DrugCalc from './pages/DrugCalc';
 import Statistics from './pages/Statistics';
 import DrillTimer from './pages/DrillTimer';
+import { FeedbackButton } from './components/FeedbackButton';
+import OfflineIndicator from './components/OfflineIndicator';
 
 function App() {
   const theme = useSettingsStore(s => s.theme);
@@ -21,6 +23,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
+      <OfflineIndicator />
+      <FeedbackButton />
       <Routes>
         {/* Home = New Case (start immediately) */}
         <Route path="/" element={<NewCase />} />
