@@ -9,6 +9,8 @@ import { useTimerWorker } from '../hooks/useTimerWorker';
 import { useMetronome } from '../hooks/useMetronome';
 import { initAudio, playShockSound, playROSCSound } from '../utils/sound';
 import { checkDrugInteraction, checkAllergy } from '../utils/drugInteractions';
+import { isPediatric } from '../utils/pediatricDose';
+import VoiceCommand from '../components/VoiceCommand';
 import { exportCasePDF } from '../utils/exportPDF';
 
 // Components
@@ -398,8 +400,20 @@ export default function Recording() {
           onStaffTakeover={(s) => { setScenarioScore(s); setScenarioState('takeover'); }} />
       )}
 
-      {/* Timer Bar */}
-      {(isRunning || elapsed > 0) && <TimerBar onToggleLog={() => setShowLog(!showLog)} showLog={showLog} isTraining={isTraining} currentStep={step} />}
+      {/* Timer Bar + Pediatric + Voice */}
+      {(isRunning || elapsed > 0) && (
+        <>
+          <TimerBar onToggleLog={() => setShowLog(!showLog)} showLog={showLog} isTraining={isTraining} currentStep={step} />
+          <div className="flex items-center justify-between px-3 py-0.5 bg-bg-secondary/50 shrink-0">
+            <div className="flex items-center gap-2">
+              {isPediatric(useCaseStore.getState().patient) && (
+                <span className="text-[9px] font-bold bg-purple/15 text-purple px-2 py-0.5 rounded-full">PEDS</span>
+              )}
+            </div>
+            <VoiceCommand />
+          </div>
+        </>
+      )}
 
       {/* Step Content */}
       <div className="flex-1 flex items-center justify-center px-5 py-4 overflow-y-auto">
