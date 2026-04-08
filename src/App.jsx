@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { useSettingsStore } from './stores/settingsStore';
-import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import NewCase from './pages/NewCase';
 import Recording from './pages/Recording';
@@ -13,36 +12,40 @@ import Statistics from './pages/Statistics';
 import DrillTimer from './pages/DrillTimer';
 import CaseCompare from './pages/CaseCompare';
 import Certification from './pages/Certification';
+import BottomTabBar from './components/BottomTabBar';
 import { FeedbackButton } from './components/FeedbackButton';
 import OfflineIndicator from './components/OfflineIndicator';
 
 function App() {
   const theme = useSettingsStore(s => s.theme);
+  const location = useLocation();
   useEffect(() => {
     if (theme === 'dark') document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
   }, [theme]);
+
+  // Recording page has its own nav (QuickBar + FloatingStatus)
+  const isRecording = location.pathname === '/recording';
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
       <OfflineIndicator />
       <FeedbackButton />
       <Routes>
-        {/* Home = New Case (start immediately) */}
         <Route path="/" element={<NewCase />} />
-        {/* Recording = ACLS step-by-step (no navbar) */}
         <Route path="/recording" element={<Recording />} />
-        {/* Other pages have navbar */}
-        <Route path="/history" element={<><Navbar /><Dashboard /></>} />
-        <Route path="/algorithm" element={<><Navbar /><Algorithm /></>} />
-        <Route path="/settings" element={<><Navbar /><Settings /></>} />
-        <Route path="/scenarios" element={<><Navbar /><ScenarioSelect /></>} />
-        <Route path="/drug-calc" element={<><Navbar /><DrugCalc /></>} />
-        <Route path="/statistics" element={<><Navbar /><Statistics /></>} />
-        <Route path="/drill" element={<><Navbar /><DrillTimer /></>} />
-        <Route path="/compare" element={<><Navbar /><CaseCompare /></>} />
-        <Route path="/certification" element={<><Navbar /><Certification /></>} />
+        <Route path="/history" element={<Dashboard />} />
+        <Route path="/algorithm" element={<Algorithm />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/scenarios" element={<ScenarioSelect />} />
+        <Route path="/drug-calc" element={<DrugCalc />} />
+        <Route path="/statistics" element={<Statistics />} />
+        <Route path="/drill" element={<DrillTimer />} />
+        <Route path="/compare" element={<CaseCompare />} />
+        <Route path="/certification" element={<Certification />} />
       </Routes>
+      {/* Bottom pill bar on all pages except recording */}
+      {!isRecording && <BottomTabBar />}
     </div>
   );
 }

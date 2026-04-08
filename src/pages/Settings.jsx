@@ -4,7 +4,7 @@ export default function Settings() {
   const settings = useSettingsStore();
 
   return (
-    <div className="p-4 max-w-2xl mx-auto space-y-4">
+    <div className="p-4 max-w-2xl mx-auto space-y-4 pb-24">
       <h1 className="text-2xl font-bold text-text-primary">Settings</h1>
 
       <div className="bg-bg-secondary rounded-xl p-4 space-y-4">

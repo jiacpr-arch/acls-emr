@@ -5,7 +5,7 @@ import { t } from '../utils/i18n';
 // Quick Action Bar — 5 main buttons + More menu
 // Replaces the 13-button floating bar
 export default function QuickBar({
-  onPatient, onTeam, onVitals, onLabs, onEKG, onVent, onCheatSheet,
+  onPatient, onTeam, onVitals, onLabs, onEKG, onVent, onAirway, onCheatSheet,
   onSBAR, onComm, onIncident, onPhotoNote, onDebrief, onEndCase,
 }) {
   const [showMore, setShowMore] = useState(false);
@@ -30,7 +30,7 @@ export default function QuickBar({
       <div className="bottom-pill-bar" style={{ zIndex: 30 }}>
         <QuickBtn icon="📊" label={t('vitals', lang)} onClick={onVitals} />
         <QuickBtn icon="📈" label={t('ekg', lang)} onClick={onEKG} />
-        <QuickBtn icon="🫁" label={t('airway', lang)} onClick={() => { /* handled via pathway */ }} />
+        <QuickBtn icon="🫁" label={t('airway', lang)} onClick={onAirway} />
         <QuickBtn icon="≡" label="More" onClick={() => setShowMore(true)} />
         <QuickBtn icon="🏁" label={t('end', lang)} onClick={onEndCase} danger />
       </div>
