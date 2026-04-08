@@ -10,6 +10,7 @@ export default function ScenarioSelect() {
   const [filterLevel, setFilterLevel] = useState('all');
   const [mode, setMode] = useState('learning');
   const [loading, setLoading] = useState(false);
+  const [briefScenario, setBriefScenario] = useState(null); // show brief before start
 
   const filtered = filterLevel === 'all' ? scenarios : getScenariosByLevel(filterLevel);
 
@@ -71,7 +72,7 @@ export default function ScenarioSelect() {
       {/* Scenario list */}
       <div className="space-y-2">
         {filtered.map(s => (
-          <button key={s.id} onClick={() => startScenario(s.id)}
+          <button key={s.id} onClick={() => setBriefScenario(s)}
             className="w-full glass-card !p-3 text-left">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-lg">{categoryIcons[s.category] || '📋'}</span>
@@ -94,6 +95,44 @@ export default function ScenarioSelect() {
 
       {filtered.length === 0 && (
         <div className="text-center py-8 text-text-muted text-sm">No scenarios found</div>
+      )}
+
+      {/* Scenario Brief Modal */}
+      {briefScenario && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setBriefScenario(null)}>
+          <div className="w-full max-w-sm bg-white rounded-2xl p-5 space-y-4 animate-slide-up"
+            onClick={e => e.stopPropagation()}>
+            <div className="text-center">
+              <div className="text-4xl mb-2">{categoryIcons[briefScenario.category] || '📋'}</div>
+              <h2 className="text-lg font-black text-text-primary">{briefScenario.title_th}</h2>
+              <span className={`inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${levelColors[briefScenario.level]}`}>
+                {briefScenario.level}
+              </span>
+            </div>
+
+            <div className="glass-card !p-3 text-left">
+              <div className="text-xs text-text-secondary">{briefScenario.description_th}</div>
+              <div className="text-[10px] text-text-muted mt-2">Steps: {briefScenario.steps.length} · Mode: {mode}</div>
+            </div>
+
+            <div className="glass-card !p-3 text-left">
+              <div className="text-[10px] font-bold text-text-muted uppercase mb-1">You will practice:</div>
+              <div className="space-y-0.5">
+                {briefScenario.steps.slice(0, 4).map((s, i) => (
+                  <div key={i} className="text-[10px] text-text-secondary">• {s.correctActions?.join(', ')}</div>
+                ))}
+                {briefScenario.steps.length > 4 && <div className="text-[10px] text-text-muted">+ {briefScenario.steps.length - 4} more...</div>}
+              </div>
+            </div>
+
+            <button onClick={() => startScenario(briefScenario.id)} disabled={loading}
+              className="w-full btn-action btn-success py-4 text-sm font-bold disabled:opacity-50">
+              {loading ? 'Loading...' : '🎮 Start Scenario'}
+            </button>
+            <button onClick={() => setBriefScenario(null)} className="w-full text-text-muted text-xs underline text-center">Cancel</button>
+          </div>
+        </div>
       )}
     </div>
   );

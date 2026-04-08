@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTimerStore } from '../stores/timerStore';
 import { useCaseStore } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
-import { playDrugAlert } from '../utils/sound';
+import { playDrugAlert, playBeep } from '../utils/sound';
 import { formatTime, formatTimeLong } from '../utils/formatTime';
 import CircularTimer from './CircularTimer';
 
@@ -42,6 +42,43 @@ export default function CPRDashboard({
 
   // Ensure CPR is active when dashboard mounts
   const [cprMode, setCprMode] = useState('hand_only'); // hand_only | bvm_30_2 | advanced
+
+  // Ventilation prompts
+  const [breathAlert, setBreathAlert] = useState(false);
+  const breathTimerRef = useRef(null);
+
+  // Advanced airway: breath prompt every 6 seconds
+  useEffect(() => {
+    if (breathTimerRef.current) clearInterval(breathTimerRef.current);
+    if (cprMode === 'advanced' && cprActive && settings.soundEnabled) {
+      breathTimerRef.current = setInterval(() => {
+        playBeep(523, 0.2, 0.25); // breath tone
+        setBreathAlert(true);
+        setTimeout(() => setBreathAlert(false), 1500);
+      }, 6000);
+    }
+    return () => { if (breathTimerRef.current) clearInterval(breathTimerRef.current); };
+  }, [cprMode, cprActive, settings.soundEnabled]);
+
+  // BVM 30:2: count based on metronome rate (~18s for 30 compressions at 100/min)
+  const [compressionCount, setCompressionCount] = useState(0);
+  useEffect(() => {
+    if (cprMode !== 'bvm_30_2' || !cprActive) { setCompressionCount(0); return; }
+    const ms = Math.round(60000 / (settings.metronomeRate || 110));
+    const iv = setInterval(() => {
+      setCompressionCount(prev => {
+        const next = prev + 1;
+        if (next >= 30) {
+          setBreathAlert(true);
+          if (settings.soundEnabled) playBeep(523, 0.3, 0.3);
+          setTimeout(() => setBreathAlert(false), 3000);
+          return 0;
+        }
+        return next;
+      });
+    }, ms);
+    return () => clearInterval(iv);
+  }, [cprMode, cprActive, settings.metronomeRate, settings.soundEnabled]);
 
   useEffect(() => { if (!cprActive) startCPR(); }, []);
 
@@ -188,6 +225,20 @@ export default function CPRDashboard({
       </div>
 
       {/* Training hint */}
+      {/* Breath alert */}
+      {breathAlert && (
+        <div className="bg-info text-white text-center py-2.5 rounded-xl text-sm font-black animate-pulse">
+          🫁 {cprMode === 'bvm_30_2' ? '2 BREATHS NOW!' : 'GIVE 1 BREATH'}
+        </div>
+      )}
+
+      {/* BVM 30:2 compression counter */}
+      {cprMode === 'bvm_30_2' && cprActive && !breathAlert && (
+        <div className="text-center text-xs text-text-muted">
+          Compressions: <span className="font-mono font-bold text-text-primary">{compressionCount}/30</span>
+        </div>
+      )}
+
       {/* CPR Mode indicator */}
       <div className="flex items-center justify-center gap-2">
         {['hand_only', 'bvm_30_2', 'advanced'].map(m => (
