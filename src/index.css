@@ -249,43 +249,53 @@ button, [role="button"] {
   color: var(--color-text-muted);
 }
 
-/* ===== BOTTOM TAB BAR ===== */
-.bottom-tab-bar {
+/* ===== BOTTOM PILL BAR (iPhone style) ===== */
+.bottom-pill-bar {
+  position: fixed;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0));
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  height: 56px;
-  background: white;
-  border-top: 1.5px solid #E8ECF1;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  gap: 4px;
+  padding: 6px 8px;
+  background: rgba(26, 35, 50, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 999px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2), 0 0 0 0.5px rgba(255,255,255,0.1) inset;
+  z-index: 40;
 }
-.bottom-tab-bar button {
+.bottom-pill-bar button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  min-width: 56px;
-  min-height: 44px;
-  color: var(--color-text-muted);
-  font-size: 10px;
+  justify-content: center;
+  gap: 1px;
+  width: 48px;
+  height: 44px;
+  border-radius: 999px;
+  color: rgba(255,255,255,0.6);
+  font-size: 9px;
   font-weight: 600;
-  transition: color 0.15s ease;
-  position: relative;
   border: none;
   background: none;
+  transition: all 0.15s ease;
+  min-width: 48px;
+  min-height: 44px;
 }
-.bottom-tab-bar button .tab-icon { font-size: 20px; line-height: 1; }
-.bottom-tab-bar button.active { color: #2B6CB0; }
-.bottom-tab-bar button.active::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 50%;
-  transform: translateX(-50%);
-  width: 20px; height: 3px;
-  border-radius: 0 0 3px 3px;
-  background: #2B6CB0;
+.bottom-pill-bar button .tab-icon { font-size: 18px; line-height: 1; }
+.bottom-pill-bar button.active {
+  color: white;
+  background: rgba(255,255,255,0.12);
+}
+.bottom-pill-bar button:active {
+  transform: scale(0.92);
+  background: rgba(255,255,255,0.15);
+}
+/* Light mode pill */
+:not(.dark) .bottom-pill-bar {
+  background: rgba(26, 35, 50, 0.88);
 }
 
 /* ===== FLOATING QUICK BAR ===== */

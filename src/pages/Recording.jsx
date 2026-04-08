@@ -419,7 +419,7 @@ export default function Recording() {
       )}
 
       {/* Step Content */}
-      <div className="flex-1 flex items-start justify-center px-4 py-4 overflow-y-auto">
+      <div className="flex-1 flex items-start justify-center px-4 py-4 overflow-y-auto pb-20">
         <div className="w-full max-w-md">{renderStep()}</div>
       </div>
 

@@ -29,7 +29,7 @@ export default function BottomTabBar() {
 
   return (
     <>
-      <div className="bottom-tab-bar shrink-0">
+      <div className="bottom-pill-bar">
         {tabs.map((tab, i) => {
           if (tab.key === 'more') {
             return (

@@ -26,15 +26,13 @@ export default function QuickBar({
 
   return (
     <>
-      {/* Main quick bar — 5 buttons */}
-      <div className="shrink-0 bg-bg-secondary border-t border-bg-tertiary">
-        <div className="flex items-center justify-around max-w-lg mx-auto py-1.5 px-2">
-          <QuickBtn icon="📊" label={t('vitals', lang)} onClick={onVitals} />
-          <QuickBtn icon="📈" label={t('ekg', lang)} onClick={onEKG} />
-          <QuickBtn icon="🫁" label={t('airway', lang)} onClick={() => { /* handled via pathway */ }} />
-          <QuickBtn icon="≡" label="More" onClick={() => setShowMore(true)} />
-          <QuickBtn icon="🏁" label={t('end', lang)} onClick={onEndCase} danger />
-        </div>
+      {/* Main quick bar — pill style */}
+      <div className="bottom-pill-bar" style={{ zIndex: 30 }}>
+        <QuickBtn icon="📊" label={t('vitals', lang)} onClick={onVitals} />
+        <QuickBtn icon="📈" label={t('ekg', lang)} onClick={onEKG} />
+        <QuickBtn icon="🫁" label={t('airway', lang)} onClick={() => { /* handled via pathway */ }} />
+        <QuickBtn icon="≡" label="More" onClick={() => setShowMore(true)} />
+        <QuickBtn icon="🏁" label={t('end', lang)} onClick={onEndCase} danger />
       </div>
 
       {/* More menu — slide up */}
@@ -63,11 +61,11 @@ export default function QuickBar({
 function QuickBtn({ icon, label, onClick, danger }) {
   return (
     <button onClick={onClick}
-      className={`flex flex-col items-center gap-0.5 py-1.5 px-3 rounded-lg transition-colors min-w-[52px] min-h-[44px] ${
-        danger ? 'text-danger' : 'text-text-secondary hover:text-info'
+      className={`flex flex-col items-center justify-center gap-1 transition-all ${
+        danger ? '!text-red-400' : ''
       }`}>
-      <span className="text-lg leading-none">{icon}</span>
-      <span className="text-[9px] font-semibold">{label}</span>
+      <span className="tab-icon">{icon}</span>
+      <span>{label}</span>
     </button>
   );
 }
