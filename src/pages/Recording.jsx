@@ -38,6 +38,7 @@ import DebriefingGuide from '../components/DebriefingGuide';
 import PhotoNote from '../components/PhotoNote';
 import IncidentReport from '../components/IncidentReport';
 import CommLog from '../components/CommLog';
+import QuickBar from '../components/QuickBar';
 import { StepCard, BigButton, TrainingHint, CountdownHint } from '../components/StepUI';
 import { EventLogPanel, PatientInfoPanel, TeamPanel } from '../components/Panels';
 
@@ -424,21 +425,21 @@ export default function Recording() {
 
       {/* Quick access bar */}
       {(isRunning || elapsed > 0) && (
-        <div className="floating-bar shrink-0">
-          <button onClick={() => setShowPatient(true)} className="bg-bg-primary text-text-secondary">👤 {t('patient',lang)}</button>
-          <button onClick={() => setShowTeam(true)} className="bg-bg-primary text-text-secondary">👥 {t('team',lang)}</button>
-          <button onClick={() => setShowVitals(true)} className="bg-bg-primary text-text-secondary">📊 {t('vitals',lang)}</button>
-          <button onClick={() => setShowLabs(true)} className="bg-bg-primary text-text-secondary">🔬 {t('labs',lang)}</button>
-          <button onClick={() => setShowEKG(true)} className="bg-bg-primary text-text-secondary">📈 {t('ekg',lang)}</button>
-          <button onClick={() => setShowVent(true)} className="bg-bg-primary text-text-secondary">🖥️ {t('vent',lang)}</button>
-          <button onClick={() => setShowCheatSheet(true)} className="bg-bg-primary text-text-secondary">📖 {t('ref',lang)}</button>
-          <button onClick={() => setShowSBAR(true)} className="bg-bg-primary text-text-secondary">📋 {t('sbar',lang)}</button>
-          <button onClick={() => setShowComm(true)} className="bg-bg-primary text-text-secondary">📞 {t('comm',lang)}</button>
-          <button onClick={() => setShowIncident(true)} className="bg-bg-primary text-text-secondary">📄 {t('report',lang)}</button>
-          <button onClick={() => setShowPhotoNote(true)} className="bg-bg-primary text-text-secondary">📸 {t('note',lang)}</button>
-          <button onClick={() => setShowDebrief(true)} className="bg-bg-primary text-text-secondary">📊 {t('debrief',lang)}</button>
-          <button onClick={() => setShowEndCase(true)} className="bg-danger/10 text-danger">🏁 {t('end',lang)}</button>
-        </div>
+        <QuickBar
+          onPatient={() => setShowPatient(true)}
+          onTeam={() => setShowTeam(true)}
+          onVitals={() => setShowVitals(true)}
+          onLabs={() => setShowLabs(true)}
+          onEKG={() => setShowEKG(true)}
+          onVent={() => setShowVent(true)}
+          onCheatSheet={() => setShowCheatSheet(true)}
+          onSBAR={() => setShowSBAR(true)}
+          onComm={() => setShowComm(true)}
+          onIncident={() => setShowIncident(true)}
+          onPhotoNote={() => setShowPhotoNote(true)}
+          onDebrief={() => setShowDebrief(true)}
+          onEndCase={() => setShowEndCase(true)}
+        />
       )}
 
       {/* Floating status buttons */}

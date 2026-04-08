@@ -3,6 +3,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
+import PanelWrapper from './PanelWrapper';
 
 // Vitals Panel — shared across all pathways
 // Records: BP (sys/dia + MAP auto), HR, SpO2, RR, Temp, AVPU, GCS, Pain
@@ -41,16 +42,8 @@ export default function VitalsPanel({ onClose }) {
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">📊 Vitals</span>
-        <div className="flex gap-2">
-          <button onClick={saveVitals} className="btn-action btn-info px-4 py-1.5 text-xs !min-h-0">Save</button>
-          <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <PanelWrapper title="Vitals" icon="📊" onClose={onClose} onSave={saveVitals}>
+      <div className="space-y-4">
         {/* BP + MAP */}
         <div className="glass-card !p-3 space-y-2">
           <ScrollPicker label="BP Systolic" value={bpSys} onChange={setBpSys}
@@ -170,6 +163,6 @@ export default function VitalsPanel({ onClose }) {
             min={0} max={10} step={1} alertHigh={7} />
         </div>
       </div>
-    </div>
+    </PanelWrapper>
   );
 }

@@ -4,6 +4,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { getActiveSession, clearActiveSession } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
+import BottomTabBar from '../components/BottomTabBar';
 
 export default function NewCase() {
   const navigate = useNavigate();
@@ -129,27 +130,8 @@ export default function NewCase() {
       </div>
 
       {/* Bottom tab bar */}
-      <div className="shrink-0 pb-[env(safe-area-inset-bottom)] bg-white border-t border-bg-tertiary/60">
-        <div className="flex justify-around py-2 max-w-md mx-auto">
-          <NavItem icon="📋" label={t('history', lang)} onClick={() => navigate('/history')} />
-          <NavItem icon="📊" label={t('statistics', lang)} onClick={() => navigate('/statistics')} />
-          <NavItem icon="🏋️" label={t('drill', lang)} onClick={() => navigate('/drill')} />
-          <NavItem icon="🎮" label={t('scenarios', lang)} onClick={() => navigate('/scenarios')} />
-          <NavItem icon="🏆" label={t('cert', lang)} onClick={() => navigate('/certification')} />
-          <NavItem icon="💊" label={t('drugs', lang)} onClick={() => navigate('/drug-calc')} />
-          <NavItem icon="⚙️" label={t('settings', lang)} onClick={() => navigate('/settings')} />
-        </div>
-      </div>
+      <BottomTabBar />
     </div>
   );
 }
 
-function NavItem({ icon, label, onClick }) {
-  return (
-    <button onClick={onClick}
-      className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-text-muted hover:text-info active:bg-bg-tertiary/30 transition-colors min-w-[64px] min-h-[44px]">
-      <span className="text-lg leading-none">{icon}</span>
-      <span className="text-[9px] font-semibold tracking-wide">{label}</span>
-    </button>
-  );
-}
