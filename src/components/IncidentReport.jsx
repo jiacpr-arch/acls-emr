@@ -1,6 +1,7 @@
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { formatTimeLong } from '../utils/formatTime';
+import PanelWrapper from './PanelWrapper';
 
 // Incident Report — auto-filled from case data
 // For hospitals requiring documentation after cardiac arrest
@@ -83,20 +84,14 @@ Report Generated: ${new Date().toLocaleString('en-US')}
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">📄 Incident Report</span>
-        <div className="flex gap-2">
-          <button onClick={share} className="btn-action btn-info px-3 py-1.5 text-xs !min-h-0">Share</button>
-          <button onClick={copyToClipboard} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">Copy</button>
-          <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-        </div>
+    <PanelWrapper title="Incident Report" icon="📄" onClose={onClose}>
+      <div className="flex gap-2 mb-3">
+        <button onClick={share} className="btn-action btn-info px-3 py-1.5 text-xs !min-h-0">Share</button>
+        <button onClick={copyToClipboard} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">Copy</button>
       </div>
-      <div className="flex-1 overflow-y-auto p-4">
-        <pre className="text-[10px] font-mono text-text-primary whitespace-pre-wrap leading-relaxed bg-bg-primary rounded-xl p-4">
-          {reportText}
-        </pre>
-      </div>
-    </div>
+      <pre className="text-[10px] font-mono text-text-primary whitespace-pre-wrap leading-relaxed bg-bg-primary rounded-xl p-4">
+        {reportText}
+      </pre>
+    </PanelWrapper>
   );
 }

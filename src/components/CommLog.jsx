@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
+import PanelWrapper from './PanelWrapper';
 
 // Communication Log — track who was notified
 export default function CommLog({ onClose }) {
@@ -31,13 +32,7 @@ export default function CommLog({ onClose }) {
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">📞 Communication Log</span>
-        <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <PanelWrapper title="Communication Log" icon="📞" onClose={onClose}>
         {/* Quick notify buttons */}
         <div className="text-xs text-text-muted font-semibold mb-1">Quick Notify</div>
         <div className="grid grid-cols-2 gap-1.5">
@@ -76,7 +71,6 @@ export default function CommLog({ onClose }) {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </PanelWrapper>
   );
 }

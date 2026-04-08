@@ -3,6 +3,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import OxygenDevice from './OxygenDevice';
+import PanelWrapper from './PanelWrapper';
 
 // Enhanced Airway Panel — device selection + details
 // Available from ALL pathways (not just cardiac arrest)
@@ -112,13 +113,7 @@ export default function AirwayPanel({ onClose }) {
 
   // Device selection + IV/IO access
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">🫁 Airway & Access</span>
-        <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <PanelWrapper title="Airway & Access" icon="🫁" onClose={onClose}>
         <div className="text-xs text-text-muted font-semibold uppercase mb-1">Airway Device</div>
         <div className="space-y-2">
           <button onClick={() => logDevice('BVM + O₂')}
@@ -155,7 +150,6 @@ export default function AirwayPanel({ onClose }) {
           <div>• Continuous CPR (no 30:2 pause)</div>
           <div>• Confirm with waveform EtCO₂</div>
         </div>
-      </div>
-    </div>
+    </PanelWrapper>
   );
 }

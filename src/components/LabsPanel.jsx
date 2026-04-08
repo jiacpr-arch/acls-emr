@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
+import PanelWrapper from './PanelWrapper';
 
 // Labs Panel — quick lab value entry
 // DTX (blood glucose), Hematocrit, Hemoglobin, Potassium, Lactate
@@ -27,16 +28,7 @@ export default function LabsPanel({ onClose }) {
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">🔬 Labs</span>
-        <div className="flex gap-2">
-          <button onClick={saveLabs} className="btn-action btn-info px-4 py-1.5 text-xs !min-h-0">Save</button>
-          <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <PanelWrapper title="Labs" icon="🔬" onClose={onClose} onSave={saveLabs}>
         <div className="glass-card !p-3 space-y-3">
           <ScrollPicker label="DTX (Blood Glucose)" value={dtx} onChange={setDtx}
             min={10} max={500} step={5} unit="mg/dL"
@@ -83,7 +75,6 @@ export default function LabsPanel({ onClose }) {
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </PanelWrapper>
   );
 }

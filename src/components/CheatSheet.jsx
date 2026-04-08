@@ -1,17 +1,13 @@
 import { useState } from 'react';
+import PanelWrapper from './PanelWrapper';
 
 // Quick Reference Cheat Sheet — accessible anytime via 📖 button
 export default function CheatSheet({ onClose }) {
   const [tab, setTab] = useState('drugs');
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">📖 Quick Reference</span>
-        <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-      </div>
-
-      <div className="tab-group mx-3 mt-2">
+    <PanelWrapper title="Quick Reference" icon="📖" onClose={onClose}>
+      <div className="tab-group mb-2">
         {['drugs', 'energy', 'airway', 'ht'].map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`tab-item ${tab === t ? 'active' : ''}`}>
@@ -20,7 +16,7 @@ export default function CheatSheet({ onClose }) {
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3">
+      <div>
         {tab === 'drugs' && (
           <div className="space-y-1">
             <div className="text-[10px] font-bold text-text-muted uppercase mb-1">Cardiac Arrest</div>
@@ -112,7 +108,7 @@ export default function CheatSheet({ onClose }) {
           </div>
         )}
       </div>
-    </div>
+    </PanelWrapper>
   );
 }
 

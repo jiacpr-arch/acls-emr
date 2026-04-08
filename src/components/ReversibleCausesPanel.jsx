@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { reversibleCauses } from '../data/hs-and-ts';
+import PanelWrapper from './PanelWrapper';
 
 // Enhanced H's & T's panel — with treatment recommendations + correction tracking
 // Available from ALL pathways
@@ -85,13 +86,7 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
   }
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-        <span className="font-bold text-text-primary">🔍 Reversible Causes (H's & T's)</span>
-        <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">✕</button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4">
+    <PanelWrapper title="Reversible Causes" icon="🔍" onClose={onClose}>
         <div className="grid grid-cols-2 gap-3">
           {/* H's */}
           <div>
@@ -129,8 +124,7 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
             ))}
           </div>
         </div>
-      </div>
-    </div>
+    </PanelWrapper>
   );
 }
 
