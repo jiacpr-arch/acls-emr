@@ -12,6 +12,7 @@ import DrugCalc from './pages/DrugCalc';
 import Statistics from './pages/Statistics';
 import DrillTimer from './pages/DrillTimer';
 import CaseCompare from './pages/CaseCompare';
+import Certification from './pages/Certification';
 import { FeedbackButton } from './components/FeedbackButton';
 import OfflineIndicator from './components/OfflineIndicator';
 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/statistics" element={<><Navbar /><Statistics /></>} />
         <Route path="/drill" element={<><Navbar /><DrillTimer /></>} />
         <Route path="/compare" element={<><Navbar /><CaseCompare /></>} />
+        <Route path="/certification" element={<><Navbar /><Certification /></>} />
       </Routes>
     </div>
   );

@@ -133,6 +133,7 @@ export default function NewCase() {
           <NavItem icon="📊" label="Stats" onClick={() => navigate('/statistics')} />
           <NavItem icon="🏋️" label="Drill" onClick={() => navigate('/drill')} />
           <NavItem icon="🎮" label="Scenarios" onClick={() => navigate('/scenarios')} />
+          <NavItem icon="🏆" label="Cert" onClick={() => navigate('/certification')} />
           <NavItem icon="💊" label="Drugs" onClick={() => navigate('/drug-calc')} />
           <NavItem icon="⚙️" label="Settings" onClick={() => navigate('/settings')} />
         </div>

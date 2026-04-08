@@ -5,6 +5,7 @@ import { formatTimeLong, formatElapsed } from '../utils/formatTime';
 import { exportCasePDF } from '../utils/exportPDF';
 import { LineChart, Line, XAxis, YAxis, ReferenceLine, ResponsiveContainer } from 'recharts';
 import TeachingAnnotation, { AnnotationBadge } from '../components/TeachingAnnotation';
+import ShareExport from '../components/ShareExport';
 
 export default function Dashboard() {
   const [cases, setCases] = useState([]);
@@ -12,7 +13,8 @@ export default function Dashboard() {
   const [selectedCase, setSelectedCase] = useState(null);
   const [detailData, setDetailData] = useState(null);
   const [filterMode, setFilterMode] = useState('all');
-  const [annotatingCase, setAnnotatingCase] = useState(null); // 'all' | 'clinical' | 'training'
+  const [annotatingCase, setAnnotatingCase] = useState(null);
+  const [sharingCase, setSharingCase] = useState(null); // 'all' | 'clinical' | 'training'
 
   useEffect(() => { loadCases(); }, []);
 
@@ -156,10 +158,16 @@ export default function Dashboard() {
                       </Link>
                     )}
                     {c.outcome !== 'ongoing' && (
-                      <button onClick={() => handleExport(c.id)}
-                        className="text-xs px-2 py-1.5 bg-info/10 text-info rounded-lg font-medium">
-                        PDF
-                      </button>
+                      <>
+                        <button onClick={() => handleExport(c.id)}
+                          className="text-xs px-2 py-1.5 bg-info/10 text-info rounded-lg font-medium">
+                          PDF
+                        </button>
+                        <button onClick={async () => { const d = await getFullCase(c.id); setSharingCase(d); }}
+                          className="text-xs px-2 py-1.5 bg-success/10 text-success rounded-lg font-medium">
+                          📤
+                        </button>
+                      </>
                     )}
                     <button onClick={() => setAnnotatingCase(c.id)}
                       className="text-xs px-2 py-1.5 bg-purple/10 text-purple rounded-lg font-medium">
@@ -186,6 +194,9 @@ export default function Dashboard() {
       {/* Teaching Annotation overlay */}
       {annotatingCase && (
         <TeachingAnnotation caseId={annotatingCase} onClose={() => setAnnotatingCase(null)} />
+      )}
+      {sharingCase && (
+        <ShareExport caseData={sharingCase} onClose={() => setSharingCase(null)} />
       )}
     </div>
   );
