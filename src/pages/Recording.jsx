@@ -8,6 +8,7 @@ import { formatTimeLong, formatTime } from '../utils/formatTime';
 import { useTimerWorker } from '../hooks/useTimerWorker';
 import { useMetronome } from '../hooks/useMetronome';
 import { initAudio, playShockSound, playROSCSound } from '../utils/sound';
+import { checkDrugInteraction, checkAllergy } from '../utils/drugInteractions';
 import { exportCasePDF } from '../utils/exportPDF';
 
 // Components
@@ -33,6 +34,7 @@ import SBARHandover from '../components/SBARHandover';
 import DebriefingGuide from '../components/DebriefingGuide';
 import PhotoNote from '../components/PhotoNote';
 import IncidentReport from '../components/IncidentReport';
+import CommLog from '../components/CommLog';
 import { StepCard, BigButton, TrainingHint, CountdownHint } from '../components/StepUI';
 import { EventLogPanel, PatientInfoPanel, TeamPanel } from '../components/Panels';
 
@@ -116,6 +118,7 @@ export default function Recording() {
   const [showDebrief, setShowDebrief] = useState(false);
   const [showPhotoNote, setShowPhotoNote] = useState(false);
   const [showIncident, setShowIncident] = useState(false);
+  const [showComm, setShowComm] = useState(false);
   const [witnessed, setWitnessed] = useState(null);
   const [bystanderCPR, setBystanderCPR] = useState(null);
 
@@ -414,6 +417,7 @@ export default function Recording() {
           <button onClick={() => setShowVent(true)} className="bg-bg-primary text-text-secondary">🖥️ Vent</button>
           <button onClick={() => setShowCheatSheet(true)} className="bg-bg-primary text-text-secondary">📖 Ref</button>
           <button onClick={() => setShowSBAR(true)} className="bg-bg-primary text-text-secondary">📋 SBAR</button>
+          <button onClick={() => setShowComm(true)} className="bg-bg-primary text-text-secondary">📞 Comm</button>
           <button onClick={() => setShowIncident(true)} className="bg-bg-primary text-text-secondary">📄 Report</button>
           <button onClick={() => setShowPhotoNote(true)} className="bg-bg-primary text-text-secondary">📸 Note</button>
           <button onClick={() => setShowDebrief(true)} className="bg-bg-primary text-text-secondary">📊 Debrief</button>
@@ -449,6 +453,7 @@ export default function Recording() {
       {showDebrief && <DebriefingGuide onClose={() => setShowDebrief(false)} />}
       {showPhotoNote && <PhotoNote onClose={() => setShowPhotoNote(false)} />}
       {showIncident && <IncidentReport onClose={() => setShowIncident(false)} />}
+      {showComm && <CommLog onClose={() => setShowComm(false)} />}
       {showEndCase && <EndCaseModal
         onClose={() => setShowEndCase(false)}
         onROSC={() => goStep(STEPS.ROSC)}
@@ -513,12 +518,19 @@ function ShockStep({ onShocked, onSkip, isTraining }) {
 }
 
 function DrugStep({ onDone, isTraining }) {
-  const { addEvent, addDrugTimer, shockCount, currentRhythm } = useCaseStore();
+  const { addEvent, addDrugTimer, shockCount, currentRhythm, patient } = useCaseStore();
   const elapsed = useTimerStore(s => s.elapsed);
   const isShockable = currentRhythm?.shockable;
   const [showTech, setShowTech] = useState(null);
+  const [drugWarning, setDrugWarning] = useState(null);
 
   const give = (name, id, hasTimer = false, sec = 180) => {
+    // Check interactions + allergies
+    const interactions = checkDrugInteraction(id, patient?.medications);
+    const allergy = checkAllergy(id, patient?.allergies);
+    if (allergy) { setDrugWarning(allergy); return; }
+    if (interactions.length > 0 && interactions.some(i => i.severity === 'critical')) { setDrugWarning(interactions[0]); return; }
+
     addEvent({ elapsed, category: 'drug', type: `💉 ${name}`, details: { drugId: id } });
     if (hasTimer) addDrugTimer(id, name, sec);
     onDone();
@@ -540,6 +552,19 @@ function DrugStep({ onDone, isTraining }) {
       <TrainingHint show={isTraining}>
         {isShockable ? <p>Shockable: Epi after 2nd shock → Amiodarone 300mg after 3rd shock</p> : <p>Non-shockable: Epi 1mg IV immediately → repeat q3-5 min</p>}
       </TrainingHint>
+      {/* Drug interaction/allergy warning */}
+      {drugWarning && (
+        <div className="glass-card !p-3 border-2 border-danger/50 space-y-2 mb-2">
+          <div className={`text-xs font-bold ${drugWarning.severity === 'critical' ? 'text-danger' : 'text-warning'}`}>
+            ⚠️ {drugWarning.message}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setDrugWarning(null)} className="btn-action btn-ghost py-2 text-xs">Cancel</button>
+            <button onClick={() => { setDrugWarning(null); }} className="btn-action btn-danger py-2 text-xs">Override & Give</button>
+          </div>
+        </div>
+      )}
+
       {showTech && (
         <div className="glass-card !p-3 text-left text-xs text-text-secondary mb-2">
           <div className="flex items-center justify-between mb-1">
