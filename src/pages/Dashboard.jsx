@@ -64,7 +64,7 @@ export default function Dashboard() {
         <div className="flex gap-2">
           <Link to="/compare"
             className="px-3 py-2 bg-info/10 text-info rounded-xl font-semibold text-xs">
-            📊 Compare
+            Compare
           </Link>
           <Link to="/"
             className="px-4 py-2 bg-danger text-white rounded-xl font-semibold hover:bg-danger-dark transition-colors">
@@ -165,13 +165,13 @@ export default function Dashboard() {
                         </button>
                         <button onClick={async () => { const d = await getFullCase(c.id); setSharingCase(d); }}
                           className="text-xs px-2 py-1.5 bg-success/10 text-success rounded-lg font-medium">
-                          📤
+                          Share
                         </button>
                       </>
                     )}
                     <button onClick={() => setAnnotatingCase(c.id)}
                       className="text-xs px-2 py-1.5 bg-purple/10 text-purple rounded-lg font-medium">
-                      📝
+                      Note
                     </button>
                     <AnnotationBadge caseId={c.id} />
                     <button onClick={() => handleDelete(c.id)}
@@ -215,14 +215,37 @@ function CaseDetail({ data }) {
   const epiEvents = events.filter(e => e.category === 'drug' && e.type?.includes('Epinephrine') && !e.type?.includes('Infusion'));
   const shockEvents = events.filter(e => e.category === 'shock');
   const firstEpi = epiEvents.length > 0 ? epiEvents[epiEvents.length - 1] : null;
-  const lastEpi = epiEvents.length > 0 ? epiEvents[0] : null;
   const lastRhythm = events.find(e => e.category === 'rhythm');
+
+  // All drugs (grouped)
+  const drugEvents = events.filter(e => e.category === 'drug');
+  const drugGroups = {};
+  drugEvents.forEach(e => {
+    const name = e.type?.replace('💉 ', '').replace('💊 ', '').split(' – ')[0]?.trim() || 'Unknown';
+    if (!drugGroups[name]) drugGroups[name] = [];
+    drugGroups[name].push(e);
+  });
+
+  // H&T events
+  const suspectedCauses = events.filter(e => e.type?.includes('🔍 Suspected cause'));
+  const correctedCauses = events.filter(e => e.type?.includes('✅ Corrected'));
+
+  // Lab events
+  const labEvents = events.filter(e => e.type?.includes('🔬 Labs'));
 
   return (
     <div className="mt-1 ml-2 mr-2 space-y-2 animate-slide-up">
       {/* Tab navigation */}
       <div className="tab-group">
         <button onClick={() => setTab('summary')} className={`tab-item ${tab === 'summary' ? 'active' : ''}`}>Summary</button>
+        <button onClick={() => setTab('ht')} className={`tab-item ${tab === 'ht' ? 'active' : ''}`}>
+          H&T/Labs
+          {(suspectedCauses.length > 0 || labEvents.length > 0) && (
+            <span className="ml-1 w-4 h-4 rounded-full bg-warning/20 text-warning text-[8px] font-bold inline-flex items-center justify-center">
+              {suspectedCauses.length + labEvents.length}
+            </span>
+          )}
+        </button>
         <button onClick={() => setTab('timeline')} className={`tab-item ${tab === 'timeline' ? 'active' : ''}`}>Timeline</button>
       </div>
 
@@ -278,22 +301,46 @@ function CaseDetail({ data }) {
             </div>
           </div>
 
+          {/* All Drugs Detail */}
+          {Object.keys(drugGroups).length > 0 && (
+            <div className="bg-bg-tertiary/20 rounded-lg p-2.5">
+              <div className="text-[9px] font-bold text-text-muted uppercase mb-1.5">Drugs Given</div>
+              <div className="space-y-1.5">
+                {Object.entries(drugGroups).map(([name, evts]) => (
+                  <div key={name} className="flex items-start gap-2">
+                    <span className="text-[10px] font-bold text-text-primary min-w-[80px] shrink-0">{name}</span>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap gap-1">
+                        {evts.slice().reverse().map((e, i) => (
+                          <span key={i} className="text-[9px] font-mono bg-bg-tertiary/50 px-1.5 py-0.5 rounded text-text-secondary">
+                            {formatElapsed(e.elapsed)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-bold text-info shrink-0">x{evts.length}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Team */}
           {data.team && data.team.leader && (
             <div className="bg-bg-tertiary/20 rounded-lg p-2.5">
               <div className="text-[9px] font-bold text-text-muted uppercase mb-1">Team</div>
               <div className="text-[10px] text-text-primary space-y-0.5">
-                {data.team.leader && <span>👑 {data.team.leader} </span>}
-                {data.team.airway && <span>🫁 {data.team.airway} </span>}
-                {data.team.drugAdmin && <span>💉 {data.team.drugAdmin} </span>}
+                {data.team.leader && <span>Leader: {data.team.leader} </span>}
+                {data.team.airway && <span>Airway: {data.team.airway} </span>}
+                {data.team.drugAdmin && <span>Drug: {data.team.drugAdmin} </span>}
               </div>
             </div>
           )}
 
-          {/* EtCO₂ readings */}
+          {/* EtCO2 readings */}
           {data.etco2Readings && data.etco2Readings.length > 0 && (
             <div className="bg-bg-tertiary/20 rounded-lg p-2.5">
-              <div className="text-[9px] font-bold text-text-muted uppercase mb-1">EtCO₂</div>
+              <div className="text-[9px] font-bold text-text-muted uppercase mb-1">EtCO2</div>
               <div className="flex flex-wrap gap-1">
                 {data.etco2Readings.map((r, i) => (
                   <span key={i} className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
@@ -321,6 +368,73 @@ function CaseDetail({ data }) {
         </div>
       )}
 
+      {/* H&T / Labs tab */}
+      {tab === 'ht' && (
+        <div className="space-y-2">
+          {/* Reversible Causes Investigated */}
+          <div className="bg-bg-tertiary/20 rounded-lg p-2.5">
+            <div className="text-[9px] font-bold text-text-muted uppercase mb-1.5">Reversible Causes Investigated</div>
+            {suspectedCauses.length === 0 ? (
+              <div className="text-xs text-text-muted py-2 text-center">No causes investigated</div>
+            ) : (
+              <div className="space-y-1.5">
+                {suspectedCauses.slice().reverse().map((ev, i) => {
+                  const causeName = ev.details?.cause || ev.type?.replace('🔍 Suspected cause: ', '') || '';
+                  const correction = correctedCauses.find(c => c.details?.cause === causeName);
+                  return (
+                    <div key={i} className={`rounded-lg p-2 ${correction ? 'bg-success/5 border border-success/20' : 'bg-warning/5 border border-warning/20'}`}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-text-primary">{causeName}</span>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                          correction ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'
+                        }`}>
+                          {correction ? 'CORRECTED' : 'SUSPECTED'}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-text-muted mt-0.5">
+                        Investigated: {formatElapsed(ev.elapsed)}
+                        {ev.details?.category && <span className="ml-2">({ev.details.category})</span>}
+                      </div>
+                      {correction && (
+                        <div className="text-[10px] text-success mt-0.5">
+                          Corrected: {formatElapsed(correction.elapsed)} → {correction.details?.treatment || ''}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Lab Results */}
+          <div className="bg-bg-tertiary/20 rounded-lg p-2.5">
+            <div className="text-[9px] font-bold text-text-muted uppercase mb-1.5">Lab Results</div>
+            {labEvents.length === 0 ? (
+              <div className="text-xs text-text-muted py-2 text-center">No labs recorded</div>
+            ) : (
+              <div className="space-y-1.5">
+                {labEvents.slice().reverse().map((ev, i) => {
+                  const d = ev.details || {};
+                  return (
+                    <div key={i} className="bg-bg-primary rounded-lg p-2">
+                      <div className="text-[10px] font-mono text-text-muted mb-1">{formatElapsed(ev.elapsed)}</div>
+                      <div className="grid grid-cols-5 gap-1 text-center">
+                        <LabValue label="DTX" value={d.dtx} unit="mg/dL" low={60} high={250} />
+                        <LabValue label="Hb" value={d.hb} unit="g/dL" low={7} />
+                        <LabValue label="Hct" value={d.hct} unit="%" low={21} />
+                        <LabValue label="K+" value={d.k} unit="mEq/L" low={3.5} high={5.5} />
+                        <LabValue label="Lac" value={d.lactate} unit="mmol/L" high={4} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Timeline tab */}
       {tab === 'timeline' && (
         <div>
@@ -344,6 +458,20 @@ function CaseDetail({ data }) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function LabValue({ label, value, unit, low, high }) {
+  if (value == null) return <div className="text-[9px] text-text-muted">—</div>;
+  const isLow = low != null && value < low;
+  const isHigh = high != null && value > high;
+  const colorClass = isLow || isHigh ? 'text-danger font-bold' : 'text-text-primary';
+  return (
+    <div>
+      <div className="text-[8px] text-text-muted uppercase">{label}</div>
+      <div className={`text-[11px] font-mono font-bold ${colorClass}`}>{value}</div>
+      <div className="text-[7px] text-text-muted">{unit}</div>
     </div>
   );
 }

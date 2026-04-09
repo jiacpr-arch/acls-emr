@@ -33,53 +33,124 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
     setSelectedCause(null);
   };
 
-  // Treatment detail view
+  // Treatment detail view — enhanced with protocol + key points
   if (selectedCause) {
     return (
-      <div className="absolute inset-0 z-50 flex flex-col bg-white animate-slide-up">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary">
-          <span className="font-bold text-text-primary">🔍 {selectedCause.name}</span>
-          <button onClick={() => setSelectedCause(null)} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">← Back</button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          <div className="glass-card !p-4">
-            <div className="text-sm font-bold text-text-primary mb-1">Signs & Symptoms</div>
-            <div className="text-xs text-text-secondary">{selectedCause.signs}</div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+        <div className="w-full max-w-lg h-full max-h-[100dvh] flex flex-col bg-bg-secondary animate-slide-up md:h-auto md:max-h-[85vh] md:rounded-2xl md:shadow-2xl md:m-4">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary shrink-0">
+            <span className="font-bold text-text-primary">🔍 {selectedCause.name}</span>
+            <button onClick={() => setSelectedCause(null)} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">← Back</button>
           </div>
 
-          <div className="glass-card !p-4">
-            <div className="text-sm font-bold text-success mb-2">Recommended Treatment</div>
-            <div className="text-xs text-text-primary font-medium mb-3">{selectedCause.treatment}</div>
-
-            {/* Quick correction buttons — each logs + does the action */}
-            <div className="space-y-2">
-              {getCorrectionActions(selectedCause.name).map((action, i) => (
-                <button key={i} onClick={() => handleCorrection(selectedCause, action.label)}
-                  className="w-full btn-action btn-success py-3 text-sm text-left px-4">
-                  ✅ {action.label}
-                  {action.detail && <div className="text-[10px] font-normal opacity-80 mt-0.5">{action.detail}</div>}
-                </button>
-              ))}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {/* Signs & Symptoms */}
+            <div className="glass-card !p-3">
+              <div className="text-xs font-bold text-text-primary mb-1">Signs & Symptoms</div>
+              <div className="text-xs text-text-secondary">{selectedCause.signs}</div>
             </div>
+
+            {/* When to Suspect — checklist */}
+            {selectedCause.whenToSuspect && (
+              <div className="glass-card !p-3">
+                <div className="text-xs font-bold text-warning mb-2">When to Suspect</div>
+                <div className="space-y-1">
+                  {selectedCause.whenToSuspect.map((item, i) => (
+                    <div key={i} className="flex items-start gap-2 text-[11px] text-text-secondary">
+                      <span className="text-warning shrink-0 mt-0.5">!</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Step-by-step Protocol */}
+            {selectedCause.protocol && (
+              <div className="glass-card !p-3">
+                <div className="text-xs font-bold text-success mb-2">Treatment Protocol</div>
+                <div className="space-y-1.5">
+                  {selectedCause.protocol.map((step, i) => {
+                    const isSubStep = step.startsWith('  ');
+                    return (
+                      <div key={i} className={`flex items-start gap-2 text-[11px] ${isSubStep ? 'ml-4' : ''}`}>
+                        {!isSubStep && (
+                          <span className="w-5 h-5 rounded-full bg-success/15 text-success text-[9px] font-bold flex items-center justify-center shrink-0">
+                            {i + 1 - selectedCause.protocol.slice(0, i).filter(s => s.startsWith('  ')).length}
+                          </span>
+                        )}
+                        {isSubStep && <span className="text-success/50 shrink-0 ml-1">→</span>}
+                        <span className={`text-text-primary ${isSubStep ? 'text-text-secondary' : 'font-medium'}`}>
+                          {isSubStep ? step.trim() : step}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Key Points */}
+            {selectedCause.keyPoints && (
+              <div className="glass-card !p-3 border-l-2 border-info">
+                <div className="text-xs font-bold text-info mb-2">Key Points</div>
+                <div className="space-y-1.5">
+                  {selectedCause.keyPoints.map((point, i) => (
+                    <div key={i} className="flex items-start gap-2 text-[11px] text-text-secondary">
+                      <span className="text-info shrink-0">*</span>
+                      <span>{point}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Labs/Diagnostics Needed */}
+            {selectedCause.labsNeeded && (
+              <div className="glass-card !p-3">
+                <div className="text-xs font-bold text-purple mb-2">Labs / Diagnostics</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedCause.labsNeeded.map((lab, i) => (
+                    <span key={i} className="text-[10px] font-medium bg-purple/10 text-purple px-2 py-1 rounded-lg">
+                      {lab}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quick correction buttons */}
+            <div className="glass-card !p-3">
+              <div className="text-xs font-bold text-success mb-2">Quick Correction Actions</div>
+              <div className="space-y-2">
+                {getCorrectionActions(selectedCause.name).map((action, i) => (
+                  <button key={i} onClick={() => handleCorrection(selectedCause, action.label)}
+                    className="w-full btn-action btn-success py-3 text-sm text-left px-4">
+                    ✅ {action.label}
+                    {action.detail && <div className="text-[10px] font-normal opacity-80 mt-0.5">{action.detail}</div>}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Open relevant panel */}
+            {selectedCause.name === 'Hypoxia' && onOpenAirway && (
+              <button onClick={onOpenAirway} className="w-full btn-action btn-info py-3 text-sm font-bold">
+                🫁 Open Airway Panel → Fix Now
+              </button>
+            )}
+            {(selectedCause.name === 'Hypo/Hyperkalemia' || selectedCause.name === 'Hydrogen ion (Acidosis)') && onOpenLabs && (
+              <button onClick={onOpenLabs} className="w-full btn-action btn-info py-3 text-sm font-bold">
+                🔬 Open Labs Panel → Check Values
+              </button>
+            )}
+
+            <button onClick={() => setSelectedCause(null)}
+              className="w-full btn-action btn-ghost py-3 text-sm">
+              ← Back to H's & T's
+            </button>
           </div>
-
-          {/* Open relevant panel */}
-          {selectedCause.name === 'Hypoxia' && onOpenAirway && (
-            <button onClick={onOpenAirway} className="w-full btn-action btn-info py-3 text-sm font-bold">
-              🫁 Open Airway Panel → Fix Now
-            </button>
-          )}
-          {(selectedCause.name === 'Hypo/Hyperkalemia' || selectedCause.name === 'Hydrogen ion (Acidosis)') && onOpenLabs && (
-            <button onClick={onOpenLabs} className="w-full btn-action btn-info py-3 text-sm font-bold">
-              🔬 Open Labs Panel → Check Values
-            </button>
-          )}
-
-          <button onClick={() => setSelectedCause(null)}
-            className="w-full btn-action btn-ghost py-3 text-sm">
-            ← Back to H's & T's
-          </button>
         </div>
       </div>
     );
@@ -160,20 +231,25 @@ function getCorrectionActions(causeName) {
       { label: 'Needle Decompression', detail: '14G needle, 2nd ICS midclavicular line' },
       { label: 'Chest Tube (after needle)', detail: '28-32 Fr, 5th ICS anterior axillary line' },
     ],
-    'Tamponade': [
+    'Tamponade (Cardiac)': [
       { label: 'Pericardiocentesis', detail: 'Subxiphoid approach under ultrasound' },
       { label: 'Echo/Ultrasound', detail: 'Confirm pericardial effusion' },
       { label: 'IV Fluid Bolus', detail: 'Temporary bridge — increase preload' },
     ],
-    'Toxins/OD': [
+    'Toxins / OD': [
       { label: 'Naloxone 0.4-2mg IV (Opioid)', detail: 'Titrate to breathing. May need repeat' },
       { label: 'NaHCO₃ (TCA overdose)', detail: '1-2 mEq/kg IV bolus. Target pH 7.45-7.55' },
       { label: 'Lipid Emulsion 20%', detail: '1.5 ml/kg IV bolus → 0.25 ml/kg/min infusion' },
+      { label: 'Glucagon 3-5mg IV (Beta-blocker)', detail: 'Follow with infusion 3-5 mg/hr' },
     ],
-    'Thrombosis (PE/MI)': [
+    'Thrombosis — PE': [
+      { label: 'Alteplase 50mg IV (PE)', detail: 'Massive PE → continue CPR 60-90 min after' },
       { label: 'Heparin bolus 80u/kg', detail: 'Anticoagulation for PE' },
-      { label: 'tPA (Alteplase) for PE', detail: '50-100mg IV. Consider in massive PE during CPR' },
-      { label: 'Activate Cath Lab (MI)', detail: 'PCI for STEMI' },
+    ],
+    'Thrombosis — MI': [
+      { label: 'Activate Cath Lab (MI)', detail: 'PCI for STEMI — call early!' },
+      { label: 'Aspirin 325mg + P2Y12', detail: 'Ticagrelor 180mg or Clopidogrel 600mg' },
+      { label: 'Heparin 60u/kg IV (MI)', detail: 'Max 4000u bolus' },
     ],
   };
   return actions[causeName] || [{ label: 'Treated — specific intervention', detail: '' }];
