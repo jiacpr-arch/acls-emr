@@ -6,7 +6,7 @@ export const useSettingsStore = create(
     (set) => ({
       mode: 'clinical',          // 'clinical' | 'training'
       soundEnabled: true,
-      metronomeEnabled: false,
+      metronomeEnabled: true,
       metronomeRate: 110,         // bpm
       theme: 'dark',
       cycleAlertEnabled: true,
