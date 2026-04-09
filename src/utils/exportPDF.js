@@ -4,6 +4,7 @@ import { calculateScore } from './scoring';
 
 // PDF Export — matches JIA ACLS Recorder Form (2-page format)
 export function exportCasePDF(caseData) {
+  try {
   const doc = new jsPDF('p', 'mm', 'a4');
   const pw = doc.internal.pageSize.getWidth();
   const ph = doc.internal.pageSize.getHeight();
@@ -296,4 +297,8 @@ export function exportCasePDF(caseData) {
   const filename = `ACLS_${caseData.id || 'unknown'}_${(caseData.mode || 'clinical').toUpperCase()}.pdf`;
   doc.save(filename);
   return filename;
+  } catch (err) {
+    console.error('PDF export error:', err);
+    alert('PDF export failed: ' + err.message);
+  }
 }

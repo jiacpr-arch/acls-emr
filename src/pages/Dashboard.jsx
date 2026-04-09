@@ -114,68 +114,58 @@ export default function Dashboard() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {filteredCases.map(c => (
               <div key={c.id}>
                 <div onClick={() => handleSelect(c.id)}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer ${
-                    selectedCase === c.id ? 'bg-info/5 border border-info/20' : 'bg-bg-primary hover:bg-bg-tertiary/30'
+                  className={`glass-card !p-4 cursor-pointer transition-all ${
+                    selectedCase === c.id ? '!border-info/40' : ''
                   }`}>
-                  <div className={`w-3 h-3 rounded-full shrink-0 ${
-                    c.outcome === 'ROSC' ? 'bg-success' :
-                    c.outcome === 'terminated' ? 'bg-danger' :
-                    c.outcome === 'ongoing' ? 'bg-warning animate-pulse' :
-                    'bg-text-muted'
-                  }`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm font-semibold text-text-primary">#{c.id}</span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                  {/* Top row: ID + outcome */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full shrink-0 ${
+                        c.outcome === 'ROSC' ? 'bg-success' :
+                        c.outcome === 'terminated' ? 'bg-danger' :
+                        c.outcome === 'ongoing' ? 'bg-warning animate-pulse' :
+                        'bg-text-muted'
+                      }`} />
+                      <span className="text-base font-bold text-text-primary">#{c.id}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                         c.mode === 'training' ? 'bg-info/15 text-info' : 'bg-danger/15 text-danger'
                       }`}>{c.mode === 'training' ? 'TRN' : 'CLN'}</span>
                     </div>
-                    <div className="text-xs text-text-muted">
-                      {c.patient?.name || 'No patient info'} · {c.patient?.initialRhythm || 'N/A'}
-                    </div>
+                    <div className={`text-sm font-bold ${
+                      c.outcome === 'ROSC' ? 'text-success' :
+                      c.outcome === 'terminated' ? 'text-danger' :
+                      c.outcome === 'ongoing' ? 'text-warning' :
+                      'text-text-muted'
+                    }`}>{c.outcome?.toUpperCase()}</div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <div className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      c.outcome === 'ROSC' ? 'bg-success/20 text-success' :
-                      c.outcome === 'terminated' ? 'bg-danger/20 text-danger' :
-                      c.outcome === 'ongoing' ? 'bg-warning/20 text-warning' :
-                      'bg-bg-tertiary text-text-muted'
-                    }`}>
-                      {c.outcome?.toUpperCase()}
-                    </div>
-                    <div className="text-[10px] text-text-muted mt-0.5">
-                      {new Date(c.startTime).toLocaleDateString('th-TH')}
-                    </div>
+
+                  {/* Patient info */}
+                  <div className="text-sm text-text-secondary mb-1">
+                    {c.patient?.name || 'No patient info'} · {c.patient?.initialRhythm || 'N/A'}
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
+                  <div className="text-xs text-text-muted">
+                    {new Date(c.startTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
+
+                  {/* Action buttons — bigger, clearer */}
+                  <div className="flex gap-2 mt-3" onClick={e => e.stopPropagation()}>
                     {c.outcome === 'ongoing' && (
-                      <Link to="/recording" className="text-xs px-2 py-1.5 bg-danger text-white rounded-lg font-medium">
-                        Resume
-                      </Link>
+                      <Link to="/recording" className="btn btn-danger btn-sm flex-1">Resume</Link>
                     )}
                     {c.outcome !== 'ongoing' && (
                       <>
-                        <button onClick={() => handleExport(c.id)}
-                          className="text-xs px-2 py-1.5 bg-info/10 text-info rounded-lg font-medium">
-                          PDF
-                        </button>
-                        <button onClick={async () => { const d = await getFullCase(c.id); setSharingCase(d); }}
-                          className="text-xs px-2 py-1.5 bg-success/10 text-success rounded-lg font-medium">
-                          📤
-                        </button>
+                        <button onClick={() => handleExport(c.id)} className="btn btn-primary btn-sm flex-1">PDF</button>
+                        <button onClick={async () => { const d = await getFullCase(c.id); setSharingCase(d); }} className="btn btn-ghost btn-sm flex-1">📤 Share</button>
                       </>
                     )}
                     <button onClick={() => setAnnotatingCase(c.id)}
-                      className="text-xs px-2 py-1.5 bg-purple/10 text-purple rounded-lg font-medium">
-                      📝
-                    </button>
-                    <AnnotationBadge caseId={c.id} />
+                      className="btn btn-ghost btn-sm">📝</button>
                     <button onClick={() => handleDelete(c.id)}
-                      className="text-xs px-2 py-1.5 bg-danger/10 text-danger rounded-lg font-medium">
+                      className="btn btn-ghost btn-sm !text-danger">
                       ✕
                     </button>
                   </div>
