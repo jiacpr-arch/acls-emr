@@ -344,13 +344,7 @@ export default function CPRDashboard({
       </div>
 
       {/* Secondary action buttons */}
-      <div className="grid grid-cols-4 gap-2">
-        <button onClick={onShock}
-          className={`btn-action py-3 text-xs font-semibold ${
-            currentRhythm?.shockable ? 'btn-shock' : 'btn-ghost'
-          }`}>
-          ⚡ Shock
-        </button>
+      <div className="grid grid-cols-3 gap-2">
         <button onClick={onGiveDrug}
           className={`btn-action py-3 text-xs font-semibold ${
             epiDue ? 'btn-purple animate-pulse' : 'btn-ghost'

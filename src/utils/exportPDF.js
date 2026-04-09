@@ -4,7 +4,6 @@ import { calculateScore } from './scoring';
 
 // PDF Export — matches JIA ACLS Recorder Form (2-page format)
 export function exportCasePDF(caseData) {
-  try {
   const doc = new jsPDF('p', 'mm', 'a4');
   const pw = doc.internal.pageSize.getWidth();
   const ph = doc.internal.pageSize.getHeight();
@@ -17,6 +16,12 @@ export function exportCasePDF(caseData) {
   const fmtElapsed = (s) => `${String(Math.floor((s||0) / 60)).padStart(2, '0')}:${String((s||0) % 60).padStart(2, '0')}`;
   const fmtClock = (ts) => ts ? new Date(ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : '';
   const headerColor = isTraining ? [37, 99, 235] : [220, 38, 38];
+
+  // Helper: run autoTable and return finalY
+  const tbl = (options) => {
+    autoTable(doc, options);
+    return doc.lastAutoTable.finalY;
+  };
 
   let y = 10;
 
@@ -33,14 +38,11 @@ export function exportCasePDF(caseData) {
   doc.text('JIA Trainer Center — jia1669.com', pw / 2, 12, { align: 'center' });
   y = 18;
 
-  // Patient row (matching JIA form header: ชื่อ | อายุ | ตำหนิ/ชุด | วันที่)
   doc.setTextColor(0);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
   const p = caseData.patient || {};
 
-  // JIA form header row
-  autoTable(doc, {
+  // Patient header row
+  y = tbl({
     startY: y,
     body: [[
       p.name || '-',
@@ -54,8 +56,7 @@ export function exportCasePDF(caseData) {
     headStyles: { fillColor: [100, 100, 100], fontSize: 7 },
     styles: { fontSize: 8, cellPadding: 2 },
     margin: { left: 10, right: 10 },
-  });
-  y = doc.lastAutoTable.finalY + 3;
+  }) + 3;
 
   // Case info row
   doc.setFont('helvetica', 'normal');
@@ -65,8 +66,7 @@ export function exportCasePDF(caseData) {
   doc.setTextColor(0);
   y += 5;
 
-  // ---- Event Timeline Table (JIA form format) ----
-  // Columns: Time | Rhythm | Defib/Sync/Pacing | Medication/Procedure | Dose/Route | EtCO2 | Note
+  // ---- Event Timeline Table ----
   if (events.length > 0) {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
@@ -90,7 +90,7 @@ export function exportCasePDF(caseData) {
       return [elapsed, clock, rhythm, defib, medication, doseRoute, etco2, note];
     });
 
-    autoTable(doc, {
+    y = tbl({
       startY: y,
       head: [['Time', 'Clock', 'Rhythm', 'Defib/Sync', 'Med/Procedure', 'Dose', 'EtCO2', 'Note']],
       body: timelineRows,
@@ -108,15 +108,13 @@ export function exportCasePDF(caseData) {
         7: { cellWidth: 'auto' },
       },
       margin: { left: 10, right: 10 },
-    });
-    y = doc.lastAutoTable.finalY + 6;
+    }) + 6;
   }
 
-  // =============== PAGE 2: Summary Sections (JIA form) ===============
+  // =============== PAGE 2: Summary Sections ===============
   doc.addPage();
   y = 10;
 
-  // Title bar page 2
   doc.setFillColor(...headerColor);
   doc.rect(0, 0, pw, 10, 'F');
   doc.setFontSize(11);
@@ -125,7 +123,6 @@ export function exportCasePDF(caseData) {
   doc.text('ACLS Summary', pw / 2, 7, { align: 'center' });
   y = 15;
 
-  // Helper: section header
   const sectionHeader = (title) => {
     if (y > 265) { doc.addPage(); y = 15; }
     doc.setFillColor(...headerColor);
@@ -140,93 +137,154 @@ export function exportCasePDF(caseData) {
 
   // ---- Pre-Arrest Info ----
   sectionHeader('Pre-Arrest Information');
-  const preArrest = [
-    ['Location', p.location || '-'],
-    ['Witnessed', p.witnessed ? 'Yes' : 'No'],
-    ['Bystander CPR', p.bystanderCPR ? 'Yes' : 'No'],
-    ['Initial Rhythm', p.initialRhythm || '-'],
-    ['Chief Complaint', p.chiefComplaint || '-'],
-    ['PMH', Array.isArray(p.pmh) ? p.pmh.join(', ') : (p.pmh || '-')],
-    ['Medications', Array.isArray(p.medications) ? p.medications.join(', ') : (p.medications || '-')],
-    ['Allergies', Array.isArray(p.allergies) ? p.allergies.join(', ') : (p.allergies || '-')],
-  ];
-  autoTable(doc, {
-    startY: y, body: preArrest, theme: 'plain',
+  y = tbl({
+    startY: y,
+    body: [
+      ['Location', p.location || '-'],
+      ['Witnessed', p.witnessed ? 'Yes' : 'No'],
+      ['Bystander CPR', p.bystanderCPR ? 'Yes' : 'No'],
+      ['Initial Rhythm', p.initialRhythm || '-'],
+      ['Chief Complaint', p.chiefComplaint || '-'],
+      ['PMH', Array.isArray(p.pmh) ? p.pmh.join(', ') : (p.pmh || '-')],
+      ['Medications', Array.isArray(p.medications) ? p.medications.join(', ') : (p.medications || '-')],
+      ['Allergies', Array.isArray(p.allergies) ? p.allergies.join(', ') : (p.allergies || '-')],
+    ],
+    theme: 'plain',
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 35 } },
-    styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
-  });
-  y = doc.lastAutoTable.finalY + 4;
+    styles: { fontSize: 7.5, cellPadding: 1.5 },
+    margin: { left: 14, right: 14 },
+  }) + 4;
 
   // ---- Cardiac Arrest Summary ----
   sectionHeader('Cardiac Arrest Summary');
 
-  // Stats: CPR, Defib, Epi, Amio — first time, duration, count
   const epiEvts = events.filter(e => e.category === 'drug' && e.type?.includes('Epinephrine') && !e.type?.includes('Infusion')).sort((a, b) => (a.elapsed || 0) - (b.elapsed || 0));
   const shockEvts = events.filter(e => e.category === 'shock').sort((a, b) => (a.elapsed || 0) - (b.elapsed || 0));
   const amioEvts = events.filter(e => e.category === 'drug' && e.type?.includes('Amiodarone')).sort((a, b) => (a.elapsed || 0) - (b.elapsed || 0));
   const cprStart = events.filter(e => e.type?.includes('CPR Started')).sort((a, b) => (a.elapsed || 0) - (b.elapsed || 0));
 
-  const summaryStats = [
-    ['', 'First Time', 'Duration', 'Count'],
-    ['CPR', cprStart[0] ? fmtElapsed(cprStart[0].elapsed) : '-', fmtSec(caseData.totalCPRTime || 0), `${caseData.cycleNumber || 0} cycles`],
-    ['Defibrillation', shockEvts[0] ? fmtElapsed(shockEvts[0].elapsed) : '-', '-', `${shockEvts.length}`],
-    ['Epinephrine', epiEvts[0] ? fmtElapsed(epiEvts[0].elapsed) : '-', '-', `${epiEvts.length}`],
-    ['Amiodarone', amioEvts[0] ? fmtElapsed(amioEvts[0].elapsed) : '-', '-', `${amioEvts.length}`],
-  ];
-
-  autoTable(doc, {
-    startY: y, body: summaryStats.slice(1), head: [summaryStats[0]],
+  y = tbl({
+    startY: y,
+    head: [['', 'First Time', 'Duration', 'Count']],
+    body: [
+      ['CPR', cprStart[0] ? fmtElapsed(cprStart[0].elapsed) : '-', fmtSec(caseData.totalCPRTime || 0), `${caseData.cycleNumber || 0} cycles`],
+      ['Defibrillation', shockEvts[0] ? fmtElapsed(shockEvts[0].elapsed) : '-', '-', `${shockEvts.length}`],
+      ['Epinephrine', epiEvts[0] ? fmtElapsed(epiEvts[0].elapsed) : '-', '-', `${epiEvts.length}`],
+      ['Amiodarone', amioEvts[0] ? fmtElapsed(amioEvts[0].elapsed) : '-', '-', `${amioEvts.length}`],
+    ],
     theme: 'grid',
     headStyles: { fillColor: [100, 100, 100], fontSize: 7 },
-    styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
-  });
-  y = doc.lastAutoTable.finalY + 2;
+    styles: { fontSize: 7.5, cellPadding: 1.5 },
+    margin: { left: 14, right: 14 },
+  }) + 2;
 
-  // Key metrics row
-  const metricsRow = [
-    ['CCF', `${caseData.ccf || 0}%`],
-    ['Total Pause Time', fmtSec(caseData.totalPauseTime || 0)],
-    ['Shocks', `${caseData.shockCount || 0}`],
-    ['Outcome', caseData.outcome || '-'],
-  ];
-  autoTable(doc, {
-    startY: y, body: metricsRow, theme: 'plain',
+  y = tbl({
+    startY: y,
+    body: [
+      ['CCF', `${caseData.ccf || 0}%`],
+      ['Total Pause Time', fmtSec(caseData.totalPauseTime || 0)],
+      ['Shocks', `${caseData.shockCount || 0}`],
+      ['Outcome', caseData.outcome || '-'],
+    ],
+    theme: 'plain',
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 35 } },
-    styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
-  });
-  y = doc.lastAutoTable.finalY + 4;
+    styles: { fontSize: 7.5, cellPadding: 1.5 },
+    margin: { left: 14, right: 14 },
+  }) + 4;
+
+  // ---- All Drugs Given ----
+  const allDrugEvts = events.filter(e => e.category === 'drug').sort((a, b) => (a.elapsed || 0) - (b.elapsed || 0));
+  if (allDrugEvts.length > 0) {
+    sectionHeader('Drugs & Medications');
+    const drugRows = allDrugEvts.map(e => {
+      const name = e.type?.replace('💉 ', '').replace('💊 ', '') || '';
+      const parts = name.split(' – ');
+      return [fmtElapsed(e.elapsed), fmtClock(e.timestamp), parts[0]?.trim() || name, parts[1]?.trim() || ''];
+    });
+    y = tbl({
+      startY: y, head: [['Time', 'Clock', 'Drug', 'Dose/Route']], body: drugRows,
+      theme: 'grid', headStyles: { fillColor: [128, 90, 213], fontSize: 7 },
+      styles: { fontSize: 7, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
+      columnStyles: {
+        0: { cellWidth: 14, halign: 'center', fontStyle: 'bold' },
+        1: { cellWidth: 18, halign: 'center' },
+        2: { cellWidth: 50 },
+        3: { cellWidth: 'auto' },
+      },
+    }) + 4;
+  }
 
   // ---- EtCO2 ----
   if (caseData.etco2Readings?.length > 0) {
     sectionHeader('EtCO2 Readings');
-    const etcoRows = caseData.etco2Readings.map(r => [
-      fmtElapsed(r.elapsed), `${r.value} mmHg`, r.value < 10 ? 'LOW' : r.value > 20 ? 'ROSC?' : '',
-    ]);
-    autoTable(doc, {
-      startY: y, head: [['Time', 'Value', 'Alert']], body: etcoRows,
+    y = tbl({
+      startY: y, head: [['Time', 'Value', 'Alert']],
+      body: caseData.etco2Readings.map(r => [fmtElapsed(r.elapsed), `${r.value} mmHg`, r.value < 10 ? 'LOW' : r.value > 20 ? 'ROSC?' : '']),
       theme: 'grid', headStyles: { fillColor: [37, 99, 235], fontSize: 7 },
       styles: { fontSize: 7, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
-    });
-    y = doc.lastAutoTable.finalY + 4;
+    }) + 4;
   }
 
-  // ---- Drug Timing Analysis ----
+  // ---- Epi Timing Analysis ----
   if (epiEvts.length >= 2) {
-    sectionHeader('Drug Timing Analysis');
-    const epiRows = epiEvts.map((e, i) => {
-      const interval = i > 0 ? (e.elapsed || 0) - (epiEvts[i - 1].elapsed || 0) : '-';
-      return [
-        `Epi #${i + 1}`, fmtElapsed(e.elapsed),
-        typeof interval === 'number' ? fmtSec(interval) : '-',
-        typeof interval === 'number' ? (interval >= 180 && interval <= 300 ? 'OK' : 'OUT') : '',
-      ];
-    });
-    autoTable(doc, {
-      startY: y, head: [['Dose', 'Time', 'Interval', 'Status']], body: epiRows,
+    sectionHeader('Epinephrine Timing Analysis');
+    y = tbl({
+      startY: y, head: [['Dose', 'Time', 'Interval', 'Status']],
+      body: epiEvts.map((e, i) => {
+        const interval = i > 0 ? (e.elapsed || 0) - (epiEvts[i - 1].elapsed || 0) : null;
+        return [`Epi #${i + 1}`, fmtElapsed(e.elapsed), interval != null ? fmtSec(interval) : '-', interval != null ? (interval >= 180 && interval <= 300 ? 'OK' : 'OUT') : ''];
+      }),
       theme: 'grid', headStyles: { fillColor: [128, 90, 213], fontSize: 7 },
       styles: { fontSize: 7, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
-    });
-    y = doc.lastAutoTable.finalY + 4;
+    }) + 4;
+  }
+
+  // ---- Reversible Causes (H's & T's) ----
+  const suspectedEvts = events.filter(e => e.type?.includes('🔍 Suspected cause')).sort((a, b) => (a.elapsed || 0) - (b.elapsed || 0));
+  const correctedEvts = events.filter(e => e.type?.includes('✅ Corrected')).sort((a, b) => (a.elapsed || 0) - (b.elapsed || 0));
+  if (suspectedEvts.length > 0) {
+    sectionHeader("Reversible Causes (H's & T's)");
+    y = tbl({
+      startY: y,
+      head: [['Cause', 'Type', 'Investigated', 'Correction', 'Corrected At']],
+      body: suspectedEvts.map(ev => {
+        const cause = ev.details?.cause || ev.type?.replace('🔍 Suspected cause: ', '') || '';
+        const correction = correctedEvts.find(c => c.details?.cause === cause);
+        return [cause, ev.details?.category || '', fmtElapsed(ev.elapsed), correction ? correction.details?.treatment || 'Yes' : '-', correction ? fmtElapsed(correction.elapsed) : '-'];
+      }),
+      theme: 'grid', headStyles: { fillColor: [234, 88, 12], fontSize: 7 },
+      styles: { fontSize: 7, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
+      columnStyles: { 0: { cellWidth: 35, fontStyle: 'bold' }, 1: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 16, halign: 'center' }, 3: { cellWidth: 'auto' }, 4: { cellWidth: 18, halign: 'center' } },
+    }) + 4;
+  }
+
+  // ---- Lab Results ----
+  const labEvts = events.filter(e => e.type?.includes('🔬 Labs')).sort((a, b) => (a.elapsed || 0) - (b.elapsed || 0));
+  if (labEvts.length > 0) {
+    sectionHeader('Lab Results');
+    y = tbl({
+      startY: y,
+      head: [['Time', 'DTX', 'Hb', 'Hct', 'K+', 'Lactate', 'Alerts']],
+      body: labEvts.map(ev => {
+        const d = ev.details || {};
+        const alerts = [];
+        if (d.dtx < 60) alerts.push('Hypoglycemia');
+        if (d.dtx > 250) alerts.push('Hyperglycemia');
+        if (d.k < 3.5) alerts.push('HypoK');
+        if (d.k > 5.5) alerts.push('HyperK');
+        if (d.hb < 7) alerts.push('Low Hb');
+        if (d.lactate > 4) alerts.push('High Lac');
+        return [fmtElapsed(ev.elapsed), d.dtx ?? '-', d.hb ?? '-', d.hct ?? '-', d.k ?? '-', d.lactate ?? '-', alerts.join(', ') || '-'];
+      }),
+      theme: 'grid', headStyles: { fillColor: [16, 185, 129], fontSize: 7 },
+      styles: { fontSize: 7, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
+      columnStyles: {
+        0: { cellWidth: 14, halign: 'center', fontStyle: 'bold' },
+        1: { cellWidth: 16, halign: 'center' }, 2: { cellWidth: 14, halign: 'center' },
+        3: { cellWidth: 14, halign: 'center' }, 4: { cellWidth: 14, halign: 'center' },
+        5: { cellWidth: 16, halign: 'center' }, 6: { cellWidth: 'auto' },
+      },
+    }) + 4;
   }
 
   // ---- Team ----
@@ -240,42 +298,38 @@ export function exportCasePDF(caseData) {
     if (t.recorder) teamRows.push(['Recorder', t.recorder]);
     if (teamRows.length > 0) {
       sectionHeader('Team');
-      autoTable(doc, {
+      y = tbl({
         startY: y, body: teamRows, theme: 'plain',
         columnStyles: { 0: { fontStyle: 'bold', cellWidth: 35 } },
         styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
-      });
-      y = doc.lastAutoTable.finalY + 4;
+      }) + 4;
     }
   }
 
   // ---- Training Scorecard ----
   if (isTraining && events.length > 0) {
     sectionHeader('Training Performance Scorecard');
-    const timerData = { ccf: caseData.ccf || 0, totalPauseTime: caseData.totalPauseTime || 0, elapsed: caseData.elapsed || 0 };
-    const scores = calculateScore(events, timerData);
+    const scores = calculateScore(events, { ccf: caseData.ccf || 0, totalPauseTime: caseData.totalPauseTime || 0, elapsed: caseData.elapsed || 0 });
     const scoreRows = [];
     if (scores.timeToFirstShock) scoreRows.push(['Time to 1st Shock', scores.timeToFirstShock.label, scores.timeToFirstShock.target, scores.timeToFirstShock.rating.toUpperCase()]);
     if (scores.epiCompliance) scoreRows.push(['Epi Timing', scores.epiCompliance.label, scores.epiCompliance.target, scores.epiCompliance.rating.toUpperCase()]);
     if (scores.ccf) scoreRows.push(['CCF', scores.ccf.label, scores.ccf.target, scores.ccf.rating.toUpperCase()]);
     if (scores.handsOffTime) scoreRows.push(['Hands-off Time', scores.handsOffTime.label, scores.handsOffTime.target, scores.handsOffTime.rating.toUpperCase()]);
     scoreRows.push(['Overall Grade', scores.grade, '', '']);
-    autoTable(doc, {
+    y = tbl({
       startY: y, head: [['Metric', 'Value', 'Target', 'Rating']], body: scoreRows,
       theme: 'grid', headStyles: { fillColor: [37, 99, 235], fontSize: 7 },
       styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
-    });
-    y = doc.lastAutoTable.finalY + 4;
+    }) + 4;
   }
 
-  // Recorder (ผู้จด) — from team data
+  // Recorder
   if (caseData.team?.recorder) {
     if (y > 265) { doc.addPage(); y = 15; }
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0);
     doc.text(`Recorder: ${caseData.team.recorder}`, 14, y);
-    y += 6;
   }
 
   // =============== Footer + Watermark on ALL pages ===============
@@ -297,8 +351,4 @@ export function exportCasePDF(caseData) {
   const filename = `ACLS_${caseData.id || 'unknown'}_${(caseData.mode || 'clinical').toUpperCase()}.pdf`;
   doc.save(filename);
   return filename;
-  } catch (err) {
-    console.error('PDF export error:', err);
-    alert('PDF export failed: ' + err.message);
-  }
 }
