@@ -445,6 +445,7 @@ export default function Recording() {
           onEKGChanged={() => goStep(STEPS.RHYTHM_CHECK)}
           onROSC={() => handleEndCase('ROSC')}
           isArrest={['cpr_cycle', 'shock_decision', 'rhythm_check', 'give_drug', 'airway_mgmt', 'secondary_survey'].includes(step)}
+          isPostROSC={step === 'rosc'}
         />
       )}
 

@@ -6,8 +6,8 @@ import { t } from '../utils/i18n';
 export default function QuickBar({
   onPatient, onTeam, onVitals, onLabs, onEKG, onVent, onAirway, onCheatSheet,
   onSBAR, onComm, onIncident, onPhotoNote, onDebrief, onEndCase,
-  // Status actions (merged from FloatingStatus)
-  onNoPulse, onUnresponsive, onEKGChanged, onROSC, isArrest,
+  // Status + context
+  onNoPulse, onUnresponsive, onEKGChanged, onROSC, isArrest, isPostROSC,
 }) {
   const [showMore, setShowMore] = useState(false);
   const lang = useSettingsStore(s => s.language) || 'en';
@@ -27,13 +27,36 @@ export default function QuickBar({
 
   return (
     <>
-      {/* Main quick bar — pill style */}
+      {/* Main quick bar — context-aware pill */}
       <div className="bottom-pill-bar" style={{ zIndex: 30 }}>
-        <QuickBtn icon="📊" label={t('vitals', lang)} onClick={onVitals} />
-        <QuickBtn icon="📈" label={t('ekg', lang)} onClick={onEKG} />
-        <QuickBtn icon="🫁" label={t('airway', lang)} onClick={onAirway} />
-        <QuickBtn icon="≡" label="More" onClick={() => setShowMore(true)} />
-        <QuickBtn icon="🏁" label={t('end', lang)} onClick={onEndCase} danger />
+        {isArrest ? (
+          // CPR Arrest: no Vitals (no pulse), no EKG (rhythm check is on dashboard)
+          <>
+            <QuickBtn icon="🌬️" label="EtCO₂" onClick={onEKG} />
+            <QuickBtn icon="🫁" label={t('airway', lang)} onClick={onAirway} />
+            <QuickBtn icon="🔍" label="H&T" onClick={onCheatSheet} />
+            <QuickBtn icon="≡" label="More" onClick={() => setShowMore(true)} />
+            <QuickBtn icon="🏁" label={t('end', lang)} onClick={onEndCase} danger />
+          </>
+        ) : isPostROSC ? (
+          // Post-ROSC: Vitals + EKG + Vent
+          <>
+            <QuickBtn icon="📊" label={t('vitals', lang)} onClick={onVitals} />
+            <QuickBtn icon="📈" label={t('ekg', lang)} onClick={onEKG} />
+            <QuickBtn icon="🖥️" label={t('vent', lang)} onClick={onVent} />
+            <QuickBtn icon="≡" label="More" onClick={() => setShowMore(true)} />
+            <QuickBtn icon="🏁" label={t('end', lang)} onClick={onEndCase} danger />
+          </>
+        ) : (
+          // Pulse Present: Vitals + EKG + Airway
+          <>
+            <QuickBtn icon="📊" label={t('vitals', lang)} onClick={onVitals} />
+            <QuickBtn icon="📈" label={t('ekg', lang)} onClick={onEKG} />
+            <QuickBtn icon="🫁" label={t('airway', lang)} onClick={onAirway} />
+            <QuickBtn icon="≡" label="More" onClick={() => setShowMore(true)} />
+            <QuickBtn icon="🏁" label={t('end', lang)} onClick={onEndCase} danger />
+          </>
+        )}
       </div>
 
       {/* More menu — slide up */}
