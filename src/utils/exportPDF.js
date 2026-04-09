@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { calculateScore } from './scoring';
 
 // PDF Export — matches JIA ACLS Recorder Form (2-page format)
@@ -40,7 +40,7 @@ export function exportCasePDF(caseData) {
   const p = caseData.patient || {};
 
   // JIA form header row
-  doc.autoTable({
+  autoTable(doc, {
     startY: y,
     body: [[
       p.name || '-',
@@ -90,7 +90,7 @@ export function exportCasePDF(caseData) {
       return [elapsed, clock, rhythm, defib, medication, doseRoute, etco2, note];
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: y,
       head: [['Time', 'Clock', 'Rhythm', 'Defib/Sync', 'Med/Procedure', 'Dose', 'EtCO2', 'Note']],
       body: timelineRows,
@@ -150,7 +150,7 @@ export function exportCasePDF(caseData) {
     ['Medications', Array.isArray(p.medications) ? p.medications.join(', ') : (p.medications || '-')],
     ['Allergies', Array.isArray(p.allergies) ? p.allergies.join(', ') : (p.allergies || '-')],
   ];
-  doc.autoTable({
+  autoTable(doc, {
     startY: y, body: preArrest, theme: 'plain',
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 35 } },
     styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
@@ -174,7 +174,7 @@ export function exportCasePDF(caseData) {
     ['Amiodarone', amioEvts[0] ? fmtElapsed(amioEvts[0].elapsed) : '-', '-', `${amioEvts.length}`],
   ];
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: y, body: summaryStats.slice(1), head: [summaryStats[0]],
     theme: 'grid',
     headStyles: { fillColor: [100, 100, 100], fontSize: 7 },
@@ -189,7 +189,7 @@ export function exportCasePDF(caseData) {
     ['Shocks', `${caseData.shockCount || 0}`],
     ['Outcome', caseData.outcome || '-'],
   ];
-  doc.autoTable({
+  autoTable(doc, {
     startY: y, body: metricsRow, theme: 'plain',
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 35 } },
     styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
@@ -202,7 +202,7 @@ export function exportCasePDF(caseData) {
     const etcoRows = caseData.etco2Readings.map(r => [
       fmtElapsed(r.elapsed), `${r.value} mmHg`, r.value < 10 ? 'LOW' : r.value > 20 ? 'ROSC?' : '',
     ]);
-    doc.autoTable({
+    autoTable(doc, {
       startY: y, head: [['Time', 'Value', 'Alert']], body: etcoRows,
       theme: 'grid', headStyles: { fillColor: [37, 99, 235], fontSize: 7 },
       styles: { fontSize: 7, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
@@ -221,7 +221,7 @@ export function exportCasePDF(caseData) {
         typeof interval === 'number' ? (interval >= 180 && interval <= 300 ? 'OK' : 'OUT') : '',
       ];
     });
-    doc.autoTable({
+    autoTable(doc, {
       startY: y, head: [['Dose', 'Time', 'Interval', 'Status']], body: epiRows,
       theme: 'grid', headStyles: { fillColor: [128, 90, 213], fontSize: 7 },
       styles: { fontSize: 7, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
@@ -240,7 +240,7 @@ export function exportCasePDF(caseData) {
     if (t.recorder) teamRows.push(['Recorder', t.recorder]);
     if (teamRows.length > 0) {
       sectionHeader('Team');
-      doc.autoTable({
+      autoTable(doc, {
         startY: y, body: teamRows, theme: 'plain',
         columnStyles: { 0: { fontStyle: 'bold', cellWidth: 35 } },
         styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
@@ -260,7 +260,7 @@ export function exportCasePDF(caseData) {
     if (scores.ccf) scoreRows.push(['CCF', scores.ccf.label, scores.ccf.target, scores.ccf.rating.toUpperCase()]);
     if (scores.handsOffTime) scoreRows.push(['Hands-off Time', scores.handsOffTime.label, scores.handsOffTime.target, scores.handsOffTime.rating.toUpperCase()]);
     scoreRows.push(['Overall Grade', scores.grade, '', '']);
-    doc.autoTable({
+    autoTable(doc, {
       startY: y, head: [['Metric', 'Value', 'Target', 'Rating']], body: scoreRows,
       theme: 'grid', headStyles: { fillColor: [37, 99, 235], fontSize: 7 },
       styles: { fontSize: 7.5, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
