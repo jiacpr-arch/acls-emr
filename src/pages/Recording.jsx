@@ -432,6 +432,7 @@ export default function Recording() {
           onLabs={() => setShowLabs(true)}
           onEKG={() => setShowEKG(true)}
           onAirway={() => setShowAirway(true)}
+          onHT={() => setShowHT(true)}
           onVent={() => setShowVent(true)}
           onCheatSheet={() => setShowCheatSheet(true)}
           onSBAR={() => setShowSBAR(true)}

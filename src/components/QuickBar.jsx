@@ -4,7 +4,7 @@ import { t } from '../utils/i18n';
 
 // Quick Action Bar — pill style + More menu with status buttons
 export default function QuickBar({
-  onPatient, onTeam, onVitals, onLabs, onEKG, onVent, onAirway, onCheatSheet,
+  onPatient, onTeam, onVitals, onLabs, onEKG, onVent, onAirway, onHT, onCheatSheet,
   onSBAR, onComm, onIncident, onPhotoNote, onDebrief, onEndCase,
   // Status + context
   onNoPulse, onUnresponsive, onEKGChanged, onROSC, isArrest, isPostROSC,
@@ -30,11 +30,11 @@ export default function QuickBar({
       {/* Main quick bar — context-aware pill */}
       <div className="bottom-pill-bar" style={{ zIndex: 30 }}>
         {isArrest ? (
-          // CPR Arrest: no Vitals (no pulse), no EKG (rhythm check is on dashboard)
+          // CPR Arrest: Airway, H&T (causes), Labs (K+/DTX)
           <>
-            <QuickBtn icon="🌬️" label="EtCO₂" onClick={onEKG} />
             <QuickBtn icon="🫁" label={t('airway', lang)} onClick={onAirway} />
-            <QuickBtn icon="🔍" label="H&T" onClick={onCheatSheet} />
+            <QuickBtn icon="🔍" label="H&T" onClick={onHT} />
+            <QuickBtn icon="🔬" label={t('labs', lang)} onClick={onLabs} />
             <QuickBtn icon="≡" label="More" onClick={() => setShowMore(true)} />
             <QuickBtn icon="🏁" label={t('end', lang)} onClick={onEndCase} danger />
           </>
