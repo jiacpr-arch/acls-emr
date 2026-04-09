@@ -440,16 +440,12 @@ export default function Recording() {
           onPhotoNote={() => setShowPhotoNote(true)}
           onDebrief={() => setShowDebrief(true)}
           onEndCase={() => setShowEndCase(true)}
-        />
-      )}
-
-      {/* Floating status buttons */}
-      {(isRunning || elapsed > 0) && (
-        <FloatingStatus currentStep={step}
           onNoPulse={() => { useTimerStore.getState().startCPR(); goStep(STEPS.START_CPR); }}
           onUnresponsive={() => goStep(STEPS.CHECK_PULSE)}
           onEKGChanged={() => goStep(STEPS.RHYTHM_CHECK)}
-          onROSC={() => handleEndCase('ROSC')} />
+          onROSC={() => handleEndCase('ROSC')}
+          isArrest={['cpr_cycle', 'shock_decision', 'rhythm_check', 'give_drug', 'airway_mgmt', 'secondary_survey'].includes(step)}
+        />
       )}
 
       {/* Overlays */}

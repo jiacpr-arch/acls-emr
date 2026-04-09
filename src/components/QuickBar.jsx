@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
 
-// Quick Action Bar — 5 main buttons + More menu
-// Replaces the 13-button floating bar
+// Quick Action Bar — pill style + More menu with status buttons
 export default function QuickBar({
   onPatient, onTeam, onVitals, onLabs, onEKG, onVent, onAirway, onCheatSheet,
   onSBAR, onComm, onIncident, onPhotoNote, onDebrief, onEndCase,
+  // Status actions (merged from FloatingStatus)
+  onNoPulse, onUnresponsive, onEKGChanged, onROSC, isArrest,
 }) {
   const [showMore, setShowMore] = useState(false);
   const lang = useSettingsStore(s => s.language) || 'en';
@@ -40,8 +41,36 @@ export default function QuickBar({
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30" onClick={() => setShowMore(false)}>
           <div className="w-full max-w-lg bg-bg-secondary rounded-t-2xl animate-slide-up"
             onClick={e => e.stopPropagation()}
-            style={{ boxShadow: '0 -4px 24px rgba(0,0,0,0.15)', maxHeight: '60vh' }}>
+            style={{ boxShadow: '0 -4px 24px rgba(0,0,0,0.15)', maxHeight: '70vh', overflow: 'auto' }}>
             <div className="w-10 h-1 bg-bg-tertiary rounded-full mx-auto mt-2 mb-3" />
+
+            {/* Emergency status buttons */}
+            <div className="px-4 mb-3">
+              <div className="text-[10px] font-bold text-text-muted uppercase mb-2">Status Change</div>
+              <div className="grid grid-cols-2 gap-2">
+                {!isArrest && onNoPulse && (
+                  <button onClick={() => { onNoPulse(); setShowMore(false); }}
+                    className="btn btn-danger btn-sm btn-block">🔴 No Pulse → CPR</button>
+                )}
+                {onUnresponsive && (
+                  <button onClick={() => { onUnresponsive(); setShowMore(false); }}
+                    className="btn btn-warning btn-sm btn-block">😵 Unresponsive</button>
+                )}
+                {onEKGChanged && (
+                  <button onClick={() => { onEKGChanged(); setShowMore(false); }}
+                    className="btn btn-primary btn-sm btn-block">📈 EKG Changed</button>
+                )}
+                {isArrest && onROSC && (
+                  <button onClick={() => { onROSC(); setShowMore(false); }}
+                    className="btn btn-success btn-sm btn-block">💚 ROSC</button>
+                )}
+              </div>
+            </div>
+
+            {/* Tools */}
+            <div className="px-4 mb-2">
+              <div className="text-[10px] font-bold text-text-muted uppercase mb-2">Tools</div>
+            </div>
             <div className="grid grid-cols-4 gap-1 px-4 pb-6">
               {moreItems.map((item, i) => (
                 <button key={i} onClick={() => { item.action(); setShowMore(false); }}
