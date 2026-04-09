@@ -41,7 +41,7 @@ export default function DrillTimer() {
 
   if (!mode) {
     return (
-      <div className="p-4 max-w-2xl mx-auto space-y-4 pb-20">
+      <div className="page-container space-y-4">
         <h1 className="text-2xl font-bold text-text-primary">🏋️ Drill Timer</h1>
         <p className="text-sm text-text-muted">Practice CPR skills without starting a case</p>
 
@@ -71,7 +71,7 @@ export default function DrillTimer() {
   // Compression practice
   if (mode === 'compression') {
     return (
-      <div className="p-4 max-w-2xl mx-auto space-y-4 text-center pb-20">
+      <div className="page-container space-y-4 text-center">
         <h1 className="text-xl font-bold text-text-primary">🫀 Compression Rate Practice</h1>
 
         <CircularTimer value={elapsed % 120} max={120} size={180} strokeWidth={12}
@@ -112,7 +112,7 @@ export default function DrillTimer() {
     const cycleCount = Math.floor(count / 32);
 
     return (
-      <div className="p-4 max-w-2xl mx-auto space-y-4 text-center pb-20">
+      <div className="page-container space-y-4 text-center">
         <h1 className="text-xl font-bold text-text-primary">🫁 30:2 Timing Practice</h1>
 
         <div className={`text-6xl font-mono font-black ${isBreathPhase ? 'text-info animate-pulse' : 'text-success'}`}>
@@ -145,7 +145,7 @@ export default function DrillTimer() {
     const overTime = elapsed > 10;
 
     return (
-      <div className="p-4 max-w-2xl mx-auto space-y-4 text-center pb-20">
+      <div className="page-container space-y-4 text-center">
         <h1 className="text-xl font-bold text-text-primary">⏱️ Pulse Check Practice</h1>
         <p className="text-xs text-text-muted">Target: ≤10 seconds</p>
 

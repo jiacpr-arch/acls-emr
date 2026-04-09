@@ -188,7 +188,7 @@ export default function Algorithm() {
   const algo = algorithms.find(a => a.id === selected);
 
   return (
-    <div className="p-4 max-w-2xl mx-auto space-y-4 pb-24">
+    <div className="page-container space-y-4">
       <h1 className="text-2xl font-bold text-text-primary">ACLS Algorithms</h1>
 
       {/* Algorithm tabs */}

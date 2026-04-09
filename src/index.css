@@ -331,6 +331,14 @@ button, [role="button"] {
   transition: stroke-dashoffset 0.5s ease;
 }
 
+/* ===== PAGE CONTAINER — force consistent layout ===== */
+.page-container {
+  max-width: 32rem; /* 512px */
+  margin: 0 auto;
+  padding: 1rem;
+  padding-bottom: 6rem; /* space for pill bar */
+}
+
 /* ===== RESPONSIVE ===== */
 .grid-responsive {
   display: grid;

@@ -37,7 +37,7 @@ export default function CaseCompare() {
   };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto space-y-4 pb-20">
+    <div className="page-container space-y-4">
       <h1 className="text-2xl font-bold text-text-primary">📊 Compare Cases</h1>
 
       {/* Case selectors */}
