@@ -12,6 +12,8 @@ import Statistics from './pages/Statistics';
 import DrillTimer from './pages/DrillTimer';
 import CaseCompare from './pages/CaseCompare';
 import Certification from './pages/Certification';
+import UserGuide from './pages/UserGuide';
+import Feedback from './pages/Feedback';
 import BottomTabBar from './components/BottomTabBar';
 import { FeedbackButton } from './components/FeedbackButton';
 import OfflineIndicator from './components/OfflineIndicator';
@@ -43,6 +45,8 @@ function App() {
         <Route path="/drill" element={<DrillTimer />} />
         <Route path="/compare" element={<CaseCompare />} />
         <Route path="/certification" element={<Certification />} />
+        <Route path="/guide" element={<UserGuide />} />
+        <Route path="/feedback" element={<Feedback />} />
       </Routes>
       {/* Bottom pill bar on all pages except recording */}
       {!isRecording && <BottomTabBar />}
