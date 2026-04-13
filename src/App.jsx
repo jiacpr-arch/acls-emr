@@ -15,7 +15,6 @@ import Certification from './pages/Certification';
 import UserGuide from './pages/UserGuide';
 import Feedback from './pages/Feedback';
 import BottomTabBar from './components/BottomTabBar';
-import { FeedbackButton } from './components/FeedbackButton';
 import OfflineIndicator from './components/OfflineIndicator';
 
 function App() {
@@ -32,7 +31,6 @@ function App() {
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
       <OfflineIndicator />
-      <FeedbackButton />
       <Routes>
         <Route path="/" element={<NewCase />} />
         <Route path="/recording" element={<Recording />} />

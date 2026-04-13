@@ -112,6 +112,18 @@ export default function NewCase() {
             className="btn btn-purple btn-lg btn-block">
             🎮 Training Scenarios
           </button>
+
+          {/* Quick links */}
+          <div className="grid grid-cols-2 gap-2 pt-2">
+            <button onClick={() => navigate('/guide')}
+              className="btn btn-ghost btn-lg btn-block">
+              📗 คู่มือใช้งาน
+            </button>
+            <button onClick={() => navigate('/feedback')}
+              className="btn btn-ghost btn-lg btn-block">
+              💬 ส่ง Feedback
+            </button>
+          </div>
         </div>
       </div>
 
