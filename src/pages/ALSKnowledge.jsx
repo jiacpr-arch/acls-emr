@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { alsChapters } from '../data/alsContent';
+
+const STORAGE_KEY = 'als_tips_history';
+const CACHE_KEY = 'als_tip_today';
 
 const tipTopics = [
   'การกู้ชีพ', 'จังหวะหัวใจ', 'ยาฉุกเฉิน', 'ทางเดินหายใจ',
@@ -7,14 +10,43 @@ const tipTopics = [
   'การทำงานเป็นทีม', 'CPR คุณภาพสูง', 'H\'s and T\'s',
 ];
 
+function getHistory() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+}
+function saveToHistory(topic, text) {
+  const history = getHistory();
+  history.unshift({ topic: topic || 'สุ่ม', text, date: new Date().toISOString() });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, 50)));
+}
+function getTodayCache(topic) {
+  const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+  const key = topic || '_random';
+  const entry = cache[key];
+  if (!entry) return null;
+  const today = new Date().toDateString();
+  if (new Date(entry.date).toDateString() === today) return entry.text;
+  return null;
+}
+function setTodayCache(topic, text) {
+  const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+  cache[topic || '_random'] = { text, date: new Date().toISOString() };
+  localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+}
+
 export default function ALSKnowledge() {
   const [tab, setTab] = useState('book');
   const [openCh, setOpenCh] = useState(null);
   const [tip, setTip] = useState('');
   const [tipLoading, setTipLoading] = useState(false);
   const [tipError, setTipError] = useState('');
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => { setHistory(getHistory()); }, [tip]);
 
   const fetchTip = async (topic) => {
+    const cached = getTodayCache(topic);
+    if (cached) { setTip(cached); return; }
     setTipLoading(true);
     setTipError('');
     setTip('');
@@ -27,6 +59,8 @@ export default function ALSKnowledge() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setTip(data.tip);
+      setTodayCache(topic, data.tip);
+      saveToHistory(topic, data.tip);
     } catch (e) {
       setTipError('ไม่สามารถโหลดได้ กรุณาลองใหม่');
     }
@@ -35,7 +69,6 @@ export default function ALSKnowledge() {
 
   return (
     <div className="page-container space-y-4 pb-28">
-      {/* Header */}
       <div className="text-center space-y-1">
         <div className="w-14 h-14 mx-auto bg-danger rounded-2xl flex items-center justify-center shadow-md">
           <span className="text-3xl">📚</span>
@@ -44,23 +77,18 @@ export default function ALSKnowledge() {
         <p className="text-xs text-text-muted">Advanced Life Support Knowledge Base</p>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-2">
-        <button onClick={() => setTab('book')}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
-            tab === 'book' ? 'bg-danger text-white' : 'bg-bg-tertiary text-text-secondary'
-          }`}>
-          📖 หนังสือ ALS
-        </button>
-        <button onClick={() => setTab('tip')}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
-            tab === 'tip' ? 'bg-info text-white' : 'bg-bg-tertiary text-text-secondary'
-          }`}>
-          💡 เกร็ดความรู้ AI
-        </button>
+        {['book', 'tip', 'saved'].map(t => (
+          <button key={t} onClick={() => { setTab(t); setShowHistory(t === 'saved'); }}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-colors ${
+              tab === t ? (t === 'book' ? 'bg-danger text-white' : 'bg-info text-white') : 'bg-bg-tertiary text-text-secondary'
+            }`}>
+            {t === 'book' ? '📖 หนังสือ' : t === 'tip' ? '💡 AI Tips' : `📌 บันทึก (${history.length})`}
+          </button>
+        ))}
       </div>
 
-      {tab === 'book' ? (
+      {tab === 'book' && (
         <div className="space-y-2">
           {alsChapters.map(ch => {
             const isOpen = openCh === ch.id;
@@ -92,9 +120,10 @@ export default function ALSKnowledge() {
             );
           })}
         </div>
-      ) : (
+      )}
+
+      {tab === 'tip' && (
         <div className="space-y-4">
-          {/* Topic chips */}
           <div className="flex flex-wrap gap-2">
             {tipTopics.map(t => (
               <button key={t} onClick={() => fetchTip(t)} disabled={tipLoading}
@@ -103,27 +132,47 @@ export default function ALSKnowledge() {
               </button>
             ))}
           </div>
-
-          {/* Random button */}
           <button onClick={() => fetchTip(null)} disabled={tipLoading}
             className="w-full py-3 rounded-xl bg-info text-white font-bold text-sm disabled:opacity-50">
             {tipLoading ? '⏳ กำลังสร้าง...' : '🎲 สุ่มเกร็ดความรู้'}
           </button>
-
-          {/* Result */}
           {tip && (
             <div className="bg-bg-secondary rounded-xl p-4 animate-slide-up">
               <div className="text-xs font-bold text-info mb-2">💡 เกร็ดความรู้ ALS</div>
               <div className="text-sm text-text-secondary leading-relaxed whitespace-pre-line">{tip}</div>
+              <div className="text-[10px] text-success mt-2">📌 บันทึกแล้วอัตโนมัติ</div>
             </div>
           )}
           {tipError && (
             <div className="bg-danger/10 rounded-xl p-4 text-sm text-danger text-center">{tipError}</div>
           )}
-
           <div className="text-[10px] text-text-muted text-center">
-            สร้างโดย AI — ควรตรวจสอบกับแหล่งข้อมูลทางการแพทย์เสมอ
+            cache วันละ 1 ครั้งต่อหัวข้อ — ควรตรวจสอบกับแหล่งข้อมูลทางการแพทย์เสมอ
           </div>
+        </div>
+      )}
+
+      {tab === 'saved' && (
+        <div className="space-y-2">
+          {history.length === 0 ? (
+            <div className="text-center text-text-muted text-sm py-8">ยังไม่มีบันทึก</div>
+          ) : (
+            <>
+              {history.map((item, i) => (
+                <div key={i} className="bg-bg-secondary rounded-xl p-3 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-info">💡 {item.topic}</span>
+                    <span className="text-[10px] text-text-muted">
+                      {new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <div className="text-xs text-text-secondary leading-relaxed whitespace-pre-line">{item.text}</div>
+                </div>
+              ))}
+              <button onClick={() => { localStorage.removeItem(STORAGE_KEY); setHistory([]); }}
+                className="w-full text-xs text-text-muted underline text-center py-2">ล้างบันทึกทั้งหมด</button>
+            </>
+          )}
         </div>
       )}
     </div>
