@@ -83,6 +83,7 @@ const translations = {
   'drugs': { en: 'Drugs', th: 'ยา' },
   'cert': { en: 'Cert', th: 'ใบรับรอง' },
   'algorithms': { en: 'Algorithms', th: 'แนวทาง' },
+  'als_knowledge': { en: 'ALS Book', th: 'ความรู้ ALS' },
   'guide': { en: 'Guide', th: 'คู่มือ' },
   'feedback': { en: 'Feedback', th: 'แจ้งปัญหา' },
 };

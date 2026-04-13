@@ -24,6 +24,7 @@ export default function BottomTabBar() {
     { path: '/certification', icon: '🏆', label: t('cert', lang) },
     { path: '/compare', icon: '📊', label: 'Compare' },
     { path: '/algorithm', icon: '📖', label: t('algorithms', lang) },
+    { path: '/als', icon: '📚', label: t('als_knowledge', lang) },
     { path: '/guide', icon: '📗', label: t('guide', lang) },
     { path: '/feedback', icon: '💬', label: t('feedback', lang) },
     { path: '/settings', icon: '⚙️', label: t('settings', lang) },
