@@ -158,6 +158,27 @@ button, [role="button"] {
 }
 .animate-slide-up { animation: slide-up 0.2s ease-out; }
 
+/* Cartoon character animations */
+@keyframes bob-cute {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.animate-bob-cute { animation: bob-cute 2.4s ease-in-out infinite; }
+
+@keyframes shake-cute {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-3px) rotate(-2deg); }
+  75% { transform: translateX(3px) rotate(2deg); }
+}
+.animate-shake-cute { animation: shake-cute 0.4s ease-in-out infinite; }
+
+@keyframes bounce-cute {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-12px) scale(1.05); }
+  60% { transform: translateY(-2px) scale(0.98); }
+}
+.animate-bounce-cute { animation: bounce-cute 0.9s ease-in-out infinite; }
+
 /* ===== CARD ===== */
 .glass-card {
   background: white;
