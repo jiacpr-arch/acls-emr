@@ -73,9 +73,11 @@ function TeamMember({ role, active, label, status }) {
   }[role] : '';
 
   return (
-    <div className={`flex flex-col items-center gap-0.5 transition-all ${active ? 'scale-110' : 'opacity-70'}`}>
-      <div className={animClass}>
+    <div className={`flex flex-col items-center gap-0.5 transition-all ${active ? 'scale-110' : ''}`}>
+      <div className={`${animClass} ${active ? 'drop-shadow-[0_0_6px_rgba(43,108,176,0.55)]' : ''}`}>
         <svg viewBox="0 0 60 80" width="56" height="74">
+          {/* Active highlight ring */}
+          {active && <rect x="2" y="2" width="56" height="76" fill="none" stroke={colors.coat} strokeWidth="2" strokeDasharray="3 2"/>}
           {/* Head */}
           <ellipse cx="30" cy="18" rx="14" ry="15" fill="#FFD7B5" stroke="#1A2332" strokeWidth="1.8"/>
           {/* Hair */}
@@ -114,8 +116,8 @@ function TeamMember({ role, active, label, status }) {
           </>}
         </svg>
       </div>
-      <div className={`text-[9px] font-bold ${active ? 'text-info' : 'text-text-muted'}`}>{label}</div>
-      {status && <div className="text-[8px] font-mono text-success">{status}</div>}
+      <div className={`text-[10px] font-black px-1 ${active ? 'bg-info text-white' : 'text-text-primary'}`}>{label}</div>
+      {status && <div className="text-[9px] font-mono font-bold text-success bg-success/10 px-1 border border-success">{status}</div>}
     </div>
   );
 }
