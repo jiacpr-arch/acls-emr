@@ -21,7 +21,7 @@ export default function BottomTabBar() {
   const moreItems = [
     { path: '/statistics', icon: '📊', label: t('statistics', lang) },
     { path: '/drill', icon: '🏋️', label: t('drill', lang) },
-    { path: '/quiz', icon: '🎮', label: 'Quiz Game' },
+    { path: '/sim', icon: '🚨', label: 'Code Sim' },
     { path: '/certification', icon: '🏆', label: t('cert', lang) },
     { path: '/compare', icon: '📊', label: 'Compare' },
     { path: '/algorithm', icon: '📖', label: t('algorithms', lang) },

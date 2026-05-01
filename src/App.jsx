@@ -15,7 +15,7 @@ import Certification from './pages/Certification';
 import UserGuide from './pages/UserGuide';
 import Feedback from './pages/Feedback';
 import ALSKnowledge from './pages/ALSKnowledge';
-import QuizGame from './pages/QuizGame';
+import CodeBlueSim from './pages/CodeBlueSim';
 import BottomTabBar from './components/BottomTabBar';
 import OfflineIndicator from './components/OfflineIndicator';
 
@@ -48,7 +48,7 @@ function App() {
         <Route path="/guide" element={<UserGuide />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/als" element={<ALSKnowledge />} />
-        <Route path="/quiz" element={<QuizGame />} />
+        <Route path="/sim" element={<CodeBlueSim />} />
       </Routes>
       {/* Bottom pill bar on all pages except recording */}
       {!isRecording && <BottomTabBar />}
