@@ -21,6 +21,7 @@ export default function BottomTabBar() {
   const moreItems = [
     { path: '/statistics', icon: '📊', label: t('statistics', lang) },
     { path: '/drill', icon: '🏋️', label: t('drill', lang) },
+    { path: '/sim', icon: '🚨', label: 'Code Sim' },
     { path: '/certification', icon: '🏆', label: t('cert', lang) },
     { path: '/compare', icon: '📊', label: 'Compare' },
     { path: '/algorithm', icon: '📖', label: t('algorithms', lang) },
@@ -33,7 +34,7 @@ export default function BottomTabBar() {
   return (
     <>
       <div className="bottom-pill-bar">
-        {tabs.map((tab, i) => {
+        {tabs.map((tab) => {
           if (tab.key === 'more') {
             return (
               <button key="more" onClick={() => setShowMore(true)} className={showMore ? 'active' : ''}>

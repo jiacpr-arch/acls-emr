@@ -158,6 +158,64 @@ button, [role="button"] {
 }
 .animate-slide-up { animation: slide-up 0.2s ease-out; }
 
+/* Cartoon character animations */
+@keyframes bob-cute {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.animate-bob-cute { animation: bob-cute 2.4s ease-in-out infinite; }
+
+@keyframes shake-cute {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-3px) rotate(-2deg); }
+  75% { transform: translateX(3px) rotate(2deg); }
+}
+.animate-shake-cute { animation: shake-cute 0.4s ease-in-out infinite; }
+
+@keyframes bounce-cute {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-12px) scale(1.05); }
+  60% { transform: translateY(-2px) scale(0.98); }
+}
+.animate-bounce-cute { animation: bounce-cute 0.9s ease-in-out infinite; }
+
+/* Code Blue Sim — team member action animations */
+@keyframes pump {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+.animate-pump { animation: pump 0.45s ease-in-out infinite; }
+
+@keyframes pump-hands {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px) scaleY(0.85); }
+}
+.animate-pump-hands { animation: pump-hands 0.45s ease-in-out infinite; transform-origin: center; }
+
+@keyframes bag {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.85); }
+}
+.animate-bag { animation: bag 1.2s ease-in-out infinite; transform-origin: center; }
+
+@keyframes inject {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-4px); }
+}
+.animate-inject { animation: inject 0.6s ease-in-out infinite; }
+
+@keyframes zap {
+  0%, 100% { filter: brightness(1); transform: scale(1); }
+  50% { filter: brightness(1.6) drop-shadow(0 0 6px #FFD700); transform: scale(1.08); }
+}
+.animate-zap { animation: zap 0.7s ease-in-out infinite; }
+
+@keyframes ecg-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-200px); }
+}
+.animate-ecg-scroll { animation: ecg-scroll 2.4s linear infinite; }
+
 /* ===== CARD ===== */
 .glass-card {
   background: white;
