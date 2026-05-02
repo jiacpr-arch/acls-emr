@@ -1,12 +1,12 @@
 import { useSettingsStore } from '../stores/settingsStore';
 import {
-  Hospital, GraduationCap, HeartPulse, Eye, EyeOff,
+  Hospital, GraduationCap, HeartPulse,
   Volume2, VolumeX, Activity, Bell, RefreshCw, Users,
+  Sun, Moon, Monitor,
 } from '../components/ui/Icon';
 
 export default function Settings() {
   const settings = useSettingsStore();
-  const isDark = settings.theme === 'dark';
 
   return (
     <div className="page-container space-y-5">
@@ -56,10 +56,7 @@ export default function Settings() {
 
       {/* Appearance & Audio */}
       <SettingSection title="Appearance & Audio">
-        <ToggleRow Icon={isDark ? EyeOff : Eye} label="Dark Mode" value={isDark} onToggle={() => {
-          settings.toggleTheme();
-          document.documentElement.classList.toggle('dark');
-        }} />
+        <ThemeSelector value={settings.theme} onChange={settings.setTheme} />
         <ToggleRow Icon={settings.soundEnabled ? Volume2 : VolumeX} label="Sound Effects" value={settings.soundEnabled} onToggle={settings.toggleSound} />
         <ToggleRow Icon={Activity} label="Metronome" value={settings.metronomeEnabled} onToggle={settings.toggleMetronome} />
       </SettingSection>
@@ -134,6 +131,43 @@ function ChoiceCard({ active, onClick, tone, Icon: I, title, sub }) {
       <div className="text-body-strong mt-1">{title}</div>
       <div className="text-caption opacity-70">{sub}</div>
     </button>
+  );
+}
+
+function ThemeSelector({ value, onChange }) {
+  const options = [
+    { key: 'light', Icon: Sun, label: 'Light' },
+    { key: 'system', Icon: Monitor, label: 'System' },
+    { key: 'dark', Icon: Moon, label: 'Dark' },
+  ];
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-8 h-8 inline-flex items-center justify-center bg-bg-tertiary text-text-secondary shrink-0"
+          style={{ borderRadius: 'var(--radius-sm)' }}>
+          <Sun size={15} strokeWidth={2} />
+        </div>
+        <span className="text-body text-text-primary">Theme</span>
+      </div>
+      <div className="tab-group">
+        {options.map(o => {
+          const I = o.Icon;
+          const active = value === o.key;
+          return (
+            <button
+              key={o.key}
+              onClick={() => onChange(o.key)}
+              className={`tab-item flex items-center justify-center gap-1.5 ${active ? 'active' : ''}`}
+              role="radio"
+              aria-checked={active}
+            >
+              <I size={14} strokeWidth={2.2} />
+              <span>{o.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

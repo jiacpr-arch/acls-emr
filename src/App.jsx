@@ -23,8 +23,16 @@ function App() {
   const theme = useSettingsStore(s => s.theme);
   const location = useLocation();
   useEffect(() => {
-    if (theme === 'dark') document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+    const root = document.documentElement;
+    const apply = (isDark) => root.classList.toggle('dark', isDark);
+    if (theme === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      apply(mq.matches);
+      const onChange = (e) => apply(e.matches);
+      mq.addEventListener('change', onChange);
+      return () => mq.removeEventListener('change', onChange);
+    }
+    apply(theme === 'dark');
   }, [theme]);
 
   // Recording page has its own nav (QuickBar + FloatingStatus)
