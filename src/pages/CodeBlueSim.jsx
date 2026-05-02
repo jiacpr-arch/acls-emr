@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { scenario } from '../data/codeBlueScenarios';
+import {
+  AlertTriangle, RefreshCw, Star, Flame, Timer, Check, X,
+  PartyPopper, Heart, ChevronRight, Trophy,
+} from 'lucide-react';
 
 const HISCORE_KEY = 'acls_codeblue_hiscore';
 const TIME_PER_DECISION = 25;
@@ -304,9 +308,19 @@ export default function CodeBlueSim() {
   if (phase === 'intro') {
     return (
       <div className="page-container space-y-3 pb-28">
-        <div className="text-center pt-2">
-          <h1 className="text-2xl font-black text-text-primary">🚨 Code Blue Simulator</h1>
-          <p className="text-xs text-text-muted">จำลอง resuscitation จริง · คุณคือ Team Leader</p>
+        <div className="text-center pt-2 flex flex-col items-center gap-2">
+          <div
+            className="w-14 h-14 inline-flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%)',
+              borderRadius: 'var(--radius-2xl)',
+              boxShadow: '0 8px 20px rgba(220, 38, 38, 0.32)',
+            }}
+          >
+            <AlertTriangle size={26} strokeWidth={2.4} className="text-white" />
+          </div>
+          <h1 className="text-title text-text-primary">Code Blue Simulator</h1>
+          <p className="text-caption text-text-muted">จำลอง resuscitation จริง · คุณคือ Team Leader</p>
         </div>
 
         <div className="bg-bg-secondary border-2 border-text-primary p-4 flex items-start gap-3">
@@ -328,11 +342,11 @@ export default function CodeBlueSim() {
             <TeamMember role="defib" active={false} label="Defib"/>
             <TeamMember role="leader" active={false} label="You (Leader)"/>
           </div>
-          <div className="text-[10px] text-text-secondary leading-relaxed pt-2 border-t border-bg-tertiary">
-            • เลือกคำสั่งให้ทีมทำ — แต่ละคำสั่งมีตำแหน่งเป้าหมาย<br/>
-            • ตอบถูก: +15 ⭐ (โบนัสเวลา + คอมโบ)<br/>
-            • ตอบผิด/หมดเวลา: -5 ⭐ และผู้ป่วยอาจแย่ลง<br/>
-            • ทำให้ครบ algorithm จนคนไข้ ROSC
+          <div className="text-[11px] text-text-secondary leading-relaxed pt-2 border-t border-text-primary space-y-0.5">
+            <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>เลือกคำสั่งให้ทีมทำ — แต่ละคำสั่งมีตำแหน่งเป้าหมาย</span></div>
+            <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>ตอบถูก: +15 <Star size={10} strokeWidth={2.4} className="inline align-text-bottom text-warning" fill="currentColor" /> (โบนัสเวลา + คอมโบ)</span></div>
+            <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>ตอบผิด/หมดเวลา: -5 <Star size={10} strokeWidth={2.4} className="inline align-text-bottom text-warning" fill="currentColor" /> และผู้ป่วยอาจแย่ลง</span></div>
+            <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>ทำให้ครบ algorithm จนคนไข้ ROSC</span></div>
           </div>
         </div>
 
@@ -348,7 +362,7 @@ export default function CodeBlueSim() {
         </div>
 
         <button onClick={startGame} className="w-full btn btn-danger btn-lg btn-full font-black border-2">
-          🚨 เริ่มสถานการณ์
+          <AlertTriangle size={18} strokeWidth={2.4} /> เริ่มสถานการณ์
         </button>
       </div>
     );
@@ -362,10 +376,11 @@ export default function CodeBlueSim() {
         <div className="bg-bg-secondary border-2 border-text-primary p-5 flex flex-col items-center gap-3">
           <Instructor mood={won ? 'happy' : 'sad'}/>
           <div className="text-center">
-            <div className={`text-2xl font-black ${won ? 'text-success' : 'text-danger'}`}>
-              {won ? '🎉 ROSC สำเร็จ!' : '💔 Resuscitation ไม่สำเร็จ'}
+            <div className={`text-title font-black inline-flex items-center justify-center gap-2 w-full ${won ? 'text-success' : 'text-danger'}`}>
+              {won ? <PartyPopper size={22} strokeWidth={2.4} /> : <Heart size={22} strokeWidth={2.4} />}
+              {won ? 'ROSC สำเร็จ!' : 'Resuscitation ไม่สำเร็จ'}
             </div>
-            <div className="text-xs text-text-muted mt-1">
+            <div className="text-caption text-text-muted mt-1">
               {won ? 'ผู้ป่วยปลอดภัย — ส่งต่อ ICU ทำ post-arrest care' : 'ลองใหม่ — ทบทวน algorithm อีกครั้ง'}
             </div>
           </div>
@@ -383,10 +398,14 @@ export default function CodeBlueSim() {
               <div className="stat-label">Errors</div>
             </div>
           </div>
-          {score >= hiscore && score > 0 && <div className="text-sm font-bold text-warning">⭐ New Hi-Score!</div>}
+          {score >= hiscore && score > 0 && (
+            <div className="text-body-strong text-warning inline-flex items-center gap-1.5">
+              <Trophy size={14} strokeWidth={2.4} /> New Hi-Score!
+            </div>
+          )}
         </div>
         <button onClick={startGame} className="w-full btn btn-success btn-lg btn-full font-black border-2">
-          🔁 เล่นใหม่
+          <RefreshCw size={18} strokeWidth={2.4} /> เล่นใหม่
         </button>
       </div>
     );
@@ -401,9 +420,15 @@ export default function CodeBlueSim() {
       {/* Top bar */}
       <div className="bg-bg-secondary border-2 border-text-primary p-2 flex items-center gap-2 text-[11px] font-bold">
         <span className="text-info">Step {stepIdx + 1}/{scenario.steps.length}</span>
-        <span className="text-warning ml-auto">⭐ {score}</span>
-        <span className="text-purple">🔥 x{streak}</span>
-        <span className={`font-mono ${timeLeft <= 5 ? 'text-danger' : 'text-text-secondary'}`}>⏱ {timeLeft}s</span>
+        <span className="text-warning ml-auto inline-flex items-center gap-1">
+          <Star size={11} strokeWidth={2.4} fill="currentColor" /> {score}
+        </span>
+        <span className="text-purple inline-flex items-center gap-1">
+          <Flame size={11} strokeWidth={2.4} /> x{streak}
+        </span>
+        <span className={`font-mono inline-flex items-center gap-1 ${timeLeft <= 5 ? 'text-danger' : 'text-text-secondary'}`}>
+          <Timer size={11} strokeWidth={2.4} /> {timeLeft}s
+        </span>
       </div>
       {/* Time bar */}
       <div className="h-1.5 bg-bg-tertiary border border-text-primary overflow-hidden">
@@ -460,33 +485,35 @@ export default function CodeBlueSim() {
       {/* Action menu OR feedback */}
       {!feedback ? (
         <div className="space-y-1.5">
-          <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">เลือกคำสั่งสั่งทีม</div>
+          <div className="text-overline">เลือกคำสั่งสั่งทีม</div>
           {step.commands.map((cmd, i) => (
             <button key={i} onClick={() => handlePick(cmd)}
               className="w-full p-2 text-left border-2 border-text-primary bg-bg-secondary hover:bg-bg-tertiary flex items-center gap-2 transition-colors">
-              <span className="text-[10px] font-black px-1.5 py-0.5 border-2 border-current"
+              <span className="text-[10px] font-black px-1.5 py-0.5 border-2 border-current inline-flex items-center gap-1"
                     style={{ color: roleColor(cmd.target) }}>
-                → {roleLabel(cmd.target)}
+                <ChevronRight size={10} strokeWidth={2.6} /> {roleLabel(cmd.target)}
               </span>
-              <span className="text-xs font-semibold flex-1">{cmd.label}</span>
-              <span className="text-text-muted">▶</span>
+              <span className="text-caption font-semibold flex-1">{cmd.label}</span>
+              <ChevronRight size={14} strokeWidth={2} className="text-text-muted shrink-0" />
             </button>
           ))}
         </div>
       ) : (
         <div className="space-y-2 animate-slide-up">
           <div className={`p-3 border-2 border-text-primary ${feedback.ok ? 'bg-success/10' : 'bg-danger/10'}`}>
-            <div className={`text-sm font-black ${feedback.ok ? 'text-success' : 'text-danger'}`}>
-              {feedback.ok ? '✅ ตัดสินใจถูก!' : '❌ ผิด — เรียนรู้แล้วไปต่อ'}
+            <div className={`text-body-strong font-black inline-flex items-center gap-2 ${feedback.ok ? 'text-success' : 'text-danger'}`}>
+              {feedback.ok ? <Check size={16} strokeWidth={2.6} /> : <X size={16} strokeWidth={2.6} />}
+              {feedback.ok ? 'ตัดสินใจถูก!' : 'ผิด — เรียนรู้แล้วไปต่อ'}
             </div>
             {feedback.ok && step.effect?.narration && (
-              <div className="text-xs text-text-secondary mt-1 italic">
+              <div className="text-caption text-text-secondary mt-1 italic">
                 {step.effect.narration}
               </div>
             )}
           </div>
           <button onClick={advance} className={`w-full btn ${feedback.ok ? 'btn-success' : 'btn-info'} btn-full font-bold border-2`}>
-            {isLast || stepIdx + 1 >= scenario.steps.length ? 'จบสถานการณ์ →' : 'ขั้นต่อไป →'}
+            {isLast || stepIdx + 1 >= scenario.steps.length ? 'จบสถานการณ์' : 'ขั้นต่อไป'}
+            <ChevronRight size={16} strokeWidth={2.4} />
           </button>
         </div>
       )}
