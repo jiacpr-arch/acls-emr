@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useCaseStore } from '../stores/caseStore';
-import { useTimerStore } from '../stores/timerStore';
 import {
   GraduationCap, Edit, Activity, Lightbulb, Check, X, Trophy,
   Hospital, RefreshCw, ChevronRight, ChevronLeft, PartyPopper,

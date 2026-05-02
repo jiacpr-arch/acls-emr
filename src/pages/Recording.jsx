@@ -166,7 +166,11 @@ export default function Recording() {
     if (timer.cprActive) timer.stopCPR('case_end');
     timer.stopTimer();
     if (outcome === 'ROSC') playROSCSound();
-    await endCase(outcome);
+    try {
+      await endCase(outcome);
+    } catch (err) {
+      console.error('Failed to persist end-of-case:', err);
+    }
     setStep(outcome === 'ROSC' ? STEPS.ROSC : STEPS.TERMINATED);
   };
 
@@ -592,21 +596,25 @@ function DrugStep({ onDone, isTraining }) {
         </div>
       )}
       <div className="space-y-2">
-        <button onClick={() => give('Epinephrine 1mg IV (1:10,000)', 'epinephrine_arrest', true, 180)}
-          className="w-full btn-action btn-purple py-3.5 text-sm text-left px-4">
-          <div className="flex items-center justify-between">
-            <div><div className="font-bold">💉 Epinephrine 1mg IV</div><div className="text-[10px] font-normal opacity-80">1:10,000 → push fast → flush 20ml → q3-5 min</div></div>
-            <button onClick={(e) => { e.stopPropagation(); setShowTech('epinephrine_arrest'); }} className="text-[9px] underline opacity-60 shrink-0 ml-2">how?</button>
-          </div>
-        </button>
-        {isShockable && (
-          <button onClick={() => give('Amiodarone 300mg IV', 'amiodarone_first')}
-            className={`w-full btn-action py-3.5 text-sm text-left px-4 ${shockCount >= 3 ? 'btn-info' : 'btn-ghost'}`}>
-            <div className="flex items-center justify-between">
-              <div><div className="font-bold">💊 Amiodarone 300mg {shockCount >= 3 && '← recommended'}</div><div className="text-[10px] font-normal opacity-80">+D5W 4ml → push 1-3min → flush NSS 20ml</div></div>
-              <button onClick={(e) => { e.stopPropagation(); setShowTech('amiodarone_first'); }} className="text-[9px] underline opacity-60 shrink-0 ml-2">how?</button>
-            </div>
+        <div className="relative">
+          <button onClick={() => give('Epinephrine 1mg IV (1:10,000)', 'epinephrine_arrest', true, 180)}
+            className="w-full btn-action btn-purple py-3.5 text-sm text-left px-4 pr-14">
+            <div className="font-bold">💉 Epinephrine 1mg IV</div>
+            <div className="text-[10px] font-normal opacity-80">1:10,000 → push fast → flush 20ml → q3-5 min</div>
           </button>
+          <button onClick={() => setShowTech('epinephrine_arrest')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] underline opacity-60 text-white">how?</button>
+        </div>
+        {isShockable && (
+          <div className="relative">
+            <button onClick={() => give('Amiodarone 300mg IV', 'amiodarone_first')}
+              className={`w-full btn-action py-3.5 text-sm text-left px-4 pr-14 ${shockCount >= 3 ? 'btn-info' : 'btn-ghost'}`}>
+              <div className="font-bold">💊 Amiodarone 300mg {shockCount >= 3 && '← recommended'}</div>
+              <div className="text-[10px] font-normal opacity-80">+D5W 4ml → push 1-3min → flush NSS 20ml</div>
+            </button>
+            <button onClick={() => setShowTech('amiodarone_first')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] underline opacity-60">how?</button>
+          </div>
         )}
       </div>
       <div className="grid grid-cols-3 gap-2">
@@ -618,12 +626,15 @@ function DrugStep({ onDone, isTraining }) {
           { label: 'MgSO₄', id: 'magnesium', detail: '2g IV' },
           { label: 'Naloxone', id: 'naloxone', detail: '0.4-2mg IV' },
         ].map(d => (
-          <button key={d.id} className="btn-action btn-ghost py-2.5 text-[10px] relative"
-            onClick={() => give(`${d.label} (${d.detail})`, d.id)}>
-            <div className="font-semibold">{d.label}</div>
-            <div className="text-[8px] text-text-muted">{d.detail}</div>
-            <button onClick={(e) => { e.stopPropagation(); setShowTech(d.id); }} className="absolute top-0.5 right-1 text-[8px] text-info">?</button>
-          </button>
+          <div key={d.id} className="relative">
+            <button className="btn-action btn-ghost py-2.5 text-[10px] w-full"
+              onClick={() => give(`${d.label} (${d.detail})`, d.id)}>
+              <div className="font-semibold">{d.label}</div>
+              <div className="text-[8px] text-text-muted">{d.detail}</div>
+            </button>
+            <button onClick={() => setShowTech(d.id)}
+              className="absolute top-0.5 right-1 text-[8px] text-info">?</button>
+          </div>
         ))}
       </div>
       <button onClick={onDone} className="text-text-muted text-xs underline">← Back to CPR</button>

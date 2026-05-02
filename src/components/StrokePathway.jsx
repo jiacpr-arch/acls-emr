@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import { Brain } from 'lucide-react';

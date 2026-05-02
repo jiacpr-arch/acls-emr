@@ -8,8 +8,8 @@ export function isPediatric(patient) {
   return false;
 }
 
-// Calculate pediatric doses based on weight
-export function getPediatricDoses(weightKg) {
+// Calculate pediatric doses based on weight (and optional patient for ETT sizing by age)
+export function getPediatricDoses(weightKg, patient = null) {
   if (!weightKg || weightKg <= 0) return null;
   const w = weightKg;
 
