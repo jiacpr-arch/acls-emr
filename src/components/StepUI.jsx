@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, isValidElement } from 'react';
 
 // Render `icon` flexibly: string → emoji span, React element → as-is, component → render
 function renderIcon(icon) {
   if (icon == null) return null;
   if (typeof icon === 'string') return <span className="text-3xl leading-none">{icon}</span>;
-  if (typeof icon === 'function') {
+  if (isValidElement(icon)) return icon;
+  // function components OR forwardRef/memo objects (e.g. lucide-react icons)
+  if (typeof icon === 'function' || (typeof icon === 'object' && icon.$$typeof)) {
     const I = icon;
     return <I size={36} strokeWidth={2} />;
   }
-  return icon;
+  return null;
 }
 
 // ===== STEP CARD =====
