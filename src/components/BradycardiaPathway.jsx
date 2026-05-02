@@ -3,6 +3,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
+import { TrendingDown, Syringe, Zap, AlertTriangle, AlertCircle, Check, X, Wind } from 'lucide-react';
 
 // Bradycardia Pathway — AHA Guideline
 // HR < 50 + Symptomatic assessment
@@ -51,7 +52,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">Bradycardia — Quick Vitals</div>
-        <div className="text-5xl">🐢</div>
+        <div className="pathway-icon-tile bg-info/12 text-info"><TrendingDown size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">HR &lt; 50 — Enter Vitals</h1>
 
         <div className="glass-card !p-3 space-y-3">
@@ -99,12 +100,12 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">Bradycardia Algorithm</div>
-        <div className="text-5xl">🐢</div>
+        <div className="pathway-icon-tile bg-info/12 text-info"><TrendingDown size={32} strokeWidth={2.2} /></div>
         <h1 className="text-2xl font-black text-text-primary">HR &lt; 50 — Assessment</h1>
 
         {isTraining && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-left text-xs text-blue-700">
-            <span className="font-bold text-[10px] text-blue-500">TIP: </span>
+          <div className="training-tip">
+            <span className="training-tip-label">TIP: </span>
             Assess stability first. Atropine 1mg IV for symptomatic. Type II / 3rd degree → TCP directly (Atropine won't work).
           </div>
         )}
@@ -178,7 +179,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">Bradycardia — Atropine</div>
-        <div className="text-5xl">💉</div>
+        <div className="pathway-icon-tile bg-purple/12 text-purple"><Syringe size={32} strokeWidth={2.2} /></div>
         <h1 className="text-2xl font-black text-text-primary">Atropine Protocol</h1>
         <div className="text-sm text-text-secondary">Doses: {atropineCount}/3 (max 3mg)</div>
 
@@ -196,8 +197,8 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
         </button>
 
         {isTraining && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-left text-xs text-blue-700">
-            <span className="font-bold text-[10px] text-blue-500">TIP: </span>
+          <div className="training-tip">
+            <span className="training-tip-label">TIP: </span>
             1mg IV push fast (&lt;1min). Do not give slowly — risk of paradoxical bradycardia.
           </div>
         )}
@@ -232,7 +233,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
       return (
         <div className="text-center space-y-4 animate-slide-up px-2">
           <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-warning">Transcutaneous Pacing</div>
-          <div className="text-5xl">⚡</div>
+          <div className="pathway-icon-tile bg-warning/12 text-warning"><Zap size={32} strokeWidth={2.2} /></div>
           <h1 className="text-2xl font-black text-text-primary">TCP Setup</h1>
 
           <div className="glass-card !p-3 text-left">
@@ -288,7 +289,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-success">TCP — Captured</div>
-        <div className="text-5xl">⚡</div>
+        <div className="pathway-icon-tile bg-warning/12 text-warning"><Zap size={32} strokeWidth={2.2} /></div>
         <h1 className="text-2xl font-black text-text-primary">Pacing Active</h1>
 
         <div className="glass-card !p-3">
@@ -332,7 +333,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">Vasopressor Infusion</div>
-        <div className="text-5xl">💉</div>
+        <div className="pathway-icon-tile bg-purple/12 text-purple"><Syringe size={32} strokeWidth={2.2} /></div>
 
         <div className="glass-card !p-3 text-left">
           <div className="text-sm font-bold text-text-primary mb-1">Dopamine 5-20 mcg/kg/min</div>

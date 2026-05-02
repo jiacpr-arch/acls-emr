@@ -3,6 +3,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
+import { TrendingUp, Zap, Activity } from 'lucide-react';
 
 // Tachycardia Pathway — AHA 2024 Guideline
 // HR > 150 + Stable/Unstable auto-detect
@@ -51,7 +52,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Tachycardia — Quick Vitals</div>
-        <div className="text-5xl">🐇</div>
+        <div className="pathway-icon-tile bg-danger/12 text-danger"><TrendingUp size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">HR &gt; 150 — Enter Vitals</h1>
 
         <div className="glass-card !p-3 space-y-3">
@@ -99,12 +100,12 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Tachycardia Algorithm</div>
-        <div className="text-5xl">🐇</div>
+        <div className="pathway-icon-tile bg-danger/12 text-danger"><TrendingUp size={32} strokeWidth={2.2} /></div>
         <h1 className="text-2xl font-black text-text-primary">Stable or Unstable?</h1>
 
         {isTraining && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-left text-xs text-blue-700">
-            <span className="font-bold text-[10px] text-blue-500">TIP: </span>
+          <div className="training-tip">
+            <span className="training-tip-label">TIP: </span>
             If ANY unstable sign → Synchronized Cardioversion immediately.
           </div>
         )}
@@ -161,11 +162,11 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-shock">Synchronized Cardioversion</div>
-        <div className="text-5xl">⚡</div>
+        <div className="pathway-icon-tile bg-shock/12 text-shock"><Zap size={32} strokeWidth={2.2} /></div>
 
         {isTraining && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-left text-xs text-blue-700">
-            <span className="font-bold text-[10px] text-blue-500">TIP: </span>
+          <div className="training-tip">
+            <span className="training-tip-label">TIP: </span>
             Sedate if conscious (Midazolam 1-2mg). Ensure SYNC mode on defibrillator.
           </div>
         )}
@@ -216,7 +217,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">Stable Tachycardia — ID Rhythm</div>
-        <div className="text-5xl">📈</div>
+        <div className="pathway-icon-tile bg-info/12 text-info"><Activity size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">Select Rhythm Pattern</h1>
 
         <div className="grid grid-cols-2 gap-3">
