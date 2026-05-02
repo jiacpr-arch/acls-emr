@@ -1,12 +1,37 @@
 import { useState, useEffect, useRef } from 'react';
-import { scenario } from '../data/codeBlueScenarios';
+import { scenarios } from '../data/codeBlueScenarios';
 import {
   AlertTriangle, RefreshCw, Star, Flame, Timer, Check, X,
-  PartyPopper, Heart, ChevronRight, Trophy,
+  PartyPopper, Heart, ChevronRight, Trophy, ChevronLeft,
 } from 'lucide-react';
 
-const HISCORE_KEY = 'acls_codeblue_hiscore';
+const HISCORE_KEY = 'acls_codeblue_hiscores'; // per-scenario object
+const LEGACY_KEY = 'acls_codeblue_hiscore';   // old single-scenario key
 const TIME_PER_DECISION = 25;
+
+function loadHiscores() {
+  try {
+    const obj = JSON.parse(localStorage.getItem(HISCORE_KEY) || '{}');
+    // Backward compat: old single hiscore was for VF scenario
+    const legacy = Number(localStorage.getItem(LEGACY_KEY) || 0);
+    if (legacy && !obj['vfib-1']) obj['vfib-1'] = legacy;
+    return obj;
+  } catch { return {}; }
+}
+
+function saveHiscore(scenarioId, score) {
+  const all = loadHiscores();
+  if (score > (all[scenarioId] || 0)) {
+    all[scenarioId] = score;
+    localStorage.setItem(HISCORE_KEY, JSON.stringify(all));
+  }
+}
+
+const LEVEL_TONE = {
+  beginner:     { label: 'BEGINNER',     bg: 'bg-success/15',  text: 'text-success',  border: 'border-success' },
+  intermediate: { label: 'INTERMEDIATE', bg: 'bg-warning/15',  text: 'text-warning',  border: 'border-warning' },
+  advanced:     { label: 'ADVANCED',     bg: 'bg-danger/15',   text: 'text-danger',   border: 'border-danger'  },
+};
 
 // ============ ECG MONITOR ============
 function EcgMonitor({ rhythm, hr, bp, spo2, etco2 }) {
@@ -59,7 +84,7 @@ function Vital({ label, value, unit, color }) {
 }
 
 // ============ TEAM MEMBER CHARACTERS ============
-function TeamMember({ role, active, label, status }) {
+function TeamMember({ role, active, walking, label, status }) {
   const colors = {
     compressor: { coat: '#2B6CB0', accent: '#1e4e8c' },
     airway:     { coat: '#6B46C1', accent: '#553399' },
@@ -76,8 +101,12 @@ function TeamMember({ role, active, label, status }) {
     leader: 'animate-bob-cute',
   }[role] : '';
 
+  const walkClass = walking ? `animate-walk-${role}` : '';
+
   return (
-    <div className={`flex flex-col items-center gap-0.5 transition-all ${active ? 'scale-110' : ''}`}>
+    <div className={`relative flex flex-col items-center gap-0.5 transition-all ${active ? 'scale-110' : ''}`}>
+      {/* Walk wrapper — re-keyed on each pick so animation restarts */}
+      <div key={`walk-${walking || 'idle'}`} className={walkClass}>
       <div className={`${animClass} ${active ? 'drop-shadow-[0_0_6px_rgba(43,108,176,0.55)]' : ''}`}>
         <svg viewBox="0 0 60 80" width="56" height="74">
           {/* Active highlight ring */}
@@ -120,8 +149,10 @@ function TeamMember({ role, active, label, status }) {
           </>}
         </svg>
       </div>
+      </div>
       <div className={`text-[10px] font-black px-1 ${active ? 'bg-info text-white' : 'text-text-primary'}`}>{label}</div>
       {status && <div className="text-[9px] font-mono font-bold text-success bg-success/10 px-1 border border-success">{status}</div>}
+      {walking ? <span className="step-puff" /> : null}
     </div>
   );
 }
@@ -210,6 +241,7 @@ function Instructor({ mood = 'idle' }) {
 // ============ MAIN COMPONENT ============
 export default function CodeBlueSim() {
   const [phase, setPhase] = useState('intro'); // intro | playing | done
+  const [scenario, setScenario] = useState(scenarios[0]);
   const [stepIdx, setStepIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -218,12 +250,14 @@ export default function CodeBlueSim() {
   const [mood, setMood] = useState('idle');
   const [feedback, setFeedback] = useState(null); // { ok, text, target }
   const [activeTarget, setActiveTarget] = useState(null);
+  const [walkPulse, setWalkPulse] = useState(0);
   const [state, setState] = useState(scenario.initialState);
   const [timeLeft, setTimeLeft] = useState(TIME_PER_DECISION);
-  const [hiscore, setHiscore] = useState(() => Number(localStorage.getItem(HISCORE_KEY) || 0));
+  const [hiscores, setHiscores] = useState(loadHiscores);
   const timerRef = useRef(null);
   const handleAnswerRef = useRef(null);
 
+  const hiscore = hiscores[scenario.id] || 0;
   const step = scenario.steps[stepIdx];
   const isLast = step?.finalStep;
   const isOver = phase === 'done';
@@ -232,6 +266,7 @@ export default function CodeBlueSim() {
     if (feedback) return;
     clearInterval(timerRef.current);
     setActiveTarget(cmd.target);
+    setWalkPulse(p => p + 1);
     if (cmd.correct) {
       const bonus = Math.floor(timeLeft / 3);
       const comboBonus = streak >= 2 ? 8 : 0;
@@ -270,15 +305,24 @@ export default function CodeBlueSim() {
     return () => clearInterval(timerRef.current);
   }, [phase, feedback, stepIdx]);
 
-  const startGame = () => {
+  const startGame = (chosen) => {
+    const s = chosen || scenario;
+    setScenario(s);
     setPhase('playing');
     setStepIdx(0);
     setScore(0); setStreak(0); setBestStreak(0); setWrongCount(0);
-    setState(scenario.initialState);
+    setState(s.initialState);
     setMood('idle');
     setFeedback(null);
     setActiveTarget(null);
+    setWalkPulse(0);
     setTimeLeft(TIME_PER_DECISION);
+  };
+
+  const exitToMenu = () => {
+    setPhase('intro');
+    setFeedback(null);
+    setActiveTarget(null);
   };
 
   const advance = () => {
@@ -298,8 +342,8 @@ export default function CodeBlueSim() {
 
   const finalize = () => {
     if (score > hiscore) {
-      localStorage.setItem(HISCORE_KEY, String(score));
-      setHiscore(score);
+      saveHiscore(scenario.id, score);
+      setHiscores(loadHiscores());
     }
     setPhase('done');
   };
@@ -323,16 +367,18 @@ export default function CodeBlueSim() {
           <p className="text-caption text-text-muted">จำลอง resuscitation จริง · คุณคือ Team Leader</p>
         </div>
 
-        <div className="bg-bg-secondary border-2 border-text-primary p-4 flex items-start gap-3">
+        {/* Hello from instructor */}
+        <div className="bg-bg-secondary border-2 border-text-primary p-3 flex items-start gap-3">
           <Instructor mood="happy"/>
           <div className="flex-1">
-            <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-relaxed text-text-primary">
+            <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-relaxed" style={{ color: '#0F1A2E' }}>
               <div className="font-black text-info mb-1">Dr. หมอเฮีย:</div>
-              {scenario.intro}
+              เลือกสถานการณ์ที่อยากฝึก — เริ่มจากง่าย (Beginner) ไปยาก (Advanced) ตามลำดับนะ
             </div>
           </div>
         </div>
 
+        {/* Team preview */}
         <div className="bg-bg-secondary border-2 border-text-primary p-3 space-y-2">
           <div className="text-xs font-black text-text-primary">ทีม resuscitation ของคุณ</div>
           <div className="grid grid-cols-5 gap-1">
@@ -343,27 +389,45 @@ export default function CodeBlueSim() {
             <TeamMember role="leader" active={false} label="You (Leader)"/>
           </div>
           <div className="text-[11px] text-text-secondary leading-relaxed pt-2 border-t border-text-primary space-y-0.5">
-            <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>เลือกคำสั่งให้ทีมทำ — แต่ละคำสั่งมีตำแหน่งเป้าหมาย</span></div>
+            <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>เลือกคำสั่งให้ทีม — แต่ละคำสั่งจะส่งคนไป "เดิน" หาคนไข้</span></div>
             <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>ตอบถูก: +15 <Star size={10} strokeWidth={2.4} className="inline align-text-bottom text-warning" fill="currentColor" /> (โบนัสเวลา + คอมโบ)</span></div>
-            <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>ตอบผิด/หมดเวลา: -5 <Star size={10} strokeWidth={2.4} className="inline align-text-bottom text-warning" fill="currentColor" /> และผู้ป่วยอาจแย่ลง</span></div>
-            <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>ทำให้ครบ algorithm จนคนไข้ ROSC</span></div>
+            <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>ตอบผิด/หมดเวลา: -5 <Star size={10} strokeWidth={2.4} className="inline align-text-bottom text-warning" fill="currentColor" /></span></div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <div className="stat-box border-2 border-text-primary">
-            <div className="stat-value text-info">{scenario.steps.length}</div>
-            <div className="stat-label">ขั้นตัดสินใจ</div>
-          </div>
-          <div className="stat-box border-2 border-text-primary">
-            <div className="stat-value text-warning">{hiscore}</div>
-            <div className="stat-label">Hi-Score</div>
-          </div>
+        {/* Scenario picker */}
+        <div className="text-overline pt-2">เลือกสถานการณ์ (ง่าย → ยาก)</div>
+        <div className="space-y-2">
+          {scenarios.map((s) => {
+            const tone = LEVEL_TONE[s.level] || LEVEL_TONE.intermediate;
+            const hi = hiscores[s.id] || 0;
+            return (
+              <button
+                key={s.id}
+                onClick={() => startGame(s)}
+                className="w-full bg-bg-secondary border-2 border-text-primary p-3 text-left hover:bg-bg-tertiary transition-colors flex items-start gap-3"
+              >
+                <div className={`shrink-0 px-2 py-1 ${tone.bg} ${tone.text} border-2 ${tone.border} text-[10px] font-black tracking-wider`}>
+                  {tone.label}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-body-strong text-text-primary">{s.title}</div>
+                  <div className="text-caption text-text-secondary line-clamp-2 mt-0.5">{s.description}</div>
+                  <div className="flex items-center gap-3 text-[10px] text-text-muted font-mono mt-1.5">
+                    <span>{s.steps.length} steps</span>
+                    {s.durationLabel && <span>· {s.durationLabel}</span>}
+                    {hi > 0 && (
+                      <span className="inline-flex items-center gap-1 text-warning">
+                        <Trophy size={10} strokeWidth={2.4} /> {hi}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <ChevronRight size={18} strokeWidth={2.4} className="text-text-muted self-center shrink-0" />
+              </button>
+            );
+          })}
         </div>
-
-        <button onClick={startGame} className="w-full btn btn-danger btn-lg btn-full font-black border-2">
-          <AlertTriangle size={18} strokeWidth={2.4} /> เริ่มสถานการณ์
-        </button>
       </div>
     );
   }
@@ -404,8 +468,11 @@ export default function CodeBlueSim() {
             </div>
           )}
         </div>
-        <button onClick={startGame} className="w-full btn btn-success btn-lg btn-full font-black border-2">
-          <RefreshCw size={18} strokeWidth={2.4} /> เล่นใหม่
+        <button onClick={() => startGame(scenario)} className="w-full btn btn-success btn-lg btn-full font-black border-2">
+          <RefreshCw size={18} strokeWidth={2.4} /> เล่นซ้ำ
+        </button>
+        <button onClick={exitToMenu} className="w-full btn btn-ghost btn-block border-2">
+          <ChevronLeft size={16} strokeWidth={2.4} /> เลือกสถานการณ์อื่น
         </button>
       </div>
     );
@@ -417,6 +484,19 @@ export default function CodeBlueSim() {
 
   return (
     <div className="page-container space-y-2 pb-28">
+      {/* Scenario header — title + exit */}
+      <div className="bg-bg-secondary border-2 border-text-primary p-2 flex items-center gap-2">
+        <button onClick={exitToMenu}
+          className="inline-flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-bold text-text-muted hover:text-text-primary border border-text-primary"
+          aria-label="Exit to menu">
+          <ChevronLeft size={12} strokeWidth={2.4} /> Exit
+        </button>
+        <span className="text-[11px] font-bold text-text-primary truncate flex-1">{scenario.title}</span>
+        {(() => {
+          const tone = LEVEL_TONE[scenario.level] || LEVEL_TONE.intermediate;
+          return <span className={`shrink-0 px-1.5 py-0.5 ${tone.bg} ${tone.text} border ${tone.border} text-[9px] font-black tracking-wider`}>{tone.label}</span>;
+        })()}
+      </div>
       {/* Top bar */}
       <div className="bg-bg-secondary border-2 border-text-primary p-2 flex items-center gap-2 text-[11px] font-bold">
         <span className="text-info">Step {stepIdx + 1}/{scenario.steps.length}</span>
@@ -444,6 +524,7 @@ export default function CodeBlueSim() {
         <div className="flex justify-center mb-1">
           <TeamMember role="airway"
             active={state.airwayActive || activeTarget === 'airway'}
+            walking={activeTarget === 'airway' ? walkPulse : 0}
             label="Airway"
             status={state.airwayActive ? 'BAGGING' : ''}/>
         </div>
@@ -451,11 +532,13 @@ export default function CodeBlueSim() {
         <div className="grid grid-cols-[auto_1fr_auto] gap-1 items-center">
           <TeamMember role="drug"
             active={activeTarget === 'drug'}
+            walking={activeTarget === 'drug' ? walkPulse : 0}
             label="Drug"
             status={state.epiGiven > 0 ? `Epi×${state.epiGiven}` : (state.ivAccess ? 'IV ready' : '')}/>
           <Patient state={state}/>
           <TeamMember role="defib"
             active={activeTarget === 'defib' || state.defibCharged}
+            walking={activeTarget === 'defib' ? walkPulse : 0}
             label="Defib"
             status={state.defibCharged ? '⚡ CHARGED' : ''}/>
         </div>
@@ -463,10 +546,12 @@ export default function CodeBlueSim() {
         <div className="flex justify-center gap-6 mt-1">
           <TeamMember role="compressor"
             active={state.compressorActive || activeTarget === 'compressor'}
+            walking={activeTarget === 'compressor' ? walkPulse : 0}
             label="Compressor"
             status={state.compressorActive ? 'CPR ON' : ''}/>
           <TeamMember role="leader"
             active={activeTarget === 'leader'}
+            walking={activeTarget === 'leader' ? walkPulse : 0}
             label="You (Leader)"/>
         </div>
       </div>
@@ -475,7 +560,7 @@ export default function CodeBlueSim() {
       <div className="bg-bg-secondary border-2 border-text-primary p-2 flex items-start gap-2">
         <Instructor mood={mood}/>
         <div className="flex-1">
-          <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-snug text-text-primary">
+          <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-snug" style={{ color: '#0F1A2E' }}>
             <span className="font-black text-info">หมอเฮีย: </span>
             {feedback ? feedback.text : step.narration}
           </div>
