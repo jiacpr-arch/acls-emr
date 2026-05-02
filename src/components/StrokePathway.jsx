@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
+import { Brain } from 'lucide-react';
 
 // Stroke Pathway — AHA/ASA Guideline
 // Flow: FAST → Vitals + DTX → NIHSS → CT → tPA criteria → Treatment
@@ -45,12 +46,12 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">Stroke Assessment</div>
-        <div className="text-5xl">🧠</div>
+        <div className="pathway-icon-tile bg-purple/12 text-purple"><Brain size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">FAST Assessment</h1>
 
         {isTraining && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-left text-xs text-blue-700">
-            <span className="font-bold text-[10px] text-blue-500">TIP: </span>
+          <div className="training-tip">
+            <span className="training-tip-label">TIP: </span>
             Check DTX first! Hypoglycemia can mimic stroke. Time of onset is critical for tPA window.
           </div>
         )}

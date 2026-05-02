@@ -2,6 +2,7 @@ import PanelWrapper from './PanelWrapper';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { formatTimeLong } from '../utils/formatTime';
+import { FileText } from 'lucide-react';
 
 // SBAR Handover auto-generated from case data
 // S: Situation, B: Background, A: Assessment, R: Recommendation
@@ -54,7 +55,7 @@ export default function SBARHandover({ onClose }) {
   };
 
   return (
-    <PanelWrapper title="SBAR Handover" icon="📋" onClose={onClose} onSave={copyToClipboard} saveLabel="Copy">
+    <PanelWrapper title="SBAR Handover" icon={<FileText size={18} strokeWidth={2.2} />} onClose={onClose} onSave={copyToClipboard} saveLabel="Copy">
       <div className="space-y-3">
         <SBARSection letter="S" title="Situation" color="bg-danger" content={situation} />
         <SBARSection letter="B" title="Background" color="bg-warning" content={background} />
@@ -67,12 +68,13 @@ export default function SBARHandover({ onClose }) {
 
 function SBARSection({ letter, title, color, content }) {
   return (
-    <div className="glass-card !p-3">
+    <div className="dash-card !p-3">
       <div className="flex items-center gap-2 mb-1.5">
-        <span className={`w-7 h-7 ${color} text-white rounded-lg flex items-center justify-center text-sm font-black`}>{letter}</span>
-        <span className="text-sm font-bold text-text-primary">{title}</span>
+        <span className={`w-8 h-8 ${color} text-white inline-flex items-center justify-center text-base font-black`}
+          style={{ borderRadius: 'var(--radius-sm)' }}>{letter}</span>
+        <span className="text-body-strong text-text-primary">{title}</span>
       </div>
-      <p className="text-xs text-text-secondary leading-relaxed">{content || '—'}</p>
+      <p className="text-caption text-text-secondary leading-relaxed">{content || '—'}</p>
     </div>
   );
 }

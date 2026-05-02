@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import { alsChapters } from '../data/alsContent';
+import {
+  GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
+  Sparkles, AlertCircle, Trash, Clock,
+} from 'lucide-react';
 
 const STORAGE_KEY = 'als_tips_history';
 const CACHE_KEY = 'als_tip_today';
@@ -7,7 +11,7 @@ const CACHE_KEY = 'als_tip_today';
 const tipTopics = [
   'การกู้ชีพ', 'จังหวะหัวใจ', 'ยาฉุกเฉิน', 'ทางเดินหายใจ',
   'Defibrillation', 'Post-ROSC care', 'สถานการณ์พิเศษในห้องฉุกเฉิน',
-  'การทำงานเป็นทีม', 'CPR คุณภาพสูง', 'H\'s and T\'s',
+  'การทำงานเป็นทีม', 'CPR คุณภาพสูง', "H's and T's",
 ];
 
 function getHistory() {
@@ -40,7 +44,6 @@ export default function ALSKnowledge() {
   const [tipLoading, setTipLoading] = useState(false);
   const [tipError, setTipError] = useState('');
   const [history, setHistory] = useState([]);
-  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => { setHistory(getHistory()); }, [tip]);
 
@@ -61,31 +64,39 @@ export default function ALSKnowledge() {
       setTip(data.tip);
       setTodayCache(topic, data.tip);
       saveToHistory(topic, data.tip);
-    } catch (e) {
+    } catch {
       setTipError('ไม่สามารถโหลดได้ กรุณาลองใหม่');
     }
     setTipLoading(false);
   };
 
   return (
-    <div className="page-container space-y-4 pb-28">
-      <div className="text-center space-y-1">
-        <div className="w-14 h-14 mx-auto bg-danger rounded-2xl flex items-center justify-center shadow-md">
-          <span className="text-3xl">📚</span>
+    <div className="page-container space-y-4">
+      <div className="text-center space-y-2">
+        <div
+          className="w-16 h-16 mx-auto inline-flex items-center justify-center"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%)',
+            borderRadius: 'var(--radius-2xl)',
+            boxShadow: '0 8px 20px rgba(220, 38, 38, 0.28)',
+          }}
+        >
+          <GraduationCap size={28} strokeWidth={2.2} className="text-white" />
         </div>
-        <h1 className="text-2xl font-black text-text-primary">คลังความรู้ ALS</h1>
-        <p className="text-xs text-text-muted">Advanced Life Support Knowledge Base</p>
+        <h1 className="text-title text-text-primary">คลังความรู้ ALS</h1>
+        <p className="text-caption text-text-muted">Advanced Life Support Knowledge Base</p>
       </div>
 
-      <div className="flex gap-2">
-        {['book', 'tip', 'saved'].map(t => (
-          <button key={t} onClick={() => { setTab(t); setShowHistory(t === 'saved'); }}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-              tab === t ? (t === 'book' ? 'bg-danger text-white' : 'bg-info text-white') : 'bg-bg-tertiary text-text-secondary'
-            }`}>
-            {t === 'book' ? '📖 หนังสือ' : t === 'tip' ? '💡 AI Tips' : `📌 บันทึก (${history.length})`}
-          </button>
-        ))}
+      <div className="tab-group">
+        <button onClick={() => setTab('book')} className={`tab-item ${tab === 'book' ? 'active' : ''}`}>
+          <BookOpen size={14} strokeWidth={2.2} className="inline mr-1" /> หนังสือ
+        </button>
+        <button onClick={() => setTab('tip')} className={`tab-item ${tab === 'tip' ? 'active' : ''}`}>
+          <Lightbulb size={14} strokeWidth={2.2} className="inline mr-1" /> AI Tips
+        </button>
+        <button onClick={() => setTab('saved')} className={`tab-item ${tab === 'saved' ? 'active' : ''}`}>
+          <Bookmark size={14} strokeWidth={2.2} className="inline mr-1" /> บันทึก ({history.length})
+        </button>
       </div>
 
       {tab === 'book' && (
@@ -93,25 +104,27 @@ export default function ALSKnowledge() {
           {alsChapters.map(ch => {
             const isOpen = openCh === ch.id;
             return (
-              <div key={ch.id} className="bg-bg-secondary rounded-xl overflow-hidden">
+              <div key={ch.id} className="dash-card !p-0 overflow-hidden">
                 <button onClick={() => setOpenCh(isOpen ? null : ch.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
-                  <div className="w-9 h-9 rounded-lg bg-danger/10 flex items-center justify-center shrink-0">
-                    <span className="text-xl">{ch.icon}</span>
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-bg-tertiary/50 transition-colors">
+                  <div className="w-9 h-9 inline-flex items-center justify-center bg-danger/12 text-danger shrink-0"
+                    style={{ borderRadius: 'var(--radius-sm)' }}>
+                    <BookOpen size={16} strokeWidth={2.2} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm font-bold text-text-primary block">{ch.title}</span>
-                    <span className="text-[10px] text-text-muted">{ch.sections.length} หัวข้อ</span>
+                    <span className="text-body-strong text-text-primary block truncate">{ch.title}</span>
+                    <span className="text-[11px] text-text-muted">{ch.sections.length} หัวข้อ</span>
                   </div>
-                  <span className={`text-text-muted text-xs transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+                  <ChevronDown size={16} strokeWidth={2.2}
+                    className={`text-text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isOpen && (
                   <div className="px-4 pb-4 space-y-3 animate-slide-up">
-                    <div className="h-px bg-bg-tertiary" />
+                    <div className="h-px bg-border" />
                     {ch.sections.map((s, i) => (
                       <div key={i}>
-                        <div className="text-xs font-bold text-danger mb-1">{s.heading}</div>
-                        <div className="text-sm text-text-secondary leading-relaxed">{s.body}</div>
+                        <div className="text-caption font-bold text-danger mb-1">{s.heading}</div>
+                        <div className="text-caption text-text-secondary leading-relaxed">{s.body}</div>
                       </div>
                     ))}
                   </div>
@@ -123,30 +136,42 @@ export default function ALSKnowledge() {
       )}
 
       {tab === 'tip' && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
             {tipTopics.map(t => (
               <button key={t} onClick={() => fetchTip(t)} disabled={tipLoading}
-                className="px-3 py-1.5 rounded-full bg-bg-secondary text-xs font-bold text-text-secondary disabled:opacity-40">
+                className="px-3 py-1.5 bg-bg-secondary border border-border text-caption font-bold text-text-secondary hover:bg-bg-tertiary disabled:opacity-40 transition-colors"
+                style={{ borderRadius: 99 }}>
                 {t}
               </button>
             ))}
           </div>
           <button onClick={() => fetchTip(null)} disabled={tipLoading}
-            className="w-full py-3 rounded-xl bg-info text-white font-bold text-sm disabled:opacity-50">
-            {tipLoading ? '⏳ กำลังสร้าง...' : '🎲 สุ่มเกร็ดความรู้'}
+            className="btn btn-primary btn-lg btn-block disabled:opacity-50">
+            {tipLoading ? (
+              <><Clock size={16} strokeWidth={2.2} className="animate-pulse" /> กำลังสร้าง…</>
+            ) : (
+              <><Sparkles size={16} strokeWidth={2.2} /> สุ่มเกร็ดความรู้</>
+            )}
           </button>
           {tip && (
-            <div className="bg-bg-secondary rounded-xl p-4 animate-slide-up">
-              <div className="text-xs font-bold text-info mb-2">💡 เกร็ดความรู้ ALS</div>
-              <div className="text-sm text-text-secondary leading-relaxed whitespace-pre-line">{tip}</div>
-              <div className="text-[10px] text-success mt-2">📌 บันทึกแล้วอัตโนมัติ</div>
+            <div className="dash-card animate-slide-up border-l-4 border-l-info">
+              <div className="text-overline text-info mb-2 inline-flex items-center gap-1.5">
+                <Lightbulb size={12} strokeWidth={2.2} /> เกร็ดความรู้ ALS
+              </div>
+              <div className="text-caption text-text-secondary leading-relaxed whitespace-pre-line">{tip}</div>
+              <div className="text-[11px] text-success mt-2 inline-flex items-center gap-1">
+                <Bookmark size={11} strokeWidth={2.2} /> บันทึกแล้วอัตโนมัติ
+              </div>
             </div>
           )}
           {tipError && (
-            <div className="bg-danger/10 rounded-xl p-4 text-sm text-danger text-center">{tipError}</div>
+            <div className="bg-danger/8 border border-danger/30 p-3 text-caption text-danger text-center inline-flex items-center justify-center gap-2"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <AlertCircle size={14} strokeWidth={2.2} /> {tipError}
+            </div>
           )}
-          <div className="text-[10px] text-text-muted text-center">
+          <div className="text-[11px] text-text-muted text-center">
             cache วันละ 1 ครั้งต่อหัวข้อ — ควรตรวจสอบกับแหล่งข้อมูลทางการแพทย์เสมอ
           </div>
         </div>
@@ -155,22 +180,26 @@ export default function ALSKnowledge() {
       {tab === 'saved' && (
         <div className="space-y-2">
           {history.length === 0 ? (
-            <div className="text-center text-text-muted text-sm py-8">ยังไม่มีบันทึก</div>
+            <div className="text-center text-text-muted text-caption py-10">ยังไม่มีบันทึก</div>
           ) : (
             <>
               {history.map((item, i) => (
-                <div key={i} className="bg-bg-secondary rounded-xl p-3 space-y-1">
+                <div key={i} className="dash-card !p-3 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-info">💡 {item.topic}</span>
-                    <span className="text-[10px] text-text-muted">
+                    <span className="text-caption font-bold text-info inline-flex items-center gap-1.5">
+                      <Lightbulb size={13} strokeWidth={2.2} /> {item.topic}
+                    </span>
+                    <span className="text-[10px] text-text-muted font-mono">
                       {new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <div className="text-xs text-text-secondary leading-relaxed whitespace-pre-line">{item.text}</div>
+                  <div className="text-caption text-text-secondary leading-relaxed whitespace-pre-line">{item.text}</div>
                 </div>
               ))}
               <button onClick={() => { localStorage.removeItem(STORAGE_KEY); setHistory([]); }}
-                className="w-full text-xs text-text-muted underline text-center py-2">ล้างบันทึกทั้งหมด</button>
+                className="btn btn-ghost btn-sm btn-block mt-2">
+                <Trash size={14} strokeWidth={2} /> ล้างบันทึกทั้งหมด
+              </button>
             </>
           )}
         </div>

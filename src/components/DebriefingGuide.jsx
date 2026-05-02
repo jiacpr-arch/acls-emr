@@ -2,6 +2,7 @@ import PanelWrapper from './PanelWrapper';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { formatTimeLong } from '../utils/formatTime';
+import { BarChart3, Check, AlertTriangle, Target } from 'lucide-react';
 
 // Debriefing Guide — auto-generated post-case analysis
 // Shows: what went well, what to improve, action plan
@@ -90,47 +91,53 @@ export default function DebriefingGuide({ onClose }) {
   }
 
   return (
-    <PanelWrapper title="Debriefing Guide" icon="📊" onClose={onClose}>
+    <PanelWrapper title="Debriefing Guide" icon={<BarChart3 size={18} strokeWidth={2.2} />} onClose={onClose}>
       <div className="space-y-3">
         {/* Summary */}
-        <div className="glass-card !p-3 text-center">
-          <div className="text-2xl font-mono font-black text-text-primary">{formatTimeLong(elapsed)}</div>
-          <div className="text-xs text-text-muted">Total Duration · CPR {cycleNumber} cycles · CCF {ccf}%</div>
+        <div className="dash-card !p-3 text-center">
+          <div className="text-numeric text-2xl text-text-primary">{formatTimeLong(elapsed)}</div>
+          <div className="text-caption text-text-muted">Total Duration · CPR {cycleNumber} cycles · CCF {ccf}%</div>
         </div>
 
         {/* Strengths */}
         <div>
-          <div className="text-xs font-bold text-success uppercase tracking-wider mb-2">✅ What Went Well</div>
+          <div className="section-header inline-flex items-center gap-1.5" style={{ color: 'var(--color-success)' }}>
+            <Check size={11} strokeWidth={2.4} /> What Went Well
+          </div>
           {strengths.length > 0 ? strengths.map((s, i) => (
-            <div key={i} className="glass-card !p-2.5 mb-1.5 border-l-4 border-success">
-              <div className="text-xs font-bold text-text-primary">{s.text}</div>
+            <div key={i} className="dash-card !p-2.5 mb-1.5 border-l-4 border-l-success">
+              <div className="text-caption font-bold text-text-primary">{s.text}</div>
               {s.detail && <div className="text-[10px] text-text-muted">{s.detail}</div>}
             </div>
           )) : (
-            <div className="text-xs text-text-muted">No data to analyze yet</div>
+            <div className="text-caption text-text-muted">No data to analyze yet</div>
           )}
         </div>
 
         {/* Improvements */}
         <div>
-          <div className="text-xs font-bold text-warning uppercase tracking-wider mb-2">⚠️ Areas to Improve</div>
+          <div className="section-header inline-flex items-center gap-1.5" style={{ color: 'var(--color-warning)' }}>
+            <AlertTriangle size={11} strokeWidth={2.4} /> Areas to Improve
+          </div>
           {improvements.length > 0 ? improvements.map((s, i) => (
-            <div key={i} className="glass-card !p-2.5 mb-1.5 border-l-4 border-warning">
-              <div className="text-xs font-bold text-text-primary">{s.text}</div>
+            <div key={i} className="dash-card !p-2.5 mb-1.5 border-l-4 border-l-warning">
+              <div className="text-caption font-bold text-text-primary">{s.text}</div>
               {s.detail && <div className="text-[10px] text-text-muted">{s.detail}</div>}
             </div>
           )) : (
-            <div className="text-xs text-success font-semibold">No issues found — great job!</div>
+            <div className="text-caption text-success font-semibold">No issues found — great job!</div>
           )}
         </div>
 
         {/* Action Plan */}
         {actions.length > 0 && (
           <div>
-            <div className="text-xs font-bold text-info uppercase tracking-wider mb-2">🎯 Action Plan</div>
+            <div className="section-header inline-flex items-center gap-1.5" style={{ color: 'var(--color-info)' }}>
+              <Target size={11} strokeWidth={2.4} /> Action Plan
+            </div>
             {actions.map((a, i) => (
-              <div key={i} className="glass-card !p-2.5 mb-1.5 border-l-4 border-info">
-                <div className="text-xs text-text-primary">{i + 1}. {a}</div>
+              <div key={i} className="dash-card !p-2.5 mb-1.5 border-l-4 border-l-info">
+                <div className="text-caption text-text-primary">{i + 1}. {a}</div>
               </div>
             ))}
           </div>

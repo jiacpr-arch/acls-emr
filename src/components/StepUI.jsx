@@ -1,14 +1,30 @@
 import { useState, useEffect } from 'react';
 
+// Render `icon` flexibly: string → emoji span, React element → as-is, component → render
+function renderIcon(icon) {
+  if (icon == null) return null;
+  if (typeof icon === 'string') return <span className="text-3xl leading-none">{icon}</span>;
+  if (typeof icon === 'function') {
+    const I = icon;
+    return <I size={36} strokeWidth={2} />;
+  }
+  return icon;
+}
+
 // ===== STEP CARD =====
 export function StepCard({ phase, phaseColor, icon, title, subtitle, instructions, children }) {
   return (
     <div className="text-center space-y-4 animate-slide-up w-full max-w-md mx-auto">
-      <div className={`section-header ${phaseColor}`}>{phase}</div>
-      <div className="text-4xl">{icon}</div>
+      {phase && <div className={`section-header ${phaseColor}`}>{phase}</div>}
+      {icon && (
+        <div className="w-16 h-16 mx-auto inline-flex items-center justify-center bg-bg-tertiary text-text-secondary"
+          style={{ borderRadius: 'var(--radius-2xl)' }}>
+          {renderIcon(icon)}
+        </div>
+      )}
       <div>
-        <h1 className="text-xl font-black text-text-primary leading-tight">{title}</h1>
-        {subtitle && <p className="text-text-secondary text-sm mt-1.5 leading-relaxed">{subtitle}</p>}
+        <h1 className="text-headline text-text-primary leading-tight">{title}</h1>
+        {subtitle && <p className="text-text-secondary text-caption mt-1.5 leading-relaxed">{subtitle}</p>}
       </div>
       {instructions && (
         <div className="instruction-list text-left">
@@ -25,14 +41,15 @@ export function StepCard({ phase, phaseColor, icon, title, subtitle, instruction
 // ===== BIG BUTTON =====
 export function BigButton({ color, onClick, children, size = 'normal', disabled = false }) {
   const sizeClass = size === 'huge' ? 'btn-xl' : 'btn-lg';
-  const btnClass = color.includes('bg-danger') || color.includes('danger') ? 'btn-danger'
-    : color.includes('bg-info') || color.includes('info') ? 'btn-primary'
-    : color.includes('bg-success') || color.includes('success') ? 'btn-success'
-    : color.includes('bg-warning') || color.includes('warning') ? 'btn-warning'
-    : color.includes('bg-purple') || color.includes('purple') ? 'btn-purple'
-    : color.includes('bg-shock') || color.includes('shock') ? 'btn-shock'
+  const c = color || '';
+  const btnClass = c.includes('bg-danger') || c.includes('danger') ? 'btn-danger'
+    : c.includes('bg-info') || c.includes('info') ? 'btn-primary'
+    : c.includes('bg-success') || c.includes('success') ? 'btn-success'
+    : c.includes('bg-warning') || c.includes('warning') ? 'btn-warning'
+    : c.includes('bg-purple') || c.includes('purple') ? 'btn-purple'
+    : c.includes('bg-shock') || c.includes('shock') ? 'btn-shock'
     : 'btn-ghost';
-  const extra = color.includes('animate-pulse') ? 'animate-pulse' : '';
+  const extra = c.includes('animate-pulse') ? 'animate-pulse' : '';
   return (
     <button onClick={onClick} disabled={disabled}
       className={`btn btn-block ${sizeClass} ${btnClass} ${extra} ${disabled ? 'btn-disabled' : ''}`}>
@@ -45,8 +62,17 @@ export function BigButton({ color, onClick, children, size = 'normal', disabled 
 export function TrainingHint({ show, children }) {
   if (!show) return null;
   return (
-    <div className="glass-card !p-3 text-left text-sm text-blue-700 dark:text-blue-300 space-y-1 w-full border-l-4 border-blue-400">
-      <div className="font-bold text-xs uppercase tracking-wider text-blue-500">Training Tip</div>
+    <div
+      className="text-left text-caption text-info space-y-1 w-full"
+      style={{
+        background: 'rgba(37, 99, 235, 0.06)',
+        border: '1px solid rgba(37, 99, 235, 0.25)',
+        borderLeft: '4px solid var(--color-info)',
+        padding: '12px 14px',
+        borderRadius: 'var(--radius-md)',
+      }}
+    >
+      <div className="text-overline" style={{ color: 'var(--color-info)' }}>Training Tip</div>
       {children}
     </div>
   );
@@ -63,8 +89,8 @@ export function CountdownHint({ seconds }) {
 
   return (
     <div className={`text-center ${count <= 3 ? 'text-danger' : 'text-warning'}`}>
-      <div className="text-5xl font-mono font-black">{count}s</div>
-      <div className="text-sm">Max pulse check time</div>
+      <div className="text-numeric text-5xl">{count}s</div>
+      <div className="text-caption">Max pulse check time</div>
     </div>
   );
 }

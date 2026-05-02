@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { getAllCases } from '../db/database';
 import { scenarios } from '../data/scenarios';
+import {
+  Trophy, BookOpen, GraduationCap, Award, BarChart3,
+  Check, Circle,
+} from 'lucide-react';
 
-// Certification Tracker — complete scenarios + pass exam → get certificate
 const CERT_KEY = 'acls_certification';
 
 function getCertData() {
@@ -24,7 +27,6 @@ export default function Certification() {
   const trainingCases = cases.filter(c => c.mode === 'training' && c.outcome !== 'ongoing');
   const totalScenarios = scenarios.length;
 
-  // Track completed scenarios (simplified — checks if training cases exist)
   const basicDone = trainingCases.filter(c => c.events?.length >= 3).length >= 3;
   const interDone = trainingCases.filter(c => c.events?.length >= 5).length >= 1;
   const megaDone = trainingCases.filter(c => c.events?.length >= 7).length >= 1;
@@ -34,10 +36,10 @@ export default function Certification() {
   const passExam = avgScore >= 80;
 
   const requirements = [
-    { label: 'Complete 3+ Basic scenarios', done: basicDone, icon: '📗' },
-    { label: 'Complete 1+ Intermediate scenario', done: interDone, icon: '📙' },
-    { label: 'Complete 1+ Megacode scenario', done: megaDone, icon: '📕' },
-    { label: 'Average score ≥ 80%', done: passExam, icon: '📊' },
+    { label: 'Complete 3+ Basic scenarios', done: basicDone, Icon: BookOpen },
+    { label: 'Complete 1+ Intermediate scenario', done: interDone, Icon: GraduationCap },
+    { label: 'Complete 1+ Megacode scenario', done: megaDone, Icon: Award },
+    { label: 'Average score ≥ 80%', done: passExam, Icon: BarChart3 },
   ];
 
   const allDone = requirements.every(r => r.done);
@@ -56,13 +58,22 @@ export default function Certification() {
   };
 
   return (
-    <div className="page-container space-y-4">
-      <h1 className="text-2xl font-bold text-text-primary">🏆 Certification</h1>
+    <div className="page-container space-y-5">
+      <div className="flex items-center gap-3">
+        <div className="w-11 h-11 inline-flex items-center justify-center bg-warning/15 text-warning"
+          style={{ borderRadius: 'var(--radius-md)' }}>
+          <Trophy size={22} strokeWidth={2.2} />
+        </div>
+        <div>
+          <h1 className="text-title text-text-primary">Certification</h1>
+          <p className="text-caption text-text-muted">Track your ACLS training progress</p>
+        </div>
+      </div>
 
       {/* Progress */}
-      <div className="glass-card !p-4 text-center">
-        <div className={`text-4xl font-black ${allDone ? 'text-success' : 'text-warning'}`}>{progress}%</div>
-        <div className="text-xs text-text-muted mt-1">
+      <div className="dash-card text-center">
+        <div className={`text-numeric text-5xl ${allDone ? 'text-success' : 'text-warning'}`}>{progress}%</div>
+        <div className="text-caption text-text-muted mt-1">
           {allDone ? '🎉 All requirements met!' : 'Complete requirements to earn certificate'}
         </div>
         <div className="progress-track !h-2 mt-3">
@@ -72,15 +83,24 @@ export default function Certification() {
 
       {/* Requirements */}
       <div className="space-y-2">
-        {requirements.map((r, i) => (
-          <div key={i} className={`glass-card !p-3 flex items-center gap-3 ${r.done ? 'border-success/30' : ''} border`}>
-            <span className="text-xl">{r.icon}</span>
-            <span className="flex-1 text-xs font-semibold text-text-primary">{r.label}</span>
-            <span className={`text-sm font-bold ${r.done ? 'text-success' : 'text-text-muted'}`}>
-              {r.done ? '✅' : '○'}
-            </span>
-          </div>
-        ))}
+        {requirements.map((r, i) => {
+          const RIcon = r.Icon;
+          return (
+            <div key={i} className={`dash-card !p-3 flex items-center gap-3 border ${r.done ? 'border-success/40' : 'border-border'}`}>
+              <div className={`w-9 h-9 inline-flex items-center justify-center shrink-0 ${
+                r.done ? 'bg-success/15 text-success' : 'bg-bg-tertiary text-text-muted'
+              }`} style={{ borderRadius: 'var(--radius-sm)' }}>
+                <RIcon size={16} strokeWidth={2.2} />
+              </div>
+              <span className="flex-1 text-caption font-semibold text-text-primary">{r.label}</span>
+              {r.done ? (
+                <Check size={18} strokeWidth={2.4} className="text-success" />
+              ) : (
+                <Circle size={16} strokeWidth={2} className="text-text-muted" />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Stats */}
@@ -101,33 +121,47 @@ export default function Certification() {
 
       {/* Student name + Generate */}
       {allDone && (
-        <div className="glass-card !p-4 space-y-3">
-          <div className="text-sm font-bold text-success text-center">🎉 Congratulations!</div>
+        <div className="dash-card space-y-3">
+          <div className="text-headline text-success text-center inline-flex items-center justify-center gap-2 w-full">
+            <Trophy size={18} strokeWidth={2.4} /> Congratulations!
+          </div>
           <input type="text" value={studentName}
             onChange={e => setStudentName(e.target.value)}
             placeholder="Enter your name for certificate"
-            className="w-full px-3 py-2 rounded-lg bg-bg-primary border border-bg-tertiary text-sm text-text-primary focus:outline-none focus:border-info text-center" />
+            className="w-full text-body text-center" />
           <button onClick={generateCertificate} disabled={!studentName.trim()}
-            className="w-full btn-action btn-success py-4 text-sm font-bold disabled:opacity-40">
-            🏆 Generate Certificate
+            className="btn btn-success btn-lg btn-block disabled:opacity-40">
+            <Trophy size={16} strokeWidth={2.4} /> Generate Certificate
           </button>
         </div>
       )}
 
       {/* Certificate */}
       {certData.certId && (
-        <div className="glass-card !p-6 text-center border-2 border-success/30 space-y-2">
-          <div className="text-3xl">🏆</div>
-          <div className="text-lg font-black text-text-primary">ACLS Certification</div>
-          <div className="text-sm text-text-secondary">{certData.studentName}</div>
-          <div className="text-xs text-text-muted">
+        <div className="dash-card !p-6 text-center space-y-3"
+          style={{ borderColor: 'rgba(5, 150, 105, 0.4)', borderWidth: 2 }}>
+          <div
+            className="w-16 h-16 mx-auto inline-flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%)',
+              borderRadius: 'var(--radius-2xl)',
+              boxShadow: '0 8px 20px rgba(217, 119, 6, 0.28)',
+            }}
+          >
+            <Trophy size={28} strokeWidth={2.4} className="text-white" />
+          </div>
+          <div>
+            <div className="text-title text-text-primary">ACLS Certification</div>
+            <div className="text-body text-text-secondary mt-1">{certData.studentName}</div>
+          </div>
+          <div className="text-caption text-text-muted">
             Completed {certData.scenariosDone} scenarios · Score: {certData.avgScore}%
           </div>
-          <div className="text-xs text-text-muted">
+          <div className="text-caption text-text-muted">
             {new Date(certData.completedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </div>
-          <div className="font-mono text-[10px] text-info">ID: {certData.certId}</div>
-          <div className="text-[10px] text-text-muted">JIA Trainer Center · jia1669.com</div>
+          <div className="font-mono text-[11px] text-info">ID: {certData.certId}</div>
+          <div className="text-[11px] text-text-muted">JIA Trainer Center · jia1669.com</div>
         </div>
       )}
     </div>

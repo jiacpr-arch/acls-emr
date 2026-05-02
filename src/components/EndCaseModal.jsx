@@ -1,8 +1,8 @@
 import { useCaseStore, clearActiveSession } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { playROSCSound } from '../utils/sound';
+import { HeartPulse, Cross, FileText, Hospital, X, Square } from 'lucide-react';
 
-// End Case Modal — multiple outcome options
 export default function EndCaseModal({ onClose, onROSC, onTerminate, onDashboard }) {
   const addEvent = useCaseStore(s => s.addEvent);
   const endCase = useCaseStore(s => s.endCase);
@@ -28,39 +28,49 @@ export default function EndCaseModal({ onClose, onROSC, onTerminate, onDashboard
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/30"
+    <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
       onClick={onClose}>
-      <div className="w-full max-w-lg bg-white rounded-t-2xl p-4 space-y-2 animate-slide-up"
+      <div className="w-full max-w-lg bg-bg-secondary p-4 space-y-2 animate-slide-up"
         onClick={e => e.stopPropagation()}
-        style={{ boxShadow: '0 -4px 24px rgba(0,0,0,0.15)' }}>
-        <div className="text-center text-sm font-bold text-text-primary mb-2">End Case — Select Outcome</div>
+        style={{
+          borderTopLeftRadius: 'var(--radius-2xl)',
+          borderTopRightRadius: 'var(--radius-2xl)',
+          boxShadow: 'var(--shadow-pop)',
+          paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0))',
+        }}>
+        <div className="w-10 h-1 bg-bg-tertiary mx-auto mb-2" style={{ borderRadius: 99 }} />
 
-        <button onClick={() => handleEnd('ROSC', 'ROSC')}
-          className="w-full btn-action btn-success py-3.5 text-sm font-bold">
-          💚 ROSC — Return of Spontaneous Circulation
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-headline text-text-primary">End Case — Select Outcome</div>
+          <button onClick={onClose}
+            className="w-8 h-8 inline-flex items-center justify-center text-text-muted hover:bg-bg-tertiary"
+            style={{ borderRadius: 99 }} aria-label="Close">
+            <X size={18} strokeWidth={2.2} />
+          </button>
+        </div>
+
+        <button onClick={() => handleEnd('ROSC', 'ROSC')} className="btn btn-success btn-lg btn-block">
+          <HeartPulse size={16} strokeWidth={2.4} /> ROSC — Return of Spontaneous Circulation
         </button>
 
-        <button onClick={() => handleEnd('terminated', 'CPR Terminated')}
-          className="w-full btn-action btn-ghost py-3 text-sm font-semibold">
-          🕊️ Terminate CPR
+        <button onClick={() => handleEnd('terminated', 'CPR Terminated')} className="btn btn-ghost btn-block">
+          <Cross size={15} strokeWidth={2.2} /> Terminate CPR
         </button>
 
-        <button onClick={() => handleEnd('DNAR', 'DNAR')}
-          className="w-full btn-action btn-ghost py-3 text-sm font-semibold">
-          📋 DNAR — Do Not Attempt Resuscitation
+        <button onClick={() => handleEnd('DNAR', 'DNAR')} className="btn btn-ghost btn-block">
+          <FileText size={15} strokeWidth={2.2} /> DNAR — Do Not Attempt Resuscitation
         </button>
 
-        <button onClick={() => handleEnd('transfer', 'Transfer to Another Team')}
-          className="w-full btn-action btn-ghost py-3 text-sm font-semibold">
-          🏥 Transfer — Hand Over to Another Team
+        <button onClick={() => handleEnd('transfer', 'Transfer to Another Team')} className="btn btn-ghost btn-block">
+          <Hospital size={15} strokeWidth={2.2} /> Transfer — Hand Over to Another Team
         </button>
 
         <button onClick={() => handleEnd('cancel', 'Case Cancelled')}
-          className="w-full btn-action py-3 text-sm text-danger bg-danger/5 border border-danger/20 font-semibold">
-          ❌ Cancel Case — Do Not Save
+          className="btn btn-outline-danger btn-block">
+          <Square size={15} strokeWidth={2.2} /> Cancel Case — Do Not Save
         </button>
 
-        <button onClick={onClose} className="w-full text-text-muted text-xs underline py-2">
+        <button onClick={onClose} className="w-full text-text-muted text-caption py-2">
           Continue Recording
         </button>
       </div>

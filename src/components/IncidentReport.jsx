@@ -2,6 +2,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { formatTimeLong } from '../utils/formatTime';
 import PanelWrapper from './PanelWrapper';
+import { FileText, Share, Copy } from 'lucide-react';
 
 // Incident Report — auto-filled from case data
 // For hospitals requiring documentation after cardiac arrest
@@ -84,12 +85,17 @@ Report Generated: ${new Date().toLocaleString('en-US')}
   };
 
   return (
-    <PanelWrapper title="Incident Report" icon="📄" onClose={onClose}>
+    <PanelWrapper title="Incident Report" icon={<FileText size={18} strokeWidth={2.2} />} onClose={onClose}>
       <div className="flex gap-2 mb-3">
-        <button onClick={share} className="btn-action btn-info px-3 py-1.5 text-xs !min-h-0">Share</button>
-        <button onClick={copyToClipboard} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">Copy</button>
+        <button onClick={share} className="btn btn-info btn-sm">
+          <Share size={13} strokeWidth={2.2} /> Share
+        </button>
+        <button onClick={copyToClipboard} className="btn btn-ghost btn-sm">
+          <Copy size={13} strokeWidth={2.2} /> Copy
+        </button>
       </div>
-      <pre className="text-[10px] font-mono text-text-primary whitespace-pre-wrap leading-relaxed bg-bg-primary rounded-xl p-4">
+      <pre className="text-[11px] font-mono text-text-primary whitespace-pre-wrap leading-relaxed bg-bg-primary p-4 border border-border"
+        style={{ borderRadius: 'var(--radius-md)' }}>
         {reportText}
       </pre>
     </PanelWrapper>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
+import { HeartPulse } from 'lucide-react';
 
 // MI/ACS Pathway — AHA Guideline
 // Flow: Symptoms → MONA → 12-Lead ECG → STEMI vs NSTEMI → PCI/Fibrinolytic/Medical
@@ -43,12 +44,12 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Acute Coronary Syndrome</div>
-        <div className="text-5xl">🫀</div>
+        <div className="pathway-icon-tile bg-danger/12 text-danger"><HeartPulse size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">ACS Assessment</h1>
 
         {isTraining && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-left text-xs text-blue-700">
-            <span className="font-bold text-[10px] text-blue-500">TIP: </span>
+          <div className="training-tip">
+            <span className="training-tip-label">TIP: </span>
             12-Lead ECG within 10 min. MONA: Morphine, O₂, NTG, Aspirin. Aspirin first!
           </div>
         )}
@@ -180,8 +181,8 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
         <h1 className="text-xl font-black text-text-primary">STEMI Management</h1>
 
         {isTraining && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-left text-xs text-blue-700">
-            <span className="font-bold text-[10px] text-blue-500">TIP: </span>
+          <div className="training-tip">
+            <span className="training-tip-label">TIP: </span>
             PCI preferred if available within 120 min. Otherwise fibrinolytic within 30 min (D2N).
           </div>
         )}

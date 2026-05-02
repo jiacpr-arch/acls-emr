@@ -13,6 +13,7 @@ import { isPediatric } from '../utils/pediatricDose';
 import { t } from '../utils/i18n';
 import VoiceCommand from '../components/VoiceCommand';
 import { exportCasePDF } from '../utils/exportPDF';
+import { HeartPulse, Pause, Pill, AlertTriangle, FileText, Zap, Shield, Hand, Phone, Hospital, Monitor, Activity, Syringe, Cross } from 'lucide-react';
 
 // Components
 import CPRDashboard from '../components/CPRDashboard';
@@ -175,7 +176,7 @@ export default function Recording() {
       // ========== BLS SURVEY ==========
       case STEPS.SCENE_SAFETY:
         return (
-          <StepCard phase="BLS Survey" phaseColor="text-info" icon="🛡️" title="Scene Safety"
+          <StepCard phase="BLS Survey" phaseColor="text-info" icon={Shield} title="Scene Safety"
             subtitle="Is the scene safe for you and the patient?"
             instructions={['Check for hazards (electrical, chemical, traffic)', 'Wear PPE (gloves, mask, eye protection)', 'Ensure safe approach']}>
             <BigButton color="bg-success" onClick={() => { log('other', '✅ Scene Safe'); goStep(STEPS.CHECK_RESPONSE); }}>
@@ -186,7 +187,7 @@ export default function Recording() {
 
       case STEPS.CHECK_RESPONSE:
         return (
-          <StepCard phase="BLS Survey" phaseColor="text-info" icon="👋" title="Check Responsiveness & Breathing"
+          <StepCard phase="BLS Survey" phaseColor="text-info" icon={Hand} title="Check Responsiveness & Breathing"
             subtitle='Tap shoulders, shout "Are you okay?" + Look for breathing'
             instructions={['Tap both shoulders firmly', 'Shout clearly: "Are you okay?"', 'Look, listen, feel for breathing (5-10 sec)', 'Gasping = NOT normal breathing']}>
             <TrainingHint show={isTraining}>
@@ -215,7 +216,7 @@ export default function Recording() {
 
       case STEPS.CALL_FOR_HELP:
         return (
-          <StepCard phase="BLS Survey" phaseColor="text-info" icon="📞" title="Activate Emergency Response"
+          <StepCard phase="BLS Survey" phaseColor="text-info" icon={Phone} title="Activate Emergency Response"
             subtitle="Call for help & get AED/Defibrillator"
             instructions={['Call code team / 1669 / hospital emergency', 'Ask someone to bring AED/defibrillator', 'Ask someone to bring crash cart']}>
             <div className="space-y-4 w-full">
@@ -241,7 +242,7 @@ export default function Recording() {
 
       case STEPS.RRT_ARRIVED:
         return (
-          <StepCard phase="RRT / MET Team" phaseColor="text-info" icon="🏥" title="Team Arrived"
+          <StepCard phase="RRT / MET Team" phaseColor="text-info" icon={Hospital} title="Team Arrived"
             subtitle="Rapid Response / Medical Emergency Team on scene"
             instructions={['Get brief handover from caller', 'What happened? When? Any interventions?', 'Attach monitor if not done', 'Assess patient now']}>
             <BigButton color="bg-info" onClick={() => { startTimer(); log('other', '🏥 RRT/MET Team arrived'); goStep(STEPS.CHECK_PULSE); }}>
@@ -253,7 +254,7 @@ export default function Recording() {
       case STEPS.CHECK_PULSE:
         return (
           <StepCard phase={startMode === 'rrt' ? 'RRT Assessment' : 'BLS Survey'} phaseColor="text-info"
-            icon="🫀" title="Check Pulse & Breathing" subtitle="Carotid pulse check — MAX 10 seconds"
+            icon={HeartPulse} title="Check Pulse & Breathing" subtitle="Carotid pulse check — MAX 10 seconds"
             instructions={['Feel carotid pulse (one side)', 'Simultaneously look for breathing', 'Gasping = NOT normal breathing', 'If unsure → assume NO pulse']}>
             <CountdownHint seconds={10} />
             <TrainingHint show={isTraining}>
@@ -269,7 +270,7 @@ export default function Recording() {
       // ========== PULSE PRESENT ==========
       case STEPS.PULSE_PRESENT:
         return (
-          <StepCard phase="Assessment" phaseColor="text-success" icon="💚" title="Pulse Present"
+          <StepCard phase="Assessment" phaseColor="text-success" icon={HeartPulse} title="Pulse Present"
             subtitle="Assess heart rate and condition"
             instructions={['Check monitor or count pulse for 6 sec × 10', 'If not breathing adequately → Rescue breathing', 'Attach monitor if not done']}>
             <div className="grid grid-cols-1 gap-3 w-full">
@@ -306,7 +307,7 @@ export default function Recording() {
       // ========== CPR ==========
       case STEPS.START_CPR:
         return (
-          <StepCard phase="BLS — Circulation" phaseColor="text-danger" icon="🫀" title="START CPR"
+          <StepCard phase="BLS — Circulation" phaseColor="text-danger" icon={HeartPulse} title="START CPR"
             subtitle="High-quality chest compressions NOW"
             instructions={['Rate: 100-120/min', 'Depth: 5-6 cm', 'Allow full chest recoil', 'Minimize interruptions', '30:2 ratio (until advanced airway)']}>
             <TrainingHint show={isTraining}><p>Push hard 5-6 cm, rate 100-120/min, full recoil, minimize interruptions (CCF ≥60%)</p></TrainingHint>
@@ -316,7 +317,7 @@ export default function Recording() {
 
       case STEPS.ATTACH_MONITOR:
         return (
-          <StepCard phase="BLS — Defibrillation" phaseColor="text-danger" icon="🖥️" title="Attach Monitor / AED"
+          <StepCard phase="BLS — Defibrillation" phaseColor="text-danger" icon={Monitor} title="Attach Monitor / AED"
             subtitle="Apply pads while CPR continues"
             instructions={['Apply defibrillator pads (anterior-lateral)', 'DO NOT stop CPR to attach pads', 'Open airway: Head-tilt / Chin-lift']}>
             <BigButton color="bg-info" onClick={() => { log('other', '🖥️ Monitor attached'); goStep(STEPS.INITIAL_RHYTHM); }}>🖥️ Monitor Attached → Check Rhythm</BigButton>
@@ -487,7 +488,7 @@ export default function Recording() {
 function RhythmSelectStep({ title, subtitle, phase, onSelect, showROSC, showTerminate, onROSC, onTerminate, isTraining }) {
   const arrestRhythms = getRhythmsByCategory('cardiac_arrest');
   return (
-    <StepCard phase={phase} phaseColor="text-warning" icon="📈" title={title} subtitle={subtitle}>
+    <StepCard phase={phase} phaseColor="text-warning" icon={Activity} title={title} subtitle={subtitle}>
       <TrainingHint show={isTraining}>
         <p>Pause CPR ≤10 seconds. VF/pVT → Shock | PEA/Asystole → CPR + Epi</p>
       </TrainingHint>
@@ -517,7 +518,7 @@ function ShockStep({ onShocked, onSkip, isTraining }) {
   const energy = currentRhythm?.energyBiphasic ? (shockCount === 0 ? currentRhythm.energyBiphasic.first : currentRhythm.energyBiphasic.subsequent) : 200;
 
   return (
-    <StepCard phase="Primary Survey — Defibrillation" phaseColor="text-shock" icon="⚡" title="DEFIBRILLATION"
+    <StepCard phase="Primary Survey — Defibrillation" phaseColor="text-shock" icon={Zap} title="DEFIBRILLATION"
       subtitle={`${currentRhythm?.abbreviation} → Shock #${shockCount + 1}`}
       instructions={[`Energy: ${energy}J Biphasic`, 'Charge during CPR — minimize pause', 'Clear patient before shock', 'Resume CPR immediately after shock']}>
       <TrainingHint show={isTraining}><p>Charge during CPR → pause &lt;5s → Clear → Shock → Resume CPR immediately</p></TrainingHint>
@@ -563,7 +564,7 @@ function DrugStep({ onDone, isTraining }) {
   };
 
   return (
-    <StepCard phase="Primary Survey — Circulation" phaseColor="text-purple" icon="💉" title="Medication"
+    <StepCard phase="Primary Survey — Circulation" phaseColor="text-purple" icon={Syringe} title="Medication"
       subtitle={isShockable ? `Shockable · Shocks: ${shockCount}` : 'Non-shockable → Epi ASAP'}>
       <TrainingHint show={isTraining}>
         {isShockable ? <p>Shockable: Epi after 2nd shock → Amiodarone 300mg after 3rd shock</p> : <p>Non-shockable: Epi 1mg IV immediately → repeat q3-5 min</p>}
@@ -645,7 +646,7 @@ function TerminatedStep({ onDone, isTraining }) {
   };
 
   return (
-    <StepCard phase="Case Ended" phaseColor="text-text-muted" icon="🕊️" title="Case Terminated" subtitle={`Total duration: ${formatTimeLong(elapsed)}`}>
+    <StepCard phase="Case Ended" phaseColor="text-text-muted" icon={Cross} title="Case Terminated" subtitle={`Total duration: ${formatTimeLong(elapsed)}`}>
       <BigButton color="bg-info text-white" onClick={handleExport}>📄 Export PDF Report</BigButton>
       <BigButton color="bg-bg-secondary text-text-primary" onClick={onDone}>Done → Dashboard</BigButton>
     </StepCard>
@@ -728,7 +729,8 @@ function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {
             <div className="flex items-center justify-between mb-1">
               <span className="text-[10px] text-text-muted font-medium">Cycle {cycleNumber}</span>
               <span className={`badge ${cprActive ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'}`}>
-                {cprActive ? '🫀 CPR' : '⏸ PAUSE'} · {formatTime(cycleRemaining)}
+                {cprActive ? <HeartPulse size={11} strokeWidth={2.4} /> : <Pause size={11} strokeWidth={2.4} />}
+                {cprActive ? 'CPR' : 'PAUSE'} · {formatTime(cycleRemaining)}
               </span>
             </div>
             <div className="progress-track">
@@ -745,9 +747,11 @@ function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {
                 const due = rem <= 0;
                 return (
                   <div key={t.id} className="flex items-center justify-between">
-                    <span className="text-[10px] text-text-muted font-medium truncate">💊 {t.drugName}</span>
+                    <span className="text-[10px] text-text-muted font-medium truncate inline-flex items-center gap-1">
+                      <Pill size={11} strokeWidth={2.2} /> {t.drugName}
+                    </span>
                     <span className={`badge ${due ? 'bg-danger/15 text-danger animate-pulse' : 'bg-purple/15 text-purple'}`}>
-                      {due ? '⚠️ DUE' : formatTime(rem)}
+                      {due ? <><AlertTriangle size={11} strokeWidth={2.4} /> DUE</> : formatTime(rem)}
                     </span>
                   </div>
                 );
@@ -758,8 +762,12 @@ function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {
           </div>
         )}
 
-        {showCPRCycle && <span className="badge bg-shock/15 text-shock">⚡ {shockCount}</span>}
-        <button onClick={onToggleLog} className={`badge transition-all ${showLog ? 'bg-info/20 text-info' : 'bg-bg-tertiary/50 text-text-muted'}`}>📋 {events.length}</button>
+        {showCPRCycle && (
+          <span className="badge bg-shock/15 text-shock"><Zap size={11} strokeWidth={2.4} /> {shockCount}</span>
+        )}
+        <button onClick={onToggleLog} className={`badge transition-all ${showLog ? 'bg-info/20 text-info' : 'bg-bg-tertiary/50 text-text-muted'}`}>
+          <FileText size={11} strokeWidth={2.2} /> {events.length}
+        </button>
       </div>
     </div>
   );

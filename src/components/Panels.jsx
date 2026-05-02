@@ -1,30 +1,55 @@
 import PanelWrapper from './PanelWrapper';
 import { useCaseStore } from '../stores/caseStore';
 import { formatElapsed } from '../utils/formatTime';
+import {
+  HeartPulse, Activity, Zap, Syringe, Wind, Stethoscope, FileText,
+  X, User, Users, Crown, Edit,
+} from 'lucide-react';
+
+const eventIcons = {
+  cpr: HeartPulse, rhythm: Activity, shock: Zap, drug: Syringe,
+  airway: Wind, access: Syringe, etco2: Stethoscope, other: FileText,
+};
 
 // ===== EVENT LOG PANEL =====
 export function EventLogPanel({ onClose }) {
   const events = useCaseStore(s => s.events);
-  const icons = { cpr: '🫀', rhythm: '📈', shock: '⚡', drug: '💉', airway: '🫁', access: '💉', etco2: '🌬️', other: '📝' };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 max-h-[50vh] overflow-y-auto p-4 z-50 animate-slide-up bg-white rounded-t-2xl border-t border-bg-tertiary"
-      style={{ boxShadow: '0 -4px 24px rgba(0,0,0,0.1)' }}>
+    <div
+      className="absolute bottom-0 left-0 right-0 max-h-[50vh] overflow-y-auto p-4 z-50 animate-slide-up bg-bg-secondary border-t border-border"
+      style={{
+        borderTopLeftRadius: 'var(--radius-2xl)',
+        borderTopRightRadius: 'var(--radius-2xl)',
+        boxShadow: 'var(--shadow-pop)',
+      }}>
       <div className="flex items-center justify-between mb-3">
-        <span className="font-bold text-text-primary text-sm">📋 Event Log ({events.length})</span>
-        <button onClick={onClose} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">Close ✕</button>
+        <span className="text-headline text-text-primary inline-flex items-center gap-2">
+          <FileText size={16} strokeWidth={2.2} /> Event Log ({events.length})
+        </span>
+        <button onClick={onClose}
+          className="w-8 h-8 inline-flex items-center justify-center text-text-muted hover:bg-bg-tertiary"
+          style={{ borderRadius: 99 }} aria-label="Close">
+          <X size={18} strokeWidth={2.2} />
+        </button>
       </div>
       {events.length === 0 ? (
-        <p className="text-text-muted text-sm text-center py-4">No events yet</p>
+        <p className="text-text-muted text-caption text-center py-4">No events yet</p>
       ) : (
         <div className="space-y-1.5">
-          {events.map((ev, i) => (
-            <div key={i} className="glass-card flex items-center gap-2.5 px-3.5 py-2.5">
-              <span>{icons[ev.category] || '📝'}</span>
-              <span className="flex-1 truncate font-semibold text-sm text-text-primary">{ev.type}</span>
-              <span className="text-text-muted font-mono text-xs shrink-0">{formatElapsed(ev.elapsed)}</span>
-            </div>
-          ))}
+          {events.map((ev, i) => {
+            const I = eventIcons[ev.category] || FileText;
+            return (
+              <div key={i} className="dash-card !p-2.5 flex items-center gap-2.5">
+                <div className="w-7 h-7 inline-flex items-center justify-center bg-bg-tertiary text-text-secondary shrink-0"
+                  style={{ borderRadius: 'var(--radius-sm)' }}>
+                  <I size={13} strokeWidth={2} />
+                </div>
+                <span className="flex-1 truncate text-body-strong text-text-primary">{ev.type}</span>
+                <span className="text-text-muted font-mono text-[11px] shrink-0">{formatElapsed(ev.elapsed)}</span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -37,16 +62,16 @@ export function PatientInfoPanel({ onClose }) {
 
   const Field = ({ label, field, placeholder, type = 'text' }) => (
     <div>
-      <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">{label}</label>
+      <label className="text-overline">{label}</label>
       <input type={type} value={patient[field] || ''}
         onChange={e => updatePatient(field, type === 'number' ? (e.target.value ? Number(e.target.value) : null) : e.target.value)}
         placeholder={placeholder}
-        className="w-full mt-0.5 px-3 py-2 rounded-lg bg-bg-primary border border-bg-tertiary text-sm text-text-primary focus:outline-none focus:border-info" />
+        className="w-full mt-1 text-body" />
     </div>
   );
 
   return (
-    <PanelWrapper title="Patient Information" icon="👤" onClose={onClose}>
+    <PanelWrapper title="Patient Information" icon={<User size={18} strokeWidth={2.2} />} onClose={onClose}>
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <Field label="HN" field="hn" placeholder="Hospital Number" />
@@ -56,13 +81,15 @@ export function PatientInfoPanel({ onClose }) {
           <Field label="Age" field="age" placeholder="Age" type="number" />
           <Field label="Weight (kg)" field="weight" placeholder="kg" type="number" />
           <div>
-            <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Gender</label>
-            <div className="flex gap-1.5 mt-0.5">
+            <label className="text-overline">Gender</label>
+            <div className="flex gap-1.5 mt-1">
               {['M', 'F'].map(g => (
                 <button key={g} onClick={() => updatePatient('gender', g)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                    patient.gender === g ? 'bg-info text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
-                  }`}>{g === 'M' ? '♂ Male' : '♀ Female'}</button>
+                  className={`flex-1 py-2 text-body-strong transition-colors ${
+                    patient.gender === g ? 'bg-info text-white' : 'bg-bg-primary border border-border text-text-secondary'
+                  }`} style={{ borderRadius: 'var(--radius-sm)' }}>
+                  {g === 'M' ? 'Male' : 'Female'}
+                </button>
               ))}
             </div>
           </div>
@@ -73,31 +100,29 @@ export function PatientInfoPanel({ onClose }) {
         <Field label="Medications" field="medications" placeholder="Current medications" />
         <Field label="Allergies" field="allergies" placeholder="Drug allergies" />
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Witnessed?</label>
-            <div className="flex gap-1.5 mt-0.5">
-              {[true, false].map(v => (
-                <button key={String(v)} onClick={() => updatePatient('witnessed', v)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
-                    patient.witnessed === v ? 'bg-info text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
-                  }`}>{v ? 'Yes' : 'No'}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Bystander CPR?</label>
-            <div className="flex gap-1.5 mt-0.5">
-              {[true, false].map(v => (
-                <button key={String(v)} onClick={() => updatePatient('bystanderCPR', v)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
-                    patient.bystanderCPR === v ? 'bg-info text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
-                  }`}>{v ? 'Yes' : 'No'}</button>
-              ))}
-            </div>
-          </div>
+          <YesNoField label="Witnessed?" field="witnessed" patient={patient} updatePatient={updatePatient} />
+          <YesNoField label="Bystander CPR?" field="bystanderCPR" patient={patient} updatePatient={updatePatient} />
         </div>
       </div>
     </PanelWrapper>
+  );
+}
+
+function YesNoField({ label, field, patient, updatePatient }) {
+  return (
+    <div>
+      <label className="text-overline">{label}</label>
+      <div className="flex gap-1.5 mt-1">
+        {[true, false].map(v => (
+          <button key={String(v)} onClick={() => updatePatient(field, v)}
+            className={`flex-1 py-2 text-body-strong transition-colors ${
+              patient[field] === v ? 'bg-info text-white' : 'bg-bg-primary border border-border text-text-secondary'
+            }`} style={{ borderRadius: 'var(--radius-sm)' }}>
+            {v ? 'Yes' : 'No'}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -106,39 +131,45 @@ export function TeamPanel({ onClose }) {
   const { team, setTeam } = useCaseStore();
   const updateField = (field, value) => setTeam({ ...team, [field]: value });
 
-  const RoleField = ({ label, field, placeholder, icon }) => (
+  const RoleField = ({ Icon, label, field, placeholder }) => (
     <div>
-      <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">{icon} {label}</label>
+      <label className="text-overline inline-flex items-center gap-1.5">
+        <Icon size={11} strokeWidth={2.2} /> {label}
+      </label>
       <input type="text" value={team[field] || ''} onChange={e => updateField(field, e.target.value)}
         placeholder={placeholder}
-        className="w-full mt-0.5 px-3 py-2 rounded-lg bg-bg-primary border border-bg-tertiary text-sm text-text-primary focus:outline-none focus:border-info" />
+        className="w-full mt-1 text-body" />
     </div>
   );
 
   return (
-    <PanelWrapper title="Team Assignment" icon="👥" onClose={onClose}>
+    <PanelWrapper title="Team Assignment" icon={<Users size={18} strokeWidth={2.2} />} onClose={onClose}>
       <div className="space-y-3">
-        <RoleField icon="👑" label="Team Leader" field="leader" placeholder="Name" />
-        <RoleField icon="🫁" label="Airway" field="airway" placeholder="Name" />
-        <RoleField icon="💉" label="Drug / IV" field="drugAdmin" placeholder="Name" />
-        <RoleField icon="📝" label="Recorder" field="recorder" placeholder="Name" />
+        <RoleField Icon={Crown} label="Team Leader" field="leader" placeholder="Name" />
+        <RoleField Icon={Wind} label="Airway" field="airway" placeholder="Name" />
+        <RoleField Icon={Syringe} label="Drug / IV" field="drugAdmin" placeholder="Name" />
+        <RoleField Icon={Edit} label="Recorder" field="recorder" placeholder="Name" />
         <div>
-          <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">🫀 Compressors</label>
+          <label className="text-overline inline-flex items-center gap-1.5">
+            <HeartPulse size={11} strokeWidth={2.2} /> Compressors
+          </label>
           <input type="text"
             value={Array.isArray(team.compressor) ? team.compressor.join(', ') : (team.compressor || '')}
             onChange={e => updateField('compressor', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
             placeholder="Names (comma separated)"
-            className="w-full mt-0.5 px-3 py-2 rounded-lg bg-bg-primary border border-bg-tertiary text-sm text-text-primary focus:outline-none focus:border-info" />
+            className="w-full mt-1 text-body" />
         </div>
         <div>
-          <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">👥 Others</label>
+          <label className="text-overline inline-flex items-center gap-1.5">
+            <Users size={11} strokeWidth={2.2} /> Others
+          </label>
           <input type="text"
             value={Array.isArray(team.others) ? team.others.join(', ') : (team.others || '')}
             onChange={e => updateField('others', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
             placeholder="Other team members (comma separated)"
-            className="w-full mt-0.5 px-3 py-2 rounded-lg bg-bg-primary border border-bg-tertiary text-sm text-text-primary focus:outline-none focus:border-info" />
+            className="w-full mt-1 text-body" />
         </div>
-        <div className="glass-card !p-3 text-center text-xs text-text-muted">
+        <div className="dash-card !p-3 text-center text-caption text-text-muted">
           Rotate compressors every 2 minutes to maintain CPR quality
         </div>
       </div>

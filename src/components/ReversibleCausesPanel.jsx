@@ -3,6 +3,10 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { reversibleCauses } from '../data/hs-and-ts';
 import PanelWrapper from './PanelWrapper';
+import {
+  Search, ChevronLeft, AlertTriangle, Lightbulb, FlaskConical,
+  Check, Wind, Activity, X,
+} from 'lucide-react';
 
 // Enhanced H's & T's panel — with treatment recommendations + correction tracking
 // Available from ALL pathways
@@ -36,24 +40,35 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
   // Treatment detail view — enhanced with protocol + key points
   if (selectedCause) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
-        <div className="w-full max-w-lg h-full max-h-[100dvh] flex flex-col bg-bg-secondary animate-slide-up md:h-auto md:max-h-[85vh] md:rounded-2xl md:shadow-2xl md:m-4">
+      <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
+        onClick={() => setSelectedCause(null)}>
+        <div className="panel-wrapper w-full max-w-lg h-full max-h-[100dvh] flex flex-col bg-bg-secondary animate-slide-up md:h-auto md:max-h-[85vh] md:m-4"
+          onClick={e => e.stopPropagation()}
+          style={{ boxShadow: 'var(--shadow-pop)' }}>
+          {/* Drag handle */}
+          <div className="md:hidden w-10 h-1 bg-bg-tertiary mx-auto mt-3" style={{ borderRadius: 99 }} />
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-bg-tertiary shrink-0">
-            <span className="font-bold text-text-primary">🔍 {selectedCause.name}</span>
-            <button onClick={() => setSelectedCause(null)} className="btn-action btn-ghost px-3 py-1.5 text-xs !min-h-0">← Back</button>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+            <span className="text-headline text-text-primary inline-flex items-center gap-2">
+              <Search size={16} strokeWidth={2.2} className="text-text-secondary" /> {selectedCause.name}
+            </span>
+            <button onClick={() => setSelectedCause(null)}
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-caption text-text-muted hover:bg-bg-tertiary"
+              style={{ borderRadius: 'var(--radius-sm)' }}>
+              <ChevronLeft size={14} strokeWidth={2.2} /> Back
+            </button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {/* Signs & Symptoms */}
-            <div className="glass-card !p-3">
+            <div className="dash-card !p-3">
               <div className="text-xs font-bold text-text-primary mb-1">Signs & Symptoms</div>
               <div className="text-xs text-text-secondary">{selectedCause.signs}</div>
             </div>
 
             {/* When to Suspect — checklist */}
             {selectedCause.whenToSuspect && (
-              <div className="glass-card !p-3">
+              <div className="dash-card !p-3">
                 <div className="text-xs font-bold text-warning mb-2">When to Suspect</div>
                 <div className="space-y-1">
                   {selectedCause.whenToSuspect.map((item, i) => (
@@ -68,7 +83,7 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
 
             {/* Step-by-step Protocol */}
             {selectedCause.protocol && (
-              <div className="glass-card !p-3">
+              <div className="dash-card !p-3">
                 <div className="text-xs font-bold text-success mb-2">Treatment Protocol</div>
                 <div className="space-y-1.5">
                   {selectedCause.protocol.map((step, i) => {
@@ -108,7 +123,7 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
 
             {/* Labs/Diagnostics Needed */}
             {selectedCause.labsNeeded && (
-              <div className="glass-card !p-3">
+              <div className="dash-card !p-3">
                 <div className="text-xs font-bold text-purple mb-2">Labs / Diagnostics</div>
                 <div className="flex flex-wrap gap-1.5">
                   {selectedCause.labsNeeded.map((lab, i) => (
@@ -121,14 +136,17 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
             )}
 
             {/* Quick correction buttons */}
-            <div className="glass-card !p-3">
+            <div className="dash-card !p-3">
               <div className="text-xs font-bold text-success mb-2">Quick Correction Actions</div>
               <div className="space-y-2">
                 {getCorrectionActions(selectedCause.name).map((action, i) => (
                   <button key={i} onClick={() => handleCorrection(selectedCause, action.label)}
-                    className="w-full btn-action btn-success py-3 text-sm text-left px-4">
-                    ✅ {action.label}
-                    {action.detail && <div className="text-[10px] font-normal opacity-80 mt-0.5">{action.detail}</div>}
+                    className="w-full px-4 py-3 text-left bg-success/10 border border-success/30 hover:bg-success/15 transition-colors"
+                    style={{ borderRadius: 'var(--radius-md)' }}>
+                    <div className="text-body-strong text-success inline-flex items-center gap-2">
+                      <Check size={15} strokeWidth={2.4} /> {action.label}
+                    </div>
+                    {action.detail && <div className="text-[11px] text-text-muted font-normal mt-0.5 ml-6">{action.detail}</div>}
                   </button>
                 ))}
               </div>
@@ -136,19 +154,18 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
 
             {/* Open relevant panel */}
             {selectedCause.name === 'Hypoxia' && onOpenAirway && (
-              <button onClick={onOpenAirway} className="w-full btn-action btn-info py-3 text-sm font-bold">
-                🫁 Open Airway Panel → Fix Now
+              <button onClick={onOpenAirway} className="btn btn-info btn-lg btn-block">
+                <Wind size={16} strokeWidth={2.2} /> Open Airway Panel → Fix Now
               </button>
             )}
             {(selectedCause.name === 'Hypo/Hyperkalemia' || selectedCause.name === 'Hydrogen ion (Acidosis)') && onOpenLabs && (
-              <button onClick={onOpenLabs} className="w-full btn-action btn-info py-3 text-sm font-bold">
-                🔬 Open Labs Panel → Check Values
+              <button onClick={onOpenLabs} className="btn btn-info btn-lg btn-block">
+                <FlaskConical size={16} strokeWidth={2.2} /> Open Labs Panel → Check Values
               </button>
             )}
 
-            <button onClick={() => setSelectedCause(null)}
-              className="w-full btn-action btn-ghost py-3 text-sm">
-              ← Back to H's & T's
+            <button onClick={() => setSelectedCause(null)} className="btn btn-ghost btn-block">
+              <ChevronLeft size={14} strokeWidth={2.2} /> Back to H's & T's
             </button>
           </div>
         </div>
@@ -157,45 +174,50 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
   }
 
   return (
-    <PanelWrapper title="Reversible Causes" icon="🔍" onClose={onClose}>
-        <div className="grid grid-cols-2 gap-3">
-          {/* H's */}
-          <div>
-            <div className="text-[10px] font-bold text-info mb-2 uppercase">H's</div>
-            {reversibleCauses.hs.map((c, i) => (
-              <button key={i} onClick={() => handleSelect(c, 'H')}
-                className={`w-full glass-card !p-3 mb-2 text-left transition-colors ${
-                  corrected.has(c.name) ? '!border-success/40 bg-success/5' : ''
-                }`}>
-                <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold text-text-primary">{c.name}</div>
-                  {corrected.has(c.name) && <span className="text-success text-xs">✅</span>}
-                </div>
-                <div className="text-[10px] text-text-muted mt-0.5">{c.signs}</div>
-                <div className="text-[10px] text-info mt-0.5 font-medium">→ {c.treatment}</div>
-              </button>
-            ))}
-          </div>
-
-          {/* T's */}
-          <div>
-            <div className="text-[10px] font-bold text-danger mb-2 uppercase">T's</div>
-            {reversibleCauses.ts.map((c, i) => (
-              <button key={i} onClick={() => handleSelect(c, 'T')}
-                className={`w-full glass-card !p-3 mb-2 text-left transition-colors ${
-                  corrected.has(c.name) ? '!border-success/40 bg-success/5' : ''
-                }`}>
-                <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold text-text-primary">{c.name}</div>
-                  {corrected.has(c.name) && <span className="text-success text-xs">✅</span>}
-                </div>
-                <div className="text-[10px] text-text-muted mt-0.5">{c.signs}</div>
-                <div className="text-[10px] text-danger mt-0.5 font-medium">→ {c.treatment}</div>
-              </button>
-            ))}
-          </div>
-        </div>
+    <PanelWrapper title="Reversible Causes" icon={<Search size={18} strokeWidth={2.2} />} onClose={onClose}>
+      <div className="grid grid-cols-2 gap-3">
+        <CauseColumn
+          letter="H"
+          tone="info"
+          causes={reversibleCauses.hs}
+          corrected={corrected}
+          handleSelect={(c) => handleSelect(c, 'H')}
+        />
+        <CauseColumn
+          letter="T"
+          tone="danger"
+          causes={reversibleCauses.ts}
+          corrected={corrected}
+          handleSelect={(c) => handleSelect(c, 'T')}
+        />
+      </div>
     </PanelWrapper>
+  );
+}
+
+function CauseColumn({ letter, tone, causes, corrected, handleSelect }) {
+  const labelTone = tone === 'info' ? 'text-info' : 'text-danger';
+  const arrowTone = tone === 'info' ? 'text-info' : 'text-danger';
+  return (
+    <div>
+      <div className={`text-overline mb-2 ${labelTone}`}>{letter}'s</div>
+      <div className="space-y-2">
+        {causes.map((c, i) => {
+          const done = corrected.has(c.name);
+          return (
+            <button key={i} onClick={() => handleSelect(c)}
+              className={`w-full dash-card !p-3 text-left transition-colors hover:bg-bg-tertiary ${done ? '!border-success/40 bg-success/5' : ''}`}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-caption font-bold text-text-primary truncate">{c.name}</div>
+                {done && <Check size={13} strokeWidth={2.4} className="text-success shrink-0" />}
+              </div>
+              <div className="text-[10px] text-text-muted mt-0.5 line-clamp-2">{c.signs}</div>
+              <div className={`text-[10px] mt-0.5 font-medium ${arrowTone}`}>→ {c.treatment}</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

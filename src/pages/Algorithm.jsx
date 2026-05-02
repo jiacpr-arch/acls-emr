@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { reversibleCauses } from '../data/hs-and-ts';
+import {
+  Heart, TrendingDown, Zap, HeartPulse, ChevronDown, ChevronRight,
+  GitBranch, Wind,
+} from 'lucide-react';
 
 const algorithms = [
   {
     id: 'cardiac_arrest',
     title: 'Cardiac Arrest',
-    icon: '💔',
+    Icon: Heart,
     color: 'danger',
     sections: [
       {
@@ -25,7 +29,7 @@ const algorithms = [
           title: 'Shockable (VF / pVT)',
           color: 'shock',
           items: [
-            '⚡ Defibrillation (biphasic 120-200J)',
+            'Defibrillation (biphasic 120-200J)',
             'Resume CPR immediately 2 min',
             'Epinephrine after 2nd shock, q3-5min',
             'Amiodarone 300mg after 3rd shock → 150mg',
@@ -38,7 +42,7 @@ const algorithms = [
             'CPR 2 min immediately',
             'Epinephrine ASAP → q3-5min',
             'Check rhythm every 2 min',
-            'Consider H\'s and T\'s',
+            "Consider H's and T's",
           ],
         },
       },
@@ -49,7 +53,7 @@ const algorithms = [
           'Epinephrine 1 mg q3-5min',
           'Advanced airway (ETT / SGA)',
           'Waveform capnography (EtCO₂)',
-          'Treat reversible causes (H\'s & T\'s)',
+          "Treat reversible causes (H's & T's)",
           'Rotate compressor q2min',
         ],
         color: 'info',
@@ -59,7 +63,7 @@ const algorithms = [
   {
     id: 'bradycardia',
     title: 'Bradycardia',
-    icon: '🐌',
+    Icon: TrendingDown,
     color: 'info',
     sections: [
       {
@@ -101,7 +105,7 @@ const algorithms = [
   {
     id: 'tachycardia',
     title: 'Tachycardia',
-    icon: '⚡',
+    Icon: Zap,
     color: 'warning',
     sections: [
       {
@@ -145,7 +149,7 @@ const algorithms = [
   {
     id: 'post_rosc',
     title: 'Post-ROSC',
-    icon: '💚',
+    Icon: HeartPulse,
     color: 'success',
     sections: [
       {
@@ -182,6 +186,14 @@ const algorithms = [
   },
 ];
 
+const colorMap = {
+  danger:  { bg: 'bg-danger', text: 'text-danger', soft: 'bg-danger/8 border-danger/30', borderL: 'border-l-danger' },
+  warning: { bg: 'bg-warning', text: 'text-warning', soft: 'bg-warning/8 border-warning/30', borderL: 'border-l-warning' },
+  success: { bg: 'bg-success', text: 'text-success', soft: 'bg-success/8 border-success/30', borderL: 'border-l-success' },
+  info:    { bg: 'bg-info', text: 'text-info', soft: 'bg-info/8 border-info/30', borderL: 'border-l-info' },
+  shock:   { bg: 'bg-shock', text: 'text-shock', soft: 'bg-shock/8 border-shock/30', borderL: 'border-l-shock' },
+};
+
 export default function Algorithm() {
   const [selected, setSelected] = useState('cardiac_arrest');
   const [showHT, setShowHT] = useState(false);
@@ -189,23 +201,32 @@ export default function Algorithm() {
 
   return (
     <div className="page-container space-y-4">
-      <h1 className="text-2xl font-bold text-text-primary">ACLS Algorithms</h1>
+      <div>
+        <h1 className="text-title text-text-primary">ACLS Algorithms</h1>
+        <p className="text-caption text-text-muted mt-0.5">Evidence-based decision flowcharts</p>
+      </div>
 
-      {/* Algorithm tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {algorithms.map(a => (
-          <button
-            key={a.id}
-            onClick={() => setSelected(a.id)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all ${
-              selected === a.id
-                ? `bg-${a.color} text-white shadow-md`
-                : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
-            }`}
-          >
-            {a.icon} {a.title}
-          </button>
-        ))}
+      {/* Algorithm tabs — pill row */}
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+        {algorithms.map(a => {
+          const tone = colorMap[a.color];
+          const active = selected === a.id;
+          return (
+            <button
+              key={a.id}
+              onClick={() => setSelected(a.id)}
+              className={`flex items-center gap-1.5 px-4 py-2.5 font-semibold text-sm whitespace-nowrap transition-all ${
+                active
+                  ? `${tone.bg} text-white`
+                  : 'bg-bg-secondary text-text-secondary border border-border hover:bg-bg-tertiary'
+              }`}
+              style={{ borderRadius: 'var(--radius-md)', boxShadow: active ? 'var(--shadow-2)' : 'var(--shadow-1)' }}
+            >
+              <a.Icon size={16} strokeWidth={2.2} />
+              {a.title}
+            </button>
+          );
+        })}
       </div>
 
       {/* Selected algorithm flowchart */}
@@ -214,14 +235,13 @@ export default function Algorithm() {
           {algo.sections.map((section, i) => (
             <div key={i}>
               {section.branch ? (
-                <BranchCard section={section} index={i} />
+                <BranchCard section={section} />
               ) : (
                 <StepSection section={section} index={i} />
               )}
-              {/* Connector arrow */}
               {i < algo.sections.length - 1 && (
                 <div className="flex justify-center py-1">
-                  <div className="w-0.5 h-6 bg-bg-tertiary" />
+                  <ChevronDown size={20} strokeWidth={2} className="text-text-muted" />
                 </div>
               )}
             </div>
@@ -232,9 +252,10 @@ export default function Algorithm() {
       {/* H's & T's Toggle */}
       <button
         onClick={() => setShowHT(!showHT)}
-        className="w-full btn-action btn-ghost py-3.5 text-sm font-bold"
+        className="w-full btn btn-ghost btn-lg btn-block"
       >
-        {showHT ? '▼' : '▶'} H's & T's — Reversible Causes
+        {showHT ? <ChevronDown size={16} strokeWidth={2.2} /> : <ChevronRight size={16} strokeWidth={2.2} />}
+        H's & T's — Reversible Causes
       </button>
 
       {showHT && <HsAndTsSection />}
@@ -243,27 +264,20 @@ export default function Algorithm() {
 }
 
 function StepSection({ section, index }) {
+  const tone = colorMap[section.color] || colorMap.info;
   return (
-    <div className={`glass-card !p-4 border-l-4 ${
-      section.color === 'danger' ? 'border-l-danger' :
-      section.color === 'warning' ? 'border-l-warning' :
-      section.color === 'success' ? 'border-l-success' :
-      section.color === 'shock' ? 'border-l-shock' :
-      'border-l-info'
-    }`}>
-      <h3 className="font-bold text-text-primary text-sm mb-2">
-        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold mr-2 ${
-          section.color === 'danger' ? 'bg-danger text-white' :
-          section.color === 'warning' ? 'bg-warning text-black' :
-          section.color === 'success' ? 'bg-success text-white' :
-          'bg-info text-white'
-        }`}>{index + 1}</span>
+    <div className={`dash-card border-l-4 ${tone.borderL}`}>
+      <h3 className="text-body-strong text-text-primary flex items-center gap-2 mb-2">
+        <span className={`inline-flex items-center justify-center w-6 h-6 text-xs font-bold ${tone.bg} text-white shrink-0`}
+          style={{ borderRadius: 99 }}>
+          {index + 1}
+        </span>
         {section.title}
       </h3>
       <ul className="space-y-1.5 ml-8">
         {section.items.map((item, j) => (
-          <li key={j} className="text-xs text-text-secondary flex items-start gap-2">
-            <span className="text-info mt-0.5">•</span>
+          <li key={j} className="text-caption text-text-secondary flex items-start gap-2">
+            <span className={`mt-1.5 w-1 h-1 ${tone.bg} shrink-0`} style={{ borderRadius: 99 }} />
             <span>{item}</span>
           </li>
         ))}
@@ -275,17 +289,16 @@ function StepSection({ section, index }) {
 function BranchCard({ section }) {
   return (
     <div className="space-y-2">
-      {/* Branch header */}
       <div className="text-center">
-        <div className="inline-block glass-card !px-4 !py-2 font-bold text-sm text-text-primary">
-          🔀 {section.title}
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border text-body-strong text-text-primary"
+          style={{ borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-1)' }}>
+          <GitBranch size={14} strokeWidth={2.2} className="text-text-muted" />
+          {section.title}
         </div>
       </div>
-      {/* Branch arrow down splits */}
       <div className="flex justify-center">
-        <div className="w-0.5 h-4 bg-bg-tertiary" />
+        <ChevronDown size={18} strokeWidth={2} className="text-text-muted" />
       </div>
-      {/* Two branches */}
       <div className="grid grid-cols-2 gap-3">
         <BranchSide side={section.left} />
         <BranchSide side={section.right} />
@@ -295,21 +308,10 @@ function BranchCard({ section }) {
 }
 
 function BranchSide({ side }) {
+  const tone = colorMap[side.color] || colorMap.info;
   return (
-    <div className={`rounded-xl p-3 border ${
-      side.color === 'danger' ? 'bg-danger/5 border-danger/30' :
-      side.color === 'warning' ? 'bg-warning/5 border-warning/30' :
-      side.color === 'success' ? 'bg-success/5 border-success/30' :
-      side.color === 'shock' ? 'bg-shock/5 border-shock/30' :
-      'bg-info/5 border-info/30'
-    }`}>
-      <h4 className={`text-xs font-bold mb-2 ${
-        side.color === 'danger' ? 'text-danger' :
-        side.color === 'warning' ? 'text-warning' :
-        side.color === 'success' ? 'text-success' :
-        side.color === 'shock' ? 'text-shock' :
-        'text-info'
-      }`}>{side.title}</h4>
+    <div className={`p-3 border ${tone.soft}`} style={{ borderRadius: 'var(--radius-md)' }}>
+      <h4 className={`text-caption font-bold mb-2 ${tone.text}`}>{side.title}</h4>
       <ul className="space-y-1">
         {side.items.map((item, j) => (
           <li key={j} className="text-[11px] text-text-secondary leading-snug">{item}</li>
@@ -321,14 +323,16 @@ function BranchSide({ side }) {
 
 function HsAndTsSection() {
   return (
-    <div className="glass-card !p-4">
+    <div className="dash-card">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <h3 className="text-sm font-bold text-info mb-2">H's</h3>
+          <h3 className="text-body-strong text-info mb-2 flex items-center gap-1.5">
+            <Wind size={14} strokeWidth={2.2} /> H's
+          </h3>
           <div className="space-y-2">
             {reversibleCauses.hs.map((cause, i) => (
-              <div key={i} className="bg-bg-primary rounded-lg p-2.5">
-                <div className="text-xs font-bold text-text-primary">{cause.name}</div>
+              <div key={i} className="bg-bg-primary p-2.5 border border-border" style={{ borderRadius: 'var(--radius)' }}>
+                <div className="text-caption font-bold text-text-primary">{cause.name}</div>
                 <div className="text-[10px] text-text-muted mt-0.5">{cause.signs}</div>
                 <div className="text-[10px] text-info mt-0.5 font-medium">Tx: {cause.treatment}</div>
               </div>
@@ -336,11 +340,13 @@ function HsAndTsSection() {
           </div>
         </div>
         <div>
-          <h3 className="text-sm font-bold text-danger mb-2">T's</h3>
+          <h3 className="text-body-strong text-danger mb-2 flex items-center gap-1.5">
+            <Heart size={14} strokeWidth={2.2} /> T's
+          </h3>
           <div className="space-y-2">
             {reversibleCauses.ts.map((cause, i) => (
-              <div key={i} className="bg-bg-primary rounded-lg p-2.5">
-                <div className="text-xs font-bold text-text-primary">{cause.name}</div>
+              <div key={i} className="bg-bg-primary p-2.5 border border-border" style={{ borderRadius: 'var(--radius)' }}>
+                <div className="text-caption font-bold text-text-primary">{cause.name}</div>
                 <div className="text-[10px] text-text-muted mt-0.5">{cause.signs}</div>
                 <div className="text-[10px] text-danger mt-0.5 font-medium">Tx: {cause.treatment}</div>
               </div>
