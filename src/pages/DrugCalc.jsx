@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import ScrollPicker from '../components/ScrollPicker';
+import { Pill, Calculator, AlertTriangle } from 'lucide-react';
 
-// Drug Calculator — standalone, no case needed
 export default function DrugCalc() {
   const [weight, setWeight] = useState(70);
 
   const calcs = [
-    { name: 'Epinephrine (arrest)', dose: '1mg', note: 'Fixed dose. Dilute 1:1000 1ml + NSS 9ml', calc: null },
-    { name: 'Amiodarone 1st', dose: '300mg', note: 'Fixed dose. +D5W 4ml', calc: null },
-    { name: 'Amiodarone 2nd', dose: '150mg', note: 'Fixed dose. +D5W', calc: null },
-    { name: 'Atropine', dose: '1mg', note: 'Fixed dose. Push fast', calc: null },
+    { name: 'Epinephrine (arrest)', dose: '1mg', note: 'Fixed dose. Dilute 1:1000 1ml + NSS 9ml', calc: false },
+    { name: 'Amiodarone 1st', dose: '300mg', note: 'Fixed dose. +D5W 4ml', calc: false },
+    { name: 'Amiodarone 2nd', dose: '150mg', note: 'Fixed dose. +D5W', calc: false },
+    { name: 'Atropine', dose: '1mg', note: 'Fixed dose. Push fast', calc: false },
     { name: 'Heparin bolus', dose: `${Math.round(weight * 60)}u`, note: `60u/kg (max 4000u) = ${Math.min(Math.round(weight * 60), 4000)}u`, calc: true },
     { name: 'Heparin drip', dose: `${Math.round(weight * 12)}u/hr`, note: `12u/kg/hr (max 1000u/hr) = ${Math.min(Math.round(weight * 12), 1000)}u/hr`, calc: true },
     { name: 'tPA (Alteplase)', dose: `${Math.min(weight * 0.9, 90).toFixed(1)}mg`, note: `0.9mg/kg (max 90mg). Bolus: ${(Math.min(weight * 0.9, 90) * 0.1).toFixed(1)}mg. Drip: ${(Math.min(weight * 0.9, 90) * 0.9).toFixed(1)}mg/60min`, calc: true },
@@ -22,29 +22,50 @@ export default function DrugCalc() {
 
   return (
     <div className="page-container space-y-4">
-      <h1 className="text-2xl font-bold text-text-primary">💊 Drug Calculator</h1>
+      <div className="flex items-center gap-3">
+        <div className="w-11 h-11 inline-flex items-center justify-center bg-info/15 text-info"
+          style={{ borderRadius: 'var(--radius-md)' }}>
+          <Pill size={22} strokeWidth={2.2} />
+        </div>
+        <div>
+          <h1 className="text-title text-text-primary">Drug Calculator</h1>
+          <p className="text-caption text-text-muted">Weight-based dosing reference</p>
+        </div>
+      </div>
 
-      <div className="glass-card !p-4">
+      <div className="dash-card">
         <ScrollPicker label="Patient Weight" value={weight} onChange={setWeight}
           min={3} max={150} step={1} unit="kg" />
       </div>
 
       <div className="space-y-1.5">
         {calcs.map((c, i) => (
-          <div key={i} className="glass-card !p-3 flex items-start gap-3">
-            <div className="flex-1">
-              <div className="text-xs font-bold text-text-primary">{c.name}</div>
-              <div className="text-[10px] text-text-muted">{c.note}</div>
+          <div key={i} className="dash-card !p-3 flex items-start gap-3">
+            <div className="w-8 h-8 inline-flex items-center justify-center bg-bg-tertiary shrink-0"
+              style={{ borderRadius: 'var(--radius-sm)' }}>
+              {c.calc ? (
+                <Calculator size={14} strokeWidth={2} className="text-info" />
+              ) : (
+                <Pill size={14} strokeWidth={2} className="text-text-muted" />
+              )}
             </div>
-            <div className={`text-sm font-mono font-black shrink-0 ${c.calc ? 'text-info' : 'text-text-primary'}`}>
+            <div className="flex-1 min-w-0">
+              <div className="text-caption font-bold text-text-primary">{c.name}</div>
+              <div className="text-[10px] text-text-muted leading-relaxed">{c.note}</div>
+            </div>
+            <div className={`text-numeric text-base shrink-0 ${c.calc ? 'text-info' : 'text-text-primary'}`}>
               {c.dose}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="text-center text-[10px] text-text-muted">
-        Drip calculations based on standard mixing. Verify before administration.
+      <div className="flex items-start gap-2 p-3 bg-warning/8 border border-warning/30"
+        style={{ borderRadius: 'var(--radius-md)' }}>
+        <AlertTriangle size={14} strokeWidth={2.2} className="text-warning shrink-0 mt-0.5" />
+        <div className="text-[11px] text-text-secondary leading-relaxed">
+          Drip calculations based on standard mixing. <span className="font-bold text-text-primary">Verify before administration.</span>
+        </div>
       </div>
     </div>
   );

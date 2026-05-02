@@ -500,6 +500,17 @@ button, [role="button"] {
   padding-bottom: 96px;
 }
 
+/* ===== PANEL WRAPPER (modal/sheet) ===== */
+.panel-wrapper {
+  border-top-left-radius: var(--radius-2xl);
+  border-top-right-radius: var(--radius-2xl);
+}
+@media (min-width: 768px) {
+  .panel-wrapper {
+    border-radius: var(--radius-2xl);
+  }
+}
+
 /* ===== INPUTS ===== */
 input, textarea, select {
   font-family: inherit;
