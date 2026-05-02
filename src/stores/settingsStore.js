@@ -8,7 +8,7 @@ export const useSettingsStore = create(
       soundEnabled: true,
       metronomeEnabled: true,
       metronomeRate: 110,         // bpm
-      theme: 'dark',
+      theme: 'system',            // 'system' | 'light' | 'dark'
       cycleAlertEnabled: true,
       drugReminderEnabled: true,
       compressorRotateAlert: true,
@@ -19,6 +19,7 @@ export const useSettingsStore = create(
       toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),
       toggleMetronome: () => set((s) => ({ metronomeEnabled: !s.metronomeEnabled })),
       setMetronomeRate: (rate) => set({ metronomeRate: rate }),
+      setTheme: (theme) => set({ theme }),
       toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
       toggleCycleAlert: () => set((s) => ({ cycleAlertEnabled: !s.cycleAlertEnabled })),
       toggleDrugReminder: () => set((s) => ({ drugReminderEnabled: !s.drugReminderEnabled })),
