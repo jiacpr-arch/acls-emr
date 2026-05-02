@@ -13,6 +13,7 @@ import { isPediatric } from '../utils/pediatricDose';
 import { t } from '../utils/i18n';
 import VoiceCommand from '../components/VoiceCommand';
 import { exportCasePDF } from '../utils/exportPDF';
+import { HeartPulse, Pause, Pill, AlertTriangle, FileText, Zap } from 'lucide-react';
 
 // Components
 import CPRDashboard from '../components/CPRDashboard';
@@ -728,7 +729,8 @@ function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {
             <div className="flex items-center justify-between mb-1">
               <span className="text-[10px] text-text-muted font-medium">Cycle {cycleNumber}</span>
               <span className={`badge ${cprActive ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'}`}>
-                {cprActive ? '🫀 CPR' : '⏸ PAUSE'} · {formatTime(cycleRemaining)}
+                {cprActive ? <HeartPulse size={11} strokeWidth={2.4} /> : <Pause size={11} strokeWidth={2.4} />}
+                {cprActive ? 'CPR' : 'PAUSE'} · {formatTime(cycleRemaining)}
               </span>
             </div>
             <div className="progress-track">
@@ -745,9 +747,11 @@ function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {
                 const due = rem <= 0;
                 return (
                   <div key={t.id} className="flex items-center justify-between">
-                    <span className="text-[10px] text-text-muted font-medium truncate">💊 {t.drugName}</span>
+                    <span className="text-[10px] text-text-muted font-medium truncate inline-flex items-center gap-1">
+                      <Pill size={11} strokeWidth={2.2} /> {t.drugName}
+                    </span>
                     <span className={`badge ${due ? 'bg-danger/15 text-danger animate-pulse' : 'bg-purple/15 text-purple'}`}>
-                      {due ? '⚠️ DUE' : formatTime(rem)}
+                      {due ? <><AlertTriangle size={11} strokeWidth={2.4} /> DUE</> : formatTime(rem)}
                     </span>
                   </div>
                 );
@@ -758,8 +762,12 @@ function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {
           </div>
         )}
 
-        {showCPRCycle && <span className="badge bg-shock/15 text-shock">⚡ {shockCount}</span>}
-        <button onClick={onToggleLog} className={`badge transition-all ${showLog ? 'bg-info/20 text-info' : 'bg-bg-tertiary/50 text-text-muted'}`}>📋 {events.length}</button>
+        {showCPRCycle && (
+          <span className="badge bg-shock/15 text-shock"><Zap size={11} strokeWidth={2.4} /> {shockCount}</span>
+        )}
+        <button onClick={onToggleLog} className={`badge transition-all ${showLog ? 'bg-info/20 text-info' : 'bg-bg-tertiary/50 text-text-muted'}`}>
+          <FileText size={11} strokeWidth={2.2} /> {events.length}
+        </button>
       </div>
     </div>
   );
