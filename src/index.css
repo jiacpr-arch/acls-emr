@@ -256,6 +256,56 @@ button, [role="button"] {
 }
 .animate-ecg-scroll { animation: ecg-scroll 2.4s linear infinite; }
 
+/* ===== TEAM-MEMBER WALK-TO-PATIENT ANIMATIONS ===== */
+/* Each role walks toward the patient (center) then back to original spot.
+   1.4s total: 0.35s walk in, 0.7s near-patient hold, 0.35s walk back. */
+@keyframes walk-airway {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25%, 75% { transform: translateY(28px) scale(1.06); }
+}
+@keyframes walk-drug {
+  0%, 100% { transform: translateX(0) scale(1); }
+  25%, 75% { transform: translateX(56px) scale(1.06); }
+}
+@keyframes walk-defib {
+  0%, 100% { transform: translateX(0) scale(1); }
+  25%, 75% { transform: translateX(-56px) scale(1.06); }
+}
+@keyframes walk-compressor {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25%, 75% { transform: translateY(-28px) scale(1.06); }
+}
+@keyframes walk-leader {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25%, 75% { transform: translateY(-22px) translateX(-32px) scale(1.06); }
+}
+@keyframes walk-monitor {
+  0%, 100% { transform: scale(1); }
+  25%, 75% { transform: scale(1.1); filter: brightness(1.15); }
+}
+.animate-walk-airway     { animation: walk-airway 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1; }
+.animate-walk-drug       { animation: walk-drug 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1; }
+.animate-walk-defib      { animation: walk-defib 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1; }
+.animate-walk-compressor { animation: walk-compressor 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1; }
+.animate-walk-leader     { animation: walk-leader 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1; }
+.animate-walk-monitor    { animation: walk-monitor 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1; }
+
+/* tiny step puffs that bloom when a member walks */
+@keyframes step-puff {
+  0%   { opacity: 0.7; transform: scale(0.4); }
+  100% { opacity: 0;   transform: scale(1.4); }
+}
+.step-puff {
+  position: absolute;
+  width: 14px; height: 6px;
+  border-radius: 99px;
+  background: rgba(15, 26, 46, 0.18);
+  bottom: 4px;
+  animation: step-puff 1.4s ease-out 1;
+  pointer-events: none;
+}
+.dark .step-puff { background: rgba(255, 255, 255, 0.14); }
+
 /* ===== CARD ===== */
 .glass-card {
   background: var(--color-bg-secondary);
