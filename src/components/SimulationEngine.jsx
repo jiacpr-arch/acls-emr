@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useCaseStore } from '../stores/caseStore';
-import { useTimerStore } from '../stores/timerStore';
 import { playBeep } from '../utils/sound';
 
 // SimulationEngine v2 — replaces basic ScenarioEngine

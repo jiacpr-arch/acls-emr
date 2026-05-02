@@ -24,9 +24,14 @@ export default function NewCase() {
   const handleStart = async (startMode) => {
     if (loading) return;
     setLoading(true);
-    clearActiveSession();
-    await createCase(mode);
-    navigate(`/recording?start=${startMode}`);
+    try {
+      clearActiveSession();
+      await createCase(mode);
+      navigate(`/recording?start=${startMode}`);
+    } catch (err) {
+      console.error('Failed to start case:', err);
+      setLoading(false);
+    }
   };
 
   const handleResume = () => {

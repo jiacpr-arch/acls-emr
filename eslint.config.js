@@ -26,4 +26,18 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    // Vercel serverless functions — Node runtime
+    files: ['api/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: { ...globals.node },
+    },
+  },
+  {
+    // Web Workers — has self/postMessage but not window
+    files: ['src/workers/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: { ...globals.worker },
+    },
+  },
 ])

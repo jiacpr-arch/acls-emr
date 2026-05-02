@@ -34,8 +34,13 @@ export default function ScenarioSelect() {
   const startScenario = async (scenarioId) => {
     if (loading) return;
     setLoading(true);
-    await createCase('training');
-    navigate(`/recording?start=bls&scenario=${scenarioId}&mode=${mode}`);
+    try {
+      await createCase('training');
+      navigate(`/recording?start=bls&scenario=${scenarioId}&mode=${mode}`);
+    } catch (err) {
+      console.error('Failed to start scenario:', err);
+      setLoading(false);
+    }
   };
 
   return (

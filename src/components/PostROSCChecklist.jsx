@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
-import { useSettingsStore } from '../stores/settingsStore';
 import { exportCasePDF } from '../utils/exportPDF';
 import { calculateScore } from '../utils/scoring';
 import ScrollPicker from './ScrollPicker';
