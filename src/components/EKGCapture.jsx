@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import PanelWrapper from './PanelWrapper';
+import { Activity, Camera, Image as ImageIcon, Sparkles } from 'lucide-react';
 
 // EKG Capture Panel — available from all pathways
 // Features: preset rhythm selection + photo capture + notes
@@ -69,7 +70,7 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
   };
 
   return (
-    <PanelWrapper title="EKG / 12-Lead" icon="📈" onClose={onClose} onSave={handleSave} saveLabel="Done">
+    <PanelWrapper title="EKG / 12-Lead" icon={<Activity size={18} strokeWidth={2.2} />} onClose={onClose} onSave={handleSave} saveLabel="Done">
       {/* Tabs */}
       <div className="tab-group mb-4">
         <button onClick={() => setTab('preset')} className={`tab-item ${tab === 'preset' ? 'active' : ''}`}>Rhythm</button>
@@ -82,7 +83,7 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
           <div className="space-y-3">
             {presets.map(cat => (
               <div key={cat.category}>
-                <div className="text-[10px] font-bold text-text-muted uppercase mb-1.5">{cat.category}</div>
+                <div className="text-overline mb-2">{cat.category}</div>
                 <div className="grid-responsive">
                   {cat.items.map(item => (
                     <button key={item.id} onClick={() => handlePreset(item)}
@@ -118,19 +119,19 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
 
             <div className="grid grid-cols-2 gap-3">
               <button onClick={() => fileRef.current?.click()}
-                className="btn-action btn-info py-4 text-sm font-semibold">
-                📸 Take Photo
+                className="btn btn-info btn-lg btn-block">
+                <Camera size={16} strokeWidth={2.2} /> Take Photo
               </button>
               <button onClick={() => { fileRef.current?.removeAttribute('capture'); fileRef.current?.click(); }}
-                className="btn-action btn-ghost py-4 text-sm font-semibold">
-                🖼️ From Gallery
+                className="btn btn-ghost btn-lg btn-block">
+                <ImageIcon size={16} strokeWidth={2.2} /> From Gallery
               </button>
             </div>
 
             {/* Photos taken */}
             {photos.length > 0 && (
               <div className="space-y-2">
-                <div className="text-[10px] font-bold text-text-muted uppercase">Captured ECGs ({photos.length})</div>
+                <div className="text-overline">Captured ECGs ({photos.length})</div>
                 {photos.map((ph, i) => (
                   <div key={i} className="glass-card !p-2">
                     <img src={ph.dataUrl} alt={`ECG ${i + 1}`} className="w-full rounded-lg" />
@@ -141,8 +142,10 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
             )}
 
             {/* AI ECG reading note */}
-            <div className="glass-card !p-3 text-center text-xs text-text-secondary">
-              <div className="font-bold text-text-primary mb-1">🤖 AI ECG Reading</div>
+            <div className="dash-card !p-3 text-center text-caption text-text-secondary">
+              <div className="text-body-strong text-text-primary mb-1 inline-flex items-center gap-1.5">
+                <Sparkles size={14} strokeWidth={2.2} className="text-info" /> AI ECG Reading
+              </div>
               <div>Available when online — photos saved for later analysis</div>
             </div>
 

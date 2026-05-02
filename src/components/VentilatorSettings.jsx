@@ -3,6 +3,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import PanelWrapper from './PanelWrapper';
+import { Stethoscope, AlertTriangle } from 'lucide-react';
 
 // Ventilator Settings — adjustable anytime
 export default function VentilatorSettings({ onClose }) {
@@ -31,11 +32,11 @@ export default function VentilatorSettings({ onClose }) {
   };
 
   return (
-    <PanelWrapper title="Ventilator Settings" icon="🖥️" onClose={onClose} onSave={save}>
+    <PanelWrapper title="Ventilator Settings" icon={<Stethoscope size={18} strokeWidth={2.2} />} onClose={onClose} onSave={save}>
       <div className="space-y-3">
         {/* Mode */}
-        <div className="glass-card !p-3">
-          <div className="text-xs text-text-muted font-semibold mb-2">Mode</div>
+        <div className="dash-card !p-3">
+          <div className="section-header !mb-2">Mode</div>
           <div className="grid grid-cols-4 gap-1.5">
             {['AC', 'SIMV', 'PS', 'CPAP'].map(m => (
               <button key={m} onClick={() => setVentMode(m)}
@@ -47,12 +48,14 @@ export default function VentilatorSettings({ onClose }) {
         </div>
 
         {/* Settings */}
-        <div className="glass-card !p-3 space-y-3">
+        <div className="dash-card !p-3 space-y-3">
           <ScrollPicker label="FiO₂" value={fio2} onChange={setFio2}
             min={21} max={100} step={1} unit="%"
             targetLow={21} targetHigh={60} alertHigh={60} />
           {fio2 > 60 && (
-            <div className="text-[10px] text-warning font-bold px-1">⚠️ FiO₂ &gt;60% — Try to wean if SpO₂ allows</div>
+            <div className="text-[11px] text-warning font-bold px-1 inline-flex items-center gap-1.5">
+              <AlertTriangle size={11} strokeWidth={2.4} /> FiO₂ &gt;60% — Try to wean if SpO₂ allows
+            </div>
           )}
 
           <ScrollPicker label="Tidal Volume (TV)" value={tv} onChange={setTv}
@@ -73,8 +76,8 @@ export default function VentilatorSettings({ onClose }) {
         </div>
 
         {/* Calculated values */}
-        <div className="glass-card !p-3">
-          <div className="text-xs text-text-muted font-semibold mb-2">Calculated</div>
+        <div className="dash-card !p-3">
+          <div className="section-header !mb-2">Calculated</div>
           <div className="grid grid-cols-2 gap-2">
             <div className="stat-box">
               <div className="stat-value text-lg text-text-primary">{mv}</div>
@@ -86,7 +89,9 @@ export default function VentilatorSettings({ onClose }) {
             </div>
           </div>
           {parseFloat(tvPerKg) > 8 && (
-            <div className="text-[10px] text-danger font-bold mt-1">⚠️ TV &gt;8ml/kg — Use lung protective ventilation (6-8 ml/kg)</div>
+            <div className="text-[11px] text-danger font-bold mt-2 inline-flex items-center gap-1.5">
+              <AlertTriangle size={11} strokeWidth={2.4} /> TV &gt;8ml/kg — Use lung protective ventilation (6-8 ml/kg)
+            </div>
           )}
           <div className="text-[9px] text-text-muted mt-1">Based on weight: {weight}kg</div>
         </div>

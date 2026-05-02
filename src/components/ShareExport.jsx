@@ -2,6 +2,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { formatTimeLong } from '../utils/formatTime';
 import { exportCasePDF } from '../utils/exportPDF';
+import { Download, Share, MessageSquare, Mail, Copy, X } from 'lucide-react';
 
 // Share/Export options — Web Share API, LINE, Email, Copy
 export default function ShareExport({ caseData, onClose }) {
@@ -56,35 +57,51 @@ export default function ShareExport({ caseData, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30" onClick={onClose}>
-      <div className="w-full max-w-lg bg-white rounded-t-2xl p-4 space-y-2 animate-slide-up"
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}>
+      <div className="w-full max-w-lg bg-bg-secondary p-4 space-y-2 animate-slide-up"
         onClick={e => e.stopPropagation()}
-        style={{ boxShadow: '0 -4px 24px rgba(0,0,0,0.15)' }}>
-        <div className="text-sm font-bold text-text-primary text-center mb-2">Share Case #{data.id}</div>
+        style={{
+          borderTopLeftRadius: 'var(--radius-2xl)',
+          borderTopRightRadius: 'var(--radius-2xl)',
+          boxShadow: 'var(--shadow-pop)',
+          paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0))',
+        }}>
+        <div className="w-10 h-1 bg-bg-tertiary mx-auto mb-2" style={{ borderRadius: 99 }} />
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-headline text-text-primary">Share Case #{data.id}</div>
+          <button onClick={onClose}
+            className="w-8 h-8 inline-flex items-center justify-center text-text-muted hover:bg-bg-tertiary"
+            style={{ borderRadius: 99 }} aria-label="Close">
+            <X size={18} strokeWidth={2.2} />
+          </button>
+        </div>
 
-        <button onClick={handlePDF} className="w-full btn-action btn-info py-3 text-sm font-bold">
-          📄 Export PDF
+        <button onClick={handlePDF} className="btn btn-info btn-lg btn-block">
+          <Download size={16} strokeWidth={2.2} /> Export PDF
         </button>
 
         {navigator.share && (
-          <button onClick={handleWebShare} className="w-full btn-action btn-ghost py-3 text-sm font-semibold">
-            📤 Share (System)
+          <button onClick={handleWebShare} className="btn btn-ghost btn-block">
+            <Share size={16} strokeWidth={2.2} /> Share (System)
           </button>
         )}
 
-        <button onClick={handleLINE} className="w-full btn-action py-3 text-sm font-semibold" style={{ background: '#06C755', color: 'white' }}>
-          💬 Share via LINE
+        <button onClick={handleLINE}
+          className="btn btn-block"
+          style={{ background: '#06C755', color: 'white' }}>
+          <MessageSquare size={16} strokeWidth={2.2} /> Share via LINE
         </button>
 
-        <button onClick={handleEmail} className="w-full btn-action btn-ghost py-3 text-sm font-semibold">
-          ✉️ Share via Email
+        <button onClick={handleEmail} className="btn btn-ghost btn-block">
+          <Mail size={16} strokeWidth={2.2} /> Share via Email
         </button>
 
-        <button onClick={handleCopy} className="w-full btn-action btn-ghost py-3 text-sm font-semibold">
-          📋 Copy Summary
+        <button onClick={handleCopy} className="btn btn-ghost btn-block">
+          <Copy size={16} strokeWidth={2.2} /> Copy Summary
         </button>
 
-        <button onClick={onClose} className="w-full text-text-muted text-xs underline text-center py-2">Cancel</button>
+        <button onClick={onClose} className="w-full text-text-muted text-caption text-center py-2">Cancel</button>
       </div>
     </div>
   );

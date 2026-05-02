@@ -3,6 +3,9 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
+import {
+  Activity, Check as CheckIcon, AlertTriangle, AlertCircle, RefreshCw, ChevronLeft,
+} from 'lucide-react';
 
 // Stable Monitor — used after treatment when patient is stable
 // Re-assess vitals + EKG → stable? → disposition
@@ -34,14 +37,16 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
 
   const Check = ({ id, label, sub }) => (
     <button onClick={() => toggleCheck(id, label)}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
-        checklist[id] ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
-      }`}>
-      <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
+      className={`w-full flex items-center gap-2.5 px-3 py-2.5 mb-1.5 text-left transition-colors border ${
+        checklist[id] ? 'bg-success/10 border-success/30' : 'bg-bg-primary border-border'
+      }`} style={{ borderRadius: 'var(--radius)' }}>
+      <span className={`w-5 h-5 inline-flex items-center justify-center shrink-0 ${
         checklist[id] ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
-      }`}>{checklist[id] ? '✓' : ''}</span>
+      }`} style={{ borderRadius: 'var(--radius-sm)' }}>
+        {checklist[id] && <CheckIcon size={12} strokeWidth={2.6} />}
+      </span>
       <div>
-        <div className="text-xs font-semibold text-text-primary">{label}</div>
+        <div className="text-caption font-semibold text-text-primary">{label}</div>
         {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
       </div>
     </button>
@@ -55,12 +60,14 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
   if (phase === 'reassess') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-success">Re-Assessment</div>
-        <div className="text-5xl">📊</div>
-        <h1 className="text-xl font-black text-text-primary">Re-assess Patient</h1>
+        <div className="text-overline" style={{ color: 'var(--color-success)' }}>Re-Assessment</div>
+        <div className="pathway-icon-tile bg-success/12 text-success">
+          <Activity size={32} strokeWidth={2.2} />
+        </div>
+        <h1 className="text-headline text-text-primary">Re-assess Patient</h1>
 
         {/* Quick vitals */}
-        <div className="glass-card !p-3 space-y-2">
+        <div className="dash-card !p-3 space-y-2">
           <div className="text-xs text-text-muted font-semibold mb-1">Vitals</div>
           <ScrollPicker label="BP Systolic" value={bpSys} onChange={setBpSys} min={40} max={250} step={1} unit="mmHg" alertLow={90} />
           <ScrollPicker label="BP Diastolic" value={bpDia} onChange={setBpDia} min={20} max={150} step={1} unit="mmHg" />
@@ -87,12 +94,14 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
         </div>
 
         {/* Status */}
-        <div className={`rounded-xl px-4 py-2 text-sm font-bold ${isStable ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
-          {isStable ? '✅ Stable — proceed to monitoring' : '⚠️ Still unstable — consider further treatment'}
+        <div className={`px-4 py-2 text-body-strong inline-flex items-center justify-center gap-2 w-full ${isStable ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}
+          style={{ borderRadius: 'var(--radius-md)' }}>
+          {isStable ? <CheckIcon size={15} strokeWidth={2.4} /> : <AlertTriangle size={15} strokeWidth={2.4} />}
+          {isStable ? 'Stable — proceed to monitoring' : 'Still unstable — consider further treatment'}
         </div>
 
         {/* Checklist */}
-        <div className="glass-card !p-3 text-left">
+        <div className="dash-card !p-3 text-left">
           <div className="text-xs text-text-muted font-semibold mb-2">Monitoring Checklist</div>
           <Check id="ecg_recheck" label="📈 12-Lead ECG (re-check)" sub="What rhythm now? Any changes?" />
           <Check id="iv_access" label="💉 IV Access confirmed" />
@@ -104,25 +113,24 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
         <button onClick={() => {
           saveVitals();
           if (isStable) setPhase('disposition');
-        }} className={`w-full btn-action py-3.5 text-sm font-bold ${isStable ? 'btn-success' : 'btn-warning'}`}>
-          {isStable ? '✅ Stable → Disposition' : '⚠️ Save & Continue Monitoring'}
+        }} className={`btn btn-lg btn-block ${isStable ? 'btn-success' : 'btn-warning'}`}>
+          {isStable ? <CheckIcon size={16} strokeWidth={2.4} /> : <AlertTriangle size={16} strokeWidth={2.4} />}
+          {isStable ? 'Stable → Disposition' : 'Save & Continue Monitoring'}
         </button>
 
-        <button onClick={() => {
-          saveVitals();
-          onRecheckPulse();
-        }} className="w-full btn-action btn-info py-3 text-sm">
-          🔄 Re-assess — Rhythm/Rate Changed?
+        <button onClick={() => { saveVitals(); onRecheckPulse(); }} className="btn btn-info btn-block">
+          <RefreshCw size={14} strokeWidth={2.2} /> Re-assess — Rhythm/Rate Changed?
         </button>
 
-        {/* If not stable, option to go back to treatment */}
         {!isStable && (
-          <button onClick={onRecheckPulse} className="w-full btn-action btn-warning py-3 text-sm">
-            ← Back to Treatment
+          <button onClick={onRecheckPulse} className="btn btn-warning btn-block">
+            <ChevronLeft size={14} strokeWidth={2.2} /> Back to Treatment
           </button>
         )}
 
-        <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
+        <button onClick={onArrest} className="btn btn-danger btn-block">
+          <AlertCircle size={14} strokeWidth={2.4} /> No Pulse → CPR
+        </button>
       </div>
     );
   }
@@ -131,12 +139,14 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
   if (phase === 'disposition') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-success">Stable — Disposition</div>
-        <div className="text-5xl">✅</div>
-        <h1 className="text-xl font-black text-text-primary">Patient Stable</h1>
+        <div className="text-overline" style={{ color: 'var(--color-success)' }}>Stable — Disposition</div>
+        <div className="pathway-icon-tile bg-success/12 text-success">
+          <CheckIcon size={32} strokeWidth={2.4} />
+        </div>
+        <h1 className="text-headline text-text-primary">Patient Stable</h1>
         <p className="text-sm text-text-secondary">BP {bpSys}/{bpDia} MAP {map} HR {hr} SpO₂ {spo2}%</p>
 
-        <div className="glass-card !p-3 text-left">
+        <div className="dash-card !p-3 text-left">
           <div className="text-xs text-text-muted font-semibold mb-2">Disposition</div>
           <Check id="handover" label="📋 SBAR Handover" sub="Situation, Background, Assessment, Recommendation" />
           <Check id="consult" label="📞 Consult (Cardiology / Neurology / ICU)" />
@@ -144,7 +154,7 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
           <Check id="documentation" label="📝 Documentation complete" />
         </div>
 
-        <div className="glass-card !p-3 text-left">
+        <div className="dash-card !p-3 text-left">
           <div className="text-xs text-text-muted font-semibold mb-2">Transfer to</div>
           <div className="grid grid-cols-2 gap-2">
             {['ICU', 'CCU', 'Ward', 'Cath Lab', 'OR', 'Other'].map(d => (
@@ -161,13 +171,17 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
         <button onClick={() => {
           addEvent({ elapsed, category: 'other', type: '✅ Case completed — patient transferred', details: {} });
           onDone();
-        }} className="w-full btn-action btn-success py-4 text-sm font-bold">
-          ✅ Case Complete → Dashboard
+        }} className="btn btn-success btn-lg btn-block">
+          <CheckIcon size={16} strokeWidth={2.4} /> Case Complete → Dashboard
         </button>
 
-        {/* Still can deteriorate */}
-        <button onClick={() => setPhase('reassess')} className="text-text-muted text-xs underline">← Re-assess (deteriorating?)</button>
-        <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
+        <button onClick={() => setPhase('reassess')}
+          className="inline-flex items-center gap-1 text-text-muted text-caption mx-auto hover:text-text-primary">
+          <ChevronLeft size={12} strokeWidth={2.2} /> Re-assess (deteriorating?)
+        </button>
+        <button onClick={onArrest} className="btn btn-danger btn-block">
+          <AlertCircle size={14} strokeWidth={2.4} /> No Pulse → CPR
+        </button>
       </div>
     );
   }
