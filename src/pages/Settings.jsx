@@ -187,7 +187,7 @@ function ToggleRow({ Icon: I, label, value, onToggle }) {
         onClick={onToggle}
         role="switch"
         aria-checked={value}
-        className={`relative w-12 h-7 transition-colors shrink-0 ${value ? 'bg-success' : 'bg-bg-tertiary'}`}
+        className={`relative w-12 h-7 transition-colors shrink-0 border ${value ? 'bg-success border-success' : 'bg-bg-tertiary border-border-strong'}`}
         style={{ borderRadius: 99 }}
       >
         <span
@@ -195,7 +195,7 @@ function ToggleRow({ Icon: I, label, value, onToggle }) {
           style={{
             borderRadius: 99,
             transform: value ? 'translateX(22px)' : 'translateX(2px)',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.18)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.08)',
           }}
         />
       </button>
