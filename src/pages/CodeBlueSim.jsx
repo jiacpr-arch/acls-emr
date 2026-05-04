@@ -326,7 +326,7 @@ export default function CodeBlueSim() {
         <div className="bg-bg-secondary border-2 border-text-primary p-4 flex items-start gap-3">
           <Instructor mood="happy"/>
           <div className="flex-1">
-            <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-relaxed text-text-primary">
+            <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-relaxed text-slate-900">
               <div className="font-black text-info mb-1">Dr. หมอเฮีย:</div>
               {scenario.intro}
             </div>
@@ -475,7 +475,7 @@ export default function CodeBlueSim() {
       <div className="bg-bg-secondary border-2 border-text-primary p-2 flex items-start gap-2">
         <Instructor mood={mood}/>
         <div className="flex-1">
-          <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-snug text-text-primary">
+          <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-snug text-slate-900">
             <span className="font-black text-info">หมอเฮีย: </span>
             {feedback ? feedback.text : step.narration}
           </div>
