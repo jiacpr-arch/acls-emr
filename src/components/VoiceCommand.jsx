@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 
@@ -24,10 +24,30 @@ const COMMANDS = {
 export default function VoiceCommand({ onCommand }) {
   const [listening, setListening] = useState(false);
   const [lastCommand, setLastCommand] = useState(null);
+  const [showLastCommand, setShowLastCommand] = useState(false);
   const [supported, setSupported] = useState(false);
   const recognitionRef = useRef(null);
   const addEvent = useCaseStore(s => s.addEvent);
   const elapsed = useTimerStore(s => s.elapsed);
+
+  useEffect(() => {
+    if (!lastCommand) return;
+    setShowLastCommand(true);
+    const id = setTimeout(() => setShowLastCommand(false), 3000);
+    return () => clearTimeout(id);
+  }, [lastCommand]);
+
+  const processCommand = useCallback((transcript) => {
+    for (const [keyword, cmd] of Object.entries(COMMANDS)) {
+      if (transcript.includes(keyword)) {
+        setLastCommand({ keyword, time: Date.now() });
+        addEvent({ elapsed, category: cmd.action === 'drug' ? 'drug' : 'other', type: cmd.type, details: { voice: true } });
+        if (onCommand) onCommand(cmd.action, keyword);
+        return;
+      }
+    }
+    setLastCommand({ keyword: `"${transcript}" — not recognized`, time: Date.now() });
+  }, [addEvent, elapsed, onCommand]);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -58,22 +78,11 @@ export default function VoiceCommand({ onCommand }) {
 
     return () => {
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch {}
+        try { recognitionRef.current.stop(); } catch (_e) { /* ignore */ }
       }
     };
-  }, []);
-
-  const processCommand = (transcript) => {
-    for (const [keyword, cmd] of Object.entries(COMMANDS)) {
-      if (transcript.includes(keyword)) {
-        setLastCommand({ keyword, time: Date.now() });
-        addEvent({ elapsed, category: cmd.action === 'drug' ? 'drug' : 'other', type: cmd.type, details: { voice: true } });
-        if (onCommand) onCommand(cmd.action, keyword);
-        return;
-      }
-    }
-    setLastCommand({ keyword: `"${transcript}" — not recognized`, time: Date.now() });
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [processCommand]);
 
   const toggleListening = () => {
     if (!recognitionRef.current) return;
@@ -100,7 +109,7 @@ export default function VoiceCommand({ onCommand }) {
         }`} style={{ minHeight: '32px', minWidth: '32px' }}>
         {listening ? '🎤 Listening...' : '🎤'}
       </button>
-      {lastCommand && Date.now() - lastCommand.time < 3000 && (
+      {lastCommand && showLastCommand && (
         <span className="text-[9px] text-info font-semibold animate-slide-up">{lastCommand.keyword}</span>
       )}
     </div>

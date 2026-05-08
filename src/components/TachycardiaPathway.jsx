@@ -13,9 +13,9 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
   const addEvent = useCaseStore(s => s.addEvent);
   const [phase, setPhase] = useState('vitals'); // vitals → unstable_check → ...
   const [unstableSigns, setUnstableSigns] = useState({});
-  const [rhythmType, setRhythmType] = useState(null);
+  const [, setRhythmType] = useState(null);
   const [cardioversionEnergy, setCardioversionEnergy] = useState(100);
-  const [adenosineCount, setAdenosineCount] = useState(0);
+  const [, setAdenosineCount] = useState(0);
 
   // Quick vitals
   const [bpSys, setBpSys] = useState(120);

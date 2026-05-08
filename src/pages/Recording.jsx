@@ -10,7 +10,6 @@ import { useMetronome } from '../hooks/useMetronome';
 import { initAudio, playShockSound, playROSCSound } from '../utils/sound';
 import { checkDrugInteraction, checkAllergy } from '../utils/drugInteractions';
 import { isPediatric } from '../utils/pediatricDose';
-import { t } from '../utils/i18n';
 import VoiceCommand from '../components/VoiceCommand';
 import { exportCasePDF } from '../utils/exportPDF';
 import { HeartPulse, Pause, Pill, AlertTriangle, FileText, Zap, Shield, Hand, Phone, Hospital, Monitor, Activity, Syringe, Cross } from 'lucide-react';
@@ -87,7 +86,6 @@ export default function Recording() {
   const endCase = useCaseStore(s => s.endCase);
   const { isRunning, startTimer, elapsed } = useTimerStore();
   const mode = useSettingsStore(s => s.mode);
-  const lang = useSettingsStore(s => s.language) || 'en';
   const isTraining = mode === 'training';
 
   // Scenario mode
@@ -301,8 +299,7 @@ export default function Recording() {
         return <StableMonitor
           onRecheckPulse={() => goStep(STEPS.CHECK_PULSE)}
           onArrest={() => goStep(STEPS.START_CPR)}
-          onDone={() => navigate('/history')}
-          isTraining={isTraining} />;
+          onDone={() => navigate('/history')} />;
 
       // ========== CPR ==========
       case STEPS.START_CPR:
@@ -383,7 +380,7 @@ export default function Recording() {
         />;
 
       case STEPS.TERMINATED:
-        return <TerminatedStep onDone={() => navigate('/history')} isTraining={isTraining} />;
+        return <TerminatedStep onDone={() => navigate('/history')} />;
 
       default:
         return null;
@@ -631,7 +628,7 @@ function DrugStep({ onDone, isTraining }) {
   );
 }
 
-function TerminatedStep({ onDone, isTraining }) {
+function TerminatedStep({ onDone }) {
   const { currentCase, events, patient, team, etco2Readings, shockCount } = useCaseStore();
   const { elapsed } = useTimerStore();
 

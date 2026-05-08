@@ -1,8 +1,25 @@
 import { useState } from 'react';
-import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import { Brain } from 'lucide-react';
+
+function CheckItem({ id, label, sub, checklist, onToggle }) {
+  const checked = !!checklist?.[id];
+  return (
+    <button onClick={() => onToggle(id)}
+      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
+        checked ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
+      }`}>
+      <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
+        checked ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
+      }`}>{checked ? '✓' : ''}</span>
+      <div>
+        <div className="text-xs font-semibold text-text-primary">{label}</div>
+        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
+      </div>
+    </button>
+  );
+}
 
 // Stroke Pathway — AHA/ASA Guideline
 // Flow: FAST → Vitals + DTX → NIHSS → CT → tPA criteria → Treatment
@@ -14,7 +31,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
   const [onsetHour, setOnsetHour] = useState(0);
   const [onsetMin, setOnsetMin] = useState(0);
   const [nihss, setNihss] = useState({});
-  const [ctResult, setCtResult] = useState(null);
+  const [, setCtResult] = useState(null);
   const [d2nStart, setD2nStart] = useState(null);
   const [dtx, setDtx] = useState(120);
 
@@ -25,21 +42,6 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
       return updated;
     });
   };
-
-  const Check = ({ id, label, sub }) => (
-    <button onClick={() => toggleCheck(id)}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
-        checklist[id] ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
-      }`}>
-      <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
-        checklist[id] ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
-      }`}>{checklist[id] ? '✓' : ''}</span>
-      <div>
-        <div className="text-xs font-semibold text-text-primary">{label}</div>
-        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
-      </div>
-    </button>
-  );
 
   // ===== FAST ASSESSMENT =====
   if (phase === 'fast') {
@@ -141,12 +143,12 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
         <h1 className="text-xl font-black text-text-primary">Initial Treatment</h1>
 
         <div className="glass-card !p-3 text-left space-y-0.5">
-          <Check id="str_abc" label="ABCs — Airway/Breathing/Circulation" />
-          <Check id="str_o2" label="🫁 O₂ if SpO₂ < 94%" />
-          <Check id="str_iv" label="💉 IV Access" />
-          <Check id="str_vitals" label="📊 Vitals: BP, HR, SpO₂, RR, Temp" />
-          <Check id="str_avpu" label="🧠 AVPU / GCS" />
-          <Check id="str_ecg" label="📈 12-Lead ECG (look for AF)" />
+          <CheckItem id="str_abc" label="ABCs — Airway/Breathing/Circulation" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="str_o2" label="🫁 O₂ if SpO₂ < 94%" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="str_iv" label="💉 IV Access" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="str_vitals" label="📊 Vitals: BP, HR, SpO₂, RR, Temp" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="str_avpu" label="🧠 AVPU / GCS" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="str_ecg" label="📈 12-Lead ECG (look for AF)" checklist={checklist} onToggle={toggleCheck} />
         </div>
 
         {/* DTX — critical! */}
@@ -277,8 +279,6 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
   // ===== tPA CRITERIA =====
   if (phase === 'tpa_criteria') {
     const timeMinutes = onsetHour * 60 + onsetMin;
-    const withinWindow = timeMinutes <= 270 || fast.wakeup;
-
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
         <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">tPA (Alteplase) Criteria</div>
@@ -299,22 +299,22 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
 
         <div className="glass-card !p-3 text-left space-y-0.5">
           <div className="text-xs font-semibold text-success mb-2">✅ Inclusion</div>
-          <Check id="tpa_dx" label="Clinical dx: ischemic stroke" />
-          <Check id="tpa_deficit" label="Measurable neurologic deficit" />
-          <Check id="tpa_time" label={`Onset < 4.5hr (current: ${timeMinutes}min)`} />
-          <Check id="tpa_age" label="Age ≥ 18" />
-          <Check id="tpa_ct" label="CT: no hemorrhage" />
+          <CheckItem id="tpa_dx" label="Clinical dx: ischemic stroke" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_deficit" label="Measurable neurologic deficit" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_time" label={`Onset < 4.5hr (current: ${timeMinutes}min)`} checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_age" label="Age ≥ 18" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_ct" label="CT: no hemorrhage" checklist={checklist} onToggle={toggleCheck} />
         </div>
 
         <div className="glass-card !p-3 text-left space-y-0.5">
           <div className="text-xs font-semibold text-danger mb-2">❌ Contraindications (must have NONE)</div>
-          <Check id="tpa_no_bleed" label="No active internal bleeding" />
-          <Check id="tpa_no_surgery" label="No intracranial surgery <3mo" />
-          <Check id="tpa_no_ich" label="No prior ICH" />
-          <Check id="tpa_no_avm" label="No intracranial neoplasm/AVM" />
-          <Check id="tpa_plt" label="Platelet > 100,000" />
-          <Check id="tpa_inr" label="INR < 1.7" />
-          <Check id="tpa_bp" label="BP controlled < 185/110" />
+          <CheckItem id="tpa_no_bleed" label="No active internal bleeding" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_no_surgery" label="No intracranial surgery <3mo" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_no_ich" label="No prior ICH" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_no_avm" label="No intracranial neoplasm/AVM" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_plt" label="Platelet > 100,000" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_inr" label="INR < 1.7" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_bp" label="BP controlled < 185/110" checklist={checklist} onToggle={toggleCheck} />
         </div>
 
         {!d2nStart && (
@@ -360,11 +360,11 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
         </div>
 
         <div className="glass-card !p-3 text-left space-y-0.5">
-          <Check id="tpa_bp_pre" label="BP < 185/110 confirmed" />
-          <Check id="tpa_consent" label="Consent signed" />
-          <Check id="tpa_bolus" label="10% bolus given" />
-          <Check id="tpa_infusion_start" label="90% infusion started" />
-          <Check id="tpa_infusion_end" label="90% infusion completed (60min)" />
+          <CheckItem id="tpa_bp_pre" label="BP < 185/110 confirmed" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_consent" label="Consent signed" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_bolus" label="10% bolus given" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_infusion_start" label="90% infusion started" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="tpa_infusion_end" label="90% infusion completed (60min)" checklist={checklist} onToggle={toggleCheck} />
         </div>
 
         <div className="bg-danger/10 border border-danger/30 rounded-xl px-3 py-2 text-left text-xs text-danger">
@@ -393,13 +393,13 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
         <h1 className="text-xl font-black text-text-primary">ICH Management</h1>
 
         <div className="glass-card !p-3 text-left space-y-0.5">
-          <Check id="hem_reverse" label="Reverse anticoagulation (if on any)" sub="Warfarin→VitK+PCC | DOAC→specific reversal | Heparin→Protamine" />
-          <Check id="hem_bp" label="BP control: target SBP 140" sub="Nicardipine 5mg/hr IV or Labetalol 10-20mg IV" />
-          <Check id="hem_neuro" label="📞 Neurosurgery consult" />
-          <Check id="hem_head" label="Head elevation 30°" />
-          <Check id="hem_seizure" label="Seizure prophylaxis" />
-          <Check id="hem_repeat_ct" label="Repeat CT in 6-24hr" />
-          <Check id="hem_labs" label="🔬 Labs: PT/INR, aPTT, Platelet" />
+          <CheckItem id="hem_reverse" label="Reverse anticoagulation (if on any)" sub="Warfarin→VitK+PCC | DOAC→specific reversal | Heparin→Protamine" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="hem_bp" label="BP control: target SBP 140" sub="Nicardipine 5mg/hr IV or Labetalol 10-20mg IV" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="hem_neuro" label="📞 Neurosurgery consult" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="hem_head" label="Head elevation 30°" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="hem_seizure" label="Seizure prophylaxis" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="hem_repeat_ct" label="Repeat CT in 6-24hr" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="hem_labs" label="🔬 Labs: PT/INR, aPTT, Platelet" checklist={checklist} onToggle={toggleCheck} />
         </div>
 
         <button onClick={() => {

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useCaseStore } from '../stores/caseStore';
-import { useTimerStore } from '../stores/timerStore';
 import {
   GraduationCap, Edit, Activity, Lightbulb, Check, X, Trophy,
   Hospital, RefreshCw, ChevronRight, ChevronLeft, PartyPopper,
@@ -8,18 +7,16 @@ import {
 
 // Scenario Engine — overlays on Recording UI
 // Shows scenario text progressively, checks correct actions, tracks score
-export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTakeover }) {
+export default function ScenarioEngine({ scenario, mode, onComplete }) {
   // mode: 'learning' | 'exam'
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [score, setScore] = useState({ correct: 0, wrong: 0, total: 0, reactions: [] });
-  const [wrongCount, setWrongCount] = useState(0);
-  const [stepStartTime, setStepStartTime] = useState(Date.now());
+  const [stepStartTime, setStepStartTime] = useState(() => Date.now());
   const [showFeedback, setShowFeedback] = useState(null); // { correct, message }
   const [completed, setCompleted] = useState(false);
 
   const currentStep = scenario.steps[currentStepIdx];
   const isLearning = mode === 'learning';
-  const maxWrong = 4; // staff takeover after 4 wrong
 
   // Listen for events to detect correct/wrong actions
   const events = useCaseStore(s => s.events);
@@ -73,6 +70,7 @@ export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTake
 
     if (isCorrect) {
       const reactionTime = (Date.now() - stepStartTime) / 1000;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setScore(prev => ({
         ...prev,
         correct: prev.correct + 1,
@@ -95,23 +93,6 @@ export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTake
       }
     }
   }, [events.length]);
-
-  // Handle wrong action (called from outside or detected)
-  const handleWrong = (action) => {
-    const newWrong = wrongCount + 1;
-    setWrongCount(newWrong);
-    setScore(prev => ({ ...prev, wrong: prev.wrong + 1, total: prev.total + 1 }));
-
-    if (isLearning) {
-      const wrongHint = currentStep.wrongActions?.[action] || currentStep.hint_th || 'Try again';
-      setShowFeedback({ correct: false, message: wrongHint });
-      setTimeout(() => setShowFeedback(null), 3000);
-    }
-
-    if (newWrong >= maxWrong) {
-      onStaffTakeover(score);
-    }
-  };
 
   if (!currentStep) return null;
 
@@ -187,7 +168,7 @@ export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTake
 }
 
 // Staff Takeover screen
-export function StaffTakeover({ scenario, score, onRetry, onViewAnswer, onNext }) {
+export function StaffTakeover({ scenario, score, onRetry, onNext }) {
   const avgReaction = score.reactions?.length > 0
     ? (score.reactions.reduce((a, b) => a + b, 0) / score.reactions.length).toFixed(1)
     : '-';
@@ -264,7 +245,7 @@ function ScoreTile({ value, label, tone }) {
 }
 
 // Scenario Complete screen
-export function ScenarioComplete({ scenario, score, mode, onRetry, onNext, onDashboard }) {
+export function ScenarioComplete({ scenario, score, onRetry, onNext, onDashboard }) {
   const avgReaction = score.reactions?.length > 0
     ? (score.reactions.reduce((a, b) => a + b, 0) / score.reactions.length).toFixed(1)
     : '-';

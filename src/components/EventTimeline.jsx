@@ -53,7 +53,7 @@ export default function EventTimeline() {
                 <div className="text-sm font-medium text-text-primary truncate">{event.type}</div>
                 {event.details && Object.keys(event.details).length > 0 && (
                   <div className="text-xs text-text-muted truncate">
-                    {Object.entries(event.details).map(([k, v]) => `${v}`).join(' · ')}
+                    {Object.values(event.details).map(v => `${v}`).join(' · ')}
                   </div>
                 )}
               </div>

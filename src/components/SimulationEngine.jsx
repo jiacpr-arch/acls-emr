@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useCaseStore } from '../stores/caseStore';
-import { useTimerStore } from '../stores/timerStore';
 import { playBeep } from '../utils/sound';
 
 // SimulationEngine v2 — replaces basic ScenarioEngine
@@ -96,20 +95,18 @@ function TeamMessage({ message, type = 'info' }) {
   );
 }
 
-export default function SimulationEngine({ scenario, mode, onComplete, onStaffTakeover }) {
+export default function SimulationEngine({ scenario, mode, onComplete }) {
   const isLearning = mode === 'learning';
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [score, setScore] = useState({ correct: 0, wrong: 0, total: 0, reactions: [], steps: [] });
-  const [wrongCount, setWrongCount] = useState(0);
-  const [stepStartTime, setStepStartTime] = useState(Date.now());
+  const [stepStartTime, setStepStartTime] = useState(() => Date.now());
   const [feedback, setFeedback] = useState(null);
   const [teamMessages, setTeamMessages] = useState([]);
-  const [patientVitals, setPatientVitals] = useState(scenario.steps[0]?.vitals || { hr: 0, bp: '0/0', spo2: 0, etco2: 0 });
+  const [patientVitals, setPatientVitals] = useState(() => scenario.steps[0]?.vitals || { hr: 0, bp: '0/0', spo2: 0, etco2: 0 });
   const [completed, setCompleted] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   const currentStep = scenario.steps[currentStepIdx];
-  const maxWrong = 4;
   const events = useCaseStore(s => s.events);
 
   // Monitor beep based on patient HR
@@ -118,11 +115,14 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
   // Update vitals when step changes
   useEffect(() => {
     if (currentStep?.vitals) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPatientVitals(prev => ({ ...prev, ...currentStep.vitals }));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStepIdx]);
 
   // Listen for correct actions
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!currentStep || completed) return;
     const lastEvent = events[0];
@@ -165,6 +165,7 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
       const reactionTime = (Date.now() - stepStartTime) / 1000;
 
       // Update vitals — patient improves
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPatientVitals(prev => ({
         hr: prev.hr === 0 ? 0 : Math.min(prev.hr + 5, 100),
         bp: prev.bp === '0/0' ? '0/0' : '110/70',
@@ -173,7 +174,7 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
       }));
 
       // Team feedback
-      const teamMsg = currentStep.teamFeedback || `"Roger, ${lastEvent.type?.replace(/[💉💊⚡🫀📈🌬️🔍📊✅❌📞🏥🛡️🖥️👋📋🕊️💚]/g, '').trim()} done"`;
+      const teamMsg = currentStep.teamFeedback || `"Roger, ${lastEvent.type?.replace(/[\p{Emoji_Presentation}\p{Emoji}☀-➿]/gu, '').trim()} done"`;
       setTeamMessages(prev => [teamMsg, ...prev].slice(0, 5));
 
       setScore(prev => ({

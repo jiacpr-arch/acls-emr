@@ -2,6 +2,20 @@ import { useState, useEffect } from 'react';
 import { getAllCases, getFullCase } from '../db/database';
 import { Layers } from 'lucide-react';
 
+function Stat({ label, a, b, better = 'higher', caseA, caseB }) {
+  const aVal = parseFloat(a) || 0;
+  const bVal = parseFloat(b) || 0;
+  const aWin = better === 'higher' ? aVal >= bVal : aVal <= bVal;
+  const bWin = !aWin;
+  return (
+    <div className="grid grid-cols-3 gap-2 items-center py-2 border-b border-border last:border-b-0">
+      <div className={`text-right text-numeric text-base ${aWin && caseB ? 'text-success' : 'text-text-primary'}`}>{a || '—'}</div>
+      <div className="text-center text-[11px] text-text-muted font-semibold uppercase tracking-wide">{label}</div>
+      <div className={`text-left text-numeric text-base ${bWin && caseA ? 'text-success' : 'text-text-primary'}`}>{b || '—'}</div>
+    </div>
+  );
+}
+
 export default function CaseCompare() {
   const [cases, setCases] = useState([]);
   const [caseA, setCaseA] = useState(null);
@@ -13,20 +27,6 @@ export default function CaseCompare() {
 
   useEffect(() => { if (caseA) getFullCase(caseA).then(setDataA); }, [caseA]);
   useEffect(() => { if (caseB) getFullCase(caseB).then(setDataB); }, [caseB]);
-
-  const Stat = ({ label, a, b, better = 'higher' }) => {
-    const aVal = parseFloat(a) || 0;
-    const bVal = parseFloat(b) || 0;
-    const aWin = better === 'higher' ? aVal >= bVal : aVal <= bVal;
-    const bWin = !aWin;
-    return (
-      <div className="grid grid-cols-3 gap-2 items-center py-2 border-b border-border last:border-b-0">
-        <div className={`text-right text-numeric text-base ${aWin && caseB ? 'text-success' : 'text-text-primary'}`}>{a || '—'}</div>
-        <div className="text-center text-[11px] text-text-muted font-semibold uppercase tracking-wide">{label}</div>
-        <div className={`text-left text-numeric text-base ${bWin && caseA ? 'text-success' : 'text-text-primary'}`}>{b || '—'}</div>
-      </div>
-    );
-  };
 
   const getEpiCount = (data) => data?.events?.filter(e => e.category === 'drug' && e.type?.includes('Epinephrine') && !e.type?.includes('Infusion')).length || 0;
   const getShockCount = (data) => data?.events?.filter(e => e.category === 'shock').length || 0;
@@ -82,16 +82,16 @@ export default function CaseCompare() {
             <div className="text-left text-headline text-purple">#{dataB?.id || '—'}</div>
           </div>
 
-          <Stat label="Outcome" a={dataA?.outcome?.toUpperCase()} b={dataB?.outcome?.toUpperCase()} />
-          <Stat label="Duration" a={getDuration(dataA)} b={getDuration(dataB)} better="lower" />
-          <Stat label="CCF %" a={dataA?.ccf ? `${dataA.ccf}%` : '—'} b={dataB?.ccf ? `${dataB.ccf}%` : '—'} better="higher" />
-          <Stat label="CPR Cycles" a={dataA?.cycleNumber} b={dataB?.cycleNumber} />
-          <Stat label="Shocks" a={getShockCount(dataA)} b={getShockCount(dataB)} />
-          <Stat label="Epi Doses" a={getEpiCount(dataA)} b={getEpiCount(dataB)} />
-          <Stat label="Events" a={dataA?.events?.length} b={dataB?.events?.length} />
-          <Stat label="EtCO₂ readings" a={dataA?.etco2Readings?.length} b={dataB?.etco2Readings?.length} />
-          <Stat label="Initial Rhythm" a={dataA?.patient?.initialRhythm} b={dataB?.patient?.initialRhythm} />
-          <Stat label="Mode" a={dataA?.mode?.toUpperCase()} b={dataB?.mode?.toUpperCase()} />
+          <Stat caseA={caseA} caseB={caseB} label="Outcome" a={dataA?.outcome?.toUpperCase()} b={dataB?.outcome?.toUpperCase()} />
+          <Stat caseA={caseA} caseB={caseB} label="Duration" a={getDuration(dataA)} b={getDuration(dataB)} better="lower" />
+          <Stat caseA={caseA} caseB={caseB} label="CCF %" a={dataA?.ccf ? `${dataA.ccf}%` : '—'} b={dataB?.ccf ? `${dataB.ccf}%` : '—'} better="higher" />
+          <Stat caseA={caseA} caseB={caseB} label="CPR Cycles" a={dataA?.cycleNumber} b={dataB?.cycleNumber} />
+          <Stat caseA={caseA} caseB={caseB} label="Shocks" a={getShockCount(dataA)} b={getShockCount(dataB)} />
+          <Stat caseA={caseA} caseB={caseB} label="Epi Doses" a={getEpiCount(dataA)} b={getEpiCount(dataB)} />
+          <Stat caseA={caseA} caseB={caseB} label="Events" a={dataA?.events?.length} b={dataB?.events?.length} />
+          <Stat caseA={caseA} caseB={caseB} label="EtCO₂ readings" a={dataA?.etco2Readings?.length} b={dataB?.etco2Readings?.length} />
+          <Stat caseA={caseA} caseB={caseB} label="Initial Rhythm" a={dataA?.patient?.initialRhythm} b={dataB?.patient?.initialRhythm} />
+          <Stat caseA={caseA} caseB={caseB} label="Mode" a={dataA?.mode?.toUpperCase()} b={dataB?.mode?.toUpperCase()} />
         </div>
       )}
 

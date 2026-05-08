@@ -1,7 +1,7 @@
 import { useTimerStore } from '../stores/timerStore';
 
 export default function CCFGauge() {
-  const { totalCPRTime, elapsed, totalPauseTime, pauses } = useTimerStore();
+  const { totalCPRTime, elapsed, pauses } = useTimerStore();
   const ccf = elapsed > 0 ? Math.round((totalCPRTime / elapsed) * 100) : 0;
 
   const getColor = (val) => {
@@ -20,10 +20,6 @@ export default function CCFGauge() {
   const radius = 36;
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - (ccf / 100) * circumference;
-
-  const longestPause = pauses.length > 0
-    ? Math.max(...pauses.map(p => p.duration || 0))
-    : 0;
 
   return (
     <div className="bg-bg-secondary rounded-xl p-3">

@@ -1,10 +1,28 @@
 import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
-import { useSettingsStore } from '../stores/settingsStore';
 import { exportCasePDF } from '../utils/exportPDF';
 import { calculateScore } from '../utils/scoring';
 import ScrollPicker from './ScrollPicker';
+
+function CheckItem({ id, label, sub, checklist, onToggle }) {
+  const checked = !!checklist?.[id];
+  const stringLabel = typeof label === 'string' ? label : id;
+  return (
+    <button onClick={() => onToggle(id, stringLabel)}
+      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
+        checked ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
+      }`}>
+      <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
+        checked ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
+      }`}>{checked ? '✓' : ''}</span>
+      <div>
+        <div className="text-xs font-semibold text-text-primary">{label}</div>
+        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
+      </div>
+    </button>
+  );
+}
 
 // Post-ROSC needs actual value entry, not just checkboxes
 
@@ -38,20 +56,6 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
     });
   };
 
-  const Check = ({ id, label, sub }) => (
-    <button onClick={() => toggleCheck(id, label)}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
-        checklist[id] ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
-      }`}>
-      <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
-        checklist[id] ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
-      }`}>{checklist[id] ? '✓' : ''}</span>
-      <div>
-        <div className="text-xs font-semibold text-text-primary">{label}</div>
-        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
-      </div>
-    </button>
-  );
 
   const totalItems = 15;
   const doneItems = Object.values(checklist).filter(Boolean).length;
@@ -113,7 +117,7 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
         {tab === 'airway' && (
           <div className="space-y-2">
             <div className="text-xs font-semibold text-text-muted mb-1">Airway & Oxygenation</div>
-            <Check id="airway_secure" label="Secure airway — confirm ETT position" sub="EtCO₂ waveform + auscultation + CXR" />
+            <CheckItem id="airway_secure" label="Secure airway — confirm ETT position" sub="EtCO₂ waveform + auscultation + CXR" checklist={checklist} onToggle={toggleCheck} />
             <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" targetLow={92} targetHigh={98} alertLow={92} />
             {spo2 < 92 && (
               <div className="bg-danger/10 border border-danger/30 rounded-lg px-2 py-1.5 text-[10px] text-danger font-bold">
@@ -126,9 +130,9 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
               </div>
             )}
             <ScrollPicker label="FiO₂" value={fio2} onChange={setFio2} min={21} max={100} step={1} unit="%" />
-            <Check id="o2_titrate" label={`SpO₂ ${spo2}% — ${spo2 > 98 ? '⚠️ Reduce FiO₂' : spo2 < 92 ? '⚠️ Increase FiO₂' : '✅ Target range'}`} />
+            <CheckItem id="o2_titrate" label={`SpO₂ ${spo2}% — ${spo2 > 98 ? '⚠️ Reduce FiO₂' : spo2 < 92 ? '⚠️ Increase FiO₂' : '✅ Target range'}`} checklist={checklist} onToggle={toggleCheck} />
             <ScrollPicker label="EtCO₂" value={etco2} onChange={setEtco2} min={0} max={80} step={1} unit="mmHg" targetLow={35} targetHigh={45} alertLow={35} />
-            <Check id="etco2_confirm" label={`EtCO₂ ${etco2} mmHg — ${etco2 < 35 ? '⚠️ Hypoventilation risk' : etco2 > 45 ? '⚠️ Hyperventilation' : '✅ Target range'}`} />
+            <CheckItem id="etco2_confirm" label={`EtCO₂ ${etco2} mmHg — ${etco2 < 35 ? '⚠️ Hypoventilation risk' : etco2 > 45 ? '⚠️ Hyperventilation' : '✅ Target range'}`} checklist={checklist} onToggle={toggleCheck} />
           </div>
         )}
 
@@ -144,16 +148,16 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
             <ScrollPicker label="Heart Rate" value={hr} onChange={setHr} min={20} max={250} step={5} unit="bpm" />
             <ScrollPicker label="RR" value={rr} onChange={setRr} min={4} max={40} step={1} unit="/min" />
             <ScrollPicker label="Temperature" value={temp} onChange={v => setTemp(Math.round(v * 10) / 10)} min={32} max={42} step={0.1} unit="°C" alertHigh={37.5} />
-            <Check id="vitals_check" label={`Vitals recorded: BP ${bpSys}/${bpDia} MAP ${map} HR ${hr}`} />
-            <Check id="map_65" label={map >= 65 ? '✅ MAP ≥ 65' : '⚠️ MAP < 65 — need vasopressor'} />
-            <Check id="fluid_vaso" label="IV fluid / Vasopressor if needed" sub="NSS 250-500ml → Norepinephrine 0.1-0.5 mcg/kg/min" />
+            <CheckItem id="vitals_check" label={`Vitals recorded: BP ${bpSys}/${bpDia} MAP ${map} HR ${hr}`} checklist={checklist} onToggle={toggleCheck} />
+            <CheckItem id="map_65" label={map >= 65 ? '✅ MAP ≥ 65' : '⚠️ MAP < 65 — need vasopressor'} checklist={checklist} onToggle={toggleCheck} />
+            <CheckItem id="fluid_vaso" label="IV fluid / Vasopressor if needed" sub="NSS 250-500ml → Norepinephrine 0.1-0.5 mcg/kg/min" checklist={checklist} onToggle={toggleCheck} />
           </div>
         )}
 
         {tab === 'ecg' && (
           <div className="space-y-2">
             <div className="text-xs font-semibold text-text-muted mb-1">12-Lead ECG — What rhythm?</div>
-            <Check id="ecg_12lead" label="📈 12-Lead ECG done" sub="📸 Take photo for record" />
+            <CheckItem id="ecg_12lead" label="📈 12-Lead ECG done" sub="📸 Take photo for record" checklist={checklist} onToggle={toggleCheck} />
 
             <div className="text-xs font-semibold text-text-muted mt-2 mb-1">Rhythm Result → May need further treatment:</div>
             <div className="grid grid-cols-2 gap-1.5">
@@ -192,23 +196,23 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
         {tab === 'ttm' && (
           <div className="space-y-0.5">
             <div className="text-xs font-semibold text-text-muted mb-2">TTM (Targeted Temperature Management)</div>
-            <Check id="ttm_assess" label="Assess: follows commands?" sub="If NO command → start TTM 32-36°C x ≥24hr" />
-            <Check id="ttm_start" label="TTM initiated / not indicated" sub="Surface cooling / intravascular / Cold NSS 4°C" />
+            <CheckItem id="ttm_assess" label="Assess: follows commands?" sub="If NO command → start TTM 32-36°C x ≥24hr" checklist={checklist} onToggle={toggleCheck} />
+            <CheckItem id="ttm_start" label="TTM initiated / not indicated" sub="Surface cooling / intravascular / Cold NSS 4°C" checklist={checklist} onToggle={toggleCheck} />
           </div>
         )}
 
         {tab === 'labs' && (
           <div className="space-y-0.5">
             <div className="text-xs font-semibold text-text-muted mb-2">Labs & Glucose</div>
-            <Check id="labs_order" label="Labs: CBC, BMP, Mg, Ca, Troponin, Lactate, ABG, Coag" />
-            <Check id="glucose_ctrl" label="Glucose 140-180 mg/dL" sub="⚠️ <140 avoid hypoglycemia | >180 insulin" />
+            <CheckItem id="labs_order" label="Labs: CBC, BMP, Mg, Ca, Troponin, Lactate, ABG, Coag" checklist={checklist} onToggle={toggleCheck} />
+            <CheckItem id="glucose_ctrl" label="Glucose 140-180 mg/dL" sub="⚠️ <140 avoid hypoglycemia | >180 insulin" checklist={checklist} onToggle={toggleCheck} />
           </div>
         )}
 
         {tab === 'neuro' && (
           <div className="space-y-2">
             <div className="text-xs font-semibold text-text-muted mb-1">Neurological</div>
-            <Check id="neuro_gcs" label="GCS + Pupil assessment" sub="Bilateral fixed dilated = poor prognosis" />
+            <CheckItem id="neuro_gcs" label="GCS + Pupil assessment" sub="Bilateral fixed dilated = poor prognosis" checklist={checklist} onToggle={toggleCheck} />
 
             <div className="text-xs text-text-muted font-semibold mt-2 mb-1">Follow Command?</div>
             <div className="grid grid-cols-2 gap-2">
@@ -225,14 +229,14 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
               <div className="text-xs text-warning font-bold mt-1">⚠️ No command → Start TTM 32-36°C ≥24hr</div>
             )}
 
-            <Check id="seizure_check" label="Seizure assessment" sub="If seizure → Levetiracetam 20mg/kg IV" />
+            <CheckItem id="seizure_check" label="Seizure assessment" sub="If seizure → Levetiracetam 20mg/kg IV" checklist={checklist} onToggle={toggleCheck} />
           </div>
         )}
 
         {tab === 'consult' && (
           <div className="space-y-0.5">
             <div className="text-xs font-semibold text-text-muted mb-2">Consult & Disposition</div>
-            <Check id="consult_done" label="Consult + Disposition planned" sub="Cardiology / Neurology / ICU / CCU / Cath lab" />
+            <CheckItem id="consult_done" label="Consult + Disposition planned" sub="Cardiology / Neurology / ICU / CCU / Cath lab" checklist={checklist} onToggle={toggleCheck} />
           </div>
         )}
       </div>

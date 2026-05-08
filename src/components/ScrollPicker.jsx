@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 // Scroll/slider picker — no keyboard input
 // Used for vitals, labs, drug doses, etc.
 export default function ScrollPicker({
