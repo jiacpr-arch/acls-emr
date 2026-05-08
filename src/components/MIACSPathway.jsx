@@ -1,8 +1,24 @@
 import { useState } from 'react';
-import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import { HeartPulse } from 'lucide-react';
+
+function CheckItem({ label, sub, checked, onToggle }) {
+  return (
+    <button onClick={onToggle}
+      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
+        checked ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
+      }`}>
+      <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
+        checked ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
+      }`}>{checked ? '✓' : ''}</span>
+      <div>
+        <div className="text-xs font-semibold text-text-primary">{label}</div>
+        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
+      </div>
+    </button>
+  );
+}
 
 // MI/ACS Pathway — AHA Guideline
 // Flow: Symptoms → MONA → 12-Lead ECG → STEMI vs NSTEMI → PCI/Fibrinolytic/Medical
@@ -11,7 +27,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
   const [phase, setPhase] = useState('initial');
   const [checklist, setChecklist] = useState({});
   const [painScore, setPainScore] = useState(7);
-  const [ecgResult, setEcgResult] = useState(null);
+  const [, setEcgResult] = useState(null);
   const [timiScore, setTimiScore] = useState({});
   const [d2bStart, setD2bStart] = useState(null);
   const [d2nStart, setD2nStart] = useState(null);
@@ -23,21 +39,6 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
       return updated;
     });
   };
-
-  const Check = ({ id, label, sub }) => (
-    <button onClick={() => toggleCheck(id)}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
-        checklist[id] ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
-      }`}>
-      <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
-        checklist[id] ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
-      }`}>{checklist[id] ? '✓' : ''}</span>
-      <div>
-        <div className="text-xs font-semibold text-text-primary">{label}</div>
-        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
-      </div>
-    </button>
-  );
 
   // ===== INITIAL ASSESSMENT =====
   if (phase === 'initial') {
@@ -57,11 +58,11 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
         {/* Symptoms checklist */}
         <div className="glass-card !p-3 text-left">
           <div className="text-xs text-text-muted font-semibold mb-2">Presenting Symptoms</div>
-          <Check id="chest_pain" label="Chest pain / tightness" sub="Substernal, pressure, squeezing" />
-          <Check id="radiating" label="Radiating to arm / jaw / back" />
-          <Check id="diaphoresis" label="Diaphoresis (sweating)" />
-          <Check id="nausea" label="Nausea / vomiting" />
-          <Check id="dyspnea" label="Dyspnea (shortness of breath)" />
+          <CheckItem id="chest_pain" label="Chest pain / tightness" sub="Substernal, pressure, squeezing" checked={!!checklist['chest_pain']} onToggle={() => toggleCheck('chest_pain')} />
+          <CheckItem id="radiating" label="Radiating to arm / jaw / back" checked={!!checklist['radiating']} onToggle={() => toggleCheck('radiating')} />
+          <CheckItem id="diaphoresis" label="Diaphoresis (sweating)" checked={!!checklist['diaphoresis']} onToggle={() => toggleCheck('diaphoresis')} />
+          <CheckItem id="nausea" label="Nausea / vomiting" checked={!!checklist['nausea']} onToggle={() => toggleCheck('nausea')} />
+          <CheckItem id="dyspnea" label="Dyspnea (shortness of breath)" checked={!!checklist['dyspnea']} onToggle={() => toggleCheck('dyspnea')} />
         </div>
 
         {/* Pain score */}
@@ -93,22 +94,22 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
         <div className="glass-card !p-3 text-left space-y-0.5">
           <div className="text-xs text-text-muted font-semibold mb-2">Do these NOW (tick as done)</div>
 
-          <Check id="ecg_12lead" label="📈 12-Lead ECG (within 10 min)"
-            sub="📸 Take photo for record" />
+          <CheckItem id="ecg_12lead" label="📈 12-Lead ECG (within 10 min)"
+            sub="📸 Take photo for record" checked={!!checklist['ecg_12lead']} onToggle={() => toggleCheck('ecg_12lead')} />
 
-          <Check id="iv_access" label="💉 IV Access" />
+          <CheckItem id="iv_access" label="💉 IV Access" checked={!!checklist['iv_access']} onToggle={() => toggleCheck('iv_access')} />
 
-          <Check id="aspirin" label="💊 Aspirin 325mg — CHEW & swallow"
-            sub="Non-enteric coated. Give to ALL ACS unless true allergy." />
+          <CheckItem id="aspirin" label="💊 Aspirin 325mg — CHEW & swallow"
+            sub="Non-enteric coated. Give to ALL ACS unless true allergy." checked={!!checklist['aspirin']} onToggle={() => toggleCheck('aspirin')} />
 
-          <Check id="ntg" label="💊 NTG 0.4mg Sublingual"
-            sub="⚠️ CI: SBP<90, RV infarct, PDE5 inhibitor 24-48hr. Repeat q5min x3." />
+          <CheckItem id="ntg" label="💊 NTG 0.4mg Sublingual"
+            sub="⚠️ CI: SBP<90, RV infarct, PDE5 inhibitor 24-48hr. Repeat q5min x3." checked={!!checklist['ntg']} onToggle={() => toggleCheck('ntg')} />
 
-          <Check id="morphine" label="💉 Morphine 2-4mg IV (if pain persists)"
-            sub="IV push slow 1-2min. Only after NTG x3 failed. Watch BP." />
+          <CheckItem id="morphine" label="💉 Morphine 2-4mg IV (if pain persists)"
+            sub="IV push slow 1-2min. Only after NTG x3 failed. Watch BP." checked={!!checklist['morphine']} onToggle={() => toggleCheck('morphine')} />
 
-          <Check id="o2" label="🫁 O₂ if SpO₂ < 94%"
-            sub="Titrate to SpO₂ 94-98%. Avoid hyperoxia." />
+          <CheckItem id="o2" label="🫁 O₂ if SpO₂ < 94%"
+            sub="Titrate to SpO₂ 94-98%. Avoid hyperoxia." checked={!!checklist['o2']} onToggle={() => toggleCheck('o2')} />
         </div>
 
         {checklist.ntg && (
@@ -203,21 +204,21 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
         <div className="glass-card !p-3 text-left space-y-0.5">
           <div className="text-xs text-text-muted font-semibold mb-2">STEMI Checklist</div>
 
-          <Check id="activate_cath" label="📞 Activate Cath Lab / Call Cardio"
-            sub="Start Door-to-Balloon timer" />
+          <CheckItem id="activate_cath" label="📞 Activate Cath Lab / Call Cardio"
+            sub="Start Door-to-Balloon timer" checked={!!checklist['activate_cath']} onToggle={() => toggleCheck('activate_cath')} />
 
-          <Check id="antiplatelet" label="💊 Antiplatelet Loading" sub="Clopidogrel 600mg OR Ticagrelor 180mg" />
+          <CheckItem id="antiplatelet" label="💊 Antiplatelet Loading" sub="Clopidogrel 600mg OR Ticagrelor 180mg" checked={!!checklist['antiplatelet']} onToggle={() => toggleCheck('antiplatelet')} />
 
-          <Check id="heparin_bolus" label="💉 Heparin 60u/kg IV bolus (max 4000u)"
-            sub="Weight-based — flush after" />
+          <CheckItem id="heparin_bolus" label="💉 Heparin 60u/kg IV bolus (max 4000u)"
+            sub="Weight-based — flush after" checked={!!checklist['heparin_bolus']} onToggle={() => toggleCheck('heparin_bolus')} />
 
-          <Check id="heparin_drip" label="💉 Heparin 12u/kg/hr drip (max 1000u/hr)"
-            sub="Target aPTT 50-70 sec" />
+          <CheckItem id="heparin_drip" label="💉 Heparin 12u/kg/hr drip (max 1000u/hr)"
+            sub="Target aPTT 50-70 sec" checked={!!checklist['heparin_drip']} onToggle={() => toggleCheck('heparin_drip')} />
 
-          <Check id="beta_blocker" label="💊 Beta-blocker (if no CI)"
-            sub="Metoprolol 5mg IV q5min x3. CI: HR<60, SBP<100, HF, Asthma" />
+          <CheckItem id="beta_blocker" label="💊 Beta-blocker (if no CI)"
+            sub="Metoprolol 5mg IV q5min x3. CI: HR<60, SBP<100, HF, Asthma" checked={!!checklist['beta_blocker']} onToggle={() => toggleCheck('beta_blocker')} />
 
-          <Check id="statin" label="💊 Atorvastatin 80mg PO" />
+          <CheckItem id="statin" label="💊 Atorvastatin 80mg PO" checked={!!checklist['statin']} onToggle={() => toggleCheck('statin')} />
         </div>
 
         {!d2bStart && (
@@ -269,19 +270,19 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
 
         <div className="glass-card !p-3 text-left space-y-0.5">
           <div className="text-xs font-semibold text-success mb-2">✅ Inclusion (must meet ALL)</div>
-          <Check id="fib_st" label="ST elevation ≥1mm in ≥2 leads" />
-          <Check id="fib_onset" label="Onset < 12 hours" />
-          <Check id="fib_no_pci" label="Cannot PCI within 120 min" />
+          <CheckItem id="fib_st" label="ST elevation ≥1mm in ≥2 leads" checked={!!checklist['fib_st']} onToggle={() => toggleCheck('fib_st')} />
+          <CheckItem id="fib_onset" label="Onset < 12 hours" checked={!!checklist['fib_onset']} onToggle={() => toggleCheck('fib_onset')} />
+          <CheckItem id="fib_no_pci" label="Cannot PCI within 120 min" checked={!!checklist['fib_no_pci']} onToggle={() => toggleCheck('fib_no_pci')} />
         </div>
 
         <div className="glass-card !p-3 text-left space-y-0.5">
           <div className="text-xs font-semibold text-danger mb-2">❌ Contraindications (must have NONE)</div>
-          <Check id="fib_no_bleed" label="No active bleeding" />
-          <Check id="fib_no_ich" label="No prior ICH" />
-          <Check id="fib_no_stroke" label="No ischemic stroke <3 months" />
-          <Check id="fib_no_tumor" label="No brain tumor / AVM" />
-          <Check id="fib_no_surgery" label="No major surgery <3 weeks" />
-          <Check id="fib_bp_ok" label="BP < 185/110" />
+          <CheckItem id="fib_no_bleed" label="No active bleeding" checked={!!checklist['fib_no_bleed']} onToggle={() => toggleCheck('fib_no_bleed')} />
+          <CheckItem id="fib_no_ich" label="No prior ICH" checked={!!checklist['fib_no_ich']} onToggle={() => toggleCheck('fib_no_ich')} />
+          <CheckItem id="fib_no_stroke" label="No ischemic stroke <3 months" checked={!!checklist['fib_no_stroke']} onToggle={() => toggleCheck('fib_no_stroke')} />
+          <CheckItem id="fib_no_tumor" label="No brain tumor / AVM" checked={!!checklist['fib_no_tumor']} onToggle={() => toggleCheck('fib_no_tumor')} />
+          <CheckItem id="fib_no_surgery" label="No major surgery <3 weeks" checked={!!checklist['fib_no_surgery']} onToggle={() => toggleCheck('fib_no_surgery')} />
+          <CheckItem id="fib_bp_ok" label="BP < 185/110" checked={!!checklist['fib_bp_ok']} onToggle={() => toggleCheck('fib_bp_ok')} />
         </div>
 
         {!d2nStart && (
@@ -357,13 +358,13 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
           {timiTotal >= 3 && timiTotal < 5 && <div className="text-xs text-warning font-bold mb-1">Intermediate → Invasive (&lt;72hr)</div>}
           {timiTotal < 3 && <div className="text-xs text-success font-bold mb-1">Low Risk → Medical management</div>}
 
-          <Check id="nst_antiplatelet" label="💊 Antiplatelet (Clopidogrel/Ticagrelor)" />
-          <Check id="nst_anticoag" label="💉 Anticoagulation (Heparin/Enoxaparin)" />
-          <Check id="nst_beta" label="💊 Beta-blocker" />
-          <Check id="nst_statin" label="💊 High-dose Statin" />
-          <Check id="nst_serial_ecg" label="📈 Serial ECG monitoring" />
-          <Check id="nst_serial_trop" label="🔬 Serial Troponin q6hr" />
-          <Check id="nst_cardio" label="📞 Cardiology consult" />
+          <CheckItem id="nst_antiplatelet" label="💊 Antiplatelet (Clopidogrel/Ticagrelor)" checked={!!checklist['nst_antiplatelet']} onToggle={() => toggleCheck('nst_antiplatelet')} />
+          <CheckItem id="nst_anticoag" label="💉 Anticoagulation (Heparin/Enoxaparin)" checked={!!checklist['nst_anticoag']} onToggle={() => toggleCheck('nst_anticoag')} />
+          <CheckItem id="nst_beta" label="💊 Beta-blocker" checked={!!checklist['nst_beta']} onToggle={() => toggleCheck('nst_beta')} />
+          <CheckItem id="nst_statin" label="💊 High-dose Statin" checked={!!checklist['nst_statin']} onToggle={() => toggleCheck('nst_statin')} />
+          <CheckItem id="nst_serial_ecg" label="📈 Serial ECG monitoring" checked={!!checklist['nst_serial_ecg']} onToggle={() => toggleCheck('nst_serial_ecg')} />
+          <CheckItem id="nst_serial_trop" label="🔬 Serial Troponin q6hr" checked={!!checklist['nst_serial_trop']} onToggle={() => toggleCheck('nst_serial_trop')} />
+          <CheckItem id="nst_cardio" label="📞 Cardiology consult" checked={!!checklist['nst_cardio']} onToggle={() => toggleCheck('nst_cardio')} />
         </div>
 
         <button onClick={() => {

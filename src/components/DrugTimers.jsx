@@ -3,7 +3,7 @@ import { useCaseStore } from '../stores/caseStore';
 
 export default function DrugTimers() {
   const { drugTimers, removeDrugTimer } = useCaseStore();
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     if (drugTimers.length === 0) return;

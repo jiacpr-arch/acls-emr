@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCaseStore } from '../stores/caseStore';
 import { getActiveSession, clearActiveSession } from '../stores/caseStore';
@@ -14,12 +14,7 @@ export default function NewCase() {
   const { createCase, restoreSession } = useCaseStore();
   const mode = useSettingsStore(s => s.mode);
   const [loading, setLoading] = useState(false);
-  const [activeSession, setActiveSession] = useState(null);
-
-  useEffect(() => {
-    const session = getActiveSession();
-    if (session) setActiveSession(session);
-  }, []);
+  const [activeSession, setActiveSession] = useState(() => getActiveSession());
 
   const handleStart = async (startMode) => {
     if (loading) return;

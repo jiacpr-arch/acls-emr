@@ -713,8 +713,13 @@ function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {
   const showCPRCycle = cprSteps.includes(currentStep);
 
   // Show drug interval timers for Brady/Tachy
-  const now = Date.now();
+  const [now, setNow] = useState(() => Date.now());
   const activeTimers = drugTimers.filter(t => t.isActive);
+  useEffect(() => {
+    if (activeTimers.length === 0) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [activeTimers.length]);
 
   return (
     <div className="timer-bar px-4 py-2.5 shrink-0">
