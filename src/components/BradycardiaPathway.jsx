@@ -15,7 +15,6 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
   const [phase, setPhase] = useState('vitals'); // vitals → assess → ...
   const [atropineCount, setAtropineCount] = useState(0);
   const [rhythmType, setRhythmType] = useState(null);
-  const [checklist, setChecklist] = useState({});
 
   // Quick vitals
   const [bpSys, setBpSys] = useState(120);
@@ -27,14 +26,12 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
   const map = Math.round((bpSys + 2 * bpDia) / 3);
   const autoSymptomatic = bpSys < 90 || map < 65 || (avpu && avpu !== 'A');
 
-  const toggleCheck = (key) => setChecklist(prev => ({ ...prev, [key]: !prev[key] }));
-
   // TCP Step (inline)
   const [tcpPhase, setTcpPhase] = useState('setup');
   const [tcpMode, setTcpMode] = useState('Demand');
   const [tcpRate, setTcpRate] = useState(60);
   const [tcpOutput, setTcpOutput] = useState(0);
-  const [tcpCaptured, setTcpCaptured] = useState(false);
+  const [, setTcpCaptured] = useState(false);
   const [tcpThreshold, setTcpThreshold] = useState(null);
 
   const saveVitals = () => {

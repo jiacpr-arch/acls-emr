@@ -7,10 +7,31 @@ import {
   Activity, Check as CheckIcon, AlertTriangle, AlertCircle, RefreshCw, ChevronLeft,
 } from 'lucide-react';
 
+function CheckItem({ id, label, sub, checklist, onToggle }) {
+  const checked = !!checklist?.[id];
+  const stringLabel = typeof label === 'string' ? label : id;
+  return (
+    <button onClick={() => onToggle(id, stringLabel)}
+      className={`w-full flex items-center gap-2.5 px-3 py-2.5 mb-1.5 text-left transition-colors border ${
+        checked ? 'bg-success/10 border-success/30' : 'bg-bg-primary border-border'
+      }`} style={{ borderRadius: 'var(--radius)' }}>
+      <span className={`w-5 h-5 inline-flex items-center justify-center shrink-0 ${
+        checked ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
+      }`} style={{ borderRadius: 'var(--radius-sm)' }}>
+        {checked && <CheckIcon size={12} strokeWidth={2.6} />}
+      </span>
+      <div>
+        <div className="text-caption font-semibold text-text-primary">{label}</div>
+        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
+      </div>
+    </button>
+  );
+}
+
 // Stable Monitor — used after treatment when patient is stable
 // Re-assess vitals + EKG → stable? → disposition
 // Used by: post-cardioversion, post-atropine, post-drug, PULSE_NORMAL
-export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTraining }) {
+export default function StableMonitor({ onRecheckPulse, onArrest, onDone }) {
   const addEvent = useCaseStore(s => s.addEvent);
   const elapsed = useTimerStore(s => s.elapsed);
   const [phase, setPhase] = useState('reassess'); // reassess → disposition
@@ -34,23 +55,6 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
       return updated;
     });
   };
-
-  const Check = ({ id, label, sub }) => (
-    <button onClick={() => toggleCheck(id, label)}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 mb-1.5 text-left transition-colors border ${
-        checklist[id] ? 'bg-success/10 border-success/30' : 'bg-bg-primary border-border'
-      }`} style={{ borderRadius: 'var(--radius)' }}>
-      <span className={`w-5 h-5 inline-flex items-center justify-center shrink-0 ${
-        checklist[id] ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
-      }`} style={{ borderRadius: 'var(--radius-sm)' }}>
-        {checklist[id] && <CheckIcon size={12} strokeWidth={2.6} />}
-      </span>
-      <div>
-        <div className="text-caption font-semibold text-text-primary">{label}</div>
-        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
-      </div>
-    </button>
-  );
 
   const saveVitals = () => {
     addEvent({ elapsed, category: 'other', type: `📊 Re-assess: BP ${bpSys}/${bpDia} (MAP ${map}) HR ${hr} SpO₂ ${spo2}% RR ${rr} ${avpu}`, details: { bpSys, bpDia, map, hr, spo2, rr, avpu } });
@@ -103,11 +107,11 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
         {/* Checklist */}
         <div className="dash-card !p-3 text-left">
           <div className="text-xs text-text-muted font-semibold mb-2">Monitoring Checklist</div>
-          <Check id="ecg_recheck" label="📈 12-Lead ECG (re-check)" sub="What rhythm now? Any changes?" />
-          <Check id="iv_access" label="💉 IV Access confirmed" />
-          <Check id="o2_check" label="🫁 O₂ if SpO₂ < 94%" />
-          <Check id="labs_sent" label="🔬 Labs sent (CBC, BMP, Troponin)" />
-          <Check id="monitor_continuous" label="🖥️ Continuous monitoring" />
+          <CheckItem id="ecg_recheck" label="📈 12-Lead ECG (re-check)" sub="What rhythm now? Any changes?" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="iv_access" label="💉 IV Access confirmed" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="o2_check" label="🫁 O₂ if SpO₂ < 94%" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="labs_sent" label="🔬 Labs sent (CBC, BMP, Troponin)" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="monitor_continuous" label="🖥️ Continuous monitoring" checklist={checklist} onToggle={toggleCheck} />
         </div>
 
         <button onClick={() => {
@@ -148,10 +152,10 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
 
         <div className="dash-card !p-3 text-left">
           <div className="text-xs text-text-muted font-semibold mb-2">Disposition</div>
-          <Check id="handover" label="📋 SBAR Handover" sub="Situation, Background, Assessment, Recommendation" />
-          <Check id="consult" label="📞 Consult (Cardiology / Neurology / ICU)" />
-          <Check id="family" label="👥 Family informed" />
-          <Check id="documentation" label="📝 Documentation complete" />
+          <CheckItem id="handover" label="📋 SBAR Handover" sub="Situation, Background, Assessment, Recommendation" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="consult" label="📞 Consult (Cardiology / Neurology / ICU)" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="family" label="👥 Family informed" checklist={checklist} onToggle={toggleCheck} />
+          <CheckItem id="documentation" label="📝 Documentation complete" checklist={checklist} onToggle={toggleCheck} />
         </div>
 
         <div className="dash-card !p-3 text-left">

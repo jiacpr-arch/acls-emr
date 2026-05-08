@@ -1,7 +1,6 @@
 // Web Worker for accurate timer — runs even when tab is hidden
 let intervalId = null;
 let startTime = null;
-let pausedElapsed = 0;
 
 self.onmessage = function (e) {
   const { type, payload } = e.data;
@@ -9,7 +8,6 @@ self.onmessage = function (e) {
   switch (type) {
     case 'START':
       startTime = Date.now() - (payload?.elapsed || 0) * 1000;
-      pausedElapsed = 0;
       if (intervalId) clearInterval(intervalId);
       intervalId = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
@@ -30,7 +28,6 @@ self.onmessage = function (e) {
         intervalId = null;
       }
       startTime = null;
-      pausedElapsed = 0;
       self.postMessage({ type: 'TICK', elapsed: 0 });
       break;
 

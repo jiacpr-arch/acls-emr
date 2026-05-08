@@ -1,5 +1,3 @@
-import { useCaseStore } from '../stores/caseStore';
-import { useTimerStore } from '../stores/timerStore';
 import { formatTimeLong } from '../utils/formatTime';
 import { exportCasePDF } from '../utils/exportPDF';
 import { Download, Share, MessageSquare, Mail, Copy, X } from 'lucide-react';

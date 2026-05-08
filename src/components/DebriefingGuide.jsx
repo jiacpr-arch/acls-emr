@@ -7,8 +7,8 @@ import { BarChart3, Check, AlertTriangle, Target } from 'lucide-react';
 // Debriefing Guide — auto-generated post-case analysis
 // Shows: what went well, what to improve, action plan
 export default function DebriefingGuide({ onClose }) {
-  const { events, patient, shockCount, etco2Readings } = useCaseStore();
-  const { elapsed, getCCF, totalCPRTime, totalPauseTime, cycleNumber } = useTimerStore();
+  const { events, shockCount } = useCaseStore();
+  const { elapsed, getCCF, cycleNumber } = useTimerStore();
 
   const ccf = getCCF();
   const epiEvents = events.filter(e => e.category === 'drug' && e.type?.includes('Epinephrine') && !e.type?.includes('Infusion'));

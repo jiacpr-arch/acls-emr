@@ -56,11 +56,8 @@ export function EventLogPanel({ onClose }) {
   );
 }
 
-// ===== PATIENT INFO PANEL =====
-export function PatientInfoPanel({ onClose }) {
-  const { patient, updatePatient } = useCaseStore();
-
-  const Field = ({ label, field, placeholder, type = 'text' }) => (
+function PatientField({ label, field, placeholder, type = 'text', patient, updatePatient }) {
+  return (
     <div>
       <label className="text-overline">{label}</label>
       <input type={type} value={patient[field] || ''}
@@ -69,17 +66,23 @@ export function PatientInfoPanel({ onClose }) {
         className="w-full mt-1 text-body" />
     </div>
   );
+}
+
+// ===== PATIENT INFO PANEL =====
+export function PatientInfoPanel({ onClose }) {
+  const { patient, updatePatient } = useCaseStore();
+  const fieldProps = { patient, updatePatient };
 
   return (
     <PanelWrapper title="Patient Information" icon={<User size={18} strokeWidth={2.2} />} onClose={onClose}>
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <Field label="HN" field="hn" placeholder="Hospital Number" />
-          <Field label="Name" field="name" placeholder="Patient Name" />
+          <PatientField {...fieldProps} label="HN" field="hn" placeholder="Hospital Number" />
+          <PatientField {...fieldProps} label="Name" field="name" placeholder="Patient Name" />
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <Field label="Age" field="age" placeholder="Age" type="number" />
-          <Field label="Weight (kg)" field="weight" placeholder="kg" type="number" />
+          <PatientField {...fieldProps} label="Age" field="age" placeholder="Age" type="number" />
+          <PatientField {...fieldProps} label="Weight (kg)" field="weight" placeholder="kg" type="number" />
           <div>
             <label className="text-overline">Gender</label>
             <div className="flex gap-1.5 mt-1">
@@ -94,11 +97,11 @@ export function PatientInfoPanel({ onClose }) {
             </div>
           </div>
         </div>
-        <Field label="Chief Complaint" field="chiefComplaint" placeholder="Reason for arrest / presentation" />
-        <Field label="Location" field="location" placeholder="Ward / ER / ICU / Outside hospital" />
-        <Field label="PMH" field="pmh" placeholder="Past medical history (comma separated)" />
-        <Field label="Medications" field="medications" placeholder="Current medications" />
-        <Field label="Allergies" field="allergies" placeholder="Drug allergies" />
+        <PatientField {...fieldProps} label="Chief Complaint" field="chiefComplaint" placeholder="Reason for arrest / presentation" />
+        <PatientField {...fieldProps} label="Location" field="location" placeholder="Ward / ER / ICU / Outside hospital" />
+        <PatientField {...fieldProps} label="PMH" field="pmh" placeholder="Past medical history (comma separated)" />
+        <PatientField {...fieldProps} label="Medications" field="medications" placeholder="Current medications" />
+        <PatientField {...fieldProps} label="Allergies" field="allergies" placeholder="Drug allergies" />
         <div className="grid grid-cols-2 gap-3">
           <YesNoField label="Witnessed?" field="witnessed" patient={patient} updatePatient={updatePatient} />
           <YesNoField label="Bystander CPR?" field="bystanderCPR" patient={patient} updatePatient={updatePatient} />
@@ -126,29 +129,32 @@ function YesNoField({ label, field, patient, updatePatient }) {
   );
 }
 
-// ===== TEAM PANEL =====
-export function TeamPanel({ onClose }) {
-  const { team, setTeam } = useCaseStore();
-  const updateField = (field, value) => setTeam({ ...team, [field]: value });
-
-  const RoleField = ({ Icon, label, field, placeholder }) => (
+function RoleField({ Icon, label, field, placeholder, team, onUpdate }) {
+  return (
     <div>
       <label className="text-overline inline-flex items-center gap-1.5">
         <Icon size={11} strokeWidth={2.2} /> {label}
       </label>
-      <input type="text" value={team[field] || ''} onChange={e => updateField(field, e.target.value)}
+      <input type="text" value={team[field] || ''} onChange={e => onUpdate(field, e.target.value)}
         placeholder={placeholder}
         className="w-full mt-1 text-body" />
     </div>
   );
+}
+
+// ===== TEAM PANEL =====
+export function TeamPanel({ onClose }) {
+  const { team, setTeam } = useCaseStore();
+  const updateField = (field, value) => setTeam({ ...team, [field]: value });
+  const roleProps = { team, onUpdate: updateField };
 
   return (
     <PanelWrapper title="Team Assignment" icon={<Users size={18} strokeWidth={2.2} />} onClose={onClose}>
       <div className="space-y-3">
-        <RoleField Icon={Crown} label="Team Leader" field="leader" placeholder="Name" />
-        <RoleField Icon={Wind} label="Airway" field="airway" placeholder="Name" />
-        <RoleField Icon={Syringe} label="Drug / IV" field="drugAdmin" placeholder="Name" />
-        <RoleField Icon={Edit} label="Recorder" field="recorder" placeholder="Name" />
+        <RoleField {...roleProps} Icon={Crown} label="Team Leader" field="leader" placeholder="Name" />
+        <RoleField {...roleProps} Icon={Wind} label="Airway" field="airway" placeholder="Name" />
+        <RoleField {...roleProps} Icon={Syringe} label="Drug / IV" field="drugAdmin" placeholder="Name" />
+        <RoleField {...roleProps} Icon={Edit} label="Recorder" field="recorder" placeholder="Name" />
         <div>
           <label className="text-overline inline-flex items-center gap-1.5">
             <HeartPulse size={11} strokeWidth={2.2} /> Compressors

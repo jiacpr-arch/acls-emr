@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllCases, deleteCase, getFullCase } from '../db/database';
 import { formatTimeLong, formatElapsed } from '../utils/formatTime';
@@ -32,13 +32,14 @@ export default function Dashboard() {
   const [annotatingCase, setAnnotatingCase] = useState(null);
   const [sharingCase, setSharingCase] = useState(null);
 
-  useEffect(() => { loadCases(); }, []);
-
-  const loadCases = async () => {
+  const loadCases = useCallback(async () => {
     const data = await getAllCases();
     setCases(data);
     setLoading(false);
-  };
+  }, []);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { loadCases(); }, [loadCases]);
 
   const handleExport = async (caseId) => {
     const data = await getFullCase(caseId);

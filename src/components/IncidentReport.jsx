@@ -7,7 +7,7 @@ import { FileText, Share, Copy } from 'lucide-react';
 // Incident Report — auto-filled from case data
 // For hospitals requiring documentation after cardiac arrest
 export default function IncidentReport({ onClose }) {
-  const { currentCase, events, patient, team, shockCount, etco2Readings, airway } = useCaseStore();
+  const { currentCase, events, patient, team, shockCount, airway } = useCaseStore();
   const { elapsed, getCCF, cycleNumber, totalCPRTime } = useTimerStore();
 
   const p = patient || {};
@@ -18,7 +18,6 @@ export default function IncidentReport({ onClose }) {
 
   const epiCount = events.filter(e => e.category === 'drug' && e.type?.includes('Epinephrine') && !e.type?.includes('Infusion')).length;
   const amioCount = events.filter(e => e.category === 'drug' && e.type?.includes('Amiodarone')).length;
-  const rhythmEvents = events.filter(e => e.category === 'rhythm');
   const htEvents = events.filter(e => e.type?.includes('Suspected cause') || e.type?.includes('Corrected'));
 
   const reportText = `

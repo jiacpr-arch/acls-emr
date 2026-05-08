@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   MessageSquare, AlertCircle, Lightbulb, AlertTriangle, Edit, Heart,
   Send, Star, Trash,
@@ -38,12 +38,10 @@ export default function Feedback() {
   const [rating, setRating] = useState(0);
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [history, setHistory] = useState([]);
-
-  useEffect(() => {
+  const [history, setHistory] = useState(() => {
     const data = JSON.parse(localStorage.getItem('acls_feedback') || '[]');
-    setHistory(data.reverse());
-  }, [submitted]);
+    return data.reverse();
+  });
 
   const submit = () => {
     const feedback = {
@@ -58,6 +56,7 @@ export default function Feedback() {
     const existing = JSON.parse(localStorage.getItem('acls_feedback') || '[]');
     existing.push(feedback);
     localStorage.setItem('acls_feedback', JSON.stringify(existing));
+    setHistory(existing.slice().reverse());
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);

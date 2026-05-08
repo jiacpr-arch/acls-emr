@@ -9,7 +9,7 @@ export function isPediatric(patient) {
 }
 
 // Calculate pediatric doses based on weight
-export function getPediatricDoses(weightKg) {
+export function getPediatricDoses(weightKg, patient = null) {
   if (!weightKg || weightKg <= 0) return null;
   const w = weightKg;
 
