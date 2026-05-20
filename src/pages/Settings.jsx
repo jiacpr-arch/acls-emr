@@ -2,7 +2,7 @@ import { useSettingsStore } from '../stores/settingsStore';
 import {
   Hospital, GraduationCap, HeartPulse,
   Volume2, VolumeX, Activity, Bell, RefreshCw, Users,
-  Sun, Moon, Monitor,
+  Sun, Moon, Monitor, Zap,
 } from '../components/ui/Icon';
 
 export default function Settings() {
@@ -59,6 +59,38 @@ export default function Settings() {
         <ThemeSelector value={settings.theme} onChange={settings.setTheme} />
         <ToggleRow Icon={settings.soundEnabled ? Volume2 : VolumeX} label="Sound Effects" value={settings.soundEnabled} onToggle={settings.toggleSound} />
         <ToggleRow Icon={Activity} label="Metronome" value={settings.metronomeEnabled} onToggle={settings.toggleMetronome} />
+      </SettingSection>
+
+      {/* Defibrillator */}
+      <SettingSection title="Defibrillator (Biphasic Max)">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-8 h-8 inline-flex items-center justify-center bg-bg-tertiary text-text-secondary shrink-0"
+            style={{ borderRadius: 'var(--radius-sm)' }}>
+            <Zap size={15} strokeWidth={2} />
+          </div>
+          <span className="text-body text-text-primary">Maximum energy of your device</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { j: 200, sub: 'Older / portable units' },
+            { j: 360, sub: 'Modern biphasic — full range' },
+          ].map(o => {
+            const active = (settings.defibMaxEnergy || 360) === o.j;
+            return (
+              <button key={o.j} onClick={() => settings.setDefibMaxEnergy(o.j)}
+                className={`flex flex-col items-start gap-0.5 p-3 border transition-colors text-left ${
+                  active ? 'bg-shock/10 text-shock border-shock/40' : 'bg-bg-secondary text-text-primary border-border'
+                }`}
+                style={{ borderRadius: 'var(--radius-md)' }}>
+                <span className="text-body-strong">{o.j}J max</span>
+                <span className="text-caption opacity-70">{o.sub}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="text-caption text-text-muted mt-1.5">
+          พลังงานที่เกินค่านี้จะถูก disable ในหน้า Cardioversion
+        </div>
       </SettingSection>
 
       {/* Alerts */}
