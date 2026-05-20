@@ -9,6 +9,16 @@ db.version(1).stores({
   etco2Readings: '++autoId, caseId, elapsed',
 });
 
+db.version(2).stores({
+  cases: 'id, mode, startTime, outcome',
+  events: '++autoId, caseId, timestamp, category, type',
+  cprCycles: '++autoId, caseId, cycleNumber',
+  etco2Readings: '++autoId, caseId, elapsed',
+  students: 'id, studentId, name, createdAt',
+  lessonProgress: '++autoId, [studentId+lessonId], readAt',
+  quizAttempts: '++autoId, studentId, lessonId, finishedAt, score, passed',
+});
+
 // Generate case ID: YYYY-MMDD-NNN
 export async function generateCaseId() {
   const now = new Date();
@@ -71,4 +81,104 @@ export async function deleteCase(caseId) {
     db.cprCycles.where('caseId').equals(caseId).delete(),
     db.etco2Readings.where('caseId').equals(caseId).delete(),
   ]);
+}
+
+// ===== Pre-course: students =====
+export async function upsertStudent(student) {
+  // student = { id, studentId, name, createdAt }
+  await db.students.put(student);
+  return student;
+}
+
+export async function findStudentByStudentId(studentId) {
+  return db.students.where('studentId').equals(studentId).first();
+}
+
+export async function getAllStudents() {
+  return db.students.orderBy('createdAt').reverse().toArray();
+}
+
+export async function deleteStudent(id) {
+  await Promise.all([
+    db.students.delete(id),
+    db.lessonProgress.where('studentId').equals(id).delete(),
+    db.quizAttempts.where('studentId').equals(id).delete(),
+  ]);
+}
+
+// ===== Pre-course: lesson read progress =====
+export async function markLessonRead(studentId, lessonId) {
+  const existing = await db.lessonProgress
+    .where('[studentId+lessonId]').equals([studentId, lessonId]).first();
+  if (existing) return existing.autoId;
+  return db.lessonProgress.add({ studentId, lessonId, readAt: new Date().toISOString() });
+}
+
+export async function getLessonProgress(studentId) {
+  if (!studentId) return [];
+  return db.lessonProgress.where('studentId').equals(studentId).toArray();
+}
+
+export async function hasReadLesson(studentId, lessonId) {
+  if (!studentId) return false;
+  const row = await db.lessonProgress
+    .where('[studentId+lessonId]').equals([studentId, lessonId]).first();
+  return !!row;
+}
+
+// ===== Pre-course: quiz attempts =====
+export async function saveQuizAttempt(attempt) {
+  // attempt = { studentId, lessonId, score, totalQuestions, correctCount,
+  //   answers, startedAt, finishedAt, passed, attemptNumber }
+  return db.quizAttempts.add(attempt);
+}
+
+export async function getAttemptsForStudent(studentId) {
+  if (!studentId) return [];
+  return db.quizAttempts.where('studentId').equals(studentId).toArray();
+}
+
+export async function getAttemptById(autoId) {
+  return db.quizAttempts.get(Number(autoId));
+}
+
+export async function getBestAttempt(studentId, lessonId) {
+  if (!studentId) return null;
+  const rows = await db.quizAttempts.where('studentId').equals(studentId).toArray();
+  const forLesson = rows.filter(r => r.lessonId === lessonId);
+  if (!forLesson.length) return null;
+  return forLesson.reduce((best, r) => (r.score > (best?.score ?? -1) ? r : best), null);
+}
+
+export async function getAttemptCount(studentId, lessonId) {
+  if (!studentId) return 0;
+  const rows = await db.quizAttempts.where('studentId').equals(studentId).toArray();
+  return rows.filter(r => r.lessonId === lessonId).length;
+}
+
+// Combined cohort view: every student + their best score & read status per lesson
+export async function getCohortSummary(lessonIds) {
+  const [students, allProgress, allAttempts] = await Promise.all([
+    db.students.orderBy('createdAt').toArray(),
+    db.lessonProgress.toArray(),
+    db.quizAttempts.toArray(),
+  ]);
+  return students.map(s => {
+    const lessons = {};
+    for (const lid of lessonIds) {
+      const read = allProgress.some(p => p.studentId === s.id && p.lessonId === lid);
+      const attempts = allAttempts.filter(a => a.studentId === s.id && a.lessonId === lid);
+      const best = attempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+      lessons[lid] = {
+        read,
+        attemptCount: attempts.length,
+        bestScore: best?.score ?? null,
+        passed: best?.passed ?? false,
+        lastAttemptAt: attempts.length
+          ? attempts.reduce((m, a) => (a.finishedAt > m ? a.finishedAt : m), '')
+          : null,
+      };
+    }
+    return { student: s, lessons };
+  });
 }

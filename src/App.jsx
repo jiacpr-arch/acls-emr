@@ -16,6 +16,11 @@ import UserGuide from './pages/UserGuide';
 import Feedback from './pages/Feedback';
 import ALSKnowledge from './pages/ALSKnowledge';
 import CodeBlueSim from './pages/CodeBlueSim';
+import PreCourse from './pages/PreCourse';
+import LessonReader from './pages/LessonReader';
+import QuizTaker from './pages/QuizTaker';
+import QuizResults from './pages/QuizResults';
+import InstructorCohort from './pages/InstructorCohort';
 import BottomTabBar from './components/BottomTabBar';
 import OfflineIndicator from './components/OfflineIndicator';
 
@@ -57,6 +62,11 @@ function App() {
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/als" element={<ALSKnowledge />} />
         <Route path="/sim" element={<CodeBlueSim />} />
+        <Route path="/pre-course" element={<PreCourse />} />
+        <Route path="/pre-course/cohort" element={<InstructorCohort />} />
+        <Route path="/pre-course/results/:attemptId" element={<QuizResults />} />
+        <Route path="/pre-course/:lessonId" element={<LessonReader />} />
+        <Route path="/pre-course/:lessonId/quiz" element={<QuizTaker />} />
       </Routes>
       {/* Bottom pill bar on all pages except recording */}
       {!isRecording && <BottomTabBar />}

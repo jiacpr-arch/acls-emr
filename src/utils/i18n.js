@@ -86,6 +86,7 @@ const translations = {
   'als_knowledge': { en: 'ALS Book', th: 'ความรู้ ALS' },
   'guide': { en: 'Guide', th: 'คู่มือ' },
   'feedback': { en: 'Feedback', th: 'แจ้งปัญหา' },
+  'pre_course': { en: 'Pre-course', th: 'เตรียมเข้าเรียน' },
 };
 
 // Get translation
