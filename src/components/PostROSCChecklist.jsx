@@ -97,10 +97,10 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
       </div>
 
       {/* Tab navigation */}
-      <div className="flex gap-1 overflow-x-auto pb-1">
+      <div className="flex gap-1.5 overflow-x-auto pb-1">
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`shrink-0 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-colors ${
+            className={`shrink-0 min-h-[44px] px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${
               tab === t.key ? 'bg-info text-white' : t.count === t.total ? 'bg-success/10 text-success' : 'bg-bg-primary text-text-muted'
             }`}>
             {t.label} {t.count}/{t.total}
