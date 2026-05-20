@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Check, Lock, ChevronRight, Clock } from 'lucide-react';
+import { BookOpen, Check, ChevronRight, Clock, Play } from 'lucide-react';
 
-export default function LessonCard({ lesson, read, bestScore, passed }) {
+export default function LessonCard({ lesson, read, bestScore, passed, inProgress }) {
   const navigate = useNavigate();
   const hasAttempt = bestScore != null;
-  const quizDisabled = !read;
+  const stepCount = lesson.steps?.length ?? 0;
 
   return (
     <div className="dash-card !p-0 overflow-hidden">
@@ -20,7 +20,7 @@ export default function LessonCard({ lesson, read, bestScore, passed }) {
           <div className="text-[11px] text-text-muted inline-flex items-center gap-2 mt-0.5">
             <Clock size={11} strokeWidth={2.2} /> ~{lesson.estMinutes} นาที
             <span className="text-text-muted">·</span>
-            <span>{lesson.quiz.length} ข้อ</span>
+            <span>{stepCount} ขั้น · {lesson.quiz.length} ข้อ</span>
             <span className="text-text-muted">·</span>
             <span>เกณฑ์ {lesson.passingScore}%</span>
           </div>
@@ -28,36 +28,26 @@ export default function LessonCard({ lesson, read, bestScore, passed }) {
         <ChevronRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />
       </button>
 
-      <div className="px-4 pb-3 flex items-center gap-2">
-        <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 ${
-          read ? 'bg-success/12 text-success' : 'bg-bg-tertiary text-text-muted'
-        }`} style={{ borderRadius: 99 }}>
-          {read ? <Check size={11} strokeWidth={2.4} /> : <BookOpen size={11} strokeWidth={2.2} />}
-          {read ? 'อ่านแล้ว' : 'ยังไม่อ่าน'}
-        </span>
+      <div className="px-4 pb-3 flex items-center gap-2 flex-wrap">
         <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 ${
           passed ? 'bg-success/12 text-success'
             : hasAttempt ? 'bg-warning/12 text-warning'
+            : inProgress ? 'bg-info/12 text-info'
+            : read ? 'bg-success/12 text-success'
             : 'bg-bg-tertiary text-text-muted'
         }`} style={{ borderRadius: 99 }}>
-          {passed
-            ? <><Check size={11} strokeWidth={2.4} /> ผ่าน {bestScore}%</>
-            : hasAttempt
-              ? <>ยังไม่ผ่าน · {bestScore}%</>
-              : <>ยังไม่ทำ Quiz</>
-          }
+          {passed ? <><Check size={11} strokeWidth={2.4} /> ผ่าน {bestScore}%</>
+            : hasAttempt ? <>ยังไม่ผ่าน · {bestScore}%</>
+            : inProgress ? <><Play size={11} strokeWidth={2.4} /> เรียนค้างไว้</>
+            : read ? <><Check size={11} strokeWidth={2.4} /> อ่านครบ</>
+            : <>ยังไม่เริ่ม</>}
         </span>
         <div className="flex-1" />
         <button
-          onClick={(e) => { e.stopPropagation(); if (!quizDisabled) navigate(`/pre-course/${lesson.id}/quiz`); }}
-          disabled={quizDisabled}
-          className={`text-[11px] font-bold px-3 py-1.5 inline-flex items-center gap-1 ${
-            quizDisabled ? 'bg-bg-tertiary text-text-muted cursor-not-allowed'
-              : 'bg-primary text-white hover:opacity-90'
-          }`}
-          style={{ borderRadius: 99 }}
-          title={quizDisabled ? 'ต้องอ่านบทเรียนให้จบก่อน' : 'เริ่มทำ Quiz'}>
-          {quizDisabled ? <><Lock size={11} strokeWidth={2.4} /> Quiz</> : <>เริ่ม Quiz</>}
+          onClick={(e) => { e.stopPropagation(); navigate(`/pre-course/${lesson.id}`); }}
+          className="text-[11px] font-bold px-3 py-1.5 inline-flex items-center gap-1 bg-primary text-white hover:opacity-90"
+          style={{ borderRadius: 99 }}>
+          {inProgress ? 'เรียนต่อ' : hasAttempt ? 'ทำใหม่' : 'เริ่มเรียน'}
         </button>
       </div>
     </div>

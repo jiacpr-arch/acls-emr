@@ -11,6 +11,7 @@ export default function PreCourse() {
   const navigate = useNavigate();
   const activeStudent = usePreCourseStore(s => s.activeStudent);
   const clearActiveStudent = usePreCourseStore(s => s.clearActiveStudent);
+  const currentAttempt = usePreCourseStore(s => s.currentAttempt);
   const [progress, setProgress] = useState([]);     // [{studentId, lessonId, readAt}]
   const [attempts, setAttempts] = useState([]);     // [{...}]
   const [showIdentity, setShowIdentity] = useState(false);
@@ -31,10 +32,15 @@ export default function PreCourse() {
     const read = progress.some(p => p.lessonId === lessonId);
     const lessonAttempts = attempts.filter(a => a.lessonId === lessonId);
     const best = lessonAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+    const inProgress =
+      currentAttempt?.lessonId === lessonId
+      && (currentAttempt.stepIndex ?? 0) > 0
+      && !best;
     return {
       read,
       bestScore: best?.score ?? null,
       passed: best?.passed ?? false,
+      inProgress,
     };
   };
 
