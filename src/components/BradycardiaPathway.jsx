@@ -280,7 +280,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
               <span className="text-[10px] font-semibold text-text-muted uppercase">Output</span>
               <span className={`text-lg font-mono font-black ${tcpOutput > 0 ? 'text-warning' : 'text-text-muted'}`}>{tcpOutput} mA</span>
             </div>
-            <input type="range" min={0} max={200} step={5} value={tcpOutput}
+            <input type="range" min={0} max={200} step={1} value={tcpOutput}
               onChange={e => setTcpOutput(parseInt(e.target.value))} className="w-full accent-warning" />
           </div>
 
