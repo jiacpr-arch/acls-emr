@@ -11,10 +11,11 @@ import { TrendingUp, Zap, Activity } from 'lucide-react';
 export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onRecheckPulse, isTraining }) {
   const elapsed = useTimerStore(s => s.elapsed);
   const addEvent = useCaseStore(s => s.addEvent);
-  const [phase, setPhase] = useState('vitals'); // vitals → unstable_check → ...
+  const [phase, setPhase] = useState('vitals'); // vitals → unstable_check → cardioversion → post_cardiovert → ...
   const [unstableSigns, setUnstableSigns] = useState({});
   const [rhythmType, setRhythmType] = useState(null);
   const [cardioversionEnergy, setCardioversionEnergy] = useState(100);
+  const [cardioversionCount, setCardioversionCount] = useState(0);
   const [adenosineCount, setAdenosineCount] = useState(0);
 
   // Quick vitals
@@ -190,15 +191,26 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
           </div>
         </div>
 
+        {cardioversionCount > 0 && (
+          <div className="bg-shock/10 border border-shock/30 rounded-xl px-3 py-2 text-xs text-shock font-bold">
+            ⚡ {cardioversionCount} shock{cardioversionCount > 1 ? 's' : ''} delivered
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-2">
           <button onClick={() => onLog('drug', '💊 Midazolam 1-2mg IV (sedation)')}
             className="btn-action btn-purple py-3 text-xs font-semibold">💊 Sedate</button>
           <button onClick={() => {
-            onLog('shock', `⚡ Synchronized Cardioversion ${cardioversionEnergy}J`);
-          }} className="btn-action btn-shock py-3 text-xs font-semibold">⚡ Cardiovert {cardioversionEnergy}J</button>
+            const n = cardioversionCount + 1;
+            setCardioversionCount(n);
+            onLog('shock', `⚡ Synchronized Cardioversion #${n} (${cardioversionEnergy}J)`);
+            setPhase('post_cardiovert');
+          }} className="btn-action btn-shock py-3 text-xs font-semibold animate-pulse">
+            ⚡ Deliver Cardiovert {cardioversionEnergy}J
+          </button>
         </div>
 
-        <div className="text-xs text-text-muted font-semibold">Re-assess after cardioversion ↓</div>
+        <div className="text-xs text-text-muted font-semibold">Or skip directly to outcome ↓</div>
 
         <button onClick={() => {
           onLog('other', '✅ Cardioversion successful — converted');
@@ -207,6 +219,50 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
 
         <button onClick={() => setPhase('rhythm_select')}
           className="w-full btn-action btn-ghost py-3 text-sm">Still tachycardic → ID Rhythm</button>
+        <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
+      </div>
+    );
+  }
+
+  // ===== POST-CARDIOVERSION RE-ASSESS =====
+  if (phase === 'post_cardiovert') {
+    const stableNow = bpSys >= 90 && map >= 65 && hr < 150;
+    return (
+      <div className="text-center space-y-3 animate-slide-up px-2">
+        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-shock">
+          ⚡ Shock #{cardioversionCount} Delivered ({cardioversionEnergy}J)
+        </div>
+        <div className="pathway-icon-tile bg-shock/12 text-shock"><Zap size={32} strokeWidth={2.2} /></div>
+        <h1 className="text-xl font-black text-text-primary">Re-assess BP / PR</h1>
+
+        <div className="glass-card !p-3 space-y-3">
+          <ScrollPicker label="BP Systolic" value={bpSys} onChange={setBpSys} min={40} max={250} step={1} unit="mmHg" alertLow={90} />
+          <ScrollPicker label="BP Diastolic" value={bpDia} onChange={setBpDia} min={20} max={150} step={1} unit="mmHg" />
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-text-muted">MAP</span>
+            <span className={`text-lg font-mono font-black ${map < 65 ? 'text-danger' : 'text-success'}`}>{map} <span className="text-xs font-normal">mmHg</span></span>
+          </div>
+          <ScrollPicker label="Pulse Rate" value={hr} onChange={setHr} min={20} max={250} step={5} unit="bpm" alertHigh={150} />
+          <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" alertLow={94} />
+        </div>
+
+        <div className={`px-4 py-2 rounded-xl text-sm font-bold ${stableNow ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger animate-pulse'}`}>
+          {stableNow ? '✅ Stable — converted' : `⚠️ Still unstable — BP ${bpSys}/${bpDia} HR ${hr}`}
+        </div>
+
+        <button onClick={() => {
+          addEvent({ elapsed, category: 'other', type: `📊 Post-cardiovert vitals: BP ${bpSys}/${bpDia} (MAP ${map}) HR ${hr} SpO₂ ${spo2}%`, details: { bpSys, bpDia, map, hr, spo2, cardioversionCount } });
+          onLog('other', '✅ Cardioversion successful — converted');
+          onMonitor();
+        }} className="w-full btn-action btn-success py-3.5 text-sm font-bold">✅ Converted → Monitor</button>
+
+        <button onClick={() => {
+          addEvent({ elapsed, category: 'other', type: `📊 Post-cardiovert vitals: BP ${bpSys}/${bpDia} (MAP ${map}) HR ${hr} SpO₂ ${spo2}%`, details: { bpSys, bpDia, map, hr, spo2, cardioversionCount } });
+          setPhase('cardioversion');
+        }} className="w-full btn-action btn-shock py-3 text-sm">⚡ Still tachycardic → Repeat Cardiovert</button>
+
+        <button onClick={() => setPhase('rhythm_select')}
+          className="w-full btn-action btn-ghost py-3 text-sm">Refractory → ID Rhythm</button>
         <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
       </div>
     );
