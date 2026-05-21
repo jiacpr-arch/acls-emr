@@ -186,7 +186,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
         <button onClick={() => {
           const count = atropineCount + 1;
           setAtropineCount(count);
-          onLog('drug', `💉 Atropine 1mg IV (dose ${count}/3)`);
+          onLog('drug', `💉 Atropine 1mg IV (dose ${count}/3)`, { drugId: 'atropine', dose: '1 mg', route: 'IV', doseNumber: count });
           if (count < 3) addDrugTimer('atropine', 'Atropine next dose', 180);
         }} disabled={atropineCount >= 3}
           className="w-full btn-action btn-purple py-4 text-sm font-bold disabled:opacity-40">
@@ -316,7 +316,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
         <div className="glass-card !p-3 text-left text-xs text-text-secondary">
           <div className="font-bold text-text-primary mb-1">Sedation (if conscious)</div>
           <div>Midazolam 1-2mg IV + Fentanyl 25-50mcg IV</div>
-          <button onClick={() => onLog('drug', '💊 Sedation for TCP')}
+          <button onClick={() => onLog('drug', '💊 Sedation for TCP (Midazolam 1-2mg IV + Fentanyl 25-50mcg IV)', { context: 'TCP_sedation' })}
             className="btn-action btn-purple py-2 text-xs mt-2 w-full">💊 Sedation Given</button>
         </div>
 
@@ -338,14 +338,14 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
         <div className="glass-card !p-3 text-left">
           <div className="text-sm font-bold text-text-primary mb-1">Dopamine 5-20 mcg/kg/min</div>
           <div className="text-xs text-text-secondary">400mg + NSS 250ml (1,600 mcg/ml)</div>
-          <button onClick={() => onLog('drug', '💉 Dopamine infusion started')}
+          <button onClick={() => onLog('drug', '💉 Dopamine infusion 5-20 mcg/kg/min started', { drugId: 'dopamine_drip', dose: '5-20 mcg/kg/min', route: 'IV infusion' })}
             className="btn-action btn-purple py-2 text-xs mt-2 w-full">💉 Start Dopamine</button>
         </div>
 
         <div className="glass-card !p-3 text-left">
           <div className="text-sm font-bold text-text-primary mb-1">Epinephrine 2-10 mcg/min</div>
           <div className="text-xs text-text-secondary">1mg (1:1000) + NSS 250ml (4 mcg/ml)</div>
-          <button onClick={() => onLog('drug', '💉 Epi infusion started')}
+          <button onClick={() => onLog('drug', '💉 Epi infusion 2-10 mcg/min started', { drugId: 'epinephrine_drip', dose: '2-10 mcg/min', route: 'IV infusion' })}
             className="btn-action btn-purple py-2 text-xs mt-2 w-full">💉 Start Epi Infusion</button>
         </div>
 

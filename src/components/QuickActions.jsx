@@ -114,7 +114,7 @@ export default function QuickActions() {
           className="py-3 bg-info text-white rounded-xl font-semibold text-sm hover:bg-blue-600">
           💊 Amio 300
         </button>
-        <button onClick={() => addEvent({ elapsed, category: 'drug', type: 'Atropine 1mg IV', details: {} })}
+        <button onClick={() => addEvent({ elapsed, category: 'drug', type: 'Atropine 1mg IV', details: { drugId: 'atropine', dose: '1 mg', route: 'IV' } })}
           className="py-3 bg-bg-tertiary text-text-primary rounded-xl font-semibold text-sm hover:bg-gray-600">
           💊 Atropine
         </button>

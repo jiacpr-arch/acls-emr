@@ -191,7 +191,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <button onClick={() => onLog('drug', '💊 Midazolam 1-2mg IV (sedation)')}
+          <button onClick={() => onLog('drug', '💊 Midazolam 1-2mg IV (sedation)', { context: 'cardioversion_sedation', dose: '1-2 mg', route: 'IV' })}
             className="btn-action btn-purple py-3 text-xs font-semibold">💊 Sedate</button>
           <button onClick={() => {
             onLog('shock', `⚡ Synchronized Cardioversion ${cardioversionEnergy}J`);
@@ -260,7 +260,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
 
           <button onClick={() => {
             setAdenosineCount(1);
-            onLog('drug', '💉 Adenosine 6mg rapid IV push');
+            onLog('drug', '💉 Adenosine 6mg rapid IV push', { drugId: 'adenosine_first', dose: '6 mg', route: 'IV', doseNumber: 1 });
           }} className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>2. 💉 Adenosine 6mg</div>
             <div className="text-[10px] text-text-muted font-normal">Rapid push + flush 20ml simultaneously (3-way stopcock)</div>
@@ -268,13 +268,13 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
 
           <button onClick={() => {
             setAdenosineCount(prev => prev + 1);
-            onLog('drug', '💉 Adenosine 12mg rapid IV push');
+            onLog('drug', '💉 Adenosine 12mg rapid IV push', { drugId: 'adenosine_second', dose: '12 mg', route: 'IV' });
           }} className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>3. 💉 Adenosine 12mg (repeat)</div>
             <div className="text-[10px] text-text-muted font-normal">Same technique. May repeat once.</div>
           </button>
 
-          <button onClick={() => onLog('drug', '💉 Diltiazem 15-20mg IV over 2min')}
+          <button onClick={() => onLog('drug', '💉 Diltiazem 15-20mg IV over 2min', { drugId: 'diltiazem', dose: '15-20 mg', route: 'IV' })}
             className="w-full btn-action btn-ghost py-3 text-sm font-semibold text-left px-4">
             <div>4. 💉 Diltiazem / Beta-blocker</div>
             <div className="text-[10px] text-text-muted font-normal">If Adenosine fails</div>
@@ -300,17 +300,17 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
         <h1 className="text-xl font-black text-text-primary">AF/Flutter Treatment</h1>
 
         <div className="space-y-2">
-          <button onClick={() => onLog('drug', '💉 Diltiazem 15-20mg IV over 2min')}
+          <button onClick={() => onLog('drug', '💉 Diltiazem 15-20mg IV over 2min', { drugId: 'diltiazem', dose: '15-20 mg', route: 'IV' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Diltiazem 15-20mg IV</div>
             <div className="text-[10px] text-text-muted font-normal">Over 2 min. Repeat 20-25mg after 15 min if needed.</div>
           </button>
-          <button onClick={() => onLog('drug', '💉 Metoprolol 5mg IV q5min (max 15mg)')}
+          <button onClick={() => onLog('drug', '💉 Metoprolol 5mg IV q5min (max 15mg)', { dose: '5 mg', route: 'IV' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Metoprolol 5mg IV</div>
             <div className="text-[10px] text-text-muted font-normal">q5min, max 15mg</div>
           </button>
-          <button onClick={() => onLog('drug', '💉 Amiodarone 150mg IV over 10min')}
+          <button onClick={() => onLog('drug', '💉 Amiodarone 150mg IV over 10min', { drugId: 'amiodarone_vt', dose: '150 mg', route: 'IV' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Amiodarone 150mg IV</div>
             <div className="text-[10px] text-text-muted font-normal">150mg + D5W 100ml → drip 10 min</div>
@@ -338,12 +338,12 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
         <h1 className="text-xl font-black text-text-primary">VT Treatment</h1>
 
         <div className="space-y-2">
-          <button onClick={() => onLog('drug', '💉 Amiodarone 150mg + D5W 100ml drip 10min')}
+          <button onClick={() => onLog('drug', '💉 Amiodarone 150mg + D5W 100ml drip 10min', { drugId: 'amiodarone_vt', dose: '150 mg', route: 'IV' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Amiodarone 150mg IV over 10min</div>
             <div className="text-[10px] text-text-muted font-normal">150mg + D5W 100ml → drip 10 min. ⚠️ Do NOT rapid push (has pulse!)</div>
           </button>
-          <button onClick={() => onLog('drug', '💉 Amiodarone 150mg repeat')}
+          <button onClick={() => onLog('drug', '💉 Amiodarone 150mg repeat', { drugId: 'amiodarone_vt', dose: '150 mg', route: 'IV', repeat: true })}
             className="w-full btn-action btn-ghost py-3 text-sm font-semibold text-left px-4">
             <div>💉 Amiodarone 150mg (repeat)</div>
             <div className="text-[10px] text-text-muted font-normal">Maintenance: 1mg/min x 6hr → 0.5mg/min x 18hr</div>
@@ -374,12 +374,12 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
         </div>
 
         <div className="space-y-2">
-          <button onClick={() => onLog('drug', '💉 Amiodarone 150mg IV over 10min (wide irregular)')}
+          <button onClick={() => onLog('drug', '💉 Amiodarone 150mg IV over 10min (wide irregular)', { drugId: 'amiodarone_vt', dose: '150 mg', route: 'IV', context: 'wide_irregular' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Amiodarone 150mg</div>
             <div className="text-[10px] text-text-muted font-normal">Safe in WPW</div>
           </button>
-          <button onClick={() => onLog('drug', '💉 MgSO₄ 2g IV (Torsades)')}
+          <button onClick={() => onLog('drug', '💉 MgSO₄ 2g IV (Torsades)', { drugId: 'magnesium', dose: '2 g', route: 'IV', context: 'torsades' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 MgSO₄ 2g IV (if Torsades)</div>
             <div className="text-[10px] text-text-muted font-normal">IV push over 1-2 min. Look for QT prolongation cause.</div>
