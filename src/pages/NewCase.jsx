@@ -110,8 +110,13 @@ export default function NewCase() {
           </button>
 
           <button onClick={() => handleStart('rrt')} disabled={loading}
-            className="btn btn-primary btn-xl btn-block disabled:opacity-50">
-            <Hospital size={20} strokeWidth={2.4} /> RRT / MET Team
+            className="btn btn-primary btn-xl btn-block disabled:opacity-50"
+            style={{ height: 'auto', paddingTop: 10, paddingBottom: 10 }}>
+            <Hospital size={20} strokeWidth={2.4} />
+            <span className="flex flex-col items-center leading-tight">
+              <span>CODE BLUE / CODE 8</span>
+              <span className="text-xs font-medium opacity-80 mt-0.5">MET / RRT Team</span>
+            </span>
           </button>
 
           {/* Quick Start Templates */}
