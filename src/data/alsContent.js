@@ -30,9 +30,11 @@ export const alsChapters = [
     id: 'ch4', title: 'บทที่ 4: จังหวะหัวใจ',
     icon: '💓',
     sections: [
+      { heading: 'อ่าน EKG 6 ขั้น', body: '1) Rate: นับ QRS ใน 6 วินาที × 10 — <60 brady, >100 tachy / 2) Rhythm: สม่ำเสมอ? วัด R-R interval / 3) P wave: มีหรือไม่? นำทุก QRS หรือไม่? / 4) PR interval: ปกติ 0.12-0.20s — ยาว = AV block / 5) QRS width: แคบ <0.12s (supraventricular) vs กว้าง ≥0.12s (ventricular หรือ BBB) / 6) ST/T: ยก/กด = ischemia, T inverted, QT ยาว' },
       { heading: 'Shockable Rhythms', body: 'VF (Ventricular Fibrillation): เส้นหยักไม่เป็นระเบียบ — pVT (Pulseless VT): QRS กว้าง เร็ว ไม่มีชีพจร — ทั้งสองต้อง Defibrillate ทันที 120-200J biphasic' },
       { heading: 'Non-Shockable Rhythms', body: 'PEA (Pulseless Electrical Activity): มี rhythm บนจอแต่คลำชีพจรไม่ได้ — Asystole: เส้นตรง — ทั้งสองห้าม shock ให้ CPR + Epinephrine ทันที + หาสาเหตุ H&T' },
       { heading: 'Bradycardia & Tachycardia', body: 'Bradycardia <60/min + อาการ → Atropine → TCP / Tachycardia แยก narrow vs wide QRS, stable vs unstable → unstable = cardioversion ทันที' },
+      { heading: 'Tips แยกจังหวะ', body: 'Narrow + Regular = Sinus tach / SVT — Narrow + Irregular = AF / Aflutter เปลี่ยน block — Wide + Regular = VT (สมมติว่า VT จนพิสูจน์ได้ว่าไม่ใช่) — Wide + Irregular = TdP / AF c WPW — Flat line ต้องเช็ค lead ก่อนสรุป asystole' },
     ],
   },
   {

@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { alsChapters } from '../data/alsContent';
+import { ekgQuestions, rhythmLabels, shuffleOptions } from '../data/ekgQuiz';
+import EKGWaveform from '../components/EKGWaveform';
 import {
   GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
-  Sparkles, AlertCircle, Trash, Clock,
+  Sparkles, AlertCircle, Trash, Clock, Activity, Check, X, RotateCcw,
 } from 'lucide-react';
 
 const STORAGE_KEY = 'als_tips_history';
 const CACHE_KEY = 'als_tip_today';
+const QUIZ_KEY = 'ekg_quiz_best';
 
 const tipTopics = [
   'การกู้ชีพ', 'จังหวะหัวใจ', 'ยาฉุกเฉิน', 'ทางเดินหายใจ',
@@ -44,8 +47,37 @@ export default function ALSKnowledge() {
   const [tipLoading, setTipLoading] = useState(false);
   const [tipError, setTipError] = useState('');
   const [history, setHistory] = useState([]);
+  const [quizIdx, setQuizIdx] = useState(0);
+  const [quizChoice, setQuizChoice] = useState(null);
+  const [quizScore, setQuizScore] = useState(0);
+  const [quizBest, setQuizBest] = useState(() => parseInt(localStorage.getItem(QUIZ_KEY) || '0', 10));
 
   useEffect(() => { setHistory(getHistory()); }, [tip]);
+
+  const quizQ = ekgQuestions[quizIdx];
+  const shuffled = useMemo(
+    () => quizQ ? shuffleOptions(quizQ.options, quizQ.id.charCodeAt(1) || 7) : [],
+    [quizQ]
+  );
+
+  const handleQuizAnswer = (choice) => {
+    if (quizChoice) return;
+    setQuizChoice(choice);
+    if (choice === quizQ.answer) setQuizScore(s => s + 1);
+  };
+  const handleQuizNext = () => {
+    if (quizIdx + 1 >= ekgQuestions.length) {
+      const final = quizScore;
+      if (final > quizBest) {
+        setQuizBest(final);
+        localStorage.setItem(QUIZ_KEY, String(final));
+      }
+    }
+    setQuizChoice(null);
+    setQuizIdx(i => i + 1);
+  };
+  const resetQuiz = () => { setQuizIdx(0); setQuizChoice(null); setQuizScore(0); };
+  const quizDone = quizIdx >= ekgQuestions.length;
 
   const fetchTip = async (topic) => {
     const cached = getTodayCache(topic);
@@ -93,6 +125,9 @@ export default function ALSKnowledge() {
         </button>
         <button onClick={() => setTab('tip')} className={`tab-item ${tab === 'tip' ? 'active' : ''}`}>
           <Lightbulb size={14} strokeWidth={2.2} className="inline mr-1" /> AI Tips
+        </button>
+        <button onClick={() => setTab('ekg')} className={`tab-item ${tab === 'ekg' ? 'active' : ''}`}>
+          <Activity size={14} strokeWidth={2.2} className="inline mr-1" /> EKG Quiz
         </button>
         <button onClick={() => setTab('saved')} className={`tab-item ${tab === 'saved' ? 'active' : ''}`}>
           <Bookmark size={14} strokeWidth={2.2} className="inline mr-1" /> บันทึก ({history.length})
@@ -173,6 +208,92 @@ export default function ALSKnowledge() {
           )}
           <div className="text-[11px] text-text-muted text-center">
             cache วันละ 1 ครั้งต่อหัวข้อ — ควรตรวจสอบกับแหล่งข้อมูลทางการแพทย์เสมอ
+          </div>
+        </div>
+      )}
+
+      {tab === 'ekg' && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-caption">
+            <span className="text-text-muted">
+              ข้อ <span className="text-text-primary font-bold">{Math.min(quizIdx + 1, ekgQuestions.length)}</span> / {ekgQuestions.length}
+            </span>
+            <span className="text-text-muted">
+              คะแนน: <span className="text-info font-bold">{quizScore}</span>
+              <span className="mx-1">·</span>
+              สถิติ: <span className="text-success font-bold">{quizBest}</span>
+            </span>
+          </div>
+          <div className="progress-track !h-1.5">
+            <div className="progress-fill bg-info" style={{ width: `${(Math.min(quizIdx, ekgQuestions.length) / ekgQuestions.length) * 100}%` }} />
+          </div>
+
+          {!quizDone && quizQ && (
+            <div className="dash-card space-y-3">
+              <div className="text-overline text-info inline-flex items-center gap-1.5">
+                <Activity size={12} strokeWidth={2.2} /> จังหวะนี้คืออะไร?
+              </div>
+              <div className="overflow-hidden" style={{ borderRadius: 'var(--radius-sm)' }}>
+                <EKGWaveform rhythmId={quizQ.rhythmId} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {shuffled.map(opt => {
+                  const isAnswered = quizChoice !== null;
+                  const isCorrect = opt === quizQ.answer;
+                  const isPicked = opt === quizChoice;
+                  let cls = 'bg-bg-secondary border-border text-text-primary hover:bg-bg-tertiary';
+                  if (isAnswered) {
+                    if (isCorrect) cls = 'bg-success/15 border-success/50 text-success';
+                    else if (isPicked) cls = 'bg-danger/15 border-danger/50 text-danger';
+                    else cls = 'bg-bg-secondary border-border text-text-muted opacity-60';
+                  }
+                  return (
+                    <button key={opt} onClick={() => handleQuizAnswer(opt)} disabled={isAnswered}
+                      className={`px-3 py-2.5 border text-caption font-bold transition-colors text-left inline-flex items-center justify-between gap-2 ${cls}`}
+                      style={{ borderRadius: 'var(--radius-sm)' }}>
+                      <span>{rhythmLabels[opt] || opt}</span>
+                      {isAnswered && isCorrect && <Check size={14} strokeWidth={2.4} />}
+                      {isAnswered && isPicked && !isCorrect && <X size={14} strokeWidth={2.4} />}
+                    </button>
+                  );
+                })}
+              </div>
+              {quizChoice && (
+                <div className="animate-slide-up space-y-2">
+                  <div className={`p-3 border-l-4 ${quizChoice === quizQ.answer ? 'bg-success/8 border-l-success' : 'bg-warning/8 border-l-warning'}`}
+                    style={{ borderRadius: 'var(--radius-sm)' }}>
+                    <div className={`text-caption font-bold mb-1 ${quizChoice === quizQ.answer ? 'text-success' : 'text-warning'}`}>
+                      {quizChoice === quizQ.answer ? 'ถูกต้อง!' : `เฉลย: ${rhythmLabels[quizQ.answer]}`}
+                    </div>
+                    <div className="text-caption text-text-secondary leading-relaxed">{quizQ.hint}</div>
+                  </div>
+                  <button onClick={handleQuizNext} className="btn btn-primary btn-block">
+                    {quizIdx + 1 >= ekgQuestions.length ? 'ดูสรุปคะแนน' : 'ข้อถัดไป'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {quizDone && (
+            <div className="dash-card text-center space-y-3 animate-slide-up">
+              <div className={`text-numeric text-5xl ${quizScore >= 8 ? 'text-success' : quizScore >= 5 ? 'text-warning' : 'text-danger'}`}>
+                {quizScore}<span className="text-2xl text-text-muted">/{ekgQuestions.length}</span>
+              </div>
+              <div className="text-caption text-text-muted">
+                {quizScore >= 8 ? 'เยี่ยมมาก! อ่าน EKG แม่นยำ' : quizScore >= 5 ? 'ผ่านได้ ลองฝึกซ้ำเพื่อแม่นขึ้น' : 'ทบทวนบทที่ 4 แล้วลองใหม่ครับ'}
+              </div>
+              {quizScore > quizBest && (
+                <div className="text-caption text-success font-bold">สถิติใหม่!</div>
+              )}
+              <button onClick={resetQuiz} className="btn btn-primary btn-block">
+                <RotateCcw size={14} strokeWidth={2.2} /> เริ่มใหม่
+              </button>
+            </div>
+          )}
+
+          <div className="text-[11px] text-text-muted text-center">
+            ภาพ EKG เป็นภาพประกอบเพื่อการเรียนรู้ — การวินิจฉัยจริงต้องใช้ EKG 12 leads
           </div>
         </div>
       )}
