@@ -87,6 +87,13 @@ const translations = {
   'guide': { en: 'Guide', th: 'คู่มือ' },
   'feedback': { en: 'Feedback', th: 'แจ้งปัญหา' },
   'pre_course': { en: 'Pre-course', th: 'เตรียมเข้าเรียน' },
+  'learn': { en: 'Learn', th: 'เรียนรู้' },
+  'learn_prepare': { en: 'Prepare', th: 'เตรียมตัว' },
+  'learn_reference': { en: 'Knowledge', th: 'อ้างอิงความรู้' },
+  'learn_practice': { en: 'Practice', th: 'ฝึกซ้อม' },
+  'learn_progress': { en: 'Progress', th: 'ความก้าวหน้า' },
+  'learn_subtitle': { en: 'Study, practice, and track your ACLS progress', th: 'เรียนรู้ ฝึกซ้อม และติดตามความก้าวหน้า ACLS' },
+  'code_sim': { en: 'Code Blue Sim', th: 'จำลองเหตุ Code Blue' },
 };
 
 // Get translation
