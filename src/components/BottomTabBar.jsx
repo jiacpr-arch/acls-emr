@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
+import { IS_BLS } from '../config/courseMode';
 import {
   HeartPulse, FileText, Pill, Menu,
   BarChart3, GraduationCap,
-  MessageSquare, Settings, X,
+  MessageSquare, Settings, X, Award,
 } from './ui/Icon';
 
 export default function BottomTabBar() {
@@ -14,20 +15,32 @@ export default function BottomTabBar() {
   const lang = useSettingsStore(s => s.language) || 'en';
   const [showMore, setShowMore] = useState(false);
 
-  const tabs = [
-    { path: '/', Icon: HeartPulse, label: 'Home' },
-    { path: '/history', Icon: FileText, label: t('history', lang) },
-    { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
-    { path: '/drug-calc', Icon: Pill, label: t('drugs', lang) },
-    { key: 'more', Icon: Menu, label: 'More' },
-  ];
+  const tabs = IS_BLS
+    ? [
+        { path: '/', Icon: GraduationCap, label: 'เรียน' },
+        { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR' },
+        { path: '/certification', Icon: Award, label: 'ใบประกาศ' },
+        { key: 'more', Icon: Menu, label: 'More' },
+      ]
+    : [
+        { path: '/', Icon: HeartPulse, label: 'Home' },
+        { path: '/history', Icon: FileText, label: t('history', lang) },
+        { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
+        { path: '/drug-calc', Icon: Pill, label: t('drugs', lang) },
+        { key: 'more', Icon: Menu, label: 'More' },
+      ];
 
-  const moreItems = [
-    { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
-    { path: '/compare', Icon: BarChart3, label: 'Compare' },
-    { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
-    { path: '/settings', Icon: Settings, label: t('settings', lang) },
-  ];
+  const moreItems = IS_BLS
+    ? [
+        { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
+        { path: '/settings', Icon: Settings, label: t('settings', lang) },
+      ]
+    : [
+        { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
+        { path: '/compare', Icon: BarChart3, label: 'Compare' },
+        { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
+        { path: '/settings', Icon: Settings, label: t('settings', lang) },
+      ];
 
   return (
     <>
