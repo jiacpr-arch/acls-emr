@@ -46,7 +46,7 @@ export default function NewCase() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-bg-primary">
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-10">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 pb-28">
         {/* Logo / hero */}
         <div className="text-center mb-8 animate-fade-in">
           <div
@@ -103,7 +103,7 @@ export default function NewCase() {
         )}
 
         {/* Start buttons */}
-        <div className="w-full max-w-sm space-y-3 animate-slide-up">
+        <div className="w-full max-w-sm space-y-4 animate-slide-up">
           <button onClick={() => handleStart('bls')} disabled={loading}
             className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50">
             <AlertTriangle size={20} strokeWidth={2.4} /> BLS — First Responder
@@ -120,7 +120,7 @@ export default function NewCase() {
           </button>
 
           {/* Quick Start Templates — direct entry to pathway */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
+          <div className="grid grid-cols-2 gap-3 pt-2">
             {[
               { Icon: HeartPulse, label: 'Cardiac Arrest', start: 'arrest' },
               { Icon: Activity, label: 'Brady / Tachy', start: 'pulse' },
@@ -144,7 +144,7 @@ export default function NewCase() {
           </button>
 
           {/* Quick links */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
+          <div className="grid grid-cols-2 gap-3 pt-2">
             <button onClick={() => navigate('/guide')}
               className="btn btn-ghost btn-lg btn-block">
               <BookOpen size={18} strokeWidth={2} /> คู่มือ
