@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTimerStore } from '../stores/timerStore';
 import { useCaseStore } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
+import { IS_BLS } from '../config/courseMode';
 import { playDrugAlert, playBeep } from '../utils/sound';
 import { formatTime, formatTimeLong } from '../utils/formatTime';
 import CircularTimer from './CircularTimer';
@@ -36,7 +37,7 @@ export default function CPRDashboard({
     e.category === 'airway' && (e.type?.includes('ETT') || e.type?.includes('SGA') || e.type?.includes('LMA'))
   );
 
-  const [cprMode, setCprMode] = useState('hand_only');
+  const [cprMode, setCprMode] = useState(IS_BLS ? 'bvm_30_2' : 'hand_only');
   const [breathAlert, setBreathAlert] = useState(false);
   const breathTimerRef = useRef(null);
 
@@ -251,9 +252,9 @@ export default function CPRDashboard({
       <div className="flex items-center justify-center gap-2">
         {[
           { id: 'hand_only', Icon: Hand, label: 'Hand-only' },
-          { id: 'bvm_30_2', Icon: Wind, label: 'BVM 30:2' },
+          { id: 'bvm_30_2', Icon: Wind, label: 'BVM (Ambu) 30:2' },
           { id: 'advanced', Icon: Wind, label: 'Advanced' },
-        ].map(m => {
+        ].filter(m => !(IS_BLS && m.id === 'hand_only')).map(m => {
           const MIcon = m.Icon;
           const active = cprMode === m.id;
           return (
@@ -272,6 +273,12 @@ export default function CPRDashboard({
         })}
       </div>
 
+      {IS_BLS && (
+        <div className="text-[10px] text-text-muted text-center -mt-1">
+          BLS-HCP ในรพ. ใช้ BVM (Ambu bag) + O₂ เป็นหลัก — ไม่ใช้ hand-only
+        </div>
+      )}
+
       {isTraining && (
         <div className="text-left text-caption text-info"
           style={{
@@ -281,9 +288,11 @@ export default function CPRDashboard({
             borderRadius: 'var(--radius)',
           }}>
           <span className="text-overline" style={{ color: 'var(--color-info)' }}>Tip </span>
-          {currentRhythm?.shockable
-            ? 'Shockable: Epi after 2nd shock → Amiodarone after 3rd shock'
-            : 'Non-shockable: Epi immediately → repeat q3-5 min'
+          {IS_BLS
+            ? 'BLS: ทำ CPR 30:2 ต่อจนกว่า AED จะวิเคราะห์เสร็จ → ทำตามคำสั่ง AED → CPR ต่อทันที 2 นาที'
+            : currentRhythm?.shockable
+              ? 'Shockable: Epi after 2nd shock → Amiodarone after 3rd shock'
+              : 'Non-shockable: Epi immediately → repeat q3-5 min'
           }
         </div>
       )}
@@ -355,7 +364,7 @@ export default function CPRDashboard({
           <HeartPulse size={16} strokeWidth={2.4} /> ROSC
         </button>
         <button onClick={handleCheckRhythm} className={`btn btn-lg btn-block ${almostDone ? 'btn-info' : 'btn-ghost'}`}>
-          <Search size={16} strokeWidth={2.2} /> Check Rhythm
+          {IS_BLS ? <><Zap size={16} strokeWidth={2.2} /> AED Analyze</> : <><Search size={16} strokeWidth={2.2} /> Check Rhythm</>}
         </button>
       </div>
 
