@@ -6,6 +6,21 @@
 //
 // To add a lesson: append an object below with a unique `id` and `steps` array.
 
+// Supplementary video resources — opened in a new tab.
+// Set `url` to empty string to hide a platform.
+export const preCourseVideos = [
+  {
+    platform: 'youtube',
+    label: 'ดูบน YouTube',
+    url: 'https://youtube.com/@jia-bu8yn',
+  },
+  {
+    platform: 'tiktok',
+    label: 'ดูบน TikTok',
+    url: 'https://www.tiktok.com/@jia_lucksa',
+  },
+];
+
 const lessonDefs = [
   // ===================== บทที่ 1 =====================
   {
