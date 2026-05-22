@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Award, ChevronRight, Lock, Check, RotateCcw } from 'lucide-react';
 import { POST_TEST_PASS_PERCENT, POST_TEST_QUESTION_COUNT } from '../../data/activePostTest';
 
-export default function PostTestCard({ unlocked, bestScore, passed, attemptCount }) {
+export default function PostTestCard({ unlocked, bestScore, passed, attemptCount, lessonCount }) {
   const navigate = useNavigate();
   const hasAttempt = bestScore != null;
 
@@ -32,7 +32,7 @@ export default function PostTestCard({ unlocked, bestScore, passed, attemptCount
         {!unlocked ? (
           <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 bg-bg-tertiary text-text-muted"
             style={{ borderRadius: 99 }}>
-            <Lock size={11} strokeWidth={2.4} /> ปลดล็อกเมื่อผ่านบทเรียนทั้ง 6 บท
+            <Lock size={11} strokeWidth={2.4} /> ปลดล็อกเมื่อผ่านบทเรียนทั้ง {lessonCount ?? 6} บท
           </span>
         ) : (
           <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 ${

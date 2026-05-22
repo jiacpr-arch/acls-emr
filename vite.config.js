@@ -9,7 +9,7 @@ const manifest = isBLS
   ? {
       name: 'BLS for Healthcare Providers',
       short_name: 'BLS',
-      description: 'การช่วยชีวิตขั้นพื้นฐานสำหรับบุคลากรทางการแพทย์ (AHA BLS-HCP)',
+      description: 'การช่วยชีวิตขั้นพื้นฐานสำหรับบุคลากรทางการแพทย์ (BLS ตาม ILCOR 2025)',
       theme_color: '#0EA5E9',
       background_color: '#F1F5F9',
       display: 'standalone',

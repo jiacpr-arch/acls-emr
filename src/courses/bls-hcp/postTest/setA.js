@@ -1,5 +1,5 @@
-// BLS-HCP Post-test Set A — 25 questions (AHA BLS-HCP 2020 + TRC)
-// Distribution: HQ-CPR 5, AED 3, team/2-rescuer 3, peds 4, infant 4, choking 3, opioid 2, chain 1
+// BLS-HCP Post-test Set A — 23 questions (BLS per ILCOR 2025 + TRC)
+// Distribution: HQ-CPR 5, AED 3, team/2-rescuer 3, in-hospital-defib 4, infant 4, choking 3, chain 1
 // ต้องผ่าน medical review โดยแพทย์ EM/ICU ก่อนปล่อย production
 
 export const setA = {
@@ -20,7 +20,7 @@ export const setA = {
 
     // ---- High-Quality CPR (5) ----
     { id: 'bls-a-2', topic: 'high-quality-cpr',
-      question: 'อัตราการกดหน้าอกในผู้ใหญ่ตาม AHA 2020 คือเท่าไร?',
+      question: 'อัตราการกดหน้าอกในผู้ใหญ่ตาม ILCOR 2025 คือเท่าไร?',
       choices: [
         { id: 'a', text: '60–80/min' }, { id: 'b', text: '80–100/min' },
         { id: 'c', text: '100–120/min' }, { id: 'd', text: '>120/min' },
@@ -113,39 +113,41 @@ export const setA = {
       ],
       correctId: 'b', explanation: 'Closed-loop ลด error ใน high-stress' },
 
-    // ---- Pediatric 1-8 (4) ----
-    { id: 'bls-a-13', topic: 'pediatric',
-      question: 'อัตราส่วน C:V ในเด็ก 2-rescuer คือ?',
+    // ---- In-hospital BLS / Defib AED mode (4) ----
+    { id: 'bls-a-13', topic: 'in-hospital-defib',
+      question: 'ในโรงพยาบาล BLS provider เจอ cardiac arrest นำเครื่อง defib/monitor มาถึง ใช้ mode ไหน?',
       choices: [
-        { id: 'a', text: '30:2' }, { id: 'b', text: '15:2' },
-        { id: 'c', text: '5:1' }, { id: 'd', text: '10:2' },
+        { id: 'a', text: 'Manual mode' }, { id: 'b', text: 'AED mode' },
+        { id: 'c', text: 'Sync cardioversion' }, { id: 'd', text: 'Pacing mode' },
       ],
-      correctId: 'b', explanation: '2-rescuer ในเด็ก: 15:2 (1-rescuer 30:2)' },
-    { id: 'bls-a-14', topic: 'pediatric',
-      question: 'เด็ก HR 50 + poor perfusion ควรทำอย่างไร?',
+      correctId: 'b', explanation: 'BLS provider ใช้ AED mode (ไม่ได้รับการสอนอ่าน rhythm) — Manual = ALS' },
+    { id: 'bls-a-14', topic: 'in-hospital-defib',
+      question: 'ทำไม BLS provider ไม่ควรรอ ALS team มาก่อนใช้ defib?',
       choices: [
-        { id: 'a', text: 'รอดูอาการ' },
-        { id: 'b', text: 'ให้ O2 อย่างเดียว' },
-        { id: 'c', text: 'เริ่มกดหน้าอกทันที' },
-        { id: 'd', text: 'ฉีด atropine' },
+        { id: 'a', text: 'ALS มาช้ากว่า' },
+        { id: 'b', text: 'Defib เร็ว → ROSC สูงขึ้น ทุกนาที delay ลดโอกาสรอด ~10%' },
+        { id: 'c', text: 'ALS ไม่อยากให้รอ' },
+        { id: 'd', text: 'BLS provider ต้องโชว์ฝีมือ' },
       ],
-      correctId: 'c', explanation: 'HR<60 + poor perfusion → start compressions' },
-    { id: 'bls-a-15', topic: 'pediatric',
-      question: 'ความลึกการกดในเด็กคือ?',
+      correctId: 'b', explanation: 'Time to first shock เป็น factor สำคัญสุดต่อ survival ใน VF/pVT' },
+    { id: 'bls-a-15', topic: 'in-hospital-defib',
+      question: 'AED mode บน defib monitor ทำงานต่างจาก AED stand-alone อย่างไร?',
       choices: [
-        { id: 'a', text: '2–3 ซม.' }, { id: 'b', text: '~5 ซม. หรือ 1/3 AP' },
-        { id: 'c', text: '6–7 ซม.' }, { id: 'd', text: 'เท่าผู้ใหญ่ทุกอย่าง' },
+        { id: 'a', text: 'Shock แรงกว่า' },
+        { id: 'b', text: 'Flow เหมือนกัน แต่ defib monitor switch ไป manual mode ได้เมื่อ ALS มา' },
+        { id: 'c', text: 'ไม่มี voice prompt' },
+        { id: 'd', text: 'ใช้ paddles แทน pads' },
       ],
-      correctId: 'b', explanation: '1/3 AP diameter ~ 5 ซม.' },
-    { id: 'bls-a-16', topic: 'pediatric',
-      question: 'สาเหตุหลักของ cardiac arrest ในเด็กคือ?',
+      correctId: 'b', explanation: 'AED mode flow เหมือนกัน — ข้อดีคือ ALS switch manual ได้ ไม่ต้องเปลี่ยนเครื่อง' },
+    { id: 'bls-a-16', topic: 'in-hospital-defib',
+      question: 'ALS team มาถึงระหว่าง code ที่ BLS ใช้ AED mode อยู่ — ทำอะไรกับเครื่อง?',
       choices: [
-        { id: 'a', text: 'Primary cardiac (VF/VT)' },
-        { id: 'b', text: 'Respiratory cause (asphyxia)' },
-        { id: 'c', text: 'Trauma' },
-        { id: 'd', text: 'ยาเกินขนาด' },
+        { id: 'a', text: 'ปิดเครื่อง เปลี่ยนเครื่องใหม่' },
+        { id: 'b', text: 'ถอด pads ติดใหม่' },
+        { id: 'c', text: 'หัวหน้า ALS switch ไป manual + รับ hand-off (เวลา shock, rhythm, ยา)' },
+        { id: 'd', text: 'Continue AED mode ตลอด code' },
       ],
-      correctId: 'b', explanation: 'เด็กส่วนใหญ่ arrest จาก respiratory cause → เน้น ventilation' },
+      correctId: 'c', explanation: 'Switch manual mode เพื่ออ่าน rhythm ละเอียด + ใช้ sync/pacing; pads เดิมใช้ต่อ' },
 
     // ---- Infant <1 yr (4) ----
     { id: 'bls-a-17', topic: 'infant',
@@ -208,22 +210,5 @@ export const setA = {
       ],
       correctId: 'a', explanation: 'ครรภ์แก่/อ้วนมาก: chest thrusts' },
 
-    // ---- Opioid (2) ----
-    { id: 'bls-a-24', topic: 'opioid',
-      question: 'ขนาด naloxone IM/IN ผู้ใหญ่ในกรณี opioid OD คือ?',
-      choices: [
-        { id: 'a', text: '0.04 mg' }, { id: 'b', text: '0.4–2 mg' },
-        { id: 'c', text: '5 mg' }, { id: 'd', text: '10 mg' },
-      ],
-      correctId: 'b', explanation: 'Naloxone 0.4–2 mg IM/IN ทุก 2–3 นาที' },
-    { id: 'bls-a-25', topic: 'opioid',
-      question: 'ทำไมต้อง observe ผู้ป่วย 2–4 ชั่วโมงหลังให้ naloxone?',
-      choices: [
-        { id: 'a', text: 'เพื่อให้ฤทธิ์ opioid หายหมด' },
-        { id: 'b', text: 'Naloxone half-life สั้นกว่า opioid อาจ re-narcotize' },
-        { id: 'c', text: 'เพื่อจ่ายค่ารักษา' },
-        { id: 'd', text: 'ตามกฎหมาย' },
-      ],
-      correctId: 'b', explanation: 'Naloxone half-life 60–90 นาที สั้นกว่า heroin/fentanyl' },
   ],
 };

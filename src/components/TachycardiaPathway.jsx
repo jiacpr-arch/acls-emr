@@ -6,7 +6,7 @@ import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
 import { TrendingUp, Zap, Activity } from 'lucide-react';
 
-// Escalating biphasic energy ladder for cardioversion / defib (AHA)
+// Escalating biphasic energy ladder for cardioversion / defib (ILCOR 2025)
 const ENERGY_LADDER = [100, 120, 150, 200, 300, 360];
 const nextEnergyUp = (current, max) => {
   const idx = ENERGY_LADDER.findIndex(e => e >= current);
@@ -52,7 +52,7 @@ const CARDIOVERSION_RHYTHMS = [
   },
 ];
 
-// Tachycardia Pathway — AHA 2024 Guideline
+// Tachycardia Pathway — ILCOR 2025
 // HR > 150 + Stable/Unstable auto-detect
 // Flow: Unstable assessment → Rhythm type → Treatment
 export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onRecheckPulse, isTraining }) {
