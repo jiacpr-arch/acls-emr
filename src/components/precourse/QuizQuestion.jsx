@@ -2,14 +2,14 @@ import { Check, X } from 'lucide-react';
 
 export default function QuizQuestion({ question, chosenId, onChoose, locked, showCorrect }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div
         className="text-text-primary leading-snug font-bold"
-        style={{ fontSize: '16px', lineHeight: 1.4 }}
+        style={{ fontSize: '15px', lineHeight: 1.4 }}
       >
         {question.question}
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         {question.choices.map((c) => {
           const selected = chosenId === c.id;
           const isCorrect = showCorrect && c.id === question.correctId;
@@ -19,7 +19,7 @@ export default function QuizQuestion({ question, chosenId, onChoose, locked, sho
             : isWrong
               ? 'border-danger bg-danger/15'
               : selected
-                ? 'border-info bg-info/20'
+                ? 'border-info bg-info/25'
                 : 'border-border-strong bg-bg-secondary hover:bg-bg-tertiary active:bg-bg-tertiary';
           const emphasized = selected || isCorrect || isWrong;
           return (
@@ -31,13 +31,13 @@ export default function QuizQuestion({ question, chosenId, onChoose, locked, sho
               className={`w-full flex items-center gap-2.5 text-left transition-colors disabled:cursor-default ${stateClasses}`}
               style={{
                 borderRadius: 'var(--radius-md)',
-                borderWidth: emphasized ? '3px' : '1.5px',
+                borderWidth: emphasized ? '2.5px' : '2px',
                 borderStyle: 'solid',
-                padding: emphasized ? '9px 11px' : '10px 12px',
-                minHeight: '46px',
+                padding: '6px 10px',
+                minHeight: '38px',
                 boxShadow: emphasized
                   ? 'var(--shadow-2)'
-                  : 'var(--shadow-1)',
+                  : 'none',
               }}>
               <span
                 className={`inline-flex items-center justify-center font-bold shrink-0 ${
@@ -47,19 +47,19 @@ export default function QuizQuestion({ question, chosenId, onChoose, locked, sho
                     : 'bg-bg-tertiary text-text-secondary'
                 }`}
                 style={{
-                  width: '28px',
-                  height: '28px',
-                  fontSize: '13px',
+                  width: '24px',
+                  height: '24px',
+                  fontSize: '12px',
                   borderRadius: 'var(--radius-full)',
                 }}
               >
-                {isCorrect ? <Check size={15} strokeWidth={2.6} />
-                  : isWrong ? <X size={15} strokeWidth={2.6} />
+                {isCorrect ? <Check size={13} strokeWidth={2.6} />
+                  : isWrong ? <X size={13} strokeWidth={2.6} />
                   : c.id.toUpperCase()}
               </span>
               <span
-                className="text-text-primary flex-1"
-                style={{ fontSize: '14px', lineHeight: 1.4, fontWeight: 500 }}
+                className="text-text-primary flex-1 text-left"
+                style={{ fontSize: '14px', lineHeight: 1.35, fontWeight: 500 }}
               >
                 {c.text}
               </span>
