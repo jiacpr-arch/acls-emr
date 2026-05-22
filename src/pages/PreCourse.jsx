@@ -146,6 +146,7 @@ export default function PreCourse() {
               bestScore={ptBest?.score ?? null}
               passed={ptBest?.passed ?? false}
               attemptCount={ptAttempts.length}
+              lessonCount={preCourseLessons.length}
             />
           </>
         );

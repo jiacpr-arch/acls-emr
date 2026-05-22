@@ -1,5 +1,5 @@
-// BLS-HCP Post-test Set B — 25 questions (AHA BLS-HCP 2020 + TRC)
-// คำถามต่างจาก Set A คอบคลุม topic เดียวกัน
+// BLS-HCP Post-test Set B — 23 questions (AHA BLS-HCP 2020 + TRC)
+// คำถามต่างจาก Set A ครอบคลุม topic เดียวกัน
 // ต้องผ่าน medical review โดยแพทย์ EM/ICU ก่อนปล่อย production
 
 export const setB = {
@@ -222,24 +222,5 @@ export const setB = {
       ],
       correctId: 'c', explanation: 'ห้าม abdominal thrust ในทารก เสี่ยง liver injury' },
 
-    // ---- Opioid (2) ----
-    { id: 'bls-b-24', topic: 'opioid',
-      question: 'อาการ classic ของ opioid toxidrome คือ?',
-      choices: [
-        { id: 'a', text: 'Dilated pupils + tachycardia' },
-        { id: 'b', text: 'Pinpoint pupils + respiratory depression + altered MS' },
-        { id: 'c', text: 'Hyperthermia + tremor' },
-        { id: 'd', text: 'Seizure + diaphoresis' },
-      ],
-      correctId: 'b', explanation: 'Triad: pinpoint pupils + RR ลด + ซึม' },
-    { id: 'bls-b-25', topic: 'opioid',
-      question: 'ผู้ป่วย opioid OD ไม่มี pulse — ทำอะไร?',
-      choices: [
-        { id: 'a', text: 'Naloxone ก่อน CPR' },
-        { id: 'b', text: 'CPR + AED + naloxone' },
-        { id: 'c', text: 'รอ naloxone ออกฤทธิ์' },
-        { id: 'd', text: 'Rescue breath อย่างเดียว' },
-      ],
-      correctId: 'b', explanation: 'ไม่มี pulse → CPR + AED ทันที + ให้ naloxone ร่วมด้วย' },
   ],
 };

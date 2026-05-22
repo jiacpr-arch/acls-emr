@@ -3,7 +3,7 @@ import { setB } from './setB';
 
 export const POST_TEST_LESSON_ID = 'bls-post-test';
 export const POST_TEST_PASS_PERCENT = 84;   // AHA BLS standard
-export const POST_TEST_QUESTION_COUNT = 25;
+export const POST_TEST_QUESTION_COUNT = 23;
 
 export const postTestSets = [setA, setB];
 

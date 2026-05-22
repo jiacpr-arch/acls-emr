@@ -1,5 +1,5 @@
-// BLS-HCP Post-test Set A — 25 questions (AHA BLS-HCP 2020 + TRC)
-// Distribution: HQ-CPR 5, AED 3, team/2-rescuer 3, peds 4, infant 4, choking 3, opioid 2, chain 1
+// BLS-HCP Post-test Set A — 23 questions (AHA BLS-HCP 2020 + TRC)
+// Distribution: HQ-CPR 5, AED 3, team/2-rescuer 3, peds 4, infant 4, choking 3, chain 1
 // ต้องผ่าน medical review โดยแพทย์ EM/ICU ก่อนปล่อย production
 
 export const setA = {
@@ -208,22 +208,5 @@ export const setA = {
       ],
       correctId: 'a', explanation: 'ครรภ์แก่/อ้วนมาก: chest thrusts' },
 
-    // ---- Opioid (2) ----
-    { id: 'bls-a-24', topic: 'opioid',
-      question: 'ขนาด naloxone IM/IN ผู้ใหญ่ในกรณี opioid OD คือ?',
-      choices: [
-        { id: 'a', text: '0.04 mg' }, { id: 'b', text: '0.4–2 mg' },
-        { id: 'c', text: '5 mg' }, { id: 'd', text: '10 mg' },
-      ],
-      correctId: 'b', explanation: 'Naloxone 0.4–2 mg IM/IN ทุก 2–3 นาที' },
-    { id: 'bls-a-25', topic: 'opioid',
-      question: 'ทำไมต้อง observe ผู้ป่วย 2–4 ชั่วโมงหลังให้ naloxone?',
-      choices: [
-        { id: 'a', text: 'เพื่อให้ฤทธิ์ opioid หายหมด' },
-        { id: 'b', text: 'Naloxone half-life สั้นกว่า opioid อาจ re-narcotize' },
-        { id: 'c', text: 'เพื่อจ่ายค่ารักษา' },
-        { id: 'd', text: 'ตามกฎหมาย' },
-      ],
-      correctId: 'b', explanation: 'Naloxone half-life 60–90 นาที สั้นกว่า heroin/fentanyl' },
   ],
 };

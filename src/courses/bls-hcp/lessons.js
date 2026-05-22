@@ -18,6 +18,39 @@ export const preCourseVideos = [
   },
 ];
 
+// Per-lesson videos — แต่ละบทมีวีดีโอเฉพาะของตัวเอง
+// TODO: แทนที่ url ด้วยลิงก์วีดีโอ specific ของแต่ละบทเมื่อพร้อม
+const lessonVideos = {
+  'bls-1': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
+    { platform: 'tiktok', label: 'ดูบน TikTok', url: 'https://www.tiktok.com/@jia_lucksa' },
+  ],
+  'bls-2': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
+    { platform: 'tiktok', label: 'ดูบน TikTok', url: 'https://www.tiktok.com/@jia_lucksa' },
+  ],
+  'bls-3': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
+    { platform: 'tiktok', label: 'ดูบน TikTok', url: 'https://www.tiktok.com/@jia_lucksa' },
+  ],
+  'bls-4': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
+    { platform: 'tiktok', label: 'ดูบน TikTok', url: 'https://www.tiktok.com/@jia_lucksa' },
+  ],
+  'bls-5': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
+    { platform: 'tiktok', label: 'ดูบน TikTok', url: 'https://www.tiktok.com/@jia_lucksa' },
+  ],
+  'bls-6': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
+    { platform: 'tiktok', label: 'ดูบน TikTok', url: 'https://www.tiktok.com/@jia_lucksa' },
+  ],
+  'bls-7': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
+    { platform: 'tiktok', label: 'ดูบน TikTok', url: 'https://www.tiktok.com/@jia_lucksa' },
+  ],
+};
+
 const lessonDefs = [
   // ===================== บทที่ 1 =====================
   {
@@ -408,64 +441,6 @@ const lessonDefs = [
     ],
   },
 
-  // ===================== บทที่ 8 =====================
-  {
-    id: 'bls-8',
-    title: 'บทที่ 8: Opioid Emergency + Naloxone',
-    description: 'การช่วยเหลือผู้ป่วย opioid overdose และการใช้ naloxone',
-    estMinutes: 8,
-    passingScore: 75,
-    steps: [
-      { type: 'read', heading: 'Opioid-Associated Life-Threatening Emergency',
-        body: 'อาการ: หมดสติ + หายใจช้า/ไม่หายใจ + รูม่านตาเล็ก (pinpoint pupils) + อาจมีร่องรอยฉีดยา\nสาเหตุการตาย: respiratory arrest → cardiac arrest\nNaloxone กลับ effects ของ opioid (mu-receptor antagonist)' },
-      { type: 'read', heading: 'ขั้นตอนการช่วยเหลือ',
-        body: '1) เรียกขอความช่วยเหลือ\n2) ถ้าหายใจปกติ + ไม่ตอบสนอง: ให้ naloxone + monitor\n3) ถ้าหายใจช้า/ไม่หายใจ + มี pulse: ให้ rescue breath (1 ครั้งทุก 5–6 วินาที) + naloxone\n4) ถ้าไม่มี pulse: CPR ทันที + AED + naloxone' },
-      { type: 'read', heading: 'Naloxone — ขนาดและทาง',
-        body: '• IM/IN: 0.4–2 mg (intranasal สะดวก ไม่ต้องเข็ม)\n• IV: 0.04–0.4 mg titrate\n• ทำซ้ำได้ทุก 2–3 นาทีถ้ายังไม่ตอบสนอง\n• ครึ่งชีวิตสั้น (60–90 นาที) — อาจ re-narcotization เมื่อ opioid (heroin/fentanyl) ออกฤทธิ์ต่อ' },
-      { type: 'read', heading: 'หลังให้ Naloxone',
-        body: '• Observe อย่างน้อย 2–4 ชั่วโมง (4 ชม. ถ้าเป็น long-acting opioid)\n• เตือนผู้ป่วยถึงโอกาส withdrawal\n• ส่งต่อเพื่อรักษา addiction (MAT, counseling)' },
-      { type: 'quiz', id: 'bls-8-q1',
-        question: 'ขนาด naloxone IM/IN สำหรับ opioid emergency ในผู้ใหญ่คือเท่าไร?',
-        choices: [
-          { id: 'a', text: '0.04 mg' },
-          { id: 'b', text: '0.4–2 mg' },
-          { id: 'c', text: '5 mg' },
-          { id: 'd', text: '10 mg' },
-        ],
-        correctId: 'b',
-        explanation: 'Naloxone IM/IN 0.4–2 mg ทุก 2–3 นาทีจนกว่าจะตอบสนอง' },
-      { type: 'quiz', id: 'bls-8-q2',
-        question: 'ผู้ป่วย opioid OD หมดสติ หายใจช้า มี pulse — ทำอะไรก่อน?',
-        choices: [
-          { id: 'a', text: 'CPR ทันที' },
-          { id: 'b', text: 'Rescue breath + naloxone' },
-          { id: 'c', text: 'รอ EMS' },
-          { id: 'd', text: 'ปลุกด้วยน้ำเย็น' },
-        ],
-        correctId: 'b',
-        explanation: 'มี pulse แต่หายใจไม่พอ → rescue breath (1 ครั้ง/5–6 วินาที) + naloxone — CPR เฉพาะเมื่อไม่มี pulse' },
-      { type: 'quiz', id: 'bls-8-q3',
-        question: 'ลักษณะ pupils ของผู้ป่วย opioid OD เป็นอย่างไร?',
-        choices: [
-          { id: 'a', text: 'Dilated (ขยาย)' },
-          { id: 'b', text: 'Pinpoint (เล็กเป็นจุด)' },
-          { id: 'c', text: 'Anisocoria (ขนาดไม่เท่ากัน)' },
-          { id: 'd', text: 'ปกติทุกกรณี' },
-        ],
-        correctId: 'b',
-        explanation: 'Pinpoint pupils + respiratory depression + altered mental status = opioid toxidrome classic' },
-      { type: 'quiz', id: 'bls-8-q4',
-        question: 'ทำไมต้อง observe ผู้ป่วยอย่างน้อย 2–4 ชั่วโมงหลังให้ naloxone?',
-        choices: [
-          { id: 'a', text: 'เพื่อให้ฤทธิ์ opioid หายไปหมด' },
-          { id: 'b', text: 'เพราะ naloxone มี half-life สั้นกว่า opioid — อาจ re-narcotization' },
-          { id: 'c', text: 'เพื่อจ่ายค่ารักษา' },
-          { id: 'd', text: 'ตามกฎหมาย' },
-        ],
-        correctId: 'b',
-        explanation: 'Naloxone half-life 60–90 นาที สั้นกว่า heroin/fentanyl อาจ re-narcotize หลังออกฤทธิ์หมด' },
-    ],
-  },
 ];
 
 function deriveLesson(l) {
@@ -477,7 +452,7 @@ function deriveLesson(l) {
     correctId: s.correctId,
     explanation: s.explanation,
   }));
-  return { ...l, sections, quiz };
+  return { ...l, sections, quiz, videos: lessonVideos[l.id] ?? [] };
 }
 
 export const preCourseLessons = lessonDefs.map(deriveLesson);
