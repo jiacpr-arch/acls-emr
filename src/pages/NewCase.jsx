@@ -115,7 +115,7 @@ export default function NewCase() {
         />
       )}
 
-      <div className="page-container space-y-6 pb-28">
+      <div className="page-container space-y-7 pb-28">
         <ACLSHero isClinical={isClinical} />
 
         {/* Resume active session — keeps the warning border accent */}
