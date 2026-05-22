@@ -35,11 +35,13 @@ export const ekgQuestions = [
   {
     id: 'q4', category: 'arrest', rhythmId: 'pvt', answer: 'pvt',
     options: ['pvt', 'svt', 'af', 'sb'],
+    pulse: 'none',
     hint: 'QRS กว้าง (>0.12s) เร็ว สม่ำเสมอ ไม่มีชีพจร → Shock',
   },
   {
     id: 'q5', category: 'arrest', rhythmId: 'pea', answer: 'pea',
     options: ['pea', 'nsr', 'sb', 'junctional'],
+    pulse: 'none',
     hint: 'EKG ดูปกติแต่คลำชีพจรไม่ได้ = PEA → CPR + หา H/T',
   },
 
@@ -106,11 +108,13 @@ export const ekgQuestions = [
   {
     id: 'q17', category: 'wide', rhythmId: 'vt', answer: 'vt',
     options: ['vt', 'svt', 'tdp', 'wpw'],
+    pulse: 'present',
     hint: 'QRS กว้าง สม่ำเสมอ > 100/min มีชีพจร — stable: amiodarone, unstable: cardiovert',
   },
   {
     id: 'q18', category: 'wide', rhythmId: 'tdp', answer: 'tdp',
     options: ['tdp', 'vf_coarse', 'vt', 'pvt'],
+    pulse: 'none',
     hint: 'Polymorphic VT แอมพลิจูดบิดเกลียว → MgSO4 / defib ถ้าไม่มีชีพจร',
   },
   {

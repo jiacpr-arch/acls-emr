@@ -303,8 +303,22 @@ export default function ALSKnowledge() {
 
           {!quizDone && quizQ && (
             <div className="dash-card space-y-3">
-              <div className="text-overline text-info inline-flex items-center gap-1.5">
-                <Activity size={12} strokeWidth={2.2} /> จังหวะนี้คืออะไร?
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-overline text-info inline-flex items-center gap-1.5">
+                  <Activity size={12} strokeWidth={2.2} /> จังหวะนี้คืออะไร?
+                </div>
+                {quizQ.pulse === 'none' && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold bg-danger/15 text-danger border border-danger/40"
+                    style={{ borderRadius: 99 }}>
+                    คลำชีพจรไม่ได้ · NO PULSE
+                  </span>
+                )}
+                {quizQ.pulse === 'present' && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold bg-success/15 text-success border border-success/40"
+                    style={{ borderRadius: 99 }}>
+                    มีชีพจร · PULSE PRESENT
+                  </span>
+                )}
               </div>
               <div className="overflow-hidden border border-border" style={{ borderRadius: 'var(--radius-sm)' }}>
                 {quizQ.imageUrl ? (
