@@ -209,9 +209,9 @@ const lessonDefs = [
   // ===================== บทที่ 4 =====================
   {
     id: 'bls-4',
-    title: 'บทที่ 4: 2-rescuer CPR และ Team Dynamics',
-    description: 'การทำงานเป็นทีม การสลับคนกด การสื่อสารแบบ closed-loop',
-    estMinutes: 8,
+    title: 'บทที่ 4: 2-rescuer CPR, Team Dynamics และ ROSC',
+    description: 'การทำงานเป็นทีม สลับคนกด closed-loop communication และการดูแลหลัง ROSC',
+    estMinutes: 10,
     passingScore: 75,
     steps: [
       { type: 'read', heading: 'อัตราส่วน Compression : Ventilation',
@@ -260,6 +260,20 @@ const lessonDefs = [
         ],
         correctId: 'a',
         explanation: 'การหยุด > 5 วินาทีจะลด coronary perfusion pressure อย่างมาก กระทบการกลับมาของ ROSC' },
+      { type: 'read', heading: 'หลัง ROSC: การดูแลเบื้องต้น',
+        body: '• ตรวจชีพจร + การหายใจอีกครั้ง — มี pulse กลับมาแล้ว = Return of Spontaneous Circulation (ROSC)\n• ถ้าหายใจเองได้ปกติ แต่ยังไม่รู้สึกตัว → จัดท่า Recovery position ป้องกัน aspiration\n• ถ้าหายใจไม่พอ → rescue breath 1 ครั้งทุก 5–6 วินาที (10–12/นาที)\n• Monitor ใกล้ชิด — re-arrest มีโอกาสสูงในช่วงแรก\n• ห้ามถอด pads/ปิดเครื่อง AED จนกว่าจะส่งต่อ — re-arrest จะได้ shock ได้ทันที\n• เรียก ALS / ICU team รับช่วงต่อสำหรับ post-cardiac arrest care' },
+      { type: 'read', heading: 'Recovery Position',
+        body: '• ใช้กับผู้ป่วยที่หมดสติแต่หายใจปกติ + มี pulse (เช่น หลัง ROSC, opioid overdose ที่หายใจกลับ)\n• พลิกตัวตะแคงข้าง — มือล่างหนุนใต้แก้ม, คางเชิดขึ้นเล็กน้อยให้ airway โล่ง\n• เข่าบนงอ ขัดไว้ไม่ให้พลิกหงาย\n• ห้ามใช้ถ้าสงสัย spinal injury (อุบัติเหตุ, ตกที่สูง) — เปิด airway ด้วย jaw thrust แทน\n• ตรวจ airway + breathing ต่อเนื่อง ถ้าหยุดหายใจซ้ำ → เริ่ม CPR ทันที' },
+      { type: 'quiz', id: 'bls-4-q5',
+        question: 'หลัง ROSC ผู้ป่วยหายใจเองได้ปกติ แต่ยังไม่รู้สึกตัว ทำอะไรต่อ?',
+        choices: [
+          { id: 'a', text: 'กดหน้าอกต่อเพื่อความปลอดภัย' },
+          { id: 'b', text: 'จัดท่า Recovery position + monitor + รอ ALS' },
+          { id: 'c', text: 'ปิด AED แล้วถอด pads ออกทันที' },
+          { id: 'd', text: 'ปลุกด้วยการตบหน้าและน้ำเย็น' },
+        ],
+        correctId: 'b',
+        explanation: 'ROSC + หายใจปกติ + ไม่รู้สึกตัว → Recovery position ป้องกัน aspiration + monitor (re-arrest risk สูง) + ขอ ALS; ห้ามถอด AED จนส่งต่อเสร็จ' },
     ],
   },
 
