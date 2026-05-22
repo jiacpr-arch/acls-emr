@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useSettingsStore } from './stores/settingsStore';
 import Dashboard from './pages/Dashboard';
@@ -22,8 +22,19 @@ import LessonReader from './pages/LessonReader';
 import QuizResults from './pages/QuizResults';
 import InstructorCohort from './pages/InstructorCohort';
 import PostTestExam from './pages/PostTestExam';
+import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import OfflineIndicator from './components/OfflineIndicator';
+
+// Admin pages are code-split — keep the main bundle below the workbox precache limit
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const AdminChapters = lazy(() => import('./pages/AdminChapters'));
+
+const AdminFallback = () => (
+  <div className="page-container py-12 text-center text-caption text-text-muted">
+    กำลังโหลด admin…
+  </div>
+);
 
 function App() {
   const theme = useSettingsStore(s => s.theme);
@@ -42,7 +53,9 @@ function App() {
   }, [theme]);
 
   // Recording page has its own nav (QuickBar + FloatingStatus)
+  // Admin pages also hide the bottom tab bar
   const isRecording = location.pathname === '/recording';
+  const isAdmin = location.pathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -70,9 +83,27 @@ function App() {
         <Route path="/pre-course/results/:attemptId" element={<QuizResults />} />
         <Route path="/pre-course/:lessonId" element={<LessonReader />} />
         <Route path="/pre-course/:lessonId/quiz" element={<LessonReader />} />
+        <Route
+          path="/admin/login"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <AdminLogin />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/admin/chapters"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminChapters />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
       </Routes>
-      {/* Bottom pill bar on all pages except recording */}
-      {!isRecording && <BottomTabBar />}
+      {/* Bottom pill bar on all pages except recording + admin */}
+      {!isRecording && !isAdmin && <BottomTabBar />}
     </div>
   );
 }
