@@ -44,6 +44,9 @@ const lessonVideos = {
     { platform: 'youtube', label: 'ผู้ใหญ่ (YouTube)', url: 'https://youtu.be/t3WnWOOVh2c' },
     { platform: 'youtube', label: 'เด็ก (YouTube)', url: 'https://youtu.be/pCgxwQUzph0' },
   ],
+  'bls-1r': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/ayov6IVgW7w' },
+  ],
 };
 
 const lessonDefs = [
@@ -208,8 +211,65 @@ const lessonDefs = [
 
   // ===================== บทที่ 4 =====================
   {
+    id: 'bls-1r',
+    title: 'บทที่ 4: One-rescuer CPR',
+    description: 'การช่วยเหลือคนเดียวก่อนทีมมาถึง — CAB sequence, ใช้ AED คนเดียว, ขอความช่วยเหลือด้วย speakerphone',
+    estMinutes: 7,
+    passingScore: 75,
+    steps: [
+      { type: 'read', heading: 'หลักการ One-rescuer BLS',
+        body: '• ผู้ช่วยเหลือคนเดียว = บุคลากร/พลเรือนคนแรกที่พบเหตุ ก่อนทีม CPR/EMS มาถึง\n• เป้าหมาย: เริ่ม CPR + ขอความช่วยเหลือ + ใช้ AED ให้เร็วที่สุด โดยไม่เสียเวลากดหน้าอก\n• ใช้ speakerphone โทร 1669 / activate code blue พร้อมกดหน้าอกไปด้วยได้\n• อย่ารอความช่วยเหลือก่อนเริ่ม CPR — early CPR + early defib = survival' },
+      { type: 'read', heading: 'ขั้นตอน CAB (Compression-Airway-Breathing)',
+        body: '1) Scene safety + tap and shout ปลุก\n2) ไม่ตอบสนอง → เรียก EMS / code blue ผ่าน speakerphone + ขอ AED\n3) ตรวจการหายใจ + carotid pulse พร้อมกัน ไม่เกิน 10 วินาที\n4) ไม่มี pulse หรือไม่แน่ใจ → เริ่ม CPR 30:2 ทันที (อัตรา 100–120/min)\n5) ใช้ AED ทันทีที่มาถึง วิเคราะห์ → shock → CPR ต่อ\n6) ทำต่อจนทีมมาถึง / ROSC / หมดแรง' },
+      { type: 'read', heading: 'การใช้ AED คนเดียว',
+        body: '• ติด pads ระหว่างที่ยังกดหน้าอกอยู่ก็ได้ — ลดเวลา interrupt\n• หยุดกดเฉพาะตอน AED วิเคราะห์ rhythm (ห้ามแตะผู้ป่วย ~5–10 วินาที)\n• สั่งเคลียร์คนรอบ ๆ ระหว่าง analyze\n• หลัง shock → กลับมากดต่อทันที (ห้ามตรวจ pulse ก่อน)\n• ทุก 2 นาที AED จะ prompt วิเคราะห์ rhythm ซ้ำ' },
+      { type: 'read', heading: 'เมื่อไหร่จึงหยุด CPR ได้',
+        body: '• ROSC: หายใจ + มี pulse กลับมา → จัดท่า recovery (ดูบทที่ 5)\n• ทีม CPR / EMS มาถึงและรับช่วงต่อ\n• หมดแรง ไม่สามารถกดต่อได้\n• สถานการณ์ไม่ปลอดภัย (เพลิงไหม้ น้ำท่วม)\n• แพทย์ประกาศยุติการช่วยเหลือ' },
+      { type: 'quiz', id: 'bls-1r-q1',
+        question: 'ผู้ช่วยเหลือคนเดียวพบผู้ป่วยหมดสติริมถนน — ขั้นตอนถูกต้องคือ?',
+        choices: [
+          { id: 'a', text: 'วิ่งไปตามคนช่วยก่อน แล้วค่อยกลับมาทำ CPR' },
+          { id: 'b', text: 'ใช้ speakerphone เรียก 1669 พร้อมประเมิน + เริ่ม CPR' },
+          { id: 'c', text: 'ตรวจชีพจร 30 วินาทีให้แน่ใจ' },
+          { id: 'd', text: 'รอ ambulance ก่อนเริ่มทำอะไร' },
+        ],
+        correctId: 'b',
+        explanation: 'Speakerphone ทำให้เรียก EMS + ทำ CPR ได้พร้อมกัน — early CPR สำคัญต่อ survival, อย่าทิ้งผู้ป่วยไปตามคน' },
+      { type: 'quiz', id: 'bls-1r-q2',
+        question: 'อัตราส่วน Compression:Ventilation ของ one-rescuer ในผู้ใหญ่คือ?',
+        choices: [
+          { id: 'a', text: '15:2' }, { id: 'b', text: '30:2' },
+          { id: 'c', text: '50:2' }, { id: 'd', text: 'continuous compression อย่างเดียว' },
+        ],
+        correctId: 'b',
+        explanation: '1-rescuer: 30:2 (ทั้งผู้ใหญ่/เด็ก/ทารก); 2-rescuer ในเด็ก/ทารก: 15:2' },
+      { type: 'quiz', id: 'bls-1r-q3',
+        question: 'ผู้ช่วยเหลือคนเดียวกดหน้าอกอยู่ AED มาถึง — ทำอะไรต่อ?',
+        choices: [
+          { id: 'a', text: 'กดต่ออีก 5 นาทีค่อยใส่ AED' },
+          { id: 'b', text: 'ติด pads ระหว่างที่ยังกดอยู่ แล้วให้ AED วิเคราะห์' },
+          { id: 'c', text: 'รอจน rhythm กลับมาเอง' },
+          { id: 'd', text: 'ใส่ AED แล้วหยุด CPR ทั้งหมด' },
+        ],
+        correctId: 'b',
+        explanation: 'ติด pads ระหว่างกดเพื่อลดเวลา interrupt — early defib เพิ่ม survival อย่างมาก' },
+      { type: 'quiz', id: 'bls-1r-q4',
+        question: 'ผู้ช่วยเหลือคนเดียวกดจนเหนื่อยมาก — ทำอะไรต่อ?',
+        choices: [
+          { id: 'a', text: 'หยุดทุกอย่าง รอ EMS' },
+          { id: 'b', text: 'กดต่อแม้คุณภาพลด — ทำจนคนช่วยมาถึง หรือหมดแรงจริง ๆ' },
+          { id: 'c', text: 'พัก 5 นาที แล้วค่อยกดใหม่' },
+          { id: 'd', text: 'นวดท้องแทน' },
+        ],
+        correctId: 'b',
+        explanation: 'การ interrupt CPR ↓ coronary perfusion → ↓ ROSC chances; กดต่อแม้คุณภาพลดยังดีกว่าหยุด' },
+    ],
+  },
+
+  // ===================== บทที่ 5 =====================
+  {
     id: 'bls-4',
-    title: 'บทที่ 4: 2-rescuer CPR, Team Dynamics และ ROSC',
+    title: 'บทที่ 5: 2-rescuer CPR, Team Dynamics และ ROSC',
     description: 'การทำงานเป็นทีม สลับคนกด closed-loop communication และการดูแลหลัง ROSC',
     estMinutes: 10,
     passingScore: 75,
@@ -277,10 +337,10 @@ const lessonDefs = [
     ],
   },
 
-  // ===================== บทที่ 5 =====================
+  // ===================== บทที่ 6 =====================
   {
     id: 'bls-5',
-    title: 'บทที่ 5: BLS ในโรงพยาบาล — Defib ใน AED Mode',
+    title: 'บทที่ 6: BLS ในโรงพยาบาล — Defib ใน AED Mode',
     description: 'ในโรงพยาบาลใช้ monitor/defibrillator แทน AED stand-alone — BLS provider ใช้ AED mode เพื่อ shock ได้ทันที',
     estMinutes: 7,
     passingScore: 75,
@@ -336,10 +396,10 @@ const lessonDefs = [
     ],
   },
 
-  // ===================== บทที่ 6 =====================
+  // ===================== บทที่ 7 =====================
   {
     id: 'bls-6',
-    title: 'บทที่ 6: CPR ในทารก (< 1 ปี)',
+    title: 'บทที่ 7: CPR ในทารก (< 1 ปี)',
     description: 'เทคนิคพิเศษสำหรับทารก: 2-finger / 2-thumb encircling, brachial pulse',
     estMinutes: 7,
     passingScore: 75,
@@ -393,10 +453,10 @@ const lessonDefs = [
     ],
   },
 
-  // ===================== บทที่ 7 =====================
+  // ===================== บทที่ 8 =====================
   {
     id: 'bls-7',
-    title: 'บทที่ 7: ทางเดินหายใจอุดกั้น (FBAO)',
+    title: 'บทที่ 8: ทางเดินหายใจอุดกั้น (FBAO)',
     description: 'Foreign Body Airway Obstruction ในผู้ใหญ่ เด็ก ทารก',
     estMinutes: 6,
     passingScore: 75,
