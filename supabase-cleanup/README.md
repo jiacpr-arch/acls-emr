@@ -8,20 +8,38 @@
 
 ## Automated health check
 
-`.github/workflows/supabase-health-check.yml` runs `scripts/check-supabase-advisors.mjs`
-daily at 09:00 ICT against the live Supabase project. It opens (or updates) a
-GitHub issue when it detects:
+`.github/workflows/supabase-health-check.yml` runs
+`scripts/check-supabase-advisors.mjs` daily at 09:00 ICT against every
+Supabase project listed in the workflow's matrix (one parallel job per
+project). For each project it opens (or updates) a separate GitHub issue
+when it detects:
 
-- RLS-disabled tables in the `public` schema (critical security)
-- Unindexed foreign keys (performance)
+- **RLS-disabled tables** in the `public` schema (CRITICAL)
+- **SECURITY DEFINER views** that bypass caller RLS (CRITICAL)
+- Unindexed foreign keys (informational — logged but does not open an issue
+  on its own)
 
-If a future run finds the project healthy, it automatically closes the existing
-issue with a confirmation comment.
+If a future run finds the project healthy, the corresponding issue is
+auto-closed with a confirmation comment.
+
+### Currently monitored projects
+
+| Name | Ref |
+| --- | --- |
+| emr-ai-clinic | `elyyijlcjfvhxbpzscnv` |
+| pharmroo | `xdafacvqfqkicaxfhwom` |
+| jia-unified | `tpoiyykbgsgnrdwzgzvn` |
+| roodee | `oijpocbsyqdkorvjylbi` |
+| morroo | `knxidnzexqehusndquqg` |
+| jialucksa-crm | `cxlpazuwsajcjaidzupf` |
+
+To add or remove a project, edit the `matrix.project` list in the workflow.
 
 ### Setup (one-time)
 
 1. **Create a Supabase personal access token**
    https://supabase.com/dashboard/account/tokens
+   (token must have access to all projects in the matrix)
 
 2. **Add it as a GitHub Actions secret**
    Repository → Settings → Secrets and variables → Actions →
@@ -29,12 +47,7 @@ issue with a confirmation comment.
    - Name: `SUPABASE_ACCESS_TOKEN`
    - Value: `sbp_...`
 
-3. **Add the project ref as a repository variable** (not secret — it's not sensitive)
-   Same page → Variables tab → New repository variable:
-   - Name: `SUPABASE_PROJECT_REF`
-   - Value: `elyyijlcjfvhxbpzscnv`  (emr-ai-clinic)
-
-4. **Trigger a manual run** to verify
+3. **Trigger a manual run** to verify
    Actions → Supabase Health Check → Run workflow
 
 ### Cost
