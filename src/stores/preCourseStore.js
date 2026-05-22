@@ -6,9 +6,10 @@ export const usePreCourseStore = create(
     (set) => ({
       activeStudent: null,        // { id, studentId, name }
       currentAttempt: null,       // { lessonId, answers: {qId: choiceId}, stepIndex, startedAt }
+      currentPostTest: null,      // { setId, answers: {qId: choiceId}, currentIndex, startedAt }
 
       setActiveStudent: (student) => set({ activeStudent: student }),
-      clearActiveStudent: () => set({ activeStudent: null, currentAttempt: null }),
+      clearActiveStudent: () => set({ activeStudent: null, currentAttempt: null, currentPostTest: null }),
 
       startAttempt: (lessonId) => set({
         currentAttempt: {
@@ -29,6 +30,26 @@ export const usePreCourseStore = create(
           : null,
       })),
       clearAttempt: () => set({ currentAttempt: null }),
+
+      startPostTest: (setId) => set({
+        currentPostTest: {
+          setId,
+          answers: {},
+          currentIndex: 0,
+          startedAt: new Date().toISOString(),
+        },
+      }),
+      setPostTestIndex: (currentIndex) => set(s => ({
+        currentPostTest: s.currentPostTest
+          ? { ...s.currentPostTest, currentIndex }
+          : null,
+      })),
+      answerPostTest: (qId, choiceId) => set(s => ({
+        currentPostTest: s.currentPostTest
+          ? { ...s.currentPostTest, answers: { ...s.currentPostTest.answers, [qId]: choiceId } }
+          : null,
+      })),
+      clearPostTest: () => set({ currentPostTest: null }),
     }),
     { name: 'acls-precourse-session' }
   )

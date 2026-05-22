@@ -4,8 +4,10 @@ import { preCourseLessons, preCourseVideos } from '../data/preCourseContent';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import LessonCard from '../components/precourse/LessonCard';
+import PostTestCard from '../components/precourse/PostTestCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
+import { POST_TEST_LESSON_ID } from '../data/postTest';
 import { GraduationCap, User, UserCheck, Users, RefreshCw } from 'lucide-react';
 
 export default function PreCourse() {
@@ -110,6 +112,23 @@ export default function PreCourse() {
           return <LessonCard key={l.id} lesson={l} {...st} />;
         })}
       </div>
+
+      {(() => {
+        const lessonsPassed = preCourseLessons.every(l => lessonState(l.id).passed);
+        const ptAttempts = attempts.filter(a => a.lessonId === POST_TEST_LESSON_ID);
+        const ptBest = ptAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+        return (
+          <>
+            <div className="text-overline text-text-muted px-1 pt-1">ข้อสอบหลังเรียน</div>
+            <PostTestCard
+              unlocked={!!activeStudent && lessonsPassed}
+              bestScore={ptBest?.score ?? null}
+              passed={ptBest?.passed ?? false}
+              attemptCount={ptAttempts.length}
+            />
+          </>
+        );
+      })()}
 
       <StudentIdentityModal
         open={showIdentity}

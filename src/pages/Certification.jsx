@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { getAllCases, getLessonProgress, getAttemptsForStudent } from '../db/database';
 import { scenarios } from '../data/scenarios';
 import { preCourseLessons } from '../data/preCourseContent';
+import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/postTest';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import {
   Trophy, BookOpen, GraduationCap, Award, BarChart3,
-  Check, Circle,
+  Check, Circle, ClipboardCheck,
 } from 'lucide-react';
 
 const CERT_KEY = 'acls_certification';
@@ -62,8 +63,13 @@ export default function Certification() {
   });
   const preCourseDone = !!activeStudent && preCourseStatus.every(s => s.passed);
 
+  const postTestAttempts = preCourseAttempts.filter(a => a.lessonId === POST_TEST_LESSON_ID);
+  const postTestBest = postTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+  const postTestDone = !!postTestBest?.passed;
+
   const requirements = [
     { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่าน)', done: preCourseDone, Icon: BookOpen },
+    { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck },
     { label: 'Complete 3+ Basic scenarios', done: basicDone, Icon: BookOpen },
     { label: 'Complete 1+ Intermediate scenario', done: interDone, Icon: GraduationCap },
     { label: 'Complete 1+ Megacode scenario', done: megaDone, Icon: Award },

@@ -24,7 +24,7 @@ export default function ResultsSummary({ attempt, lesson, student }) {
           {attempt.correctCount} / {attempt.totalQuestions} ข้อถูก · เกณฑ์ผ่าน {lesson.passingScore}%
         </div>
         <div className={`text-headline mt-3 ${passed ? 'text-success' : 'text-warning'}`}>
-          {passed ? '✓ ผ่านเกณฑ์ pre-course' : 'ยังไม่ผ่าน — ลองทำใหม่ได้'}
+          {passed ? '✓ ผ่านเกณฑ์' : 'ยังไม่ผ่าน — ลองทำใหม่ได้'}
         </div>
         {student && (
           <div className="text-caption text-text-muted mt-2">
