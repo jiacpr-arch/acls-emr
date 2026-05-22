@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { playMetronomeClick } from '../utils/sound';
-import { ChevronLeft, Play, Pause, RotateCcw, HeartPulse } from 'lucide-react';
+import { playMetronomeClick, playBeep } from '../utils/sound';
+import { ChevronLeft, Play, Pause, RotateCcw, HeartPulse, Wind } from 'lucide-react';
 
 const TARGET_RATE = 110;        // กลางช่วง 100–120
 const RATE_LOW = 100;
 const RATE_HIGH = 120;
 const CYCLE_TARGET_SEC = 120;   // 2 นาที = 1 cycle เปลี่ยนคนกด
+const BREATH_PAUSE_MS = 5000;   // pause หลังครบ 30 ครั้ง เพื่อช่วยหายใจ 2 ครั้ง
 
 export default function BLSSkillPractice() {
   const navigate = useNavigate();
@@ -16,11 +17,17 @@ export default function BLSSkillPractice() {
   const [tapCount, setTapCount] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [actualBpm, setActualBpm] = useState(null);
+  const [ratio302, setRatio302] = useState(true);    // BLS-HCP default: 30:2 ช่วยหายใจ
+  const [breathAlert, setBreathAlert] = useState(false);
+  const [breathPauseStartedAt, setBreathPauseStartedAt] = useState(null);
+  const [breathTickNow, setBreathTickNow] = useState(0);
+  const breathPauseRef = useRef(false);
+  const beatCountRef = useRef(0);
   const tapTimesRef = useRef([]);
   const elapsedTimerRef = useRef(null);
   const metronomeTimerRef = useRef(null);
 
-  // Metronome
+  // Metronome — pause ทุก 30 ครั้ง 5 วินาทีเมื่อโหมด 30:2 เปิดอยู่
   useEffect(() => {
     if (!running || !metronomeOn) {
       clearInterval(metronomeTimerRef.current);
@@ -28,10 +35,44 @@ export default function BLSSkillPractice() {
     }
     const intervalMs = 60000 / rate;
     metronomeTimerRef.current = setInterval(() => {
+      if (breathPauseRef.current) return;
       playMetronomeClick();
+      if (ratio302) {
+        beatCountRef.current += 1;
+        if (beatCountRef.current >= 30) {
+          beatCountRef.current = 0;
+          breathPauseRef.current = true;
+          setBreathAlert(true);
+          setBreathPauseStartedAt(Date.now());
+          playBeep(523, 0.3, 0.3);
+        }
+      }
     }, intervalMs);
     return () => clearInterval(metronomeTimerRef.current);
-  }, [running, metronomeOn, rate]);
+  }, [running, metronomeOn, rate, ratio302]);
+
+  // Resume after breath pause + tick clock for countdown display
+  useEffect(() => {
+    if (!breathPauseStartedAt) return;
+    const iv = setInterval(() => {
+      const now = Date.now();
+      setBreathTickNow(now);
+      if (now - breathPauseStartedAt >= BREATH_PAUSE_MS) {
+        breathPauseRef.current = false;
+        setBreathAlert(false);
+        setBreathPauseStartedAt(null);
+      }
+    }, 100);
+    return () => clearInterval(iv);
+  }, [breathPauseStartedAt]);
+
+  // Reset beat count when ratio mode flips or run stops
+  useEffect(() => {
+    beatCountRef.current = 0;
+    breathPauseRef.current = false;
+    setBreathAlert(false);
+    setBreathPauseStartedAt(null);
+  }, [ratio302, running]);
 
   // Elapsed timer
   useEffect(() => {
@@ -98,10 +139,42 @@ export default function BLSSkillPractice() {
         {/* Description */}
         <div className="dash-card">
           <div className="text-sm text-text-secondary leading-relaxed">
-            ฝึกอัตราการกดหน้าอก <b>100–120 ครั้ง/นาที</b> ตามมาตรฐาน AHA BLS<br />
+            ฝึกอัตราการกดหน้าอก <b>100–120 ครั้ง/นาที</b> ตามมาตรฐาน BLS (ILCOR 2025)<br />
             กดปุ่ม <b>เริ่ม</b> เพื่อเปิด metronome → แตะปุ่มใหญ่ตามจังหวะที่กดจริง → ตรวจสอบ BPM ของตัวเอง<br />
             เปลี่ยนคนกดทุก <b>2 นาที</b> เพื่อรักษาคุณภาพ
           </div>
+        </div>
+
+        {/* Breath alert banner */}
+        {breathAlert && (
+          <div className="bg-info text-white text-center py-3 text-base font-bold inline-flex items-center justify-center gap-2 w-full animate-pulse"
+            style={{ borderRadius: 'var(--radius-md)' }}>
+            <Wind size={18} /> ช่วยหายใจ 2 ครั้ง — หยุดกด {breathPauseStartedAt && (
+              <span className="font-mono">
+                {Math.max(0, Math.ceil((BREATH_PAUSE_MS - ((breathTickNow || breathPauseStartedAt) - breathPauseStartedAt)) / 1000))}s
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* 30:2 mode toggle */}
+        <div className="dash-card">
+          <label className="flex items-center justify-between gap-3 cursor-pointer">
+            <div className="flex-1">
+              <div className="text-sm font-semibold inline-flex items-center gap-2">
+                <Wind size={16} className="text-info" /> โหมด 30:2 (ช่วยหายใจ)
+              </div>
+              <div className="text-[11px] text-text-muted mt-0.5">
+                BLS-HCP standard: หยุดกดทุก 30 ครั้ง เพื่อช่วยหายใจ 2 ครั้ง (ก่อนใส่ advanced airway)
+              </div>
+            </div>
+            <input
+              type="checkbox"
+              checked={ratio302}
+              onChange={(e) => setRatio302(e.target.checked)}
+              className="w-5 h-5 accent-info"
+            />
+          </label>
         </div>
 
         {/* Stats */}

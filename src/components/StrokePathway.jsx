@@ -4,7 +4,7 @@ import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import { Brain } from 'lucide-react';
 
-// Stroke Pathway — AHA/ASA Guideline
+// Stroke Pathway — ILCOR 2025
 // Flow: FAST → Vitals + DTX → NIHSS → CT → tPA criteria → Treatment
 export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPulse, isTraining }) {
   const elapsed = useTimerStore(s => s.elapsed);

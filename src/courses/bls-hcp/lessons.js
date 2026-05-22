@@ -1,9 +1,9 @@
-// BLS for Healthcare Providers — pre-course lessons (AHA BLS-HCP 2020, ผสม TRC notes)
+// BLS for Healthcare Providers — pre-course lessons (BLS per ILCOR 2025, ผสม TRC notes)
 // ใช้ schema เดียวกับ src/data/preCourseContent.js เพื่อให้ LessonReader engine ใช้ได้เลย
 //
-// IMPORTANT: เนื้อหาในไฟล์นี้เป็น draft ที่ paraphrase จากแนวทาง AHA 2020 + TRC
+// IMPORTANT: เนื้อหาในไฟล์นี้เป็น draft ที่ paraphrase จากแนวทาง ILCOR 2025 + TRC
 // ต้องผ่าน medical review โดยแพทย์ EM/ICU ก่อนปล่อย production
-// ระวังลิขสิทธิ์ AHA — ห้าม quote algorithm table ตรง ๆ ใช้ paraphrase เท่านั้น
+// ระวังลิขสิทธิ์ ILCOR 2025 — ห้าม quote algorithm table ตรง ๆ ใช้ paraphrase เท่านั้น
 
 export const preCourseVideos = [
   {
@@ -107,10 +107,12 @@ const lessonDefs = [
     steps: [
       { type: 'read', heading: '5 องค์ประกอบของ High-Quality CPR',
         body: '1) อัตรา 100–120 ครั้ง/นาที\n2) ความลึก 5–6 ซม. (อย่างน้อย 1/3 ของ AP diameter)\n3) ปล่อยให้หน้าอกคืนตัวเต็มที่ (full recoil)\n4) ลดการหยุดกดหน้าอกให้น้อยที่สุด (CCF > 60%, เป้าหมาย 80%)\n5) ห้าม over-ventilation (หลังใส่ advanced airway: 1 ครั้งทุก 6 วินาที = 10 ครั้ง/นาที)' },
+      { type: 'read', heading: '⚠ BLS-HCP: ต้องช่วยหายใจเสมอ',
+        body: 'Hand-only CPR (กดอย่างเดียว) เป็นทางเลือกสำหรับ lay rescuer เท่านั้น\n• BLS-HCP ในโรงพยาบาลใช้ BVM (Ambu bag) + O₂ high flow เป็นหลัก — มีอุปกรณ์ครบ ใช้ได้เลย\n• Pocket mask / face shield = ทางเลือกสำรองกรณีไม่มี BVM หรือยังไม่ถึงตำแหน่ง\n• ไม่มี advanced airway → 30:2 (กด 30 ครั้ง บีบ Ambu 2 ครั้ง)\n• หลังใส่ ETT / SGA / LMA → continuous compressions + บีบ Ambu 1 ครั้งทุก 6 วินาที (10/min)\n• บีบ Ambu 1 วินาทีต่อครั้ง พอเห็นหน้าอกขึ้น — อย่าบีบแรง/เร็ว (กัน gastric inflation)' },
       { type: 'read', heading: 'ตำแหน่งและท่าทาง',
         body: '• วางส้นมือบนกลางหน้าอก ครึ่งล่างของกระดูก sternum\n• ประสานมือทั้งสอง แขนเหยียดตรง ไหล่อยู่เหนือมือ ใช้น้ำหนักตัวกด\n• ผู้ป่วยควรอยู่บนพื้นแข็ง (backboard ถ้าอยู่บนเตียงนุ่ม)' },
       { type: 'quiz', id: 'bls-2-q1',
-        question: 'อัตราการกดหน้าอกในผู้ใหญ่ตามแนวทาง AHA 2020 คือเท่าไร?',
+        question: 'อัตราการกดหน้าอกในผู้ใหญ่ตามแนวทาง ILCOR 2025 คือเท่าไร?',
         choices: [
           { id: 'a', text: '60–80 ครั้ง/นาที' },
           { id: 'b', text: '80–100 ครั้ง/นาที' },
@@ -118,7 +120,7 @@ const lessonDefs = [
           { id: 'd', text: 'มากกว่า 120 ครั้ง/นาที' },
         ],
         correctId: 'c',
-        explanation: 'AHA แนะนำ 100–120 ครั้ง/นาที กดเร็วเกินจะกดได้ไม่ลึก กดช้าเกินจะได้ flow ไม่พอ' },
+        explanation: 'ILCOR 2025 แนะนำ 100–120 ครั้ง/นาที กดเร็วเกินจะกดได้ไม่ลึก กดช้าเกินจะได้ flow ไม่พอ' },
       { type: 'quiz', id: 'bls-2-q2',
         question: 'ความลึกในการกดหน้าอกในผู้ใหญ่ที่เหมาะสมคือ?',
         choices: [
@@ -138,7 +140,7 @@ const lessonDefs = [
           { id: 'd', text: '100%' },
         ],
         correctId: 'b',
-        explanation: 'CCF ≥ 60% (เป้าหมาย 80% ตาม AHA) — เวลาที่กดหน้าอกจริงเทียบกับเวลารวมของ resuscitation' },
+        explanation: 'CCF ≥ 60% (เป้าหมาย 80% ตาม ILCOR 2025) — เวลาที่กดหน้าอกจริงเทียบกับเวลารวมของ resuscitation' },
       { type: 'quiz', id: 'bls-2-q4',
         question: 'ทำไมต้องปล่อยให้หน้าอกคืนตัวเต็มที่ระหว่าง compression?',
         choices: [
@@ -149,6 +151,16 @@ const lessonDefs = [
         ],
         correctId: 'b',
         explanation: 'Incomplete recoil → ลด venous return → ลด cardiac output ของ CPR อย่างมาก' },
+      { type: 'quiz', id: 'bls-2-q5',
+        question: 'BLS-HCP ทำ CPR แตกต่างจาก lay rescuer อย่างไร?',
+        choices: [
+          { id: 'a', text: 'BLS-HCP ใช้ hand-only CPR เหมือนกัน' },
+          { id: 'b', text: 'BLS-HCP ต้องช่วยหายใจด้วย (30:2 หรือ 1 ครั้ง/6 วินาที หลัง advanced airway)' },
+          { id: 'c', text: 'BLS-HCP ไม่ต้องกดหน้าอก' },
+          { id: 'd', text: 'BLS-HCP ใช้ rate ต่างกัน' },
+        ],
+        correctId: 'b',
+        explanation: 'Hand-only CPR = lay rescuer; BLS-HCP ต้องช่วยหายใจเสมอ — 30:2 (no advanced airway) หรือ 1 ครั้ง/6 วินาที (มี advanced airway)' },
     ],
   },
 
@@ -162,6 +174,8 @@ const lessonDefs = [
     steps: [
       { type: 'read', heading: '4 ขั้นตอนการใช้ AED',
         body: '1) เปิดเครื่อง — ฟังคำสั่งเสียง\n2) ติด pads ที่ตำแหน่งถูกต้อง\n3) ให้ AED วิเคราะห์ rhythm (ห้ามแตะผู้ป่วย)\n4) ถ้าแนะนำ shock — เคลียร์คนรอบ → กดปุ่ม shock → เริ่ม CPR ต่อทันที 2 นาที' },
+      { type: 'read', heading: '⚠ BLS-HCP: ใช้ AED mode เท่านั้น',
+        body: 'ใน scope ของ BLS-HCP ใช้ AED automated mode เท่านั้น\n• ไม่ต้องอ่าน rhythm strip / interpret VF/pVT/PEA/Asystole เอง\n• ไม่ต้องเลือก Joule manual — AED จัดการพลังงานให้อัตโนมัติ\n• ทำตามคำสั่งเสียง: "Shock advised" → shock; "No shock advised" → CPR ต่อ\n• Manual defibrillator + rhythm interpretation = ทักษะระดับ ACLS' },
       { type: 'read', heading: 'ตำแหน่ง pads',
         body: '• Anterolateral (มาตรฐาน): pad 1 ที่ใต้กระดูกไหปลาร้าขวา; pad 2 ที่ใต้รักแร้ซ้าย\n• Anteroposterior: ถ้ามี pacemaker / pads ใหญ่ ใช้กลางอกหน้า + กลางหลัง\n• ระยะห่างจาก pacemaker/ICD อย่างน้อย 2.5 ซม.' },
       { type: 'read', heading: 'สถานการณ์พิเศษ',
@@ -206,6 +220,26 @@ const lessonDefs = [
         ],
         correctId: 'b',
         explanation: 'หลีกเลี่ยงตรง pacemaker เพื่อไม่ให้เครื่องเสียหาย แต่ต้อง shock ได้' },
+      { type: 'quiz', id: 'bls-3-q5',
+        question: 'เมื่อ AED บอก "No shock advised" ขั้นตอนถัดไปคืออะไร?',
+        choices: [
+          { id: 'a', text: 'ตรวจชีพจรนาน 30 วินาที' },
+          { id: 'b', text: 'รอ AED วิเคราะห์ซ้ำเลย' },
+          { id: 'c', text: 'เริ่มกดหน้าอกต่อทันที 2 นาที แล้วให้ AED วิเคราะห์ใหม่' },
+          { id: 'd', text: 'ถอดแผ่นออกแล้วใส่ใหม่' },
+        ],
+        correctId: 'c',
+        explanation: '"No shock advised" → CPR ต่อทันที 2 นาที (rhythm อาจเป็น PEA/Asystole หรือ ROSC — BLS ไม่ต้องแยก) AED จะวิเคราะห์รอบถัดไปอัตโนมัติ' },
+      { type: 'quiz', id: 'bls-3-q6',
+        question: 'BLS-HCP ใช้เครื่อง defibrillator แบบใด?',
+        choices: [
+          { id: 'a', text: 'Manual mode — อ่าน rhythm แล้วเลือก Joule เอง' },
+          { id: 'b', text: 'AED / automated mode เท่านั้น' },
+          { id: 'c', text: 'ใช้ได้ทุกแบบขึ้นกับว่าใครมาก่อน' },
+          { id: 'd', text: 'ไม่ใช้ defibrillator' },
+        ],
+        correctId: 'b',
+        explanation: 'BLS-HCP ใช้ AED mode (อัตโนมัติ) เท่านั้น — ไม่ต้องอ่าน rhythm strip หรือเลือก Joule เอง Manual defibrillation = ทักษะระดับ ACLS' },
     ],
   },
 

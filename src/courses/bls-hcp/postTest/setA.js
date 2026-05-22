@@ -1,4 +1,4 @@
-// BLS-HCP Post-test Set A — 23 questions (AHA BLS-HCP 2020 + TRC)
+// BLS-HCP Post-test Set A — 23 questions (BLS per ILCOR 2025 + TRC)
 // Distribution: HQ-CPR 5, AED 3, team/2-rescuer 3, in-hospital-defib 4, infant 4, choking 3, chain 1
 // ต้องผ่าน medical review โดยแพทย์ EM/ICU ก่อนปล่อย production
 
@@ -20,7 +20,7 @@ export const setA = {
 
     // ---- High-Quality CPR (5) ----
     { id: 'bls-a-2', topic: 'high-quality-cpr',
-      question: 'อัตราการกดหน้าอกในผู้ใหญ่ตาม AHA 2020 คือเท่าไร?',
+      question: 'อัตราการกดหน้าอกในผู้ใหญ่ตาม ILCOR 2025 คือเท่าไร?',
       choices: [
         { id: 'a', text: '60–80/min' }, { id: 'b', text: '80–100/min' },
         { id: 'c', text: '100–120/min' }, { id: 'd', text: '>120/min' },

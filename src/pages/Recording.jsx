@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { useSettingsStore } from '../stores/settingsStore';
+import { IS_BLS } from '../config/courseMode';
 import { getRhythmsByCategory } from '../data/rhythms';
 import { formatTimeLong, formatTime } from '../utils/formatTime';
 import { useTimerWorker } from '../hooks/useTimerWorker';
@@ -28,6 +29,7 @@ import MIACSPathway from '../components/MIACSPathway';
 import StrokePathway from '../components/StrokePathway';
 import PostROSCChecklist from '../components/PostROSCChecklist';
 import EKGCapture from '../components/EKGCapture';
+import AEDPanel from '../components/AEDPanel';
 import SimulationEngine, { StaffTakeover, ScenarioComplete } from '../components/SimulationEngine';
 import { getScenarioById } from '../data/scenarios';
 import StableMonitor from '../components/StableMonitor';
@@ -344,6 +346,16 @@ export default function Recording() {
         );
 
       case STEPS.INITIAL_RHYTHM:
+        if (IS_BLS) {
+          return <AEDPanel
+            mode="initial"
+            scenarioVerdict={scenario?.aedVerdict || null}
+            onShockDelivered={() => goStep(STEPS.CPR_CYCLE)}
+            onNoShock={() => goStep(STEPS.CPR_CYCLE)}
+            onROSC={() => handleEndCase('ROSC')}
+            isTraining={isTraining}
+          />;
+        }
         return <RhythmSelectStep title="Initial Rhythm" subtitle="What rhythm do you see on monitor?" phase="BLS — Defibrillation" isTraining={isTraining}
           onSelect={(rhythm) => {
             useCaseStore.getState().setRhythm(rhythm);
@@ -354,6 +366,7 @@ export default function Recording() {
 
       // ========== PRIMARY SURVEY ==========
       case STEPS.SHOCK_DECISION:
+        // BLS never reaches SHOCK_DECISION — AEDPanel handles shock internally.
         return <ShockStep onShocked={() => goStep(STEPS.CPR_CYCLE)} onSkip={() => goStep(STEPS.CPR_CYCLE)} isTraining={isTraining} />;
 
       case STEPS.CPR_CYCLE:
@@ -367,6 +380,16 @@ export default function Recording() {
           isTraining={isTraining} />;
 
       case STEPS.RHYTHM_CHECK:
+        if (IS_BLS) {
+          return <AEDPanel
+            mode="recheck"
+            scenarioVerdict={scenario?.aedVerdict || null}
+            onShockDelivered={() => goStep(STEPS.CPR_CYCLE)}
+            onNoShock={() => goStep(STEPS.CPR_CYCLE)}
+            onROSC={() => handleEndCase('ROSC')}
+            isTraining={isTraining}
+          />;
+        }
         return <RhythmSelectStep title="⏱️ Rhythm Check" subtitle={`Cycle ${useTimerStore.getState().cycleNumber} complete — pause < 10 sec`}
           phase="Primary Survey" showROSC showTerminate isTraining={isTraining}
           onSelect={(rhythm) => {
