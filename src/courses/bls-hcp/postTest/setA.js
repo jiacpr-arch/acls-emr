@@ -32,7 +32,7 @@ export const setA = {
         { id: 'a', text: '2–3 ซม.' }, { id: 'b', text: '3–4 ซม.' },
         { id: 'c', text: '5–6 ซม.' }, { id: 'd', text: '>7 ซม.' },
       ],
-      correctId: 'c', explanation: '5–6 ซม. หรือ ≥ 1/3 AP diameter' },
+      correctId: 'c', explanation: 'ผู้ใหญ่: อย่างน้อย 5 ซม. ไม่เกิน 6 ซม. (เกณฑ์ 1/3 AP diameter ใช้สำหรับเด็ก/ทารก)' },
     { id: 'bls-a-4', topic: 'high-quality-cpr',
       question: 'Chest Compression Fraction (CCF) ควร ≥ เท่าไร?',
       choices: [
@@ -50,12 +50,12 @@ export const setA = {
       ],
       correctId: 'b', explanation: 'Incomplete recoil ลด venous return → ลด cardiac output' },
     { id: 'bls-a-6', topic: 'high-quality-cpr',
-      question: 'การหยุดกดหน้าอกเพื่อสลับคน ไม่ควรเกินกี่วินาที?',
+      question: 'ตามแนวทาง AHA/ILCOR ทุกการหยุดกดหน้าอก (interruption) ไม่ควรเกินกี่วินาที?',
       choices: [
         { id: 'a', text: '5 วินาที' }, { id: 'b', text: '10 วินาที' },
         { id: 'c', text: '20 วินาที' }, { id: 'd', text: '30 วินาที' },
       ],
-      correctId: 'a', explanation: 'หยุด > 5 วินาทีลด coronary perfusion อย่างมาก' },
+      correctId: 'b', explanation: 'AHA/ILCOR: limit interruption ทุกประเภท < 10 วินาที (เป้าฝึกสลับคน < 5 วินาที แต่ formal limit = 10 วินาที)' },
 
     // ---- AED (3) ----
     { id: 'bls-a-7', topic: 'aed',
@@ -68,14 +68,14 @@ export const setA = {
       ],
       correctId: 'b', explanation: 'หลัง shock → CPR ต่อ 2 นาที ห้ามตรวจ pulse' },
     { id: 'bls-a-8', topic: 'aed',
-      question: 'AED ในเด็ก < 8 ปี ควรใช้อย่างไรถ้าไม่มี pediatric pads?',
+      question: 'AED ในเด็ก < 8 ปี (หรือ < 25 กก.) ควรใช้อย่างไรถ้าไม่มี pediatric pads?',
       choices: [
         { id: 'a', text: 'ห้ามใช้' },
         { id: 'b', text: 'ใช้ผู้ใหญ่ได้ defib เป็นชีวิต' },
         { id: 'c', text: 'รอ EMS' },
         { id: 'd', text: 'ใช้ครึ่งพลังงาน' },
       ],
-      correctId: 'b', explanation: 'ถ้าไม่มี peds pads ใช้ adult pads ได้ — ห้ามชะลอ defib' },
+      correctId: 'b', explanation: 'เด็ก < 8 ปี หรือ < 25 กก. ใช้ peds pads/attenuator ถ้ามี; ถ้าไม่มีใช้ adult pads ได้ — ห้ามชะลอ defib' },
     { id: 'bls-a-9', topic: 'aed',
       question: 'ผู้ป่วยมี pacemaker ตำแหน่งวาง pads ควรเป็นอย่างไร?',
       choices: [
