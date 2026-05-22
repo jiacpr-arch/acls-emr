@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAlsChapters } from '../hooks/useAlsChapters';
-import { ekgQuestions, rhythmLabels, shuffleOptions } from '../data/ekgQuiz';
+import { ekgQuestions, rhythmLabels, shuffleOptions, quizCategories } from '../data/ekgQuiz';
 import EKGWaveform from '../components/EKGWaveform';
 import QASection from '../components/QASection';
 import {
@@ -49,6 +49,7 @@ export default function ALSKnowledge() {
   const [tipLoading, setTipLoading] = useState(false);
   const [tipError, setTipError] = useState('');
   const [history, setHistory] = useState([]);
+  const [quizCat, setQuizCat] = useState('all');
   const [quizIdx, setQuizIdx] = useState(0);
   const [quizChoice, setQuizChoice] = useState(null);
   const [quizScore, setQuizScore] = useState(0);
@@ -57,8 +58,13 @@ export default function ALSKnowledge() {
 
   useEffect(() => { setHistory(getHistory()); }, [tip]);
 
+  const quizPool = useMemo(
+    () => quizCat === 'all' ? ekgQuestions : ekgQuestions.filter(q => q.category === quizCat),
+    [quizCat]
+  );
+
   const quizOrder = useMemo(() => {
-    const arr = ekgQuestions.map((_, i) => i);
+    const arr = quizPool.map((_, i) => i);
     let s = quizSeed || 1;
     for (let i = arr.length - 1; i > 0; i--) {
       s = (s * 9301 + 49297) % 233280;
@@ -66,9 +72,9 @@ export default function ALSKnowledge() {
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
-  }, [quizSeed]);
+  }, [quizSeed, quizPool]);
 
-  const quizQ = ekgQuestions[quizOrder[quizIdx]];
+  const quizQ = quizPool[quizOrder[quizIdx]];
   const shuffled = useMemo(
     () => quizQ ? shuffleOptions(quizQ.options, (quizQ.id.charCodeAt(1) || 7) + quizSeed) : [],
     [quizQ, quizSeed]
@@ -80,7 +86,7 @@ export default function ALSKnowledge() {
     if (choice === quizQ.answer) setQuizScore(s => s + 1);
   };
   const handleQuizNext = () => {
-    if (quizIdx + 1 >= ekgQuestions.length) {
+    if (quizIdx + 1 >= quizPool.length) {
       const final = quizScore;
       if (final > quizBest) {
         setQuizBest(final);
@@ -94,7 +100,12 @@ export default function ALSKnowledge() {
     setQuizIdx(0); setQuizChoice(null); setQuizScore(0);
     setQuizSeed(Date.now() % 100000);
   };
-  const quizDone = quizIdx >= ekgQuestions.length;
+  const handleCategoryChange = (catId) => {
+    setQuizCat(catId);
+    setQuizIdx(0); setQuizChoice(null); setQuizScore(0);
+    setQuizSeed(Date.now() % 100000);
+  };
+  const quizDone = quizIdx >= quizPool.length;
 
   const fetchTip = async (topic) => {
     const cached = getTodayCache(topic);
@@ -260,9 +271,25 @@ export default function ALSKnowledge() {
 
       {tab === 'ekg' && (
         <div className="space-y-3">
+          <div className="flex flex-wrap gap-1.5">
+            {quizCategories.map(c => (
+              <button key={c.id} onClick={() => handleCategoryChange(c.id)}
+                className={`px-2.5 py-1 text-[11px] font-bold border transition-colors ${
+                  quizCat === c.id
+                    ? 'bg-info/15 border-info/50 text-info'
+                    : 'bg-bg-secondary border-border text-text-secondary hover:bg-bg-tertiary'
+                }`}
+                style={{ borderRadius: 99 }}>
+                {c.label}
+                <span className="ml-1 opacity-60">
+                  ({c.id === 'all' ? ekgQuestions.length : ekgQuestions.filter(q => q.category === c.id).length})
+                </span>
+              </button>
+            ))}
+          </div>
           <div className="flex items-center justify-between text-caption">
             <span className="text-text-muted">
-              ข้อ <span className="text-text-primary font-bold">{Math.min(quizIdx + 1, ekgQuestions.length)}</span> / {ekgQuestions.length}
+              ข้อ <span className="text-text-primary font-bold">{Math.min(quizIdx + 1, quizPool.length)}</span> / {quizPool.length}
             </span>
             <span className="text-text-muted">
               คะแนน: <span className="text-info font-bold">{quizScore}</span>
@@ -271,7 +298,7 @@ export default function ALSKnowledge() {
             </span>
           </div>
           <div className="progress-track !h-1.5">
-            <div className="progress-fill bg-info" style={{ width: `${(Math.min(quizIdx, ekgQuestions.length) / ekgQuestions.length) * 100}%` }} />
+            <div className="progress-fill bg-info" style={{ width: `${(Math.min(quizIdx, quizPool.length) / Math.max(quizPool.length, 1)) * 100}%` }} />
           </div>
 
           {!quizDone && quizQ && (
@@ -324,7 +351,7 @@ export default function ALSKnowledge() {
                     <div className="text-caption text-text-secondary leading-relaxed">{quizQ.hint}</div>
                   </div>
                   <button onClick={handleQuizNext} className="btn btn-primary btn-block">
-                    {quizIdx + 1 >= ekgQuestions.length ? 'ดูสรุปคะแนน' : 'ข้อถัดไป'}
+                    {quizIdx + 1 >= quizPool.length ? 'ดูสรุปคะแนน' : 'ข้อถัดไป'}
                   </button>
                 </div>
               )}
@@ -333,11 +360,11 @@ export default function ALSKnowledge() {
 
           {quizDone && (
             <div className="dash-card text-center space-y-3 animate-slide-up">
-              <div className={`text-numeric text-5xl ${quizScore >= 8 ? 'text-success' : quizScore >= 5 ? 'text-warning' : 'text-danger'}`}>
-                {quizScore}<span className="text-2xl text-text-muted">/{ekgQuestions.length}</span>
+              <div className={`text-numeric text-5xl ${quizScore / Math.max(quizPool.length, 1) >= 0.8 ? 'text-success' : quizScore / Math.max(quizPool.length, 1) >= 0.5 ? 'text-warning' : 'text-danger'}`}>
+                {quizScore}<span className="text-2xl text-text-muted">/{quizPool.length}</span>
               </div>
               <div className="text-caption text-text-muted">
-                {quizScore >= 8 ? 'เยี่ยมมาก! อ่าน EKG แม่นยำ' : quizScore >= 5 ? 'ผ่านได้ ลองฝึกซ้ำเพื่อแม่นขึ้น' : 'ทบทวนบทที่ 4 แล้วลองใหม่ครับ'}
+                {quizScore / Math.max(quizPool.length, 1) >= 0.8 ? 'เยี่ยมมาก! อ่าน EKG แม่นยำ' : quizScore / Math.max(quizPool.length, 1) >= 0.5 ? 'ผ่านได้ ลองฝึกซ้ำเพื่อแม่นขึ้น' : 'ทบทวนบทที่ 4 แล้วลองใหม่ครับ'}
               </div>
               {quizScore > quizBest && (
                 <div className="text-caption text-success font-bold">สถิติใหม่!</div>
