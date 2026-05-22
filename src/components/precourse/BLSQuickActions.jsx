@@ -51,7 +51,7 @@ export default function BLSQuickActions({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2.5">
+    <div className="grid grid-cols-2 gap-3">
       {tiles.map((t) => {
         const Icon = t.Icon;
         return (
@@ -59,24 +59,24 @@ export default function BLSQuickActions({
             key={t.label}
             onClick={t.onClick}
             disabled={t.disabled}
-            className="dash-card text-left flex flex-col gap-2 !p-3.5 transition-transform active:scale-[0.97] disabled:opacity-55 disabled:cursor-not-allowed"
+            className="dash-card text-left flex flex-col gap-3 !p-4 transition-transform active:scale-[0.97] disabled:opacity-55 disabled:cursor-not-allowed"
             style={{ borderRadius: 'var(--radius-lg)' }}
           >
             <div
-              className="w-10 h-10 inline-flex items-center justify-center text-white"
+              className="w-11 h-11 inline-flex items-center justify-center text-white"
               style={{
                 background: t.iconBg,
                 borderRadius: 'var(--radius-md)',
                 boxShadow: '0 4px 10px rgba(37, 99, 235, 0.22)',
               }}
             >
-              <Icon size={18} strokeWidth={2.4} />
+              <Icon size={20} strokeWidth={2.4} />
             </div>
             <div>
               <div className="text-[14px] font-bold text-text-primary leading-tight">
                 {t.label}
               </div>
-              <div className="text-[11px] text-text-muted mt-0.5">{t.sub}</div>
+              <div className="text-[11px] text-text-muted mt-1">{t.sub}</div>
             </div>
           </button>
         );

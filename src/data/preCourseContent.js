@@ -529,10 +529,10 @@ const lessonDefs = [
           { id: 'd', text: '≤ 120 นาที' },
         ],
         correctId: 'c',
-        explanation: '≤ 90 นาที จากเข้า ER ถึงเปิดเส้นด้วย balloon — มาตรฐาน AHA · ถ้าต้อง transfer ไป รพ. อื่น เป้า ≤ 120 นาที total' },
+        explanation: '≤ 90 นาที จากเข้า ER ถึงเปิดเส้นด้วย balloon — มาตรฐาน ILCOR 2025 · ถ้าต้อง transfer ไป รพ. อื่น เป้า ≤ 120 นาที total' },
 
       { type: 'read', heading: 'ยาเริ่มต้น ACS — "MONA" ที่ปรับใหม่',
-        body: 'ลำดับสำคัญตามแนวทาง AHA 2020:\n• Aspirin 162–325 mg เคี้ยว ทันที (เว้นแพ้/เลือดออก)\n• Nitroglycerin SL หรือ spray — ถ้า BP ≥ 90, ไม่มี RV infarct, ไม่ใช้ PDE5 inhibitor (Viagra ใน 24 ชม.)\n• Oxygen — เฉพาะ SpO2 < 90% หรือมี respiratory distress (ไม่ใช่ทุกคน!)\n• Morphine — สำหรับ chest pain ที่ไม่ตอบสนอง nitrate (ใช้น้อยลง — อาจสัมพันธ์กับ adverse outcome)' },
+        body: 'ลำดับสำคัญตามแนวทาง ILCOR 2025:\n• Aspirin 162–325 mg เคี้ยว ทันที (เว้นแพ้/เลือดออก)\n• Nitroglycerin SL หรือ spray — ถ้า BP ≥ 90, ไม่มี RV infarct, ไม่ใช้ PDE5 inhibitor (Viagra ใน 24 ชม.)\n• Oxygen — เฉพาะ SpO2 < 90% หรือมี respiratory distress (ไม่ใช่ทุกคน!)\n• Morphine — สำหรับ chest pain ที่ไม่ตอบสนอง nitrate (ใช้น้อยลง — อาจสัมพันธ์กับ adverse outcome)' },
       { type: 'quiz', id: 'pc7-q4', topic: 'acs', question: 'ผู้ป่วย STEMI BP 145/85, SpO2 96% — ข้อใดควรให้ทันที?',
         choices: [
           { id: 'a', text: 'Oxygen 10 L/min via mask' },
@@ -604,8 +604,8 @@ const lessonDefs = [
         body: 'จากเริ่มอาการถึงรักษาเสร็จ:\n1) Detection — รู้เร็ว (FAST)\n2) Dispatch — โทร 1669 ทันที\n3) Delivery — EMS ส่ง รพ. ที่มี stroke unit เร็ว\n4) Door — ถึง ER\n5) Data — CT/MRI, labs\n6) Decision — เลือก tPA / thrombectomy\n7) Drug / Device — ให้ tPA / ทำ thrombectomy\n8) Disposition — admit stroke unit' },
 
       { type: 'read', heading: 'Time Targets ใน ER',
-        body: 'ตั้งแต่ door (เข้า ER) — มาตรฐาน AHA:\n• Door-to-physician ≤ 10 นาที\n• Door-to-stroke team ≤ 15 นาที\n• Door-to-CT (เริ่มสแกน) ≤ 25 นาที\n• Door-to-CT read ≤ 45 นาที\n• Door-to-needle (tPA) ≤ 60 นาที (target 45 นาที)\n• Door-to-groin puncture (thrombectomy) ≤ 90 นาที' },
-      { type: 'quiz', id: 'pc8-q2', topic: 'stroke', question: 'Door-to-needle time สำหรับให้ tPA ใน acute ischemic stroke ตามแนวทาง AHA คือ?',
+        body: 'ตั้งแต่ door (เข้า ER) — มาตรฐาน ILCOR 2025:\n• Door-to-physician ≤ 10 นาที\n• Door-to-stroke team ≤ 15 นาที\n• Door-to-CT (เริ่มสแกน) ≤ 25 นาที\n• Door-to-CT read ≤ 45 นาที\n• Door-to-needle (tPA) ≤ 60 นาที (target 45 นาที)\n• Door-to-groin puncture (thrombectomy) ≤ 90 นาที' },
+      { type: 'quiz', id: 'pc8-q2', topic: 'stroke', question: 'Door-to-needle time สำหรับให้ tPA ใน acute ischemic stroke ตามแนวทาง ILCOR 2025 คือ?',
         choices: [
           { id: 'a', text: '≤ 30 นาที' },
           { id: 'b', text: '≤ 60 นาที' },

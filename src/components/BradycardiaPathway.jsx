@@ -5,7 +5,7 @@ import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
 import { TrendingDown, Syringe, Zap, AlertTriangle, AlertCircle, Check, X, Wind, CheckCircle2 } from 'lucide-react';
 
-// Bradycardia Pathway — AHA Guideline
+// Bradycardia Pathway — ILCOR 2025
 // HR < 50 + Symptomatic assessment
 // Flow: Quick Vitals → Assess → Atropine → TCP → Vasopressors
 export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onRecheckPulse, isTraining }) {

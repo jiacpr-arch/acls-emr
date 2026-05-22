@@ -98,7 +98,7 @@ export default function BLSSkillPractice() {
         {/* Description */}
         <div className="dash-card">
           <div className="text-sm text-text-secondary leading-relaxed">
-            ฝึกอัตราการกดหน้าอก <b>100–120 ครั้ง/นาที</b> ตามมาตรฐาน AHA BLS<br />
+            ฝึกอัตราการกดหน้าอก <b>100–120 ครั้ง/นาที</b> ตามมาตรฐาน BLS (ILCOR 2025)<br />
             กดปุ่ม <b>เริ่ม</b> เพื่อเปิด metronome → แตะปุ่มใหญ่ตามจังหวะที่กดจริง → ตรวจสอบ BPM ของตัวเอง<br />
             เปลี่ยนคนกดทุก <b>2 นาที</b> เพื่อรักษาคุณภาพ
           </div>
