@@ -25,8 +25,7 @@ const lessonVideos = {
     { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/7RrA-X0vhq0' },
   ],
   'bls-2': [
-    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
-    { platform: 'tiktok', label: 'ดูบน TikTok', url: 'https://www.tiktok.com/@jia_lucksa' },
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/IbvE4PnW_80' },
   ],
   'bls-3': [
     { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
