@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCaseStore } from '../stores/caseStore';
 import { getActiveSession, clearActiveSession } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
+import { IS_BLS, courseMeta } from '../config/courseMode';
 import BottomTabBar from '../components/BottomTabBar';
 import {
   HeartPulse, AlertTriangle, Hospital, Brain, Heart, Activity,
@@ -52,15 +53,19 @@ export default function NewCase() {
           <div
             className="w-20 h-20 mx-auto mb-5 inline-flex items-center justify-center"
             style={{
-              background: 'linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%)',
+              background: IS_BLS
+                ? 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)'
+                : 'linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%)',
               borderRadius: 'var(--radius-2xl)',
-              boxShadow: '0 12px 28px rgba(220, 38, 38, 0.32), 0 4px 12px rgba(220, 38, 38, 0.18)',
+              boxShadow: IS_BLS
+                ? '0 12px 28px rgba(14, 165, 233, 0.32), 0 4px 12px rgba(14, 165, 233, 0.18)'
+                : '0 12px 28px rgba(220, 38, 38, 0.32), 0 4px 12px rgba(220, 38, 38, 0.18)',
             }}
           >
             <HeartPulse size={38} strokeWidth={2.4} className="text-white" />
           </div>
-          <h1 className="text-display text-text-primary">ACLS EMR</h1>
-          <p className="text-caption text-text-muted mt-1.5 tracking-wide">Advanced Cardiac Life Support Recording</p>
+          <h1 className="text-display text-text-primary">{IS_BLS ? 'BLS Practice' : 'ACLS EMR'}</h1>
+          <p className="text-caption text-text-muted mt-1.5 tracking-wide">{IS_BLS ? courseMeta.titleTh : 'Advanced Cardiac Life Support Recording'}</p>
           <p className="text-text-muted text-[10px] font-mono mt-1 opacity-60">v2.0.0</p>
           <div className={`inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 text-[11px] font-bold ${
             isClinical ? 'bg-danger/10 text-danger' : 'bg-info/10 text-info'
@@ -105,43 +110,57 @@ export default function NewCase() {
         {/* Start buttons */}
         <div className="w-full max-w-sm flex flex-col gap-6 animate-slide-up">
           <button onClick={() => handleStart('bls')} disabled={loading}
-            className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50">
+            className={`btn btn-xl btn-block disabled:opacity-50 ${IS_BLS ? 'btn-info' : 'btn-danger animate-pulse-red'}`}>
             <AlertTriangle size={20} strokeWidth={2.4} /> BLS — First Responder
           </button>
 
-          <button onClick={() => handleStart('rrt')} disabled={loading}
-            className="btn btn-primary btn-xl btn-block disabled:opacity-50"
-            style={{ height: 'auto', paddingTop: 10, paddingBottom: 10 }}>
-            <Hospital size={20} strokeWidth={2.4} />
-            <span className="flex flex-col items-center leading-tight">
-              <span>CODE BLUE / CODE 8</span>
-              <span className="text-xs font-medium opacity-80 mt-0.5">MET / RRT Team</span>
-            </span>
-          </button>
+          {!IS_BLS && (
+            <button onClick={() => handleStart('rrt')} disabled={loading}
+              className="btn btn-primary btn-xl btn-block disabled:opacity-50"
+              style={{ height: 'auto', paddingTop: 10, paddingBottom: 10 }}>
+              <Hospital size={20} strokeWidth={2.4} />
+              <span className="flex flex-col items-center leading-tight">
+                <span>CODE BLUE / CODE 8</span>
+                <span className="text-xs font-medium opacity-80 mt-0.5">MET / RRT Team</span>
+              </span>
+            </button>
+          )}
 
-          {/* Quick Start Templates — direct entry to pathway */}
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { Icon: HeartPulse, label: 'Cardiac Arrest', start: 'arrest' },
-              { Icon: Activity, label: 'Brady / Tachy', start: 'pulse' },
-              { Icon: Heart, label: 'MI / ACS', start: 'mi' },
-              { Icon: Brain, label: 'Stroke', start: 'stroke' },
-            ].map(item => {
-              const ItemIcon = item.Icon;
-              return (
-                <button key={item.label} onClick={() => handleStart(item.start)} disabled={loading}
-                  className="btn btn-ghost btn-lg btn-block disabled:opacity-50">
-                  <ItemIcon size={18} strokeWidth={2} /> {item.label}
-                </button>
-              );
-            })}
-          </div>
+          {/* Quick Start Templates — direct entry to pathway (ACLS only) */}
+          {!IS_BLS && (
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { Icon: HeartPulse, label: 'Cardiac Arrest', start: 'arrest' },
+                { Icon: Activity, label: 'Brady / Tachy', start: 'pulse' },
+                { Icon: Heart, label: 'MI / ACS', start: 'mi' },
+                { Icon: Brain, label: 'Stroke', start: 'stroke' },
+              ].map(item => {
+                const ItemIcon = item.Icon;
+                return (
+                  <button key={item.label} onClick={() => handleStart(item.start)} disabled={loading}
+                    className="btn btn-ghost btn-lg btn-block disabled:opacity-50">
+                    <ItemIcon size={18} strokeWidth={2} /> {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
-          {/* Training scenarios */}
-          <button onClick={() => navigate('/scenarios')}
-            className="btn btn-purple btn-lg btn-block">
-            <Sparkles size={18} strokeWidth={2.4} /> Training Scenarios
-          </button>
+          {/* Training scenarios — ACLS only (scenarios.js is ACLS-specific) */}
+          {!IS_BLS && (
+            <button onClick={() => navigate('/scenarios')}
+              className="btn btn-purple btn-lg btn-block">
+              <Sparkles size={18} strokeWidth={2.4} /> Training Scenarios
+            </button>
+          )}
+
+          {/* BLS extras */}
+          {IS_BLS && (
+            <button onClick={() => navigate('/skill-practice')}
+              className="btn btn-ghost btn-lg btn-block">
+              <HeartPulse size={18} strokeWidth={2} /> ฝึก CPR Metronome
+            </button>
+          )}
 
           {/* Quick links */}
           <div className="grid grid-cols-2 gap-3">

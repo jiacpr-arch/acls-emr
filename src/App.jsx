@@ -2,6 +2,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useSettingsStore } from './stores/settingsStore';
 import { IS_BLS, IS_ACLS, courseMeta } from './config/courseMode';
+import { useCourseModeInit } from './hooks/useCourseModeInit';
 import Dashboard from './pages/Dashboard';
 import NewCase from './pages/NewCase';
 import Recording from './pages/Recording';
@@ -58,6 +59,8 @@ function App() {
   useEffect(() => {
     document.title = courseMeta.title;
   }, []);
+
+  useCourseModeInit();
 
   // Recording page has its own nav (QuickBar + FloatingStatus)
   // Admin pages also hide the bottom tab bar
@@ -119,6 +122,9 @@ function App() {
         )}
 
         {IS_BLS && <Route path="/" element={<PreCourse />} />}
+        {IS_BLS && <Route path="/new-case" element={<NewCase />} />}
+        {IS_BLS && <Route path="/recording" element={<Recording />} />}
+        {IS_BLS && <Route path="/history" element={<Dashboard />} />}
         {IS_BLS && <Route path="/skill-practice" element={<BLSSkillPractice />} />}
       </Routes>
       {/* Bottom pill bar on all pages except recording + admin */}

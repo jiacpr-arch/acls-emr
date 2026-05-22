@@ -18,7 +18,8 @@ export default function BottomTabBar() {
   const tabs = IS_BLS
     ? [
         { path: '/', Icon: GraduationCap, label: 'เรียน' },
-        { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR' },
+        { path: '/new-case', Icon: HeartPulse, label: 'ฝึก code' },
+        { path: '/history', Icon: FileText, label: 'ประวัติ' },
         { path: '/certification', Icon: Award, label: 'ใบประกาศ' },
         { key: 'more', Icon: Menu, label: 'More' },
       ]
@@ -32,6 +33,8 @@ export default function BottomTabBar() {
 
   const moreItems = IS_BLS
     ? [
+        { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR Metronome' },
+        { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
         { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
         { path: '/settings', Icon: Settings, label: t('settings', lang) },
       ]
