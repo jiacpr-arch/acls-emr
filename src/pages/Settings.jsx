@@ -204,6 +204,10 @@ function ThemeSelector({ value, onChange }) {
 }
 
 function ToggleRow({ Icon: I, label, value, onToggle }) {
+  const TRACK_W = 64;
+  const TRACK_H = 36;
+  const KNOB = 28;
+  const PAD = 2;
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
@@ -219,52 +223,65 @@ function ToggleRow({ Icon: I, label, value, onToggle }) {
         )}
         <span className="text-body text-text-primary truncate">{label}</span>
       </div>
-      <button
-        onClick={onToggle}
-        role="switch"
-        aria-checked={value}
-        aria-label={`${label}: ${value ? 'On' : 'Off'}`}
-        className={`relative shrink-0 transition-colors border-2 ${
-          value
-            ? 'bg-success border-success'
-            : 'bg-bg-tertiary border-border-strong'
-        }`}
-        style={{
-          width: 56,
-          height: 32,
-          borderRadius: 99,
-          boxShadow: value
-            ? '0 0 0 3px rgba(5, 150, 105, 0.18), inset 0 1px 2px rgba(0,0,0,0.15)'
-            : 'inset 0 2px 4px rgba(0,0,0,0.25)',
-        }}
-      >
+      <div className="flex items-center gap-2 shrink-0">
         <span
-          aria-hidden="true"
-          className="absolute font-mono font-bold tracking-wide select-none pointer-events-none"
+          className="text-caption font-bold tracking-wide tabular-nums"
           style={{
-            top: '50%',
-            transform: 'translateY(-50%)',
-            left: value ? 8 : 'auto',
-            right: value ? 'auto' : 8,
-            fontSize: 9,
-            color: value ? '#FFFFFF' : 'var(--color-text-muted)',
-            letterSpacing: '0.05em',
+            color: value ? 'var(--color-success)' : 'var(--color-text-muted)',
+            minWidth: 28,
+            textAlign: 'right',
           }}
         >
           {value ? 'ON' : 'OFF'}
         </span>
-        <span
-          className="absolute bg-white transition-all"
+        <button
+          onClick={onToggle}
+          role="switch"
+          aria-checked={value}
+          aria-label={`${label}: ${value ? 'On' : 'Off'}`}
+          className={`relative shrink-0 transition-colors border-2 ${
+            value
+              ? 'bg-success border-success'
+              : 'bg-bg-tertiary border-border-strong'
+          }`}
           style={{
-            width: 24,
-            height: 24,
-            top: 2,
-            left: value ? 26 : 2,
+            width: TRACK_W,
+            height: TRACK_H,
             borderRadius: 99,
-            boxShadow: '0 2px 6px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.08)',
+            boxShadow: value
+              ? '0 0 0 3px rgba(5, 150, 105, 0.22), inset 0 1px 2px rgba(0,0,0,0.15)'
+              : 'inset 0 2px 4px rgba(0,0,0,0.25)',
           }}
-        />
-      </button>
+        >
+          <span
+            aria-hidden="true"
+            className="absolute font-bold tracking-wide select-none pointer-events-none"
+            style={{
+              top: '50%',
+              transform: 'translateY(-50%)',
+              left: value ? 9 : 'auto',
+              right: value ? 'auto' : 9,
+              fontSize: 11,
+              lineHeight: 1,
+              color: value ? '#FFFFFF' : 'var(--color-text-secondary)',
+              letterSpacing: '0.06em',
+            }}
+          >
+            {value ? 'ON' : 'OFF'}
+          </span>
+          <span
+            className="absolute bg-white transition-all"
+            style={{
+              width: KNOB,
+              height: KNOB,
+              top: PAD,
+              left: value ? TRACK_W - KNOB - PAD - 4 : PAD,
+              borderRadius: 99,
+              boxShadow: '0 2px 6px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.08)',
+            }}
+          />
+        </button>
+      </div>
     </div>
   );
 }
