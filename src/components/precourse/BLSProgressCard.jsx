@@ -71,10 +71,11 @@ export default function BLSProgressCard({
       style={{
         borderRadius: 'var(--radius-xl)',
         boxShadow: 'var(--shadow-2)',
+        padding: 20,
       }}
     >
       {/* Active-student status row */}
-      <div className="flex items-center gap-2.5 pb-3 mb-3 border-b border-border">
+      <div className="flex items-center gap-3 pb-4 mb-4 border-b border-border">
         {activeStudent ? (
           <>
             <div
@@ -150,7 +151,7 @@ export default function BLSProgressCard({
 
       <button
         onClick={cta.onClick}
-        className={`btn btn-lg btn-full mt-4 text-white ${ctaClass}`}
+        className={`btn btn-lg btn-full mt-5 text-white ${ctaClass}`}
       >
         <CtaIcon size={18} strokeWidth={2.4} />
         {cta.label}
