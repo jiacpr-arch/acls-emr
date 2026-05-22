@@ -36,7 +36,7 @@ const TILES = [
 
 export default function ACLSQuickActions({ onStart, disabled }) {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-4">
       {TILES.map((t) => {
         const Icon = t.Icon;
         return (
@@ -44,24 +44,24 @@ export default function ACLSQuickActions({ onStart, disabled }) {
             key={t.key}
             onClick={() => onStart(t.key)}
             disabled={disabled}
-            className="dash-card text-left flex flex-col gap-3 !p-4 transition-transform active:scale-[0.97] disabled:opacity-55 disabled:cursor-not-allowed"
+            className="dash-card text-left flex flex-col gap-4 !p-5 min-h-[132px] transition-transform active:scale-[0.97] disabled:opacity-55 disabled:cursor-not-allowed"
             style={{ borderRadius: 'var(--radius-lg)' }}
           >
             <div
-              className="w-11 h-11 inline-flex items-center justify-center text-white"
+              className="w-12 h-12 inline-flex items-center justify-center text-white"
               style={{
                 background: t.iconBg,
                 borderRadius: 'var(--radius-md)',
                 boxShadow: '0 4px 10px rgba(220, 38, 38, 0.24)',
               }}
             >
-              <Icon size={20} strokeWidth={2.4} />
+              <Icon size={22} strokeWidth={2.4} />
             </div>
             <div>
-              <div className="text-[14px] font-bold text-text-primary leading-tight">
+              <div className="text-[15px] font-bold text-text-primary leading-tight">
                 {t.label}
               </div>
-              <div className="text-[11px] text-text-muted mt-1">{t.sub}</div>
+              <div className="text-[11px] text-text-muted mt-1.5">{t.sub}</div>
             </div>
           </button>
         );

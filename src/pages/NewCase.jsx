@@ -115,7 +115,7 @@ export default function NewCase() {
         />
       )}
 
-      <div className="page-container space-y-5 pb-28">
+      <div className="page-container space-y-6 pb-28">
         <ACLSHero isClinical={isClinical} />
 
         {/* Resume active session — keeps the warning border accent */}
@@ -147,25 +147,26 @@ export default function NewCase() {
         )}
 
         {/* Primary emergency actions — full-width red + blue stacked */}
-        <div className="space-y-3 animate-slide-up">
+        <div className="space-y-4 animate-slide-up">
           <button onClick={() => handleStart('bls')} disabled={loading}
-            className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50">
-            <AlertTriangle size={20} strokeWidth={2.4} /> BLS — First Responder
+            className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50"
+            style={{ height: 'auto', paddingTop: 18, paddingBottom: 18, fontSize: 19 }}>
+            <AlertTriangle size={24} strokeWidth={2.4} /> BLS — First Responder
           </button>
 
           <button onClick={() => handleStart('rrt')} disabled={loading}
             className="btn btn-primary btn-xl btn-block disabled:opacity-50"
-            style={{ height: 'auto', paddingTop: 10, paddingBottom: 10 }}>
-            <Hospital size={20} strokeWidth={2.4} />
+            style={{ height: 'auto', paddingTop: 16, paddingBottom: 16 }}>
+            <Hospital size={24} strokeWidth={2.4} />
             <span className="flex flex-col items-center leading-tight">
-              <span>CODE BLUE / CODE 8</span>
-              <span className="text-xs font-medium opacity-80 mt-0.5">MET / RRT Team</span>
+              <span style={{ fontSize: 19 }}>CODE BLUE / CODE 8</span>
+              <span className="text-[13px] font-medium opacity-80 mt-1">MET / RRT Team</span>
             </span>
           </button>
         </div>
 
         {/* Quick-start templates — gradient tile grid */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="text-overline text-text-muted px-1">เริ่มเร็วตาม pathway</div>
           <ACLSQuickActions onStart={handleStart} disabled={loading} />
         </div>
@@ -175,7 +176,7 @@ export default function NewCase() {
           <Sparkles size={18} strokeWidth={2.4} /> Training Scenarios
         </button>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <button onClick={() => navigate('/guide')}
             className="btn btn-ghost btn-lg btn-block">
             <BookOpen size={18} strokeWidth={2} /> คู่มือ
