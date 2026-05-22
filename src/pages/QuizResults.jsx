@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAttemptById, db } from '../db/database';
 import { findLessonById } from '../data/preCourseContent';
+import {
+  POST_TEST_LESSON_ID,
+  POST_TEST_PASS_PERCENT,
+  getPostTestSetById,
+} from '../data/postTest';
 import ResultsSummary from '../components/precourse/ResultsSummary';
 import { exportStudentResultPDF } from '../utils/exportPreCourse';
 import { ChevronLeft, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';
@@ -45,7 +50,18 @@ export default function QuizResults() {
     );
   }
 
-  const lesson = findLessonById(attempt.lessonId);
+  const isPostTest = attempt.lessonId === POST_TEST_LESSON_ID;
+  const postTestSet = isPostTest ? getPostTestSetById(attempt.setId) : null;
+  const lesson = isPostTest
+    ? (postTestSet ? {
+        id: POST_TEST_LESSON_ID,
+        title: `Post-test Exam · ${postTestSet.title}`,
+        quiz: postTestSet.questions,
+        passingScore: POST_TEST_PASS_PERCENT,
+      } : null)
+    : findLessonById(attempt.lessonId);
+
+  const retakePath = isPostTest ? '/pre-course/post-test' : `/pre-course/${attempt.lessonId}/quiz`;
 
   return (
     <div className="page-container space-y-4">
@@ -55,12 +71,15 @@ export default function QuizResults() {
       </button>
 
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11 inline-flex items-center justify-center bg-info/15 text-info"
-          style={{ borderRadius: 'var(--radius-md)' }}>
+        <div className={`w-11 h-11 inline-flex items-center justify-center ${
+          isPostTest ? 'bg-warning/15 text-warning' : 'bg-info/15 text-info'
+        }`} style={{ borderRadius: 'var(--radius-md)' }}>
           <Trophy size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-title text-text-primary">ผลการทำ Quiz</h1>
+          <h1 className="text-title text-text-primary">
+            {isPostTest ? 'ผล Post-test Exam' : 'ผลการทำ Quiz'}
+          </h1>
           <p className="text-caption text-text-muted">
             ครั้งที่ {attempt.attemptNumber} · {new Date(attempt.finishedAt).toLocaleString('th-TH')}
           </p>
@@ -71,7 +90,7 @@ export default function QuizResults() {
 
       <div className="grid grid-cols-2 gap-2">
         <button
-          onClick={() => navigate(`/pre-course/${attempt.lessonId}/quiz`)}
+          onClick={() => navigate(retakePath)}
           className="btn btn-ghost btn-block">
           <RotateCcw size={14} strokeWidth={2.2} /> ทำใหม่
         </button>

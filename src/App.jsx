@@ -20,6 +20,7 @@ import PreCourse from './pages/PreCourse';
 import LessonReader from './pages/LessonReader';
 import QuizResults from './pages/QuizResults';
 import InstructorCohort from './pages/InstructorCohort';
+import PostTestExam from './pages/PostTestExam';
 import BottomTabBar from './components/BottomTabBar';
 import OfflineIndicator from './components/OfflineIndicator';
 
@@ -63,6 +64,7 @@ function App() {
         <Route path="/sim" element={<CodeBlueSim />} />
         <Route path="/pre-course" element={<PreCourse />} />
         <Route path="/pre-course/cohort" element={<InstructorCohort />} />
+        <Route path="/pre-course/post-test" element={<PostTestExam />} />
         <Route path="/pre-course/results/:attemptId" element={<QuizResults />} />
         <Route path="/pre-course/:lessonId" element={<LessonReader />} />
         <Route path="/pre-course/:lessonId/quiz" element={<LessonReader />} />
