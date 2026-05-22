@@ -52,13 +52,25 @@ export default function ALSKnowledge() {
   const [quizChoice, setQuizChoice] = useState(null);
   const [quizScore, setQuizScore] = useState(0);
   const [quizBest, setQuizBest] = useState(() => parseInt(localStorage.getItem(QUIZ_KEY) || '0', 10));
+  const [quizSeed, setQuizSeed] = useState(() => Date.now() % 100000);
 
   useEffect(() => { setHistory(getHistory()); }, [tip]);
 
-  const quizQ = ekgQuestions[quizIdx];
+  const quizOrder = useMemo(() => {
+    const arr = ekgQuestions.map((_, i) => i);
+    let s = quizSeed || 1;
+    for (let i = arr.length - 1; i > 0; i--) {
+      s = (s * 9301 + 49297) % 233280;
+      const j = Math.floor((s / 233280) * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [quizSeed]);
+
+  const quizQ = ekgQuestions[quizOrder[quizIdx]];
   const shuffled = useMemo(
-    () => quizQ ? shuffleOptions(quizQ.options, quizQ.id.charCodeAt(1) || 7) : [],
-    [quizQ]
+    () => quizQ ? shuffleOptions(quizQ.options, (quizQ.id.charCodeAt(1) || 7) + quizSeed) : [],
+    [quizQ, quizSeed]
   );
 
   const handleQuizAnswer = (choice) => {
@@ -77,7 +89,10 @@ export default function ALSKnowledge() {
     setQuizChoice(null);
     setQuizIdx(i => i + 1);
   };
-  const resetQuiz = () => { setQuizIdx(0); setQuizChoice(null); setQuizScore(0); };
+  const resetQuiz = () => {
+    setQuizIdx(0); setQuizChoice(null); setQuizScore(0);
+    setQuizSeed(Date.now() % 100000);
+  };
   const quizDone = quizIdx >= ekgQuestions.length;
 
   const fetchTip = async (topic) => {
@@ -263,8 +278,18 @@ export default function ALSKnowledge() {
               <div className="text-overline text-info inline-flex items-center gap-1.5">
                 <Activity size={12} strokeWidth={2.2} /> จังหวะนี้คืออะไร?
               </div>
-              <div className="overflow-hidden" style={{ borderRadius: 'var(--radius-sm)' }}>
-                <EKGWaveform rhythmId={quizQ.rhythmId} />
+              <div className="overflow-hidden border border-border" style={{ borderRadius: 'var(--radius-sm)' }}>
+                {quizQ.imageUrl ? (
+                  <img
+                    src={quizQ.imageUrl}
+                    alt={`EKG: ${quizQ.answer}`}
+                    loading="lazy"
+                    className="w-full h-auto block"
+                    style={{ background: '#fff7f0' }}
+                  />
+                ) : (
+                  <EKGWaveform rhythmId={quizQ.rhythmId} variant="paper" />
+                )}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {shuffled.map(opt => {
