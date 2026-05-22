@@ -7,12 +7,14 @@ import LessonCard from '../components/precourse/LessonCard';
 import PostTestCard from '../components/precourse/PostTestCard';
 import PreTestCard from '../components/precourse/PreTestCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import ClassGateModal from '../components/precourse/ClassGateModal';
 import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
+import { useClassStore } from '../stores/classStore';
 import FeaturedVideo from '../components/precourse/FeaturedVideo';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
 import { IS_ACLS, courseMeta } from '../config/courseMode';
-import { GraduationCap, User, UserCheck, Users, RefreshCw } from 'lucide-react';
+import { GraduationCap, User, UserCheck, Users, RefreshCw, Cloud, CloudOff } from 'lucide-react';
 
 export default function PreCourse() {
   const navigate = useNavigate();
@@ -22,6 +24,13 @@ export default function PreCourse() {
   const [progress, setProgress] = useState([]);     // [{studentId, lessonId, readAt}]
   const [attempts, setAttempts] = useState([]);     // [{...}]
   const [showIdentity, setShowIdentity] = useState(false);
+  const classCode = useClassStore(s => s.classCode);
+  const className = useClassStore(s => s.className);
+  const clearClass = useClassStore(s => s.clearClass);
+  const [showClassGate, setShowClassGate] = useState(() => {
+    const s = useClassStore.getState();
+    return !s.classCode && !s.syncDisabled;
+  });
 
   useEffect(() => {
     const id = activeStudent?.id;
@@ -100,6 +109,42 @@ export default function PreCourse() {
         )}
       </div>
 
+      {/* Class context banner */}
+      <div className="dash-card flex items-center gap-3">
+        {classCode ? (
+          <>
+            <div className="w-10 h-10 inline-flex items-center justify-center bg-info/12 text-info shrink-0"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <Cloud size={18} strokeWidth={2.2} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-body-strong text-text-primary truncate">
+                คลาส: {className || '—'}
+              </div>
+              <div className="text-[11px] text-text-muted font-mono">รหัสคลาส: {classCode}</div>
+            </div>
+            <button onClick={() => { clearClass(); setShowClassGate(true); }}
+              className="btn btn-ghost btn-sm">
+              เปลี่ยนคลาส
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="w-10 h-10 inline-flex items-center justify-center bg-bg-tertiary text-text-muted shrink-0"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <CloudOff size={18} strokeWidth={2.2} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-body-strong text-text-primary">โหมด offline</div>
+              <div className="text-[11px] text-text-muted">ข้อมูลเก็บในเครื่องนี้เท่านั้น</div>
+            </div>
+            <button onClick={() => setShowClassGate(true)} className="btn btn-ghost btn-sm">
+              เชื่อมต่อคลาส
+            </button>
+          </>
+        )}
+      </div>
+
       {courseMeta.featuredVideo && <FeaturedVideo video={courseMeta.featuredVideo} />}
 
       <VideoLinksPanel videos={preCourseVideos} />
@@ -150,6 +195,11 @@ export default function PreCourse() {
           </>
         );
       })()}
+
+      <ClassGateModal
+        open={showClassGate}
+        onClose={() => setShowClassGate(false)}
+      />
 
       <StudentIdentityModal
         open={showIdentity}

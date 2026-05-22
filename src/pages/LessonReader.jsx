@@ -7,6 +7,7 @@ import {
   saveQuizAttempt,
   getAttemptCount,
 } from '../db/database';
+import { scheduleFlush } from '../services/syncEngine';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import {
@@ -124,6 +125,7 @@ export default function LessonReader() {
         attemptNumber: prevCount + 1,
       };
       const autoId = await saveQuizAttempt(attempt);
+      scheduleFlush();
       clearAttempt();
       navigate(`/pre-course/results/${autoId}`);
     } finally {

@@ -2,6 +2,9 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { preCourseLessons } from '../data/activeLessons';
 import { getCohortSummary, deleteStudent } from '../db/database';
+import { useClassStore } from '../stores/classStore';
+import { rpcGetCohortSummary, rpcDeleteCohortStudent } from '../services/cohortSync';
+import { scheduleFlush, getPendingCount, subscribeToSync } from '../services/syncEngine';
 import {
   PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT,
 } from '../data/assessment';
@@ -11,7 +14,7 @@ import {
 import { IS_ACLS } from '../config/courseMode';
 import CohortTable from '../components/precourse/CohortTable';
 import { exportCohortCSV, exportCohortPDF } from '../utils/exportPreCourse';
-import { ChevronLeft, Users, Download, FileText, Trash, Sparkles, Award } from 'lucide-react';
+import { ChevronLeft, Users, Download, FileText, Trash, Sparkles, Award, Cloud, CloudOff, RefreshCw } from 'lucide-react';
 
 export default function InstructorCohort() {
   const navigate = useNavigate();
@@ -46,16 +49,56 @@ export default function InstructorCohort() {
   const [summary, setSummary] = useState([]);   // [{ student, lessons: {lid: {...}} }]
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
+  const [source, setSource] = useState('local');  // 'cloud' | 'local'
+  const [pendingCount, setPendingCount] = useState(0);
+
+  const classCode = useClassStore(s => s.classCode);
+  const className = useClassStore(s => s.className);
+  const syncDisabled = useClassStore(s => s.syncDisabled);
 
   useEffect(() => {
     const ids = allEntries.map(l => l.id);
-    getCohortSummary(ids).then(data => {
-      setSummary(data);
-      setLoading(false);
-    });
-  }, [reloadKey, allEntries]);
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      // Prefer cloud data when class is set + online; fall back to local IndexedDB.
+      const online = typeof navigator === 'undefined' || navigator.onLine !== false;
+      if (classCode && !syncDisabled && online) {
+        const { data, error } = await rpcGetCohortSummary(ids);
+        if (!cancelled && !error) {
+          setSummary(data);
+          setSource('cloud');
+          setLoading(false);
+          return;
+        }
+      }
+      const local = await getCohortSummary(ids);
+      if (!cancelled) {
+        setSummary(local);
+        setSource('local');
+        setLoading(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [reloadKey, allEntries, classCode, syncDisabled]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const refreshPending = () => {
+      getPendingCount().then(n => { if (!cancelled) setPendingCount(n); });
+    };
+    refreshPending();
+    const unsubscribe = subscribeToSync(refreshPending);
+    return () => { cancelled = true; unsubscribe(); };
+  }, []);
 
   const refresh = () => setReloadKey(k => k + 1);
+
+  const handleSyncNow = () => {
+    scheduleFlush();
+    setTimeout(refresh, 800);
+  };
 
   const selected = allEntries.find(l => l.id === selectedId);
   const isAssessmentView = assessmentEntries.some(e => e.id === selectedId);
@@ -96,6 +139,9 @@ export default function InstructorCohort() {
   const handleDelete = async (r) => {
     if (!confirm(`ลบนักเรียน ${r.name} (${r.studentId}) และผลทั้งหมด?`)) return;
     await deleteStudent(r.id);
+    if (classCode && !syncDisabled) {
+      await rpcDeleteCohortStudent(r.id);
+    }
     refresh();
   };
 
@@ -114,9 +160,37 @@ export default function InstructorCohort() {
         <div className="flex-1">
           <h1 className="text-title text-text-primary">หน้าอาจารย์ — รวมผล Pre-course</h1>
           <p className="text-caption text-text-muted">
-            รวบรวมจากเครื่องนี้ · {summary.length} นักเรียน
+            {source === 'cloud'
+              ? `คลาส: ${className || '—'} (${classCode}) · ${summary.length} นักเรียน`
+              : `จากเครื่องนี้ · ${summary.length} นักเรียน`}
           </p>
         </div>
+      </div>
+
+      {/* Sync status bar */}
+      <div className="dash-card flex items-center gap-3 !py-2">
+        {source === 'cloud' ? (
+          <div className="inline-flex items-center gap-1.5 text-caption text-info">
+            <Cloud size={14} strokeWidth={2.2} /> ข้อมูลจาก cloud
+          </div>
+        ) : (
+          <div className="inline-flex items-center gap-1.5 text-caption text-text-muted">
+            <CloudOff size={14} strokeWidth={2.2} />
+            {classCode ? 'แสดงข้อมูล cached (offline)' : 'โหมด offline เท่านั้น'}
+          </div>
+        )}
+        {pendingCount > 0 && (
+          <div className="text-caption text-warning">
+            · ยังไม่ sync {pendingCount} รายการ
+          </div>
+        )}
+        <div className="flex-1" />
+        {classCode && !syncDisabled && (
+          <button onClick={handleSyncNow}
+            className="btn btn-ghost btn-sm">
+            <RefreshCw size={13} strokeWidth={2.2} /> Sync ตอนนี้
+          </button>
+        )}
       </div>
 
       {/* Overall summary */}
@@ -216,7 +290,12 @@ export default function InstructorCohort() {
         <button
           onClick={async () => {
             if (!confirm('ลบนักเรียนและผล Pre-course ทั้งหมดในเครื่องนี้?')) return;
-            for (const { student } of summary) await deleteStudent(student.id);
+            for (const { student } of summary) {
+              await deleteStudent(student.id);
+              if (classCode && !syncDisabled) {
+                await rpcDeleteCohortStudent(student.id);
+              }
+            }
             refresh();
           }}
           className="btn btn-ghost btn-sm btn-block text-danger">

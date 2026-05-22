@@ -30,6 +30,7 @@ import BLSSkillPractice from './pages/BLSSkillPractice';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import OfflineIndicator from './components/OfflineIndicator';
+import { useSyncEngine } from './services/syncEngine';
 
 // Admin pages are code-split — keep the main bundle below the workbox precache limit
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -62,6 +63,7 @@ function App() {
   }, []);
 
   useCourseModeInit();
+  useSyncEngine();
 
   // Recording page has its own nav (QuickBar + FloatingStatus)
   // Admin pages also hide the bottom tab bar
