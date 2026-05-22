@@ -1,5 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useSettingsStore } from './stores/settingsStore';
 import { IS_BLS, IS_ACLS, courseMeta } from './config/courseMode';
 import Dashboard from './pages/Dashboard';
@@ -121,6 +122,7 @@ function App() {
       </Routes>
       {/* Bottom pill bar on all pages except recording + admin */}
       {!isRecording && !isAdmin && <BottomTabBar />}
+      <Analytics />
     </div>
   );
 }
