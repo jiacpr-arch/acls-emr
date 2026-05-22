@@ -1,36 +1,73 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { preCourseLessons } from '../data/activeLessons';
 import { getCohortSummary, deleteStudent } from '../db/database';
+import {
+  PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT,
+} from '../data/assessment';
+import {
+  POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT,
+} from '../data/activePostTest';
+import { IS_ACLS } from '../config/courseMode';
 import CohortTable from '../components/precourse/CohortTable';
 import { exportCohortCSV, exportCohortPDF } from '../utils/exportPreCourse';
-import { ChevronLeft, Users, Download, FileText, Trash } from 'lucide-react';
+import { ChevronLeft, Users, Download, FileText, Trash, Sparkles, Award } from 'lucide-react';
 
 export default function InstructorCohort() {
   const navigate = useNavigate();
-  const [lessonId, setLessonId] = useState(preCourseLessons[0]?.id);
+
+  // Virtual "lessons" so the existing CohortTable + per-id selector keep working.
+  // Pre-test is ACLS-only; Post-test exists in both modes (different content per mode).
+  const assessmentEntries = useMemo(() => {
+    const list = [];
+    if (IS_ACLS) {
+      list.push({
+        id: PRE_TEST_LESSON_ID,
+        title: 'Pre-test',
+        passingScore: PRE_TEST_PASS_PERCENT,
+        kind: 'pretest',
+      });
+    }
+    list.push({
+      id: POST_TEST_LESSON_ID,
+      title: 'Post-test',
+      passingScore: POST_TEST_PASS_PERCENT,
+      kind: 'posttest',
+    });
+    return list;
+  }, []);
+
+  const allEntries = useMemo(
+    () => [...preCourseLessons, ...assessmentEntries],
+    [assessmentEntries],
+  );
+
+  const [selectedId, setSelectedId] = useState(preCourseLessons[0]?.id ?? assessmentEntries[0]?.id);
   const [summary, setSummary] = useState([]);   // [{ student, lessons: {lid: {...}} }]
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    const ids = preCourseLessons.map(l => l.id);
+    const ids = allEntries.map(l => l.id);
     getCohortSummary(ids).then(data => {
       setSummary(data);
       setLoading(false);
     });
-  }, [reloadKey]);
+  }, [reloadKey, allEntries]);
 
   const refresh = () => setReloadKey(k => k + 1);
 
-  const lesson = preCourseLessons.find(l => l.id === lessonId);
+  const selected = allEntries.find(l => l.id === selectedId);
+  const isAssessmentView = assessmentEntries.some(e => e.id === selectedId);
+
   const rows = summary.map(({ student, lessons }) => {
-    const ls = lessons[lessonId] || {};
+    const ls = lessons[selectedId] || {};
     return {
       id: student.id,
       studentId: student.studentId,
       name: student.name,
-      read: !!ls.read,
+      // "read" is meaningless for assessments — show as true (or hide).
+      read: isAssessmentView ? true : !!ls.read,
       attemptCount: ls.attemptCount || 0,
       bestScore: ls.bestScore,
       passed: ls.passed,
@@ -42,11 +79,17 @@ export default function InstructorCohort() {
     const total = preCourseLessons.length;
     const passedCount = preCourseLessons.filter(l => lessons[l.id]?.passed).length;
     const readCount = preCourseLessons.filter(l => lessons[l.id]?.read).length;
+    const preTest = lessons[PRE_TEST_LESSON_ID];
+    const postTest = lessons[POST_TEST_LESSON_ID];
     return {
       id: student.id,
       studentId: student.studentId,
       name: student.name,
       readCount, passedCount, total,
+      preTestScore: preTest?.bestScore ?? null,
+      preTestPassed: preTest?.passed ?? false,
+      postTestScore: postTest?.bestScore ?? null,
+      postTestPassed: postTest?.passed ?? false,
     };
   });
 
@@ -83,13 +126,15 @@ export default function InstructorCohort() {
             <tr>
               <th className="px-3 py-2 text-left">รหัส</th>
               <th className="px-3 py-2 text-left">ชื่อ</th>
-              <th className="px-3 py-2 text-center">อ่าน</th>
-              <th className="px-3 py-2 text-center">ผ่าน</th>
+              <th className="px-3 py-2 text-center">บทเรียน อ่าน</th>
+              <th className="px-3 py-2 text-center">บทเรียน ผ่าน</th>
+              {IS_ACLS && <th className="px-3 py-2 text-center">Pre-test</th>}
+              <th className="px-3 py-2 text-center">Post-test</th>
             </tr>
           </thead>
           <tbody>
             {overallRows.length === 0 ? (
-              <tr><td colSpan={4} className="px-3 py-6 text-center text-text-muted">
+              <tr><td colSpan={IS_ACLS ? 6 : 5} className="px-3 py-6 text-center text-text-muted">
                 ยังไม่มีนักเรียน
               </td></tr>
             ) : overallRows.map((r) => (
@@ -100,45 +145,67 @@ export default function InstructorCohort() {
                 <td className={`px-3 py-2 text-center font-bold ${
                   r.passedCount === r.total ? 'text-success' : 'text-warning'
                 }`}>{r.passedCount}/{r.total}</td>
+                {IS_ACLS && (
+                  <td className={`px-3 py-2 text-center font-bold ${
+                    r.preTestScore == null ? 'text-text-muted'
+                      : r.preTestPassed ? 'text-success' : 'text-warning'
+                  }`}>
+                    {r.preTestScore != null ? `${r.preTestScore}%` : '-'}
+                  </td>
+                )}
+                <td className={`px-3 py-2 text-center font-bold ${
+                  r.postTestScore == null ? 'text-text-muted'
+                    : r.postTestPassed ? 'text-success' : 'text-warning'
+                }`}>
+                  {r.postTestScore != null ? `${r.postTestScore}%` : '-'}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Per-lesson selector */}
+      {/* Per-entry selector */}
       <div className="space-y-2">
-        <div className="text-overline text-text-muted px-1">ดูตามบทเรียน</div>
+        <div className="text-overline text-text-muted px-1">ดูตามรายการ</div>
         <div className="flex flex-wrap gap-1.5">
-          {preCourseLessons.map(l => (
-            <button key={l.id} onClick={() => setLessonId(l.id)}
-              className={`text-[11px] font-bold px-3 py-1.5 border ${
-                lessonId === l.id
-                  ? 'border-info bg-info text-white'
-                  : 'border-border bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
-              }`}
-              style={{ borderRadius: 99 }}>
-              {l.title}
-            </button>
-          ))}
+          {allEntries.map(l => {
+            const isAssessment = assessmentEntries.some(e => e.id === l.id);
+            const Icon = l.kind === 'pretest' ? Sparkles
+              : l.kind === 'posttest' ? Award
+              : null;
+            const active = selectedId === l.id;
+            return (
+              <button key={l.id} onClick={() => setSelectedId(l.id)}
+                className={`text-[11px] font-bold px-3 py-1.5 border inline-flex items-center gap-1 ${
+                  active
+                    ? isAssessment ? 'border-warning bg-warning text-white' : 'border-info bg-info text-white'
+                    : 'border-border bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
+                }`}
+                style={{ borderRadius: 99 }}>
+                {Icon && <Icon size={11} strokeWidth={2.4} />}
+                {l.title}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {loading ? (
         <div className="text-center text-text-muted text-caption py-6">กำลังโหลด…</div>
       ) : (
-        <CohortTable rows={rows} lesson={lesson} onDeleteStudent={handleDelete} />
+        <CohortTable rows={rows} lesson={selected} onDeleteStudent={handleDelete} />
       )}
 
       <div className="grid grid-cols-2 gap-2">
         <button
-          onClick={() => exportCohortCSV({ rows, lesson })}
+          onClick={() => exportCohortCSV({ rows, lesson: selected })}
           disabled={!rows.length}
           className="btn btn-ghost btn-block disabled:opacity-40">
           <FileText size={14} strokeWidth={2.2} /> Export CSV
         </button>
         <button
-          onClick={() => exportCohortPDF({ rows, lesson })}
+          onClick={() => exportCohortPDF({ rows, lesson: selected })}
           disabled={!rows.length}
           className="btn btn-primary btn-block disabled:opacity-40">
           <Download size={14} strokeWidth={2.2} /> Export PDF
