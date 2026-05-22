@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { alsChapters } from '../data/alsContent';
+import { useAlsChapters } from '../hooks/useAlsChapters';
 import { ekgQuestions, rhythmLabels, shuffleOptions } from '../data/ekgQuiz';
 import EKGWaveform from '../components/EKGWaveform';
 import QASection from '../components/QASection';
@@ -42,6 +42,7 @@ function setTodayCache(topic, text) {
 }
 
 export default function ALSKnowledge() {
+  const { chapters: alsChapters } = useAlsChapters();
   const [tab, setTab] = useState('book');
   const [openCh, setOpenCh] = useState(null);
   const [tip, setTip] = useState('');
