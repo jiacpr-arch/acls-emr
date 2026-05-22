@@ -184,50 +184,48 @@ export default function CPRDashboard({
         </button>
       )}
 
-      {/* Circular timers — ACLS shows Compression + Epi; BLS shows only Compression centered */}
-      <div className={`flex items-start justify-center gap-3 px-2 ${IS_BLS ? '' : ''}`}>
+      {/* Two circular timers */}
+      <div className="flex items-start justify-center gap-3 px-2">
         <CircularTimer
           value={remaining}
           max={cycleDuration}
-          size={IS_BLS ? 180 : 150}
-          strokeWidth={IS_BLS ? 12 : 10}
+          size={150}
+          strokeWidth={10}
           color={compressionColor}
           alert={almostDone}
           label="Compressions"
           sublabel={`Cycles: ${cycleNumber}`}
         >
-          <div className={`text-numeric ${IS_BLS ? 'text-[2rem]' : 'text-[1.75rem]'} tracking-tight ${almostDone ? 'text-danger' : 'text-success'}`}>
+          <div className={`text-numeric text-[1.75rem] tracking-tight ${almostDone ? 'text-danger' : 'text-success'}`}>
             {formatTime(remaining)}
           </div>
           <div className="text-[10px] text-text-muted font-semibold">/ {formatTime(cycleDuration)}</div>
         </CircularTimer>
 
-        {!IS_BLS && (
-          <CircularTimer
-            value={epiRemaining !== null ? epiRemaining : 0}
-            max={epiTimer ? epiTimer.intervalSeconds : 240}
-            size={150}
-            strokeWidth={10}
-            color={epiColor}
-            alert={epiDue}
-            label="Epinephrine"
-            sublabel={`Epis: ${epiCount}`}
-          >
-            {epiRemaining !== null ? (
-              <>
-                <div className={`text-numeric text-[1.75rem] tracking-tight ${epiDue ? 'text-danger' : 'text-purple'}`}>
-                  {epiDue ? 'DUE' : formatTime(epiRemaining)}
-                </div>
-                <div className="text-[10px] text-text-muted font-semibold">q3-5 min</div>
-              </>
-            ) : (
-              <>
-                <div className="text-xl font-bold text-text-muted">--:--</div>
-                <div className="text-[10px] text-text-muted">No Epi yet</div>
-              </>
-            )}
-          </CircularTimer>
-        )}
+        <CircularTimer
+          value={epiRemaining !== null ? epiRemaining : 0}
+          max={epiTimer ? epiTimer.intervalSeconds : 240}
+          size={150}
+          strokeWidth={10}
+          color={epiColor}
+          alert={epiDue}
+          label="Epinephrine"
+          sublabel={`Epis: ${epiCount}`}
+        >
+          {epiRemaining !== null ? (
+            <>
+              <div className={`text-numeric text-[1.75rem] tracking-tight ${epiDue ? 'text-danger' : 'text-purple'}`}>
+                {epiDue ? 'DUE' : formatTime(epiRemaining)}
+              </div>
+              <div className="text-[10px] text-text-muted font-semibold">q3-5 min</div>
+            </>
+          ) : (
+            <>
+              <div className="text-xl font-bold text-text-muted">--:--</div>
+              <div className="text-[10px] text-text-muted">No Epi yet</div>
+            </>
+          )}
+        </CircularTimer>
       </div>
 
       {/* Breath alert */}
@@ -371,43 +369,18 @@ export default function CPRDashboard({
       </div>
 
       {/* Secondary action buttons */}
-      {IS_BLS ? (
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={onAirway} className="btn btn-ghost btn-block">
-            <Wind size={14} strokeWidth={2.2} /> Airway
-          </button>
-          <button onClick={onSecondary} className="btn btn-ghost btn-block">
-            <Search size={14} strokeWidth={2.2} /> H&T
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-3 gap-2">
-          <button onClick={onGiveDrug}
-            className={`btn btn-block ${epiDue ? 'btn-purple animate-pulse' : 'btn-ghost'}`}>
-            <Syringe size={14} strokeWidth={2.2} /> Drug
-          </button>
-          <button onClick={onAirway} className="btn btn-ghost btn-block">
-            <Wind size={14} strokeWidth={2.2} /> Airway
-          </button>
-          <button onClick={onSecondary} className="btn btn-ghost btn-block">
-            <Search size={14} strokeWidth={2.2} /> H&T
-          </button>
-        </div>
-      )}
-
-      {/* BLS read-only: chain of survival reference */}
-      {IS_BLS && (
-        <div className="text-left text-caption text-text-secondary"
-          style={{
-            background: 'rgba(148, 163, 184, 0.08)',
-            border: '1px dashed rgba(148, 163, 184, 0.35)',
-            padding: '8px 12px',
-            borderRadius: 'var(--radius)',
-          }}>
-          <span className="text-overline" style={{ color: 'var(--color-text-muted)' }}>Advanced team จะมาให้ </span>
-          Epi 1mg IV q3–5 min · Amiodarone 300mg หลัง shock #3 (Shockable) — BLS-HCP ไม่ต้องให้ยาเอง
-        </div>
-      )}
+      <div className="grid grid-cols-3 gap-2">
+        <button onClick={onGiveDrug}
+          className={`btn btn-block ${epiDue ? 'btn-purple animate-pulse' : 'btn-ghost'}`}>
+          <Syringe size={14} strokeWidth={2.2} /> Drug
+        </button>
+        <button onClick={onAirway} className="btn btn-ghost btn-block">
+          <Wind size={14} strokeWidth={2.2} /> Airway
+        </button>
+        <button onClick={onSecondary} className="btn btn-ghost btn-block">
+          <Search size={14} strokeWidth={2.2} /> H&T
+        </button>
+      </div>
 
       {/* Pause reason modal */}
       {showPauseReason && (

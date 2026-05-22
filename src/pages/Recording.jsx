@@ -402,14 +402,6 @@ export default function Recording() {
           onTerminate={() => handleEndCase('terminated')} />;
 
       case STEPS.GIVE_DRUG:
-        // BLS hides Drug button in CPRDashboard; should never reach here in BLS.
-        if (IS_BLS) return <CPRDashboard
-          onCheckRhythm={() => goStep(STEPS.RHYTHM_CHECK)}
-          onGiveDrug={() => goStep(STEPS.CPR_CYCLE)}
-          onAirway={() => goStep(STEPS.AIRWAY_MANAGEMENT)}
-          onROSC={() => handleEndCase('ROSC')}
-          onSecondary={() => goStep(STEPS.SECONDARY_SURVEY)}
-          isTraining={isTraining} />;
         return <DrugStep onDone={() => goStep(STEPS.CPR_CYCLE)} isTraining={isTraining} />;
 
       case STEPS.AIRWAY_MANAGEMENT:
