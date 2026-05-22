@@ -61,21 +61,23 @@ export default function BLSProgressCard({
 
   const CtaIcon = cta.icon;
   const ctaClass =
-    cta.tone === 'success' ? 'bg-success'
-    : cta.tone === 'warning' ? 'bg-warning'
-    : 'bg-info';
+    cta.tone === 'success' ? 'btn-success'
+    : cta.tone === 'warning' ? 'btn-warning'
+    : 'btn-primary';
 
   return (
-    <div
-      className="dash-card"
-      style={{
-        borderRadius: 'var(--radius-xl)',
-        boxShadow: 'var(--shadow-2)',
-        padding: 20,
-      }}
-    >
-      {/* Active-student status row */}
-      <div className="flex items-center gap-3 pb-4 mb-4 border-b border-border">
+    <>
+      {/* Active-student status — its own card so identity reads as a
+          separate concern from progress */}
+      <div
+        className="dash-card flex items-center gap-3"
+        style={{
+          borderRadius: 'var(--radius-xl)',
+          boxShadow: 'var(--shadow-2)',
+          padding: 20,
+          borderColor: 'var(--color-border-strong)',
+        }}
+      >
         {activeStudent ? (
           <>
             <div
@@ -127,36 +129,48 @@ export default function BLSProgressCard({
         )}
       </div>
 
-      <div className="flex items-center gap-4">
-        <ProgressRing percent={percent} />
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
-            ความคืบหน้า
-          </div>
-          <div className="text-[20px] font-extrabold text-text-primary leading-tight tabular-nums">
-            {lessonsPassed}<span className="text-text-muted text-[14px] font-bold">/{totalLessons}</span>
-            <span className="text-text-secondary text-[13px] font-semibold ml-1.5">บทผ่าน</span>
-          </div>
-          <div className="text-[11px] text-text-muted mt-0.5">
-            {postTestPassed ? (
-              <span className="text-success font-bold">Post-test ผ่านแล้ว ✓</span>
-            ) : postTestUnlocked ? (
-              <span className="text-warning font-bold">Post-test พร้อมสอบ</span>
-            ) : (
-              <>เหลืออีก {totalLessons - lessonsPassed} บทก่อนปลดล็อก Post-test</>
-            )}
+      {/* Progress + primary CTA */}
+      <div
+        className="dash-card"
+        style={{
+          borderRadius: 'var(--radius-xl)',
+          boxShadow: 'var(--shadow-2)',
+          padding: 20,
+          borderColor: 'var(--color-border-strong)',
+        }}
+      >
+        <div className="flex items-center gap-4">
+          <ProgressRing percent={percent} />
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              ความคืบหน้า
+            </div>
+            <div className="text-[20px] font-extrabold text-text-primary leading-tight tabular-nums">
+              {lessonsPassed}<span className="text-text-muted text-[14px] font-bold">/{totalLessons}</span>
+              <span className="text-text-secondary text-[13px] font-semibold ml-1.5">บทผ่าน</span>
+            </div>
+            <div className="text-[11px] text-text-muted mt-0.5">
+              {postTestPassed ? (
+                <span className="text-success font-bold">Post-test ผ่านแล้ว ✓</span>
+              ) : postTestUnlocked ? (
+                <span className="text-warning font-bold">Post-test พร้อมสอบ</span>
+              ) : (
+                <>เหลืออีก {totalLessons - lessonsPassed} บทก่อนปลดล็อก Post-test</>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <button
-        onClick={cta.onClick}
-        className={`btn btn-lg btn-full mt-5 text-white ${ctaClass}`}
-      >
-        <CtaIcon size={18} strokeWidth={2.4} />
-        {cta.label}
-      </button>
-    </div>
+        <button
+          onClick={cta.onClick}
+          className={`btn btn-xl btn-full mt-5 ${ctaClass}`}
+          style={{ boxShadow: '0 6px 16px rgba(37, 99, 235, 0.28)' }}
+        >
+          <CtaIcon size={20} strokeWidth={2.4} />
+          {cta.label}
+        </button>
+      </div>
+    </>
   );
 }
 
