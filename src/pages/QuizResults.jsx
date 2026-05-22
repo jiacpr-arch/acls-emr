@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAttemptById, db } from '../db/database';
-import { findLessonById } from '../data/preCourseContent';
+import { findLessonById } from '../data/activeLessons';
 import {
   POST_TEST_LESSON_ID,
   POST_TEST_PASS_PERCENT,
   getPostTestSetById,
-} from '../data/postTest';
+} from '../data/activePostTest';
 import ResultsSummary from '../components/precourse/ResultsSummary';
 import { exportStudentResultPDF } from '../utils/exportPreCourse';
 import { ChevronLeft, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';

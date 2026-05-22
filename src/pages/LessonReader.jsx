@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { findLessonById } from '../data/preCourseContent';
+import { findLessonById } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import {
   markLessonRead,

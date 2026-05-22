@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Award, ChevronRight, Lock, Check, RotateCcw } from 'lucide-react';
-import { POST_TEST_PASS_PERCENT, POST_TEST_QUESTION_COUNT } from '../../data/postTest';
+import { POST_TEST_PASS_PERCENT, POST_TEST_QUESTION_COUNT } from '../../data/activePostTest';
 
 export default function PostTestCard({ unlocked, bestScore, passed, attemptCount }) {
   const navigate = useNavigate();

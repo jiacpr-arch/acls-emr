@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { preCourseLessons, preCourseVideos } from '../data/preCourseContent';
+import { preCourseLessons, preCourseVideos } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import LessonCard from '../components/precourse/LessonCard';
 import PostTestCard from '../components/precourse/PostTestCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
-import { POST_TEST_LESSON_ID } from '../data/postTest';
+import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { GraduationCap, User, UserCheck, Users, RefreshCw } from 'lucide-react';
 
 export default function PreCourse() {

@@ -6,8 +6,8 @@ import {
   POST_TEST_QUESTION_COUNT,
   getPostTestSetById,
   pickRandomPostTestSet,
-} from '../data/postTest';
-import { preCourseLessons } from '../data/preCourseContent';
+} from '../data/activePostTest';
+import { preCourseLessons } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import {
   getLessonProgress,
