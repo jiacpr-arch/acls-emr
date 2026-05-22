@@ -9,6 +9,7 @@ import {
 } from '../db/database';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
 import {
   ChevronLeft, ChevronRight, BookOpen, AlertCircle,
   Check, Send,
@@ -250,6 +251,13 @@ export default function LessonReader() {
           </>
         )}
       </div>
+
+      {/* วิดีโอประกอบของบทนี้ (ใช้พื้นที่ว่างใต้ปุ่ม navigation) */}
+      {lesson.videos?.length > 0 && (
+        <div className="pt-2">
+          <VideoLinksPanel videos={lesson.videos} />
+        </div>
+      )}
 
       <StudentIdentityModal
         open={showIdentity}

@@ -148,6 +148,7 @@ export default function PreCourse() {
             bestScore={postBest?.score ?? null}
             passed={postTestPassed}
             attemptCount={postAttempts.length}
+            lessonCount={totalLessons}
           />
         </div>
 
@@ -264,6 +265,7 @@ export default function PreCourse() {
               bestScore={ptBest?.score ?? null}
               passed={ptBest?.passed ?? false}
               attemptCount={ptAttempts.length}
+              lessonCount={preCourseLessons.length}
             />
           </>
         );

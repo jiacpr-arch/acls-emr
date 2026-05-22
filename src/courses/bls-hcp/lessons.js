@@ -18,6 +18,37 @@ export const preCourseVideos = [
   },
 ];
 
+// Per-lesson videos — แต่ละบทมีวีดีโอเฉพาะของตัวเอง
+// TODO: แทนที่ url ด้วยลิงก์วีดีโอ specific ของแต่ละบทเมื่อพร้อม
+const lessonVideos = {
+  'bls-1': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/7RrA-X0vhq0' },
+  ],
+  'bls-2': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/IbvE4PnW_80' },
+  ],
+  'bls-3': [
+    { platform: 'youtube', label: 'ผู้ใหญ่ (YouTube)', url: 'https://youtu.be/dtIswl6Od2I' },
+    { platform: 'youtube', label: 'เด็ก (YouTube)', url: 'https://youtu.be/lCbImOmcrNA' },
+  ],
+  'bls-4': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/dQ9TcHdhIr0' },
+  ],
+  'bls-5': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/0kaOCefb-xc' },
+  ],
+  'bls-6': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/fu65-_ENCLo' },
+  ],
+  'bls-7': [
+    { platform: 'youtube', label: 'ผู้ใหญ่ (YouTube)', url: 'https://youtu.be/t3WnWOOVh2c' },
+    { platform: 'youtube', label: 'เด็ก (YouTube)', url: 'https://youtu.be/pCgxwQUzph0' },
+  ],
+  'bls-1r': [
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/ayov6IVgW7w' },
+  ],
+};
+
 const lessonDefs = [
   // ===================== บทที่ 1 =====================
   {
@@ -214,10 +245,67 @@ const lessonDefs = [
 
   // ===================== บทที่ 4 =====================
   {
+    id: 'bls-1r',
+    title: 'บทที่ 4: One-rescuer CPR',
+    description: 'การช่วยเหลือคนเดียวก่อนทีมมาถึง — CAB sequence, ใช้ AED คนเดียว, ขอความช่วยเหลือด้วย speakerphone',
+    estMinutes: 7,
+    passingScore: 75,
+    steps: [
+      { type: 'read', heading: 'หลักการ One-rescuer BLS',
+        body: '• ผู้ช่วยเหลือคนเดียว = บุคลากร/พลเรือนคนแรกที่พบเหตุ ก่อนทีม CPR/EMS มาถึง\n• เป้าหมาย: เริ่ม CPR + ขอความช่วยเหลือ + ใช้ AED ให้เร็วที่สุด โดยไม่เสียเวลากดหน้าอก\n• ใช้ speakerphone โทร 1669 / activate code blue พร้อมกดหน้าอกไปด้วยได้\n• อย่ารอความช่วยเหลือก่อนเริ่ม CPR — early CPR + early defib = survival' },
+      { type: 'read', heading: 'ขั้นตอน CAB (Compression-Airway-Breathing)',
+        body: '1) Scene safety + tap and shout ปลุก\n2) ไม่ตอบสนอง → เรียก EMS / code blue ผ่าน speakerphone + ขอ AED\n3) ตรวจการหายใจ + carotid pulse พร้อมกัน ไม่เกิน 10 วินาที\n4) ไม่มี pulse หรือไม่แน่ใจ → เริ่ม CPR 30:2 ทันที (อัตรา 100–120/min)\n5) ใช้ AED ทันทีที่มาถึง วิเคราะห์ → shock → CPR ต่อ\n6) ทำต่อจนทีมมาถึง / ROSC / หมดแรง' },
+      { type: 'read', heading: 'การใช้ AED คนเดียว',
+        body: '• ติด pads ระหว่างที่ยังกดหน้าอกอยู่ก็ได้ — ลดเวลา interrupt\n• หยุดกดเฉพาะตอน AED วิเคราะห์ rhythm (ห้ามแตะผู้ป่วย ~5–10 วินาที)\n• สั่งเคลียร์คนรอบ ๆ ระหว่าง analyze\n• หลัง shock → กลับมากดต่อทันที (ห้ามตรวจ pulse ก่อน)\n• ทุก 2 นาที AED จะ prompt วิเคราะห์ rhythm ซ้ำ' },
+      { type: 'read', heading: 'เมื่อไหร่จึงหยุด CPR ได้',
+        body: '• ROSC: หายใจ + มี pulse กลับมา → จัดท่า recovery (ดูบทที่ 5)\n• ทีม CPR / EMS มาถึงและรับช่วงต่อ\n• หมดแรง ไม่สามารถกดต่อได้\n• สถานการณ์ไม่ปลอดภัย (เพลิงไหม้ น้ำท่วม)\n• แพทย์ประกาศยุติการช่วยเหลือ' },
+      { type: 'quiz', id: 'bls-1r-q1',
+        question: 'ผู้ช่วยเหลือคนเดียวพบผู้ป่วยหมดสติริมถนน — ขั้นตอนถูกต้องคือ?',
+        choices: [
+          { id: 'a', text: 'วิ่งไปตามคนช่วยก่อน แล้วค่อยกลับมาทำ CPR' },
+          { id: 'b', text: 'ใช้ speakerphone เรียก 1669 พร้อมประเมิน + เริ่ม CPR' },
+          { id: 'c', text: 'ตรวจชีพจร 30 วินาทีให้แน่ใจ' },
+          { id: 'd', text: 'รอ ambulance ก่อนเริ่มทำอะไร' },
+        ],
+        correctId: 'b',
+        explanation: 'Speakerphone ทำให้เรียก EMS + ทำ CPR ได้พร้อมกัน — early CPR สำคัญต่อ survival, อย่าทิ้งผู้ป่วยไปตามคน' },
+      { type: 'quiz', id: 'bls-1r-q2',
+        question: 'อัตราส่วน Compression:Ventilation ของ one-rescuer ในผู้ใหญ่คือ?',
+        choices: [
+          { id: 'a', text: '15:2' }, { id: 'b', text: '30:2' },
+          { id: 'c', text: '50:2' }, { id: 'd', text: 'continuous compression อย่างเดียว' },
+        ],
+        correctId: 'b',
+        explanation: '1-rescuer: 30:2 (ทั้งผู้ใหญ่/เด็ก/ทารก); 2-rescuer ในเด็ก/ทารก: 15:2' },
+      { type: 'quiz', id: 'bls-1r-q3',
+        question: 'ผู้ช่วยเหลือคนเดียวกดหน้าอกอยู่ AED มาถึง — ทำอะไรต่อ?',
+        choices: [
+          { id: 'a', text: 'กดต่ออีก 5 นาทีค่อยใส่ AED' },
+          { id: 'b', text: 'ติด pads ระหว่างที่ยังกดอยู่ แล้วให้ AED วิเคราะห์' },
+          { id: 'c', text: 'รอจน rhythm กลับมาเอง' },
+          { id: 'd', text: 'ใส่ AED แล้วหยุด CPR ทั้งหมด' },
+        ],
+        correctId: 'b',
+        explanation: 'ติด pads ระหว่างกดเพื่อลดเวลา interrupt — early defib เพิ่ม survival อย่างมาก' },
+      { type: 'quiz', id: 'bls-1r-q4',
+        question: 'ผู้ช่วยเหลือคนเดียวกดจนเหนื่อยมาก — ทำอะไรต่อ?',
+        choices: [
+          { id: 'a', text: 'หยุดทุกอย่าง รอ EMS' },
+          { id: 'b', text: 'กดต่อแม้คุณภาพลด — ทำจนคนช่วยมาถึง หรือหมดแรงจริง ๆ' },
+          { id: 'c', text: 'พัก 5 นาที แล้วค่อยกดใหม่' },
+          { id: 'd', text: 'นวดท้องแทน' },
+        ],
+        correctId: 'b',
+        explanation: 'การ interrupt CPR ↓ coronary perfusion → ↓ ROSC chances; กดต่อแม้คุณภาพลดยังดีกว่าหยุด' },
+    ],
+  },
+
+  // ===================== บทที่ 5 =====================
+  {
     id: 'bls-4',
-    title: 'บทที่ 4: 2-rescuer CPR และ Team Dynamics',
-    description: 'การทำงานเป็นทีม การสลับคนกด การสื่อสารแบบ closed-loop',
-    estMinutes: 8,
+    title: 'บทที่ 5: 2-rescuer CPR, Team Dynamics และ ROSC',
+    description: 'การทำงานเป็นทีม สลับคนกด closed-loop communication และการดูแลหลัง ROSC',
+    estMinutes: 10,
     passingScore: 75,
     steps: [
       { type: 'read', heading: 'อัตราส่วน Compression : Ventilation',
@@ -266,70 +354,86 @@ const lessonDefs = [
         ],
         correctId: 'a',
         explanation: 'การหยุด > 5 วินาทีจะลด coronary perfusion pressure อย่างมาก กระทบการกลับมาของ ROSC' },
-    ],
-  },
-
-  // ===================== บทที่ 5 =====================
-  {
-    id: 'bls-5',
-    title: 'บทที่ 5: CPR ในเด็ก (1 ปี – วัยรุ่น)',
-    description: 'ความแตกต่างของ CPR ในเด็ก: depth, ratio, AED',
-    estMinutes: 7,
-    passingScore: 75,
-    steps: [
-      { type: 'read', heading: 'หัวใจหยุดเต้นในเด็ก vs ผู้ใหญ่',
-        body: 'เด็กส่วนมาก arrest จาก respiratory cause (asphyxia) ไม่ใช่ primary cardiac จึงเน้น ventilation มากกว่า adult\nเด็ก = อายุ 1 ปี ถึงเริ่มมี secondary sex characteristics' },
-      { type: 'read', heading: 'อัตราส่วน Compression : Ventilation',
-        body: '• 1 ผู้ช่วยเหลือ: 30:2\n• 2 ผู้ช่วยเหลือ (HCP): 15:2\n• อัตรา 100–120 ครั้ง/นาที\n• ความลึก ≥ 1/3 ของ AP diameter (~5 ซม.)\n• ตำแหน่งมือ: 1 หรือ 2 มือบนครึ่งล่างของ sternum' },
-      { type: 'read', heading: 'การตรวจชีพจรในเด็ก',
-        body: '• Carotid หรือ femoral pulse ไม่เกิน 10 วินาที\n• ถ้า pulse < 60 bpm + มี poor perfusion → เริ่ม compressions ทันที (แม้มี pulse ก็ตาม)\n• AED: ใช้ pediatric pads / dose attenuator ถ้ามี' },
-      { type: 'quiz', id: 'bls-5-q1',
-        question: 'อัตราส่วน compression:ventilation ในเด็ก 2-rescuer (HCP) คือ?',
+      { type: 'read', heading: 'หลัง ROSC: การดูแลเบื้องต้น',
+        body: '• ตรวจชีพจร + การหายใจอีกครั้ง — มี pulse กลับมาแล้ว = Return of Spontaneous Circulation (ROSC)\n• ถ้าหายใจเองได้ปกติ แต่ยังไม่รู้สึกตัว → จัดท่า Recovery position ป้องกัน aspiration\n• ถ้าหายใจไม่พอ → rescue breath 1 ครั้งทุก 5–6 วินาที (10–12/นาที)\n• Monitor ใกล้ชิด — re-arrest มีโอกาสสูงในช่วงแรก\n• ห้ามถอด pads/ปิดเครื่อง AED จนกว่าจะส่งต่อ — re-arrest จะได้ shock ได้ทันที\n• เรียก ALS / ICU team รับช่วงต่อสำหรับ post-cardiac arrest care' },
+      { type: 'read', heading: 'Recovery Position',
+        body: '• ใช้กับผู้ป่วยที่หมดสติแต่หายใจปกติ + มี pulse (เช่น หลัง ROSC, opioid overdose ที่หายใจกลับ)\n• พลิกตัวตะแคงข้าง — มือล่างหนุนใต้แก้ม, คางเชิดขึ้นเล็กน้อยให้ airway โล่ง\n• เข่าบนงอ ขัดไว้ไม่ให้พลิกหงาย\n• ห้ามใช้ถ้าสงสัย spinal injury (อุบัติเหตุ, ตกที่สูง) — เปิด airway ด้วย jaw thrust แทน\n• ตรวจ airway + breathing ต่อเนื่อง ถ้าหยุดหายใจซ้ำ → เริ่ม CPR ทันที' },
+      { type: 'quiz', id: 'bls-4-q5',
+        question: 'หลัง ROSC ผู้ป่วยหายใจเองได้ปกติ แต่ยังไม่รู้สึกตัว ทำอะไรต่อ?',
         choices: [
-          { id: 'a', text: '30:2' },
-          { id: 'b', text: '15:2' },
-          { id: 'c', text: '5:1' },
-          { id: 'd', text: '10:2' },
+          { id: 'a', text: 'กดหน้าอกต่อเพื่อความปลอดภัย' },
+          { id: 'b', text: 'จัดท่า Recovery position + monitor + รอ ALS' },
+          { id: 'c', text: 'ปิด AED แล้วถอด pads ออกทันที' },
+          { id: 'd', text: 'ปลุกด้วยการตบหน้าและน้ำเย็น' },
         ],
         correctId: 'b',
-        explanation: '2-rescuer ในเด็ก: 15:2 (1-rescuer ยังคง 30:2)' },
-      { type: 'quiz', id: 'bls-5-q2',
-        question: 'เด็กที่มี pulse 50 bpm แต่มี poor perfusion (cyanosis, slow capillary refill) ควรทำอย่างไร?',
-        choices: [
-          { id: 'a', text: 'รอดูอาการ' },
-          { id: 'b', text: 'ให้ supplemental O2 อย่างเดียว' },
-          { id: 'c', text: 'เริ่มกดหน้าอกทันที (แม้มี pulse)' },
-          { id: 'd', text: 'ฉีด atropine' },
-        ],
-        correctId: 'c',
-        explanation: 'เด็กที่ HR < 60 + poor perfusion ต้องเริ่ม compressions ทันที — bradycardia ในเด็กมักเป็นสัญญาณก่อน arrest' },
-      { type: 'quiz', id: 'bls-5-q3',
-        question: 'ความลึกของการกดหน้าอกในเด็กคือ?',
-        choices: [
-          { id: 'a', text: '2–3 ซม.' },
-          { id: 'b', text: '~5 ซม. หรือ 1/3 ของ AP diameter' },
-          { id: 'c', text: '6–7 ซม.' },
-          { id: 'd', text: 'เท่ากับผู้ใหญ่ทุกอย่าง' },
-        ],
-        correctId: 'b',
-        explanation: 'เด็ก: 1/3 ของ AP diameter ~ 5 ซม. (ผู้ใหญ่ 5–6 ซม.)' },
-      { type: 'quiz', id: 'bls-5-q4',
-        question: 'AED ในเด็กอายุ 5 ปีที่มี cardiac arrest ควรใช้อย่างไร?',
-        choices: [
-          { id: 'a', text: 'ห้ามใช้' },
-          { id: 'b', text: 'Pediatric pads / dose attenuator ถ้ามี; ถ้าไม่มีใช้ผู้ใหญ่' },
-          { id: 'c', text: 'ใช้ผู้ใหญ่ครึ่งพลังงาน' },
-          { id: 'd', text: 'ใช้ผู้ใหญ่ตามปกติเสมอ' },
-        ],
-        correctId: 'b',
-        explanation: 'เด็ก < 8 ปี ใช้ peds pads/attenuator ถ้ามี ถ้าไม่มีใช้ผู้ใหญ่ได้ — defib เป็นชีวิต' },
+        explanation: 'ROSC + หายใจปกติ + ไม่รู้สึกตัว → Recovery position ป้องกัน aspiration + monitor (re-arrest risk สูง) + ขอ ALS; ห้ามถอด AED จนส่งต่อเสร็จ' },
     ],
   },
 
   // ===================== บทที่ 6 =====================
   {
+    id: 'bls-5',
+    title: 'บทที่ 6: BLS ในโรงพยาบาล — Defib ใน AED Mode',
+    description: 'ในโรงพยาบาลใช้ monitor/defibrillator แทน AED stand-alone — BLS provider ใช้ AED mode เพื่อ shock ได้ทันที',
+    estMinutes: 7,
+    passingScore: 75,
+    steps: [
+      { type: 'read', heading: 'ทำไม BLS ในโรงพยาบาลต่างจากนอก',
+        body: '• นอก รพ.: ใช้ AED stand-alone (เครื่องเล็ก คำสั่งเสียง ทำงาน mode เดียว)\n• ใน รพ.: ใช้ monitor/defibrillator (Philips HeartStart, Zoll R/X, Lifepak 15/20, Mindray) — เครื่องเดียวกันที่ ALS team จะใช้\n• เครื่องในโรงพยาบาลส่วนใหญ่มี 2 modes: AED mode (สำหรับ BLS provider) + Manual mode (สำหรับ ALS)\n• ข้อดี: BLS provider ที่มาถึงก่อน shock ได้ทันที ไม่ต้องรอ ALS team ตีความ rhythm' },
+      { type: 'read', heading: 'ขั้นตอนใช้ Defib ใน AED Mode',
+        body: '1) เปิดเครื่อง → เลือก AED mode (ปุ่ม / สวิตช์ / เมนู ขึ้นกับรุ่น)\n2) ติด pads — anterolateral (ใต้ไหปลาร้าขวา + ใต้รักแร้ซ้าย) หรือ AP\n3) เครื่องวิเคราะห์ rhythm — ห้ามแตะผู้ป่วย (CPR ต้องหยุด ~5–10 วินาที)\n4) ถ้า "shock advised": เคลียร์คนรอบ → กด shock → CPR ต่อทันที 2 นาที\n5) ถ้า "no shock advised": CPR ต่อ 2 นาที (PEA/asystole)\n6) เครื่องจะวิเคราะห์ซ้ำทุก 2 นาทีอัตโนมัติ' },
+      { type: 'read', heading: 'ความแตกต่างจาก AED Stand-alone',
+        body: '• Defib + monitor: ใหญ่กว่า มี ECG display + IV port + pacing + sync cardioversion (สำหรับ ALS)\n• AED stand-alone: เล็ก พกพา ทำงาน mode เดียว\n• AED mode บน defib ทำงาน flow เหมือน AED ปกติ — คำสั่งเสียงเหมือนกัน\n• ข้อระวัง: pads ของ defib อาจมีหลายแบบ (peds vs adult) — เช็คก่อนติด' },
+      { type: 'read', heading: 'การส่งต่อ BLS → ALS Team',
+        body: '• BLS provider เริ่ม AED mode ทันทีเมื่อเครื่องมาถึง — ห้ามรอ ALS\n• เมื่อ ALS team มา: หัวหน้าทีมจะ switch ไป manual mode เพื่ออ่าน rhythm ละเอียดขึ้น, ใช้ sync cardioversion / pacing\n• Hand-off ที่ดี: รายงาน (1) เวลาเริ่ม CPR (2) จำนวน shock + เวลา (3) rhythm ที่เห็น (4) ยาที่ให้ไปแล้ว — ใช้ closed-loop' },
+      { type: 'quiz', id: 'bls-5-q1',
+        question: 'ทำไมในโรงพยาบาลถึงใช้ defib ที่มี AED mode แทน AED stand-alone?',
+        choices: [
+          { id: 'a', text: 'AED stand-alone ผิดกฎหมายในโรงพยาบาล' },
+          { id: 'b', text: 'เพราะเป็นเครื่องเดียวกันที่ ALS team ใช้ — BLS shock ก่อน ส่งต่อ manual mode ได้เลย' },
+          { id: 'c', text: 'AED stand-alone shock แรงกว่า' },
+          { id: 'd', text: 'ไม่ต่างกัน เลือกอันไหนก็ได้' },
+        ],
+        correctId: 'b',
+        explanation: 'เครื่องในโรงพยาบาลเป็น defib/monitor ที่มี AED mode สำหรับ BLS + manual mode สำหรับ ALS — ใช้ต่อเนื่องไม่ต้องเปลี่ยนเครื่อง' },
+      { type: 'quiz', id: 'bls-5-q2',
+        question: 'BLS provider นำ defib มาถึง — ขั้นตอนแรกหลังเปิดเครื่องคืออะไร?',
+        choices: [
+          { id: 'a', text: 'อ่าน rhythm บนจอแล้วเลือก energy' },
+          { id: 'b', text: 'เลือก AED mode แล้วติด pads' },
+          { id: 'c', text: 'รอ ALS team มาถึงก่อน' },
+          { id: 'd', text: 'ใส่ IV ก่อน' },
+        ],
+        correctId: 'b',
+        explanation: 'BLS provider ใช้ AED mode (ไม่ได้รับการสอนอ่าน rhythm) — เลือก mode → ติด pads → ให้เครื่องวิเคราะห์' },
+      { type: 'quiz', id: 'bls-5-q3',
+        question: 'หลังเครื่องในโหมด AED แนะนำ "shock advised" และ shock ไปแล้ว ทำอะไรต่อ?',
+        choices: [
+          { id: 'a', text: 'ตรวจชีพจรทันที' },
+          { id: 'b', text: 'รอเครื่องวิเคราะห์ rhythm อีกครั้ง' },
+          { id: 'c', text: 'เริ่ม CPR ต่อทันที 2 นาที' },
+          { id: 'd', text: 'Switch ไป manual mode ทันที' },
+        ],
+        correctId: 'c',
+        explanation: 'AED mode ใช้ flow เดียวกับ AED ปกติ: หลัง shock → CPR ต่อ 2 นาที ห้ามตรวจชีพจร' },
+      { type: 'quiz', id: 'bls-5-q4',
+        question: 'ALS team มาถึงระหว่าง code — ควรทำอย่างไรกับเครื่อง defib?',
+        choices: [
+          { id: 'a', text: 'ถอด pads ออก เปลี่ยนเครื่องใหม่' },
+          { id: 'b', text: 'BLS provider continue ใน AED mode ตลอด' },
+          { id: 'c', text: 'หัวหน้า ALS switch ไป manual mode + รับ hand-off (เวลา shock, rhythm, ยา)' },
+          { id: 'd', text: 'ปิดเครื่องก่อนเปลี่ยน mode' },
+        ],
+        correctId: 'c',
+        explanation: 'ALS team รับ hand-off แล้ว switch manual mode เพื่ออ่าน rhythm + ใช้ sync/pacing — pads เดิม ไม่ต้องถอด' },
+    ],
+  },
+
+  // ===================== บทที่ 7 =====================
+  {
     id: 'bls-6',
-    title: 'บทที่ 6: CPR ในทารก (< 1 ปี)',
+    title: 'บทที่ 7: CPR ในทารก (< 1 ปี)',
     description: 'เทคนิคพิเศษสำหรับทารก: 2-finger / 2-thumb encircling, brachial pulse',
     estMinutes: 7,
     passingScore: 75,
@@ -383,10 +487,10 @@ const lessonDefs = [
     ],
   },
 
-  // ===================== บทที่ 7 =====================
+  // ===================== บทที่ 8 =====================
   {
     id: 'bls-7',
-    title: 'บทที่ 7: ทางเดินหายใจอุดกั้น (FBAO)',
+    title: 'บทที่ 8: ทางเดินหายใจอุดกั้น (FBAO)',
     description: 'Foreign Body Airway Obstruction ในผู้ใหญ่ เด็ก ทารก',
     estMinutes: 6,
     passingScore: 75,
@@ -442,64 +546,6 @@ const lessonDefs = [
     ],
   },
 
-  // ===================== บทที่ 8 =====================
-  {
-    id: 'bls-8',
-    title: 'บทที่ 8: Opioid Emergency + Naloxone',
-    description: 'การช่วยเหลือผู้ป่วย opioid overdose และการใช้ naloxone',
-    estMinutes: 8,
-    passingScore: 75,
-    steps: [
-      { type: 'read', heading: 'Opioid-Associated Life-Threatening Emergency',
-        body: 'อาการ: หมดสติ + หายใจช้า/ไม่หายใจ + รูม่านตาเล็ก (pinpoint pupils) + อาจมีร่องรอยฉีดยา\nสาเหตุการตาย: respiratory arrest → cardiac arrest\nNaloxone กลับ effects ของ opioid (mu-receptor antagonist)' },
-      { type: 'read', heading: 'ขั้นตอนการช่วยเหลือ',
-        body: '1) เรียกขอความช่วยเหลือ\n2) ถ้าหายใจปกติ + ไม่ตอบสนอง: ให้ naloxone + monitor\n3) ถ้าหายใจช้า/ไม่หายใจ + มี pulse: ให้ rescue breath (1 ครั้งทุก 5–6 วินาที) + naloxone\n4) ถ้าไม่มี pulse: CPR ทันที + AED + naloxone' },
-      { type: 'read', heading: 'Naloxone — ขนาดและทาง',
-        body: '• IM/IN: 0.4–2 mg (intranasal สะดวก ไม่ต้องเข็ม)\n• IV: 0.04–0.4 mg titrate\n• ทำซ้ำได้ทุก 2–3 นาทีถ้ายังไม่ตอบสนอง\n• ครึ่งชีวิตสั้น (60–90 นาที) — อาจ re-narcotization เมื่อ opioid (heroin/fentanyl) ออกฤทธิ์ต่อ' },
-      { type: 'read', heading: 'หลังให้ Naloxone',
-        body: '• Observe อย่างน้อย 2–4 ชั่วโมง (4 ชม. ถ้าเป็น long-acting opioid)\n• เตือนผู้ป่วยถึงโอกาส withdrawal\n• ส่งต่อเพื่อรักษา addiction (MAT, counseling)' },
-      { type: 'quiz', id: 'bls-8-q1',
-        question: 'ขนาด naloxone IM/IN สำหรับ opioid emergency ในผู้ใหญ่คือเท่าไร?',
-        choices: [
-          { id: 'a', text: '0.04 mg' },
-          { id: 'b', text: '0.4–2 mg' },
-          { id: 'c', text: '5 mg' },
-          { id: 'd', text: '10 mg' },
-        ],
-        correctId: 'b',
-        explanation: 'Naloxone IM/IN 0.4–2 mg ทุก 2–3 นาทีจนกว่าจะตอบสนอง' },
-      { type: 'quiz', id: 'bls-8-q2',
-        question: 'ผู้ป่วย opioid OD หมดสติ หายใจช้า มี pulse — ทำอะไรก่อน?',
-        choices: [
-          { id: 'a', text: 'CPR ทันที' },
-          { id: 'b', text: 'Rescue breath + naloxone' },
-          { id: 'c', text: 'รอ EMS' },
-          { id: 'd', text: 'ปลุกด้วยน้ำเย็น' },
-        ],
-        correctId: 'b',
-        explanation: 'มี pulse แต่หายใจไม่พอ → rescue breath (1 ครั้ง/5–6 วินาที) + naloxone — CPR เฉพาะเมื่อไม่มี pulse' },
-      { type: 'quiz', id: 'bls-8-q3',
-        question: 'ลักษณะ pupils ของผู้ป่วย opioid OD เป็นอย่างไร?',
-        choices: [
-          { id: 'a', text: 'Dilated (ขยาย)' },
-          { id: 'b', text: 'Pinpoint (เล็กเป็นจุด)' },
-          { id: 'c', text: 'Anisocoria (ขนาดไม่เท่ากัน)' },
-          { id: 'd', text: 'ปกติทุกกรณี' },
-        ],
-        correctId: 'b',
-        explanation: 'Pinpoint pupils + respiratory depression + altered mental status = opioid toxidrome classic' },
-      { type: 'quiz', id: 'bls-8-q4',
-        question: 'ทำไมต้อง observe ผู้ป่วยอย่างน้อย 2–4 ชั่วโมงหลังให้ naloxone?',
-        choices: [
-          { id: 'a', text: 'เพื่อให้ฤทธิ์ opioid หายไปหมด' },
-          { id: 'b', text: 'เพราะ naloxone มี half-life สั้นกว่า opioid — อาจ re-narcotization' },
-          { id: 'c', text: 'เพื่อจ่ายค่ารักษา' },
-          { id: 'd', text: 'ตามกฎหมาย' },
-        ],
-        correctId: 'b',
-        explanation: 'Naloxone half-life 60–90 นาที สั้นกว่า heroin/fentanyl อาจ re-narcotize หลังออกฤทธิ์หมด' },
-    ],
-  },
 ];
 
 function deriveLesson(l) {
@@ -511,7 +557,7 @@ function deriveLesson(l) {
     correctId: s.correctId,
     explanation: s.explanation,
   }));
-  return { ...l, sections, quiz };
+  return { ...l, sections, quiz, videos: lessonVideos[l.id] ?? [] };
 }
 
 export const preCourseLessons = lessonDefs.map(deriveLesson);
