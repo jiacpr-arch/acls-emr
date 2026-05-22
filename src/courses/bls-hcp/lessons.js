@@ -22,8 +22,7 @@ export const preCourseVideos = [
 // TODO: แทนที่ url ด้วยลิงก์วีดีโอ specific ของแต่ละบทเมื่อพร้อม
 const lessonVideos = {
   'bls-1': [
-    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
-    { platform: 'tiktok', label: 'ดูบน TikTok', url: 'https://www.tiktok.com/@jia_lucksa' },
+    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/7RrA-X0vhq0' },
   ],
   'bls-2': [
     { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtube.com/@jia-bu8yn' },
