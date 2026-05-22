@@ -8,9 +8,10 @@ import PostTestCard from '../components/precourse/PostTestCard';
 import PreTestCard from '../components/precourse/PreTestCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
+import FeaturedVideo from '../components/precourse/FeaturedVideo';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
-import { IS_ACLS } from '../config/courseMode';
+import { IS_ACLS, courseMeta } from '../config/courseMode';
 import { GraduationCap, User, UserCheck, Users, RefreshCw } from 'lucide-react';
 
 export default function PreCourse() {
@@ -98,6 +99,8 @@ export default function PreCourse() {
           </>
         )}
       </div>
+
+      {courseMeta.featuredVideo && <FeaturedVideo video={courseMeta.featuredVideo} />}
 
       <VideoLinksPanel videos={preCourseVideos} />
 

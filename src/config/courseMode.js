@@ -17,6 +17,12 @@ export const courseMeta = IS_BLS
       passingScore: { lesson: 75, postTest: 84 },
       certTemplate: 'bls-hcp-aha-2020',
       certValidityMonths: 24,
+      featuredVideo: {
+        platform: 'youtube',
+        videoId: 'g3_0kTW6Me8',
+        title: 'BLS for Healthcare Providers — วิดีโอเต็มหลักสูตร',
+        description: 'ดูวิดีโอนี้ก่อนเริ่มอ่านบทเรียน',
+      },
     }
   : {
       id: 'als',
@@ -28,4 +34,5 @@ export const courseMeta = IS_BLS
       passingScore: { lesson: 70, postTest: 85 },
       certTemplate: 'acls-aha-2020',
       certValidityMonths: 24,
+      featuredVideo: null,
     };
