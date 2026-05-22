@@ -136,7 +136,7 @@ export default function Dashboard() {
             {filteredCases.map(c => (
               <div key={c.id}>
                 <div onClick={() => handleSelect(c.id)}
-                  className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
+                  className={`flex items-start gap-3 p-3 cursor-pointer transition-colors ${
                     selectedCase === c.id
                       ? 'bg-info/8 border border-info/30'
                       : 'bg-bg-primary hover:bg-bg-tertiary border border-transparent'
@@ -144,32 +144,30 @@ export default function Dashboard() {
                   style={{ borderRadius: 'var(--radius-md)' }}>
                   <OutcomeDot outcome={c.outcome} />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-body-strong text-text-primary">#{c.id}</span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-body-strong text-text-primary whitespace-nowrap">#{c.id}</span>
                       <span className={`badge ${
                         c.mode === 'training' ? 'bg-info/15 text-info' : 'bg-danger/15 text-danger'
                       }`}>{c.mode === 'training' ? 'TRN' : 'CLN'}</span>
+                      <span className={`badge ${
+                        c.outcome === 'ROSC' ? 'bg-success/15 text-success' :
+                        c.outcome === 'terminated' ? 'bg-danger/15 text-danger' :
+                        c.outcome === 'ongoing' ? 'bg-warning/15 text-warning' :
+                        'bg-bg-tertiary text-text-muted'
+                      }`}>
+                        {c.outcome?.toUpperCase()}
+                      </span>
                     </div>
-                    <div className="text-caption text-text-muted truncate">
+                    <div className="text-caption text-text-muted truncate mt-0.5">
                       {c.patient?.name || 'No patient info'} · {c.patient?.initialRhythm || 'N/A'}
                     </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className={`badge ${
-                      c.outcome === 'ROSC' ? 'bg-success/15 text-success' :
-                      c.outcome === 'terminated' ? 'bg-danger/15 text-danger' :
-                      c.outcome === 'ongoing' ? 'bg-warning/15 text-warning' :
-                      'bg-bg-tertiary text-text-muted'
-                    }`}>
-                      {c.outcome?.toUpperCase()}
-                    </div>
-                    <div className="text-[10px] text-text-muted mt-1 font-mono">
+                    <div className="text-[10px] text-text-muted font-mono mt-0.5">
                       {new Date(c.startTime).toLocaleDateString('th-TH')}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
                     {c.outcome === 'ongoing' && (
-                      <Link to="/recording" className="btn btn-danger btn-sm">
+                      <Link to="/recording" className="btn btn-danger btn-sm whitespace-nowrap" title="Resume case">
                         <Play size={12} strokeWidth={2.4} /> Resume
                       </Link>
                     )}
