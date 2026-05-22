@@ -103,7 +103,7 @@ export default function NewCase() {
         )}
 
         {/* Start buttons */}
-        <div className="w-full max-w-sm space-y-5 animate-slide-up">
+        <div className="w-full max-w-sm flex flex-col gap-6 animate-slide-up">
           <button onClick={() => handleStart('bls')} disabled={loading}
             className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50">
             <AlertTriangle size={20} strokeWidth={2.4} /> BLS — First Responder
@@ -120,7 +120,7 @@ export default function NewCase() {
           </button>
 
           {/* Quick Start Templates — direct entry to pathway */}
-          <div className="grid grid-cols-2 gap-4 pt-3">
+          <div className="grid grid-cols-2 gap-3">
             {[
               { Icon: HeartPulse, label: 'Cardiac Arrest', start: 'arrest' },
               { Icon: Activity, label: 'Brady / Tachy', start: 'pulse' },
@@ -144,7 +144,7 @@ export default function NewCase() {
           </button>
 
           {/* Quick links */}
-          <div className="grid grid-cols-2 gap-4 pt-3">
+          <div className="grid grid-cols-2 gap-3">
             <button onClick={() => navigate('/guide')}
               className="btn btn-ghost btn-lg btn-block">
               <BookOpen size={18} strokeWidth={2} /> คู่มือ
