@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { preCourseLessons } from '../data/preCourseContent';
+import { preCourseLessons, preCourseVideos } from '../data/preCourseContent';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import LessonCard from '../components/precourse/LessonCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
 import { GraduationCap, User, UserCheck, Users, RefreshCw } from 'lucide-react';
 
 export default function PreCourse() {
@@ -92,6 +93,8 @@ export default function PreCourse() {
           </>
         )}
       </div>
+
+      <VideoLinksPanel videos={preCourseVideos} />
 
       <div className="flex items-center justify-between px-1">
         <div className="text-overline text-text-muted">บทเรียน</div>
