@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { Play, Award, Sparkles } from 'lucide-react';
+import { Play, Award, Sparkles, User, UserCheck, RefreshCw } from 'lucide-react';
 
 // At-a-glance progress + next-step CTA. Decides what the student should do
 // next: identify → first lesson → continue → post-test → see certificate.
+// Also surfaces the active-student status at the top so they always know
+// whose progress is being tracked.
 export default function BLSProgressCard({
   activeStudent,
   lessonsPassed,
@@ -11,6 +13,7 @@ export default function BLSProgressCard({
   postTestPassed,
   postTestUnlocked,
   onIdentify,
+  onChangeStudent,
 }) {
   const navigate = useNavigate();
 
@@ -64,13 +67,65 @@ export default function BLSProgressCard({
 
   return (
     <div
-      className="dash-card relative"
+      className="dash-card"
       style={{
-        marginTop: -22,
         borderRadius: 'var(--radius-xl)',
         boxShadow: 'var(--shadow-2)',
       }}
     >
+      {/* Active-student status row */}
+      <div className="flex items-center gap-2.5 pb-3 mb-3 border-b border-border">
+        {activeStudent ? (
+          <>
+            <div
+              className="w-8 h-8 inline-flex items-center justify-center shrink-0 bg-info/12 text-info"
+              style={{ borderRadius: 'var(--radius-full)' }}
+            >
+              <UserCheck size={15} strokeWidth={2.4} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] font-bold text-text-primary truncate">
+                {activeStudent.name}
+              </div>
+              <div className="text-[10px] text-text-muted font-mono">
+                รหัส {activeStudent.studentId}
+              </div>
+            </div>
+            <button
+              onClick={onChangeStudent}
+              className="text-[11px] font-bold inline-flex items-center gap-1 px-2.5 py-1.5 text-text-secondary bg-bg-tertiary"
+              style={{ borderRadius: 99 }}
+            >
+              <RefreshCw size={11} strokeWidth={2.4} /> เปลี่ยน
+            </button>
+          </>
+        ) : (
+          <>
+            <div
+              className="w-8 h-8 inline-flex items-center justify-center shrink-0 bg-bg-tertiary text-text-muted"
+              style={{ borderRadius: 'var(--radius-full)' }}
+            >
+              <User size={15} strokeWidth={2.4} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] font-bold text-text-primary">
+                ยังไม่ได้ระบุตัวผู้เรียน
+              </div>
+              <div className="text-[10px] text-text-muted">
+                ใส่ชื่อก่อนเริ่ม เพื่อบันทึกผล
+              </div>
+            </div>
+            <button
+              onClick={onIdentify}
+              className="text-[11px] font-bold px-3 py-1.5 bg-info text-white"
+              style={{ borderRadius: 99 }}
+            >
+              ระบุตัวตน
+            </button>
+          </>
+        )}
+      </div>
+
       <div className="flex items-center gap-4">
         <ProgressRing percent={percent} />
         <div className="flex-1 min-w-0">
@@ -95,7 +150,7 @@ export default function BLSProgressCard({
 
       <button
         onClick={cta.onClick}
-        className={`btn btn-lg btn-full mt-3 text-white ${ctaClass}`}
+        className={`btn btn-lg btn-full mt-4 text-white ${ctaClass}`}
       >
         <CtaIcon size={18} strokeWidth={2.4} />
         {cta.label}

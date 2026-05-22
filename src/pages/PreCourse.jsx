@@ -80,11 +80,7 @@ export default function PreCourse() {
   if (IS_BLS) {
     return (
       <div className="page-container space-y-4">
-        <BLSHero
-          activeStudent={activeStudent}
-          onChangeStudent={() => { clearActiveStudent(); setShowIdentity(true); }}
-          onIdentify={() => setShowIdentity(true)}
-        />
+        <BLSHero />
 
         <BLSProgressCard
           activeStudent={activeStudent}
@@ -94,6 +90,7 @@ export default function PreCourse() {
           postTestPassed={postTestPassed}
           postTestUnlocked={postTestUnlocked}
           onIdentify={() => setShowIdentity(true)}
+          onChangeStudent={() => { clearActiveStudent(); setShowIdentity(true); }}
         />
 
         <BLSQuickActions
@@ -107,10 +104,10 @@ export default function PreCourse() {
         {courseMeta.featuredVideo && <FeaturedVideo video={courseMeta.featuredVideo} />}
 
         {/* Collapsible lessons section */}
-        <div ref={lessonsRef} className="space-y-2">
+        <div ref={lessonsRef} className="pt-2">
           <button
             onClick={() => setLessonsOpen(o => !o)}
-            className="w-full flex items-center justify-between px-1 py-1 text-left"
+            className="w-full flex items-center justify-between px-1 py-2 text-left"
           >
             <div className="text-overline text-text-muted">
               บทเรียนทั้งหมด · {lessonsPassed}/{totalLessons} ผ่าน
@@ -123,7 +120,7 @@ export default function PreCourse() {
             />
           </button>
           {lessonsOpen && (
-            <div className="space-y-2 animate-slide-up">
+            <div className="space-y-2 mt-2 animate-slide-up">
               {preCourseLessons.map(l => {
                 const st = lessonState(l.id);
                 return <LessonCard key={l.id} lesson={l} {...st} />;
@@ -133,7 +130,7 @@ export default function PreCourse() {
         </div>
 
         {/* Post-test card — visible so students always see the goal */}
-        <div className="space-y-2">
+        <div className="space-y-2 pt-2">
           <div className="text-overline text-text-muted px-1">ข้อสอบหลังเรียน</div>
           <PostTestCard
             unlocked={postTestUnlocked}
