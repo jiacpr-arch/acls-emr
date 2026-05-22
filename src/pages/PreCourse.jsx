@@ -12,10 +12,15 @@ import FeaturedVideo from '../components/precourse/FeaturedVideo';
 import BLSHero from '../components/precourse/BLSHero';
 import BLSProgressCard from '../components/precourse/BLSProgressCard';
 import BLSQuickActions from '../components/precourse/BLSQuickActions';
+import BLSSplash from '../components/precourse/BLSSplash';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
 import { IS_ACLS, IS_BLS, courseMeta } from '../config/courseMode';
 import { GraduationCap, User, UserCheck, Users, RefreshCw, ChevronDown } from 'lucide-react';
+
+// Module-level flag — splash shows once per full page load, not on every
+// in-app navigation back to /. Resets when the user reloads the tab.
+let blsSplashSeen = false;
 
 export default function PreCourse() {
   const navigate = useNavigate();
@@ -26,6 +31,7 @@ export default function PreCourse() {
   const [attempts, setAttempts] = useState([]);     // [{...}]
   const [showIdentity, setShowIdentity] = useState(false);
   const [lessonsOpen, setLessonsOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(IS_BLS && !blsSplashSeen);
   const lessonsRef = useRef(null);
 
   useEffect(() => {
@@ -80,6 +86,11 @@ export default function PreCourse() {
   if (IS_BLS) {
     return (
       <div className="page-container space-y-6">
+        {showSplash && (
+          <BLSSplash
+            onDismiss={() => { blsSplashSeen = true; setShowSplash(false); }}
+          />
+        )}
         <BLSHero />
 
         <BLSProgressCard
