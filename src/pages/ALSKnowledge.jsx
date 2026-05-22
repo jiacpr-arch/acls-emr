@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { alsChapters } from '../data/alsContent';
+import { useAlsChapters } from '../hooks/useAlsChapters';
 import { ekgQuestions, rhythmLabels, shuffleOptions } from '../data/ekgQuiz';
 import EKGWaveform from '../components/EKGWaveform';
+import QASection from '../components/QASection';
 import {
   GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock, Activity, Check, X, RotateCcw,
@@ -41,6 +42,7 @@ function setTodayCache(topic, text) {
 }
 
 export default function ALSKnowledge() {
+  const { chapters: alsChapters } = useAlsChapters();
   const [tab, setTab] = useState('book');
   const [openCh, setOpenCh] = useState(null);
   const [tip, setTip] = useState('');
@@ -51,13 +53,25 @@ export default function ALSKnowledge() {
   const [quizChoice, setQuizChoice] = useState(null);
   const [quizScore, setQuizScore] = useState(0);
   const [quizBest, setQuizBest] = useState(() => parseInt(localStorage.getItem(QUIZ_KEY) || '0', 10));
+  const [quizSeed, setQuizSeed] = useState(() => Date.now() % 100000);
 
   useEffect(() => { setHistory(getHistory()); }, [tip]);
 
-  const quizQ = ekgQuestions[quizIdx];
+  const quizOrder = useMemo(() => {
+    const arr = ekgQuestions.map((_, i) => i);
+    let s = quizSeed || 1;
+    for (let i = arr.length - 1; i > 0; i--) {
+      s = (s * 9301 + 49297) % 233280;
+      const j = Math.floor((s / 233280) * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [quizSeed]);
+
+  const quizQ = ekgQuestions[quizOrder[quizIdx]];
   const shuffled = useMemo(
-    () => quizQ ? shuffleOptions(quizQ.options, quizQ.id.charCodeAt(1) || 7) : [],
-    [quizQ]
+    () => quizQ ? shuffleOptions(quizQ.options, (quizQ.id.charCodeAt(1) || 7) + quizSeed) : [],
+    [quizQ, quizSeed]
   );
 
   const handleQuizAnswer = (choice) => {
@@ -76,7 +90,10 @@ export default function ALSKnowledge() {
     setQuizChoice(null);
     setQuizIdx(i => i + 1);
   };
-  const resetQuiz = () => { setQuizIdx(0); setQuizChoice(null); setQuizScore(0); };
+  const resetQuiz = () => {
+    setQuizIdx(0); setQuizChoice(null); setQuizScore(0);
+    setQuizSeed(Date.now() % 100000);
+  };
   const quizDone = quizIdx >= ekgQuestions.length;
 
   const fetchTip = async (topic) => {
@@ -158,8 +175,37 @@ export default function ALSKnowledge() {
                     <div className="h-px bg-border" />
                     {ch.sections.map((s, i) => (
                       <div key={i}>
-                        <div className="text-caption font-bold text-danger mb-1">{s.heading}</div>
-                        <div className="text-caption text-text-secondary leading-relaxed">{s.body}</div>
+                        {s.heading && (
+                          <div className="text-caption font-bold text-danger mb-1">{s.heading}</div>
+                        )}
+                        {s.body && (
+                          <div className="text-caption text-text-secondary leading-relaxed">{s.body}</div>
+                        )}
+                        {s.images?.length > 0 && (
+                          <div className="mt-2 space-y-2">
+                            {s.images.map((img, j) => (
+                              <figure key={j} className="m-0">
+                                <img
+                                  src={img.src}
+                                  alt={img.alt || s.heading}
+                                  loading="lazy"
+                                  className="w-full h-auto block border border-border"
+                                  style={{ borderRadius: 'var(--radius-sm)' }}
+                                />
+                                {img.caption && (
+                                  <figcaption className="text-[11px] text-text-muted mt-1 leading-relaxed">
+                                    {img.caption}
+                                  </figcaption>
+                                )}
+                              </figure>
+                            ))}
+                          </div>
+                        )}
+                        {s.qa?.length > 0 && (
+                          <div className={s.heading || s.body ? 'mt-2' : ''}>
+                            <QASection qa={s.qa} />
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -233,8 +279,18 @@ export default function ALSKnowledge() {
               <div className="text-overline text-info inline-flex items-center gap-1.5">
                 <Activity size={12} strokeWidth={2.2} /> จังหวะนี้คืออะไร?
               </div>
-              <div className="overflow-hidden" style={{ borderRadius: 'var(--radius-sm)' }}>
-                <EKGWaveform rhythmId={quizQ.rhythmId} />
+              <div className="overflow-hidden border border-border" style={{ borderRadius: 'var(--radius-sm)' }}>
+                {quizQ.imageUrl ? (
+                  <img
+                    src={quizQ.imageUrl}
+                    alt={`EKG: ${quizQ.answer}`}
+                    loading="lazy"
+                    className="w-full h-auto block"
+                    style={{ background: '#fff7f0' }}
+                  />
+                ) : (
+                  <EKGWaveform rhythmId={quizQ.rhythmId} variant="paper" />
+                )}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {shuffled.map(opt => {

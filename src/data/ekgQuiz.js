@@ -1,69 +1,207 @@
+// EKG quiz bank.
+// Each question may render either:
+//   - rhythmId: built-in SVG waveform (matches IDs in EKGWaveform.jsx)
+//   - imageUrl: real EKG image hosted under /public (e.g. /ekg/vf-01.png)
+// imageUrl takes precedence if both are set.
+
 export const ekgQuestions = [
+  // ---- Cardiac arrest ----
   {
     id: 'q1', rhythmId: 'asystole', answer: 'asystole',
-    options: ['asystole', 'vf', 'pea', 'tdp'],
-    hint: 'เส้นตรง ไม่มี complex ใดๆ — ต้องยืนยัน 2 leads',
+    options: ['asystole', 'vf_fine', 'pea', 'tdp'],
+    hint: 'เส้นแทบเรียบ ไม่มี complex — ต้องยืนยัน 2 leads และเช็ค lead off',
   },
   {
-    id: 'q2', rhythmId: 'vf', answer: 'vf',
-    options: ['vf', 'tdp', 'asystole', 'af'],
-    hint: 'หยักวุ่นวาย ไม่มี P/QRS/T ที่ระบุได้ → Defibrillate',
+    id: 'q2', rhythmId: 'vf_coarse', answer: 'vf_coarse',
+    options: ['vf_coarse', 'tdp', 'vf_fine', 'af'],
+    hint: 'หยักวุ่นวาย แอมพลิจูดสูง ไม่มี P/QRS/T → Defibrillate ทันที',
   },
   {
-    id: 'q3', rhythmId: 'pvt', answer: 'pvt',
+    id: 'q3', rhythmId: 'vf_fine', answer: 'vf_fine',
+    options: ['vf_fine', 'asystole', 'pea', 'vf_coarse'],
+    hint: 'VF แอมพลิจูดต่ำ — ระวังสับสนกับ asystole ต้องเพิ่ม gain ดู',
+  },
+  {
+    id: 'q4', rhythmId: 'pvt', answer: 'pvt',
     options: ['pvt', 'svt', 'af', 'sb'],
     hint: 'QRS กว้าง (>0.12s) เร็ว สม่ำเสมอ ไม่มีชีพจร → Shock',
   },
   {
-    id: 'q4', rhythmId: 'sb', answer: 'sb',
-    options: ['sb', 'nsr', 'avb3', 'pea'],
+    id: 'q5', rhythmId: 'pea', answer: 'pea',
+    options: ['pea', 'nsr', 'sb', 'junctional'],
+    hint: 'EKG ดูปกติแต่คลำชีพจรไม่ได้ = PEA → CPR + หา H/T',
+  },
+
+  // ---- Bradycardia ----
+  {
+    id: 'q6', rhythmId: 'sb', answer: 'sb',
+    options: ['sb', 'nsr', 'avb3', 'junctional'],
     hint: 'P-QRS-T ปกติ แต่ rate < 60/min',
   },
   {
-    id: 'q5', rhythmId: 'svt', answer: 'svt',
-    options: ['svt', 'vt', 'nsr', 'af'],
-    hint: 'QRS แคบ สม่ำเสมอ 150-250/min — มักไม่เห็น P wave',
+    id: 'q7', rhythmId: 'avb1', answer: 'avb1',
+    options: ['avb1', 'nsr', 'wenckebach', 'avb2'],
+    hint: 'PR interval ยาว > 200 ms แต่ทุก P นำ QRS — มักไม่ต้องรักษา',
   },
   {
-    id: 'q6', rhythmId: 'af', answer: 'af',
-    options: ['af', 'nsr', 'svt', 'avb2'],
-    hint: 'Irregularly irregular ไม่มี P wave QRS แคบ',
+    id: 'q8', rhythmId: 'wenckebach', answer: 'wenckebach',
+    options: ['wenckebach', 'avb2', 'avb3', 'avb1'],
+    hint: 'Mobitz I: PR ยาวขึ้นทีละ beat จนกระทั่ง dropped QRS',
   },
   {
-    id: 'q7', rhythmId: 'vt', answer: 'vt',
-    options: ['vt', 'svt', 'tdp', 'af'],
-    hint: 'QRS กว้าง สม่ำเสมอ > 100/min — มีชีพจร = stable/unstable VT',
+    id: 'q9', rhythmId: 'avb2', answer: 'avb2',
+    options: ['avb2', 'wenckebach', 'avb1', 'avb3'],
+    hint: 'Mobitz II: PR คงที่ แต่มี QRS หาย — เสี่ยงพัฒนาเป็น CHB → TCP',
   },
   {
-    id: 'q8', rhythmId: 'avb3', answer: 'avb3',
+    id: 'q10', rhythmId: 'avb3', answer: 'avb3',
     options: ['avb3', 'avb2', 'sb', 'pea'],
-    hint: 'P wave และ QRS เดินคนละจังหวะ (AV dissociation) → TCP ทันที',
+    hint: 'P กับ QRS เดินคนละจังหวะ (AV dissociation) → TCP / atropine แล้ว pace',
   },
   {
-    id: 'q9', rhythmId: 'tdp', answer: 'tdp',
-    options: ['tdp', 'vf', 'vt', 'pvt'],
-    hint: 'Polymorphic VT แอมพลิจูดบิดเป็นเกลียว → MgSO4 / defib ถ้าไม่มีชีพจร',
+    id: 'q11', rhythmId: 'junctional', answer: 'junctional',
+    options: ['junctional', 'sb', 'pea', 'avb3'],
+    hint: 'ไม่เห็น P หรือ P retrograde, QRS แคบ rate 40-60 → จุดกำเนิด AV junction',
   },
+
+  // ---- Tachycardia narrow ----
   {
-    id: 'q10', rhythmId: 'nsr', answer: 'nsr',
+    id: 'q12', rhythmId: 'nsr', answer: 'nsr',
     options: ['nsr', 'sb', 'svt', 'af'],
     hint: 'P นำทุก QRS, PR สม่ำเสมอ, rate 60-100 — ปกติ',
+  },
+  {
+    id: 'q13', rhythmId: 'sinus_tach', answer: 'sinus_tach',
+    options: ['sinus_tach', 'svt', 'af', 'aflutter'],
+    hint: 'P นำทุก QRS แต่ rate 100-150 — หาสาเหตุ (ไข้, ขาดน้ำ, ปวด)',
+  },
+  {
+    id: 'q14', rhythmId: 'svt', answer: 'svt',
+    options: ['svt', 'sinus_tach', 'nsr', 'vt'],
+    hint: 'QRS แคบ สม่ำเสมอ 150-250/min ไม่เห็น P → vagal / adenosine',
+  },
+  {
+    id: 'q15', rhythmId: 'af', answer: 'af',
+    options: ['af', 'aflutter', 'svt', 'nsr'],
+    hint: 'Irregularly irregular ไม่มี P wave QRS แคบ — rate control + anticoag',
+  },
+  {
+    id: 'q16', rhythmId: 'aflutter', answer: 'aflutter',
+    options: ['aflutter', 'af', 'svt', 'sinus_tach'],
+    hint: 'Sawtooth F wave ~300/min, ventricular rate ~150 ที่ 2:1 conduction',
+  },
+
+  // ---- Tachycardia wide ----
+  {
+    id: 'q17', rhythmId: 'vt', answer: 'vt',
+    options: ['vt', 'svt', 'tdp', 'wpw'],
+    hint: 'QRS กว้าง สม่ำเสมอ > 100/min มีชีพจร — stable: amiodarone, unstable: cardiovert',
+  },
+  {
+    id: 'q18', rhythmId: 'tdp', answer: 'tdp',
+    options: ['tdp', 'vf_coarse', 'vt', 'pvt'],
+    hint: 'Polymorphic VT แอมพลิจูดบิดเกลียว → MgSO4 / defib ถ้าไม่มีชีพจร',
+  },
+  {
+    id: 'q19', rhythmId: 'wpw', answer: 'wpw',
+    options: ['wpw', 'avb1', 'nsr', 'pvc'],
+    hint: 'PR สั้น < 120 ms + delta wave (slurred upstroke) — เสี่ยง preexcited AF',
+  },
+  {
+    id: 'q20', rhythmId: 'paced', answer: 'paced',
+    options: ['paced', 'vt', 'wpw', 'avb3'],
+    hint: 'มี pacer spike นำหน้า QRS กว้าง — ดู capture ครบทุก spike',
+  },
+
+  // ---- Ectopy ----
+  {
+    id: 'q21', rhythmId: 'pvc', answer: 'pvc',
+    options: ['pvc', 'pac', 'bigeminy', 'wpw'],
+    hint: 'beat แทรกที่ QRS กว้างผิดรูป ไม่มี P นำ — มักไม่ต้องรักษา ถ้าไม่ถี่',
+  },
+  {
+    id: 'q22', rhythmId: 'pac', answer: 'pac',
+    options: ['pac', 'pvc', 'wenckebach', 'nsr'],
+    hint: 'P มาเร็วผิดจังหวะ แต่ QRS ตามมาแคบปกติ',
+  },
+  {
+    id: 'q23', rhythmId: 'bigeminy', answer: 'bigeminy',
+    options: ['bigeminy', 'pvc', 'aflutter', 'paced'],
+    hint: 'normal beat สลับ PVC ทุกครั้ง = ventricular bigeminy',
+  },
+
+  // ---- Ischemia ----
+  {
+    id: 'q24', rhythmId: 'stemi_anterior', answer: 'stemi_anterior',
+    options: ['stemi_anterior', 'nstemi', 'ischemic_t', 'hyperk'],
+    hint: 'ST elevation ≥ 1mm ใน 2 contiguous leads → activate cath lab',
+  },
+  {
+    id: 'q25', rhythmId: 'stemi_inferior', answer: 'stemi_inferior',
+    options: ['stemi_inferior', 'stemi_anterior', 'nstemi', 'nsr'],
+    hint: 'ST elevation ที่ II, III, aVF — ระวัง RV infarction ไม่ให้ nitrate',
+  },
+  {
+    id: 'q26', rhythmId: 'nstemi', answer: 'nstemi',
+    options: ['nstemi', 'stemi_anterior', 'ischemic_t', 'hypok'],
+    hint: 'ST depression — NSTE-ACS, troponin บอกว่า NSTEMI หรือ UA',
+  },
+  {
+    id: 'q27', rhythmId: 'ischemic_t', answer: 'ischemic_t',
+    options: ['ischemic_t', 'hyperk', 'long_qt', 'nstemi'],
+    hint: 'T inversion สมมาตร ลึก — bookend ของ ischemia / Wellens',
+  },
+
+  // ---- Electrolytes ----
+  {
+    id: 'q28', rhythmId: 'hyperk', answer: 'hyperk',
+    options: ['hyperk', 'stemi_anterior', 'long_qt', 'ischemic_t'],
+    hint: 'Peaked tall T (tented) — K+ สูง → Ca gluconate, insulin/D, NaHCO3',
+  },
+  {
+    id: 'q29', rhythmId: 'hypok', answer: 'hypok',
+    options: ['hypok', 'long_qt', 'nsr', 'ischemic_t'],
+    hint: 'T แบน + U wave โดดเด่น — เสริม K (และ Mg)',
+  },
+  {
+    id: 'q30', rhythmId: 'long_qt', answer: 'long_qt',
+    options: ['long_qt', 'hypok', 'hyperk', 'wpw'],
+    hint: 'QT ยาว — เสี่ยง Torsades หยุดยาที่เป็นสาเหตุ + แก้ Mg/K',
   },
 ];
 
 export const rhythmLabels = {
   nsr: 'Normal Sinus Rhythm',
+  sinus_tach: 'Sinus Tachycardia',
   sb: 'Sinus Bradycardia',
   svt: 'SVT',
   vt: 'VT (with pulse)',
   pvt: 'Pulseless VT',
   vf: 'Ventricular Fibrillation',
+  vf_coarse: 'Coarse VF',
+  vf_fine: 'Fine VF',
   af: 'Atrial Fibrillation',
-  avb2: '2nd Degree AV Block Type II',
+  aflutter: 'Atrial Flutter',
+  avb1: '1st Degree AV Block',
+  wenckebach: 'Mobitz I (Wenckebach)',
+  avb2: 'Mobitz II AV Block',
   avb3: '3rd Degree AV Block',
+  junctional: 'Junctional Rhythm',
   tdp: 'Torsades de Pointes',
   asystole: 'Asystole',
   pea: 'PEA',
+  pvc: 'PVC',
+  pac: 'PAC',
+  bigeminy: 'Ventricular Bigeminy',
+  paced: 'Paced Rhythm',
+  wpw: 'WPW Pattern',
+  stemi_anterior: 'STEMI (Anterior)',
+  stemi_inferior: 'STEMI (Inferior)',
+  nstemi: 'NSTE-ACS / ST Depression',
+  ischemic_t: 'Ischemic T Inversion',
+  hyperk: 'Hyperkalemia',
+  hypok: 'Hypokalemia',
+  long_qt: 'Long QT',
 };
 
 export function shuffleOptions(options, seed) {

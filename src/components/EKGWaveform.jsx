@@ -1,5 +1,16 @@
-const W = 320;
-const H = 80;
+// ECG waveform renderer.
+// Two visual modes:
+//   variant="paper"   → light pink/red grid like real ECG paper (default for quiz)
+//   variant="monitor" → dark background, green trace (bedside monitor look)
+//
+// Coordinate model: we work in millimetres internally then scale to px.
+// Paper speed = 25 mm/s, gain = 10 mm/mV (clinical standard).
+
+const MM = 4; // px per mm
+const STRIP_MM_W = 150; // 6 seconds
+const STRIP_MM_H = 38;
+const W = STRIP_MM_W * MM;
+const H = STRIP_MM_H * MM;
 const BASE = H / 2;
 
 function seeded(seed) {
@@ -10,162 +21,498 @@ function seeded(seed) {
   };
 }
 
-function nsrCycle(x0, cw, baseY, wide = false, withP = true) {
-  const px = x0 + cw * 0.18;
-  const qx = x0 + cw * 0.45;
-  const tx = x0 + cw * 0.75;
-  const qrsW = wide ? 14 : 4;
+// Single beat builder. All offsets in pixels; cw is cycle width in px.
+// opts:
+//   p: { amp, dur, pos, polarity, present }  (P wave)
+//   pr: PR interval in mm
+//   qrs: { width, rAmp, qAmp, sAmp, delta }
+//   st: ST level (mm, + = elevation)
+//   t: { amp, dur, inverted, peaked }
+//   u: small U wave amp
+function beat(x0, opts) {
+  const o = {
+    p: { amp: 1.0, dur: 3, polarity: 1, present: true, ...(opts.p || {}) },
+    pr: opts.pr ?? 4, // mm from P start to QRS start
+    qrs: { width: 3, rAmp: 12, qAmp: 1, sAmp: 4, delta: false, ...(opts.qrs || {}) },
+    st: opts.st ?? 0,
+    t: { amp: 3, dur: 6, inverted: false, peaked: false, ...(opts.t || {}) },
+    u: opts.u ?? 0,
+  };
   let d = '';
-  if (withP) {
-    d += ` L ${px - 8} ${baseY}`;
-    d += ` Q ${px} ${baseY - 7}, ${px + 8} ${baseY}`;
-  }
-  d += ` L ${qx - qrsW} ${baseY}`;
-  if (wide) {
-    d += ` Q ${qx - 4} ${baseY - 26}, ${qx} ${baseY - 24}`;
-    d += ` Q ${qx + 4} ${baseY - 22}, ${qx + qrsW} ${baseY + 6}`;
+  let x = x0;
+
+  // P wave
+  if (o.p.present) {
+    const pw = o.p.dur * MM;
+    const ph = o.p.amp * MM * o.p.polarity;
+    d += ` L ${x} ${BASE}`;
+    d += ` Q ${x + pw / 2} ${BASE - ph} ${x + pw} ${BASE}`;
+    x += pw;
+    // PR segment isoelectric (rest of PR interval)
+    const prRest = Math.max(0, o.pr - o.p.dur) * MM;
+    d += ` L ${x + prRest} ${BASE}`;
+    x += prRest;
   } else {
-    d += ` L ${qx - 2} ${baseY + 5}`;
-    d += ` L ${qx + 1} ${baseY - 28}`;
-    d += ` L ${qx + 4} ${baseY + 8}`;
+    d += ` L ${x + o.pr * MM} ${BASE}`;
+    x += o.pr * MM;
   }
-  d += ` L ${tx - 10} ${baseY}`;
-  d += ` Q ${tx} ${baseY - 10}, ${tx + 10} ${baseY}`;
-  d += ` L ${x0 + cw} ${baseY}`;
+
+  // QRS
+  const qw = o.qrs.width * MM;
+  if (o.qrs.delta) {
+    // WPW slurred upstroke
+    d += ` L ${x + qw * 0.35} ${BASE - o.qrs.rAmp * 0.4 * MM / 4}`;
+    d += ` L ${x + qw * 0.55} ${BASE - o.qrs.rAmp * MM / 4}`;
+    d += ` L ${x + qw} ${BASE + o.qrs.sAmp * MM / 4}`;
+  } else if (o.qrs.width > 4) {
+    // Wide bizarre QRS (VT/PVC/paced)
+    d += ` Q ${x + qw * 0.25} ${BASE - o.qrs.rAmp * MM / 3} ${x + qw * 0.5} ${BASE - o.qrs.rAmp * MM / 3}`;
+    d += ` Q ${x + qw * 0.75} ${BASE - o.qrs.rAmp * MM / 3} ${x + qw} ${BASE + o.qrs.sAmp * MM / 3}`;
+  } else {
+    // Narrow QRS: Q-R-S
+    if (o.qrs.qAmp > 0) {
+      d += ` L ${x + qw * 0.15} ${BASE + (o.qrs.qAmp * MM) / 4}`;
+    }
+    d += ` L ${x + qw * 0.5} ${BASE - (o.qrs.rAmp * MM) / 4}`;
+    d += ` L ${x + qw * 0.85} ${BASE + (o.qrs.sAmp * MM) / 4}`;
+    d += ` L ${x + qw} ${BASE - o.st * MM / 4}`;
+  }
+  x += qw;
+
+  // ST segment (4 mm)
+  const stW = 4 * MM;
+  d += ` L ${x + stW} ${BASE - o.st * MM / 4}`;
+  x += stW;
+
+  // T wave
+  const tw = o.t.dur * MM;
+  const th = (o.t.inverted ? 1 : -1) * o.t.amp * MM / 4;
+  if (o.t.peaked) {
+    d += ` L ${x + tw * 0.3} ${BASE}`;
+    d += ` L ${x + tw * 0.5} ${BASE + th * 2}`;
+    d += ` L ${x + tw * 0.7} ${BASE}`;
+    d += ` L ${x + tw} ${BASE}`;
+  } else {
+    d += ` Q ${x + tw * 0.5} ${BASE + th * 1.6} ${x + tw} ${BASE}`;
+  }
+  x += tw;
+
+  // U wave (small)
+  if (o.u > 0) {
+    const uw = 4 * MM;
+    d += ` Q ${x + uw * 0.5} ${BASE - o.u * MM / 4} ${x + uw} ${BASE}`;
+    x += uw;
+  }
+  return { d, x };
+}
+
+// Repeat sinus-like beats at a heart rate filling the strip.
+function sinusStrip(bpm, beatOpts, startBase = BASE) {
+  const cycleMm = (60 / bpm) * 25; // mm per beat at 25mm/s
+  const cw = cycleMm * MM;
+  let d = `M 0 ${startBase}`;
+  let x = 0;
+  while (x < W + cw) {
+    const res = beat(x, beatOpts);
+    d += res.d;
+    // baseline to next beat start
+    const next = x + cw;
+    d += ` L ${next} ${BASE}`;
+    x = next;
+  }
   return d;
 }
 
 function buildPath(rhythmId) {
-  let d = `M 0 ${BASE}`;
   switch (rhythmId) {
-    case 'nsr': {
-      const cycles = 4;
-      const cw = W / cycles;
-      for (let i = 0; i < cycles; i++) d += nsrCycle(i * cw, cw, BASE);
-      break;
-    }
-    case 'sb': {
-      const cycles = 2;
-      const cw = W / cycles;
-      for (let i = 0; i < cycles; i++) d += nsrCycle(i * cw, cw, BASE);
-      break;
-    }
-    case 'svt': {
-      const cycles = 8;
-      const cw = W / cycles;
-      for (let i = 0; i < cycles; i++) d += nsrCycle(i * cw, cw, BASE, false, false);
-      break;
-    }
-    case 'vt':
-    case 'pvt': {
-      const cycles = 5;
-      const cw = W / cycles;
-      for (let i = 0; i < cycles; i++) d += nsrCycle(i * cw, cw, BASE, true, false);
-      break;
-    }
-    case 'af': {
-      const positions = [0.08, 0.22, 0.32, 0.48, 0.6, 0.78, 0.92];
-      const r = seeded(7);
-      for (const p of positions) {
-        const qx = p * W;
-        const wob = (r() - 0.5) * 3;
-        d += ` L ${qx - 6} ${BASE + wob}`;
-        d += ` L ${qx - 2} ${BASE + 5}`;
-        d += ` L ${qx + 1} ${BASE - 26}`;
-        d += ` L ${qx + 4} ${BASE + 7}`;
-        d += ` L ${qx + 8} ${BASE + wob}`;
-      }
-      d += ` L ${W} ${BASE}`;
-      break;
-    }
-    case 'avb2': {
-      const cw = W / 4;
-      for (let i = 0; i < 3; i++) d += nsrCycle(i * cw, cw, BASE);
-      const px = 3 * cw + cw * 0.18;
-      d += ` L ${px - 8} ${BASE}`;
-      d += ` Q ${px} ${BASE - 7}, ${px + 8} ${BASE}`;
-      d += ` L ${W} ${BASE}`;
-      break;
-    }
-    case 'avb3': {
-      const pCount = 6;
-      const qCount = 3;
-      const events = [];
-      for (let i = 0; i < pCount; i++) events.push({ t: (i + 0.5) / pCount * W, type: 'p' });
-      for (let i = 0; i < qCount; i++) events.push({ t: (i + 0.5) / qCount * W, type: 'q' });
-      events.sort((a, b) => a.t - b.t);
-      for (const e of events) {
-        if (e.type === 'p') {
-          d += ` L ${e.t - 6} ${BASE}`;
-          d += ` Q ${e.t} ${BASE - 6}, ${e.t + 6} ${BASE}`;
+    // ---- Normal & sinus ----
+    case 'nsr':
+      return sinusStrip(72, {});
+    case 'sinus_tach':
+      return sinusStrip(120, { t: { amp: 2.5, dur: 5 } });
+    case 'sb':
+      return sinusStrip(45, {});
+
+    // ---- AV blocks ----
+    case 'avb1':
+      return sinusStrip(70, { pr: 9 }); // long PR
+
+    case 'wenckebach': {
+      // Progressive PR prolongation then dropped QRS (Mobitz I)
+      let d = `M 0 ${BASE}`;
+      let x = 0;
+      const baseCw = (60 / 65) * 25 * MM;
+      const pattern = [4, 6, 8, 10]; // PR increasing, last is dropped P only
+      let i = 0;
+      while (x < W) {
+        const pr = pattern[i % pattern.length];
+        const drop = i % pattern.length === pattern.length - 1;
+        if (drop) {
+          // only a P wave then long pause
+          const pw = 3 * MM;
+          d += ` L ${x} ${BASE} Q ${x + pw / 2} ${BASE - MM} ${x + pw} ${BASE}`;
+          d += ` L ${x + baseCw} ${BASE}`;
+          x += baseCw;
         } else {
-          d += ` L ${e.t - 4} ${BASE}`;
-          d += ` Q ${e.t} ${BASE - 22}, ${e.t + 4} ${BASE - 20}`;
-          d += ` Q ${e.t + 8} ${BASE - 18}, ${e.t + 12} ${BASE + 5}`;
-          d += ` L ${e.t + 16} ${BASE}`;
+          const res = beat(x, { pr });
+          d += res.d;
+          d += ` L ${x + baseCw} ${BASE}`;
+          x += baseCw;
+        }
+        i++;
+      }
+      return d;
+    }
+
+    case 'avb2': {
+      // Mobitz II: constant PR, occasional dropped QRS
+      let d = `M 0 ${BASE}`;
+      let x = 0;
+      const cw = (60 / 70) * 25 * MM;
+      let i = 0;
+      while (x < W) {
+        if (i % 3 === 2) {
+          // dropped: P only
+          const pw = 3 * MM;
+          d += ` L ${x} ${BASE} Q ${x + pw / 2} ${BASE - MM} ${x + pw} ${BASE}`;
+          d += ` L ${x + cw} ${BASE}`;
+        } else {
+          const res = beat(x, {});
+          d += res.d;
+          d += ` L ${x + cw} ${BASE}`;
+        }
+        x += cw;
+        i++;
+      }
+      return d;
+    }
+
+    case 'avb3': {
+      // AV dissociation: independent P (faster) and QRS (slower, wide escape)
+      let d = `M 0 ${BASE}`;
+      const pRate = 90;
+      const qRate = 35;
+      const pInt = (60 / pRate) * 25 * MM;
+      const qInt = (60 / qRate) * 25 * MM;
+      const events = [];
+      for (let x = pInt * 0.4; x < W; x += pInt) events.push({ x, type: 'p' });
+      for (let x = qInt * 0.3; x < W; x += qInt) events.push({ x, type: 'q' });
+      events.sort((a, b) => a.x - b.x);
+      for (const e of events) {
+        d += ` L ${e.x} ${BASE}`;
+        if (e.type === 'p') {
+          const pw = 3 * MM;
+          d += ` Q ${e.x + pw / 2} ${BASE - MM} ${e.x + pw} ${BASE}`;
+        } else {
+          const qw = 5 * MM;
+          d += ` Q ${e.x + qw * 0.3} ${BASE - 8 * MM / 3} ${e.x + qw * 0.5} ${BASE - 8 * MM / 3}`;
+          d += ` Q ${e.x + qw * 0.7} ${BASE + 4 * MM / 3} ${e.x + qw} ${BASE}`;
+          const tw = 6 * MM;
+          d += ` Q ${e.x + qw + tw / 2} ${BASE + 3 * MM / 4} ${e.x + qw + tw} ${BASE}`;
         }
       }
       d += ` L ${W} ${BASE}`;
-      break;
+      return d;
     }
-    case 'vf': {
-      const r = seeded(99);
-      for (let x = 3; x <= W; x += 3) {
-        const amp = 18 + r() * 14;
-        d += ` L ${x} ${BASE + (r() - 0.5) * amp}`;
+
+    // ---- Tachys narrow ----
+    case 'svt':
+      return sinusStrip(180, { p: { present: false }, pr: 1, t: { amp: 2, dur: 4 } });
+
+    case 'af': {
+      // Irregularly irregular, fibrillatory baseline, no P
+      const r = seeded(13);
+      let d = `M 0 ${BASE}`;
+      const beats = [];
+      let t = 0;
+      while (t < W) {
+        // RR interval random 14-28mm (irregular)
+        t += (14 + r() * 14) * MM;
+        beats.push(t);
       }
-      break;
+      let cur = 0;
+      for (const bx of beats) {
+        if (bx >= W) break;
+        // Fibrillatory wavy baseline from cur to bx
+        for (let x = cur; x < bx - 4 * MM; x += 1.5) {
+          d += ` L ${x} ${BASE + (r() - 0.5) * MM * 0.6}`;
+        }
+        // narrow QRS
+        const qx = bx;
+        d += ` L ${qx - 1 * MM} ${BASE}`;
+        d += ` L ${qx} ${BASE - 11 * MM / 4}`;
+        d += ` L ${qx + 1 * MM} ${BASE + 3 * MM / 4}`;
+        d += ` L ${qx + 2 * MM} ${BASE}`;
+        cur = qx + 2 * MM;
+      }
+      for (let x = cur; x < W; x += 1.5) {
+        d += ` L ${x} ${BASE + (seeded(99 + x)() - 0.5) * MM * 0.6}`;
+      }
+      return d;
     }
-    case 'tdp': {
-      const r = seeded(31);
-      const step = 6;
+
+    case 'aflutter': {
+      // Sawtooth F waves ~300/min with 2:1 conduction QRS
+      let d = `M 0 ${BASE}`;
+      const fw = 5 * MM; // 5mm per flutter wave (300/min)
+      const qrsEvery = 2; // 2:1
       let i = 0;
-      for (let x = step; x <= W; x += step) {
-        const env = Math.sin((x / W) * Math.PI * 2) * 22 + 10;
-        const dir = i % 2 === 0 ? -1 : 1;
-        d += ` L ${x} ${BASE + dir * env + (r() - 0.5) * 4}`;
+      let x = 0;
+      while (x < W) {
+        // sawtooth down then up
+        d += ` L ${x + fw * 0.5} ${BASE + 2 * MM}`;
+        d += ` L ${x + fw} ${BASE - 1.5 * MM}`;
+        x += fw;
+        if (i % qrsEvery === qrsEvery - 1) {
+          d += ` L ${x + 1 * MM} ${BASE}`;
+          d += ` L ${x + 1.5 * MM} ${BASE - 10 * MM / 4}`;
+          d += ` L ${x + 2 * MM} ${BASE + 3 * MM / 4}`;
+          d += ` L ${x + 3 * MM} ${BASE}`;
+          x += 3 * MM;
+        }
         i++;
       }
-      break;
+      return d;
     }
+
+    // ---- Tachys wide ----
+    case 'vt':
+    case 'pvt':
+      return sinusStrip(170, {
+        p: { present: false }, pr: 0,
+        qrs: { width: 7, rAmp: 14, qAmp: 0, sAmp: 6 },
+        t: { amp: 4, dur: 5, inverted: true },
+      });
+
+    case 'tdp': {
+      // Polymorphic VT with twisting amplitude envelope
+      const r = seeded(31);
+      let d = `M 0 ${BASE}`;
+      const step = 2;
+      let i = 0;
+      for (let x = 0; x < W; x += step) {
+        const env = Math.sin((x / W) * Math.PI * 2) * 18 + 12;
+        const dir = i % 2 === 0 ? -1 : 1;
+        d += ` L ${x} ${BASE + dir * env + (r() - 0.5) * 3}`;
+        i++;
+      }
+      return d;
+    }
+
+    case 'vf':
+    case 'vf_coarse': {
+      const r = seeded(99);
+      let d = `M 0 ${BASE}`;
+      for (let x = 0; x <= W; x += 2) {
+        const amp = 20 + r() * 16;
+        d += ` L ${x} ${BASE + (r() - 0.5) * amp}`;
+      }
+      return d;
+    }
+    case 'vf_fine': {
+      const r = seeded(77);
+      let d = `M 0 ${BASE}`;
+      for (let x = 0; x <= W; x += 2) {
+        const amp = 5 + r() * 6;
+        d += ` L ${x} ${BASE + (r() - 0.5) * amp}`;
+      }
+      return d;
+    }
+
     case 'asystole': {
       const r = seeded(3);
-      for (let x = 4; x <= W; x += 4) {
-        d += ` L ${x} ${BASE + (r() - 0.5) * 1.5}`;
+      let d = `M 0 ${BASE}`;
+      for (let x = 0; x <= W; x += 3) {
+        d += ` L ${x} ${BASE + (r() - 0.5) * 1.2}`;
       }
-      break;
+      return d;
     }
-    case 'pea': {
-      const cycles = 3;
-      const cw = W / cycles;
-      for (let i = 0; i < cycles; i++) d += nsrCycle(i * cw, cw, BASE);
-      break;
+
+    case 'pea':
+      return sinusStrip(75, {});
+
+    // ---- Ectopy ----
+    case 'pvc': {
+      // Sinus with one wide bizarre PVC mid-strip
+      let d = `M 0 ${BASE}`;
+      let x = 0;
+      const cw = (60 / 75) * 25 * MM;
+      let i = 0;
+      while (x < W) {
+        if (i === 3) {
+          // PVC: no P, wide bizarre, no compensatory pause shown
+          const res = beat(x, {
+            p: { present: false }, pr: 0,
+            qrs: { width: 7, rAmp: 16, qAmp: 0, sAmp: 8 },
+            t: { amp: 5, dur: 6, inverted: true },
+          });
+          d += res.d;
+        } else {
+          const res = beat(x, {});
+          d += res.d;
+        }
+        d += ` L ${x + cw} ${BASE}`;
+        x += cw;
+        i++;
+      }
+      return d;
     }
+
+    case 'pac': {
+      // Sinus with one early P (premature atrial complex)
+      let d = `M 0 ${BASE}`;
+      let x = 0;
+      const cw = (60 / 70) * 25 * MM;
+      let i = 0;
+      while (x < W) {
+        if (i === 3) {
+          // PAC: early, normal narrow QRS
+          const res = beat(x - cw * 0.3, { p: { amp: 1.2 } });
+          d += res.d;
+          d += ` L ${x + cw} ${BASE}`;
+        } else {
+          const res = beat(x, {});
+          d += res.d;
+          d += ` L ${x + cw} ${BASE}`;
+        }
+        x += cw;
+        i++;
+      }
+      return d;
+    }
+
+    case 'bigeminy': {
+      // Alternating normal beat and PVC
+      let d = `M 0 ${BASE}`;
+      let x = 0;
+      const cw = (60 / 70) * 25 * MM;
+      let i = 0;
+      while (x < W) {
+        if (i % 2 === 1) {
+          const res = beat(x, {
+            p: { present: false }, pr: 0,
+            qrs: { width: 7, rAmp: 14, qAmp: 0, sAmp: 7 },
+            t: { amp: 4, dur: 6, inverted: true },
+          });
+          d += res.d;
+        } else {
+          const res = beat(x, {});
+          d += res.d;
+        }
+        d += ` L ${x + cw} ${BASE}`;
+        x += cw;
+        i++;
+      }
+      return d;
+    }
+
+    // ---- Junctional ----
+    case 'junctional':
+      return sinusStrip(50, { p: { present: false }, pr: 0, t: { amp: 3, dur: 6 } });
+
+    // ---- Paced ----
+    case 'paced': {
+      // Pacer spike then wide QRS
+      let d = `M 0 ${BASE}`;
+      let x = 0;
+      const cw = (60 / 72) * 25 * MM;
+      while (x < W) {
+        // pacer spike (thin vertical)
+        d += ` L ${x + 2 * MM} ${BASE}`;
+        d += ` L ${x + 2 * MM} ${BASE - 6 * MM}`;
+        d += ` L ${x + 2.2 * MM} ${BASE - 6 * MM}`;
+        d += ` L ${x + 2.2 * MM} ${BASE}`;
+        const res = beat(x + 2.5 * MM, {
+          p: { present: false }, pr: 0,
+          qrs: { width: 7, rAmp: 13, qAmp: 0, sAmp: 7 },
+          t: { amp: 4, dur: 6, inverted: true },
+        });
+        d += res.d;
+        d += ` L ${x + cw} ${BASE}`;
+        x += cw;
+      }
+      return d;
+    }
+
+    // ---- WPW ----
+    case 'wpw':
+      return sinusStrip(75, {
+        pr: 2,
+        qrs: { width: 5, rAmp: 12, qAmp: 0, sAmp: 4, delta: true },
+      });
+
+    // ---- Ischemia / STEMI ----
+    case 'stemi_anterior':
+    case 'stemi':
+      return sinusStrip(80, { st: 3.5, t: { amp: 4, dur: 6 } });
+    case 'stemi_inferior':
+      return sinusStrip(70, { st: 3, t: { amp: 3.5, dur: 6 } });
+    case 'nstemi':
+      return sinusStrip(85, { st: -2.5, t: { amp: 3, dur: 5 } });
+    case 'ischemic_t':
+      return sinusStrip(75, { t: { amp: 4, dur: 6, inverted: true } });
+
+    // ---- Electrolytes ----
+    case 'hyperk':
+      return sinusStrip(70, { t: { amp: 6, dur: 4, peaked: true } });
+    case 'hypok':
+      return sinusStrip(75, { t: { amp: 1.5, dur: 5 }, u: 2 });
+    case 'long_qt':
+      return sinusStrip(70, { t: { amp: 3, dur: 12 } });
+
     default:
-      d += ` L ${W} ${BASE}`;
+      return `M 0 ${BASE} L ${W} ${BASE}`;
   }
-  return d;
 }
 
-export default function EKGWaveform({ rhythmId, color = '#10b981', className = '' }) {
+function PaperGrid() {
+  const lines = [];
+  // small boxes every 1mm
+  for (let i = 1; i < STRIP_MM_W; i++) {
+    lines.push(
+      <line key={`v-${i}`} x1={i * MM} y1={0} x2={i * MM} y2={H}
+        stroke="rgba(239,68,68,0.18)" strokeWidth={i % 5 === 0 ? 0.8 : 0.3} />
+    );
+  }
+  for (let i = 1; i < STRIP_MM_H; i++) {
+    lines.push(
+      <line key={`h-${i}`} x1={0} y1={i * MM} x2={W} y2={i * MM}
+        stroke="rgba(239,68,68,0.18)" strokeWidth={i % 5 === 0 ? 0.8 : 0.3} />
+    );
+  }
+  return <g>{lines}</g>;
+}
+
+function MonitorGrid() {
+  return (
+    <g stroke="rgba(16,185,129,0.12)" strokeWidth="0.5">
+      {Array.from({ length: 14 }).map((_, i) => (
+        <line key={`v${i}`} x1={(i + 1) * (W / 15)} y1="0" x2={(i + 1) * (W / 15)} y2={H} />
+      ))}
+      {Array.from({ length: 5 }).map((_, i) => (
+        <line key={`h${i}`} x1="0" y1={(i + 1) * (H / 6)} x2={W} y2={(i + 1) * (H / 6)} />
+      ))}
+    </g>
+  );
+}
+
+export default function EKGWaveform({ rhythmId, variant = 'paper', color, className = '' }) {
   const d = buildPath(rhythmId);
+  const isPaper = variant === 'paper';
+  const bg = isPaper ? '#fff7f0' : '#0b0f14';
+  const traceColor = color || (isPaper ? '#111827' : '#10b981');
+  const traceWidth = isPaper ? 1.4 : 1.6;
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      className={`w-full h-20 ${className}`}
-      preserveAspectRatio="none"
+      className={`w-full ${className}`}
+      style={{ height: 'auto', aspectRatio: `${W} / ${H}`, display: 'block' }}
+      preserveAspectRatio="xMidYMid meet"
       aria-label={`EKG waveform: ${rhythmId}`}
     >
-      <rect x="0" y="0" width={W} height={H} fill="#0b0f14" />
-      <g stroke="rgba(16,185,129,0.12)" strokeWidth="0.5">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <line key={`v${i}`} x1={(i + 1) * (W / 8)} y1="0" x2={(i + 1) * (W / 8)} y2={H} />
-        ))}
-        {Array.from({ length: 4 }).map((_, i) => (
-          <line key={`h${i}`} x1="0" y1={(i + 1) * (H / 4)} x2={W} y2={(i + 1) * (H / 4)} />
-        ))}
-      </g>
-      <path d={d} fill="none" stroke={color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+      <rect x="0" y="0" width={W} height={H} fill={bg} />
+      {isPaper ? <PaperGrid /> : <MonitorGrid />}
+      <path d={d} fill="none" stroke={traceColor} strokeWidth={traceWidth} strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 }

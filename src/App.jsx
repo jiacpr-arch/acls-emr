@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useSettingsStore } from './stores/settingsStore';
 import { IS_BLS, IS_ACLS, courseMeta } from './config/courseMode';
@@ -24,8 +24,19 @@ import QuizResults from './pages/QuizResults';
 import InstructorCohort from './pages/InstructorCohort';
 import PostTestExam from './pages/PostTestExam';
 import BLSSkillPractice from './pages/BLSSkillPractice';
+import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import OfflineIndicator from './components/OfflineIndicator';
+
+// Admin pages are code-split — keep the main bundle below the workbox precache limit
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const AdminChapters = lazy(() => import('./pages/AdminChapters'));
+
+const AdminFallback = () => (
+  <div className="page-container py-12 text-center text-caption text-text-muted">
+    กำลังโหลด admin…
+  </div>
+);
 
 function App() {
   const theme = useSettingsStore(s => s.theme);
@@ -48,7 +59,9 @@ function App() {
   }, []);
 
   // Recording page has its own nav (QuickBar + FloatingStatus)
+  // Admin pages also hide the bottom tab bar
   const isRecording = location.pathname === '/recording';
+  const isAdmin = location.pathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -80,12 +93,34 @@ function App() {
         {IS_ACLS && <Route path="/compare" element={<CaseCompare />} />}
         {IS_ACLS && <Route path="/als" element={<ALSKnowledge />} />}
         {IS_ACLS && <Route path="/sim" element={<CodeBlueSim />} />}
+        {IS_ACLS && (
+          <Route
+            path="/admin/login"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminLogin />
+              </Suspense>
+            }
+          />
+        )}
+        {IS_ACLS && (
+          <Route
+            path="/admin/chapters"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <RequireAdmin>
+                  <AdminChapters />
+                </RequireAdmin>
+              </Suspense>
+            }
+          />
+        )}
 
         {IS_BLS && <Route path="/" element={<PreCourse />} />}
         {IS_BLS && <Route path="/skill-practice" element={<BLSSkillPractice />} />}
       </Routes>
-      {/* Bottom pill bar on all pages except recording */}
-      {!isRecording && <BottomTabBar />}
+      {/* Bottom pill bar on all pages except recording + admin */}
+      {!isRecording && !isAdmin && <BottomTabBar />}
     </div>
   );
 }
