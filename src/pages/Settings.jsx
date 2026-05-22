@@ -208,8 +208,12 @@ function ToggleRow({ Icon: I, label, value, onToggle }) {
     <div className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
         {I && (
-          <div className="w-8 h-8 inline-flex items-center justify-center bg-bg-tertiary text-text-secondary shrink-0"
-            style={{ borderRadius: 'var(--radius-sm)' }}>
+          <div
+            className={`w-8 h-8 inline-flex items-center justify-center shrink-0 transition-colors ${
+              value ? 'bg-success/15 text-success' : 'bg-bg-tertiary text-text-muted'
+            }`}
+            style={{ borderRadius: 'var(--radius-sm)' }}
+          >
             <I size={15} strokeWidth={2} />
           </div>
         )}
@@ -219,15 +223,45 @@ function ToggleRow({ Icon: I, label, value, onToggle }) {
         onClick={onToggle}
         role="switch"
         aria-checked={value}
-        className={`relative w-12 h-7 transition-colors shrink-0 border ${value ? 'bg-success border-success' : 'bg-bg-tertiary border-border-strong'}`}
-        style={{ borderRadius: 99 }}
+        aria-label={`${label}: ${value ? 'On' : 'Off'}`}
+        className={`relative shrink-0 transition-colors border-2 ${
+          value
+            ? 'bg-success border-success'
+            : 'bg-bg-tertiary border-border-strong'
+        }`}
+        style={{
+          width: 56,
+          height: 32,
+          borderRadius: 99,
+          boxShadow: value
+            ? '0 0 0 3px rgba(5, 150, 105, 0.18), inset 0 1px 2px rgba(0,0,0,0.15)'
+            : 'inset 0 2px 4px rgba(0,0,0,0.25)',
+        }}
       >
         <span
-          className="absolute top-0.5 w-6 h-6 bg-white transition-transform"
+          aria-hidden="true"
+          className="absolute font-mono font-bold tracking-wide select-none pointer-events-none"
           style={{
+            top: '50%',
+            transform: 'translateY(-50%)',
+            left: value ? 8 : 'auto',
+            right: value ? 'auto' : 8,
+            fontSize: 9,
+            color: value ? '#FFFFFF' : 'var(--color-text-muted)',
+            letterSpacing: '0.05em',
+          }}
+        >
+          {value ? 'ON' : 'OFF'}
+        </span>
+        <span
+          className="absolute bg-white transition-all"
+          style={{
+            width: 24,
+            height: 24,
+            top: 2,
+            left: value ? 26 : 2,
             borderRadius: 99,
-            transform: value ? 'translateX(22px)' : 'translateX(2px)',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.08)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.08)',
           }}
         />
       </button>
