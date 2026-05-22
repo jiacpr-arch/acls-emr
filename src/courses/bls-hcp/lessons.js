@@ -28,7 +28,8 @@ const lessonVideos = {
     { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/IbvE4PnW_80' },
   ],
   'bls-3': [
-    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/dtIswl6Od2I' },
+    { platform: 'youtube', label: 'ผู้ใหญ่ (YouTube)', url: 'https://youtu.be/dtIswl6Od2I' },
+    { platform: 'youtube', label: 'เด็ก (YouTube)', url: 'https://youtu.be/lCbImOmcrNA' },
   ],
   'bls-4': [
     { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/dQ9TcHdhIr0' },
