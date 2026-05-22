@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAttemptById, db } from '../db/database';
-import { findLessonById } from '../data/activeLessons';
+import { findLessonById, preCourseLessons } from '../data/activeLessons';
 import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
 import {
   POST_TEST_LESSON_ID,
@@ -10,7 +10,7 @@ import {
 } from '../data/activePostTest';
 import ResultsSummary from '../components/precourse/ResultsSummary';
 import { exportStudentResultPDF } from '../utils/exportPreCourse';
-import { ChevronLeft, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';
 
 export default function QuizResults() {
   const navigate = useNavigate();
@@ -77,6 +77,29 @@ export default function QuizResults() {
       ? '/pre-course/post-test'
       : `/pre-course/${attempt.lessonId}/quiz`;
 
+  let nextPath = null;
+  let nextLabel = null;
+  if (isPreTest) {
+    const firstLessonId = preCourseLessons?.[0]?.id;
+    if (firstLessonId) {
+      nextPath = `/pre-course/${firstLessonId}`;
+      nextLabel = 'ไปบทเรียนถัดไป';
+    }
+  } else if (isPostTest) {
+    nextPath = '/certification';
+    nextLabel = 'ไปหน้าใบรับรอง';
+  } else if (!isAssessment) {
+    const idx = preCourseLessons.findIndex(l => l.id === attempt.lessonId);
+    const nextLesson = idx >= 0 ? preCourseLessons[idx + 1] : null;
+    if (nextLesson) {
+      nextPath = `/pre-course/${nextLesson.id}`;
+      nextLabel = 'ไปบทเรียนถัดไป';
+    } else {
+      nextPath = '/pre-course/post-test';
+      nextLabel = 'ไปทำ Post-test';
+    }
+  }
+
   const heading = isPreTest
     ? 'ผล Pre-test'
     : isPostTest
@@ -108,6 +131,13 @@ export default function QuizResults() {
 
       <ResultsSummary attempt={attempt} lesson={lesson} student={student} />
 
+      {nextPath && (
+        <button onClick={() => navigate(nextPath)}
+          className="btn btn-primary btn-block inline-flex items-center justify-center gap-1">
+          {nextLabel} <ChevronRight size={14} strokeWidth={2.2} />
+        </button>
+      )}
+
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => navigate(retakePath)}
@@ -116,15 +146,17 @@ export default function QuizResults() {
         </button>
         <button
           onClick={() => exportStudentResultPDF({ student, attempt, lesson })}
-          className="btn btn-primary btn-block">
+          className={`btn btn-block ${nextPath ? 'btn-ghost' : 'btn-primary'}`}>
           <Download size={14} strokeWidth={2.2} /> Export PDF
         </button>
       </div>
 
-      <button onClick={() => navigate('/certification')}
-        className="btn btn-ghost btn-block">
-        ดูสถานะใบรับรอง
-      </button>
+      {!isPostTest && (
+        <button onClick={() => navigate('/certification')}
+          className="btn btn-ghost btn-block">
+          ดูสถานะใบรับรอง
+        </button>
+      )}
     </div>
   );
 }
