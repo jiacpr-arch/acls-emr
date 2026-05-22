@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import { v4 as uuidv4 } from 'uuid';
 
 export const db = new Dexie('ACLS_EMR');
 
@@ -17,6 +18,24 @@ db.version(2).stores({
   students: 'id, studentId, name, createdAt',
   lessonProgress: '++autoId, [studentId+lessonId], readAt',
   quizAttempts: '++autoId, studentId, lessonId, finishedAt, score, passed',
+});
+
+// v3: add sync tracking fields (nullable — existing rows are treated as unsynced).
+// quizAttempts also gets a stable `uuid` so cloud inserts are idempotent across re-flushes.
+db.version(3).stores({
+  cases: 'id, mode, startTime, outcome',
+  events: '++autoId, caseId, timestamp, category, type',
+  cprCycles: '++autoId, caseId, cycleNumber',
+  etco2Readings: '++autoId, caseId, elapsed',
+  students: 'id, studentId, name, createdAt, syncedAt',
+  lessonProgress: '++autoId, [studentId+lessonId], readAt, syncedAt',
+  quizAttempts: '++autoId, uuid, studentId, lessonId, finishedAt, score, passed, syncedAt',
+  syncFailures: '++autoId, table, refId, attempts, lastError, nextRetryAt',
+}).upgrade(async (tx) => {
+  // Backfill uuid on existing quiz attempts so they can be flushed idempotently
+  await tx.table('quizAttempts').toCollection().modify(row => {
+    if (!row.uuid) row.uuid = uuidv4();
+  });
 });
 
 // Generate case ID: YYYY-MMDD-NNN
@@ -130,7 +149,8 @@ export async function hasReadLesson(studentId, lessonId) {
 export async function saveQuizAttempt(attempt) {
   // attempt = { studentId, lessonId, score, totalQuestions, correctCount,
   //   answers, startedAt, finishedAt, passed, attemptNumber }
-  return db.quizAttempts.add(attempt);
+  const withUuid = { uuid: uuidv4(), ...attempt };
+  return db.quizAttempts.add(withUuid);
 }
 
 export async function getAttemptsForStudent(studentId) {

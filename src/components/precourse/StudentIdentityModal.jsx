@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { upsertStudent, findStudentByStudentId } from '../../db/database';
 import { usePreCourseStore } from '../../stores/preCourseStore';
+import { scheduleFlush } from '../../services/syncEngine';
 import { User, X, Check, AlertCircle } from 'lucide-react';
 
 export default function StudentIdentityModal({ open, onClose, onConfirm }) {
@@ -25,10 +26,11 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
     try {
       const existing = await findStudentByStudentId(sid);
       const record = existing
-        ? { ...existing, name: n }
+        ? { ...existing, name: n, syncedAt: existing.name === n ? existing.syncedAt : null }
         : { id: uuidv4(), studentId: sid, name: n, createdAt: new Date().toISOString() };
       await upsertStudent(record);
       setActiveStudent(record);
+      scheduleFlush();
       onConfirm?.(record);
     } catch (err) {
       setError(err?.message || 'บันทึกไม่สำเร็จ');

@@ -16,6 +16,7 @@ import {
   saveQuizAttempt,
 } from '../db/database';
 import { submitAttempt as submitRemoteAttempt } from '../services/assessmentService';
+import { scheduleFlush } from '../services/syncEngine';
 import { IS_ACLS } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import QuizQuestion from '../components/precourse/QuizQuestion';
@@ -201,6 +202,7 @@ export default function PostTestExam() {
         attemptNumber,
         passPercent,
       });
+      scheduleFlush();
 
       // Mirror to Supabase (ACLS only — BLS uses hardcoded sets, no remote schema).
       if (IS_ACLS) {
