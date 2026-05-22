@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { preCourseLessons, preCourseVideos } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
@@ -9,10 +9,18 @@ import PreTestCard from '../components/precourse/PreTestCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
 import FeaturedVideo from '../components/precourse/FeaturedVideo';
+import BLSHero from '../components/precourse/BLSHero';
+import BLSProgressCard from '../components/precourse/BLSProgressCard';
+import BLSQuickActions from '../components/precourse/BLSQuickActions';
+import BLSSplash from '../components/precourse/BLSSplash';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
-import { IS_ACLS, courseMeta } from '../config/courseMode';
-import { GraduationCap, User, UserCheck, Users, RefreshCw } from 'lucide-react';
+import { IS_ACLS, IS_BLS, courseMeta } from '../config/courseMode';
+import { GraduationCap, User, UserCheck, Users, RefreshCw, ChevronDown } from 'lucide-react';
+
+// Module-level flag — splash shows once per full page load, not on every
+// in-app navigation back to /. Resets when the user reloads the tab.
+let blsSplashSeen = false;
 
 export default function PreCourse() {
   const navigate = useNavigate();
@@ -22,6 +30,9 @@ export default function PreCourse() {
   const [progress, setProgress] = useState([]);     // [{studentId, lessonId, readAt}]
   const [attempts, setAttempts] = useState([]);     // [{...}]
   const [showIdentity, setShowIdentity] = useState(false);
+  const [lessonsOpen, setLessonsOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(IS_BLS && !blsSplashSeen);
+  const lessonsRef = useRef(null);
 
   useEffect(() => {
     const id = activeStudent?.id;
@@ -50,6 +61,113 @@ export default function PreCourse() {
       inProgress,
     };
   };
+
+  const lessonsPassed = preCourseLessons.filter(l => lessonState(l.id).passed).length;
+  const totalLessons = preCourseLessons.length;
+  const allLessonsPassed = lessonsPassed === totalLessons && totalLessons > 0;
+  const postAttempts = attempts.filter(a => a.lessonId === POST_TEST_LESSON_ID);
+  const postBest = postAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+  const postTestUnlocked = !!activeStudent && allLessonsPassed;
+  const postTestPassed = postBest?.passed ?? false;
+
+  const nextLesson = (() => {
+    const found = preCourseLessons.find(l => !lessonState(l.id).passed);
+    if (!found) return null;
+    return { id: found.id, shortTitle: shortenLessonTitle(found.title) };
+  })();
+
+  const scrollToLessons = () => {
+    setLessonsOpen(true);
+    requestAnimationFrame(() => {
+      lessonsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  if (IS_BLS) {
+    return (
+      <div className="page-container space-y-6">
+        {showSplash && (
+          <BLSSplash
+            onDismiss={() => { blsSplashSeen = true; setShowSplash(false); }}
+          />
+        )}
+        <BLSHero />
+
+        <BLSProgressCard
+          activeStudent={activeStudent}
+          lessonsPassed={lessonsPassed}
+          totalLessons={totalLessons}
+          nextLesson={nextLesson}
+          postTestPassed={postTestPassed}
+          postTestUnlocked={postTestUnlocked}
+          onIdentify={() => setShowIdentity(true)}
+          onChangeStudent={() => { clearActiveStudent(); setShowIdentity(true); }}
+        />
+
+        <BLSQuickActions
+          lessonsPassed={lessonsPassed}
+          totalLessons={totalLessons}
+          postTestPassed={postTestPassed}
+          postTestUnlocked={postTestUnlocked}
+          onScrollToLessons={scrollToLessons}
+        />
+
+        {courseMeta.featuredVideo && <FeaturedVideo video={courseMeta.featuredVideo} />}
+
+        {/* Collapsible lessons section */}
+        <div ref={lessonsRef}>
+          <button
+            onClick={() => setLessonsOpen(o => !o)}
+            className="w-full flex items-center justify-between px-1 py-2 text-left"
+          >
+            <div className="text-overline text-text-muted">
+              บทเรียนทั้งหมด · {lessonsPassed}/{totalLessons} ผ่าน
+            </div>
+            <ChevronDown
+              size={16}
+              strokeWidth={2.4}
+              className="text-text-muted transition-transform"
+              style={{ transform: lessonsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            />
+          </button>
+          {lessonsOpen && (
+            <div className="space-y-3 mt-3 animate-slide-up">
+              {preCourseLessons.map(l => {
+                const st = lessonState(l.id);
+                return <LessonCard key={l.id} lesson={l} {...st} />;
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Post-test card — visible so students always see the goal */}
+        <div className="space-y-2">
+          <div className="text-overline text-text-muted px-1">ข้อสอบหลังเรียน</div>
+          <PostTestCard
+            unlocked={postTestUnlocked}
+            bestScore={postBest?.score ?? null}
+            passed={postTestPassed}
+            attemptCount={postAttempts.length}
+          />
+        </div>
+
+        <VideoLinksPanel videos={preCourseVideos} />
+
+        <div className="flex justify-end px-1 pt-1">
+          <button onClick={() => navigate('/pre-course/cohort')}
+            className="text-[11px] font-bold inline-flex items-center gap-1 text-info hover:underline">
+            <Users size={12} strokeWidth={2.4} /> สำหรับอาจารย์
+          </button>
+        </div>
+
+        <StudentIdentityModal
+          open={showIdentity}
+          onClose={() => setShowIdentity(false)}
+          onConfirm={() => setShowIdentity(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="page-container space-y-5">
@@ -135,14 +253,14 @@ export default function PreCourse() {
       </div>
 
       {(() => {
-        const lessonsPassed = preCourseLessons.every(l => lessonState(l.id).passed);
+        const lessonsPassedAll = preCourseLessons.every(l => lessonState(l.id).passed);
         const ptAttempts = attempts.filter(a => a.lessonId === POST_TEST_LESSON_ID);
         const ptBest = ptAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
         return (
           <>
             <div className="text-overline text-text-muted px-1 pt-1">ข้อสอบหลังเรียน</div>
             <PostTestCard
-              unlocked={!!activeStudent && lessonsPassed}
+              unlocked={!!activeStudent && lessonsPassedAll}
               bestScore={ptBest?.score ?? null}
               passed={ptBest?.passed ?? false}
               attemptCount={ptAttempts.length}
@@ -158,4 +276,12 @@ export default function PreCourse() {
       />
     </div>
   );
+}
+
+function shortenLessonTitle(title) {
+  if (!title) return '';
+  // "บทที่ 1: ภาพรวม BLS …" → "บทที่ 1"
+  const m = title.match(/^(บทที่\s*\d+)/);
+  if (m) return m[1];
+  return title.length > 18 ? title.slice(0, 18) + '…' : title;
 }

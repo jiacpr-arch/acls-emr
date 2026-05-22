@@ -4,7 +4,7 @@ import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import { HeartPulse } from 'lucide-react';
 
-// MI/ACS Pathway — AHA Guideline
+// MI/ACS Pathway — ILCOR 2025
 // Flow: Symptoms → MONA → 12-Lead ECG → STEMI vs NSTEMI → PCI/Fibrinolytic/Medical
 export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPulse, isTraining }) {
   const elapsed = useTimerStore(s => s.elapsed);

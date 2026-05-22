@@ -8,7 +8,7 @@ import ScrollPicker from './ScrollPicker';
 
 // Post-ROSC needs actual value entry, not just checkboxes
 
-// Post-ROSC Care Checklist — AHA Guideline
+// Post-ROSC Care Checklist — ILCOR 2025
 // Must complete ALL items before case can end
 export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy, onMI, onArrest }) {
   const { currentCase, events, patient, team, etco2Readings, shockCount } = useCaseStore();

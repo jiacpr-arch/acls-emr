@@ -258,6 +258,39 @@ button, [role="button"] {
 }
 .animate-ecg-scroll { animation: ecg-scroll 2.4s linear infinite; }
 
+/* ===== BLS SPLASH ===== */
+@keyframes splash-in {
+  0% { opacity: 0; transform: translateY(16px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-splash-in { animation: splash-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes heartbeat {
+  0%, 60%, 100% { transform: scale(1); }
+  20% { transform: scale(1.12); }
+  40% { transform: scale(1.02); }
+}
+.animate-heartbeat { animation: heartbeat 1.4s ease-in-out infinite; transform-origin: center; }
+
+@keyframes tap-hint {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(-6px); opacity: 1; }
+}
+.animate-tap-hint { animation: tap-hint 1.6s ease-in-out infinite; animation-delay: 0.6s; }
+
+@keyframes splash-ring {
+  0% { transform: scale(0.6); opacity: 0.55; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.bls-splash-ring {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  animation: splash-ring 2.4s ease-out infinite;
+}
+
 /* ===== CARD ===== */
 .glass-card {
   background: var(--color-bg-secondary);

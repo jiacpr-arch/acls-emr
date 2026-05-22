@@ -1,4 +1,4 @@
-// BLS-HCP Post-test Set B — 25 questions (AHA BLS-HCP 2020 + TRC)
+// BLS-HCP Post-test Set B — 25 questions (BLS per ILCOR 2025 + TRC)
 // คำถามต่างจาก Set A คอบคลุม topic เดียวกัน
 // ต้องผ่าน medical review โดยแพทย์ EM/ICU ก่อนปล่อย production
 
@@ -182,7 +182,7 @@ export const setB = {
         { id: 'c', text: 'ใช้ adult AED ได้' },
         { id: 'd', text: 'CPR อย่างเดียวจนกว่า EMS มา' },
       ],
-      correctId: 'c', explanation: 'AHA: ถ้าไม่มี manual/attenuator ใช้ adult AED ได้ในทารก — ดีกว่าไม่ defib เลย' },
+      correctId: 'c', explanation: 'ILCOR 2025: ถ้าไม่มี manual/attenuator ใช้ adult AED ได้ในทารก — ดีกว่าไม่ defib เลย' },
     { id: 'bls-b-20', topic: 'infant',
       question: 'ทารก HR 45 + cyanosis แต่ตรวจ pulse ได้ — ทำอะไร?',
       choices: [

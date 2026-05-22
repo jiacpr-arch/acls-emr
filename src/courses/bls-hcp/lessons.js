@@ -1,9 +1,9 @@
-// BLS for Healthcare Providers — pre-course lessons (AHA BLS-HCP 2020, ผสม TRC notes)
+// BLS for Healthcare Providers — pre-course lessons (BLS per ILCOR 2025, ผสม TRC notes)
 // ใช้ schema เดียวกับ src/data/preCourseContent.js เพื่อให้ LessonReader engine ใช้ได้เลย
 //
-// IMPORTANT: เนื้อหาในไฟล์นี้เป็น draft ที่ paraphrase จากแนวทาง AHA 2020 + TRC
+// IMPORTANT: เนื้อหาในไฟล์นี้เป็น draft ที่ paraphrase จากแนวทาง ILCOR 2025 + TRC
 // ต้องผ่าน medical review โดยแพทย์ EM/ICU ก่อนปล่อย production
-// ระวังลิขสิทธิ์ AHA — ห้าม quote algorithm table ตรง ๆ ใช้ paraphrase เท่านั้น
+// ระวังลิขสิทธิ์ ILCOR 2025 — ห้าม quote algorithm table ตรง ๆ ใช้ paraphrase เท่านั้น
 
 export const preCourseVideos = [
   {
@@ -79,7 +79,7 @@ const lessonDefs = [
       { type: 'read', heading: 'ตำแหน่งและท่าทาง',
         body: '• วางส้นมือบนกลางหน้าอก ครึ่งล่างของกระดูก sternum\n• ประสานมือทั้งสอง แขนเหยียดตรง ไหล่อยู่เหนือมือ ใช้น้ำหนักตัวกด\n• ผู้ป่วยควรอยู่บนพื้นแข็ง (backboard ถ้าอยู่บนเตียงนุ่ม)' },
       { type: 'quiz', id: 'bls-2-q1',
-        question: 'อัตราการกดหน้าอกในผู้ใหญ่ตามแนวทาง AHA 2020 คือเท่าไร?',
+        question: 'อัตราการกดหน้าอกในผู้ใหญ่ตามแนวทาง ILCOR 2025 คือเท่าไร?',
         choices: [
           { id: 'a', text: '60–80 ครั้ง/นาที' },
           { id: 'b', text: '80–100 ครั้ง/นาที' },
@@ -87,7 +87,7 @@ const lessonDefs = [
           { id: 'd', text: 'มากกว่า 120 ครั้ง/นาที' },
         ],
         correctId: 'c',
-        explanation: 'AHA แนะนำ 100–120 ครั้ง/นาที กดเร็วเกินจะกดได้ไม่ลึก กดช้าเกินจะได้ flow ไม่พอ' },
+        explanation: 'ILCOR 2025 แนะนำ 100–120 ครั้ง/นาที กดเร็วเกินจะกดได้ไม่ลึก กดช้าเกินจะได้ flow ไม่พอ' },
       { type: 'quiz', id: 'bls-2-q2',
         question: 'ความลึกในการกดหน้าอกในผู้ใหญ่ที่เหมาะสมคือ?',
         choices: [
@@ -107,7 +107,7 @@ const lessonDefs = [
           { id: 'd', text: '100%' },
         ],
         correctId: 'b',
-        explanation: 'CCF ≥ 60% (เป้าหมาย 80% ตาม AHA) — เวลาที่กดหน้าอกจริงเทียบกับเวลารวมของ resuscitation' },
+        explanation: 'CCF ≥ 60% (เป้าหมาย 80% ตาม ILCOR 2025) — เวลาที่กดหน้าอกจริงเทียบกับเวลารวมของ resuscitation' },
       { type: 'quiz', id: 'bls-2-q4',
         question: 'ทำไมต้องปล่อยให้หน้าอกคืนตัวเต็มที่ระหว่าง compression?',
         choices: [
