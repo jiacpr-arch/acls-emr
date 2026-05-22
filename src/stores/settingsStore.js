@@ -13,6 +13,7 @@ export const useSettingsStore = create(
       drugReminderEnabled: true,
       compressorRotateAlert: true,
       language: 'en',              // 'en' | 'th'
+      defibMaxEnergy: 360,         // 200 | 360 — biphasic device ceiling
 
       setMode: (mode) => set({ mode }),
       setLanguage: (lang) => set({ language: lang }),
@@ -24,6 +25,7 @@ export const useSettingsStore = create(
       toggleCycleAlert: () => set((s) => ({ cycleAlertEnabled: !s.cycleAlertEnabled })),
       toggleDrugReminder: () => set((s) => ({ drugReminderEnabled: !s.drugReminderEnabled })),
       toggleCompressorRotateAlert: () => set((s) => ({ compressorRotateAlert: !s.compressorRotateAlert })),
+      setDefibMaxEnergy: (j) => set({ defibMaxEnergy: j }),
     }),
     { name: 'acls-settings' }
   )

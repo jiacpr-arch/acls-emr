@@ -1,9 +1,56 @@
 import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
+import { useSettingsStore } from '../stores/settingsStore';
 import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
 import { TrendingUp, Zap, Activity } from 'lucide-react';
+
+// Escalating biphasic energy ladder for cardioversion / defib (AHA)
+const ENERGY_LADDER = [100, 120, 150, 200, 300, 360];
+const nextEnergyUp = (current, max) => {
+  const idx = ENERGY_LADDER.findIndex(e => e >= current);
+  for (let i = idx + 1; i < ENERGY_LADDER.length; i++) {
+    if (ENERGY_LADDER[i] <= max) return ENERGY_LADDER[i];
+  }
+  // already at/above max — return the highest allowed
+  return ENERGY_LADDER.filter(e => e <= max).pop() ?? max;
+};
+
+const CARDIOVERSION_RHYTHMS = [
+  {
+    key: 'svt',
+    label: 'Narrow Regular (SVT)',
+    detail: 'QRS แคบ สม่ำเสมอ',
+    initial: 100,
+    isDefib: false,
+    color: 'info',
+  },
+  {
+    key: 'af',
+    label: 'AF / Atrial Flutter',
+    detail: 'QRS แคบ ไม่สม่ำเสมอ',
+    initial: 200,
+    isDefib: false,
+    color: 'info',
+  },
+  {
+    key: 'vt_mono',
+    label: 'VT monomorphic',
+    detail: 'QRS กว้าง สม่ำเสมอ — มีชีพจร',
+    initial: 100,
+    isDefib: false,
+    color: 'warning',
+  },
+  {
+    key: 'vt_poly',
+    label: 'VT polymorphic → DEFIB',
+    detail: 'Sync ไม่ได้ — Unsynchronized shock',
+    initial: 200,
+    isDefib: true,
+    color: 'danger',
+  },
+];
 
 // Tachycardia Pathway — AHA 2024 Guideline
 // HR > 150 + Stable/Unstable auto-detect
@@ -11,10 +58,14 @@ import { TrendingUp, Zap, Activity } from 'lucide-react';
 export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onRecheckPulse, isTraining }) {
   const elapsed = useTimerStore(s => s.elapsed);
   const addEvent = useCaseStore(s => s.addEvent);
+  const defibMaxEnergy = useSettingsStore(s => s.defibMaxEnergy) || 360;
   const [phase, setPhase] = useState('vitals'); // vitals → unstable_check → ...
   const [unstableSigns, setUnstableSigns] = useState({});
   const [rhythmType, setRhythmType] = useState(null);
+  const [cardioRhythm, setCardioRhythm] = useState(null); // selected rhythm card for cardioversion
   const [cardioversionEnergy, setCardioversionEnergy] = useState(100);
+  const [cardioShockCount, setCardioShockCount] = useState(0);
+  const [lastShockEnergy, setLastShockEnergy] = useState(null);
   const [adenosineCount, setAdenosineCount] = useState(0);
 
   // Quick vitals
@@ -159,46 +210,145 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
 
   // ===== CARDIOVERSION =====
   if (phase === 'cardioversion') {
+    const isDefib = cardioRhythm?.isDefib;
+    const headerLabel = isDefib ? 'Unsynchronized Defibrillation' : 'Synchronized Cardioversion';
+    const actionLabel = isDefib ? 'Defib' : 'Cardiovert';
+    const energyAllowed = ENERGY_LADDER.filter(e => e <= defibMaxEnergy);
+
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-shock">Synchronized Cardioversion</div>
-        <div className="pathway-icon-tile bg-shock/12 text-shock"><Zap size={32} strokeWidth={2.2} /></div>
+        <div className={`text-[11px] font-extrabold uppercase tracking-[0.2em] ${isDefib ? 'text-danger' : 'text-shock'}`}>
+          {headerLabel}
+        </div>
+        <div className={`pathway-icon-tile ${isDefib ? 'bg-danger/12 text-danger' : 'bg-shock/12 text-shock'}`}>
+          <Zap size={32} strokeWidth={2.2} />
+        </div>
 
         {isTraining && (
           <div className="training-tip">
             <span className="training-tip-label">TIP: </span>
-            Sedate if conscious (Midazolam 1-2mg). Ensure SYNC mode on defibrillator.
+            {isDefib
+              ? 'Polymorphic VT — ใช้ Unsync mode. Sedate ถ้ามีชีพจร, MgSO₄ 2g ถ้า Torsades.'
+              : 'Sedate ก่อนถ้ารู้สึกตัว (Midazolam 1-2mg). กด SYNC ก่อน shock ทุกครั้ง.'}
           </div>
         )}
 
+        {/* STEP 1: Rhythm selector — clear cards */}
         <div className="glass-card !p-3 text-left">
-          <div className="text-xs text-text-muted font-semibold mb-2">Energy (Biphasic)</div>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { label: 'Narrow (SVT)', energy: 100 },
-              { label: 'AF / Aflutter', energy: 200 },
-              { label: 'VT (mono)', energy: 100 },
-              { label: 'VT (poly) → Defib', energy: 200 },
-            ].map(e => (
-              <button key={e.label} onClick={() => setCardioversionEnergy(e.energy)}
-                className={`py-2.5 rounded-xl text-xs font-semibold ${
-                  cardioversionEnergy === e.energy ? 'bg-shock text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
-                }`}>
-                {e.label}<br/><span className="font-bold">{e.energy}J</span>
-              </button>
-            ))}
+          <div className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2">
+            1. เลือก Rhythm ที่ตรงกับ EKG
+          </div>
+          <div className="grid grid-cols-1 gap-1.5">
+            {CARDIOVERSION_RHYTHMS.map(r => {
+              const active = cardioRhythm?.key === r.key;
+              const toneActive = {
+                info:    'bg-info/15 border-info text-info',
+                warning: 'bg-warning/15 border-warning text-warning',
+                danger:  'bg-danger/15 border-danger text-danger',
+              }[r.color];
+              return (
+                <button
+                  key={r.key}
+                  onClick={() => {
+                    setCardioRhythm(r);
+                    // first-time pick: seed energy. Already shocked? auto-escalate from last.
+                    if (cardioShockCount === 0) {
+                      setCardioversionEnergy(Math.min(r.initial, defibMaxEnergy));
+                    } else if (lastShockEnergy) {
+                      setCardioversionEnergy(nextEnergyUp(lastShockEnergy, defibMaxEnergy));
+                    }
+                  }}
+                  className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg border-2 transition-colors ${
+                    active ? toneActive : 'bg-bg-primary border-bg-tertiary text-text-secondary'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${active ? 'border-current' : 'border-text-muted'}`}>
+                      {active && <span className="w-2 h-2 rounded-full bg-current" />}
+                    </span>
+                    <span className="text-left">
+                      <span className="text-xs font-bold block">{r.label}</span>
+                      <span className="text-[10px] opacity-75 font-normal block">{r.detail}</span>
+                    </span>
+                  </span>
+                  <span className="text-[10px] font-mono opacity-75 shrink-0">start {r.initial}J</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* STEP 2: Energy ladder — escalating */}
+        <div className="glass-card !p-3 text-left">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted">
+              2. Energy (Biphasic) — Shock #{cardioShockCount + 1}
+            </div>
+            {lastShockEnergy && (
+              <div className="text-[10px] text-text-muted font-mono">last: {lastShockEnergy}J ↑</div>
+            )}
+          </div>
+          <div className="grid grid-cols-6 gap-1">
+            {ENERGY_LADDER.map(j => {
+              const disabled = j > defibMaxEnergy;
+              const selected = cardioversionEnergy === j;
+              const suggested = lastShockEnergy
+                ? j === nextEnergyUp(lastShockEnergy, defibMaxEnergy)
+                : cardioRhythm && j === Math.min(cardioRhythm.initial, defibMaxEnergy);
+              return (
+                <button
+                  key={j}
+                  disabled={disabled}
+                  onClick={() => setCardioversionEnergy(j)}
+                  className={`py-2.5 rounded-lg text-[11px] font-bold relative ${
+                    disabled
+                      ? 'bg-bg-tertiary/40 text-text-muted/40 cursor-not-allowed line-through'
+                      : selected
+                        ? 'bg-shock text-white ring-2 ring-shock/40'
+                        : suggested
+                          ? 'bg-shock/10 border border-shock/40 text-shock'
+                          : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
+                  }`}
+                >
+                  {j}
+                  {suggested && !selected && !disabled && (
+                    <span className="absolute -top-1.5 -right-1 text-[8px] bg-shock text-white px-1 rounded-full">↑</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <div className="text-[10px] text-text-muted mt-1.5">
+            Max {defibMaxEnergy}J · {energyAllowed.length} steps · เครื่องบางรุ่นได้แค่ 200J (ตั้งใน Settings)
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <button onClick={() => onLog('drug', '💊 Midazolam 1-2mg IV (sedation)', { context: 'cardioversion_sedation', dose: '1-2 mg', route: 'IV' })}
             className="btn-action btn-purple py-3 text-xs font-semibold">💊 Sedate</button>
-          <button onClick={() => {
-            onLog('shock', `⚡ Synchronized Cardioversion ${cardioversionEnergy}J`);
-          }} className="btn-action btn-shock py-3 text-xs font-semibold">⚡ Cardiovert {cardioversionEnergy}J</button>
+          <button
+            disabled={!cardioRhythm}
+            onClick={() => {
+              const nextCount = cardioShockCount + 1;
+              const label = isDefib
+                ? `⚡ Defibrillation #${nextCount} (Unsync) ${cardioversionEnergy}J — ${cardioRhythm.label}`
+                : `⚡ Synchronized Cardioversion #${nextCount} ${cardioversionEnergy}J — ${cardioRhythm.label}`;
+              onLog('shock', label);
+              setLastShockEnergy(cardioversionEnergy);
+              setCardioShockCount(nextCount);
+              // pre-arm next energy step
+              setCardioversionEnergy(nextEnergyUp(cardioversionEnergy, defibMaxEnergy));
+            }}
+            className={`btn-action py-3 text-xs font-semibold ${cardioRhythm ? (isDefib ? 'btn-danger' : 'btn-shock') : 'bg-bg-tertiary text-text-muted cursor-not-allowed'}`}>
+            ⚡ {actionLabel} {cardioversionEnergy}J
+          </button>
         </div>
 
-        <div className="text-xs text-text-muted font-semibold">Re-assess after cardioversion ↓</div>
+        {!cardioRhythm && (
+          <div className="text-[10px] text-text-muted">เลือก rhythm ก่อนถึงจะกด {actionLabel} ได้</div>
+        )}
+
+        <div className="text-xs text-text-muted font-semibold">Re-assess after {actionLabel.toLowerCase()} ↓</div>
 
         <button onClick={() => {
           onLog('other', '✅ Cardioversion successful — converted');
