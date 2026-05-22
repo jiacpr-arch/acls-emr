@@ -115,7 +115,10 @@ export default function NewCase() {
         />
       )}
 
-      <div className="page-container space-y-8 pb-28">
+      <div
+        className="page-container space-y-8 pb-28"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 32px)' }}
+      >
         <ACLSHero isClinical={isClinical} />
 
         {/* Resume active session — keeps the warning border accent */}
