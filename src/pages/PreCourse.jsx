@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { preCourseLessons, preCourseVideos } from '../data/preCourseContent';
+import { preCourseLessons, preCourseVideos } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import LessonCard from '../components/precourse/LessonCard';
@@ -8,7 +8,9 @@ import PostTestCard from '../components/precourse/PostTestCard';
 import PreTestCard from '../components/precourse/PreTestCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
-import { POST_TEST_LESSON_ID, PRE_TEST_LESSON_ID } from '../data/assessment';
+import { POST_TEST_LESSON_ID } from '../data/activePostTest';
+import { PRE_TEST_LESSON_ID } from '../data/assessment';
+import { IS_ACLS } from '../config/courseMode';
 import { GraduationCap, User, UserCheck, Users, RefreshCw } from 'lucide-react';
 
 export default function PreCourse() {
@@ -99,7 +101,7 @@ export default function PreCourse() {
 
       <VideoLinksPanel videos={preCourseVideos} />
 
-      {activeStudent && (() => {
+      {IS_ACLS && activeStudent && (() => {
         const ptAttempts = attempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
         const ptBest = ptAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
         return (

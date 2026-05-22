@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAttemptById, db } from '../db/database';
-import { findLessonById } from '../data/preCourseContent';
+import { findLessonById } from '../data/activeLessons';
+import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
 import {
-  PRE_TEST_LESSON_ID,
   POST_TEST_LESSON_ID,
-  PRE_TEST_PASS_PERCENT,
   POST_TEST_PASS_PERCENT,
-} from '../data/assessment';
+  getPostTestSetById,
+} from '../data/activePostTest';
 import ResultsSummary from '../components/precourse/ResultsSummary';
 import { exportStudentResultPDF } from '../utils/exportPreCourse';
 import { ChevronLeft, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';
@@ -55,15 +55,17 @@ export default function QuizResults() {
   const isPostTest = attempt.lessonId === POST_TEST_LESSON_ID;
   const isAssessment = isPreTest || isPostTest;
 
-  // For assessment attempts: render from snapshot stored on the attempt itself.
-  // For lesson quizzes: fall back to the static lesson definition.
+  // ACLS attempts carry a questionSnapshot; BLS hardcoded posttests still
+  // resolve the set via getPostTestSetById.
+  const snapshotQuiz = attempt.questionSnapshot
+    || (isPostTest ? (getPostTestSetById(attempt.setId)?.questions ?? []) : []);
   const lesson = isAssessment
     ? {
         id: attempt.lessonId,
         title: isPreTest
           ? `Pre-test · ${attempt.setTitle || ''}`.trim()
           : `Post-test Exam · ${attempt.setTitle || ''}`.trim(),
-        quiz: attempt.questionSnapshot || [],
+        quiz: snapshotQuiz,
         passingScore: attempt.passPercent
           ?? (isPreTest ? PRE_TEST_PASS_PERCENT : POST_TEST_PASS_PERCENT),
       }

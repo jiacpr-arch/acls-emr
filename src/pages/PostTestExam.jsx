@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  POST_TEST_BANK_ID,
   POST_TEST_LESSON_ID,
   POST_TEST_PASS_PERCENT,
   POST_TEST_QUESTION_COUNT,
-} from '../data/assessment';
-import { preCourseLessons } from '../data/preCourseContent';
+  loadActivePostTestExam,
+} from '../data/activePostTest';
+import { POST_TEST_BANK_ID } from '../data/assessment';
+import { preCourseLessons } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import {
   getLessonProgress,
@@ -14,10 +15,8 @@ import {
   getAttemptCount,
   saveQuizAttempt,
 } from '../db/database';
-import {
-  loadExamForBank,
-  submitAttempt as submitRemoteAttempt,
-} from '../services/assessmentService';
+import { submitAttempt as submitRemoteAttempt } from '../services/assessmentService';
+import { IS_ACLS } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import {
@@ -70,7 +69,7 @@ export default function PostTestExam() {
     let cancelled = false;
     (async () => {
       try {
-        const loaded = await loadExamForBank(POST_TEST_BANK_ID);
+        const loaded = await loadActivePostTestExam();
         if (cancelled) return;
         setExam(loaded);
         if (!currentPostTest || currentPostTest.setId !== loaded.set.id) {
@@ -203,18 +202,20 @@ export default function PostTestExam() {
         passPercent,
       });
 
-      // Mirror to Supabase (fire and forget — local copy is the source of truth for the UI)
-      submitRemoteAttempt({
-        studentLocalId: activeStudent.id,
-        studentCode: activeStudent.studentId,
-        studentName: activeStudent.name,
-        bankId: POST_TEST_BANK_ID,
-        setId: exam.set.id,
-        score, totalQuestions: total, correctCount: correct, passed,
-        durationSeconds: durationSec,
-        answers: detailed,
-        startedAt, finishedAt,
-      }).catch(() => {});
+      // Mirror to Supabase (ACLS only — BLS uses hardcoded sets, no remote schema).
+      if (IS_ACLS) {
+        submitRemoteAttempt({
+          studentLocalId: activeStudent.id,
+          studentCode: activeStudent.studentId,
+          studentName: activeStudent.name,
+          bankId: POST_TEST_BANK_ID,
+          setId: exam.set.id,
+          score, totalQuestions: total, correctCount: correct, passed,
+          durationSeconds: durationSec,
+          answers: detailed,
+          startedAt, finishedAt,
+        }).catch(() => {});
+      }
 
       clearPostTest();
       navigate(`/pre-course/results/${attemptId}`);

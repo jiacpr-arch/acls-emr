@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { preCourseLessons } from '../data/preCourseContent';
+import { preCourseLessons } from '../data/activeLessons';
 import { getCohortSummary, deleteStudent } from '../db/database';
 import CohortTable from '../components/precourse/CohortTable';
 import { exportCohortCSV, exportCohortPDF } from '../utils/exportPreCourse';

@@ -1,44 +1,72 @@
 import { useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
+import { IS_BLS } from '../config/courseMode';
 import {
-  GraduationCap, BookOpen, Sparkles, AlertTriangle, Activity, Trophy,
+  GraduationCap, BookOpen, Sparkles, AlertTriangle, Activity, Trophy, HeartPulse,
 } from '../components/ui/Icon';
 
 export default function Learn() {
   const navigate = useNavigate();
   const lang = useSettingsStore(s => s.language) || 'en';
 
-  const sections = [
-    {
-      title: t('learn_prepare', lang),
-      items: [
-        { path: '/pre-course', Icon: GraduationCap, label: t('pre_course', lang) },
-      ],
-    },
-    {
-      title: t('learn_reference', lang),
-      items: [
-        { path: '/als', Icon: GraduationCap, label: t('als_knowledge', lang) },
-        { path: '/algorithm', Icon: BookOpen, label: t('algorithms', lang) },
-        { path: '/guide', Icon: BookOpen, label: t('guide', lang) },
-      ],
-    },
-    {
-      title: t('learn_practice', lang),
-      items: [
-        { path: '/scenarios', Icon: Sparkles, label: t('scenarios', lang) },
-        { path: '/sim', Icon: AlertTriangle, label: t('code_sim', lang) },
-        { path: '/drill', Icon: Activity, label: t('drill', lang) },
-      ],
-    },
-    {
-      title: t('learn_progress', lang),
-      items: [
-        { path: '/certification', Icon: Trophy, label: t('cert', lang) },
-      ],
-    },
-  ];
+  const sections = IS_BLS
+    ? [
+        {
+          title: t('learn_prepare', lang),
+          items: [
+            { path: '/pre-course', Icon: GraduationCap, label: t('pre_course', lang) },
+          ],
+        },
+        {
+          title: t('learn_practice', lang),
+          items: [
+            { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR' },
+          ],
+        },
+        {
+          title: t('learn_reference', lang),
+          items: [
+            { path: '/guide', Icon: BookOpen, label: t('guide', lang) },
+          ],
+        },
+        {
+          title: t('learn_progress', lang),
+          items: [
+            { path: '/certification', Icon: Trophy, label: t('cert', lang) },
+          ],
+        },
+      ]
+    : [
+        {
+          title: t('learn_prepare', lang),
+          items: [
+            { path: '/pre-course', Icon: GraduationCap, label: t('pre_course', lang) },
+          ],
+        },
+        {
+          title: t('learn_reference', lang),
+          items: [
+            { path: '/als', Icon: GraduationCap, label: t('als_knowledge', lang) },
+            { path: '/algorithm', Icon: BookOpen, label: t('algorithms', lang) },
+            { path: '/guide', Icon: BookOpen, label: t('guide', lang) },
+          ],
+        },
+        {
+          title: t('learn_practice', lang),
+          items: [
+            { path: '/scenarios', Icon: Sparkles, label: t('scenarios', lang) },
+            { path: '/sim', Icon: AlertTriangle, label: t('code_sim', lang) },
+            { path: '/drill', Icon: Activity, label: t('drill', lang) },
+          ],
+        },
+        {
+          title: t('learn_progress', lang),
+          items: [
+            { path: '/certification', Icon: Trophy, label: t('cert', lang) },
+          ],
+        },
+      ];
 
   return (
     <div className="page-container space-y-6 pb-24">

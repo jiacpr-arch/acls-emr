@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { getAllCases, getLessonProgress, getAttemptsForStudent } from '../db/database';
 import { scenarios } from '../data/scenarios';
-import { preCourseLessons } from '../data/preCourseContent';
-import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/assessment';
+import { preCourseLessons } from '../data/activeLessons';
+import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostTest';
+import { certConfig } from '../data/activeCert';
+import { IS_BLS, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
+import { exportCertificatePDF } from '../utils/exportCertificate';
 import {
   Trophy, BookOpen, GraduationCap, Award, BarChart3,
-  Check, Circle, ClipboardCheck,
+  Check, Circle, ClipboardCheck, Download,
 } from 'lucide-react';
 
-const CERT_KEY = 'acls_certification';
+const CERT_KEY = `${courseMeta.id}_certification`;
 
 function getCertData() {
   try { return JSON.parse(localStorage.getItem(CERT_KEY) || '{}'); }
@@ -28,7 +31,12 @@ export default function Certification() {
   const [preCourseProgress, setPreCourseProgress] = useState([]);
   const [preCourseAttempts, setPreCourseAttempts] = useState([]);
 
-  useEffect(() => { getAllCases().then(setCases); }, []);
+  // ACLS-only: scenarios-based metrics. BLS mode skips loading cases.
+  useEffect(() => {
+    if (IS_BLS) return;
+    getAllCases().then(setCases);
+  }, []);
+
   useEffect(() => {
     if (!activeStudent) {
       setPreCourseProgress([]);
@@ -61,20 +69,26 @@ export default function Certification() {
     const best = lessonAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
     return { lesson: l, read, bestScore: best?.score ?? null, passed: best?.passed ?? false };
   });
-  const preCourseDone = !!activeStudent && preCourseStatus.every(s => s.passed);
+  const preCourseDone = !!activeStudent && preCourseStatus.length > 0 && preCourseStatus.every(s => s.passed);
 
   const postTestAttempts = preCourseAttempts.filter(a => a.lessonId === POST_TEST_LESSON_ID);
   const postTestBest = postTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
   const postTestDone = !!postTestBest?.passed;
 
-  const requirements = [
-    { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่าน)', done: preCourseDone, Icon: BookOpen },
-    { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck },
-    { label: 'Complete 3+ Basic scenarios', done: basicDone, Icon: BookOpen },
-    { label: 'Complete 1+ Intermediate scenario', done: interDone, Icon: GraduationCap },
-    { label: 'Complete 1+ Megacode scenario', done: megaDone, Icon: Award },
-    { label: 'Average score ≥ 80%', done: passExam, Icon: BarChart3 },
-  ];
+  // BLS: 2 requirements (knowledge-only course); ACLS: 6 (knowledge + recorded simulations)
+  const requirements = IS_BLS
+    ? [
+        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck },
+      ]
+    : [
+        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่าน)', done: preCourseDone, Icon: BookOpen },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck },
+        { label: 'Complete 3+ Basic scenarios', done: basicDone, Icon: BookOpen },
+        { label: 'Complete 1+ Intermediate scenario', done: interDone, Icon: GraduationCap },
+        { label: 'Complete 1+ Megacode scenario', done: megaDone, Icon: Award },
+        { label: 'Average score ≥ 80%', done: passExam, Icon: BarChart3 },
+      ];
 
   const allDone = requirements.every(r => r.done);
   const progress = Math.round((requirements.filter(r => r.done).length / requirements.length) * 100);
@@ -84,12 +98,21 @@ export default function Certification() {
       studentName,
       completedAt: new Date().toISOString(),
       scenariosDone: trainingCases.length,
-      avgScore,
-      certId: `JIA-ACLS-${Date.now().toString(36).toUpperCase()}`,
+      avgScore: IS_BLS ? null : avgScore,
+      postTestScore: postTestBest?.score ?? null,
+      certId: `${certConfig.certIdPrefix}-${Date.now().toString(36).toUpperCase()}`,
     };
     saveCertData({ ...certData, ...data, studentName });
     setCertData({ ...certData, ...data, studentName });
   };
+
+  const downloadPDF = () => {
+    exportCertificatePDF({ cert: certData, certConfig });
+  };
+
+  const issuedDate = certData.completedAt ? new Date(certData.completedAt) : null;
+  const expiresDate = issuedDate ? new Date(issuedDate) : null;
+  if (expiresDate) expiresDate.setMonth(expiresDate.getMonth() + (certConfig.validityMonths || 24));
 
   return (
     <div className="page-container space-y-5">
@@ -99,8 +122,8 @@ export default function Certification() {
           <Trophy size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-title text-text-primary">Certification</h1>
-          <p className="text-caption text-text-muted">Track your ACLS training progress</p>
+          <h1 className="text-title text-text-primary">{certConfig.title}</h1>
+          <p className="text-caption text-text-muted">Track your {courseMeta.shortName} training progress</p>
         </div>
       </div>
 
@@ -162,24 +185,44 @@ export default function Certification() {
         </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="stat-box">
-          <div className="stat-value text-lg text-text-primary">{trainingCases.length}</div>
-          <div className="stat-label">Completed</div>
+      {/* Stats — ACLS only (BLS has no scenarios) */}
+      {!IS_BLS && (
+        <div className="grid grid-cols-3 gap-2">
+          <div className="stat-box">
+            <div className="stat-value text-lg text-text-primary">{trainingCases.length}</div>
+            <div className="stat-label">Completed</div>
+          </div>
+          <div className="stat-box">
+            <div className={`stat-value text-lg ${avgScore >= 80 ? 'text-success' : 'text-warning'}`}>{avgScore}%</div>
+            <div className="stat-label">Avg Score</div>
+          </div>
+          <div className="stat-box">
+            <div className="stat-value text-lg text-text-primary">{totalScenarios}</div>
+            <div className="stat-label">Total Scenarios</div>
+          </div>
         </div>
-        <div className="stat-box">
-          <div className={`stat-value text-lg ${avgScore >= 80 ? 'text-success' : 'text-warning'}`}>{avgScore}%</div>
-          <div className="stat-label">Avg Score</div>
+      )}
+
+      {/* BLS stat — post-test best */}
+      {IS_BLS && postTestBest && (
+        <div className="grid grid-cols-2 gap-2">
+          <div className="stat-box">
+            <div className="stat-value text-lg text-text-primary">
+              {preCourseStatus.filter(s => s.passed).length}/{preCourseStatus.length}
+            </div>
+            <div className="stat-label">Lessons passed</div>
+          </div>
+          <div className="stat-box">
+            <div className={`stat-value text-lg ${postTestBest.score >= POST_TEST_PASS_PERCENT ? 'text-success' : 'text-warning'}`}>
+              {postTestBest.score}%
+            </div>
+            <div className="stat-label">Post-test best</div>
+          </div>
         </div>
-        <div className="stat-box">
-          <div className="stat-value text-lg text-text-primary">{totalScenarios}</div>
-          <div className="stat-label">Total Scenarios</div>
-        </div>
-      </div>
+      )}
 
       {/* Student name + Generate */}
-      {allDone && (
+      {allDone && !certData.certId && (
         <div className="dash-card space-y-3">
           <div className="text-headline text-success text-center inline-flex items-center justify-center gap-2 w-full">
             <Trophy size={18} strokeWidth={2.4} /> Congratulations!
@@ -210,17 +253,29 @@ export default function Certification() {
             <Trophy size={28} strokeWidth={2.4} className="text-white" />
           </div>
           <div>
-            <div className="text-title text-text-primary">ACLS Certification</div>
-            <div className="text-body text-text-secondary mt-1">{certData.studentName}</div>
+            <div className="text-title text-text-primary">{certConfig.title}</div>
+            <div className="text-caption text-text-muted mt-1">{certConfig.subtitle}</div>
+            <div className="text-body text-text-secondary mt-2 font-bold">{certData.studentName}</div>
           </div>
+          {!IS_BLS && (
+            <div className="text-caption text-text-muted">
+              Completed {certData.scenariosDone} scenarios · Score: {certData.avgScore}%
+            </div>
+          )}
+          {IS_BLS && certData.postTestScore != null && (
+            <div className="text-caption text-text-muted">
+              Post-test score: {certData.postTestScore}%
+            </div>
+          )}
           <div className="text-caption text-text-muted">
-            Completed {certData.scenariosDone} scenarios · Score: {certData.avgScore}%
-          </div>
-          <div className="text-caption text-text-muted">
-            {new Date(certData.completedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            Issued: {issuedDate?.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' })}
+            {expiresDate && ` · Valid through: ${expiresDate.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' })}`}
           </div>
           <div className="font-mono text-[11px] text-info">ID: {certData.certId}</div>
-          <div className="text-[11px] text-text-muted">JIA Trainer Center · jia1669.com</div>
+          <div className="text-[11px] text-text-muted">{certConfig.centerName} · {certConfig.centerUrl}</div>
+          <button onClick={downloadPDF} className="btn btn-info btn-block mt-3">
+            <Download size={16} strokeWidth={2.4} /> Download PDF Certificate
+          </button>
         </div>
       )}
     </div>
