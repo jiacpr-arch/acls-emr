@@ -1,4 +1,5 @@
 // BLS-HCP Post-test Set B — 23 questions (AHA BLS-HCP 2020 + TRC)
+// Distribution: HQ-CPR 5, AED 3, team/2-rescuer 3, in-hospital-defib 4, infant 4, choking 3, chain 1
 // คำถามต่างจาก Set A ครอบคลุม topic เดียวกัน
 // ต้องผ่าน medical review โดยแพทย์ EM/ICU ก่อนปล่อย production
 
@@ -123,39 +124,43 @@ export const setB = {
       ],
       correctId: 'b', explanation: 'Hot/cold debrief พัฒนา team performance' },
 
-    // ---- Pediatric (4) ----
-    { id: 'bls-b-13', topic: 'pediatric',
-      question: 'อัตราส่วน C:V ในเด็ก 1-rescuer คือ?',
+    // ---- In-hospital BLS / Defib AED mode (4) ----
+    { id: 'bls-b-13', topic: 'in-hospital-defib',
+      question: 'รุ่น defib monitor ในโรงพยาบาล (Philips/Zoll/Lifepak/Mindray) ส่วนใหญ่มี mode อะไรบ้าง?',
       choices: [
-        { id: 'a', text: '30:2' }, { id: 'b', text: '15:2' },
-        { id: 'c', text: '5:1' }, { id: 'd', text: '10:2' },
+        { id: 'a', text: 'มีแค่ manual mode' },
+        { id: 'b', text: 'AED mode + Manual mode (+ sync, pacing)' },
+        { id: 'c', text: 'มีแค่ AED mode' },
+        { id: 'd', text: 'ขึ้นกับยี่ห้อ ไม่มีมาตรฐาน' },
       ],
-      correctId: 'a', explanation: '1-rescuer: 30:2 (เด็ก/ผู้ใหญ่เหมือนกัน); 2-rescuer ในเด็ก: 15:2' },
-    { id: 'bls-b-14', topic: 'pediatric',
-      question: 'เด็กอายุ 6 ปี cardiac arrest — AED ที่มีแค่ adult pads ใช้ได้ไหม?',
+      correctId: 'b', explanation: 'Defib monitor มี dual mode — BLS ใช้ AED, ALS switch manual ได้ในเครื่องเดียวกัน' },
+    { id: 'bls-b-14', topic: 'in-hospital-defib',
+      question: 'BLS provider เปิด defib เลือก AED mode แล้ว ขั้นตอนต่อไปคือ?',
       choices: [
-        { id: 'a', text: 'ใช้ได้ — defib เป็นชีวิต' },
-        { id: 'b', text: 'ใช้ไม่ได้ ห้ามใช้' },
-        { id: 'c', text: 'รอ peds pads' },
-        { id: 'd', text: 'ลดพลังงานครึ่งหนึ่งเอง' },
+        { id: 'a', text: 'รออ่าน rhythm บนจอ' },
+        { id: 'b', text: 'ติด pads (anterolateral หรือ AP) — เครื่องจะวิเคราะห์เอง' },
+        { id: 'c', text: 'ตั้ง energy ที่ 200J' },
+        { id: 'd', text: 'ใส่ ETT ก่อน' },
       ],
-      correctId: 'a', explanation: 'ถ้าไม่มี peds pads ใช้ adult ได้ — ห้ามชะลอ defib' },
-    { id: 'bls-b-15', topic: 'pediatric',
-      question: 'ตำแหน่งกดหน้าอกในเด็กคือ?',
+      correctId: 'b', explanation: 'AED mode: ติด pads → เครื่องวิเคราะห์อัตโนมัติ → ทำตามคำสั่งเสียง' },
+    { id: 'bls-b-15', topic: 'in-hospital-defib',
+      question: 'AED mode บอก "no shock advised" ผู้ป่วยไม่มี pulse — ทำอะไรต่อ?',
       choices: [
-        { id: 'a', text: 'กลาง sternum ครึ่งบน' },
-        { id: 'b', text: 'ครึ่งล่างของ sternum' },
-        { id: 'c', text: 'Xiphoid' },
-        { id: 'd', text: 'ใต้รักแร้' },
+        { id: 'a', text: 'Switch ไป manual mode shock เอง' },
+        { id: 'b', text: 'CPR ต่อ 2 นาที (PEA/asystole — non-shockable)' },
+        { id: 'c', text: 'หยุด CPR' },
+        { id: 'd', text: 'รอ ALS team' },
       ],
-      correctId: 'b', explanation: 'ครึ่งล่างของ sternum เหมือนผู้ใหญ่' },
-    { id: 'bls-b-16', topic: 'pediatric',
-      question: 'ก่อนเริ่ม CPR ในเด็กที่หมดสติ ตรวจชีพจรที่ไหน?',
+      correctId: 'b', explanation: 'No shock advised = non-shockable rhythm → CPR ต่อ 2 นาที เครื่องจะวิเคราะห์ซ้ำเอง' },
+    { id: 'bls-b-16', topic: 'in-hospital-defib',
+      question: 'Hand-off จาก BLS → ALS team ควรรายงานอะไรเกี่ยวกับ defib?',
       choices: [
-        { id: 'a', text: 'Radial' }, { id: 'b', text: 'Carotid หรือ Femoral' },
-        { id: 'c', text: 'Brachial เท่านั้น' }, { id: 'd', text: 'Popliteal' },
+        { id: 'a', text: 'แค่ส่งเครื่องให้' },
+        { id: 'b', text: 'เวลาเริ่ม CPR, จำนวน shock + เวลา shock ล่าสุด, rhythm ที่เห็น, ยาที่ให้' },
+        { id: 'c', text: 'แค่จำนวน shock' },
+        { id: 'd', text: 'ปิดเครื่องก่อน hand-off' },
       ],
-      correctId: 'b', explanation: 'เด็ก: carotid หรือ femoral (ทารก: brachial/femoral)' },
+      correctId: 'b', explanation: 'Structured hand-off (เช่น SBAR) ลด miscommunication; ALS ต้องรู้ context ก่อน switch manual' },
 
     // ---- Infant (4) ----
     { id: 'bls-b-17', topic: 'infant',
