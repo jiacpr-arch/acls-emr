@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { alsChapters } from '../data/alsContent';
 import { ekgQuestions, rhythmLabels, shuffleOptions } from '../data/ekgQuiz';
 import EKGWaveform from '../components/EKGWaveform';
+import QASection from '../components/QASection';
 import {
   GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock, Activity, Check, X, RotateCcw,
@@ -158,8 +159,12 @@ export default function ALSKnowledge() {
                     <div className="h-px bg-border" />
                     {ch.sections.map((s, i) => (
                       <div key={i}>
-                        <div className="text-caption font-bold text-danger mb-1">{s.heading}</div>
-                        <div className="text-caption text-text-secondary leading-relaxed">{s.body}</div>
+                        {s.heading && (
+                          <div className="text-caption font-bold text-danger mb-1">{s.heading}</div>
+                        )}
+                        {s.body && (
+                          <div className="text-caption text-text-secondary leading-relaxed">{s.body}</div>
+                        )}
                         {s.images?.length > 0 && (
                           <div className="mt-2 space-y-2">
                             {s.images.map((img, j) => (
@@ -178,6 +183,11 @@ export default function ALSKnowledge() {
                                 )}
                               </figure>
                             ))}
+                          </div>
+                        )}
+                        {s.qa?.length > 0 && (
+                          <div className={s.heading || s.body ? 'mt-2' : ''}>
+                            <QASection qa={s.qa} />
                           </div>
                         )}
                       </div>
