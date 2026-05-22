@@ -12,6 +12,17 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - { ref: elyyijlcjfvhxbpzscnv, name: emr-ai-clinic }
+          - { ref: xdafacvqfqkicaxfhwom, name: pharmroo }
+          - { ref: tpoiyykbgsgnrdwzgzvn, name: jia-unified }
+          - { ref: oijpocbsyqdkorvjylbi, name: roodee }
+          - { ref: knxidnzexqehusndquqg, name: morroo }
+          - { ref: cxlpazuwsajcjaidzupf, name: jialucksa-crm }
+    name: ${{ matrix.project.name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +33,7 @@ jobs:
       - name: Run advisor check
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          PROJECT_REF: ${{ matrix.project.ref }}
+          PROJECT_NAME: ${{ matrix.project.name }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/check-supabase-advisors.mjs
