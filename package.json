@@ -13,6 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "call-bind": "^1.0.8",
     "dexie": "^4.4.1",
     "enhanced-resolve": "5.18.1",

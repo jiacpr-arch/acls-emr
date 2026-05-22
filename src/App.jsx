@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useSettingsStore } from './stores/settingsStore';
 import Dashboard from './pages/Dashboard';
 import NewCase from './pages/NewCase';
@@ -60,6 +61,7 @@ function App() {
       </Routes>
       {/* Bottom pill bar on all pages except recording */}
       {!isRecording && <BottomTabBar />}
+      <Analytics />
     </div>
   );
 }
