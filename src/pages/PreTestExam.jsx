@@ -12,6 +12,7 @@ import {
   loadExamForBank,
   submitAttempt as submitRemoteAttempt,
 } from '../services/assessmentService';
+import { IS_ACLS } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import {
@@ -64,6 +65,20 @@ export default function PreTestExam() {
   );
   const allAnswered = questions.length > 0 && answeredCount === questions.length;
   const isLastQuestion = safeIndex === questions.length - 1;
+
+  if (!IS_ACLS) {
+    return (
+      <div className="page-container space-y-4">
+        <Header />
+        <div className="dash-card text-center !p-6 space-y-3">
+          <AlertTriangle size={32} className="mx-auto text-warning" />
+          <div className="text-headline">ยังไม่เปิดใช้สำหรับหลักสูตรนี้</div>
+          <div className="text-caption text-text-muted">Pre-test มีเฉพาะหลักสูตร ACLS</div>
+          <button onClick={() => navigate('/pre-course')} className="btn btn-primary btn-md">กลับ Pre-course</button>
+        </div>
+      </div>
+    );
+  }
 
   if (!activeStudent) {
     return (
