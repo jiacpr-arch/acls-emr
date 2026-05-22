@@ -3,7 +3,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
-import { TrendingDown, Syringe, Zap, AlertTriangle, AlertCircle, Check, X, Wind } from 'lucide-react';
+import { TrendingDown, Syringe, Zap, AlertTriangle, AlertCircle, Check, X, Wind, CheckCircle2 } from 'lucide-react';
 
 // Bradycardia Pathway — AHA Guideline
 // HR < 50 + Symptomatic assessment
@@ -237,14 +237,32 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
           <h1 className="text-2xl font-black text-text-primary">TCP Setup</h1>
 
           <div className="glass-card !p-3 text-left">
-            <div className="text-[10px] font-semibold text-text-muted uppercase mb-2">Mode</div>
-            <div className="flex gap-2">
-              {['Demand', 'Fixed'].map(m => (
-                <button key={m} onClick={() => setTcpMode(m)}
-                  className={`flex-1 py-2.5 rounded-xl font-semibold text-sm ${
-                    tcpMode === m ? 'bg-info text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
-                  }`}>{m}</button>
-              ))}
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-semibold text-text-muted uppercase">Mode</span>
+              <span className="text-[10px] font-bold text-info uppercase tracking-wider">{tcpMode}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { key: 'Demand', desc: 'Sync w/ pt rhythm' },
+                { key: 'Fixed', desc: 'Override rhythm' },
+              ].map(m => {
+                const active = tcpMode === m.key;
+                return (
+                  <button key={m.key} onClick={() => setTcpMode(m.key)}
+                    aria-pressed={active}
+                    className={`relative py-2.5 px-2 rounded-xl text-sm border-2 transition-all ${
+                      active
+                        ? 'bg-info border-info text-white shadow-2 ring-2 ring-info/30'
+                        : 'bg-bg-primary border-bg-tertiary text-text-secondary'
+                    }`}>
+                    {active && (
+                      <CheckCircle2 size={14} className="absolute top-1.5 right-1.5 text-white" strokeWidth={2.5} />
+                    )}
+                    <div className={`font-bold ${active ? 'text-white' : 'text-text-primary'}`}>{m.key}</div>
+                    <div className={`text-[9px] mt-0.5 ${active ? 'text-white/85' : 'text-text-muted'}`}>{m.desc}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -262,7 +280,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
               <span className="text-[10px] font-semibold text-text-muted uppercase">Output</span>
               <span className={`text-lg font-mono font-black ${tcpOutput > 0 ? 'text-warning' : 'text-text-muted'}`}>{tcpOutput} mA</span>
             </div>
-            <input type="range" min={0} max={200} step={5} value={tcpOutput}
+            <input type="range" min={0} max={200} step={1} value={tcpOutput}
               onChange={e => setTcpOutput(parseInt(e.target.value))} className="w-full accent-warning" />
           </div>
 
