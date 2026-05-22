@@ -160,6 +160,26 @@ export default function ALSKnowledge() {
                       <div key={i}>
                         <div className="text-caption font-bold text-danger mb-1">{s.heading}</div>
                         <div className="text-caption text-text-secondary leading-relaxed">{s.body}</div>
+                        {s.images?.length > 0 && (
+                          <div className="mt-2 space-y-2">
+                            {s.images.map((img, j) => (
+                              <figure key={j} className="m-0">
+                                <img
+                                  src={img.src}
+                                  alt={img.alt || s.heading}
+                                  loading="lazy"
+                                  className="w-full h-auto block border border-border"
+                                  style={{ borderRadius: 'var(--radius-sm)' }}
+                                />
+                                {img.caption && (
+                                  <figcaption className="text-[11px] text-text-muted mt-1 leading-relaxed">
+                                    {img.caption}
+                                  </figcaption>
+                                )}
+                              </figure>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

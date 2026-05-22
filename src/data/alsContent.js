@@ -1,3 +1,9 @@
+// Schema ของแต่ละ section:
+//   heading: string (หัวข้อย่อย)
+//   body:    string (เนื้อหา)
+//   images?: Array<{ src: string; alt?: string; caption?: string }>
+//     - src ใส่ path แบบ absolute เช่น "/images/als/vf-rhythm.png"
+//     - วางไฟล์รูปจริงไว้ที่ public/images/als/
 export const alsChapters = [
   {
     id: 'ch1', title: 'บทที่ 1: ภาพรวม ALS',
