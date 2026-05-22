@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useClassStore } from '../../stores/classStore';
 import { COURSE_MODE } from '../../config/courseMode';
 import { rpcCreateClass, rpcVerifyClassCode } from '../../services/cohortSync';
+import { scheduleFlush } from '../../services/syncEngine';
 import { Cloud, CloudOff, KeyRound, Plus, AlertCircle, Check, Copy } from 'lucide-react';
 
 // Shown on /pre-course when no class is selected and the user hasn't opted into offline mode.
@@ -46,6 +47,8 @@ export default function ClassGateModal({ open, onClose }) {
       className: data.className,
       courseMode: data.courseMode,
     });
+    // Push any rows that were created while offline / before class was set
+    scheduleFlush();
     onClose?.();
   };
 
@@ -65,6 +68,7 @@ export default function ClassGateModal({ open, onClose }) {
       className: n,
       courseMode: COURSE_MODE,
     });
+    scheduleFlush();
     setCreatedCode(data.code);
   };
 
