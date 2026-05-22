@@ -1,19 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  POST_TEST_BANK_ID,
-  POST_TEST_LESSON_ID,
-  POST_TEST_PASS_PERCENT,
-  POST_TEST_QUESTION_COUNT,
+  PRE_TEST_BANK_ID,
+  PRE_TEST_LESSON_ID,
+  PRE_TEST_PASS_PERCENT,
+  PRE_TEST_QUESTION_COUNT,
 } from '../data/assessment';
-import { preCourseLessons } from '../data/preCourseContent';
 import { usePreCourseStore } from '../stores/preCourseStore';
-import {
-  getLessonProgress,
-  getAttemptsForStudent,
-  getAttemptCount,
-  saveQuizAttempt,
-} from '../db/database';
+import { getAttemptCount, saveQuizAttempt } from '../db/database';
 import {
   loadExamForBank,
   submitAttempt as submitRemoteAttempt,
@@ -21,60 +15,35 @@ import {
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import {
-  Award, ChevronLeft, ChevronRight, AlertTriangle,
-  Send, Check, Lock, BookOpen,
+  Sparkles, ChevronLeft, ChevronRight, AlertTriangle,
+  Send, Check,
 } from 'lucide-react';
 
-export default function PostTestExam() {
+export default function PreTestExam() {
   const navigate = useNavigate();
   const activeStudent = usePreCourseStore(s => s.activeStudent);
-  const currentPostTest = usePreCourseStore(s => s.currentPostTest);
-  const startPostTest = usePreCourseStore(s => s.startPostTest);
-  const setPostTestIndex = usePreCourseStore(s => s.setPostTestIndex);
-  const answerPostTest = usePreCourseStore(s => s.answerPostTest);
-  const clearPostTest = usePreCourseStore(s => s.clearPostTest);
+  const currentPreTest = usePreCourseStore(s => s.currentPreTest);
+  const startPreTest = usePreCourseStore(s => s.startPreTest);
+  const setPreTestIndex = usePreCourseStore(s => s.setPreTestIndex);
+  const answerPreTest = usePreCourseStore(s => s.answerPreTest);
+  const clearPreTest = usePreCourseStore(s => s.clearPreTest);
 
   const [showIdentity, setShowIdentity] = useState(false);
-  const [gateChecked, setGateChecked] = useState(false);
-  const [gatePassed, setGatePassed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
-  const [exam, setExam] = useState(null); // { bank, set, questions }
+  const [exam, setExam] = useState(null);
   const [loadError, setLoadError] = useState(null);
 
-  // --- Gate: all pre-course lessons passed ---
   useEffect(() => {
-    let cancelled = false;
-    async function check() {
-      if (!activeStudent) { setGatePassed(false); setGateChecked(true); return; }
-      const [, attempts] = await Promise.all([
-        getLessonProgress(activeStudent.id),
-        getAttemptsForStudent(activeStudent.id),
-      ]);
-      if (cancelled) return;
-      const allPassed = preCourseLessons.every(l => {
-        const best = attempts.filter(a => a.lessonId === l.id)
-          .reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-        return !!best?.passed;
-      });
-      setGatePassed(allPassed);
-      setGateChecked(true);
-    }
-    check();
-    return () => { cancelled = true; };
-  }, [activeStudent?.id]);
-
-  // --- Load questions from Supabase when ready ---
-  useEffect(() => {
-    if (!gateChecked || !gatePassed || !activeStudent) return;
+    if (!activeStudent) return;
     let cancelled = false;
     (async () => {
       try {
-        const loaded = await loadExamForBank(POST_TEST_BANK_ID);
+        const loaded = await loadExamForBank(PRE_TEST_BANK_ID);
         if (cancelled) return;
         setExam(loaded);
-        if (!currentPostTest || currentPostTest.setId !== loaded.set.id) {
-          startPostTest(loaded.set.id);
+        if (!currentPreTest || currentPreTest.setId !== loaded.set.id) {
+          startPreTest(loaded.set.id);
         }
       } catch (err) {
         if (!cancelled) setLoadError(err.message || 'โหลดข้อสอบไม่สำเร็จ');
@@ -82,11 +51,11 @@ export default function PostTestExam() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gateChecked, gatePassed, activeStudent?.id]);
+  }, [activeStudent?.id]);
 
   const questions = exam?.questions ?? [];
-  const answers = currentPostTest?.answers ?? {};
-  const currentIndex = currentPostTest?.currentIndex ?? 0;
+  const answers = currentPreTest?.answers ?? {};
+  const currentIndex = currentPreTest?.currentIndex ?? 0;
   const safeIndex = Math.min(currentIndex, Math.max(0, questions.length - 1));
   const currentQ = questions[safeIndex];
   const answeredCount = useMemo(
@@ -107,35 +76,6 @@ export default function PostTestExam() {
           <button onClick={() => setShowIdentity(true)} className="btn btn-primary btn-md">ระบุตัวตน</button>
         </div>
         <StudentIdentityModal open={showIdentity} onClose={() => setShowIdentity(false)} onConfirm={() => setShowIdentity(false)} />
-      </div>
-    );
-  }
-
-  if (!gateChecked) {
-    return (
-      <div className="page-container">
-        <div className="dash-card text-center !p-6 text-text-muted text-caption">กำลังตรวจสอบสิทธิ์...</div>
-      </div>
-    );
-  }
-
-  if (!gatePassed) {
-    return (
-      <div className="page-container space-y-4">
-        <Header />
-        <div className="dash-card text-center !p-6 space-y-3">
-          <div className="w-12 h-12 mx-auto inline-flex items-center justify-center bg-warning/15 text-warning"
-            style={{ borderRadius: 'var(--radius-md)' }}>
-            <Lock size={22} strokeWidth={2.4} />
-          </div>
-          <div className="text-headline">ยังไม่ปลดล็อก</div>
-          <div className="text-caption text-text-muted">
-            ต้องผ่านบทเรียน Pre-course (ผ่านเกณฑ์ทุกบท) ก่อนเข้าทำ Post-test
-          </div>
-          <button onClick={() => navigate('/pre-course')} className="btn btn-primary btn-md inline-flex items-center gap-2">
-            <BookOpen size={16} strokeWidth={2.4} /> กลับไปบทเรียน
-          </button>
-        </div>
       </div>
     );
   }
@@ -172,14 +112,13 @@ export default function PostTestExam() {
       const correct = detailed.filter(a => a.correct).length;
       const total = questions.length;
       const score = total ? Math.round((correct / total) * 100) : 0;
-      const passPercent = exam.bank?.pass_percent ?? POST_TEST_PASS_PERCENT;
+      const passPercent = exam.bank?.pass_percent ?? PRE_TEST_PASS_PERCENT;
       const passed = score >= passPercent;
-      const attemptNumber = (await getAttemptCount(activeStudent.id, POST_TEST_LESSON_ID)) + 1;
-      const startedAt = currentPostTest?.startedAt ?? new Date().toISOString();
+      const attemptNumber = (await getAttemptCount(activeStudent.id, PRE_TEST_LESSON_ID)) + 1;
+      const startedAt = currentPreTest?.startedAt ?? new Date().toISOString();
       const finishedAt = new Date().toISOString();
       const durationSec = Math.max(0, Math.round((Date.parse(finishedAt) - Date.parse(startedAt)) / 1000));
 
-      // Snapshot questions so QuizResults can render review without re-fetching.
       const questionSnapshot = questions.map(q => ({
         id: q.id, question: q.question, choices: q.choices,
         correctId: q.correctId, explanation: q.explanation, topic: q.topic,
@@ -187,8 +126,8 @@ export default function PostTestExam() {
 
       const attemptId = await saveQuizAttempt({
         studentId: activeStudent.id,
-        lessonId: POST_TEST_LESSON_ID,
-        bankId: POST_TEST_BANK_ID,
+        lessonId: PRE_TEST_LESSON_ID,
+        bankId: PRE_TEST_BANK_ID,
         setId: exam.set.id,
         setTitle: exam.set.title,
         score,
@@ -203,12 +142,11 @@ export default function PostTestExam() {
         passPercent,
       });
 
-      // Mirror to Supabase (fire and forget — local copy is the source of truth for the UI)
       submitRemoteAttempt({
         studentLocalId: activeStudent.id,
         studentCode: activeStudent.studentId,
         studentName: activeStudent.name,
-        bankId: POST_TEST_BANK_ID,
+        bankId: PRE_TEST_BANK_ID,
         setId: exam.set.id,
         score, totalQuestions: total, correctCount: correct, passed,
         durationSeconds: durationSec,
@@ -216,7 +154,7 @@ export default function PostTestExam() {
         startedAt, finishedAt,
       }).catch(() => {});
 
-      clearPostTest();
+      clearPreTest();
       navigate(`/pre-course/results/${attemptId}`);
     } finally {
       setSubmitting(false);
@@ -225,7 +163,7 @@ export default function PostTestExam() {
 
   return (
     <div className="page-container space-y-4 pb-24">
-      <Header subtitle={`${exam.set.title} · ${questions.length} ข้อ · เกณฑ์ผ่าน ${exam.bank?.pass_percent ?? POST_TEST_PASS_PERCENT}%`} />
+      <Header subtitle={`Pre-test · ${questions.length} ข้อ · ก่อนเริ่มเรียน`} />
 
       <div className="dash-card !py-3 space-y-2">
         <div className="flex items-center justify-between text-caption">
@@ -242,7 +180,7 @@ export default function PostTestExam() {
         <QuizQuestion
           question={currentQ}
           chosenId={answers[currentQ.id]}
-          onChoose={(cid) => answerPostTest(currentQ.id, cid)}
+          onChoose={(cid) => answerPreTest(currentQ.id, cid)}
           locked={false}
           showCorrect={false}
         />
@@ -256,7 +194,7 @@ export default function PostTestExam() {
             const isCurrent = i === safeIndex;
             return (
               <button key={q.id}
-                onClick={() => setPostTestIndex(i)}
+                onClick={() => setPreTestIndex(i)}
                 className={`h-8 text-[11px] font-bold transition-colors ${
                   isCurrent ? 'bg-info text-white border border-info'
                     : answered ? 'bg-success/15 text-success border border-success/30 hover:bg-success/25'
@@ -273,7 +211,7 @@ export default function PostTestExam() {
       <div className="fixed left-0 right-0 bottom-16 bg-bg-primary/95 backdrop-blur border-t border-border px-4 py-3 z-40">
         <div className="max-w-[820px] mx-auto flex items-center gap-2">
           <button
-            onClick={() => setPostTestIndex(Math.max(0, safeIndex - 1))}
+            onClick={() => setPreTestIndex(Math.max(0, safeIndex - 1))}
             disabled={safeIndex === 0}
             className="btn btn-ghost btn-sm inline-flex items-center gap-1 disabled:opacity-30">
             <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
@@ -288,7 +226,7 @@ export default function PostTestExam() {
             </button>
           ) : (
             <button
-              onClick={() => setPostTestIndex(Math.min(questions.length - 1, safeIndex + 1))}
+              onClick={() => setPreTestIndex(Math.min(questions.length - 1, safeIndex + 1))}
               className="btn btn-primary btn-sm inline-flex items-center gap-1">
               ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
             </button>
@@ -329,13 +267,13 @@ export default function PostTestExam() {
 function Header({ subtitle }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="w-11 h-11 inline-flex items-center justify-center bg-warning/15 text-warning"
+      <div className="w-11 h-11 inline-flex items-center justify-center bg-info/15 text-info"
         style={{ borderRadius: 'var(--radius-md)' }}>
-        <Award size={22} strokeWidth={2.2} />
+        <Sparkles size={22} strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
-        <h1 className="text-title text-text-primary">Post-test Exam</h1>
-        <p className="text-[11px] text-text-muted">{subtitle ?? `${POST_TEST_QUESTION_COUNT} ข้อ · ครอบคลุม ACLS ทั้งหมด`}</p>
+        <h1 className="text-title text-text-primary">Pre-test ACLS</h1>
+        <p className="text-[11px] text-text-muted">{subtitle ?? `${PRE_TEST_QUESTION_COUNT} ข้อ · ทดสอบความรู้พื้นฐาน`}</p>
       </div>
     </div>
   );

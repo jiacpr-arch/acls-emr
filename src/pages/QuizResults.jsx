@@ -3,10 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getAttemptById, db } from '../db/database';
 import { findLessonById } from '../data/preCourseContent';
 import {
+  PRE_TEST_LESSON_ID,
   POST_TEST_LESSON_ID,
+  PRE_TEST_PASS_PERCENT,
   POST_TEST_PASS_PERCENT,
-  getPostTestSetById,
-} from '../data/postTest';
+} from '../data/assessment';
 import ResultsSummary from '../components/precourse/ResultsSummary';
 import { exportStudentResultPDF } from '../utils/exportPreCourse';
 import { ChevronLeft, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';
@@ -50,18 +51,35 @@ export default function QuizResults() {
     );
   }
 
+  const isPreTest = attempt.lessonId === PRE_TEST_LESSON_ID;
   const isPostTest = attempt.lessonId === POST_TEST_LESSON_ID;
-  const postTestSet = isPostTest ? getPostTestSetById(attempt.setId) : null;
-  const lesson = isPostTest
-    ? (postTestSet ? {
-        id: POST_TEST_LESSON_ID,
-        title: `Post-test Exam · ${postTestSet.title}`,
-        quiz: postTestSet.questions,
-        passingScore: POST_TEST_PASS_PERCENT,
-      } : null)
+  const isAssessment = isPreTest || isPostTest;
+
+  // For assessment attempts: render from snapshot stored on the attempt itself.
+  // For lesson quizzes: fall back to the static lesson definition.
+  const lesson = isAssessment
+    ? {
+        id: attempt.lessonId,
+        title: isPreTest
+          ? `Pre-test · ${attempt.setTitle || ''}`.trim()
+          : `Post-test Exam · ${attempt.setTitle || ''}`.trim(),
+        quiz: attempt.questionSnapshot || [],
+        passingScore: attempt.passPercent
+          ?? (isPreTest ? PRE_TEST_PASS_PERCENT : POST_TEST_PASS_PERCENT),
+      }
     : findLessonById(attempt.lessonId);
 
-  const retakePath = isPostTest ? '/pre-course/post-test' : `/pre-course/${attempt.lessonId}/quiz`;
+  const retakePath = isPreTest
+    ? '/pre-course/pre-test'
+    : isPostTest
+      ? '/pre-course/post-test'
+      : `/pre-course/${attempt.lessonId}/quiz`;
+
+  const heading = isPreTest
+    ? 'ผล Pre-test'
+    : isPostTest
+      ? 'ผล Post-test Exam'
+      : 'ผลการทำ Quiz';
 
   return (
     <div className="page-container space-y-4">
@@ -72,14 +90,14 @@ export default function QuizResults() {
 
       <div className="flex items-center gap-3">
         <div className={`w-11 h-11 inline-flex items-center justify-center ${
-          isPostTest ? 'bg-warning/15 text-warning' : 'bg-info/15 text-info'
+          isPostTest ? 'bg-warning/15 text-warning'
+            : isPreTest ? 'bg-info/15 text-info'
+            : 'bg-info/15 text-info'
         }`} style={{ borderRadius: 'var(--radius-md)' }}>
           <Trophy size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-title text-text-primary">
-            {isPostTest ? 'ผล Post-test Exam' : 'ผลการทำ Quiz'}
-          </h1>
+          <h1 className="text-title text-text-primary">{heading}</h1>
           <p className="text-caption text-text-muted">
             ครั้งที่ {attempt.attemptNumber} · {new Date(attempt.finishedAt).toLocaleString('th-TH')}
           </p>

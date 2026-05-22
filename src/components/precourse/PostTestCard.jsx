@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Award, ChevronRight, Lock, Check, RotateCcw } from 'lucide-react';
-import { POST_TEST_PASS_PERCENT, POST_TEST_QUESTION_COUNT } from '../../data/postTest';
+import { POST_TEST_PASS_PERCENT, POST_TEST_QUESTION_COUNT } from '../../data/assessment';
 
 export default function PostTestCard({ unlocked, bestScore, passed, attemptCount }) {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function PostTestCard({ unlocked, bestScore, passed, attemptCount
         <div className="flex-1 min-w-0">
           <div className="text-body-strong text-text-primary truncate">Post-test Exam</div>
           <div className="text-[11px] text-text-muted mt-0.5">
-            {POST_TEST_QUESTION_COUNT} ข้อ · เกณฑ์ {POST_TEST_PASS_PERCENT}% · 3 ชุดสุ่ม
+            {POST_TEST_QUESTION_COUNT} ข้อ · เกณฑ์ {POST_TEST_PASS_PERCENT}% · สุ่มจาก 3 ชุด
           </div>
         </div>
         {unlocked && <ChevronRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />}

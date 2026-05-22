@@ -5,9 +5,10 @@ import { usePreCourseStore } from '../stores/preCourseStore';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import LessonCard from '../components/precourse/LessonCard';
 import PostTestCard from '../components/precourse/PostTestCard';
+import PreTestCard from '../components/precourse/PreTestCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
-import { POST_TEST_LESSON_ID } from '../data/postTest';
+import { POST_TEST_LESSON_ID, PRE_TEST_LESSON_ID } from '../data/assessment';
 import { GraduationCap, User, UserCheck, Users, RefreshCw } from 'lucide-react';
 
 export default function PreCourse() {
@@ -97,6 +98,21 @@ export default function PreCourse() {
       </div>
 
       <VideoLinksPanel videos={preCourseVideos} />
+
+      {activeStudent && (() => {
+        const ptAttempts = attempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
+        const ptBest = ptAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+        return (
+          <>
+            <div className="text-overline text-text-muted px-1">ข้อสอบก่อนเรียน</div>
+            <PreTestCard
+              bestScore={ptBest?.score ?? null}
+              passed={ptBest?.passed ?? false}
+              attemptCount={ptAttempts.length}
+            />
+          </>
+        );
+      })()}
 
       <div className="flex items-center justify-between px-1">
         <div className="text-overline text-text-muted">บทเรียน</div>

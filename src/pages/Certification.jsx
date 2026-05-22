@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAllCases, getLessonProgress, getAttemptsForStudent } from '../db/database';
 import { scenarios } from '../data/scenarios';
 import { preCourseLessons } from '../data/preCourseContent';
-import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/postTest';
+import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/assessment';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import {
   Trophy, BookOpen, GraduationCap, Award, BarChart3,
