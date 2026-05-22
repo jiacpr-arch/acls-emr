@@ -23,6 +23,7 @@ export default function BottomTabBar() {
   ];
 
   const moreItems = [
+    { path: '/pre-course', Icon: GraduationCap, label: t('pre_course', lang) },
     { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
     { path: '/drill', Icon: Activity, label: t('drill', lang) },
     { path: '/sim', Icon: AlertTriangle, label: 'Code Sim' },

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getAllCases } from '../db/database';
+import { getAllCases, getLessonProgress, getAttemptsForStudent } from '../db/database';
 import { scenarios } from '../data/scenarios';
+import { preCourseLessons } from '../data/preCourseContent';
+import { usePreCourseStore } from '../stores/preCourseStore';
 import {
   Trophy, BookOpen, GraduationCap, Award, BarChart3,
   Check, Circle,
@@ -21,8 +23,25 @@ export default function Certification() {
   const [cases, setCases] = useState([]);
   const [certData, setCertData] = useState(getCertData());
   const [studentName, setStudentName] = useState(certData.studentName || '');
+  const activeStudent = usePreCourseStore(s => s.activeStudent);
+  const [preCourseProgress, setPreCourseProgress] = useState([]);
+  const [preCourseAttempts, setPreCourseAttempts] = useState([]);
 
   useEffect(() => { getAllCases().then(setCases); }, []);
+  useEffect(() => {
+    if (!activeStudent) {
+      setPreCourseProgress([]);
+      setPreCourseAttempts([]);
+      return;
+    }
+    Promise.all([
+      getLessonProgress(activeStudent.id),
+      getAttemptsForStudent(activeStudent.id),
+    ]).then(([p, a]) => {
+      setPreCourseProgress(p);
+      setPreCourseAttempts(a);
+    });
+  }, [activeStudent?.id]);
 
   const trainingCases = cases.filter(c => c.mode === 'training' && c.outcome !== 'ongoing');
   const totalScenarios = scenarios.length;
@@ -35,7 +54,16 @@ export default function Certification() {
     : 0;
   const passExam = avgScore >= 80;
 
+  const preCourseStatus = preCourseLessons.map(l => {
+    const read = preCourseProgress.some(p => p.lessonId === l.id);
+    const lessonAttempts = preCourseAttempts.filter(a => a.lessonId === l.id);
+    const best = lessonAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+    return { lesson: l, read, bestScore: best?.score ?? null, passed: best?.passed ?? false };
+  });
+  const preCourseDone = !!activeStudent && preCourseStatus.every(s => s.passed);
+
   const requirements = [
+    { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่าน)', done: preCourseDone, Icon: BookOpen },
     { label: 'Complete 3+ Basic scenarios', done: basicDone, Icon: BookOpen },
     { label: 'Complete 1+ Intermediate scenario', done: interDone, Icon: GraduationCap },
     { label: 'Complete 1+ Megacode scenario', done: megaDone, Icon: Award },
@@ -102,6 +130,31 @@ export default function Certification() {
           );
         })}
       </div>
+
+      {/* Pre-course breakdown (only when a student is active) */}
+      {activeStudent && (
+        <div className="dash-card !p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="text-overline text-text-muted">Pre-course — {activeStudent.name}</div>
+            <span className="text-[11px] text-text-muted font-mono">{activeStudent.studentId}</span>
+          </div>
+          {preCourseStatus.map(({ lesson, read, bestScore, passed }) => (
+            <div key={lesson.id} className="flex items-center gap-2 text-caption">
+              <span className={`w-5 h-5 inline-flex items-center justify-center shrink-0 ${
+                passed ? 'bg-success/15 text-success' : 'bg-bg-tertiary text-text-muted'
+              }`} style={{ borderRadius: 'var(--radius-sm)' }}>
+                {passed ? <Check size={12} strokeWidth={2.6} /> : <Circle size={10} strokeWidth={2} />}
+              </span>
+              <span className="flex-1 text-text-secondary truncate">{lesson.title}</span>
+              <span className={`text-[11px] font-bold ${
+                passed ? 'text-success' : bestScore != null ? 'text-warning' : 'text-text-muted'
+              }`}>
+                {bestScore != null ? `${bestScore}%` : (read ? 'อ่านแล้ว' : 'ยังไม่อ่าน')}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">

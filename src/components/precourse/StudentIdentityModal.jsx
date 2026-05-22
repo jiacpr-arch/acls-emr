@@ -1,0 +1,100 @@
+import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { upsertStudent, findStudentByStudentId } from '../../db/database';
+import { usePreCourseStore } from '../../stores/preCourseStore';
+import { User, X, Check, AlertCircle } from 'lucide-react';
+
+export default function StudentIdentityModal({ open, onClose, onConfirm }) {
+  const setActiveStudent = usePreCourseStore(s => s.setActiveStudent);
+  const [name, setName] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  if (!open) return null;
+
+  const submit = async (e) => {
+    e?.preventDefault();
+    const n = name.trim();
+    const sid = studentId.trim();
+    if (!n || !sid) {
+      setError('กรุณากรอกทั้งชื่อและรหัสนักเรียน');
+      return;
+    }
+    setBusy(true);
+    try {
+      const existing = await findStudentByStudentId(sid);
+      const record = existing
+        ? { ...existing, name: n }
+        : { id: uuidv4(), studentId: sid, name: n, createdAt: new Date().toISOString() };
+      await upsertStudent(record);
+      setActiveStudent(record);
+      onConfirm?.(record);
+    } catch (err) {
+      setError(err?.message || 'บันทึกไม่สำเร็จ');
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in p-4"
+      onClick={onClose}>
+      <form onClick={e => e.stopPropagation()} onSubmit={submit}
+        className="w-full max-w-md bg-bg-secondary animate-slide-up p-5 space-y-4"
+        style={{ borderRadius: 'var(--radius-2xl)', boxShadow: 'var(--shadow-pop)' }}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 inline-flex items-center justify-center bg-info/15 text-info"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <User size={18} strokeWidth={2.2} />
+            </div>
+            <div>
+              <div className="text-headline">ระบุตัวผู้เรียน</div>
+              <div className="text-[11px] text-text-muted">ใช้สำหรับบันทึกผลก่อนเริ่ม Quiz</div>
+            </div>
+          </div>
+          {onClose && (
+            <button type="button" onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center text-text-muted hover:bg-bg-tertiary"
+              style={{ borderRadius: 'var(--radius-full)' }} aria-label="Close">
+              <X size={18} strokeWidth={2.2} />
+            </button>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          <label className="block">
+            <span className="text-caption font-semibold text-text-secondary">ชื่อ–นามสกุล</span>
+            <input
+              type="text" autoFocus value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="เช่น อนันต์ ใจดี"
+              className="w-full text-body mt-1" />
+          </label>
+          <label className="block">
+            <span className="text-caption font-semibold text-text-secondary">รหัสนักเรียน</span>
+            <input
+              type="text" value={studentId}
+              onChange={e => setStudentId(e.target.value)}
+              placeholder="เช่น 65001"
+              className="w-full text-body mt-1" />
+          </label>
+          {error && (
+            <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <AlertCircle size={14} strokeWidth={2.2} /> {error}
+            </div>
+          )}
+        </div>
+
+        <button type="submit" disabled={busy}
+          className="btn btn-primary btn-lg btn-block disabled:opacity-50">
+          <Check size={16} strokeWidth={2.4} /> ยืนยันและเริ่ม
+        </button>
+        <p className="text-[11px] text-text-muted text-center">
+          ระบบจะบันทึกชื่อ-รหัสไว้ในเครื่องนี้เท่านั้น (offline)
+        </p>
+      </form>
+    </div>
+  );
+}
