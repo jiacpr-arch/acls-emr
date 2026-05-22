@@ -17,6 +17,7 @@ import Feedback from './pages/Feedback';
 import ALSKnowledge from './pages/ALSKnowledge';
 import CodeBlueSim from './pages/CodeBlueSim';
 import PreCourse from './pages/PreCourse';
+import Learn from './pages/Learn';
 import LessonReader from './pages/LessonReader';
 import QuizResults from './pages/QuizResults';
 import InstructorCohort from './pages/InstructorCohort';
@@ -52,6 +53,7 @@ function App() {
         <Route path="/history" element={<Dashboard />} />
         <Route path="/algorithm" element={<Algorithm />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/learn" element={<Learn />} />
         <Route path="/scenarios" element={<ScenarioSelect />} />
         <Route path="/drug-calc" element={<DrugCalc />} />
         <Route path="/statistics" element={<Statistics />} />

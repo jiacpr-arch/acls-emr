@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
 import {
-  HeartPulse, FileText, Sparkles, Pill, Menu,
-  BarChart3, Activity, AlertTriangle, Trophy, BookOpen, GraduationCap,
+  HeartPulse, FileText, Pill, Menu,
+  BarChart3, GraduationCap,
   MessageSquare, Settings, X,
 } from './ui/Icon';
 
@@ -17,21 +17,14 @@ export default function BottomTabBar() {
   const tabs = [
     { path: '/', Icon: HeartPulse, label: 'Home' },
     { path: '/history', Icon: FileText, label: t('history', lang) },
-    { path: '/scenarios', Icon: Sparkles, label: t('scenarios', lang) },
+    { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
     { path: '/drug-calc', Icon: Pill, label: t('drugs', lang) },
     { key: 'more', Icon: Menu, label: 'More' },
   ];
 
   const moreItems = [
-    { path: '/pre-course', Icon: GraduationCap, label: t('pre_course', lang) },
     { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
-    { path: '/drill', Icon: Activity, label: t('drill', lang) },
-    { path: '/sim', Icon: AlertTriangle, label: 'Code Sim' },
-    { path: '/certification', Icon: Trophy, label: t('cert', lang) },
     { path: '/compare', Icon: BarChart3, label: 'Compare' },
-    { path: '/algorithm', Icon: BookOpen, label: t('algorithms', lang) },
-    { path: '/als', Icon: GraduationCap, label: t('als_knowledge', lang) },
-    { path: '/guide', Icon: BookOpen, label: t('guide', lang) },
     { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
     { path: '/settings', Icon: Settings, label: t('settings', lang) },
   ];
