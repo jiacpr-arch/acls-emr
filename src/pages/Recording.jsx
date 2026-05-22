@@ -105,9 +105,28 @@ export default function Recording() {
   const getInitialStep = () => {
     if (startMode === 'resume') return STEPS.CPR_CYCLE; // resume to dashboard
     if (startMode === 'rrt') return STEPS.RRT_ARRIVED;
+    if (startMode === 'arrest') return STEPS.START_CPR;
+    if (startMode === 'pulse') return STEPS.PULSE_PRESENT;
+    if (startMode === 'stroke') return STEPS.PULSE_STROKE;
+    if (startMode === 'mi') return STEPS.PULSE_MI;
     return STEPS.SCENE_SAFETY;
   };
   const [step, setStep] = useState(getInitialStep());
+
+  // Auto-start timer for direct-entry emergency modes
+  useEffect(() => {
+    if (['arrest', 'pulse', 'stroke', 'mi'].includes(startMode)) {
+      if (!useTimerStore.getState().isRunning) useTimerStore.getState().startTimer();
+      const labels = {
+        arrest: '❌ Cardiac Arrest — direct entry',
+        pulse: '🫀 Pulse assessment — direct entry',
+        stroke: '🧠 Suspected Stroke — direct entry',
+        mi: '🫀 Suspected ACS/MI — direct entry',
+      };
+      addEvent({ elapsed: useTimerStore.getState().elapsed, category: 'other', type: labels[startMode] });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [showLog, setShowLog] = useState(false);
   const [showPatient, setShowPatient] = useState(false);
   const [showTeam, setShowTeam] = useState(false);

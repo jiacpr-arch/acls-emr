@@ -5,8 +5,8 @@ import { getActiveSession, clearActiveSession } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import BottomTabBar from '../components/BottomTabBar';
 import {
-  HeartPulse, AlertTriangle, Hospital, TrendingDown, TrendingUp, Brain,
-  Sparkles, BookOpen, MessageSquare, Play, Activity,
+  HeartPulse, AlertTriangle, Hospital, Brain, Heart, Activity,
+  Sparkles, BookOpen, MessageSquare, Play,
 } from '../components/ui/Icon';
 
 export default function NewCase() {
@@ -119,13 +119,13 @@ export default function NewCase() {
             </span>
           </button>
 
-          {/* Quick Start Templates */}
+          {/* Quick Start Templates — direct entry to pathway */}
           <div className="grid grid-cols-2 gap-2 pt-1">
             {[
-              { Icon: HeartPulse, label: 'Cardiac Arrest', start: 'bls' },
-              { Icon: TrendingDown, label: 'Bradycardia', start: 'rrt' },
-              { Icon: TrendingUp, label: 'Tachycardia', start: 'rrt' },
-              { Icon: Brain, label: 'Stroke', start: 'rrt' },
+              { Icon: HeartPulse, label: 'Cardiac Arrest', start: 'arrest' },
+              { Icon: Activity, label: 'Brady / Tachy', start: 'pulse' },
+              { Icon: Heart, label: 'MI / ACS', start: 'mi' },
+              { Icon: Brain, label: 'Stroke', start: 'stroke' },
             ].map(item => {
               const ItemIcon = item.Icon;
               return (
