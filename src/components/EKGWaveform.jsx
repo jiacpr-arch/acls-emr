@@ -277,12 +277,27 @@ function buildPath(rhythmId) {
 
     // ---- Tachys wide ----
     case 'vt':
-    case 'pvt':
-      return sinusStrip(170, {
-        p: { present: false }, pr: 0,
-        qrs: { width: 7, rAmp: 14, qAmp: 0, sAmp: 6 },
-        t: { amp: 4, dur: 5, inverted: true },
-      });
+    case 'pvt': {
+      // Monomorphic wide-complex tachycardia: each beat is a fused
+      // R-S-T sine-like deflection with no isoelectric segment.
+      // Rate ~170/min, regular. R up tall, then dip below baseline
+      // (S/discordant-T), then back to baseline.
+      const bpm = 170;
+      const cycleMm = (60 / bpm) * 25;
+      const cw = cycleMm * MM;
+      let d = `M 0 ${BASE}`;
+      let x = 0;
+      while (x < W + cw) {
+        // Upstroke and R peak
+        d += ` Q ${x + cw * 0.18} ${BASE - 16 * MM / 3} ${x + cw * 0.36} ${BASE - 14 * MM / 3}`;
+        // Down past baseline to S/T trough
+        d += ` Q ${x + cw * 0.5} ${BASE + 2 * MM} ${x + cw * 0.65} ${BASE + 8 * MM / 3}`;
+        // Recovery back to baseline
+        d += ` Q ${x + cw * 0.85} ${BASE + 2 * MM / 3} ${x + cw} ${BASE}`;
+        x += cw;
+      }
+      return d;
+    }
 
     case 'tdp': {
       // Polymorphic VT with twisting amplitude envelope
