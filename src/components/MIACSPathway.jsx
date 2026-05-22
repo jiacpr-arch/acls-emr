@@ -16,16 +16,19 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
   const [d2bStart, setD2bStart] = useState(null);
   const [d2nStart, setD2nStart] = useState(null);
 
-  const toggleCheck = (key) => {
+  const toggleCheck = (key, logAs) => {
     setChecklist(prev => {
       const updated = { ...prev, [key]: !prev[key] };
-      if (!prev[key]) onLog('other', `☐→✅ ${key}`);
+      if (!prev[key]) {
+        if (logAs) onLog(logAs.category, logAs.type, logAs.details || {});
+        else onLog('other', `☐→✅ ${key}`);
+      }
       return updated;
     });
   };
 
-  const Check = ({ id, label, sub }) => (
-    <button onClick={() => toggleCheck(id)}
+  const Check = ({ id, label, sub, logAs }) => (
+    <button onClick={() => toggleCheck(id, logAs)}
       className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
         checklist[id] ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
       }`}>
@@ -99,13 +102,16 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
           <Check id="iv_access" label="💉 IV Access" />
 
           <Check id="aspirin" label="💊 Aspirin 325mg — CHEW & swallow"
-            sub="Non-enteric coated. Give to ALL ACS unless true allergy." />
+            sub="Non-enteric coated. Give to ALL ACS unless true allergy."
+            logAs={{ category: 'drug', type: '💊 Aspirin 325mg PO (chewed)', details: { drugId: 'aspirin_acs', dose: '325 mg', route: 'PO' } }} />
 
           <Check id="ntg" label="💊 NTG 0.4mg Sublingual"
-            sub="⚠️ CI: SBP<90, RV infarct, PDE5 inhibitor 24-48hr. Repeat q5min x3." />
+            sub="⚠️ CI: SBP<90, RV infarct, PDE5 inhibitor 24-48hr. Repeat q5min x3."
+            logAs={{ category: 'drug', type: '💊 NTG 0.4mg SL', details: { drugId: 'nitroglycerin', dose: '0.4 mg', route: 'SL' } }} />
 
           <Check id="morphine" label="💉 Morphine 2-4mg IV (if pain persists)"
-            sub="IV push slow 1-2min. Only after NTG x3 failed. Watch BP." />
+            sub="IV push slow 1-2min. Only after NTG x3 failed. Watch BP."
+            logAs={{ category: 'drug', type: '💉 Morphine 2-4mg IV', details: { dose: '2-4 mg', route: 'IV' } }} />
 
           <Check id="o2" label="🫁 O₂ if SpO₂ < 94%"
             sub="Titrate to SpO₂ 94-98%. Avoid hyperoxia." />
@@ -206,18 +212,23 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
           <Check id="activate_cath" label="📞 Activate Cath Lab / Call Cardio"
             sub="Start Door-to-Balloon timer" />
 
-          <Check id="antiplatelet" label="💊 Antiplatelet Loading" sub="Clopidogrel 600mg OR Ticagrelor 180mg" />
+          <Check id="antiplatelet" label="💊 Antiplatelet Loading" sub="Clopidogrel 600mg OR Ticagrelor 180mg"
+            logAs={{ category: 'drug', type: '💊 Antiplatelet loading (Clopidogrel 600mg / Ticagrelor 180mg)', details: { route: 'PO', context: 'acs_loading' } }} />
 
           <Check id="heparin_bolus" label="💉 Heparin 60u/kg IV bolus (max 4000u)"
-            sub="Weight-based — flush after" />
+            sub="Weight-based — flush after"
+            logAs={{ category: 'drug', type: '💉 Heparin 60u/kg IV bolus (max 4000u)', details: { drugId: 'heparin_acs', dose: '60 u/kg bolus (max 4000u)', route: 'IV' } }} />
 
           <Check id="heparin_drip" label="💉 Heparin 12u/kg/hr drip (max 1000u/hr)"
-            sub="Target aPTT 50-70 sec" />
+            sub="Target aPTT 50-70 sec"
+            logAs={{ category: 'drug', type: '💉 Heparin 12u/kg/hr drip (max 1000u/hr)', details: { drugId: 'heparin_acs', dose: '12 u/kg/hr (max 1000u/hr)', route: 'IV infusion' } }} />
 
           <Check id="beta_blocker" label="💊 Beta-blocker (if no CI)"
-            sub="Metoprolol 5mg IV q5min x3. CI: HR<60, SBP<100, HF, Asthma" />
+            sub="Metoprolol 5mg IV q5min x3. CI: HR<60, SBP<100, HF, Asthma"
+            logAs={{ category: 'drug', type: '💉 Metoprolol 5mg IV q5min x3', details: { dose: '5 mg', route: 'IV' } }} />
 
-          <Check id="statin" label="💊 Atorvastatin 80mg PO" />
+          <Check id="statin" label="💊 Atorvastatin 80mg PO"
+            logAs={{ category: 'drug', type: '💊 Atorvastatin 80mg PO', details: { dose: '80 mg', route: 'PO' } }} />
         </div>
 
         {!d2bStart && (
@@ -294,7 +305,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
         )}
 
         <button onClick={() => {
-          onLog('drug', '💉 Tenecteplase IV bolus (weight-based)');
+          onLog('drug', '💉 Tenecteplase IV bolus (weight-based)', { drugId: 'tenecteplase', dose: 'weight-based bolus', route: 'IV', context: 'fibrinolytic_stemi' });
           toggleCheck('fibrinolytic_given');
         }} className="w-full btn-action btn-purple py-3.5 text-sm font-bold">
           💉 Give Fibrinolytic (Tenecteplase)

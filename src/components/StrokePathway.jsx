@@ -327,7 +327,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
         )}
 
         <button onClick={() => {
-          onLog('drug', '💉 tPA (Alteplase) 0.9mg/kg — 10% bolus 1min + 90% drip 60min');
+          onLog('drug', '💉 tPA (Alteplase) 0.9mg/kg — 10% bolus 1min + 90% drip 60min', { drugId: 'alteplase_stroke', dose: '0.9 mg/kg (max 90 mg)', route: 'IV' });
           setPhase('tpa_admin');
         }} className="w-full btn-action btn-purple py-3.5 text-sm font-bold">
           ✅ Eligible → Give tPA

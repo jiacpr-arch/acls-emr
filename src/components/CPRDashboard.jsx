@@ -53,16 +53,27 @@ export default function CPRDashboard({
   }, [cprMode, cprActive, settings.soundEnabled]);
 
   const [compressionCount, setCompressionCount] = useState(0);
+  const [breathPauseStartedAt, setBreathPauseStartedAt] = useState(null);
+  const breathPauseRef = useRef(false);
+  const BREATH_PAUSE_MS = 5000;
+
   useEffect(() => {
-    if (cprMode !== 'bvm_30_2' || !cprActive) { setCompressionCount(0); return; }
+    if (cprMode !== 'bvm_30_2' || !cprActive) {
+      setCompressionCount(0);
+      setBreathPauseStartedAt(null);
+      breathPauseRef.current = false;
+      return;
+    }
     const ms = Math.round(60000 / (settings.metronomeRate || 110));
     const iv = setInterval(() => {
+      if (breathPauseRef.current) return;
       setCompressionCount(prev => {
         const next = prev + 1;
         if (next >= 30) {
           setBreathAlert(true);
+          breathPauseRef.current = true;
+          setBreathPauseStartedAt(Date.now());
           if (settings.soundEnabled) playBeep(523, 0.3, 0.3);
-          setTimeout(() => setBreathAlert(false), 3000);
           return 0;
         }
         return next;
@@ -70,6 +81,18 @@ export default function CPRDashboard({
     }, ms);
     return () => clearInterval(iv);
   }, [cprMode, cprActive, settings.metronomeRate, settings.soundEnabled]);
+
+  useEffect(() => {
+    if (!breathPauseStartedAt) return;
+    const iv = setInterval(() => {
+      if (Date.now() - breathPauseStartedAt >= BREATH_PAUSE_MS) {
+        breathPauseRef.current = false;
+        setBreathAlert(false);
+        setBreathPauseStartedAt(null);
+      }
+    }, 100);
+    return () => clearInterval(iv);
+  }, [breathPauseStartedAt]);
 
   useEffect(() => { if (!cprActive) startCPR(); }, []);
 
@@ -209,6 +232,11 @@ export default function CPRDashboard({
         <div className="bg-info text-white text-center py-2.5 text-body-strong animate-pulse inline-flex items-center justify-center gap-2 w-full"
           style={{ borderRadius: 'var(--radius-md)' }}>
           <Wind size={16} strokeWidth={2.4} /> {cprMode === 'bvm_30_2' ? '2 BREATHS NOW!' : 'GIVE 1 BREATH'}
+          {cprMode === 'bvm_30_2' && breathPauseStartedAt && (
+            <span className="font-mono font-bold">
+              {Math.max(0, Math.ceil((BREATH_PAUSE_MS - (now - breathPauseStartedAt)) / 1000))}s
+            </span>
+          )}
         </div>
       )}
 
