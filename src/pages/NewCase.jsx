@@ -4,11 +4,17 @@ import { useCaseStore } from '../stores/caseStore';
 import { getActiveSession, clearActiveSession } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { IS_BLS, courseMeta } from '../config/courseMode';
-import BottomTabBar from '../components/BottomTabBar';
+import ACLSSplash from '../components/newcase/ACLSSplash';
+import ACLSHero from '../components/newcase/ACLSHero';
+import ACLSQuickActions from '../components/newcase/ACLSQuickActions';
 import {
-  HeartPulse, AlertTriangle, Hospital, Brain, Heart, Activity,
+  HeartPulse, AlertTriangle, Hospital,
   Sparkles, BookOpen, MessageSquare, Play,
 } from '../components/ui/Icon';
+
+// Module-level flag — splash shows once per full page load, not on every
+// in-app navigation back to /. Resets when the user reloads the tab.
+let aclsSplashSeen = false;
 
 export default function NewCase() {
   const navigate = useNavigate();
@@ -16,6 +22,7 @@ export default function NewCase() {
   const mode = useSettingsStore(s => s.mode);
   const [loading, setLoading] = useState(false);
   const [activeSession, setActiveSession] = useState(null);
+  const [showSplash, setShowSplash] = useState(!IS_BLS && !aclsSplashSeen);
 
   useEffect(() => {
     const session = getActiveSession();
@@ -44,139 +51,145 @@ export default function NewCase() {
 
   const isClinical = mode === 'clinical';
 
-  return (
-    <div className="min-h-[100dvh] flex flex-col bg-bg-primary">
-      {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 pb-28">
-        {/* Logo / hero */}
-        <div className="text-center mb-8 animate-fade-in">
-          <div
-            className="w-20 h-20 mx-auto mb-5 inline-flex items-center justify-center"
-            style={{
-              background: IS_BLS
-                ? 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)'
-                : 'linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%)',
-              borderRadius: 'var(--radius-2xl)',
-              boxShadow: IS_BLS
-                ? '0 12px 28px rgba(14, 165, 233, 0.32), 0 4px 12px rgba(14, 165, 233, 0.18)'
-                : '0 12px 28px rgba(220, 38, 38, 0.32), 0 4px 12px rgba(220, 38, 38, 0.18)',
-            }}
-          >
-            <HeartPulse size={38} strokeWidth={2.4} className="text-white" />
-          </div>
-          <h1 className="text-display text-text-primary">{IS_BLS ? 'BLS Practice' : 'ACLS EMR'}</h1>
-          <p className="text-caption text-text-muted mt-1.5 tracking-wide">{IS_BLS ? courseMeta.titleTh : 'Advanced Cardiac Life Support Recording'}</p>
-          <p className="text-text-muted text-[10px] font-mono mt-1 opacity-60">v2.0.0</p>
-          <div className={`inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 text-[11px] font-bold ${
-            isClinical ? 'bg-danger/10 text-danger' : 'bg-info/10 text-info'
-          }`}
-          style={{ borderRadius: 'var(--radius-full)' }}>
-            <span className={`w-1.5 h-1.5 ${isClinical ? 'bg-danger' : 'bg-info'} ${isClinical ? 'animate-pulse' : ''}`}
-              style={{ borderRadius: 99 }} />
-            {isClinical ? 'CLINICAL' : 'TRAINING'}
-          </div>
-        </div>
-
-        {/* Resume active session */}
-        {activeSession && (
-          <div className="w-full max-w-sm mb-5 animate-slide-up">
-            <div className="dash-card border-l-4 border-l-warning"
-              style={{ boxShadow: 'var(--shadow-2)' }}>
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 inline-flex items-center justify-center bg-warning/15 text-warning shrink-0"
-                  style={{ borderRadius: 'var(--radius)' }}>
-                  <Play size={18} strokeWidth={2.4} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-overline text-warning">Active Case Found</div>
-                  <div className="text-headline text-text-primary truncate mt-0.5">#{activeSession.currentCase?.id}</div>
-                  <div className="text-caption text-text-muted">
-                    {activeSession.patient?.name || 'No patient info'} · {activeSession.events?.length || 0} events
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <button onClick={handleResume} className="flex-1 btn btn-warning">
-                  <Play size={16} strokeWidth={2.4} /> Resume Case
-                </button>
-                <button onClick={handleDismissSession} className="btn btn-ghost">
-                  Discard
-                </button>
-              </div>
+  // ===== BLS still uses the legacy centered layout =====
+  if (IS_BLS) {
+    return (
+      <div className="min-h-[100dvh] flex flex-col bg-bg-primary">
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 pb-28">
+          <div className="text-center mb-8 animate-fade-in">
+            <div
+              className="w-20 h-20 mx-auto mb-5 inline-flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)',
+                borderRadius: 'var(--radius-2xl)',
+                boxShadow:
+                  '0 12px 28px rgba(14, 165, 233, 0.32), 0 4px 12px rgba(14, 165, 233, 0.18)',
+              }}
+            >
+              <HeartPulse size={38} strokeWidth={2.4} className="text-white" />
+            </div>
+            <h1 className="text-display text-text-primary">BLS Practice</h1>
+            <p className="text-caption text-text-muted mt-1.5 tracking-wide">{courseMeta.titleTh}</p>
+            <p className="text-text-muted text-[10px] font-mono mt-1 opacity-60">v2.0.0</p>
+            <div className={`inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 text-[11px] font-bold ${
+              isClinical ? 'bg-danger/10 text-danger' : 'bg-info/10 text-info'
+            }`}
+            style={{ borderRadius: 'var(--radius-full)' }}>
+              <span className={`w-1.5 h-1.5 ${isClinical ? 'bg-danger animate-pulse' : 'bg-info'}`}
+                style={{ borderRadius: 99 }} />
+              {isClinical ? 'CLINICAL' : 'TRAINING'}
             </div>
           </div>
-        )}
 
-        {/* Start buttons */}
-        <div className="w-full max-w-sm flex flex-col gap-6 animate-slide-up">
-          <button onClick={() => handleStart('bls')} disabled={loading}
-            className={`btn btn-xl btn-block disabled:opacity-50 ${IS_BLS ? 'btn-info' : 'btn-danger animate-pulse-red'}`}>
-            <AlertTriangle size={20} strokeWidth={2.4} /> BLS — First Responder
-          </button>
-
-          {!IS_BLS && (
-            <button onClick={() => handleStart('rrt')} disabled={loading}
-              className="btn btn-primary btn-xl btn-block disabled:opacity-50"
-              style={{ height: 'auto', paddingTop: 10, paddingBottom: 10 }}>
-              <Hospital size={20} strokeWidth={2.4} />
-              <span className="flex flex-col items-center leading-tight">
-                <span>CODE BLUE / CODE 8</span>
-                <span className="text-xs font-medium opacity-80 mt-0.5">MET / RRT Team</span>
-              </span>
+          <div className="w-full max-w-sm flex flex-col gap-6 animate-slide-up">
+            <button onClick={() => handleStart('bls')} disabled={loading}
+              className="btn btn-info btn-xl btn-block disabled:opacity-50">
+              <AlertTriangle size={20} strokeWidth={2.4} /> BLS — First Responder
             </button>
-          )}
-
-          {/* Quick Start Templates — direct entry to pathway (ACLS only) */}
-          {!IS_BLS && (
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { Icon: HeartPulse, label: 'Cardiac Arrest', start: 'arrest' },
-                { Icon: Activity, label: 'Brady / Tachy', start: 'pulse' },
-                { Icon: Heart, label: 'MI / ACS', start: 'mi' },
-                { Icon: Brain, label: 'Stroke', start: 'stroke' },
-              ].map(item => {
-                const ItemIcon = item.Icon;
-                return (
-                  <button key={item.label} onClick={() => handleStart(item.start)} disabled={loading}
-                    className="btn btn-ghost btn-lg btn-block disabled:opacity-50">
-                    <ItemIcon size={18} strokeWidth={2} /> {item.label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Training scenarios — ACLS only (scenarios.js is ACLS-specific) */}
-          {!IS_BLS && (
-            <button onClick={() => navigate('/scenarios')}
-              className="btn btn-purple btn-lg btn-block">
-              <Sparkles size={18} strokeWidth={2.4} /> Training Scenarios
-            </button>
-          )}
-
-          {/* BLS extras */}
-          {IS_BLS && (
             <button onClick={() => navigate('/skill-practice')}
               className="btn btn-ghost btn-lg btn-block">
               <HeartPulse size={18} strokeWidth={2} /> ฝึก CPR Metronome
             </button>
-          )}
-
-          {/* Quick links */}
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => navigate('/guide')}
-              className="btn btn-ghost btn-lg btn-block">
-              <BookOpen size={18} strokeWidth={2} /> คู่มือ
-            </button>
-            <button onClick={() => navigate('/feedback')}
-              className="btn btn-ghost btn-lg btn-block">
-              <MessageSquare size={18} strokeWidth={2} /> Feedback
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => navigate('/guide')}
+                className="btn btn-ghost btn-lg btn-block">
+                <BookOpen size={18} strokeWidth={2} /> คู่มือ
+              </button>
+              <button onClick={() => navigate('/feedback')}
+                className="btn btn-ghost btn-lg btn-block">
+                <MessageSquare size={18} strokeWidth={2} /> Feedback
+              </button>
+            </div>
           </div>
         </div>
       </div>
+    );
+  }
 
-      <BottomTabBar />
+  // ===== ACLS — new "wow" landing =====
+  return (
+    <div className="min-h-[100dvh] bg-bg-primary">
+      {showSplash && (
+        <ACLSSplash
+          onDismiss={() => { aclsSplashSeen = true; setShowSplash(false); }}
+        />
+      )}
+
+      <div className="page-container space-y-5 pb-28">
+        <ACLSHero isClinical={isClinical} />
+
+        {/* Resume active session — keeps the warning border accent */}
+        {activeSession && (
+          <div className="dash-card border-l-4 border-l-warning animate-slide-up"
+            style={{ boxShadow: 'var(--shadow-2)' }}>
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 inline-flex items-center justify-center bg-warning/15 text-warning shrink-0"
+                style={{ borderRadius: 'var(--radius)' }}>
+                <Play size={18} strokeWidth={2.4} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-overline text-warning">Active Case Found</div>
+                <div className="text-headline text-text-primary truncate mt-0.5">#{activeSession.currentCase?.id}</div>
+                <div className="text-caption text-text-muted">
+                  {activeSession.patient?.name || 'No patient info'} · {activeSession.events?.length || 0} events
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-3">
+              <button onClick={handleResume} className="flex-1 btn btn-warning">
+                <Play size={16} strokeWidth={2.4} /> Resume Case
+              </button>
+              <button onClick={handleDismissSession} className="btn btn-ghost">
+                Discard
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Primary emergency actions — full-width red + blue stacked */}
+        <div className="space-y-3 animate-slide-up">
+          <button onClick={() => handleStart('bls')} disabled={loading}
+            className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50">
+            <AlertTriangle size={20} strokeWidth={2.4} /> BLS — First Responder
+          </button>
+
+          <button onClick={() => handleStart('rrt')} disabled={loading}
+            className="btn btn-primary btn-xl btn-block disabled:opacity-50"
+            style={{ height: 'auto', paddingTop: 10, paddingBottom: 10 }}>
+            <Hospital size={20} strokeWidth={2.4} />
+            <span className="flex flex-col items-center leading-tight">
+              <span>CODE BLUE / CODE 8</span>
+              <span className="text-xs font-medium opacity-80 mt-0.5">MET / RRT Team</span>
+            </span>
+          </button>
+        </div>
+
+        {/* Quick-start templates — gradient tile grid */}
+        <div className="space-y-2">
+          <div className="text-overline text-text-muted px-1">เริ่มเร็วตาม pathway</div>
+          <ACLSQuickActions onStart={handleStart} disabled={loading} />
+        </div>
+
+        <button onClick={() => navigate('/scenarios')}
+          className="btn btn-purple btn-lg btn-block">
+          <Sparkles size={18} strokeWidth={2.4} /> Training Scenarios
+        </button>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => navigate('/guide')}
+            className="btn btn-ghost btn-lg btn-block">
+            <BookOpen size={18} strokeWidth={2} /> คู่มือ
+          </button>
+          <button onClick={() => navigate('/feedback')}
+            className="btn btn-ghost btn-lg btn-block">
+            <MessageSquare size={18} strokeWidth={2} /> Feedback
+          </button>
+        </div>
+
+        <div className="text-center text-text-muted text-[10px] font-mono opacity-60 pt-1">
+          v2.0.0 · ACLS EMR
+        </div>
+      </div>
     </div>
   );
 }

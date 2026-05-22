@@ -291,6 +291,28 @@ button, [role="button"] {
   animation: splash-ring 2.4s ease-out infinite;
 }
 
+/* ACLS splash variant — same motion, slightly warmer ring color. */
+.acls-splash-ring {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(255, 237, 213, 0.6);
+  animation: splash-ring 2.4s ease-out infinite;
+}
+
+/* EKG trace "draw-through" sweep — used on the ACLS splash + hero. The path
+   length 2000 is comfortably larger than any sane svg width, so the dash
+   simply sweeps across without needing a precise pathLength. */
+@keyframes acls-ekg-sweep {
+  0%   { stroke-dasharray: 0 2000; }
+  60%  { stroke-dasharray: 2000 0; }
+  100% { stroke-dasharray: 2000 0; opacity: 0.25; }
+}
+.acls-ekg path {
+  animation: acls-ekg-sweep 3.2s ease-out infinite;
+}
+
 /* ===== CARD ===== */
 .glass-card {
   background: var(--color-bg-secondary);
