@@ -77,7 +77,7 @@ const lessonDefs = [
       { type: 'read', heading: '5 องค์ประกอบของ High-Quality CPR',
         body: '1) อัตรา 100–120 ครั้ง/นาที\n2) ความลึก 5–6 ซม. (อย่างน้อย 1/3 ของ AP diameter)\n3) ปล่อยให้หน้าอกคืนตัวเต็มที่ (full recoil)\n4) ลดการหยุดกดหน้าอกให้น้อยที่สุด (CCF > 60%, เป้าหมาย 80%)\n5) ห้าม over-ventilation (หลังใส่ advanced airway: 1 ครั้งทุก 6 วินาที = 10 ครั้ง/นาที)' },
       { type: 'read', heading: '⚠ BLS-HCP: ต้องช่วยหายใจเสมอ',
-        body: 'Hand-only CPR (กดอย่างเดียว) เป็นทางเลือกสำหรับ lay rescuer เท่านั้น\n• BLS-HCP ต้องทำ 30:2 เมื่อยังไม่มี advanced airway\n• หลังใส่ ETT / SGA / LMA: continuous compressions + 1 ครั้งทุก 6 วินาที\n• ใช้ BVM หรือ pocket mask + O2 high flow\n• แต่ละ breath บีบ 1 วินาที พอเห็นหน้าอกขึ้น — อย่าบีบแรง/เร็ว' },
+        body: 'Hand-only CPR (กดอย่างเดียว) เป็นทางเลือกสำหรับ lay rescuer เท่านั้น\n• BLS-HCP ในโรงพยาบาลใช้ BVM (Ambu bag) + O₂ high flow เป็นหลัก — มีอุปกรณ์ครบ ใช้ได้เลย\n• Pocket mask / face shield = ทางเลือกสำรองกรณีไม่มี BVM หรือยังไม่ถึงตำแหน่ง\n• ไม่มี advanced airway → 30:2 (กด 30 ครั้ง บีบ Ambu 2 ครั้ง)\n• หลังใส่ ETT / SGA / LMA → continuous compressions + บีบ Ambu 1 ครั้งทุก 6 วินาที (10/min)\n• บีบ Ambu 1 วินาทีต่อครั้ง พอเห็นหน้าอกขึ้น — อย่าบีบแรง/เร็ว (กัน gastric inflation)' },
       { type: 'read', heading: 'ตำแหน่งและท่าทาง',
         body: '• วางส้นมือบนกลางหน้าอก ครึ่งล่างของกระดูก sternum\n• ประสานมือทั้งสอง แขนเหยียดตรง ไหล่อยู่เหนือมือ ใช้น้ำหนักตัวกด\n• ผู้ป่วยควรอยู่บนพื้นแข็ง (backboard ถ้าอยู่บนเตียงนุ่ม)' },
       { type: 'quiz', id: 'bls-2-q1',

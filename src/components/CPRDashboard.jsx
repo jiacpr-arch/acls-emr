@@ -252,7 +252,7 @@ export default function CPRDashboard({
       <div className="flex items-center justify-center gap-2">
         {[
           { id: 'hand_only', Icon: Hand, label: 'Hand-only' },
-          { id: 'bvm_30_2', Icon: Wind, label: 'BVM 30:2' },
+          { id: 'bvm_30_2', Icon: Wind, label: 'BVM (Ambu) 30:2' },
           { id: 'advanced', Icon: Wind, label: 'Advanced' },
         ].filter(m => !(IS_BLS && m.id === 'hand_only')).map(m => {
           const MIcon = m.Icon;
@@ -275,7 +275,7 @@ export default function CPRDashboard({
 
       {IS_BLS && (
         <div className="text-[10px] text-text-muted text-center -mt-1">
-          BLS-HCP ต้องช่วยหายใจ — ไม่ใช้ hand-only
+          BLS-HCP ในรพ. ใช้ BVM (Ambu bag) + O₂ เป็นหลัก — ไม่ใช้ hand-only
         </div>
       )}
 
