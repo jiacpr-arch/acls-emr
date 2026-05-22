@@ -41,6 +41,7 @@ const lessonVideos = {
   ],
   'bls-7': [
     { platform: 'youtube', label: 'ผู้ใหญ่ (YouTube)', url: 'https://youtu.be/t3WnWOOVh2c' },
+    { platform: 'youtube', label: 'เด็ก (YouTube)', url: 'https://youtu.be/pCgxwQUzph0' },
   ],
 };
 
