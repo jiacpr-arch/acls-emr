@@ -84,7 +84,7 @@ export default function BLSProgressCard({
               <UserCheck size={15} strokeWidth={2.4} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-bold text-text-primary truncate">
+              <div className="text-[15px] font-bold text-text-primary truncate">
                 {activeStudent.name}
               </div>
               <div className="text-[10px] text-text-muted font-mono">
@@ -108,7 +108,7 @@ export default function BLSProgressCard({
               <User size={15} strokeWidth={2.4} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-bold text-text-primary">
+              <div className="text-[15px] font-bold text-text-primary">
                 ยังไม่ได้ระบุตัวผู้เรียน
               </div>
               <div className="text-[10px] text-text-muted">
