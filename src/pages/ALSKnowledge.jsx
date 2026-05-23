@@ -7,8 +7,34 @@ import QASection from '../components/QASection';
 import {
   GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock, Activity, Check, X, RotateCcw,
-  ArrowRight,
+  ArrowRight, Heart, HeartPulse, Brain, Stethoscope, Shield, ShieldCheck,
+  Users, Wind, Zap, Pill,
 } from 'lucide-react';
+
+/* === Per-chapter visual theme: icon + gradient + accent ===
+   Keyed by chapter id (ch1..ch13) with title-based fallback. */
+const CHAPTER_THEMES = {
+  ch1:  { Icon: HeartPulse,   from: '#3B82F6', to: '#2563EB', accent: '#2563EB' }, // Overview / Chain of Survival
+  ch2:  { Icon: Stethoscope,  from: '#06B6D4', to: '#0891B2', accent: '#0891B2' }, // Systematic assessment
+  ch3:  { Icon: ShieldCheck,  from: '#A78BFA', to: '#7C3AED', accent: '#7C3AED' }, // Prevention / RRT / Code Blue
+  ch4:  { Icon: HeartPulse,   from: '#F87171', to: '#DC2626', accent: '#DC2626' }, // ACS
+  ch5:  { Icon: Brain,        from: '#C084FC', to: '#9333EA', accent: '#9333EA' }, // Stroke
+  ch6:  { Icon: Activity,     from: '#FBBF24', to: '#D97706', accent: '#D97706' }, // Bradycardia
+  ch7:  { Icon: Zap,          from: '#FB923C', to: '#EA580C', accent: '#EA580C' }, // Tachycardia
+  ch8:  { Icon: Users,        from: '#34D399', to: '#059669', accent: '#059669' }, // High-perf team / CPR Coach
+  ch9:  { Icon: Wind,         from: '#60A5FA', to: '#2563EB', accent: '#2563EB' }, // Airway
+  ch10: { Icon: Zap,          from: '#F87171', to: '#B91C1C', accent: '#B91C1C' }, // VF/pVT
+  ch11: { Icon: AlertCircle,  from: '#94A3B8', to: '#475569', accent: '#475569' }, // PEA/Asystole
+  ch12: { Icon: Heart,        from: '#34D399', to: '#047857', accent: '#047857' }, // Post-arrest
+  ch13: { Icon: Pill,         from: '#A78BFA', to: '#6D28D9', accent: '#6D28D9' }, // Pharmacology
+};
+const DEFAULT_THEME = { Icon: BookOpen, from: '#94A3B8', to: '#475569', accent: '#475569' };
+
+function themeForChapter(ch, index) {
+  if (CHAPTER_THEMES[ch.id]) return CHAPTER_THEMES[ch.id];
+  const byNum = CHAPTER_THEMES[`ch${index + 1}`];
+  return byNum || DEFAULT_THEME;
+}
 
 const STORAGE_KEY = 'als_tips_history';
 const CACHE_KEY = 'als_tip_today';
@@ -186,25 +212,51 @@ export default function ALSKnowledge() {
             </div>
             <ArrowRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
           </Link>
-          {alsChapters.map(ch => {
+          {alsChapters.map((ch, idx) => {
             const isOpen = openCh === ch.id;
+            const theme = themeForChapter(ch, idx);
+            const { Icon } = theme;
+            const chapterNum = String(idx + 1).padStart(2, '0');
+            const cleanTitle = ch.title.replace(/^บทที่\s*\d+\s*:?\s*/u, '').trim() || ch.title;
             return (
               <div
                 key={ch.id}
-                className={`dash-card !p-0 overflow-hidden transition-colors ${isOpen ? 'border-l-4 border-l-danger bg-danger/[0.03]' : ''}`}
+                className={`chapter-card ${isOpen ? 'is-open' : ''}`}
+                style={isOpen ? { borderColor: `${theme.accent}55` } : undefined}
               >
-                <button onClick={() => setOpenCh(isOpen ? null : ch.id)}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-bg-tertiary/50 active:bg-bg-tertiary transition-colors">
-                  <div className="w-11 h-11 inline-flex items-center justify-center bg-danger/12 text-danger shrink-0"
-                    style={{ borderRadius: 'var(--radius-md)' }}>
-                    <BookOpen size={20} strokeWidth={2.2} />
+                <span
+                  className="chapter-card-stripe"
+                  style={{ background: `linear-gradient(180deg, ${theme.from} 0%, ${theme.to} 100%)` }}
+                />
+                <button
+                  onClick={() => setOpenCh(isOpen ? null : ch.id)}
+                  className="chapter-card-button"
+                >
+                  <div
+                    className="chapter-icon-tile"
+                    style={{ background: `linear-gradient(135deg, ${theme.from} 0%, ${theme.to} 100%)` }}
+                  >
+                    <Icon size={24} strokeWidth={2.2} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-headline text-text-primary block">{ch.title}</span>
-                    <span className="text-caption text-text-muted">{ch.sections.length} หัวข้อ</span>
+                    <div className="chapter-num-tag" style={{ color: theme.accent }}>
+                      บทที่ {chapterNum}
+                    </div>
+                    <span className="chapter-title">{cleanTitle}</span>
+                    <span
+                      className="chapter-meta-pill"
+                      style={{
+                        background: `${theme.accent}18`,
+                        color: theme.accent,
+                      }}
+                    >
+                      <BookOpen size={11} strokeWidth={2.4} />
+                      {ch.sections.length} หัวข้อ
+                    </span>
                   </div>
-                  <ChevronDown size={20} strokeWidth={2.2}
-                    className={`shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-danger' : 'text-text-muted'}`} />
+                  <span className="chapter-chevron">
+                    <ChevronDown size={16} strokeWidth={2.4} />
+                  </span>
                 </button>
                 {isOpen && (
                   <div className="px-3 pb-4 pt-3 space-y-3 animate-slide-up bg-bg-tertiary/30 border-t border-border">
