@@ -83,9 +83,9 @@ export const alsChapters = [
     id: 'ch8', title: 'บทที่ 8: การดูแลหลังกู้ชีพ',
     icon: '🌡️',
     sections: [
-      { heading: 'Post-ROSC Targets', body: 'SpO2 92-98% (ไม่ให้ O2 มากเกิน), MAP ≥65 mmHg, EtCO2 35-45, Glucose 140-180 mg/dL, Temperature 32-36°C (TTM) อย่างน้อย 24 ชม.' },
-      { heading: 'Targeted Temperature Management', body: 'เป้าหมาย 32-36°C ต่อเนื่อง 24 ชม. ป้องกันสมองบวม — ใช้ cooling blanket / IV cold saline — ให้ยา sedation ระหว่างทำ — rewarming ช้าๆ 0.25-0.5°C/hr' },
-      { heading: 'Neuroprognostication', body: 'ประเมินสมองหลัง 72 ชม. ขึ้นไป — ใช้หลายวิธีร่วมกัน: clinical exam, EEG, CT/MRI, NSE, SSEP — อย่าตัดสินเร็วเกินไป' },
+      { heading: 'Post-ROSC Targets', body: 'SpO2 90-98% (avoid hypoxia + hyperoxia), PaCO2 35-45, MAP ≥65 mmHg (hard target — Norepinephrine first-line), Glucose 70-180 mg/dL, Temperature Control 32–37.5°C อย่างน้อย 36 ชม.' },
+      { heading: 'Temperature Control (เปลี่ยนชื่อจาก TTM)', body: 'เป้าหมายอุณหภูมิ 32–37.5°C ต่อเนื่อง ≥ 36 ชม. — ครอบคลุมทั้ง hypothermic, normothermic และการป้องกันไข้ — ใช้ cooling blanket / intravascular; หลีกเลี่ยง prehospital cold IV fluid (เพิ่มความเสี่ยง pulmonary edema, re-arrest) — sedation ขณะ shivering — rewarming ช้าๆ 0.25-0.5°C/hr' },
+      { heading: 'Neuroprognostication', body: 'เลื่อนอย่างน้อย 72 ชม. หลัง return to normothermia + หยุด sedation/paralytic — ใช้ multimodal: clinical exam, EEG, CT/MRI, NSE, SSEP — อย่าตัดสินเร็วเกินไป' },
     ],
   },
   {

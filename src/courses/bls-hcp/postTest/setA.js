@@ -34,12 +34,12 @@ export const setA = {
       ],
       correctId: 'c', explanation: 'ผู้ใหญ่: อย่างน้อย 5 ซม. ไม่เกิน 6 ซม. (เกณฑ์ 1/3 AP diameter ใช้สำหรับเด็ก/ทารก)' },
     { id: 'bls-a-4', topic: 'high-quality-cpr',
-      question: 'Chest Compression Fraction (CCF) ควร ≥ เท่าไร?',
+      question: 'Chest Compression Fraction (CCF) เป้าหมายตามแนวทาง 2025 คือเท่าไร?',
       choices: [
-        { id: 'a', text: '40%' }, { id: 'b', text: '60%' },
-        { id: 'c', text: '80%' }, { id: 'd', text: '100%' },
+        { id: 'a', text: '> 40%' }, { id: 'b', text: '> 60%' },
+        { id: 'c', text: '> 80%' }, { id: 'd', text: '100%' },
       ],
-      correctId: 'b', explanation: 'CCF ≥ 60% (เป้า 80%)' },
+      correctId: 'c', explanation: 'แนวทาง 2025: CCF > 80% เป็น quality benchmark — สัมพันธ์กับ ROSC และ survival' },
     { id: 'bls-a-5', topic: 'high-quality-cpr',
       question: 'ทำไมต้องปล่อยให้หน้าอกคืนตัวเต็มที่ (full recoil)?',
       choices: [
@@ -50,12 +50,12 @@ export const setA = {
       ],
       correctId: 'b', explanation: 'Incomplete recoil ลด venous return → ลด cardiac output' },
     { id: 'bls-a-6', topic: 'high-quality-cpr',
-      question: 'ตามแนวทาง AHA/ILCOR ทุกการหยุดกดหน้าอก (interruption) ไม่ควรเกินกี่วินาที?',
+      question: 'ตามแนวทาง 2025 ทุกการหยุดกดหน้าอก (interruption) ไม่ควรเกินกี่วินาที?',
       choices: [
         { id: 'a', text: '5 วินาที' }, { id: 'b', text: '10 วินาที' },
         { id: 'c', text: '20 วินาที' }, { id: 'd', text: '30 วินาที' },
       ],
-      correctId: 'b', explanation: 'AHA/ILCOR: limit interruption ทุกประเภท < 10 วินาที (เป้าฝึกสลับคน < 5 วินาที แต่ formal limit = 10 วินาที)' },
+      correctId: 'b', explanation: 'แนวทาง 2025: limit interruption ทุกประเภท < 10 วินาที (เป้าฝึกสลับคน < 5 วินาที แต่ formal limit = 10 วินาที)' },
 
     // ---- AED (3) ----
     { id: 'bls-a-7', topic: 'aed',

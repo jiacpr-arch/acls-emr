@@ -180,18 +180,18 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
         )}
       </div>
 
-      {/* TTM */}
+      {/* Temperature Control */}
       <div className="glass-card !p-3 text-left space-y-0.5">
-        <SectionHeader emoji="🌡️" title="TTM (Targeted Temperature Management)" done={sectionCounts.ttm} total={2} />
-        <Check id="ttm_assess" label="Assess: follows commands?" sub="If NO command → start TTM 32-36°C x ≥24hr" />
-        <Check id="ttm_start" label="TTM initiated / not indicated" sub="Surface cooling / intravascular / Cold NSS 4°C" />
+        <SectionHeader emoji="🌡️" title="Temperature Control" done={sectionCounts.ttm} total={2} />
+        <Check id="ttm_assess" label="Assess: follows commands?" sub="If NO command → Temperature Control 32–37.5°C x ≥36hr" />
+        <Check id="ttm_start" label="Temperature Control initiated / not indicated" sub="Surface cooling / intravascular; avoid prehospital cold IV fluid" />
       </div>
 
       {/* Labs */}
       <div className="glass-card !p-3 text-left space-y-0.5">
         <SectionHeader emoji="🔬" title="Labs & Glucose" done={sectionCounts.labs} total={2} />
         <Check id="labs_order" label="Labs: CBC, BMP, Mg, Ca, Troponin, Lactate, ABG, Coag" />
-        <Check id="glucose_ctrl" label="Glucose 140-180 mg/dL" sub="⚠️ <140 avoid hypoglycemia | >180 insulin" />
+        <Check id="glucose_ctrl" label="Glucose 70–180 mg/dL" sub="Normoglycemia — avoid both hypo- and hyperglycemia" />
       </div>
 
       {/* Neurological */}
@@ -205,13 +205,13 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
             className={`py-2.5 rounded-lg text-xs font-bold ${followCommand === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
             ✅ Yes — follows command
           </button>
-          <button onClick={() => { setFollowCommand(false); toggleCheck('follow_cmd', 'Follow Command: NO → TTM'); }}
+          <button onClick={() => { setFollowCommand(false); toggleCheck('follow_cmd', 'Follow Command: NO → Temperature Control'); }}
             className={`py-2.5 rounded-lg text-xs font-bold ${followCommand === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
-            ❌ No — consider TTM
+            ❌ No — consider Temp Control
           </button>
         </div>
         {followCommand === false && (
-          <div className="text-xs text-warning font-bold mt-1">⚠️ No command → Start TTM 32-36°C ≥24hr</div>
+          <div className="text-xs text-warning font-bold mt-1">⚠️ No command → Start Temperature Control 32–37.5°C × ≥36hr</div>
         )}
 
         <Check id="seizure_check" label="Seizure assessment" sub="If seizure → Levetiracetam 20mg/kg IV" />
