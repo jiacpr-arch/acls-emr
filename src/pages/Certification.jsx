@@ -12,6 +12,7 @@ import {
   Check, Circle, ClipboardCheck, Download,
 } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 const CERT_KEY = `${courseMeta.id}_certification`;
 
@@ -127,6 +128,8 @@ export default function Certification() {
           <p className="text-caption text-text-muted">Track your {courseMeta.shortName} training progress</p>
         </div>
       </div>
+
+      {!IS_BLS && <JiacprCourseBanner />}
 
       <MorrooAdCard />
 

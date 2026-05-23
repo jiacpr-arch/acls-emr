@@ -8,6 +8,7 @@ import ACLSSplash from '../components/newcase/ACLSSplash';
 import ACLSHero from '../components/newcase/ACLSHero';
 import ACLSQuickActions from '../components/newcase/ACLSQuickActions';
 import MorrooAdCard from '../components/MorrooAdCard';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   HeartPulse, AlertTriangle, Hospital,
   Sparkles, BookOpen, MessageSquare, Play,
@@ -197,6 +198,8 @@ export default function NewCase() {
             <MessageSquare size={18} strokeWidth={2} /> Feedback
           </button>
         </div>
+
+        <JiacprCourseBanner />
 
         <MorrooAdCard />
 
