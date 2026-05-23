@@ -119,7 +119,10 @@ export default function BLSSkillPractice() {
   const cycleDue = elapsed > 0 && elapsed % CYCLE_TARGET_SEC === 0;
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary pb-24">
+    <div
+      className="min-h-screen bg-bg-primary text-text-primary"
+      style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}
+    >
       {/* Header */}
       <div className="sticky top-0 z-10 bg-bg-primary/90 backdrop-blur border-b border-bg-tertiary">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -213,6 +216,35 @@ export default function BLSSkillPractice() {
           </div>
         </div>
 
+        {/* Controls — placed above the big tap button so Start is immediately visible */}
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            onClick={() => setRunning(r => !r)}
+            className={`py-4 font-semibold inline-flex items-center justify-center gap-2 ${
+              running ? 'bg-warning text-white' : 'bg-success text-white'
+            }`}
+            style={{ borderRadius: 'var(--radius-xl)' }}
+          >
+            {running ? <><Pause size={18} /> หยุด</> : <><Play size={18} /> เริ่ม</>}
+          </button>
+          <button
+            onClick={() => setMetronomeOn(m => !m)}
+            className={`py-4 font-semibold ${
+              metronomeOn ? 'bg-info text-white' : 'bg-bg-tertiary text-text-secondary'
+            }`}
+            style={{ borderRadius: 'var(--radius-xl)' }}
+          >
+            🔊 {metronomeOn ? 'ปิดเสียง' : 'เปิดเสียง'}
+          </button>
+          <button
+            onClick={handleReset}
+            className="py-4 font-semibold bg-bg-tertiary text-text-secondary inline-flex items-center justify-center gap-2"
+            style={{ borderRadius: 'var(--radius-xl)' }}
+          >
+            <RotateCcw size={18} /> รีเซ็ต
+          </button>
+        </div>
+
         {/* Big tap button */}
         <button
           onClick={handleTap}
@@ -245,35 +277,6 @@ export default function BLSSkillPractice() {
             <span>{RATE_LOW}</span>
             <span>{RATE_HIGH}</span>
           </div>
-        </div>
-
-        {/* Controls */}
-        <div className="grid grid-cols-3 gap-3">
-          <button
-            onClick={() => setRunning(r => !r)}
-            className={`py-4 font-semibold inline-flex items-center justify-center gap-2 ${
-              running ? 'bg-warning text-white' : 'bg-success text-white'
-            }`}
-            style={{ borderRadius: 'var(--radius-xl)' }}
-          >
-            {running ? <><Pause size={18} /> หยุด</> : <><Play size={18} /> เริ่ม</>}
-          </button>
-          <button
-            onClick={() => setMetronomeOn(m => !m)}
-            className={`py-4 font-semibold ${
-              metronomeOn ? 'bg-info text-white' : 'bg-bg-tertiary text-text-secondary'
-            }`}
-            style={{ borderRadius: 'var(--radius-xl)' }}
-          >
-            🔊 {metronomeOn ? 'ปิดเสียง' : 'เปิดเสียง'}
-          </button>
-          <button
-            onClick={handleReset}
-            className="py-4 font-semibold bg-bg-tertiary text-text-secondary inline-flex items-center justify-center gap-2"
-            style={{ borderRadius: 'var(--radius-xl)' }}
-          >
-            <RotateCcw size={18} /> รีเซ็ต
-          </button>
         </div>
       </div>
     </div>
