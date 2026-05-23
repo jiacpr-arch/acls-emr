@@ -79,7 +79,7 @@ export const rhythms = [
     id: "rosc", name: "ROSC", abbreviation: "ROSC",
     shockable: false, category: "post_arrest",
     ecgDescription: "Organized rhythm WITH pulse and BP.",
-    actions: ["SpO2 92-98%, EtCO2 35-45", "MAP ≥65 mmHg", "12-Lead ECG → STEMI?", "TTM 32-36°C ≥24hr", "Glucose 140-180"]
+    actions: ["SpO2 90-98%, PaCO2 35-45", "MAP ≥65 mmHg (NE first-line)", "12-Lead ECG → STEMI?", "Temp Control 32–37.5°C ≥36hr", "Glucose 70-180"]
   }
 ];
 

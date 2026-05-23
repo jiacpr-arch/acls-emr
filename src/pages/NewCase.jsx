@@ -55,7 +55,10 @@ export default function NewCase() {
   // ===== BLS still uses the legacy centered layout =====
   if (IS_BLS) {
     return (
-      <div className="min-h-[100dvh] flex flex-col bg-bg-primary">
+      <div
+        className="min-h-[100dvh] flex flex-col bg-bg-primary"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 pb-28">
           <div className="text-center mb-8 animate-fade-in">
             <div
@@ -117,7 +120,10 @@ export default function NewCase() {
         />
       )}
 
-      <div className="page-container space-y-8 pb-28">
+      <div
+        className="page-container space-y-10 pb-28"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+      >
         <ACLSHero isClinical={isClinical} />
 
         {/* Resume active session — keeps the warning border accent */}
@@ -149,7 +155,7 @@ export default function NewCase() {
         )}
 
         {/* Primary emergency actions — full-width red + blue stacked */}
-        <div className="space-y-6">
+        <div className="space-y-7">
           <button onClick={() => handleStart('bls')} disabled={loading}
             className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50"
             style={{ height: 'auto', paddingTop: 20, paddingBottom: 20, fontSize: 19 }}>

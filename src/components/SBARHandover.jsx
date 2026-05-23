@@ -41,7 +41,7 @@ export default function SBARHandover({ onClose }) {
   ].filter(Boolean).join(' ');
 
   const recommendation = outcome === 'ROSC'
-    ? 'Post-ROSC care: target SpO₂ 92-98%, MAP ≥65, 12-Lead ECG (STEMI?), TTM if no command, serial labs.'
+    ? 'Post-ROSC care: SpO₂ 90-98%, PaCO₂ 35-45, MAP ≥65 (Norepinephrine first-line), 12-Lead ECG (STEMI?), Temperature Control 32–37.5°C if no command, glucose 70–180, serial labs.'
     : outcome === 'ongoing'
     ? 'Continue ACLS. Consider reversible causes (H\'s & T\'s). Reassess rhythm q2min.'
     : 'Case terminated. Documentation complete. Family notified.';

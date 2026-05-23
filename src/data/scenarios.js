@@ -276,7 +276,7 @@ export const scenarios = [
         trigger: 'after_rosc',
         scenario_th: 'ROSC แล้ว\nBP 85/55 HR 110 SpO₂ 94%\nไม่รู้สึกตัว GCS 3\nPost-ROSC care: ต้องทำอะไรบ้าง?',
         correctActions: ['post_rosc_checklist'],
-        hint_th: 'Post-ROSC: Airway + O₂ 92-98% + MAP≥65 + 12-Lead ECG + TTM + Labs',
+        hint_th: 'Post-ROSC: Airway + SpO₂ 90-98% + PaCO₂ 35-45 + MAP≥65 (NE first-line) + 12-Lead ECG + Temp Control 32–37.5°C × ≥36hr + Glucose 70-180 + Labs',
       },
     ],
   },
