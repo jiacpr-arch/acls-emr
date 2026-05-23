@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, Search } from 'lucide-react';
+import { Sparkles, ArrowRight, Search, Shuffle } from 'lucide-react';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 
 export default function QAAclsDeep() {
@@ -9,6 +9,7 @@ export default function QAAclsDeep() {
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
+  const [shuffleSeed, setShuffleSeed] = useState(() => Math.random());
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +43,27 @@ export default function QAAclsDeep() {
     return chapters.filter(c => (c.title || '').toLowerCase().includes(q));
   }, [chapters, query]);
 
+  // Pick a random Q&A that has an infographic to feature at the top.
+  const featured = useMemo(() => {
+    const withImage = items.filter(it => it.cover || (it.infographics && it.infographics.length > 0));
+    if (!withImage.length) return null;
+    const idx = Math.floor(shuffleSeed * withImage.length) % withImage.length;
+    return withImage[idx];
+  }, [items, shuffleSeed]);
+
+  const featuredImage = featured
+    ? (featured.cover || featured.infographics?.[0] || null)
+    : null;
+
+  const featuredChapter = useMemo(() => {
+    if (!featured?.chapterId) return null;
+    return chapters.find(c => c.id === featured.chapterId) || null;
+  }, [featured, chapters]);
+
+  const featuredHref = featured
+    ? `/qa-acls-deep/${encodeURIComponent(featured.chapterId || '_uncategorized')}`
+    : null;
+
   return (
     <div className="page-container space-y-4">
       <div className="text-center space-y-2">
@@ -70,6 +92,60 @@ export default function QAAclsDeep() {
         )}
       </div>
 
+      {!loading && featured && featuredImage && (
+        <Link
+          to={featuredHref}
+          className="block overflow-hidden border border-border bg-bg-secondary hover:bg-bg-tertiary/50 transition-colors"
+          style={{ borderRadius: 'var(--radius-xl)' }}
+        >
+          <div className="flex items-center justify-between gap-2 px-3 pt-2.5 pb-1">
+            <div className="inline-flex items-center gap-1.5">
+              <Sparkles size={12} strokeWidth={2.4} className="text-info" />
+              <span className="text-[10px] uppercase tracking-wider text-info font-bold">
+                สุ่มแนะนำวันนี้
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); setShuffleSeed(Math.random()); }}
+              className="inline-flex items-center gap-1 text-[10px] text-text-muted hover:text-text-primary"
+            >
+              <Shuffle size={11} strokeWidth={2.2} />
+              สุ่มใหม่
+            </button>
+          </div>
+          <figure className="m-0">
+            <img
+              src={featuredImage.src}
+              alt={featuredImage.alt || featured.question}
+              loading="eager"
+              className="w-full h-auto block"
+            />
+            {featuredImage.caption && (
+              <figcaption className="text-[11px] text-text-muted px-3 pt-1.5 leading-relaxed">
+                {featuredImage.caption}
+              </figcaption>
+            )}
+          </figure>
+          <div className="px-3 py-2.5 space-y-1.5">
+            <div className="text-body-strong font-bold text-text-primary leading-snug">
+              {featured.question}
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] text-text-muted truncate">
+                {featuredChapter
+                  ? `${featuredChapter.icon || '📘'} ${featuredChapter.title}`
+                  : 'ยังไม่จัดหมวด'}
+              </span>
+              <span className="inline-flex items-center gap-1 text-[11px] text-info font-bold shrink-0">
+                อ่านคำตอบเต็ม
+                <ArrowRight size={12} strokeWidth={2.4} />
+              </span>
+            </div>
+          </div>
+        </Link>
+      )}
+
       <div className="relative">
         <Search size={14} strokeWidth={2.2}
           className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
@@ -87,6 +163,11 @@ export default function QAAclsDeep() {
         <div className="text-center text-caption text-text-muted py-8">กำลังโหลด…</div>
       ) : (
         <div className="space-y-2">
+          {featured && !query.trim() && (
+            <div className="text-[11px] uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
+              อ่านเรื่องอื่นๆ ต่อ
+            </div>
+          )}
           {filteredChapters.map(ch => {
             const n = counts.byChapter.get(ch.id) ?? 0;
             return (
