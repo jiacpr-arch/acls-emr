@@ -19,6 +19,7 @@ import UserGuide from './pages/UserGuide';
 import Feedback from './pages/Feedback';
 import ALSKnowledge from './pages/ALSKnowledge';
 import QAAclsDeep from './pages/QAAclsDeep';
+import QAAclsDeepCategory from './pages/QAAclsDeepCategory';
 import CodeBlueSim from './pages/CodeBlueSim';
 import PreCourse from './pages/PreCourse';
 import Learn from './pages/Learn';
@@ -103,6 +104,7 @@ function App() {
         {IS_ACLS && <Route path="/compare" element={<CaseCompare />} />}
         {IS_ACLS && <Route path="/als" element={<ALSKnowledge />} />}
         {IS_ACLS && <Route path="/qa-acls-deep" element={<QAAclsDeep />} />}
+        {IS_ACLS && <Route path="/qa-acls-deep/:chapterId" element={<QAAclsDeepCategory />} />}
         {IS_ACLS && <Route path="/sim" element={<CodeBlueSim />} />}
         {IS_ACLS && (
           <Route

@@ -185,6 +185,26 @@ export default function NewCase() {
           <Sparkles size={20} strokeWidth={2.4} /> Training Scenarios
         </button>
 
+        <button onClick={() => navigate('/qa-acls-deep')}
+          className="btn btn-block text-white"
+          style={{
+            height: 'auto',
+            paddingTop: 18,
+            paddingBottom: 18,
+            fontSize: 16,
+            borderRadius: 'var(--radius-lg)',
+            background: 'linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%)',
+            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)',
+          }}>
+          <BookOpen size={20} strokeWidth={2.4} />
+          <span className="flex flex-col items-center leading-tight">
+            <span>Q&A ACLS เชิงลึก</span>
+            <span className="text-[12px] font-medium opacity-85 mt-0.5">
+              13 หมวด พร้อม infographic
+            </span>
+          </span>
+        </button>
+
         <div className="grid grid-cols-2 gap-6 pt-2">
           <button onClick={() => navigate('/guide')}
             className="btn btn-ghost btn-block"
