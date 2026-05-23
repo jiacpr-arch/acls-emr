@@ -122,7 +122,7 @@ export default function NewCase() {
       )}
 
       <div
-        className="page-container space-y-10 pb-28"
+        className="page-container space-y-14 pb-28"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
         <ACLSHero isClinical={isClinical} />
@@ -156,7 +156,7 @@ export default function NewCase() {
         )}
 
         {/* Primary emergency actions — full-width red + blue stacked */}
-        <div className="space-y-7">
+        <div className="space-y-10">
           <button onClick={() => handleStart('bls')} disabled={loading}
             className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50"
             style={{ height: 'auto', paddingTop: 20, paddingBottom: 20, fontSize: 19 }}>
