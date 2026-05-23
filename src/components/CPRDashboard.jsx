@@ -249,7 +249,7 @@ export default function CPRDashboard({
       )}
 
       {/* CPR mode segmented control */}
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2 flex-wrap">
         {[
           { id: 'hand_only', Icon: Hand, label: 'Hand-only' },
           { id: 'bvm_30_2', Icon: Wind, label: 'BVM (Ambu) 30:2' },
@@ -264,10 +264,10 @@ export default function CPRDashboard({
                 type: `CPR Mode: ${m.id === 'hand_only' ? 'Hand-only' : m.id === 'bvm_30_2' ? 'BVM 30:2' : 'Advanced Airway (continuous)'}`,
                 details: { cprMode: m.id }
               });
-            }} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold transition-colors ${
+            }} className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] text-[13px] font-bold transition-colors ${
               active ? 'bg-info text-white' : 'bg-bg-secondary border border-border text-text-muted hover:bg-bg-tertiary'
             }`} style={{ borderRadius: 'var(--radius-sm)' }}>
-              <MIcon size={12} strokeWidth={2.2} /> {m.label}
+              <MIcon size={16} strokeWidth={2.2} /> {m.label}
             </button>
           );
         })}
