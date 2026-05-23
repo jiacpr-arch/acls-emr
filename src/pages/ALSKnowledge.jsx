@@ -165,43 +165,46 @@ export default function ALSKnowledge() {
       </div>
 
       {tab === 'book' && (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <Link
             to="/qa-acls-deep"
-            className="dash-card !p-0 overflow-hidden flex items-center gap-3 px-4 py-3.5 hover:bg-bg-tertiary/50 transition-colors border-l-4 border-l-info"
+            className="dash-card !p-0 overflow-hidden flex items-center gap-3 px-4 py-4 hover:bg-bg-tertiary/50 active:bg-bg-tertiary transition-colors border-l-4 border-l-info"
           >
             <div
-              className="w-9 h-9 inline-flex items-center justify-center bg-info/15 text-info shrink-0"
-              style={{ borderRadius: 'var(--radius-sm)' }}
+              className="w-11 h-11 inline-flex items-center justify-center bg-info/15 text-info shrink-0"
+              style={{ borderRadius: 'var(--radius-md)' }}
             >
-              <Sparkles size={16} strokeWidth={2.2} />
+              <Sparkles size={20} strokeWidth={2.2} />
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-body-strong text-text-primary block truncate">
+              <span className="text-headline text-text-primary block">
                 Q&A ACLS เชิงลึก
               </span>
-              <span className="text-[11px] text-text-muted">
+              <span className="text-caption text-text-muted">
                 คำถาม-คำตอบเชิงลึก พร้อม infographic
               </span>
             </div>
-            <ArrowRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />
+            <ArrowRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
           </Link>
           {alsChapters.map(ch => {
             const isOpen = openCh === ch.id;
             return (
-              <div key={ch.id} className="dash-card !p-0 overflow-hidden">
+              <div
+                key={ch.id}
+                className={`dash-card !p-0 overflow-hidden transition-colors ${isOpen ? 'border-l-4 border-l-danger bg-danger/[0.03]' : ''}`}
+              >
                 <button onClick={() => setOpenCh(isOpen ? null : ch.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-bg-tertiary/50 transition-colors">
-                  <div className="w-9 h-9 inline-flex items-center justify-center bg-danger/12 text-danger shrink-0"
-                    style={{ borderRadius: 'var(--radius-sm)' }}>
-                    <BookOpen size={16} strokeWidth={2.2} />
+                  className="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-bg-tertiary/50 active:bg-bg-tertiary transition-colors">
+                  <div className="w-11 h-11 inline-flex items-center justify-center bg-danger/12 text-danger shrink-0"
+                    style={{ borderRadius: 'var(--radius-md)' }}>
+                    <BookOpen size={20} strokeWidth={2.2} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-body-strong text-text-primary block truncate">{ch.title}</span>
-                    <span className="text-[11px] text-text-muted">{ch.sections.length} หัวข้อ</span>
+                    <span className="text-headline text-text-primary block">{ch.title}</span>
+                    <span className="text-caption text-text-muted">{ch.sections.length} หัวข้อ</span>
                   </div>
-                  <ChevronDown size={16} strokeWidth={2.2}
-                    className={`text-text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={20} strokeWidth={2.2}
+                    className={`shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-danger' : 'text-text-muted'}`} />
                 </button>
                 {isOpen && (
                   <div className="px-3 pb-4 pt-3 space-y-3 animate-slide-up bg-bg-tertiary/30 border-t border-border">
