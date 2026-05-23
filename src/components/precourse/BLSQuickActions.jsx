@@ -51,7 +51,7 @@ export default function BLSQuickActions({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 gap-4">
       {tiles.map((t) => {
         const Icon = t.Icon;
         return (
