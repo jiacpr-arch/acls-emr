@@ -51,7 +51,7 @@ export async function uploadPageCover(file) {
 export async function listQaItemsFull() {
   const { data: items, error } = await supabase
     .from('acls_qa_deep_items')
-    .select('id, question, answer, sort_order, updated_at')
+    .select('id, chapter_id, question, answer, sort_order, updated_at')
     .order('sort_order');
   if (error) throw error;
   if (!items.length) return [];
@@ -76,7 +76,16 @@ export async function listQaItemsFull() {
   }));
 }
 
-export async function createQaItem() {
+export async function listChapters() {
+  const { data, error } = await supabase
+    .from('acls_chapters')
+    .select('id, title, icon, sort_order')
+    .order('sort_order');
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function createQaItem(chapterId) {
   const { data: existing, error: countErr } = await supabase
     .from('acls_qa_deep_items')
     .select('sort_order')
@@ -87,7 +96,7 @@ export async function createQaItem() {
 
   const { data, error } = await supabase
     .from('acls_qa_deep_items')
-    .insert({ sort_order: nextOrder, question: '', answer: '' })
+    .insert({ sort_order: nextOrder, question: '', answer: '', chapter_id: chapterId || null })
     .select()
     .single();
   if (error) throw error;

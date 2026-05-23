@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Upload, Trash2, Image as ImageIcon, ChevronUp, ChevronDown,
-  Save, HelpCircle,
+  Save, HelpCircle, Layers,
 } from 'lucide-react';
 import {
   updateQaItem,
@@ -12,22 +12,31 @@ import {
   deleteItemImage,
 } from '../../services/qaDeepAdminService';
 
-export default function QADeepItemEditor({ item, allItems, onChange }) {
+export default function QADeepItemEditor({ item, allItems, chapters, onChange }) {
   const [question, setQuestion] = useState(item.question || '');
   const [answer, setAnswer] = useState(item.answer || '');
+  const [chapterId, setChapterId] = useState(item.chapter_id || '');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setQuestion(item.question || '');
     setAnswer(item.answer || '');
-  }, [item.id, item.question, item.answer]);
+    setChapterId(item.chapter_id || '');
+  }, [item.id, item.question, item.answer, item.chapter_id]);
 
-  const dirty = question !== (item.question || '') || answer !== (item.answer || '');
+  const dirty =
+    question !== (item.question || '') ||
+    answer !== (item.answer || '') ||
+    chapterId !== (item.chapter_id || '');
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateQaItem(item.id, { question, answer });
+      await updateQaItem(item.id, {
+        question,
+        answer,
+        chapter_id: chapterId || null,
+      });
       onChange?.();
     } catch (err) {
       alert('บันทึกไม่สำเร็จ: ' + (err?.message || err));
@@ -78,6 +87,25 @@ export default function QADeepItemEditor({ item, allItems, onChange }) {
       </div>
 
       <label className="block">
+        <span className="text-caption font-bold text-text-secondary mb-1 inline-flex items-center gap-1.5">
+          <Layers size={12} strokeWidth={2.2} /> หมวด (บทใน ALS)
+        </span>
+        <select
+          value={chapterId}
+          onChange={(e) => setChapterId(e.target.value)}
+          className="w-full px-3 py-2 bg-bg-secondary border border-border text-caption text-text-primary focus:outline-none focus:border-info"
+          style={{ borderRadius: 'var(--radius-sm)' }}
+        >
+          <option value="">— ยังไม่จัดหมวด —</option>
+          {(chapters || []).map(c => (
+            <option key={c.id} value={c.id}>
+              {c.icon ? `${c.icon} ` : ''}{c.title}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="block">
         <span className="text-caption font-bold text-text-secondary mb-1 block">คำถาม</span>
         <textarea
           value={question}
@@ -109,28 +137,37 @@ export default function QADeepItemEditor({ item, allItems, onChange }) {
         className="btn btn-primary btn-sm disabled:opacity-40"
       >
         <Save size={12} strokeWidth={2.2} />
-        {saving ? 'กำลังบันทึก…' : 'บันทึกข้อความ'}
+        {saving ? 'กำลังบันทึก…' : 'บันทึก'}
       </button>
 
-      <div className="h-px bg-border" />
+      <div
+        className="border border-border bg-bg-tertiary/40 p-3 space-y-3"
+        style={{ borderRadius: 'var(--radius-md)' }}
+      >
+        <div className="text-overline text-info inline-flex items-center gap-1.5">
+          <ImageIcon size={12} strokeWidth={2.2} /> รูปภาพประกอบ Q&A นี้
+        </div>
 
-      <ImageGroup
-        label="รูปหน้าปกของ Q&A นี้"
-        helper="แสดงเหนือคำถาม (แนะนำ 1 รูป)"
-        images={covers}
-        itemId={item.id}
-        imageType="cover"
-        onChange={onChange}
-      />
+        <ImageGroup
+          label="รูปหน้าปกของ Q&A"
+          helper="แสดงเหนือคำถาม · แนะนำ 1 รูป"
+          images={covers}
+          itemId={item.id}
+          imageType="cover"
+          onChange={onChange}
+        />
 
-      <ImageGroup
-        label="Infographic"
-        helper="แสดงระหว่างคำถามกับคำตอบ (เพิ่มได้หลายรูป)"
-        images={infos}
-        itemId={item.id}
-        imageType="infographic"
-        onChange={onChange}
-      />
+        <div className="h-px bg-border" />
+
+        <ImageGroup
+          label="Infographic"
+          helper="แสดงระหว่างคำถาม–คำตอบ · เพิ่มได้หลายรูป"
+          images={infos}
+          itemId={item.id}
+          imageType="infographic"
+          onChange={onChange}
+        />
+      </div>
     </div>
   );
 }
@@ -181,11 +218,12 @@ function ImageGroup({ label, helper, images, itemId, imageType, onChange }) {
       <div className="flex items-center justify-between gap-2">
         <div>
           <div className="text-caption font-bold text-text-secondary inline-flex items-center gap-1">
-            <ImageIcon size={12} strokeWidth={2.2} /> {label} ({images.length})
+            <ImageIcon size={12} strokeWidth={2.2} /> {label}
+            <span className="text-text-muted font-normal">({images.length})</span>
           </div>
           <div className="text-[11px] text-text-muted">{helper}</div>
         </div>
-        <label className="btn btn-ghost btn-sm cursor-pointer">
+        <label className="btn btn-primary btn-sm cursor-pointer shrink-0">
           <Upload size={12} strokeWidth={2.2} />
           {uploading ? 'อัปโหลด…' : 'เพิ่มรูป'}
           <input type="file" accept="image/*" onChange={handleUpload} disabled={uploading} className="hidden" />

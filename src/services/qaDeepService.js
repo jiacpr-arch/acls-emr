@@ -1,12 +1,13 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { qaDeepPage as staticPage, qaDeepItems as staticItems } from '../data/qaDeepContent';
 
-const CACHE_KEY = 'acls_qa_deep_cache_v1';
+const CACHE_KEY = 'acls_qa_deep_cache_v2';
+const CHAPTERS_CACHE_KEY = 'acls_qa_deep_chapters_cache_v1';
 const CACHE_TTL_MS = 1000 * 60 * 60 * 6;
 
-function readCache() {
+function readCache(key) {
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const { ts, data } = JSON.parse(raw);
     if (Date.now() - ts > CACHE_TTL_MS) return null;
@@ -16,16 +17,19 @@ function readCache() {
   }
 }
 
-function writeCache(data) {
+function writeCache(key, data) {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data }));
   } catch {
     // non-fatal
   }
 }
 
 export function invalidateQaDeepCache() {
-  try { localStorage.removeItem(CACHE_KEY); } catch { /* ignore */ }
+  try {
+    localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem(CHAPTERS_CACHE_KEY);
+  } catch { /* ignore */ }
 }
 
 function assemble(pageRow, items, images) {
@@ -38,7 +42,6 @@ function assemble(pageRow, items, images) {
       caption: img.caption ?? undefined,
     };
     if (img.image_type === 'cover') {
-      // first cover wins (sorted ascending sort_order then created_at)
       if (!bucket.cover) bucket.cover = entry;
     } else {
       bucket.infographics.push(entry);
@@ -56,6 +59,7 @@ function assemble(pageRow, items, images) {
       const bucket = imgByItem.get(it.id) ?? { cover: null, infographics: [] };
       return {
         id: it.id,
+        chapterId: it.chapter_id || null,
         question: it.question,
         answer: it.answer ?? '',
         cover: bucket.cover,
@@ -72,7 +76,7 @@ export async function fetchQaDeepFromSupabase() {
     supabase.from('acls_qa_deep_page').select('*').limit(1).maybeSingle(),
     supabase
       .from('acls_qa_deep_items')
-      .select('id, question, answer, sort_order')
+      .select('id, chapter_id, question, answer, sort_order')
       .order('sort_order'),
   ]);
   if (pageRes.error) throw pageRes.error;
@@ -94,26 +98,56 @@ export async function fetchQaDeepFromSupabase() {
   return assemble(pageRes.data, items, images);
 }
 
+export async function fetchQaDeepChapters() {
+  if (!isSupabaseConfigured()) throw new Error('Supabase not configured');
+  const { data, error } = await supabase
+    .from('acls_chapters')
+    .select('id, title, icon, sort_order')
+    .order('sort_order');
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function loadQaDeep() {
-  const cached = readCache();
+  const cached = readCache(CACHE_KEY);
   if (cached) {
     refreshInBackground();
     return { source: 'cache', ...cached };
   }
   try {
     const data = await fetchQaDeepFromSupabase();
-    writeCache(data);
+    writeCache(CACHE_KEY, data);
     return { source: 'supabase', ...data };
   } catch {
     return { source: 'static', page: staticPage, items: staticItems };
   }
 }
 
+export async function loadQaDeepChapters() {
+  const cached = readCache(CHAPTERS_CACHE_KEY);
+  if (cached) {
+    refreshChaptersInBackground();
+    return cached;
+  }
+  try {
+    const data = await fetchQaDeepChapters();
+    writeCache(CHAPTERS_CACHE_KEY, data);
+    return data;
+  } catch {
+    return [];
+  }
+}
+
 async function refreshInBackground() {
   try {
     const data = await fetchQaDeepFromSupabase();
-    writeCache(data);
-  } catch {
-    // keep cache on failure
-  }
+    writeCache(CACHE_KEY, data);
+  } catch { /* keep cache */ }
+}
+
+async function refreshChaptersInBackground() {
+  try {
+    const data = await fetchQaDeepChapters();
+    writeCache(CHAPTERS_CACHE_KEY, data);
+  } catch { /* keep cache */ }
 }
