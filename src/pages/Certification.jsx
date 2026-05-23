@@ -11,6 +11,7 @@ import {
   Trophy, BookOpen, GraduationCap, Award, BarChart3,
   Check, Circle, ClipboardCheck, Download,
 } from 'lucide-react';
+import MorrooAdCard from '../components/MorrooAdCard';
 
 const CERT_KEY = `${courseMeta.id}_certification`;
 
@@ -126,6 +127,8 @@ export default function Certification() {
           <p className="text-caption text-text-muted">Track your {courseMeta.shortName} training progress</p>
         </div>
       </div>
+
+      <MorrooAdCard />
 
       {/* Progress */}
       <div className="dash-card text-center">

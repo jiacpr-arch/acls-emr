@@ -7,6 +7,7 @@ import { IS_BLS, courseMeta } from '../config/courseMode';
 import ACLSSplash from '../components/newcase/ACLSSplash';
 import ACLSHero from '../components/newcase/ACLSHero';
 import ACLSQuickActions from '../components/newcase/ACLSQuickActions';
+import MorrooAdCard from '../components/MorrooAdCard';
 import {
   HeartPulse, AlertTriangle, Hospital,
   Sparkles, BookOpen, MessageSquare, Play,
@@ -103,6 +104,7 @@ export default function NewCase() {
                 <MessageSquare size={18} strokeWidth={2} /> Feedback
               </button>
             </div>
+            <MorrooAdCard />
           </div>
         </div>
       </div>
@@ -183,7 +185,7 @@ export default function NewCase() {
           <Sparkles size={20} strokeWidth={2.4} /> Training Scenarios
         </button>
 
-        <div className="grid grid-cols-2 gap-5 pt-2">
+        <div className="grid grid-cols-2 gap-6 pt-2">
           <button onClick={() => navigate('/guide')}
             className="btn btn-ghost btn-block"
             style={{ height: 'auto', paddingTop: 16, paddingBottom: 16, borderRadius: 'var(--radius-lg)' }}>
@@ -195,6 +197,8 @@ export default function NewCase() {
             <MessageSquare size={18} strokeWidth={2} /> Feedback
           </button>
         </div>
+
+        <MorrooAdCard />
 
         <div className="text-center text-text-muted text-[10px] font-mono opacity-60 pt-1">
           v2.0.0 · ACLS EMR

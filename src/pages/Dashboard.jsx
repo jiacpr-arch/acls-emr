@@ -6,6 +6,7 @@ import { exportCasePDF } from '../utils/exportPDF';
 import { LineChart, Line, XAxis, YAxis, ReferenceLine, ResponsiveContainer } from 'recharts';
 import TeachingAnnotation, { AnnotationBadge } from '../components/TeachingAnnotation';
 import ShareExport from '../components/ShareExport';
+import MorrooAdCard from '../components/MorrooAdCard';
 import {
   FileText, HeartPulse, BarChart3, AlertCircle, Plus, Layers,
   Download, Share, Edit, Trash, Play, HelpCircle, Activity, Pill,
@@ -91,6 +92,8 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
+
+      <MorrooAdCard />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
