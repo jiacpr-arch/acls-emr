@@ -36,6 +36,7 @@ import { useSyncEngine } from './services/syncEngine';
 
 // Admin pages are code-split — keep the main bundle below the workbox precache limit
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminChapters = lazy(() => import('./pages/AdminChapters'));
 const AdminQADeep = lazy(() => import('./pages/AdminQADeep'));
 const AdminStudentQuestions = lazy(() => import('./pages/AdminStudentQuestions'));
@@ -113,6 +114,18 @@ function App() {
             element={
               <Suspense fallback={<AdminFallback />}>
                 <AdminLogin />
+              </Suspense>
+            }
+          />
+        )}
+        {IS_ACLS && (
+          <Route
+            path="/admin"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <RequireAdmin>
+                  <AdminDashboard />
+                </RequireAdmin>
               </Suspense>
             }
           />
