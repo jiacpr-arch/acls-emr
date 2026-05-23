@@ -93,7 +93,7 @@ export default function CheatSheet({ onClose }) {
             <div className="text-overline mt-3 mb-2">Lung Protective</div>
             <AirwayRow label="TV" value="6-8 ml/kg IBW" />
             <AirwayRow label="PEEP" value="≥5 cmH₂O" />
-            <AirwayRow label="SpO₂ target" value="92-98% (post-ROSC)" />
+            <AirwayRow label="SpO₂ target" value="90-98% (post-ROSC)" />
           </div>
         )}
 
