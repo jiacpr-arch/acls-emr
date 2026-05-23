@@ -12,7 +12,7 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
 
   if (!authLoading && isAuthenticated) {
-    navigate('/admin/chapters', { replace: true });
+    navigate('/admin', { replace: true });
     return null;
   }
 
@@ -22,7 +22,7 @@ export default function AdminLogin() {
     setSubmitting(true);
     try {
       await signIn(password);
-      navigate('/admin/chapters', { replace: true });
+      navigate('/admin', { replace: true });
     } catch (err) {
       setError(err?.message || 'เข้าสู่ระบบไม่สำเร็จ');
       setSubmitting(false);
