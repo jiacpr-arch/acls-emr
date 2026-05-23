@@ -18,6 +18,7 @@ import Certification from './pages/Certification';
 import UserGuide from './pages/UserGuide';
 import Feedback from './pages/Feedback';
 import ALSKnowledge from './pages/ALSKnowledge';
+import QAAclsDeep from './pages/QAAclsDeep';
 import CodeBlueSim from './pages/CodeBlueSim';
 import PreCourse from './pages/PreCourse';
 import Learn from './pages/Learn';
@@ -35,6 +36,7 @@ import { useSyncEngine } from './services/syncEngine';
 // Admin pages are code-split — keep the main bundle below the workbox precache limit
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminChapters = lazy(() => import('./pages/AdminChapters'));
+const AdminQADeep = lazy(() => import('./pages/AdminQADeep'));
 
 const AdminFallback = () => (
   <div className="page-container py-12 text-center text-caption text-text-muted">
@@ -100,6 +102,7 @@ function App() {
         {IS_ACLS && <Route path="/drill" element={<DrillTimer />} />}
         {IS_ACLS && <Route path="/compare" element={<CaseCompare />} />}
         {IS_ACLS && <Route path="/als" element={<ALSKnowledge />} />}
+        {IS_ACLS && <Route path="/qa-acls-deep" element={<QAAclsDeep />} />}
         {IS_ACLS && <Route path="/sim" element={<CodeBlueSim />} />}
         {IS_ACLS && (
           <Route
@@ -118,6 +121,18 @@ function App() {
               <Suspense fallback={<AdminFallback />}>
                 <RequireAdmin>
                   <AdminChapters />
+                </RequireAdmin>
+              </Suspense>
+            }
+          />
+        )}
+        {IS_ACLS && (
+          <Route
+            path="/admin/qa-deep"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <RequireAdmin>
+                  <AdminQADeep />
                 </RequireAdmin>
               </Suspense>
             }

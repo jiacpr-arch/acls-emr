@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useAlsChapters } from '../hooks/useAlsChapters';
 import { ekgQuestions, rhythmLabels, shuffleOptions, quizCategories } from '../data/ekgQuiz';
 import EKGWaveform from '../components/EKGWaveform';
@@ -6,6 +7,7 @@ import QASection from '../components/QASection';
 import {
   GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock, Activity, Check, X, RotateCcw,
+  ArrowRight,
 } from 'lucide-react';
 
 const STORAGE_KEY = 'als_tips_history';
@@ -164,6 +166,26 @@ export default function ALSKnowledge() {
 
       {tab === 'book' && (
         <div className="space-y-2">
+          <Link
+            to="/qa-acls-deep"
+            className="dash-card !p-0 overflow-hidden flex items-center gap-3 px-4 py-3.5 hover:bg-bg-tertiary/50 transition-colors border-l-4 border-l-info"
+          >
+            <div
+              className="w-9 h-9 inline-flex items-center justify-center bg-info/15 text-info shrink-0"
+              style={{ borderRadius: 'var(--radius-sm)' }}
+            >
+              <Sparkles size={16} strokeWidth={2.2} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-body-strong text-text-primary block truncate">
+                Q&A ACLS เชิงลึก
+              </span>
+              <span className="text-[11px] text-text-muted">
+                คำถาม-คำตอบเชิงลึก พร้อม infographic
+              </span>
+            </div>
+            <ArrowRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />
+          </Link>
           {alsChapters.map(ch => {
             const isOpen = openCh === ch.id;
             return (
