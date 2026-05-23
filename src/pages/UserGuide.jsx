@@ -5,6 +5,7 @@ import {
   BookOpen, Plus, HeartPulse, GitBranch, Sparkles, HelpCircle,
   Search, X, ChevronDown, MessageSquare, FileText,
 } from 'lucide-react';
+import MorrooAdCard from '../components/MorrooAdCard';
 
 const quickLinks = [
   { Icon: Plus, label: 'เริ่มเคส', sectionId: 'newcase' },
@@ -100,6 +101,8 @@ export default function UserGuide() {
       <div className="text-caption text-text-muted">
         {search ? `พบ ${filtered.length} หัวข้อ` : `ทั้งหมด ${guideSections.length} หัวข้อ`}
       </div>
+
+      <MorrooAdCard />
 
       {/* Sections */}
       <div className="space-y-2">

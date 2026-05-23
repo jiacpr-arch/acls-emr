@@ -5,6 +5,7 @@ import { IS_BLS } from '../config/courseMode';
 import {
   GraduationCap, BookOpen, Sparkles, AlertTriangle, Activity, Trophy, HeartPulse,
 } from '../components/ui/Icon';
+import MorrooAdCard from '../components/MorrooAdCard';
 
 export default function Learn() {
   const navigate = useNavigate();
@@ -82,6 +83,8 @@ export default function Learn() {
         <h1 className="text-title text-text-primary">{t('learn', lang)}</h1>
         <p className="text-caption text-text-muted">{t('learn_subtitle', lang)}</p>
       </div>
+
+      <MorrooAdCard />
 
       {sections.map(section => (
         <div key={section.title} className="space-y-2">

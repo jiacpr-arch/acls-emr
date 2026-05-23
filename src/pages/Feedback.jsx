@@ -3,6 +3,7 @@ import {
   MessageSquare, AlertCircle, Lightbulb, AlertTriangle, Edit, Heart,
   Send, Star, Trash,
 } from '../components/ui/Icon';
+import MorrooAdCard from '../components/MorrooAdCard';
 
 const categories = [
   { key: 'bug', Icon: AlertCircle, label: 'แจ้งปัญหา' },
@@ -89,6 +90,8 @@ export default function Feedback() {
         <h1 className="text-title text-text-primary">ส่งความคิดเห็น</h1>
         <p className="text-caption text-text-muted">ช่วยเราปรับปรุงแอป ACLS EMR</p>
       </div>
+
+      <MorrooAdCard />
 
       {/* Tabs */}
       <div className="tab-group">
