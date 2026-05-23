@@ -4,6 +4,28 @@ import { Sparkles, ArrowRight, Search, Shuffle, MessageCircleQuestion } from 'lu
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 import StudentQuestionForm from '../components/StudentQuestionForm';
 
+const CHAPTER_PALETTE = [
+  { from: '#3B82F6', to: '#1D4ED8', tint: 'rgba(59, 130, 246, 0.14)', accent: '#2563EB' },
+  { from: '#06B6D4', to: '#0E7490', tint: 'rgba(6, 182, 212, 0.14)', accent: '#0891B2' },
+  { from: '#F43F5E', to: '#BE123C', tint: 'rgba(244, 63, 94, 0.14)', accent: '#E11D48' },
+  { from: '#EF4444', to: '#B91C1C', tint: 'rgba(239, 68, 68, 0.14)', accent: '#DC2626' },
+  { from: '#A855F7', to: '#6D28D9', tint: 'rgba(168, 85, 247, 0.14)', accent: '#7C3AED' },
+  { from: '#F59E0B', to: '#B45309', tint: 'rgba(245, 158, 11, 0.14)', accent: '#D97706' },
+  { from: '#FB923C', to: '#C2410C', tint: 'rgba(251, 146, 60, 0.14)', accent: '#EA580C' },
+  { from: '#6366F1', to: '#4338CA', tint: 'rgba(99, 102, 241, 0.14)', accent: '#4F46E5' },
+  { from: '#22D3EE', to: '#0369A1', tint: 'rgba(34, 211, 238, 0.14)', accent: '#0EA5E9' },
+  { from: '#FACC15', to: '#A16207', tint: 'rgba(250, 204, 21, 0.16)', accent: '#CA8A04' },
+  { from: '#64748B', to: '#334155', tint: 'rgba(100, 116, 139, 0.16)', accent: '#475569' },
+  { from: '#10B981', to: '#047857', tint: 'rgba(16, 185, 129, 0.14)', accent: '#059669' },
+  { from: '#C084FC', to: '#7E22CE', tint: 'rgba(192, 132, 252, 0.14)', accent: '#9333EA' },
+];
+
+function parseChapterTitle(title) {
+  const m = (title || '').match(/^บทที่\s*(\d+)\s*:?\s*(.*)$/);
+  if (m) return { num: m[1], name: m[2].trim() || title };
+  return { num: null, name: title };
+}
+
 export default function QAAclsDeep() {
   const [page, setPage] = useState({ title: 'Q&A ACLS เชิงลึก', intro: '', coverImage: null });
   const [items, setItems] = useState([]);
@@ -187,51 +209,106 @@ export default function QAAclsDeep() {
       {loading ? (
         <div className="text-center text-caption text-text-muted py-8">กำลังโหลด…</div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {featured && !query.trim() && (
             <div className="text-[11px] uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
               อ่านเรื่องอื่นๆ ต่อ
             </div>
           )}
-          {filteredChapters.map(ch => {
-            const n = counts.byChapter.get(ch.id) ?? 0;
-            return (
-              <Link
-                key={ch.id}
-                to={`/qa-acls-deep/${encodeURIComponent(ch.id)}`}
-                className="dash-card !p-0 overflow-hidden flex items-center gap-3 px-4 py-3.5 hover:bg-bg-tertiary/50 transition-colors"
-              >
-                <div className="w-9 h-9 inline-flex items-center justify-center bg-info/12 text-info shrink-0"
-                  style={{ borderRadius: 'var(--radius-sm)' }}>
-                  <span className="text-base">{ch.icon || '📘'}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-body-strong text-text-primary block truncate">{ch.title}</span>
-                  <span className="text-[11px] text-text-muted">
-                    {n > 0 ? `${n} คำถาม` : 'ยังไม่มีคำถาม'}
-                  </span>
-                </div>
-                <ArrowRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />
-              </Link>
-            );
-          })}
+
+          <div className="grid grid-cols-2 gap-2.5">
+            {filteredChapters.map((ch, idx) => {
+              const palette = CHAPTER_PALETTE[idx % CHAPTER_PALETTE.length];
+              const n = counts.byChapter.get(ch.id) ?? 0;
+              const { num, name } = parseChapterTitle(ch.title);
+              return (
+                <Link
+                  key={ch.id}
+                  to={`/qa-acls-deep/${encodeURIComponent(ch.id)}`}
+                  className="relative overflow-hidden border border-border bg-bg-secondary hover:bg-bg-tertiary/40 active:scale-[0.98] transition-all flex flex-col"
+                  style={{
+                    borderRadius: 'var(--radius-xl)',
+                    minHeight: 148,
+                    boxShadow: '0 2px 6px rgba(15, 26, 46, 0.06)',
+                  }}
+                >
+                  <div
+                    aria-hidden
+                    className="h-1.5 w-full shrink-0"
+                    style={{ background: `linear-gradient(90deg, ${palette.from} 0%, ${palette.to} 100%)` }}
+                  />
+                  <div className="p-3 flex-1 flex flex-col gap-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div
+                        className="w-11 h-11 inline-flex items-center justify-center shrink-0"
+                        style={{
+                          background: palette.tint,
+                          borderRadius: 'var(--radius-md)',
+                        }}
+                      >
+                        <span className="text-2xl leading-none">{ch.icon || '📘'}</span>
+                      </div>
+                      {num && (
+                        <span
+                          className="text-[10px] font-bold tracking-wider px-2 py-0.5 shrink-0"
+                          style={{
+                            color: palette.accent,
+                            background: palette.tint,
+                            borderRadius: 'var(--radius-sm)',
+                          }}
+                        >
+                          บทที่ {num}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[13px] font-bold text-text-primary leading-snug line-clamp-2 flex-1">
+                      {name}
+                    </div>
+                    <div className="flex items-center justify-between gap-1">
+                      <span
+                        className="text-[10px] font-bold"
+                        style={{ color: n > 0 ? palette.accent : 'var(--color-text-muted)' }}
+                      >
+                        {n > 0 ? `${n} คำถาม` : 'ยังไม่มีคำถาม'}
+                      </span>
+                      <ArrowRight size={13} strokeWidth={2.6} style={{ color: palette.accent }} />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
 
           {counts.uncategorized > 0 && (
             <Link
               to="/qa-acls-deep/_uncategorized"
-              className="dash-card !p-0 overflow-hidden flex items-center gap-3 px-4 py-3.5 hover:bg-bg-tertiary/50 transition-colors border-l-4 border-l-warning"
+              className="relative overflow-hidden border border-border bg-bg-secondary hover:bg-bg-tertiary/40 active:scale-[0.99] transition-all flex items-center gap-3 px-3 py-3"
+              style={{
+                borderRadius: 'var(--radius-xl)',
+                boxShadow: '0 2px 6px rgba(15, 26, 46, 0.06)',
+              }}
             >
-              <div className="w-9 h-9 inline-flex items-center justify-center bg-warning/12 text-warning shrink-0"
-                style={{ borderRadius: 'var(--radius-sm)' }}>
-                <span className="text-base">📌</span>
+              <div
+                aria-hidden
+                className="absolute left-0 top-0 bottom-0 w-1.5"
+                style={{ background: 'linear-gradient(180deg, #F59E0B 0%, #B45309 100%)' }}
+              />
+              <div
+                className="w-11 h-11 inline-flex items-center justify-center shrink-0 ml-1.5"
+                style={{
+                  background: 'rgba(245, 158, 11, 0.14)',
+                  borderRadius: 'var(--radius-md)',
+                }}
+              >
+                <span className="text-2xl leading-none">📌</span>
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-body-strong text-text-primary block truncate">ยังไม่จัดหมวด</span>
-                <span className="text-[11px] text-text-muted">
+                <div className="text-[13px] font-bold text-text-primary">ยังไม่จัดหมวด</div>
+                <div className="text-[11px] text-text-muted">
                   {counts.uncategorized} คำถามที่ยังไม่ได้เลือกหมวด
-                </span>
+                </div>
               </div>
-              <ArrowRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />
+              <ArrowRight size={14} strokeWidth={2.4} style={{ color: '#D97706' }} className="shrink-0" />
             </Link>
           )}
 
