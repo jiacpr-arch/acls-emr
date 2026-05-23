@@ -38,6 +38,7 @@ import { useSyncEngine } from './services/syncEngine';
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminChapters = lazy(() => import('./pages/AdminChapters'));
 const AdminQADeep = lazy(() => import('./pages/AdminQADeep'));
+const AdminStudentQuestions = lazy(() => import('./pages/AdminStudentQuestions'));
 
 const AdminFallback = () => (
   <div className="page-container py-12 text-center text-caption text-text-muted">
@@ -135,6 +136,18 @@ function App() {
               <Suspense fallback={<AdminFallback />}>
                 <RequireAdmin>
                   <AdminQADeep />
+                </RequireAdmin>
+              </Suspense>
+            }
+          />
+        )}
+        {IS_ACLS && (
+          <Route
+            path="/admin/student-questions"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <RequireAdmin>
+                  <AdminStudentQuestions />
                 </RequireAdmin>
               </Suspense>
             }

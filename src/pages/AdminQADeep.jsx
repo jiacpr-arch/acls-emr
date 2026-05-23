@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  LogOut, Plus, Shield, ExternalLink, ChevronDown, Filter,
+  LogOut, Plus, Shield, ExternalLink, ChevronDown, Filter, MessageCircleQuestion,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 import {
@@ -95,6 +95,9 @@ export default function AdminQADeep() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Link to="/admin/student-questions" className="btn btn-ghost btn-sm" title="คำถามจากนักเรียน">
+            <MessageCircleQuestion size={14} strokeWidth={2.2} /> คำถามนักเรียน
+          </Link>
           <Link to="/qa-acls-deep" target="_blank" className="btn btn-ghost btn-sm" title="เปิดหน้าผู้ใช้">
             <ExternalLink size={14} strokeWidth={2.2} /> ดูหน้า
           </Link>
