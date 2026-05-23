@@ -15,6 +15,7 @@ import BLSHero from '../components/precourse/BLSHero';
 import BLSProgressCard from '../components/precourse/BLSProgressCard';
 import BLSQuickActions from '../components/precourse/BLSQuickActions';
 import BLSSplash from '../components/precourse/BLSSplash';
+import BLSCourseUpsellCard from '../components/precourse/BLSCourseUpsellCard';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
 import { IS_ACLS, IS_BLS, courseMeta } from '../config/courseMode';
@@ -202,6 +203,8 @@ export default function PreCourse() {
             lessonCount={totalLessons}
           />
         </div>
+
+        <BLSCourseUpsellCard />
 
         <VideoLinksPanel videos={preCourseVideos} />
 
