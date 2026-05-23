@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, Search, Shuffle } from 'lucide-react';
+import { Sparkles, ArrowRight, Search, Shuffle, MessageCircleQuestion } from 'lucide-react';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
+import StudentQuestionForm from '../components/StudentQuestionForm';
 
 export default function QAAclsDeep() {
   const [page, setPage] = useState({ title: 'Q&A ACLS เชิงลึก', intro: '', coverImage: null });
@@ -10,6 +11,7 @@ export default function QAAclsDeep() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [shuffleSeed, setShuffleSeed] = useState(() => Math.random());
+  const [askOpen, setAskOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -91,6 +93,29 @@ export default function QAAclsDeep() {
           <p className="text-caption text-text-muted whitespace-pre-line">{page.intro}</p>
         )}
       </div>
+
+      <button
+        type="button"
+        onClick={() => setAskOpen(true)}
+        className="dash-card !p-0 w-full flex items-center gap-3 px-4 py-3 hover:bg-bg-tertiary/50 transition-colors text-left border-l-4 border-l-info"
+      >
+        <div
+          className="w-9 h-9 inline-flex items-center justify-center shrink-0"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
+            borderRadius: 'var(--radius-md)',
+          }}
+        >
+          <MessageCircleQuestion size={18} strokeWidth={2.2} className="text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-body-strong text-text-primary">ถามคำถามของคุณ</div>
+          <div className="text-[11px] text-text-muted">AI ตอบเชิงลึก + จัดหมวด · อาจารย์ตรวจก่อนเผยแพร่</div>
+        </div>
+        <ArrowRight size={16} strokeWidth={2.2} className="text-info shrink-0" />
+      </button>
+
+      {askOpen && <StudentQuestionForm onClose={() => setAskOpen(false)} />}
 
       {!loading && featured && featuredImage && (
         <Link
