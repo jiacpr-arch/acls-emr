@@ -122,7 +122,7 @@ export default function NewCase() {
       )}
 
       <div
-        className="page-container pb-28 flex flex-col gap-14"
+        className="page-container pb-28 flex flex-col gap-4"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
         <ACLSHero isClinical={isClinical} />
@@ -156,7 +156,7 @@ export default function NewCase() {
         )}
 
         {/* Primary emergency actions — full-width red + blue stacked */}
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-4">
           <button onClick={() => handleStart('bls')} disabled={loading}
             className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50"
             style={{ height: 'auto', paddingTop: 20, paddingBottom: 20, fontSize: 19 }}>
