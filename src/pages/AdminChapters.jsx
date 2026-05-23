@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LogOut, ChevronDown, BookOpen, Shield } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { LogOut, ChevronDown, BookOpen, Shield, MessageCircleQuestion } from 'lucide-react';
 import { signOut } from '../services/auth';
 import { listChaptersWithCounts } from '../services/alsAdminService';
 import ChapterEditor from '../components/admin/ChapterEditor';
@@ -47,9 +47,14 @@ export default function AdminChapters() {
             <p className="text-[11px] text-text-muted">แก้ไขเนื้อหา บันทึกอัตโนมัติเข้า Supabase</p>
           </div>
         </div>
-        <button onClick={handleLogout} className="btn btn-ghost btn-sm">
-          <LogOut size={14} strokeWidth={2.2} /> ออกจากระบบ
-        </button>
+        <div className="flex items-center gap-2">
+          <Link to="/admin/qa-deep" className="btn btn-ghost btn-sm" title="จัดการ Q&A ACLS เชิงลึก">
+            <MessageCircleQuestion size={14} strokeWidth={2.2} /> Q&A เชิงลึก
+          </Link>
+          <button onClick={handleLogout} className="btn btn-ghost btn-sm">
+            <LogOut size={14} strokeWidth={2.2} /> ออก
+          </button>
+        </div>
       </div>
 
       {loading ? (
