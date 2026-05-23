@@ -1,10 +1,15 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { calculateScore } from './scoring';
+import { registerPDFFonts, PDF_FONT } from '../assets/fonts/registerFonts.js';
+import { sanitisePDFText as S } from './pdfText.js';
+
+registerPDFFonts();
 
 // PDF Export — matches JIA ACLS Recorder Form (2-page format)
 export function exportCasePDF(caseData) {
   const doc = new jsPDF('p', 'mm', 'a4');
+  doc.setFont(PDF_FONT, 'normal');
   const pw = doc.internal.pageSize.getWidth();
   const ph = doc.internal.pageSize.getHeight();
   const isTraining = caseData.mode === 'training';
@@ -17,9 +22,16 @@ export function exportCasePDF(caseData) {
   const fmtClock = (ts) => ts ? new Date(ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : '';
   const headerColor = isTraining ? [37, 99, 235] : [220, 38, 38];
 
-  // Helper: run autoTable and return finalY
+  // Helper: run autoTable and return finalY. Forces Sarabun on every cell
+  // (head + body) so Unicode renders in tables, not just direct doc.text().
   const tbl = (options) => {
-    autoTable(doc, options);
+    const withFont = (s = {}) => ({ font: PDF_FONT, ...s });
+    autoTable(doc, {
+      ...options,
+      styles: withFont(options.styles),
+      headStyles: withFont(options.headStyles),
+      bodyStyles: withFont(options.bodyStyles),
+    });
     return doc.lastAutoTable.finalY;
   };
 
@@ -31,7 +43,7 @@ export function exportCasePDF(caseData) {
   doc.setFillColor(...headerColor);
   doc.rect(0, 0, pw, 14, 'F');
   doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.setTextColor(255);
   doc.text('ACLS Record Report', pw / 2, 7, { align: 'center' });
   doc.setFontSize(7);
@@ -45,10 +57,10 @@ export function exportCasePDF(caseData) {
   y = tbl({
     startY: y,
     body: [[
-      p.name || '-',
-      p.age ? `${p.age}y ${p.gender || ''}` : '-',
-      p.hn || '-',
-      p.location || '-',
+      S(p.name) || '-',
+      p.age ? `${p.age}y ${S(p.gender)}` : '-',
+      S(p.hn) || '-',
+      S(p.location) || '-',
       startTime ? startTime.toLocaleDateString('en-US') : '-',
     ]],
     head: [['Name', 'Age/Sex', 'HN', 'Location', 'Date']],
@@ -59,17 +71,17 @@ export function exportCasePDF(caseData) {
   }) + 3;
 
   // Case info row
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(PDF_FONT, 'normal');
   doc.setFontSize(7);
   doc.setTextColor(80);
-  doc.text(`Case: ${caseData.id || '-'}  |  Mode: ${(caseData.mode || 'clinical').toUpperCase()}  |  Start: ${fmtClock(caseData.startTime)}  |  End: ${fmtClock(caseData.endTime)}  |  Duration: ${fmtSec(duration)}  |  Outcome: ${caseData.outcome || '-'}`, 14, y);
+  doc.text(S(`Case: ${caseData.id || '-'}  |  Mode: ${(caseData.mode || 'clinical').toUpperCase()}  |  Start: ${fmtClock(caseData.startTime)}  |  End: ${fmtClock(caseData.endTime)}  |  Duration: ${fmtSec(duration)}  |  Outcome: ${caseData.outcome || '-'}`), 14, y);
   doc.setTextColor(0);
   y += 5;
 
   // ---- Event Timeline Table ----
   if (events.length > 0) {
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(PDF_FONT, 'bold');
     doc.setTextColor(0);
     doc.text('Event Timeline', 14, y);
     y += 2;
@@ -81,13 +93,13 @@ export function exportCasePDF(caseData) {
 
       if (ev.category === 'rhythm') rhythm = ev.type?.replace('Rhythm: ', '').replace('Initial Rhythm: ', '') || '';
       else if (ev.category === 'shock') defib = ev.type || '';
-      else if (ev.category === 'drug') { medication = ev.type?.replace('💉 ', '').replace('💊 ', '') || ''; }
-      else if (ev.category === 'airway' || ev.category === 'access') medication = ev.type?.replace('🫁 ', '').replace('💉 ', '').replace('🦴 ', '') || '';
+      else if (ev.category === 'drug') { medication = ev.type || ''; }
+      else if (ev.category === 'airway' || ev.category === 'access') medication = ev.type || '';
       else if (ev.category === 'etco2') { etco2 = ev.details?.value ? `${ev.details.value}` : ''; }
       else if (ev.category === 'cpr') note = ev.type || '';
       else note = ev.type || '';
 
-      return [elapsed, clock, rhythm, defib, medication, doseRoute, etco2, note];
+      return [elapsed, clock, S(rhythm), S(defib), S(medication), S(doseRoute), S(etco2), S(note)];
     });
 
     y = tbl({
@@ -118,7 +130,7 @@ export function exportCasePDF(caseData) {
   doc.setFillColor(...headerColor);
   doc.rect(0, 0, pw, 10, 'F');
   doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.setTextColor(255);
   doc.text('ACLS Summary', pw / 2, 7, { align: 'center' });
   y = 15;
@@ -128,7 +140,7 @@ export function exportCasePDF(caseData) {
     doc.setFillColor(...headerColor);
     doc.rect(10, y - 3.5, pw - 20, 6, 'F');
     doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(PDF_FONT, 'bold');
     doc.setTextColor(255);
     doc.text(title, 14, y);
     doc.setTextColor(0);
@@ -140,14 +152,14 @@ export function exportCasePDF(caseData) {
   y = tbl({
     startY: y,
     body: [
-      ['Location', p.location || '-'],
+      ['Location', S(p.location) || '-'],
       ['Witnessed', p.witnessed ? 'Yes' : 'No'],
       ['Bystander CPR', p.bystanderCPR ? 'Yes' : 'No'],
-      ['Initial Rhythm', p.initialRhythm || '-'],
-      ['Chief Complaint', p.chiefComplaint || '-'],
-      ['PMH', Array.isArray(p.pmh) ? p.pmh.join(', ') : (p.pmh || '-')],
-      ['Medications', Array.isArray(p.medications) ? p.medications.join(', ') : (p.medications || '-')],
-      ['Allergies', Array.isArray(p.allergies) ? p.allergies.join(', ') : (p.allergies || '-')],
+      ['Initial Rhythm', S(p.initialRhythm) || '-'],
+      ['Chief Complaint', S(p.chiefComplaint) || '-'],
+      ['PMH', S(Array.isArray(p.pmh) ? p.pmh.join(', ') : p.pmh) || '-'],
+      ['Medications', S(Array.isArray(p.medications) ? p.medications.join(', ') : p.medications) || '-'],
+      ['Allergies', S(Array.isArray(p.allergies) ? p.allergies.join(', ') : p.allergies) || '-'],
     ],
     theme: 'plain',
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 35 } },
@@ -184,7 +196,7 @@ export function exportCasePDF(caseData) {
       ['CCF', `${caseData.ccf || 0}%`],
       ['Total Pause Time', fmtSec(caseData.totalPauseTime || 0)],
       ['Shocks', `${caseData.shockCount || 0}`],
-      ['Outcome', caseData.outcome || '-'],
+      ['Outcome', S(caseData.outcome) || '-'],
     ],
     theme: 'plain',
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 35 } },
@@ -197,7 +209,7 @@ export function exportCasePDF(caseData) {
   if (allDrugEvts.length > 0) {
     sectionHeader('Drugs & Medications');
     const drugRows = allDrugEvts.map(e => {
-      const name = e.type?.replace('💉 ', '').replace('💊 ', '') || '';
+      const name = S(e.type);
       const parts = name.split(' – ');
       return [fmtElapsed(e.elapsed), fmtClock(e.timestamp), parts[0]?.trim() || name, parts[1]?.trim() || ''];
     });
@@ -248,9 +260,9 @@ export function exportCasePDF(caseData) {
       startY: y,
       head: [['Cause', 'Type', 'Investigated', 'Correction', 'Corrected At']],
       body: suspectedEvts.map(ev => {
-        const cause = ev.details?.cause || ev.type?.replace('🔍 Suspected cause: ', '') || '';
+        const cause = ev.details?.cause || S(ev.type).replace(/^Suspected cause:\s*/, '') || '';
         const correction = correctedEvts.find(c => c.details?.cause === cause);
-        return [cause, ev.details?.category || '', fmtElapsed(ev.elapsed), correction ? correction.details?.treatment || 'Yes' : '-', correction ? fmtElapsed(correction.elapsed) : '-'];
+        return [S(cause), S(ev.details?.category) || '', fmtElapsed(ev.elapsed), correction ? S(correction.details?.treatment) || 'Yes' : '-', correction ? fmtElapsed(correction.elapsed) : '-'];
       }),
       theme: 'grid', headStyles: { fillColor: [234, 88, 12], fontSize: 7 },
       styles: { fontSize: 7, cellPadding: 1.5 }, margin: { left: 14, right: 14 },
@@ -291,11 +303,11 @@ export function exportCasePDF(caseData) {
   if (caseData.team) {
     const t = caseData.team;
     const teamRows = [];
-    if (t.leader) teamRows.push(['Team Leader', t.leader]);
-    if (t.airway) teamRows.push(['Airway', t.airway]);
-    if (t.compressor?.length) teamRows.push(['Compressor(s)', t.compressor.join(', ')]);
-    if (t.drugAdmin) teamRows.push(['Drug Admin', t.drugAdmin]);
-    if (t.recorder) teamRows.push(['Recorder', t.recorder]);
+    if (t.leader) teamRows.push(['Team Leader', S(t.leader)]);
+    if (t.airway) teamRows.push(['Airway', S(t.airway)]);
+    if (t.compressor?.length) teamRows.push(['Compressor(s)', S(t.compressor.join(', '))]);
+    if (t.drugAdmin) teamRows.push(['Drug Admin', S(t.drugAdmin)]);
+    if (t.recorder) teamRows.push(['Recorder', S(t.recorder)]);
     if (teamRows.length > 0) {
       sectionHeader('Team');
       y = tbl({
@@ -327,9 +339,9 @@ export function exportCasePDF(caseData) {
   if (caseData.team?.recorder) {
     if (y > 265) { doc.addPage(); y = 15; }
     doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(PDF_FONT, 'bold');
     doc.setTextColor(0);
-    doc.text(`Recorder: ${caseData.team.recorder}`, 14, y);
+    doc.text(S(`Recorder: ${caseData.team.recorder}`), 14, y);
   }
 
   // =============== Footer + Watermark on ALL pages ===============
@@ -339,12 +351,12 @@ export function exportCasePDF(caseData) {
     if (isTraining) {
       doc.setFontSize(45);
       doc.setTextColor(220, 230, 255);
-      doc.setFont('helvetica', 'bold');
+      doc.setFont(PDF_FONT, 'bold');
       doc.text('TRAINING', pw / 2, ph / 2, { align: 'center', angle: 45 });
     }
     doc.setFontSize(6.5);
     doc.setTextColor(150);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(PDF_FONT, 'normal');
     doc.text(`ACLS EMR by JIA Trainer Center | Generated ${new Date().toLocaleString('en-US')} | Page ${i}/${pageCount}`, pw / 2, ph - 6, { align: 'center' });
   }
 
