@@ -135,7 +135,7 @@ export default function PreCourse() {
 
   if (IS_BLS) {
     return (
-      <div className="page-container flex flex-col gap-8">
+      <div className="page-container flex flex-col gap-6">
         {showSplash && (
           <BLSSplash
             onDismiss={() => { blsSplashSeen = true; setShowSplash(false); }}
