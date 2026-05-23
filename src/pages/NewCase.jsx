@@ -149,7 +149,7 @@ export default function NewCase() {
         )}
 
         {/* Primary emergency actions — full-width red + blue stacked */}
-        <div className="space-y-5">
+        <div className="space-y-6">
           <button onClick={() => handleStart('bls')} disabled={loading}
             className="btn btn-danger btn-xl btn-block animate-pulse-red disabled:opacity-50"
             style={{ height: 'auto', paddingTop: 20, paddingBottom: 20, fontSize: 19 }}>
@@ -179,7 +179,7 @@ export default function NewCase() {
           <Sparkles size={20} strokeWidth={2.4} /> Training Scenarios
         </button>
 
-        <div className="grid grid-cols-2 gap-5 pt-2">
+        <div className="grid grid-cols-2 gap-6 pt-2">
           <button onClick={() => navigate('/guide')}
             className="btn btn-ghost btn-block"
             style={{ height: 'auto', paddingTop: 16, paddingBottom: 16, borderRadius: 'var(--radius-lg)' }}>
