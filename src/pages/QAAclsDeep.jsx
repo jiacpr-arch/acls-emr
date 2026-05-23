@@ -216,7 +216,7 @@ export default function QAAclsDeep() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-3">
             {filteredChapters.map((ch, idx) => {
               const palette = CHAPTER_PALETTE[idx % CHAPTER_PALETTE.length];
               const n = counts.byChapter.get(ch.id) ?? 0;
@@ -225,53 +225,77 @@ export default function QAAclsDeep() {
                 <Link
                   key={ch.id}
                   to={`/qa-acls-deep/${encodeURIComponent(ch.id)}`}
-                  className="relative overflow-hidden border border-border bg-bg-secondary hover:bg-bg-tertiary/40 active:scale-[0.98] transition-all flex flex-col"
+                  className="group relative overflow-hidden bg-bg-secondary hover:-translate-y-0.5 active:scale-[0.98] transition-all flex flex-col"
                   style={{
                     borderRadius: 'var(--radius-xl)',
-                    minHeight: 148,
-                    boxShadow: '0 2px 6px rgba(15, 26, 46, 0.06)',
+                    minHeight: 162,
+                    border: `1px solid ${palette.tint}`,
+                    boxShadow: `0 1px 2px rgba(15, 26, 46, 0.04), 0 6px 16px -8px ${palette.from}55`,
                   }}
                 >
                   <div
                     aria-hidden
-                    className="h-1.5 w-full shrink-0"
-                    style={{ background: `linear-gradient(90deg, ${palette.from} 0%, ${palette.to} 100%)` }}
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: `linear-gradient(160deg, ${palette.tint} 0%, transparent 55%)`,
+                    }}
                   />
-                  <div className="p-3 flex-1 flex flex-col gap-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div
-                        className="w-11 h-11 inline-flex items-center justify-center shrink-0"
-                        style={{
-                          background: palette.tint,
-                          borderRadius: 'var(--radius-md)',
-                        }}
-                      >
-                        <span className="text-2xl leading-none">{ch.icon || '📘'}</span>
-                      </div>
-                      {num && (
-                        <span
-                          className="text-[10px] font-bold tracking-wider px-2 py-0.5 shrink-0"
-                          style={{
-                            color: palette.accent,
-                            background: palette.tint,
-                            borderRadius: 'var(--radius-sm)',
-                          }}
-                        >
-                          บทที่ {num}
-                        </span>
-                      )}
+                  <div
+                    aria-hidden
+                    className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-30 pointer-events-none blur-xl"
+                    style={{ background: `radial-gradient(circle, ${palette.from} 0%, transparent 70%)` }}
+                  />
+                  {num && (
+                    <span
+                      aria-hidden
+                      className="absolute top-2.5 right-2.5 text-[10px] font-extrabold tracking-wider px-2 py-0.5 shrink-0 backdrop-blur-sm"
+                      style={{
+                        color: 'white',
+                        background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
+                        borderRadius: '999px',
+                        boxShadow: `0 2px 6px ${palette.from}66`,
+                      }}
+                    >
+                      บทที่ {num}
+                    </span>
+                  )}
+                  <div className="relative p-3.5 flex-1 flex flex-col gap-2.5">
+                    <div
+                      className="w-12 h-12 inline-flex items-center justify-center shrink-0"
+                      style={{
+                        background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
+                        borderRadius: 'var(--radius-lg)',
+                        boxShadow: `0 4px 12px -2px ${palette.from}80`,
+                      }}
+                    >
+                      <span className="text-2xl leading-none drop-shadow-sm">{ch.icon || '📘'}</span>
                     </div>
                     <div className="text-[13px] font-bold text-text-primary leading-snug line-clamp-2 flex-1">
                       {name}
                     </div>
                     <div className="flex items-center justify-between gap-1">
                       <span
-                        className="text-[10px] font-bold"
+                        className="inline-flex items-center gap-1 text-[10px] font-bold"
                         style={{ color: n > 0 ? palette.accent : 'var(--color-text-muted)' }}
                       >
+                        {n > 0 && (
+                          <span
+                            className="inline-block w-1.5 h-1.5 rounded-full"
+                            style={{ background: palette.accent }}
+                          />
+                        )}
                         {n > 0 ? `${n} คำถาม` : 'ยังไม่มีคำถาม'}
                       </span>
-                      <ArrowRight size={13} strokeWidth={2.6} style={{ color: palette.accent }} />
+                      <span
+                        className="inline-flex items-center justify-center w-6 h-6 transition-transform group-hover:translate-x-0.5"
+                        style={{
+                          background: `${palette.from}1A`,
+                          color: palette.accent,
+                          borderRadius: '999px',
+                        }}
+                      >
+                        <ArrowRight size={12} strokeWidth={2.8} />
+                      </span>
                     </div>
                   </div>
                 </Link>
@@ -282,33 +306,44 @@ export default function QAAclsDeep() {
           {counts.uncategorized > 0 && (
             <Link
               to="/qa-acls-deep/_uncategorized"
-              className="relative overflow-hidden border border-border bg-bg-secondary hover:bg-bg-tertiary/40 active:scale-[0.99] transition-all flex items-center gap-3 px-3 py-3"
+              className="group relative overflow-hidden bg-bg-secondary hover:-translate-y-0.5 active:scale-[0.99] transition-all flex items-center gap-3 px-3.5 py-3"
               style={{
                 borderRadius: 'var(--radius-xl)',
-                boxShadow: '0 2px 6px rgba(15, 26, 46, 0.06)',
+                border: '1px solid rgba(245, 158, 11, 0.18)',
+                boxShadow: '0 1px 2px rgba(15, 26, 46, 0.04), 0 6px 16px -8px rgba(245, 158, 11, 0.45)',
               }}
             >
               <div
                 aria-hidden
-                className="absolute left-0 top-0 bottom-0 w-1.5"
-                style={{ background: 'linear-gradient(180deg, #F59E0B 0%, #B45309 100%)' }}
+                className="absolute inset-0 pointer-events-none"
+                style={{ background: 'linear-gradient(120deg, rgba(245, 158, 11, 0.14) 0%, transparent 60%)' }}
               />
               <div
-                className="w-11 h-11 inline-flex items-center justify-center shrink-0 ml-1.5"
+                className="relative w-12 h-12 inline-flex items-center justify-center shrink-0"
                 style={{
-                  background: 'rgba(245, 158, 11, 0.14)',
-                  borderRadius: 'var(--radius-md)',
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)',
+                  borderRadius: 'var(--radius-lg)',
+                  boxShadow: '0 4px 12px -2px rgba(245, 158, 11, 0.55)',
                 }}
               >
-                <span className="text-2xl leading-none">📌</span>
+                <span className="text-2xl leading-none drop-shadow-sm">📌</span>
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="relative flex-1 min-w-0">
                 <div className="text-[13px] font-bold text-text-primary">ยังไม่จัดหมวด</div>
                 <div className="text-[11px] text-text-muted">
                   {counts.uncategorized} คำถามที่ยังไม่ได้เลือกหมวด
                 </div>
               </div>
-              <ArrowRight size={14} strokeWidth={2.4} style={{ color: '#D97706' }} className="shrink-0" />
+              <span
+                className="relative inline-flex items-center justify-center w-7 h-7 shrink-0 transition-transform group-hover:translate-x-0.5"
+                style={{
+                  background: 'rgba(245, 158, 11, 0.14)',
+                  color: '#D97706',
+                  borderRadius: '999px',
+                }}
+              >
+                <ArrowRight size={13} strokeWidth={2.8} />
+              </span>
             </Link>
           )}
 
