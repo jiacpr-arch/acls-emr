@@ -11,7 +11,7 @@ import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   HeartPulse, AlertTriangle, Hospital,
-  Sparkles, BookOpen, MessageSquare, Play,
+  BookOpen, MessageSquare, Play,
 } from '../components/ui/Icon';
 
 // Module-level flag — splash shows once per full page load, not on every
@@ -179,12 +179,6 @@ export default function NewCase() {
           <div className="text-overline text-text-muted px-1">เริ่มเร็วตาม pathway</div>
           <ACLSQuickActions onStart={handleStart} disabled={loading} />
         </div>
-
-        <button onClick={() => navigate('/scenarios')}
-          className="btn btn-purple btn-block"
-          style={{ height: 'auto', paddingTop: 18, paddingBottom: 18, fontSize: 16, borderRadius: 'var(--radius-lg)' }}>
-          <Sparkles size={20} strokeWidth={2.4} /> Training Scenarios
-        </button>
 
         <button onClick={() => navigate('/qa-acls-deep')}
           className="btn btn-block text-white"
