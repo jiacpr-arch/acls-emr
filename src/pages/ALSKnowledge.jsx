@@ -204,18 +204,20 @@ export default function ALSKnowledge() {
                     className={`text-text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isOpen && (
-                  <div className="px-4 pb-4 space-y-3 animate-slide-up">
-                    <div className="h-px bg-border" />
+                  <div className="px-3 pb-4 pt-3 space-y-3 animate-slide-up bg-bg-tertiary/30 border-t border-border">
                     {ch.sections.map((s, i) => (
-                      <div key={i}>
+                      <article key={i} className="als-section-card">
                         {s.heading && (
-                          <div className="text-caption font-bold text-danger mb-1">{s.heading}</div>
+                          <h3 className="als-section-heading">
+                            <span className="als-section-bar" />
+                            {s.heading}
+                          </h3>
                         )}
                         {s.body && (
-                          <div className="text-caption text-text-secondary leading-relaxed">{s.body}</div>
+                          <p className="als-section-body">{s.body}</p>
                         )}
                         {s.images?.length > 0 && (
-                          <div className="mt-2 space-y-2">
+                          <div className={`space-y-3 ${s.heading || s.body ? 'mt-3' : ''}`}>
                             {s.images.map((img, j) => (
                               <figure key={j} className="m-0">
                                 <img
@@ -223,10 +225,10 @@ export default function ALSKnowledge() {
                                   alt={img.alt || s.heading}
                                   loading="lazy"
                                   className="w-full h-auto block border border-border"
-                                  style={{ borderRadius: 'var(--radius-sm)' }}
+                                  style={{ borderRadius: 'var(--radius-md)' }}
                                 />
                                 {img.caption && (
-                                  <figcaption className="text-[11px] text-text-muted mt-1 leading-relaxed">
+                                  <figcaption className="als-section-caption">
                                     {img.caption}
                                   </figcaption>
                                 )}
@@ -235,11 +237,11 @@ export default function ALSKnowledge() {
                           </div>
                         )}
                         {s.qa?.length > 0 && (
-                          <div className={s.heading || s.body ? 'mt-2' : ''}>
+                          <div className={s.heading || s.body || s.images?.length ? 'mt-3' : ''}>
                             <QASection qa={s.qa} />
                           </div>
                         )}
-                      </div>
+                      </article>
                     ))}
                   </div>
                 )}
