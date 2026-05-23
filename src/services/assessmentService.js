@@ -27,7 +27,7 @@ export async function fetchBank(bankId) {
 export async function fetchActiveSets(bankId) {
   const { data, error } = await supabase
     .from(TBL_SET)
-    .select('*')
+    .select('id, bank_id, title, sort_order, active, selection_mode, selection_config')
     .eq('bank_id', bankId)
     .eq('active', true)
     .order('sort_order', { ascending: true });
@@ -59,8 +59,55 @@ function toClientQuestion(row) {
   };
 }
 
-// Loads a randomly-selected active set for a bank and returns its questions.
-// Falls back to the first set if random pick errors.
+// Pool sampling: given all questions in a set and a config like
+// {easy: 6, medium: 7, hard: 7}, pick that many from each difficulty bucket.
+// Within each bucket, prefers questions on topics not yet picked, so a single
+// exam covers as many topics as possible. Returns shuffled selection.
+function samplePoolByDifficulty(questions, config) {
+  const buckets = {};
+  for (const q of questions) {
+    const d = q.difficulty || 'medium';
+    (buckets[d] ||= []).push(q);
+  }
+  const picked = [];
+  const usedTopics = new Set();
+  // Sort difficulty keys for deterministic processing order
+  const difficulties = Object.keys(config).sort();
+  for (const diff of difficulties) {
+    const want = config[diff] | 0;
+    if (want <= 0) continue;
+    const bucket = shuffle(buckets[diff] ?? []);
+    if (bucket.length < want) {
+      throw new Error(
+        `Pool too small for difficulty "${diff}": have ${bucket.length}, need ${want}`,
+      );
+    }
+    // Two-pass pick: first pass takes questions on fresh topics, second pass fills the rest.
+    const fresh = [];
+    const rest = [];
+    for (const q of bucket) {
+      (usedTopics.has(q.topic) ? rest : fresh).push(q);
+    }
+    const ordered = [...fresh, ...rest];
+    for (let i = 0; i < want; i++) {
+      const q = ordered[i];
+      picked.push(q);
+      usedTopics.add(q.topic);
+    }
+  }
+  return shuffle(picked);
+}
+
+function orderQuestionsForBank(bank, set, questions) {
+  if (set?.selection_mode === 'pool' && set.selection_config) {
+    return samplePoolByDifficulty(questions, set.selection_config);
+  }
+  return bank.shuffle_questions ? shuffle(questions) : questions;
+}
+
+// Loads an active set for a bank and returns its questions.
+// - For "set" mode (default): randomly picks one active set, returns its questions in order/shuffled.
+// - For "pool" mode: samples N questions per difficulty from the set's full question pool.
 export async function loadExamForBank(bankId, { excludeSetId = null } = {}) {
   const [bank, sets] = await Promise.all([
     fetchBank(bankId),
@@ -73,17 +120,21 @@ export async function loadExamForBank(bankId, { excludeSetId = null } = {}) {
   const pool = candidates.length ? candidates : sets;
   const chosen = pool[Math.floor(Math.random() * pool.length)];
   const questions = await fetchQuestions(chosen.id);
-  const ordered = bank.shuffle_questions ? shuffle(questions) : questions;
+  const ordered = orderQuestionsForBank(bank, chosen, questions);
   return { bank, set: chosen, questions: ordered };
 }
 
 export async function loadExamForSet(setId) {
   const { data: setRow, error: setErr } = await supabase
-    .from(TBL_SET).select('*').eq('id', setId).single();
+    .from(TBL_SET)
+    .select('id, bank_id, title, sort_order, active, selection_mode, selection_config')
+    .eq('id', setId)
+    .single();
   if (setErr) throw setErr;
   const bank = await fetchBank(setRow.bank_id);
   const questions = await fetchQuestions(setId);
-  return { bank, set: setRow, questions: bank.shuffle_questions ? shuffle(questions) : questions };
+  const ordered = orderQuestionsForBank(bank, setRow, questions);
+  return { bank, set: setRow, questions: ordered };
 }
 
 export async function submitAttempt(payload) {
