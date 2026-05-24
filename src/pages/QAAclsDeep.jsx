@@ -255,6 +255,12 @@ export default function QAAclsDeep() {
               const n = counts.byChapter.get(ch.id) ?? 0;
               const { num, name } = parseChapterTitle(ch.title);
               const shortName = shortChapterName(name);
+              const description = (() => {
+                const stripped = name.replace(/\s*\([^()]+\)\s*/g, '').trim();
+                if (!stripped) return null;
+                if (stripped.toLowerCase() === shortName.toLowerCase()) return null;
+                return stripped;
+              })();
               return (
                 <Link
                   key={ch.id}
@@ -263,7 +269,7 @@ export default function QAAclsDeep() {
                   style={{
                     background: 'var(--color-bg-elevated)',
                     borderRadius: '22px',
-                    minHeight: 210,
+                    minHeight: 240,
                     border: `1px solid ${palette.tint.replace(/0\.1[46]\)/, '0.35)')}`,
                     boxShadow: `0 1px 2px rgba(15, 26, 46, 0.04), 0 12px 28px -12px ${palette.accent}66`,
                   }}
@@ -311,8 +317,8 @@ export default function QAAclsDeep() {
                     </span>
                   </div>
 
-                  {/* Title + count */}
-                  <div className="relative flex-1 flex flex-col items-center text-center px-3 pt-5 pb-3 gap-2">
+                  {/* Title + description + count */}
+                  <div className="relative flex-1 flex flex-col items-center text-center px-3 pt-6 pb-3 gap-1.5">
                     <div
                       className="text-[17px] font-extrabold leading-tight line-clamp-2 px-0.5"
                       style={{ color: palette.accent }}
@@ -320,6 +326,11 @@ export default function QAAclsDeep() {
                     >
                       {shortName}
                     </div>
+                    {description && (
+                      <div className="text-[11px] text-text-muted leading-snug line-clamp-2 px-0.5">
+                        {description}
+                      </div>
+                    )}
                     <span
                       className="mt-auto inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5"
                       style={{
