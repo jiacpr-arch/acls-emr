@@ -230,44 +230,76 @@ export default function QAAclsDeep() {
                 <Link
                   key={ch.id}
                   to={`/qa-acls-deep/${encodeURIComponent(ch.id)}`}
-                  className="group relative overflow-hidden hover:-translate-y-0.5 active:scale-[0.98] transition-all flex flex-col items-center text-center"
+                  className="group relative overflow-hidden hover:-translate-y-0.5 active:scale-[0.98] transition-all flex flex-col"
                   style={{
                     background: 'var(--color-bg-elevated)',
                     borderRadius: '22px',
-                    minHeight: 200,
-                    border: '1px solid rgba(15, 26, 46, 0.06)',
-                    boxShadow: '0 1px 2px rgba(15, 26, 46, 0.04), 0 10px 24px -12px rgba(15, 26, 46, 0.18)',
+                    minHeight: 210,
+                    border: `1px solid ${palette.tint.replace(/0\.1[46]\)/, '0.35)')}`,
+                    boxShadow: `0 1px 2px rgba(15, 26, 46, 0.04), 0 12px 28px -12px ${palette.accent}66`,
                   }}
                 >
-                  <div className="relative px-3 pt-5 pb-4 flex-1 flex flex-col items-center gap-2 w-full">
+                  {/* Colorful hero header with chapter badge + emoji */}
+                  <div
+                    className="relative flex items-center justify-center overflow-hidden"
+                    style={{
+                      height: 92,
+                      background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
+                    }}
+                  >
                     <div
-                      className="flex items-center justify-center shrink-0"
-                      style={{ height: 64 }}
-                    >
+                      aria-hidden
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        background:
+                          'radial-gradient(circle at 30% 20%, rgba(255,255,255,0.28) 0%, transparent 55%)',
+                      }}
+                    />
+                    {num && (
                       <span
-                        className="leading-none hover-bounce-emoji"
+                        className="absolute top-2 left-2 inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5"
                         style={{
-                          fontSize: 52,
-                          filter: 'drop-shadow(0 4px 8px rgba(15, 26, 46, 0.18))',
+                          background: 'rgba(255, 255, 255, 0.22)',
+                          color: 'white',
+                          borderRadius: '999px',
+                          border: '1px solid rgba(255,255,255,0.32)',
+                          backdropFilter: 'blur(6px)',
+                          WebkitBackdropFilter: 'blur(6px)',
+                          textShadow: '0 1px 2px rgba(0,0,0,0.25)',
                         }}
                       >
-                        {ch.icon || '📘'}
+                        บทที่ {num}
                       </span>
-                    </div>
+                    )}
+                    <span
+                      className="relative leading-none hover-bounce-emoji"
+                      style={{
+                        fontSize: 54,
+                        filter: 'drop-shadow(0 6px 10px rgba(0, 0, 0, 0.28))',
+                      }}
+                    >
+                      {ch.icon || '📘'}
+                    </span>
+                  </div>
+
+                  {/* Title + count */}
+                  <div className="relative flex-1 flex flex-col items-center text-center px-3 pt-3 pb-2.5 gap-1.5">
                     <div
-                      className="text-[15px] font-extrabold leading-tight line-clamp-2 px-1"
+                      className="text-[15px] font-extrabold leading-tight line-clamp-2 px-0.5"
                       style={{ color: palette.accent }}
                     >
                       {name}
                     </div>
-                    {num && (
-                      <div className="text-[12px] font-bold text-text-primary">
-                        บทที่ {num}
-                      </div>
-                    )}
-                    <div className="mt-auto pt-1.5 text-[11px] text-text-muted">
+                    <span
+                      className="mt-auto inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5"
+                      style={{
+                        background: palette.tint,
+                        color: palette.accent,
+                        borderRadius: '999px',
+                      }}
+                    >
                       {n > 0 ? `${n} คำถาม` : 'ยังไม่มีคำถาม'}
-                    </div>
+                    </span>
                   </div>
                 </Link>
               );
