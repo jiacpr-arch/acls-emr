@@ -106,7 +106,7 @@ export default function Learn() {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className="learn-card flex flex-col items-center text-center px-3 pt-5 pb-4"
+                className={`learn-card tone-${item.tone || 'info'} flex flex-col items-center text-center px-3 pt-5 pb-4`}
               >
                 <span className="text-[44px] leading-none mb-2" aria-hidden="true">
                   {item.emoji}
