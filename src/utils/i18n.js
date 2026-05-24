@@ -96,6 +96,20 @@ const translations = {
   'learn_progress': { en: 'Progress', th: 'ความก้าวหน้า' },
   'learn_subtitle': { en: 'Study, practice, and track your ACLS progress', th: 'เรียนรู้ ฝึกซ้อม และติดตามความก้าวหน้า ACLS' },
   'code_sim': { en: 'Code Blue Sim', th: 'จำลองเหตุ Code Blue' },
+
+  // ===== Learn tile descriptions =====
+  'pre_course_desc': { en: 'Lessons + drills', th: 'อ่านบทเรียน + แบบฝึกหัด' },
+  'pre_test_desc': { en: 'Knowledge baseline', th: 'วัดความรู้ก่อนเริ่ม' },
+  'post_test_desc': { en: 'Final assessment', th: 'วัดผลหลังเรียนจบ' },
+  'als_knowledge_desc': { en: 'Full ACLS content', th: 'เนื้อหา ACLS ครบทุกบท' },
+  'algorithms_desc': { en: 'Treatment flowcharts', th: 'Flow ขั้นตอนการรักษา' },
+  'guide_desc': { en: 'Quick field guide', th: 'คู่มือใช้งานหน้างาน' },
+  'scenarios_desc': { en: 'Practice cases', th: 'ฝึกแก้สถานการณ์' },
+  'code_sim_desc': { en: 'Live event simulation', th: 'จำลองเหตุการณ์สด' },
+  'drill_desc': { en: 'Role-based skill drill', th: 'ฝึกทักษะรายบทบาท' },
+  'cert_desc': { en: 'My learning records', th: 'ผลการเรียนของฉัน' },
+  'cpr_drill': { en: 'CPR Drill', th: 'ฝึก CPR' },
+  'cpr_drill_desc': { en: 'Compression rhythm', th: 'ฝึกกดหน้าอกตามจังหวะ' },
 };
 
 // Get translation
