@@ -4,6 +4,7 @@ import { t } from '../utils/i18n';
 import { IS_BLS, IS_ACLS } from '../config/courseMode';
 import {
   GraduationCap, BookOpen, Sparkles, AlertTriangle, Activity, Trophy, HeartPulse,
+  FileText, Award,
 } from '../components/ui/Icon';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
@@ -43,7 +44,9 @@ export default function Learn() {
         {
           title: t('learn_prepare', lang),
           items: [
-            { path: '/pre-course', Icon: GraduationCap, label: t('pre_course', lang), tone: 'info' },
+            { path: '/pre-course',           Icon: GraduationCap, label: t('pre_course', lang), tone: 'info' },
+            { path: '/pre-course/pre-test',  Icon: FileText,      label: t('pre_test', lang),   tone: 'purple' },
+            { path: '/pre-course/post-test', Icon: Award,         label: t('post_test', lang),  tone: 'shock' },
           ],
         },
         {

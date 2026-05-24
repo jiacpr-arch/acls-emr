@@ -87,6 +87,8 @@ const translations = {
   'guide': { en: 'Guide', th: 'คู่มือ' },
   'feedback': { en: 'Feedback', th: 'แจ้งปัญหา' },
   'pre_course': { en: 'Pre-course', th: 'เตรียมเข้าเรียน' },
+  'pre_test': { en: 'Pre-test', th: 'Pre-test' },
+  'post_test': { en: 'Post-test', th: 'Post-test' },
   'learn': { en: 'Learn', th: 'เรียนรู้' },
   'learn_prepare': { en: 'Prepare', th: 'เตรียมตัว' },
   'learn_reference': { en: 'Knowledge', th: 'อ้างอิงความรู้' },
