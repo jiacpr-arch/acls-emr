@@ -312,7 +312,7 @@ export default function QAAclsDeep() {
                   </div>
 
                   {/* Title + count */}
-                  <div className="relative flex-1 flex flex-col items-center text-center px-3 pt-3 pb-2.5 gap-1.5">
+                  <div className="relative flex-1 flex flex-col items-center text-center px-3 pt-5 pb-3 gap-2">
                     <div
                       className="text-[17px] font-extrabold leading-tight line-clamp-2 px-0.5"
                       style={{ color: palette.accent }}
