@@ -11,7 +11,7 @@ import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   HeartPulse, AlertTriangle, Hospital,
-  BookOpen, MessageSquare, Play,
+  BookOpen, MessageSquare, Play, GraduationCap,
 } from '../components/ui/Icon';
 
 // Module-level flag — splash shows once per full page load, not on every
@@ -179,6 +179,26 @@ export default function NewCase() {
           <div className="text-overline text-text-muted px-1">เริ่มเร็วตาม pathway</div>
           <ACLSQuickActions onStart={handleStart} disabled={loading} />
         </div>
+
+        <button onClick={() => navigate('/learn')}
+          className="btn btn-block text-white"
+          style={{
+            height: 'auto',
+            paddingTop: 18,
+            paddingBottom: 18,
+            fontSize: 16,
+            borderRadius: 'var(--radius-lg)',
+            background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+            boxShadow: '0 8px 20px rgba(5, 150, 105, 0.28)',
+          }}>
+          <GraduationCap size={20} strokeWidth={2.4} />
+          <span className="flex flex-col items-center leading-tight">
+            <span>โหมดเรียน</span>
+            <span className="text-[12px] font-medium opacity-85 mt-0.5">
+              บทเรียน · scenarios · ใบประกาศ
+            </span>
+          </span>
+        </button>
 
         <button onClick={() => navigate('/qa-acls-deep')}
           className="btn btn-block text-white"
