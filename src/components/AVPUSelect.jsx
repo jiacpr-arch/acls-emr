@@ -115,11 +115,11 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
               <ScrollPicker label="Size" value={pupilL} onChange={setPupilL} min={1} max={8} step={1} unit="mm" />
               <div className="flex gap-1.5 mt-1">
                 <button onClick={() => setPupilLReactive(true)}
-                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold ${pupilLReactive ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                  className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${pupilLReactive ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
                   Reactive
                 </button>
                 <button onClick={() => setPupilLReactive(false)}
-                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold ${!pupilLReactive ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                  className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${!pupilLReactive ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
                   Fixed
                 </button>
               </div>
@@ -129,11 +129,11 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
               <ScrollPicker label="Size" value={pupilR} onChange={setPupilR} min={1} max={8} step={1} unit="mm" />
               <div className="flex gap-1.5 mt-1">
                 <button onClick={() => setPupilRReactive(true)}
-                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold ${pupilRReactive ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                  className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${pupilRReactive ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
                   Reactive
                 </button>
                 <button onClick={() => setPupilRReactive(false)}
-                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold ${!pupilRReactive ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                  className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${!pupilRReactive ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
                   Fixed
                 </button>
               </div>
@@ -173,18 +173,18 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
                 <div className="text-[10px] text-text-muted mb-1">Breathing self?</div>
                 <div className="flex gap-1.5">
                   <button onClick={() => setBreathingSelf(true)}
-                    className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold ${breathingSelf === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>Yes</button>
+                    className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${breathingSelf === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>Yes</button>
                   <button onClick={() => setBreathingSelf(false)}
-                    className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold ${breathingSelf === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>No</button>
+                    className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${breathingSelf === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>No</button>
                 </div>
               </div>
               <div className="flex-1">
                 <div className="text-[10px] text-text-muted mb-1">Airway safe?</div>
                 <div className="flex gap-1.5">
                   <button onClick={() => setAirwaySafe(true)}
-                    className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold ${airwaySafe === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>Yes</button>
+                    className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${airwaySafe === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>Yes</button>
                   <button onClick={() => setAirwaySafe(false)}
-                    className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold ${airwaySafe === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>No</button>
+                    className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${airwaySafe === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>No</button>
                 </div>
               </div>
             </div>

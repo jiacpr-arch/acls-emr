@@ -111,22 +111,34 @@ button, [role="button"] {
   justify-content: center;
   gap: 8px;
   height: 46px;
-  padding: 0 18px;
+  padding: 0 22px;
   font-weight: 600;
   font-size: 14px;
   letter-spacing: -0.005em;
-  border-radius: var(--radius);
+  border-radius: var(--radius-full);
   border: 1px solid transparent;
   min-width: 46px;
-  transition: transform 0.08s ease, box-shadow 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.12s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.18s ease, background 0.18s ease, opacity 0.15s ease;
   box-shadow: var(--shadow-1);
 }
-.btn:hover { box-shadow: var(--shadow-2); }
-.btn:active { transform: scale(0.97); box-shadow: var(--shadow-1); }
-.btn-sm { height: 36px; font-size: 13px; padding: 0 12px; gap: 6px; border-radius: var(--radius-sm); }
-.btn-lg { height: 52px; font-size: 15px; padding: 0 20px; border-radius: var(--radius-md); }
-.btn-xl { height: 60px; font-size: 17px; padding: 0 24px; border-radius: var(--radius-lg); gap: 10px; }
+.btn:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
+.btn:active { transform: translateY(0) scale(0.97); box-shadow: var(--shadow-1); }
+.btn-sm { height: 34px; font-size: 13px; padding: 0 14px; gap: 6px; border-radius: var(--radius-full); }
+.btn-lg { height: 52px; font-size: 15px; padding: 0 24px; border-radius: var(--radius-full); }
+.btn-xl { height: 60px; font-size: 17px; padding: 0 28px; border-radius: var(--radius-full); gap: 10px; }
 .btn-full, .btn-block { width: 100%; }
+
+/* ===== CTA with built-in arrow → (roodee style) =====
+   Add the modifier class .btn-cta to any .btn to append an animated arrow.
+   Example: <button class="btn btn-primary btn-lg btn-cta">สมัครฟรี</button> */
+.btn-cta::after {
+  content: '→';
+  display: inline-block;
+  margin-left: 2px;
+  font-weight: 700;
+  transition: transform 0.18s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.btn-cta:hover::after { transform: translateX(3px); }
 
 .btn-primary { background: var(--color-info); color: white; }
 .btn-primary:hover { background: var(--color-info-dark); }
@@ -179,15 +191,16 @@ button, [role="button"] {
   padding: 6px 10px;
   font-weight: 600;
   font-size: 12px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-2xl);
   border: 1px solid transparent;
   min-width: 48px;
   flex-direction: column;
   line-height: 1.2;
-  transition: transform 0.08s ease, box-shadow 0.15s ease;
+  transition: transform 0.12s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.18s ease;
   box-shadow: var(--shadow-1);
 }
-.btn-action:active { transform: scale(0.96); box-shadow: none; }
+.btn-action:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.btn-action:active { transform: translateY(0) scale(0.96); box-shadow: none; }
 
 .btn-action.btn-ghost   { border-color: var(--color-border); }
 .btn-action.btn-ghost:hover { background: var(--color-bg-tertiary); }
@@ -613,24 +626,28 @@ button, [role="button"] {
   color: var(--color-text-muted);
 }
 
-/* ===== BOTTOM TAB BAR — refined glass ===== */
+/* ===== BOTTOM TAB BAR — floating glass pill (roodee-style) ===== */
 .bottom-pill-bar {
   position: fixed;
-  bottom: 0;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: stretch;
-  gap: 0;
+  gap: 2px;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  box-shadow: 0 -1px 0 var(--color-border), 0 -8px 24px rgba(15, 26, 46, 0.06);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 6px 16px rgba(15, 26, 46, 0.10),
+    0 18px 36px rgba(15, 26, 46, 0.10);
   z-index: 40;
-  width: 100%;
-  max-width: 32rem;
-  border-top: 1px solid rgba(15, 26, 46, 0.06);
+  width: calc(100% - 20px);
+  max-width: calc(32rem - 20px);
+  border: 1px solid rgba(15, 26, 46, 0.06);
+  border-radius: var(--radius-full);
+  padding: 6px;
 }
 .bottom-pill-bar button {
   position: relative;
@@ -638,18 +655,18 @@ button, [role="button"] {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   flex: 1;
-  height: 60px;
+  height: 52px;
   color: var(--color-text-muted);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: -0.005em;
   border: none;
   background: none;
-  transition: color 0.15s ease, transform 0.08s ease;
+  transition: color 0.18s ease, background 0.18s ease, transform 0.08s ease;
   min-width: 0;
-  border-radius: 0;
+  border-radius: var(--radius-full);
 }
 .bottom-pill-bar button .tab-icon {
   font-size: 20px;
@@ -661,15 +678,10 @@ button, [role="button"] {
 }
 .bottom-pill-bar button.active {
   color: var(--color-info);
+  background: rgba(37, 99, 235, 0.10);
 }
-.bottom-pill-bar button.active::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  width: 28px;
-  height: 3px;
-  background: var(--color-info);
-  border-radius: 0 0 3px 3px;
+.bottom-pill-bar button:hover:not(.active) {
+  background: rgba(15, 26, 46, 0.04);
 }
 .bottom-pill-bar button:active {
   transform: scale(0.94);
@@ -692,13 +704,13 @@ button, [role="button"] {
   flex-shrink: 0;
   font-size: 11px;
   font-weight: 600;
-  padding: 8px 12px;
+  padding: 8px 14px;
   min-height: 36px;
   min-width: auto;
   white-space: nowrap;
   border: 1px solid var(--color-border);
   background: var(--color-bg-secondary);
-  border-radius: var(--radius);
+  border-radius: var(--radius-full);
 }
 
 /* ===== CIRCULAR TIMER ===== */
@@ -714,7 +726,8 @@ button, [role="button"] {
   max-width: 32rem;
   margin: 0 auto;
   padding: 16px;
-  padding-bottom: 96px;
+  /* Clears the floating pill tab bar (≈74px) + safe-area inset + breathing room */
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ===== PANEL WRAPPER (modal/sheet) ===== */
@@ -846,9 +859,14 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
 .dark .tab-item.active { background: var(--color-bg-secondary); }
 .dark .bottom-pill-bar {
   background: rgba(10, 15, 26, 0.85);
-  border-color: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.04), 0 -8px 24px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 6px 16px rgba(0, 0, 0, 0.30),
+    0 18px 36px rgba(0, 0, 0, 0.36);
 }
+.dark .bottom-pill-bar button.active { background: rgba(96, 165, 250, 0.14); }
+.dark .bottom-pill-bar button:hover:not(.active) { background: rgba(255, 255, 255, 0.05); }
 .dark input[type="range"] { background: transparent; }
 .dark input[type="text"], .dark input[type="number"], .dark input[type="email"], .dark textarea, .dark select {
   background: var(--color-bg-tertiary);

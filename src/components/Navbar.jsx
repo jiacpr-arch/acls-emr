@@ -29,7 +29,7 @@ export default function Navbar() {
       <div className="flex items-center gap-1">
         {currentCase && currentCase.outcome === 'ongoing' && (
           <Link to="/recording"
-            className="flex items-center gap-1 px-3 py-1.5 bg-danger text-white rounded-lg text-sm font-semibold animate-pulse-red mr-2">
+            className="flex items-center gap-1 px-3 py-1.5 bg-danger text-white rounded-full text-sm font-semibold animate-pulse-red mr-2">
             <span className="w-2 h-2 bg-white rounded-full" />
             ACTIVE
           </Link>
@@ -37,7 +37,7 @@ export default function Navbar() {
 
         {links.map(link => (
           <Link key={link.to} to={link.to}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors ${
               location.pathname === link.to
                 ? 'bg-bg-tertiary text-text-primary'
                 : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary/50'
