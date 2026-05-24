@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Upload, Trash2, Image as ImageIcon, ChevronUp, ChevronDown,
-  Save, HelpCircle, Layers,
+  Save, HelpCircle, Layers, Sparkles,
 } from 'lucide-react';
 import {
   updateQaItem,
@@ -10,6 +10,7 @@ import {
   uploadItemImage,
   updateItemImage,
   deleteItemImage,
+  classifyQaItem,
 } from '../../services/qaDeepAdminService';
 
 export default function QADeepItemEditor({ item, allItems, chapters, onChange }) {
@@ -17,11 +18,14 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
   const [answer, setAnswer] = useState(item.answer || '');
   const [chapterId, setChapterId] = useState(item.chapter_id || '');
   const [saving, setSaving] = useState(false);
+  const [classifying, setClassifying] = useState(false);
+  const [classifyHint, setClassifyHint] = useState(null);
 
   useEffect(() => {
     setQuestion(item.question || '');
     setAnswer(item.answer || '');
     setChapterId(item.chapter_id || '');
+    setClassifyHint(null);
   }, [item.id, item.question, item.answer, item.chapter_id]);
 
   const dirty =
@@ -63,6 +67,39 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
     }
   };
 
+  const handleAutoClassify = async () => {
+    if (!question.trim()) {
+      alert('พิมพ์คำถามก่อนค่อยจัดหมวดอัตโนมัติ');
+      return;
+    }
+    setClassifying(true);
+    setClassifyHint(null);
+    try {
+      const r = await classifyQaItem({ question, answer });
+      if (r.chapterId) {
+        setChapterId(r.chapterId);
+        const ch = (chapters || []).find(c => c.id === r.chapterId);
+        setClassifyHint({
+          type: 'ok',
+          text: `แนะนำ: ${ch?.icon ? ch.icon + ' ' : ''}${ch?.title || r.chapterId}${r.reason ? ` — ${r.reason}` : ''} (กดบันทึกเพื่อยืนยัน)`,
+        });
+      } else if (r.suggestedNewChapter) {
+        setClassifyHint({
+          type: 'warn',
+          text: `ไม่มีหมวดที่เหมาะ — แนะนำให้สร้างหมวดใหม่ชื่อ "${r.suggestedNewChapter}"${r.reason ? ` (${r.reason})` : ''}`,
+        });
+      } else {
+        setClassifyHint({
+          type: 'warn',
+          text: `ไม่พบหมวดที่เหมาะ${r.reason ? ` — ${r.reason}` : ''}`,
+        });
+      }
+    } catch (err) {
+      setClassifyHint({ type: 'err', text: 'จัดหมวดไม่สำเร็จ: ' + (err?.message || err) });
+    }
+    setClassifying(false);
+  };
+
   const covers = (item.images || []).filter(i => i.image_type === 'cover');
   const infos = (item.images || []).filter(i => i.image_type === 'infographic');
 
@@ -86,13 +123,25 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
         </button>
       </div>
 
-      <label className="block">
-        <span className="text-caption font-bold text-text-secondary mb-1 inline-flex items-center gap-1.5">
-          <Layers size={12} strokeWidth={2.2} /> หมวด (บทใน ALS)
-        </span>
+      <div className="block">
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <span className="text-caption font-bold text-text-secondary inline-flex items-center gap-1.5">
+            <Layers size={12} strokeWidth={2.2} /> หมวด (บทใน ALS)
+          </span>
+          <button
+            type="button"
+            onClick={handleAutoClassify}
+            disabled={classifying || !question.trim()}
+            className="btn btn-ghost btn-sm disabled:opacity-40"
+            title="ให้ AI จัดหมวดให้อัตโนมัติจากคำถาม-คำตอบ"
+          >
+            <Sparkles size={12} strokeWidth={2.2} />
+            {classifying ? 'กำลังจัดหมวด…' : 'จัดหมวดอัตโนมัติ'}
+          </button>
+        </div>
         <select
           value={chapterId}
-          onChange={(e) => setChapterId(e.target.value)}
+          onChange={(e) => { setChapterId(e.target.value); setClassifyHint(null); }}
           className="w-full px-3 py-2 bg-bg-secondary border border-border text-caption text-text-primary focus:outline-none focus:border-info"
           style={{ borderRadius: 'var(--radius-sm)' }}
         >
@@ -103,7 +152,21 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
             </option>
           ))}
         </select>
-      </label>
+        {classifyHint && (
+          <div
+            className={
+              'text-[11px] mt-1 ' +
+              (classifyHint.type === 'ok'
+                ? 'text-info'
+                : classifyHint.type === 'warn'
+                ? 'text-text-muted'
+                : 'text-danger')
+            }
+          >
+            {classifyHint.text}
+          </div>
+        )}
+      </div>
 
       <label className="block">
         <span className="text-caption font-bold text-text-secondary mb-1 block">คำถาม</span>

@@ -212,3 +212,44 @@ function extractStoragePath(src) {
   if (idx < 0) return null;
   return src.slice(idx + marker.length);
 }
+
+// ────── Auto-classify (DeepSeek) ──────
+
+async function authedFetch(url, body) {
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  if (!token) throw new Error('ไม่มี session — กรุณา login ใหม่');
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json?.error || `HTTP ${res.status}`);
+  return json;
+}
+
+/** Suggest a chapter_id for a single Q&A. Returns { chapterId, reason }. */
+export async function classifyQaItem({ question, answer }) {
+  return authedFetch('/api/qa-deep/classify', { question, answer });
+}
+
+/**
+ * Batch-classify multiple Q&A items. Server caps at 20 per call;
+ * this helper chunks larger inputs automatically.
+ * Input: [{ id, question, answer }, ...]
+ * Returns: [{ id, chapterId, reason, error? }, ...]
+ */
+export async function classifyQaItemsBatch(items) {
+  const CHUNK = 20;
+  const all = [];
+  for (let i = 0; i < items.length; i += CHUNK) {
+    const slice = items.slice(i, i + CHUNK);
+    const { results } = await authedFetch('/api/qa-deep/classify', { items: slice });
+    all.push(...(results || []));
+  }
+  return all;
+}
