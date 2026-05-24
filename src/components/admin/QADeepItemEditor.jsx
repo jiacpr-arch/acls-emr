@@ -83,6 +83,11 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
           type: 'ok',
           text: `แนะนำ: ${ch?.icon ? ch.icon + ' ' : ''}${ch?.title || r.chapterId}${r.reason ? ` — ${r.reason}` : ''} (กดบันทึกเพื่อยืนยัน)`,
         });
+      } else if (r.suggestedNewChapter) {
+        setClassifyHint({
+          type: 'warn',
+          text: `ไม่มีหมวดที่เหมาะ — แนะนำให้สร้างหมวดใหม่ชื่อ "${r.suggestedNewChapter}"${r.reason ? ` (${r.reason})` : ''}`,
+        });
       } else {
         setClassifyHint({
           type: 'warn',

@@ -16,8 +16,11 @@ export async function classifyChapter({ question, answer, chapters }) {
   const systemPrompt = [
     'You classify ACLS Q&A items into one of the existing chapter ids.',
     'Pick the SINGLE best matching chapter id from the list below.',
-    'If absolutely none fits, return chapterId="" (empty string).',
-    'Reply with strict JSON only: {"chapterId": "ch1", "reason": "สั้นๆ"}',
+    'If absolutely no existing chapter fits, return chapterId="" AND set',
+    'suggestedNewChapter to a short Thai title (max 40 chars) for a new chapter',
+    'that would fit. Otherwise leave suggestedNewChapter empty.',
+    'Reply with strict JSON only:',
+    '{"chapterId": "ch1", "reason": "สั้นๆ", "suggestedNewChapter": ""}',
     '',
     'Chapter catalog:',
     catalog,
@@ -59,5 +62,12 @@ export async function classifyChapter({ question, answer, chapters }) {
   }
   const valid = new Set(chapters.map(c => c.id));
   const chapterId = parsed.chapterId && valid.has(parsed.chapterId) ? parsed.chapterId : null;
-  return { chapterId, reason: String(parsed.reason || '').slice(0, 500) };
+  const suggestedNewChapter = chapterId
+    ? ''
+    : String(parsed.suggestedNewChapter || '').trim().slice(0, 40);
+  return {
+    chapterId,
+    reason: String(parsed.reason || '').slice(0, 500),
+    suggestedNewChapter,
+  };
 }
