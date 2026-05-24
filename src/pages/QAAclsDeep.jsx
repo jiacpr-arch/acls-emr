@@ -225,77 +225,43 @@ export default function QAAclsDeep() {
                 <Link
                   key={ch.id}
                   to={`/qa-acls-deep/${encodeURIComponent(ch.id)}`}
-                  className="group relative overflow-hidden bg-bg-secondary hover:-translate-y-0.5 active:scale-[0.98] transition-all flex flex-col"
+                  className="group relative overflow-hidden hover:-translate-y-0.5 active:scale-[0.98] transition-all flex flex-col items-center text-center"
                   style={{
-                    borderRadius: 'var(--radius-xl)',
-                    minHeight: 162,
-                    border: `1px solid ${palette.tint}`,
-                    boxShadow: `0 1px 2px rgba(15, 26, 46, 0.04), 0 6px 16px -8px ${palette.from}55`,
+                    background: 'var(--color-bg-elevated)',
+                    borderRadius: '22px',
+                    minHeight: 200,
+                    border: '1px solid rgba(15, 26, 46, 0.06)',
+                    boxShadow: '0 1px 2px rgba(15, 26, 46, 0.04), 0 10px 24px -12px rgba(15, 26, 46, 0.18)',
                   }}
                 >
-                  <div
-                    aria-hidden
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: `linear-gradient(160deg, ${palette.tint} 0%, transparent 55%)`,
-                    }}
-                  />
-                  <div
-                    aria-hidden
-                    className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-30 pointer-events-none blur-xl"
-                    style={{ background: `radial-gradient(circle, ${palette.from} 0%, transparent 70%)` }}
-                  />
-                  {num && (
-                    <span
-                      aria-hidden
-                      className="absolute top-2.5 right-2.5 text-[10px] font-extrabold tracking-wider px-2 py-0.5 shrink-0 backdrop-blur-sm"
-                      style={{
-                        color: 'white',
-                        background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
-                        borderRadius: '999px',
-                        boxShadow: `0 2px 6px ${palette.from}66`,
-                      }}
-                    >
-                      บทที่ {num}
-                    </span>
-                  )}
-                  <div className="relative p-3.5 flex-1 flex flex-col gap-2.5">
+                  <div className="relative px-3 pt-5 pb-4 flex-1 flex flex-col items-center gap-2 w-full">
                     <div
-                      className="w-12 h-12 inline-flex items-center justify-center shrink-0"
-                      style={{
-                        background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
-                        borderRadius: 'var(--radius-lg)',
-                        boxShadow: `0 4px 12px -2px ${palette.from}80`,
-                      }}
+                      className="flex items-center justify-center shrink-0"
+                      style={{ height: 64 }}
                     >
-                      <span className="text-2xl leading-none drop-shadow-sm">{ch.icon || '📘'}</span>
-                    </div>
-                    <div className="text-[13px] font-bold text-text-primary leading-snug line-clamp-2 flex-1">
-                      {name}
-                    </div>
-                    <div className="flex items-center justify-between gap-1">
                       <span
-                        className="inline-flex items-center gap-1 text-[10px] font-bold"
-                        style={{ color: n > 0 ? palette.accent : 'var(--color-text-muted)' }}
-                      >
-                        {n > 0 && (
-                          <span
-                            className="inline-block w-1.5 h-1.5 rounded-full"
-                            style={{ background: palette.accent }}
-                          />
-                        )}
-                        {n > 0 ? `${n} คำถาม` : 'ยังไม่มีคำถาม'}
-                      </span>
-                      <span
-                        className="inline-flex items-center justify-center w-6 h-6 transition-transform group-hover:translate-x-0.5"
+                        className="leading-none"
                         style={{
-                          background: `${palette.from}1A`,
-                          color: palette.accent,
-                          borderRadius: '999px',
+                          fontSize: 52,
+                          filter: 'drop-shadow(0 4px 8px rgba(15, 26, 46, 0.18))',
                         }}
                       >
-                        <ArrowRight size={12} strokeWidth={2.8} />
+                        {ch.icon || '📘'}
                       </span>
+                    </div>
+                    <div
+                      className="text-[15px] font-extrabold leading-tight line-clamp-2 px-1"
+                      style={{ color: palette.accent }}
+                    >
+                      {name}
+                    </div>
+                    {num && (
+                      <div className="text-[12px] font-bold text-text-primary">
+                        บทที่ {num}
+                      </div>
+                    )}
+                    <div className="mt-auto pt-1.5 text-[11px] text-text-muted">
+                      {n > 0 ? `${n} คำถาม` : 'ยังไม่มีคำถาม'}
                     </div>
                   </div>
                 </Link>
