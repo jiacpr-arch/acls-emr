@@ -74,44 +74,38 @@ export default function Learn() {
     info: {
       gradient: 'linear-gradient(135deg, #60A5FA 0%, #2563EB 50%, #1E40AF 100%)',
       glow:     '0 10px 22px -6px rgba(37, 99, 235, 0.55), 0 4px 8px -2px rgba(37, 99, 235, 0.32)',
-      cardBg:   'linear-gradient(180deg, #F0F6FF 0%, #FFFFFF 70%)',
-      ring:     'rgba(37, 99, 235, 0.18)',
-      accent:   '#2563EB',
+      blob:     'radial-gradient(140% 90% at 30% 10%, rgba(96, 165, 250, 0.95) 0%, rgba(59, 130, 246, 0.55) 35%, rgba(96, 165, 250, 0) 75%)',
+      ring:     'rgba(37, 99, 235, 0.35)',
     },
     success: {
       gradient: 'linear-gradient(135deg, #34D399 0%, #059669 50%, #047857 100%)',
       glow:     '0 10px 22px -6px rgba(5, 150, 105, 0.55), 0 4px 8px -2px rgba(5, 150, 105, 0.32)',
-      cardBg:   'linear-gradient(180deg, #ECFDF5 0%, #FFFFFF 70%)',
-      ring:     'rgba(5, 150, 105, 0.18)',
-      accent:   '#059669',
+      blob:     'radial-gradient(140% 90% at 30% 10%, rgba(52, 211, 153, 0.95) 0%, rgba(16, 185, 129, 0.55) 35%, rgba(52, 211, 153, 0) 75%)',
+      ring:     'rgba(5, 150, 105, 0.35)',
     },
     warning: {
       gradient: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #B45309 100%)',
       glow:     '0 10px 22px -6px rgba(217, 119, 6, 0.55), 0 4px 8px -2px rgba(217, 119, 6, 0.32)',
-      cardBg:   'linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 70%)',
-      ring:     'rgba(217, 119, 6, 0.18)',
-      accent:   '#D97706',
+      blob:     'radial-gradient(140% 90% at 30% 10%, rgba(251, 191, 36, 0.95) 0%, rgba(245, 158, 11, 0.55) 35%, rgba(251, 191, 36, 0) 75%)',
+      ring:     'rgba(217, 119, 6, 0.35)',
     },
     danger: {
       gradient: 'linear-gradient(135deg, #F87171 0%, #DC2626 50%, #991B1B 100%)',
       glow:     '0 10px 22px -6px rgba(220, 38, 38, 0.55), 0 4px 8px -2px rgba(220, 38, 38, 0.32)',
-      cardBg:   'linear-gradient(180deg, #FEF2F2 0%, #FFFFFF 70%)',
-      ring:     'rgba(220, 38, 38, 0.18)',
-      accent:   '#DC2626',
+      blob:     'radial-gradient(140% 90% at 30% 10%, rgba(248, 113, 113, 0.95) 0%, rgba(239, 68, 68, 0.55) 35%, rgba(248, 113, 113, 0) 75%)',
+      ring:     'rgba(220, 38, 38, 0.35)',
     },
     purple: {
       gradient: 'linear-gradient(135deg, #C4B5FD 0%, #8B5CF6 50%, #6D28D9 100%)',
       glow:     '0 10px 22px -6px rgba(124, 58, 237, 0.55), 0 4px 8px -2px rgba(124, 58, 237, 0.32)',
-      cardBg:   'linear-gradient(180deg, #F5F3FF 0%, #FFFFFF 70%)',
-      ring:     'rgba(124, 58, 237, 0.18)',
-      accent:   '#7C3AED',
+      blob:     'radial-gradient(140% 90% at 30% 10%, rgba(167, 139, 250, 0.95) 0%, rgba(139, 92, 246, 0.55) 35%, rgba(167, 139, 250, 0) 75%)',
+      ring:     'rgba(124, 58, 237, 0.35)',
     },
     shock: {
       gradient: 'linear-gradient(135deg, #FDBA74 0%, #F97316 50%, #C2410C 100%)',
       glow:     '0 10px 22px -6px rgba(234, 88, 12, 0.55), 0 4px 8px -2px rgba(234, 88, 12, 0.32)',
-      cardBg:   'linear-gradient(180deg, #FFF7ED 0%, #FFFFFF 70%)',
-      ring:     'rgba(234, 88, 12, 0.18)',
-      accent:   '#EA580C',
+      blob:     'radial-gradient(140% 90% at 30% 10%, rgba(253, 186, 116, 0.95) 0%, rgba(249, 115, 22, 0.55) 35%, rgba(253, 186, 116, 0) 75%)',
+      ring:     'rgba(234, 88, 12, 0.35)',
     },
   };
 
@@ -147,25 +141,39 @@ export default function Learn() {
                   onClick={() => navigate(item.path)}
                   className="learn-tile relative flex flex-col items-center gap-3 pt-5 pb-4 px-2 text-text-primary overflow-hidden"
                   style={{
-                    borderRadius: 'var(--radius-2xl)',
-                    background: tone.cardBg,
+                    borderRadius: '20px',
                     border: `1px solid ${tone.ring}`,
-                    boxShadow: '0 1px 2px rgba(15, 26, 46, 0.04), 0 6px 14px -8px rgba(15, 26, 46, 0.10)',
                   }}
                 >
+                  {/* layer 1: colored blob */}
                   <span
                     aria-hidden="true"
-                    className="absolute top-0 left-1/2 -translate-x-1/2"
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: tone.blob }}
+                  />
+                  {/* layer 2: frosted glass overlay */}
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 pointer-events-none"
                     style={{
-                      width: '46%',
-                      height: '3px',
-                      borderRadius: '0 0 999px 999px',
-                      background: tone.gradient,
-                      opacity: 0.85,
+                      background: 'linear-gradient(180deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.68) 100%)',
+                      backdropFilter: 'blur(20px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                     }}
                   />
+                  {/* layer 3: top inner highlight */}
                   <span
-                    className="relative inline-flex items-center justify-center text-white"
+                    aria-hidden="true"
+                    className="absolute inset-x-0 top-0 pointer-events-none"
+                    style={{
+                      height: '50%',
+                      background: 'linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 100%)',
+                      mixBlendMode: 'overlay',
+                    }}
+                  />
+
+                  <span
+                    className="relative inline-flex items-center justify-center text-white z-10"
                     style={{
                       width: '52px',
                       height: '52px',
@@ -179,12 +187,12 @@ export default function Learn() {
                       className="absolute inset-0 pointer-events-none"
                       style={{
                         borderRadius: '16px',
-                        background: 'linear-gradient(160deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.10) 38%, rgba(255,255,255,0) 60%)',
+                        background: 'linear-gradient(160deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.10) 38%, rgba(255,255,255,0) 60%)',
                       }}
                     />
                     <ItemIcon size={24} strokeWidth={2.3} className="relative" />
                   </span>
-                  <span className="text-[13px] font-semibold text-center px-1 leading-tight tracking-tight">{item.label}</span>
+                  <span className="relative z-10 text-[13px] font-semibold text-center px-1 leading-tight tracking-tight">{item.label}</span>
                 </button>
               );
             })}

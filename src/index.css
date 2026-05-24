@@ -445,13 +445,23 @@ button, [role="button"] {
 
 /* ===== LEARN PAGE TILE ===== */
 .learn-tile {
+  background: rgba(255, 255, 255, 0.30);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(15, 26, 46, 0.04),
+    0 1px 2px rgba(15, 26, 46, 0.05),
+    0 10px 24px -12px rgba(15, 26, 46, 0.16);
   transition: transform 0.22s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.22s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .learn-tile:hover {
   transform: translateY(-3px);
-  box-shadow: 0 2px 4px rgba(15, 26, 46, 0.06), 0 16px 28px -12px rgba(15, 26, 46, 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 rgba(15, 26, 46, 0.04),
+    0 2px 4px rgba(15, 26, 46, 0.06),
+    0 18px 32px -12px rgba(15, 26, 46, 0.22);
 }
 .learn-tile:active { transform: translateY(-1px) scale(0.985); }
 
