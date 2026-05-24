@@ -231,7 +231,7 @@ function IconBtn({ onClick, tone, Icon, title }) {
   return (
     <button onClick={onClick} title={title}
       className={`w-8 h-8 inline-flex items-center justify-center transition-colors ${tones[tone]}`}
-      style={{ borderRadius: 'var(--radius-sm)' }}>
+      style={{ borderRadius: 'var(--radius-full)' }}>
       <Icon size={14} strokeWidth={2.2} />
     </button>
   );

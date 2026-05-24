@@ -8,8 +8,13 @@ export function FeedbackButton() {
   return (
     <>
       <button onClick={() => setShow(true)}
-        className="fixed bottom-20 right-3 z-30 w-10 h-10 rounded-full bg-info text-white shadow-lg flex items-center justify-center text-sm"
-        style={{ minHeight: '40px', minWidth: '40px' }}>
+        className="fixed right-3 z-30 w-11 h-11 rounded-full bg-info text-white flex items-center justify-center text-sm"
+        style={{
+          minHeight: '44px',
+          minWidth: '44px',
+          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 88px)',
+          boxShadow: '0 6px 16px rgba(15, 26, 46, 0.18), 0 12px 28px rgba(15, 26, 46, 0.12)',
+        }}>
         💬
       </button>
       {show && <FeedbackPanel onClose={() => setShow(false)} />}
@@ -66,7 +71,7 @@ function FeedbackPanel({ onClose }) {
         <div className="grid grid-cols-4 gap-1.5">
           {types.map(t => (
             <button key={t.key} onClick={() => setType(t.key)}
-              className={`py-2.5 rounded-xl text-center text-[10px] font-bold transition-colors ${
+              className={`py-2.5 rounded-full text-center text-[10px] font-bold transition-colors ${
                 type === t.key ? 'bg-info text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
               }`}>
               {t.label}
