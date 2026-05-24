@@ -70,21 +70,49 @@ export default function Learn() {
         },
       ];
 
-  const toneGradients = {
-    info:    'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
-    success: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
-    warning: 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)',
-    danger:  'linear-gradient(135deg, #EF4444 0%, #B91C1C 100%)',
-    purple:  'linear-gradient(135deg, #A78BFA 0%, #6D28D9 100%)',
-    shock:   'linear-gradient(135deg, #FB923C 0%, #C2410C 100%)',
-  };
-  const toneShadows = {
-    info:    '0 6px 14px rgba(37, 99, 235, 0.28)',
-    success: '0 6px 14px rgba(5, 150, 105, 0.28)',
-    warning: '0 6px 14px rgba(217, 119, 6, 0.28)',
-    danger:  '0 6px 14px rgba(220, 38, 38, 0.28)',
-    purple:  '0 6px 14px rgba(124, 58, 237, 0.28)',
-    shock:   '0 6px 14px rgba(234, 88, 12, 0.28)',
+  const toneStyles = {
+    info: {
+      gradient: 'linear-gradient(135deg, #60A5FA 0%, #2563EB 50%, #1E40AF 100%)',
+      glow:     '0 10px 22px -6px rgba(37, 99, 235, 0.55), 0 4px 8px -2px rgba(37, 99, 235, 0.32)',
+      cardBg:   'linear-gradient(180deg, #F0F6FF 0%, #FFFFFF 70%)',
+      ring:     'rgba(37, 99, 235, 0.18)',
+      accent:   '#2563EB',
+    },
+    success: {
+      gradient: 'linear-gradient(135deg, #34D399 0%, #059669 50%, #047857 100%)',
+      glow:     '0 10px 22px -6px rgba(5, 150, 105, 0.55), 0 4px 8px -2px rgba(5, 150, 105, 0.32)',
+      cardBg:   'linear-gradient(180deg, #ECFDF5 0%, #FFFFFF 70%)',
+      ring:     'rgba(5, 150, 105, 0.18)',
+      accent:   '#059669',
+    },
+    warning: {
+      gradient: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #B45309 100%)',
+      glow:     '0 10px 22px -6px rgba(217, 119, 6, 0.55), 0 4px 8px -2px rgba(217, 119, 6, 0.32)',
+      cardBg:   'linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 70%)',
+      ring:     'rgba(217, 119, 6, 0.18)',
+      accent:   '#D97706',
+    },
+    danger: {
+      gradient: 'linear-gradient(135deg, #F87171 0%, #DC2626 50%, #991B1B 100%)',
+      glow:     '0 10px 22px -6px rgba(220, 38, 38, 0.55), 0 4px 8px -2px rgba(220, 38, 38, 0.32)',
+      cardBg:   'linear-gradient(180deg, #FEF2F2 0%, #FFFFFF 70%)',
+      ring:     'rgba(220, 38, 38, 0.18)',
+      accent:   '#DC2626',
+    },
+    purple: {
+      gradient: 'linear-gradient(135deg, #C4B5FD 0%, #8B5CF6 50%, #6D28D9 100%)',
+      glow:     '0 10px 22px -6px rgba(124, 58, 237, 0.55), 0 4px 8px -2px rgba(124, 58, 237, 0.32)',
+      cardBg:   'linear-gradient(180deg, #F5F3FF 0%, #FFFFFF 70%)',
+      ring:     'rgba(124, 58, 237, 0.18)',
+      accent:   '#7C3AED',
+    },
+    shock: {
+      gradient: 'linear-gradient(135deg, #FDBA74 0%, #F97316 50%, #C2410C 100%)',
+      glow:     '0 10px 22px -6px rgba(234, 88, 12, 0.55), 0 4px 8px -2px rgba(234, 88, 12, 0.32)',
+      cardBg:   'linear-gradient(180deg, #FFF7ED 0%, #FFFFFF 70%)',
+      ring:     'rgba(234, 88, 12, 0.18)',
+      accent:   '#EA580C',
+    },
   };
 
   return (
@@ -112,30 +140,51 @@ export default function Learn() {
           <div className="grid grid-cols-3 gap-3">
             {section.items.map(item => {
               const ItemIcon = item.Icon;
-              const tone = item.tone || 'info';
+              const tone = toneStyles[item.tone || 'info'];
               return (
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className="learn-tile flex flex-col items-center gap-2.5 py-4 px-2 text-text-primary"
+                  className="learn-tile relative flex flex-col items-center gap-3 pt-5 pb-4 px-2 text-text-primary overflow-hidden"
                   style={{
-                    borderRadius: 'var(--radius-xl)',
-                    background: 'var(--color-bg-secondary)',
-                    border: '1px solid var(--color-border)',
-                    boxShadow: 'var(--shadow-1)',
+                    borderRadius: 'var(--radius-2xl)',
+                    background: tone.cardBg,
+                    border: `1px solid ${tone.ring}`,
+                    boxShadow: '0 1px 2px rgba(15, 26, 46, 0.04), 0 6px 14px -8px rgba(15, 26, 46, 0.10)',
                   }}
                 >
                   <span
-                    className="w-12 h-12 inline-flex items-center justify-center text-white"
+                    aria-hidden="true"
+                    className="absolute top-0 left-1/2 -translate-x-1/2"
                     style={{
-                      borderRadius: 'var(--radius-lg)',
-                      background: toneGradients[tone],
-                      boxShadow: toneShadows[tone],
+                      width: '46%',
+                      height: '3px',
+                      borderRadius: '0 0 999px 999px',
+                      background: tone.gradient,
+                      opacity: 0.85,
+                    }}
+                  />
+                  <span
+                    className="relative inline-flex items-center justify-center text-white"
+                    style={{
+                      width: '52px',
+                      height: '52px',
+                      borderRadius: '16px',
+                      background: tone.gradient,
+                      boxShadow: tone.glow,
                     }}
                   >
-                    <ItemIcon size={22} strokeWidth={2.2} />
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        borderRadius: '16px',
+                        background: 'linear-gradient(160deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.10) 38%, rgba(255,255,255,0) 60%)',
+                      }}
+                    />
+                    <ItemIcon size={24} strokeWidth={2.3} className="relative" />
                   </span>
-                  <span className="text-xs font-semibold text-center px-1 leading-tight">{item.label}</span>
+                  <span className="text-[13px] font-semibold text-center px-1 leading-tight tracking-tight">{item.label}</span>
                 </button>
               );
             })}
