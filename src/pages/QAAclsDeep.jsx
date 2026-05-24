@@ -142,8 +142,13 @@ export default function QAAclsDeep() {
       {!loading && featured && featuredImage && (
         <Link
           to={featuredHref}
-          className="block overflow-hidden border border-border bg-bg-secondary hover:bg-bg-tertiary/50 transition-colors"
-          style={{ borderRadius: 'var(--radius-xl)' }}
+          className="block overflow-hidden hover:-translate-y-0.5 active:scale-[0.99] transition-all"
+          style={{
+            background: 'var(--color-bg-elevated)',
+            borderRadius: '22px',
+            border: '1px solid rgba(15, 26, 46, 0.06)',
+            boxShadow: '0 1px 2px rgba(15, 26, 46, 0.04), 0 10px 24px -12px rgba(15, 26, 46, 0.18)',
+          }}
         >
           <div className="flex items-center justify-between gap-2 px-3 pt-2.5 pb-1">
             <div className="inline-flex items-center gap-1.5">
@@ -240,7 +245,7 @@ export default function QAAclsDeep() {
                       style={{ height: 64 }}
                     >
                       <span
-                        className="leading-none"
+                        className="leading-none hover-bounce-emoji"
                         style={{
                           fontSize: 52,
                           filter: 'drop-shadow(0 4px 8px rgba(15, 26, 46, 0.18))',
