@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, BookOpen } from 'lucide-react';
+import { ArrowLeft, BookOpen, ListOrdered } from 'lucide-react';
 import QASection from '../components/QASection';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 
@@ -40,12 +40,21 @@ export default function QAAclsDeepCategory() {
     : (chapter?.title || 'หมวดที่ไม่พบ');
   const icon = chapterId === UNCATEGORIZED ? '📌' : (chapter?.icon || '📘');
 
-  // Map Q&A items into QASection prop shape (infographics → images array)
+  // Map Q&A items into QASection prop shape (cover + infographics → images)
   const qa = categoryItems.map(it => ({
     q: it.question,
     a: it.answer,
+    cover: it.cover ?? null,
     images: it.infographics ?? [],
   }));
+
+  const handleJump = (idx) => (e) => {
+    e.preventDefault();
+    const el = document.getElementById(`qa-${idx + 1}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <div className="page-container space-y-4">
@@ -76,29 +85,56 @@ export default function QAAclsDeepCategory() {
           <p className="text-caption text-text-muted">ยังไม่มีคำถามในหมวดนี้</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {categoryItems.map((it, idx) => (
-            <div key={it.id || idx} className="space-y-2">
-              {it.cover && (
-                <figure className="m-0">
-                  <img
-                    src={it.cover.src}
-                    alt={it.cover.alt || it.question}
-                    loading="lazy"
-                    className="w-full h-auto block border border-border"
-                    style={{ borderRadius: 'var(--radius-md)' }}
-                  />
-                  {it.cover.caption && (
-                    <figcaption className="text-[11px] text-text-muted mt-1 leading-relaxed">
-                      {it.cover.caption}
-                    </figcaption>
-                  )}
-                </figure>
-              )}
-              <QASection qa={[qa[idx]]} />
-            </div>
-          ))}
-        </div>
+        <>
+          {/* Quick TOC: jump to any question */}
+          {categoryItems.length > 1 && (
+            <nav
+              aria-label="สารบัญคำถาม"
+              className="bg-bg-secondary border border-border"
+              style={{
+                borderRadius: 'var(--radius-lg)',
+                padding: '12px 14px',
+                boxShadow: '0 1px 2px rgba(15, 26, 46, 0.04)',
+              }}
+            >
+              <div className="flex items-center gap-1.5 mb-2 text-info">
+                <ListOrdered size={14} strokeWidth={2.4} />
+                <span className="text-[11px] font-bold uppercase tracking-wider">
+                  สารบัญคำถาม
+                </span>
+              </div>
+              <ol className="space-y-1.5 list-none m-0 p-0">
+                {categoryItems.map((it, idx) => (
+                  <li key={it.id || idx}>
+                    <a
+                      href={`#qa-${idx + 1}`}
+                      onClick={handleJump(idx)}
+                      className="flex items-start gap-2.5 text-[13.5px] text-text-secondary hover:text-info transition-colors py-1 leading-snug"
+                    >
+                      <span
+                        className="inline-flex items-center justify-center shrink-0 text-info font-bold text-[11px]"
+                        style={{
+                          minWidth: 26,
+                          height: 22,
+                          padding: '0 6px',
+                          background: 'rgba(37, 99, 235, 0.10)',
+                          borderRadius: 999,
+                          marginTop: 1,
+                          letterSpacing: '0.02em',
+                        }}
+                      >
+                        Q{idx + 1}
+                      </span>
+                      <span className="line-clamp-2">{it.question}</span>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          )}
+
+          <QASection qa={qa} />
+        </>
       )}
     </div>
   );
