@@ -26,6 +26,34 @@ function parseChapterTitle(title) {
   return { num: null, name: title };
 }
 
+// Derive a short, glance-able label from a long Thai chapter name.
+// Priority: (1) parenthesized English short form, (2) trailing English
+// phrase like "ROSC"/"Code Blue", (3) last "/"-segment,
+// (4) phrase before a Thai connector, then strip filler and cap length.
+function shortChapterName(rawName) {
+  const src = (rawName || '').trim();
+  if (!src) return src;
+
+  const paren = src.match(/\(([^()]+)\)/);
+  if (paren) {
+    const inner = paren[1].split(/[·,/]/)[0].trim();
+    if (inner) return inner;
+  }
+
+  const tail = src.match(/([A-Z][A-Za-z&]+(?:\s+[A-Z][A-Za-z&]+)*)\s*$/);
+  if (tail) return tail[1];
+
+  if (src.includes('/')) {
+    const parts = src.split('/').map(s => s.trim()).filter(Boolean);
+    if (parts.length) return parts[parts.length - 1];
+  }
+
+  const beforeConj = src.split(/\s*(?:และ|หรือ|กับ|พร้อม|อย่าง|แบบ|ขั้น)\s*/)[0].trim();
+  const compact = beforeConj.replace(/^(การ|ภาวะ|โรค|กลุ่มอาการ|ทีม)\s*/, '');
+  if (compact.length <= 18) return compact;
+  return compact.slice(0, 16) + '…';
+}
+
 export default function QAAclsDeep() {
   const [page, setPage] = useState({ title: 'Q&A ACLS เชิงลึก', intro: '', coverImage: null });
   const [items, setItems] = useState([]);
@@ -226,6 +254,7 @@ export default function QAAclsDeep() {
               const palette = CHAPTER_PALETTE[idx % CHAPTER_PALETTE.length];
               const n = counts.byChapter.get(ch.id) ?? 0;
               const { num, name } = parseChapterTitle(ch.title);
+              const shortName = shortChapterName(name);
               return (
                 <Link
                   key={ch.id}
@@ -285,10 +314,11 @@ export default function QAAclsDeep() {
                   {/* Title + count */}
                   <div className="relative flex-1 flex flex-col items-center text-center px-3 pt-3 pb-2.5 gap-1.5">
                     <div
-                      className="text-[15px] font-extrabold leading-tight line-clamp-2 px-0.5"
+                      className="text-[17px] font-extrabold leading-tight line-clamp-2 px-0.5"
                       style={{ color: palette.accent }}
+                      title={name}
                     >
-                      {name}
+                      {shortName}
                     </div>
                     <span
                       className="mt-auto inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5"
