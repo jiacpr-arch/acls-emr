@@ -4,7 +4,7 @@
 // headings / points and double breaks between blocks, but carries no Markdown
 // syntax. CommonMark collapses single line breaks into one paragraph, so the
 // reader sees a wall of text. This restores structure heuristically:
-//   • single line breaks become hard breaks (each point stays on its own line)
+//   • single line breaks become separate paragraphs (each point on its own)
 //   • a short line ending in ":" becomes a sub-heading
 //   • "1. Title" / a short block-leading line becomes a section heading
 //   • "A. Sub-title" becomes a sub-heading
@@ -107,7 +107,7 @@ export function normalizeAnswerMarkdown(src) {
     if (next === undefined) break;
     if (out[i] === '' || next === '') md += '\n';
     else if (isList(out[i]) && isList(next)) md += '\n';
-    else md += '  \n';
+    else md += '\n\n';
   }
 
   return md.replace(/\n{3,}/g, '\n\n').trim();

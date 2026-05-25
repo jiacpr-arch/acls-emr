@@ -109,34 +109,37 @@ const mdComponents = {
     </h3>
   ),
   h2: ({ children }) => (
-    <h4 className="text-[16px] font-bold text-danger leading-snug mt-5 mb-2 first:mt-1 inline-flex items-center gap-2">
+    <h4 className="text-[18px] font-bold text-danger leading-snug mt-7 mb-3.5 first:mt-1 flex items-center gap-2">
       <span
         aria-hidden
-        className="inline-block"
-        style={{ width: 4, height: 16, background: 'var(--color-danger)', borderRadius: 2 }}
+        className="inline-block shrink-0"
+        style={{ width: 4, height: 18, background: 'var(--color-danger)', borderRadius: 2 }}
       />
       {children}
     </h4>
   ),
   h3: ({ children }) => (
-    <h5 className="text-[15px] font-bold text-info leading-snug mt-4 mb-1.5 first:mt-1">
+    <h5 className="text-[16px] font-bold text-info leading-snug mt-5 mb-2.5 first:mt-1">
       {children}
     </h5>
   ),
   p: ({ children }) => (
-    <p className="text-[14.5px] text-text-secondary mb-3 last:mb-0" style={{ lineHeight: 1.7 }}>
+    <p
+      className="text-[15.5px] text-text-secondary mb-3.5 last:mb-0"
+      style={{ lineHeight: 1.85, textIndent: '1.5em' }}
+    >
       {children}
     </p>
   ),
   ul: ({ children }) => (
-    <ul className="list-disc pl-5 space-y-2 text-[14.5px] text-text-secondary mb-3 last:mb-0 marker:text-info"
-      style={{ lineHeight: 1.7 }}>
+    <ul className="list-disc pl-6 space-y-2 text-[15.5px] text-text-secondary mb-3.5 last:mb-0 marker:text-info"
+      style={{ lineHeight: 1.8 }}>
       {children}
     </ul>
   ),
   ol: ({ children }) => (
-    <ol className="list-decimal pl-5 space-y-2 text-[14.5px] text-text-secondary mb-3 last:mb-0 marker:text-info marker:font-bold"
-      style={{ lineHeight: 1.7 }}>
+    <ol className="list-decimal pl-6 space-y-2 text-[15.5px] text-text-secondary mb-3.5 last:mb-0 marker:text-info marker:font-bold"
+      style={{ lineHeight: 1.8 }}>
       {children}
     </ol>
   ),
@@ -147,8 +150,8 @@ const mdComponents = {
   em: ({ children }) => <em className="italic">{children}</em>,
   blockquote: ({ children }) => (
     <div
-      className="my-3 px-4 py-3 bg-warning/8 border-l-[3px] border-warning text-[14.5px] text-text-secondary"
-      style={{ borderRadius: 'var(--radius-sm)', lineHeight: 1.7 }}
+      className="my-3.5 px-4 py-3 bg-warning/8 border-l-[3px] border-warning text-[15.5px] text-text-secondary"
+      style={{ borderRadius: 'var(--radius-sm)', lineHeight: 1.8 }}
     >
       {children}
     </div>
