@@ -1,7 +1,10 @@
-import { GraduationCap, MessageSquare, Phone, ChevronRight } from './ui/Icon';
-import { jiacprCourse } from '../data/jiacprCourse';
+import { useMemo } from 'react';
+import { GraduationCap, MessageSquare, Phone } from './ui/Icon';
+import { jiacprCourse, pickRandomJiaCourse } from '../data/jiacprCourse';
 
 export default function JiacprCourseBanner() {
+  const course = useMemo(() => pickRandomJiaCourse(), []);
+
   return (
     <div
       className="dash-card border-l-4 border-l-success animate-slide-up"
@@ -19,9 +22,15 @@ export default function JiacprCourseBanner() {
           <GraduationCap size={20} strokeWidth={2.4} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-overline text-success">เรียน ACLS หน้างานจริง</div>
-          <div className="text-body-strong text-text-primary mt-0.5">{jiacprCourse.headline}</div>
-          <div className="text-caption text-text-muted mt-0.5">{jiacprCourse.subline}</div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-overline text-success">คอร์สอบรมหน้างานจริง</span>
+            <span className="text-overline text-text-muted opacity-50">·</span>
+            <span className="text-overline text-text-muted">{course.group}</span>
+          </div>
+          <div className="text-body-strong text-text-primary mt-0.5">{course.name}</div>
+          <div className="text-caption text-text-secondary mt-0.5">{course.titleTh}</div>
+          <div className="text-caption text-text-muted mt-1">{course.desc}</div>
+          <div className="text-overline text-text-muted mt-1.5">{course.meta}</div>
         </div>
       </div>
 
@@ -43,17 +52,6 @@ export default function JiacprCourseBanner() {
           <Phone size={16} strokeWidth={2.4} /> โทร {jiacprCourse.phoneDisplay}
         </a>
       </div>
-
-      <a
-        href={jiacprCourse.website}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-info hover:underline"
-        style={{ textDecoration: 'none' }}
-      >
-        ดูตารางและราคา
-        <ChevronRight size={14} strokeWidth={2.4} />
-      </a>
     </div>
   );
 }
