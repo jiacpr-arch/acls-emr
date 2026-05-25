@@ -11,6 +11,8 @@ import {
 import ResultsSummary from '../components/precourse/ResultsSummary';
 import { exportStudentResultPDF } from '../utils/exportPreCourse';
 import { ChevronLeft, ChevronRight, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import { IS_ACLS } from '../config/courseMode';
 
 export default function QuizResults() {
   const navigate = useNavigate();
@@ -128,6 +130,8 @@ export default function QuizResults() {
           </p>
         </div>
       </div>
+
+      {IS_ACLS && <JiacprCourseBanner />}
 
       <ResultsSummary attempt={attempt} lesson={lesson} student={student} />
 

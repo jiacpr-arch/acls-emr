@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAllCases, getFullCase } from '../db/database';
 import { Layers } from 'lucide-react';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 export default function CaseCompare() {
   const [cases, setCases] = useState([]);
@@ -48,6 +49,8 @@ export default function CaseCompare() {
           <p className="text-caption text-text-muted">Side-by-side performance comparison</p>
         </div>
       </div>
+
+      <JiacprCourseBanner />
 
       {/* Case selectors */}
       <div className="grid grid-cols-2 gap-3">

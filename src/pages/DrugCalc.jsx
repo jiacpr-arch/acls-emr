@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ScrollPicker from '../components/ScrollPicker';
 import { Pill, Calculator, AlertTriangle } from 'lucide-react';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 export default function DrugCalc() {
   const [weight, setWeight] = useState(70);
@@ -32,6 +33,8 @@ export default function DrugCalc() {
           <p className="text-caption text-text-muted">Weight-based dosing reference</p>
         </div>
       </div>
+
+      <JiacprCourseBanner />
 
       <div className="dash-card">
         <ScrollPicker label="Patient Weight" value={weight} onChange={setWeight}

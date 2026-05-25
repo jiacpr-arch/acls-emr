@@ -7,6 +7,8 @@ import { LineChart, Line, XAxis, YAxis, ReferenceLine, ResponsiveContainer } fro
 import TeachingAnnotation, { AnnotationBadge } from '../components/TeachingAnnotation';
 import ShareExport from '../components/ShareExport';
 import MorrooAdCard from '../components/MorrooAdCard';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import { IS_ACLS } from '../config/courseMode';
 import {
   FileText, HeartPulse, BarChart3, AlertCircle, Plus, Layers,
   Download, Share, Edit, Trash, Play, HelpCircle, Activity, Pill,
@@ -92,6 +94,8 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
+
+      {IS_ACLS && <JiacprCourseBanner />}
 
       <MorrooAdCard />
 

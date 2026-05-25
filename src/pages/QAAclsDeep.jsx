@@ -4,6 +4,7 @@ import { Sparkles, ArrowRight, Search, Shuffle, MessageCircleQuestion, ChevronRi
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 import StudentQuestionForm from '../components/StudentQuestionForm';
 import { CHAPTER_PALETTE, UNCATEGORIZED_PALETTE, parseChapterTitle } from '../utils/qaChapters';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 export default function QAAclsDeep() {
   const [page, setPage] = useState({ title: 'Q&A ACLS เชิงลึก', intro: '', coverImage: null });
@@ -94,6 +95,8 @@ export default function QAAclsDeep() {
           <p className="text-caption text-text-muted whitespace-pre-line">{page.intro}</p>
         )}
       </div>
+
+      <JiacprCourseBanner />
 
       <button
         type="button"
