@@ -43,6 +43,14 @@ const baseAds = [
     icon: 'MessageSquare',
     tone: 'shock',
   },
+  {
+    id: 'bls',
+    name: 'BLS',
+    tagline: 'ฝึก CPR & BLS ออนไลน์ ตามแนวทางล่าสุด',
+    url: 'https://bls.morroo.com',
+    icon: 'HeartPulse',
+    tone: 'success',
+  },
 ];
 
 // Promote the sibling ACLS course only on the BLS build — on acls.morroo.com

@@ -6,6 +6,8 @@ import {
   Search, X, ChevronDown, MessageSquare, FileText,
 } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import { IS_ACLS } from '../config/courseMode';
 
 const quickLinks = [
   { Icon: Plus, label: 'เริ่มเคส', sectionId: 'newcase' },
@@ -101,6 +103,8 @@ export default function UserGuide() {
       <div className="text-caption text-text-muted">
         {search ? `พบ ${filtered.length} หัวข้อ` : `ทั้งหมด ${guideSections.length} หัวข้อ`}
       </div>
+
+      {IS_ACLS && <JiacprCourseBanner />}
 
       <MorrooAdCard />
 

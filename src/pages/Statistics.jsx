@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getAllCases } from '../db/database';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { BarChart3, FileText, HeartPulse, Activity, Hospital, GraduationCap } from '../components/ui/Icon';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 export default function Statistics() {
   const [cases, setCases] = useState([]);
@@ -48,6 +49,8 @@ export default function Statistics() {
           <p className="text-caption text-text-muted">Outcomes & training analytics</p>
         </div>
       </div>
+
+      <JiacprCourseBanner />
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-3">

@@ -4,6 +4,7 @@ import {
   Heart, TrendingDown, Zap, HeartPulse, ChevronDown, ChevronRight,
   GitBranch, Wind,
 } from 'lucide-react';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 const algorithms = [
   {
@@ -206,6 +207,8 @@ export default function Algorithm() {
         <h1 className="text-title text-text-primary">ACLS Algorithms</h1>
         <p className="text-caption text-text-muted mt-0.5">Evidence-based decision flowcharts</p>
       </div>
+
+      <JiacprCourseBanner />
 
       {/* Algorithm tabs — pill row */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">

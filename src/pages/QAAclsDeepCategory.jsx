@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, BookOpen, ListOrdered } from 'lucide-react';
 import QASection from '../components/QASection';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   chapterPaletteAt,
   parseChapterTitle,
@@ -75,6 +76,8 @@ export default function QAAclsDeepCategory() {
           <ArrowLeft size={14} strokeWidth={2.2} /> ทุกหมวด
         </Link>
       </div>
+
+      <JiacprCourseBanner />
 
       <header
         className="relative overflow-hidden text-white"

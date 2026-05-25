@@ -6,6 +6,7 @@ import {
   Heart, TrendingDown, TrendingUp, Brain, FileText, GraduationCap, Edit,
   Sparkles, ChevronRight, X,
 } from '../components/ui/Icon';
+import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 export default function ScenarioSelect() {
   const navigate = useNavigate();
@@ -44,6 +45,8 @@ export default function ScenarioSelect() {
         <h1 className="text-title text-text-primary">Training Scenarios</h1>
         <p className="text-caption text-text-muted mt-0.5">Practice ACLS in simulated cases</p>
       </div>
+
+      <JiacprCourseBanner />
 
       {/* Mode selection */}
       <div>
