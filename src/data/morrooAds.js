@@ -1,7 +1,8 @@
 // Cross-promo ads for sibling morroo.com tools.
 // Shown as a single rotating card on non-clinical pages.
+import { IS_BLS } from '../config/courseMode';
 
-export const morrooAds = [
+const baseAds = [
   {
     id: 'morroo',
     name: 'Morroo Suite',
@@ -43,6 +44,19 @@ export const morrooAds = [
     tone: 'shock',
   },
 ];
+
+// Promote the sibling ACLS course only on the BLS build — on acls.morroo.com
+// itself this would advertise the site to its own visitors.
+const aclsAd = {
+  id: 'acls',
+  name: 'ACLS',
+  tagline: 'เรียนต่อ ACLS ออนไลน์ + สอบใบประกาศ ILCOR 2025',
+  url: 'https://acls.morroo.com',
+  icon: 'HeartPulse',
+  tone: 'danger',
+};
+
+export const morrooAds = IS_BLS ? [aclsAd, ...baseAds] : baseAds;
 
 export function pickRandomAd(exceptId) {
   const pool = exceptId ? morrooAds.filter(a => a.id !== exceptId) : morrooAds;

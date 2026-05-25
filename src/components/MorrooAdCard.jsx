@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import {
-  Hospital, BookOpen, FlaskConical, FileText, MessageSquare, ChevronRight,
+  Hospital, BookOpen, FlaskConical, FileText, MessageSquare, HeartPulse, ChevronRight,
 } from './ui/Icon';
 import { pickRandomAd } from '../data/morrooAds';
 
@@ -10,6 +10,7 @@ const ICONS = {
   FlaskConical,
   FileText,
   MessageSquare,
+  HeartPulse,
 };
 
 const TONE_VARS = {
@@ -18,6 +19,7 @@ const TONE_VARS = {
   success: { bg: 'rgba(5, 150, 105, 0.10)',  fg: '#059669' },
   warning: { bg: 'rgba(217, 119, 6, 0.10)',  fg: '#D97706' },
   shock:   { bg: 'rgba(234, 88, 12, 0.10)',  fg: '#EA580C' },
+  danger:  { bg: 'rgba(220, 38, 38, 0.10)',  fg: '#DC2626' },
 };
 
 export default function MorrooAdCard() {
