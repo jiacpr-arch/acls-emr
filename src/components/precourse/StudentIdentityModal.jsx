@@ -9,6 +9,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
   const setActiveStudent = usePreCourseStore(s => s.setActiveStudent);
   const [name, setName] = useState('');
   const [studentId, setStudentId] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -18,16 +19,22 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
     e?.preventDefault();
     const n = name.trim();
     const sid = studentId.trim();
-    if (!n || !sid) {
-      setError('กรุณากรอกทั้งชื่อและรหัสนักเรียน');
+    const tel = phone.trim();
+    if (!n || !sid || !tel) {
+      setError('กรุณากรอกชื่อ รหัสนักเรียน และเบอร์โทร');
+      return;
+    }
+    if (tel.replace(/\D/g, '').length < 9) {
+      setError('เบอร์โทรไม่ถูกต้อง');
       return;
     }
     setBusy(true);
     try {
       const existing = await findStudentByStudentId(sid);
+      const unchanged = existing && existing.name === n && existing.phone === tel;
       const record = existing
-        ? { ...existing, name: n, syncedAt: existing.name === n ? existing.syncedAt : null }
-        : { id: uuidv4(), studentId: sid, name: n, createdAt: new Date().toISOString() };
+        ? { ...existing, name: n, phone: tel, syncedAt: unchanged ? existing.syncedAt : null }
+        : { id: uuidv4(), studentId: sid, name: n, phone: tel, createdAt: new Date().toISOString() };
       await upsertStudent(record);
       setActiveStudent(record);
       scheduleFlush();
@@ -79,6 +86,14 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
               type="text" value={studentId}
               onChange={e => setStudentId(e.target.value)}
               placeholder="เช่น 65001"
+              className="w-full text-body mt-1" />
+          </label>
+          <label className="block">
+            <span className="text-caption font-semibold text-text-secondary">เบอร์โทร</span>
+            <input
+              type="tel" inputMode="tel" value={phone}
+              onChange={e => setPhone(e.target.value)}
+              placeholder="เช่น 081-234-5678"
               className="w-full text-body mt-1" />
           </label>
           {error && (

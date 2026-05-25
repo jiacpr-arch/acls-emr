@@ -58,6 +58,7 @@ export function exportStudentResultPDF({ student, attempt, lesson }) {
   const summary = [
     ['Student name', student?.name || '-'],
     ['Student ID', student?.studentId || '-'],
+    ['Phone', student?.phone || '-'],
     ['Lesson', lesson?.title || attempt?.lessonId || '-'],
     ['Started', fmtDate(attempt?.startedAt)],
     ['Finished', fmtDate(attempt?.finishedAt)],
@@ -142,6 +143,7 @@ export function exportCohortPDF({ rows, lesson }) {
     String(i + 1),
     r.studentId || '-',
     r.name || '-',
+    r.phone || '-',
     r.read ? 'YES' : 'NO',
     r.attemptCount ? String(r.attemptCount) : '0',
     r.bestScore != null ? `${r.bestScore}%` : '-',
@@ -151,7 +153,7 @@ export function exportCohortPDF({ rows, lesson }) {
 
   autoTable(doc, {
     startY: y,
-    head: [['#', 'Student ID', 'Name', 'Read', 'Attempts', 'Best', 'Result', 'Last attempt']],
+    head: [['#', 'Student ID', 'Name', 'Phone', 'Read', 'Attempts', 'Best', 'Result', 'Last attempt']],
     body,
     theme: 'grid',
     headStyles: { fillColor: HEADER_COLOR, fontSize: 8 },
@@ -159,12 +161,13 @@ export function exportCohortPDF({ rows, lesson }) {
     columnStyles: {
       0: { cellWidth: 8, halign: 'center' },
       1: { cellWidth: 22 },
-      2: { cellWidth: 45 },
-      3: { cellWidth: 14, halign: 'center' },
-      4: { cellWidth: 16, halign: 'center' },
-      5: { cellWidth: 14, halign: 'center', fontStyle: 'bold' },
-      6: { cellWidth: 16, halign: 'center', fontStyle: 'bold' },
-      7: { cellWidth: 'auto' },
+      2: { cellWidth: 36 },
+      3: { cellWidth: 26 },
+      4: { cellWidth: 12, halign: 'center' },
+      5: { cellWidth: 14, halign: 'center' },
+      6: { cellWidth: 13, halign: 'center', fontStyle: 'bold' },
+      7: { cellWidth: 14, halign: 'center', fontStyle: 'bold' },
+      8: { cellWidth: 'auto' },
     },
     margin: { left: 10, right: 10 },
   });
@@ -180,7 +183,7 @@ export function exportCohortPDF({ rows, lesson }) {
  */
 export function exportCohortCSV({ rows, lesson }) {
   const headers = [
-    'Student ID', 'Name', 'Lesson', 'Read', 'Attempts',
+    'Student ID', 'Name', 'Phone', 'Lesson', 'Read', 'Attempts',
     'Best score (%)', 'Passing score (%)', 'Result', 'Last attempt',
   ];
   const esc = (v) => {
@@ -194,6 +197,7 @@ export function exportCohortCSV({ rows, lesson }) {
     lines.push([
       esc(r.studentId),
       esc(r.name),
+      esc(r.phone || ''),
       esc(lesson?.title || lesson?.id || ''),
       r.read ? 'YES' : 'NO',
       r.attemptCount ?? 0,

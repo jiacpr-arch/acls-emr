@@ -104,7 +104,7 @@ export async function deleteCase(caseId) {
 
 // ===== Pre-course: students =====
 export async function upsertStudent(student) {
-  // student = { id, studentId, name, createdAt }
+  // student = { id, studentId, name, phone, createdAt }
   await db.students.put(student);
   return student;
 }
@@ -184,6 +184,7 @@ export async function getCohortSummary(lessonIds) {
     db.quizAttempts.toArray(),
   ]);
   return students.map(s => {
+    const { id, studentId, name, phone, createdAt } = s;
     const lessons = {};
     for (const lid of lessonIds) {
       const read = allProgress.some(p => p.studentId === s.id && p.lessonId === lid);
@@ -199,6 +200,6 @@ export async function getCohortSummary(lessonIds) {
           : null,
       };
     }
-    return { student: s, lessons };
+    return { student: { id, studentId, name, phone, createdAt }, lessons };
   });
 }

@@ -109,6 +109,7 @@ export default function InstructorCohort() {
       id: student.id,
       studentId: student.studentId,
       name: student.name,
+      phone: student.phone,
       // "read" is meaningless for assessments — show as true (or hide).
       read: isAssessmentView ? true : !!ls.read,
       attemptCount: ls.attemptCount || 0,
@@ -128,6 +129,7 @@ export default function InstructorCohort() {
       id: student.id,
       studentId: student.studentId,
       name: student.name,
+      phone: student.phone,
       readCount, passedCount, total,
       preTestScore: preTest?.bestScore ?? null,
       preTestPassed: preTest?.passed ?? false,
@@ -200,6 +202,7 @@ export default function InstructorCohort() {
             <tr>
               <th className="px-3 py-2 text-left">รหัส</th>
               <th className="px-3 py-2 text-left">ชื่อ</th>
+              <th className="px-3 py-2 text-left">เบอร์โทร</th>
               <th className="px-3 py-2 text-center">บทเรียน อ่าน</th>
               <th className="px-3 py-2 text-center">บทเรียน ผ่าน</th>
               {IS_ACLS && <th className="px-3 py-2 text-center">Pre-test</th>}
@@ -208,13 +211,14 @@ export default function InstructorCohort() {
           </thead>
           <tbody>
             {overallRows.length === 0 ? (
-              <tr><td colSpan={IS_ACLS ? 6 : 5} className="px-3 py-6 text-center text-text-muted">
+              <tr><td colSpan={IS_ACLS ? 7 : 6} className="px-3 py-6 text-center text-text-muted">
                 ยังไม่มีนักเรียน
               </td></tr>
             ) : overallRows.map((r) => (
               <tr key={r.id} className="border-t border-border">
                 <td className="px-3 py-2 font-mono text-text-secondary">{r.studentId}</td>
                 <td className="px-3 py-2 text-text-primary">{r.name}</td>
+                <td className="px-3 py-2 font-mono text-text-secondary">{r.phone || '-'}</td>
                 <td className="px-3 py-2 text-center text-text-secondary">{r.readCount}/{r.total}</td>
                 <td className={`px-3 py-2 text-center font-bold ${
                   r.passedCount === r.total ? 'text-success' : 'text-warning'

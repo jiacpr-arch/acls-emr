@@ -16,6 +16,7 @@ export default function CohortTable({ rows, lesson, onDeleteStudent }) {
             <th className="px-3 py-2 text-left">#</th>
             <th className="px-3 py-2 text-left">รหัส</th>
             <th className="px-3 py-2 text-left">ชื่อ</th>
+            <th className="px-3 py-2 text-left">เบอร์โทร</th>
             <th className="px-3 py-2 text-center">อ่าน</th>
             <th className="px-3 py-2 text-center">ครั้งที่ทำ</th>
             <th className="px-3 py-2 text-center">คะแนนสูงสุด</th>
@@ -30,6 +31,7 @@ export default function CohortTable({ rows, lesson, onDeleteStudent }) {
               <td className="px-3 py-2 text-text-muted">{i + 1}</td>
               <td className="px-3 py-2 font-mono text-text-secondary">{r.studentId}</td>
               <td className="px-3 py-2 text-text-primary">{r.name}</td>
+              <td className="px-3 py-2 font-mono text-text-secondary">{r.phone || '-'}</td>
               <td className="px-3 py-2 text-center">
                 {r.read
                   ? <Check size={14} strokeWidth={2.4} className="inline text-success" />
