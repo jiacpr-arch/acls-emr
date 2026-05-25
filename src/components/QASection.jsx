@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { HelpCircle } from 'lucide-react';
+import { normalizeAnswerMarkdown } from '../utils/normalizeAnswerMarkdown';
 
 const mdComponents = {
   h1: ({ children }) => (
@@ -222,7 +223,7 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
               {item.a && (
                 <div>
                   <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
-                    {item.a}
+                    {normalizeAnswerMarkdown(item.a)}
                   </ReactMarkdown>
                 </div>
               )}
