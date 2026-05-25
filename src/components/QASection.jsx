@@ -121,7 +121,22 @@ function Figure({ img, fallbackAlt, rounded = 'var(--radius-sm)' }) {
   );
 }
 
-export default function QASection({ qa, startIndex = 0, showNumber = true }) {
+export default function QASection({ qa, startIndex = 0, showNumber = true, accent = null }) {
+  // When a chapter accent is supplied, theme the question header + badge to it;
+  // otherwise fall back to the default info-blue (used on the ALS knowledge page).
+  const badgeGradient = accent
+    ? `linear-gradient(135deg, ${accent} 0%, color-mix(in srgb, ${accent} 72%, #000) 100%)`
+    : 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark) 100%)';
+  const badgeShadow = accent
+    ? `0 2px 6px -2px color-mix(in srgb, ${accent} 55%, transparent)`
+    : '0 2px 6px -2px rgba(37, 99, 235, 0.55)';
+  const headerBand = accent
+    ? `linear-gradient(180deg, color-mix(in srgb, ${accent} 7%, transparent) 0%, color-mix(in srgb, ${accent} 2%, transparent) 100%)`
+    : 'linear-gradient(180deg, rgba(37, 99, 235, 0.06) 0%, rgba(37, 99, 235, 0.02) 100%)';
+  const iconChip = accent
+    ? { background: `color-mix(in srgb, ${accent} 15%, transparent)`, color: accent }
+    : null;
+
   return (
     <div className="space-y-4">
       {qa.map((item, idx) => {
@@ -155,11 +170,11 @@ export default function QASection({ qa, startIndex = 0, showNumber = true }) {
               </div>
             )}
 
-            {/* Question header (info-tinted band) */}
+            {/* Question header (accent-tinted band) */}
             <header
               className="px-4 py-3.5 sm:px-5 sm:py-4"
               style={{
-                background: 'linear-gradient(180deg, rgba(37, 99, 235, 0.06) 0%, rgba(37, 99, 235, 0.02) 100%)',
+                background: headerBand,
                 borderBottom: '1px solid var(--color-border)',
               }}
             >
@@ -171,9 +186,9 @@ export default function QASection({ qa, startIndex = 0, showNumber = true }) {
                       minWidth: 32,
                       height: 28,
                       padding: '0 8px',
-                      background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark) 100%)',
+                      background: badgeGradient,
                       borderRadius: 999,
-                      boxShadow: '0 2px 6px -2px rgba(37, 99, 235, 0.55)',
+                      boxShadow: badgeShadow,
                       letterSpacing: '0.02em',
                       marginTop: 1,
                     }}
@@ -181,8 +196,10 @@ export default function QASection({ qa, startIndex = 0, showNumber = true }) {
                     Q{num}
                   </div>
                 ) : (
-                  <div className="w-7 h-7 inline-flex items-center justify-center bg-info/15 text-info shrink-0 mt-0.5"
-                    style={{ borderRadius: 'var(--radius-sm)' }}>
+                  <div
+                    className="w-7 h-7 inline-flex items-center justify-center shrink-0 mt-0.5 bg-info/15 text-info"
+                    style={{ borderRadius: 'var(--radius-sm)', ...(iconChip || {}) }}
+                  >
                     <HelpCircle size={15} strokeWidth={2.4} />
                   </div>
                 )}
