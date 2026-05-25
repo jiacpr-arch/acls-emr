@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID;
+const PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID || '1524889459310260';
 
 export default function MetaPixel() {
   const location = useLocation();
