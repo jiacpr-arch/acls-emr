@@ -207,16 +207,26 @@ export default function QAAclsDeep() {
               </figcaption>
             )}
           </figure>
-          <div className="px-3 py-2.5 space-y-1.5">
+          <div className="px-3 py-2.5 space-y-2">
+            <span
+              className="inline-flex items-center gap-1.5 max-w-full rounded-full px-2.5 py-1 text-[12px] font-bold"
+              style={
+                featuredChapter
+                  ? { background: 'rgba(37, 99, 235, 0.1)', color: 'var(--color-info)' }
+                  : { background: 'var(--color-bg-tertiary)', color: 'var(--color-text-secondary)' }
+              }
+            >
+              <span className="shrink-0 text-[14px] leading-none">
+                {featuredChapter ? (featuredChapter.icon || '📘') : '📌'}
+              </span>
+              <span className="truncate">
+                {featuredChapter ? featuredChapter.title : 'ยังไม่จัดหมวด'}
+              </span>
+            </span>
             <div className="text-body-strong font-bold text-text-primary leading-snug">
               {featured.question}
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] text-text-muted truncate">
-                {featuredChapter
-                  ? `${featuredChapter.icon || '📘'} ${featuredChapter.title}`
-                  : 'ยังไม่จัดหมวด'}
-              </span>
+            <div className="flex items-center justify-end">
               <span className="inline-flex items-center gap-1 text-[11px] text-info font-bold shrink-0">
                 อ่านคำตอบเต็ม
                 <ArrowRight size={12} strokeWidth={2.4} />
