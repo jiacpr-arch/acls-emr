@@ -68,6 +68,7 @@ async function flushStudents(ctx) {
       studentUuid: row.id,
       studentId: row.studentId,
       name: row.name,
+      phone: row.phone,
     });
     if (error) {
       await recordFailure('students', row.id, error);

@@ -8,7 +8,7 @@ const blankExam = () => null;
 export const usePreCourseStore = create(
   persist(
     (set) => ({
-      activeStudent: null,        // { id, studentId, name }
+      activeStudent: null,        // { id, studentId, name, phone }
       currentAttempt: null,       // { lessonId, answers: {qId: choiceId}, stepIndex, startedAt }
       currentPostTest: null,      // posttest exam in progress
       currentPreTest: null,       // pretest exam in progress

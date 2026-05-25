@@ -3,7 +3,8 @@
 -- Applied to project: elyyijlcjfvhxbpzscnv (emr-ai-clinic)
 -- Migrations: cohort_sync_schema, cohort_sync_rpcs,
 --   cohort_sync_fix_search_path, cohort_gen_code_fix_ambiguity,
---   cohort_join_class_fix_ambiguity, cohort_verify_class_code
+--   cohort_join_class_fix_ambiguity, cohort_verify_class_code,
+--   cohort_students_phone (adds phone column + join_class p_phone arg)
 --
 -- Architecture: anon clients call SECURITY DEFINER RPCs with a class_code
 -- (bearer secret). Tables are RLS-locked with no policies so direct access
@@ -24,10 +25,15 @@ create table if not exists public.cohort_students (
   class_id      uuid not null references public.cohort_classes(id) on delete cascade,
   student_id    text not null,
   name          text not null,
+  phone         text,
   created_at    timestamptz not null default now(),
   unique (class_id, student_id)
 );
 create index if not exists cohort_students_class_idx on public.cohort_students(class_id);
+
+-- Additive migration for tables created before phone was introduced (nullable:
+-- pre-existing rows have no phone, new joins always send one).
+alter table public.cohort_students add column if not exists phone text;
 
 create table if not exists public.cohort_lesson_progress (
   id            uuid primary key default gen_random_uuid(),
@@ -161,11 +167,17 @@ begin
 end;
 $$;
 
+-- p_phone is defaulted so already-deployed clients (pre-phone) keep working
+-- during the rollout window. Drop the prior 4-arg signature so the defaulted
+-- 5-arg version is the only candidate (avoids "function is not unique").
+drop function if exists public.join_class(text, uuid, text, text);
+
 create or replace function public.join_class(
   p_code text,
   p_student_uuid uuid,
   p_student_id text,
-  p_name text
+  p_name text,
+  p_phone text default null
 )
 returns table (class_id uuid, student_pk uuid, class_name text, course_mode text)
 language plpgsql
@@ -178,6 +190,7 @@ declare
   v_pk uuid;
   v_class_name text;
   v_mode text;
+  v_phone text;
 begin
   v_class_id := _cohort_resolve_class(p_code);
   select c.id, c.name, c.course_mode into v_class_id, v_class_name, v_mode
@@ -188,19 +201,24 @@ begin
     raise exception 'student_required';
   end if;
 
+  v_phone := nullif(trim(coalesce(p_phone, '')), '');
+
   select cs.id into v_existing_pk
     from cohort_students cs
     where cs.class_id = v_class_id
       and cs.student_id = trim(p_student_id);
 
   if v_existing_pk is not null then
-    update cohort_students set name = trim(p_name) where id = v_existing_pk;
+    update cohort_students
+       set name = trim(p_name),
+           phone = coalesce(v_phone, phone)
+     where id = v_existing_pk;
     v_pk := v_existing_pk;
   else
     v_pk := coalesce(p_student_uuid, gen_random_uuid());
-    insert into cohort_students (id, class_id, student_id, name)
-      values (v_pk, v_class_id, trim(p_student_id), trim(p_name))
-      on conflict (id) do update set name = excluded.name;
+    insert into cohort_students (id, class_id, student_id, name, phone)
+      values (v_pk, v_class_id, trim(p_student_id), trim(p_name), v_phone)
+      on conflict (id) do update set name = excluded.name, phone = coalesce(excluded.phone, cohort_students.phone);
   end if;
 
   return query select v_class_id, v_pk, v_class_name, v_mode;
@@ -288,7 +306,7 @@ begin
   v_class_id := _cohort_resolve_class(p_code);
 
   with students as (
-    select id, student_id, name, created_at
+    select id, student_id, name, phone, created_at
       from cohort_students
       where class_id = v_class_id
       order by created_at desc
@@ -297,7 +315,7 @@ begin
     select
       s.id as student_pk,
       jsonb_build_object('id', s.id, 'studentId', s.student_id, 'name', s.name,
-                         'createdAt', s.created_at) as student,
+                         'phone', s.phone, 'createdAt', s.created_at) as student,
       coalesce(
         (
           select jsonb_object_agg(lid, lesson_obj)
@@ -359,7 +377,7 @@ $$;
 
 grant execute on function public.create_class(text, text) to anon, authenticated;
 grant execute on function public.verify_class_code(text) to anon, authenticated;
-grant execute on function public.join_class(text, uuid, text, text) to anon, authenticated;
+grant execute on function public.join_class(text, uuid, text, text, text) to anon, authenticated;
 grant execute on function public.upsert_lesson_progress(text, uuid, text, timestamptz) to anon, authenticated;
 grant execute on function public.submit_quiz_attempt(text, uuid, uuid, text, jsonb) to anon, authenticated;
 grant execute on function public.get_cohort_summary(text, text[]) to anon, authenticated;

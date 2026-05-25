@@ -29,12 +29,13 @@ export async function rpcCreateClass({ name, courseMode }) {
   return { data: { classId: row.class_id, code: row.code } };
 }
 
-export async function rpcJoinClass({ code, studentUuid, studentId, name }) {
+export async function rpcJoinClass({ code, studentUuid, studentId, name, phone }) {
   const { data, error } = await supabase.rpc('join_class', {
     p_code: code,
     p_student_uuid: studentUuid,
     p_student_id: studentId,
     p_name: name,
+    p_phone: phone ?? null,
   });
   if (error) return { error };
   const row = Array.isArray(data) ? data[0] : data;
