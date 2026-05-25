@@ -32,6 +32,7 @@ import BLSSkillPractice from './pages/BLSSkillPractice';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import OfflineIndicator from './components/OfflineIndicator';
+import MetaPixel from './components/MetaPixel';
 import { useSyncEngine } from './services/syncEngine';
 
 // Admin pages are code-split — keep the main bundle below the workbox precache limit
@@ -176,6 +177,7 @@ function App() {
       {/* Bottom pill bar on all pages except recording + admin */}
       {!isRecording && !isAdmin && <BottomTabBar />}
       <Analytics />
+      <MetaPixel />
     </div>
   );
 }
