@@ -1,37 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, Search, Shuffle, MessageCircleQuestion } from 'lucide-react';
+import { Sparkles, ArrowRight, Search, Shuffle, MessageCircleQuestion, ChevronRight } from 'lucide-react';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 import StudentQuestionForm from '../components/StudentQuestionForm';
-import { CHAPTER_PALETTE, parseChapterTitle } from '../utils/qaChapters';
-
-// Derive a short, glance-able label from a long Thai chapter name.
-// Priority: (1) parenthesized English short form, (2) trailing English
-// phrase like "ROSC"/"Code Blue", (3) last "/"-segment,
-// (4) phrase before a Thai connector, then strip filler and cap length.
-function shortChapterName(rawName) {
-  const src = (rawName || '').trim();
-  if (!src) return src;
-
-  const paren = src.match(/\(([^()]+)\)/);
-  if (paren) {
-    const inner = paren[1].split(/[·,/]/)[0].trim();
-    if (inner) return inner;
-  }
-
-  const tail = src.match(/([A-Z][A-Za-z&]+(?:\s+[A-Z][A-Za-z&]+)*)\s*$/);
-  if (tail) return tail[1];
-
-  if (src.includes('/')) {
-    const parts = src.split('/').map(s => s.trim()).filter(Boolean);
-    if (parts.length) return parts[parts.length - 1];
-  }
-
-  const beforeConj = src.split(/\s*(?:และ|หรือ|กับ|พร้อม|อย่าง|แบบ|ขั้น)\s*/)[0].trim();
-  const compact = beforeConj.replace(/^(การ|ภาวะ|โรค|กลุ่มอาการ|ทีม)\s*/, '');
-  if (compact.length <= 18) return compact;
-  return compact.slice(0, 16) + '…';
-}
+import { CHAPTER_PALETTE, UNCATEGORIZED_PALETTE, parseChapterTitle } from '../utils/qaChapters';
 
 export default function QAAclsDeep() {
   const [page, setPage] = useState({ title: 'Q&A ACLS เชิงลึก', intro: '', coverImage: null });
@@ -238,147 +210,84 @@ export default function QAAclsDeep() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2.5">
             {filteredChapters.map((ch, idx) => {
               const palette = CHAPTER_PALETTE[idx % CHAPTER_PALETTE.length];
               const n = counts.byChapter.get(ch.id) ?? 0;
               const { num, name } = parseChapterTitle(ch.title);
-              const shortName = shortChapterName(name);
-              const description = (() => {
-                const stripped = name.replace(/\s*\([^()]+\)\s*/g, '').trim();
-                if (!stripped) return null;
-                if (stripped.toLowerCase() === shortName.toLowerCase()) return null;
-                return stripped;
-              })();
               return (
                 <Link
                   key={ch.id}
                   to={`/qa-acls-deep/${encodeURIComponent(ch.id)}`}
-                  className="group relative overflow-hidden hover:-translate-y-0.5 active:scale-[0.98] transition-all flex flex-col"
-                  style={{
-                    background: 'var(--color-bg-elevated)',
-                    borderRadius: '22px',
-                    minHeight: 240,
-                    border: `1px solid ${palette.tint.replace(/0\.1[46]\)/, '0.35)')}`,
-                    boxShadow: `0 1px 2px rgba(15, 26, 46, 0.04), 0 12px 28px -12px ${palette.accent}66`,
-                  }}
+                  className="chapter-card block"
                 >
-                  {/* Colorful hero header with chapter badge + emoji */}
-                  <div
-                    className="relative flex items-center justify-center overflow-hidden"
-                    style={{
-                      height: 92,
-                      background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
-                    }}
-                  >
+                  <span
+                    className="chapter-card-stripe"
+                    style={{ background: `linear-gradient(180deg, ${palette.from} 0%, ${palette.to} 100%)` }}
+                  />
+                  <div className="chapter-card-button">
                     <div
-                      aria-hidden
-                      className="absolute inset-0 pointer-events-none"
-                      style={{
-                        background:
-                          'radial-gradient(circle at 30% 20%, rgba(255,255,255,0.28) 0%, transparent 55%)',
-                      }}
-                    />
-                    {num && (
-                      <span
-                        className="absolute top-2 left-2 inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5"
-                        style={{
-                          background: 'rgba(255, 255, 255, 0.22)',
-                          color: 'white',
-                          borderRadius: '999px',
-                          border: '1px solid rgba(255,255,255,0.32)',
-                          backdropFilter: 'blur(6px)',
-                          WebkitBackdropFilter: 'blur(6px)',
-                          textShadow: '0 1px 2px rgba(0,0,0,0.25)',
-                        }}
-                      >
-                        บทที่ {num}
-                      </span>
-                    )}
-                    <span
-                      className="relative leading-none hover-bounce-emoji"
-                      style={{
-                        fontSize: 54,
-                        filter: 'drop-shadow(0 6px 10px rgba(0, 0, 0, 0.28))',
-                      }}
+                      className="chapter-icon-tile"
+                      style={{ background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)` }}
                     >
-                      {ch.icon || '📘'}
-                    </span>
-                  </div>
-
-                  {/* Title + description + count */}
-                  <div className="relative flex-1 flex flex-col items-center text-center px-3 pt-6 pb-3 gap-1.5">
-                    <div
-                      className="text-[17px] font-extrabold leading-tight line-clamp-2 px-0.5"
-                      style={{ color: palette.accent }}
-                      title={name}
-                    >
-                      {shortName}
+                      <span className="leading-none" style={{ fontSize: 26 }}>{ch.icon || '📘'}</span>
                     </div>
-                    {description && (
-                      <div className="text-[11px] text-text-muted leading-snug line-clamp-2 px-0.5">
-                        {description}
-                      </div>
-                    )}
-                    <span
-                      className="mt-auto inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5"
-                      style={{
-                        background: palette.tint,
-                        color: palette.accent,
-                        borderRadius: '999px',
-                      }}
-                    >
-                      {n > 0 ? `${n} คำถาม` : 'ยังไม่มีคำถาม'}
+                    <div className="flex-1 min-w-0">
+                      {num && (
+                        <div className="chapter-num-tag" style={{ color: palette.accent }}>
+                          บทที่ {num}
+                        </div>
+                      )}
+                      <span className="chapter-title">{name}</span>
+                      <span
+                        className="chapter-meta-pill"
+                        style={{ background: `${palette.accent}18`, color: palette.accent }}
+                      >
+                        <MessageCircleQuestion size={11} strokeWidth={2.4} />
+                        {n > 0 ? `${n} คำถาม` : 'ยังไม่มีคำถาม'}
+                      </span>
+                    </div>
+                    <span className="chapter-chevron">
+                      <ChevronRight size={16} strokeWidth={2.4} />
                     </span>
                   </div>
                 </Link>
               );
             })}
-          </div>
 
-          {counts.uncategorized > 0 && (
-            <Link
-              to="/qa-acls-deep/_uncategorized"
-              className="group relative overflow-hidden bg-bg-secondary hover:-translate-y-0.5 active:scale-[0.99] transition-all flex items-center gap-3 px-3.5 py-3"
-              style={{
-                borderRadius: 'var(--radius-xl)',
-                border: '1px solid rgba(245, 158, 11, 0.18)',
-                boxShadow: '0 1px 2px rgba(15, 26, 46, 0.04), 0 6px 16px -8px rgba(245, 158, 11, 0.45)',
-              }}
-            >
-              <div
-                aria-hidden
-                className="absolute inset-0 pointer-events-none"
-                style={{ background: 'linear-gradient(120deg, rgba(245, 158, 11, 0.14) 0%, transparent 60%)' }}
-              />
-              <div
-                className="relative w-12 h-12 inline-flex items-center justify-center shrink-0"
-                style={{
-                  background: 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)',
-                  borderRadius: 'var(--radius-lg)',
-                  boxShadow: '0 4px 12px -2px rgba(245, 158, 11, 0.55)',
-                }}
-              >
-                <span className="text-2xl leading-none drop-shadow-sm">📌</span>
-              </div>
-              <div className="relative flex-1 min-w-0">
-                <div className="text-[13px] font-bold text-text-primary">ยังไม่จัดหมวด</div>
-                <div className="text-[11px] text-text-muted">
-                  {counts.uncategorized} คำถามที่ยังไม่ได้เลือกหมวด
+            {counts.uncategorized > 0 && (
+              <Link to="/qa-acls-deep/_uncategorized" className="chapter-card block">
+                <span
+                  className="chapter-card-stripe"
+                  style={{ background: `linear-gradient(180deg, ${UNCATEGORIZED_PALETTE.from} 0%, ${UNCATEGORIZED_PALETTE.to} 100%)` }}
+                />
+                <div className="chapter-card-button">
+                  <div
+                    className="chapter-icon-tile"
+                    style={{ background: `linear-gradient(135deg, ${UNCATEGORIZED_PALETTE.from} 0%, ${UNCATEGORIZED_PALETTE.to} 100%)` }}
+                  >
+                    <span className="leading-none" style={{ fontSize: 24 }}>📌</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="chapter-num-tag" style={{ color: UNCATEGORIZED_PALETTE.accent }}>
+                      อื่นๆ
+                    </div>
+                    <span className="chapter-title">ยังไม่จัดหมวด</span>
+                    <span
+                      className="chapter-meta-pill"
+                      style={{ background: `${UNCATEGORIZED_PALETTE.accent}18`, color: UNCATEGORIZED_PALETTE.accent }}
+                    >
+                      <MessageCircleQuestion size={11} strokeWidth={2.4} />
+                      {counts.uncategorized} คำถาม
+                    </span>
+                  </div>
+                  <span className="chapter-chevron">
+                    <ChevronRight size={16} strokeWidth={2.4} />
+                  </span>
                 </div>
-              </div>
-              <span
-                className="relative inline-flex items-center justify-center w-7 h-7 shrink-0 transition-transform group-hover:translate-x-0.5"
-                style={{
-                  background: 'rgba(245, 158, 11, 0.14)',
-                  color: '#D97706',
-                  borderRadius: '999px',
-                }}
-              >
-                <ArrowRight size={13} strokeWidth={2.8} />
-              </span>
-            </Link>
-          )}
+              </Link>
+            )}
+          </div>
 
           {filteredChapters.length === 0 && (
             <div className="dash-card text-center text-caption text-text-muted py-6">
