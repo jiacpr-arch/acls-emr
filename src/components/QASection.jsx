@@ -1,7 +1,103 @@
+import { useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, Download } from 'lucide-react';
 import { normalizeAnswerMarkdown } from '../utils/normalizeAnswerMarkdown';
+
+function guessFilename(src, alt) {
+  try {
+    const url = new URL(src, window.location.href);
+    const last = url.pathname.split('/').pop();
+    if (last && /\.[a-z0-9]+$/i.test(last)) return decodeURIComponent(last);
+  } catch { /* ignore */ }
+  const base = (alt || 'infographic')
+    .replace(/[^\w฀-๿-]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 60) || 'infographic';
+  return `${base}.png`;
+}
+
+// Fetch the image as a blob so the browser saves it instead of navigating.
+// A plain <a download> is ignored for cross-origin (Supabase storage) URLs.
+async function downloadImage(src, alt) {
+  const filename = guessFilename(src, alt);
+  try {
+    const res = await fetch(src, { mode: 'cors' });
+    if (!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  } catch {
+    window.open(src, '_blank', 'noopener');
+  }
+}
+
+// Long-press an image to download it. On touch devices we also suppress the
+// native "save image" callout so the press triggers our download instead.
+function useLongPressDownload(src, alt, delay = 500) {
+  const timer = useRef(null);
+  const start = useRef(null);
+  const touched = useRef(false);
+
+  const clear = () => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+  };
+
+  const onTouchStart = (e) => {
+    touched.current = true;
+    const t = e.touches?.[0];
+    start.current = t ? { x: t.clientX, y: t.clientY } : null;
+    clear();
+    timer.current = setTimeout(() => downloadImage(src, alt), delay);
+  };
+
+  const onTouchMove = (e) => {
+    if (!start.current) return;
+    const t = e.touches?.[0];
+    if (!t) return;
+    if (Math.abs(t.clientX - start.current.x) > 12 || Math.abs(t.clientY - start.current.y) > 12) {
+      clear();
+    }
+  };
+
+  const onContextMenu = (e) => {
+    if (touched.current) e.preventDefault();
+  };
+
+  return {
+    onTouchStart,
+    onTouchMove,
+    onTouchEnd: clear,
+    onTouchCancel: clear,
+    onContextMenu,
+    style: { WebkitTouchCallout: 'none', userSelect: 'none' },
+    draggable: false,
+  };
+}
+
+function MarkdownImage({ src, alt }) {
+  const press = useLongPressDownload(src, alt);
+  const { style, ...handlers } = press;
+  return (
+    <img
+      src={src}
+      alt={alt || ''}
+      loading="lazy"
+      className="w-full h-auto block border border-border my-3"
+      style={{ borderRadius: 'var(--radius-sm)', ...style }}
+      {...handlers}
+    />
+  );
+}
 
 const mdComponents = {
   h1: ({ children }) => (
@@ -69,15 +165,7 @@ const mdComponents = {
         <code>{children}</code>
       </pre>
     ),
-  img: ({ src, alt }) => (
-    <img
-      src={src}
-      alt={alt || ''}
-      loading="lazy"
-      className="w-full h-auto block border border-border my-3"
-      style={{ borderRadius: 'var(--radius-sm)' }}
-    />
-  ),
+  img: ({ src, alt }) => <MarkdownImage src={src} alt={alt} />,
   table: ({ children }) => (
     <div className="overflow-x-auto my-3">
       <table className="w-full text-[13.5px] border-collapse">{children}</table>
@@ -103,7 +191,31 @@ const mdComponents = {
   hr: () => <hr className="my-4 border-border" />,
 };
 
+function CoverImage({ img, fallbackAlt }) {
+  const press = useLongPressDownload(img.src, img.alt || fallbackAlt);
+  const { style, ...handlers } = press;
+  return (
+    <div className="relative">
+      <img
+        src={img.src}
+        alt={img.alt || fallbackAlt}
+        loading="lazy"
+        className="w-full h-auto block"
+        style={style}
+        {...handlers}
+      />
+      {img.caption && (
+        <div className="px-4 pt-2 text-[12px] text-text-muted italic leading-relaxed">
+          {img.caption}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Figure({ img, fallbackAlt, rounded = 'var(--radius-sm)' }) {
+  const press = useLongPressDownload(img.src, img.alt || fallbackAlt);
+  const { style, ...handlers } = press;
   return (
     <figure className="m-0">
       <img
@@ -111,7 +223,8 @@ function Figure({ img, fallbackAlt, rounded = 'var(--radius-sm)' }) {
         alt={img.alt || fallbackAlt}
         loading="lazy"
         className="w-full h-auto block"
-        style={{ borderRadius: rounded }}
+        style={{ borderRadius: rounded, ...style }}
+        {...handlers}
       />
       {img.caption && (
         <figcaption className="text-[12px] text-text-muted mt-1.5 leading-relaxed italic px-1">
@@ -155,21 +268,7 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
             }}
           >
             {/* Cover image (edge-to-edge at top of card) */}
-            {item.cover && (
-              <div className="relative">
-                <img
-                  src={item.cover.src}
-                  alt={item.cover.alt || item.q}
-                  loading="lazy"
-                  className="w-full h-auto block"
-                />
-                {item.cover.caption && (
-                  <div className="px-4 pt-2 text-[12px] text-text-muted italic leading-relaxed">
-                    {item.cover.caption}
-                  </div>
-                )}
-              </div>
-            )}
+            {item.cover && <CoverImage img={item.cover} fallbackAlt={item.q} />}
 
             {/* Question header (accent-tinted band) */}
             <header
@@ -217,6 +316,10 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
                   {item.images.map((img, j) => (
                     <Figure key={j} img={img} fallbackAlt={item.q} />
                   ))}
+                  <p className="flex items-center gap-1.5 text-[11.5px] text-text-muted">
+                    <Download size={12} strokeWidth={2.2} />
+                    กดค้างที่รูปเพื่อดาวน์โหลด
+                  </p>
                 </div>
               )}
 
