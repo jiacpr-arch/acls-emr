@@ -16,6 +16,7 @@ import BLSProgressCard from '../components/precourse/BLSProgressCard';
 import BLSQuickActions from '../components/precourse/BLSQuickActions';
 import BLSSplash from '../components/precourse/BLSSplash';
 import BLSCourseUpsellCard from '../components/precourse/BLSCourseUpsellCard';
+import ACLSCourseUpsellCard from '../components/precourse/ACLSCourseUpsellCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
@@ -206,6 +207,8 @@ export default function PreCourse() {
         </div>
 
         <BLSCourseUpsellCard />
+
+        <ACLSCourseUpsellCard />
 
         <VideoLinksPanel videos={preCourseVideos} />
 
