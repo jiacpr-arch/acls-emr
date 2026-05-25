@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { HelpCircle, Download } from 'lucide-react';
+import { HelpCircle, Download, ImageIcon } from 'lucide-react';
 import { normalizeAnswerMarkdown } from '../utils/normalizeAnswerMarkdown';
 
 function guessFilename(src, alt) {
@@ -312,14 +312,28 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
             {/* Body: infographics + answer */}
             <div className="px-4 py-4 sm:px-5 sm:py-4">
               {item.images?.length > 0 && (
-                <div className="space-y-3 mb-4">
-                  {item.images.map((img, j) => (
-                    <Figure key={j} img={img} fallbackAlt={item.q} />
-                  ))}
-                  <p className="flex items-center gap-1.5 text-[11.5px] text-text-muted">
-                    <Download size={12} strokeWidth={2.2} />
-                    กดค้างที่รูปเพื่อดาวน์โหลด
-                  </p>
+                <div className="mb-4">
+                  {/* Section label + divider above the infographics */}
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-info shrink-0">
+                      <ImageIcon size={14} strokeWidth={2.4} />
+                      Infographic
+                    </span>
+                    <span className="flex-1 h-px bg-border" />
+                  </div>
+
+                  <div className="space-y-3">
+                    {item.images.map((img, j) => (
+                      <Figure key={j} img={img} fallbackAlt={item.q} />
+                    ))}
+                    <p className="flex items-center gap-1.5 text-[11.5px] text-text-muted">
+                      <Download size={12} strokeWidth={2.2} />
+                      กดค้างที่รูปเพื่อดาวน์โหลด
+                    </p>
+                  </div>
+
+                  {/* Divider after the infographics, before the answer */}
+                  {item.a && <hr className="mt-4 border-border" />}
                 </div>
               )}
 
