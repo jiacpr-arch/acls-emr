@@ -1,10 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
-import { IS_BLS, IS_ACLS } from '../config/courseMode';
+import { IS_BLS } from '../config/courseMode';
 import { GraduationCap } from '../components/ui/Icon';
-import MorrooAdCard from '../components/MorrooAdCard';
-import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 export default function Learn() {
   const navigate = useNavigate();
@@ -93,10 +91,6 @@ export default function Learn() {
         <h1 className="text-title text-text-primary">{t('learn', lang)}</h1>
         <p className="text-caption text-text-muted">{t('learn_subtitle', lang)}</p>
       </div>
-
-      {IS_ACLS && <JiacprCourseBanner />}
-
-      <MorrooAdCard />
 
       {sections.map(section => (
         <div key={section.title} className="space-y-2">

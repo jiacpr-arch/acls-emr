@@ -4,7 +4,6 @@ import {
   Volume2, VolumeX, Activity, Bell, RefreshCw, Users,
   Sun, Moon, Monitor, Zap,
 } from '../components/ui/Icon';
-import MorrooAdCard from '../components/MorrooAdCard';
 
 export default function Settings() {
   const settings = useSettingsStore();
@@ -120,8 +119,6 @@ export default function Settings() {
           </div>
         </SettingSection>
       )}
-
-      <MorrooAdCard />
 
       {/* About */}
       <div className="dash-card text-center space-y-1.5 py-6">

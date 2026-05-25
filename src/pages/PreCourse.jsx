@@ -17,7 +17,6 @@ import BLSQuickActions from '../components/precourse/BLSQuickActions';
 import BLSSplash from '../components/precourse/BLSSplash';
 import BLSCourseUpsellCard from '../components/precourse/BLSCourseUpsellCard';
 import ACLSCourseUpsellCard from '../components/precourse/ACLSCourseUpsellCard';
-import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
 import { IS_ACLS, IS_BLS, courseMeta } from '../config/courseMode';
@@ -247,8 +246,6 @@ export default function PreCourse() {
         <h1 className="text-title text-text-primary">Pre-course</h1>
         <p className="text-caption text-text-muted">อ่านบทเรียนและทำ quiz ก่อนเข้าเรียนจริง</p>
       </div>
-
-      {IS_ACLS && <JiacprCourseBanner />}
 
       {/* Active student banner */}
       <div className="dash-card flex items-center gap-3">

@@ -31,6 +31,7 @@ import PreTestExam from './pages/PreTestExam';
 import BLSSkillPractice from './pages/BLSSkillPractice';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
+import GlobalAds from './components/GlobalAds';
 import OfflineIndicator from './components/OfflineIndicator';
 import MetaPixel from './components/MetaPixel';
 import { useSyncEngine } from './services/syncEngine';
@@ -174,6 +175,8 @@ function App() {
         {IS_BLS && <Route path="/history" element={<Dashboard />} />}
         {IS_BLS && <Route path="/skill-practice" element={<BLSSkillPractice />} />}
       </Routes>
+      {/* Course + cross-promo ads at the bottom of every page */}
+      <GlobalAds />
       {/* Bottom pill bar on all pages except recording + admin */}
       {!isRecording && !isAdmin && <BottomTabBar />}
       <Analytics />

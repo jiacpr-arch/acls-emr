@@ -7,8 +7,6 @@ import { IS_BLS, courseMeta } from '../config/courseMode';
 import ACLSSplash from '../components/newcase/ACLSSplash';
 import ACLSHero from '../components/newcase/ACLSHero';
 import ACLSQuickActions from '../components/newcase/ACLSQuickActions';
-import MorrooAdCard from '../components/MorrooAdCard';
-import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   HeartPulse, AlertTriangle, Hospital,
   BookOpen, MessageSquare, Play, GraduationCap,
@@ -105,7 +103,6 @@ export default function NewCase() {
                 <MessageSquare size={18} strokeWidth={2} /> Feedback
               </button>
             </div>
-            <MorrooAdCard />
           </div>
         </div>
       </div>
@@ -232,10 +229,6 @@ export default function NewCase() {
             <MessageSquare size={18} strokeWidth={2} /> Feedback
           </button>
         </div>
-
-        <JiacprCourseBanner />
-
-        <MorrooAdCard />
 
         <div className="text-center text-text-muted text-[10px] font-mono opacity-60 pt-1">
           v2.0.0 · ACLS EMR

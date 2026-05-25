@@ -758,8 +758,8 @@ button, [role="button"] {
   max-width: 32rem;
   margin: 0 auto;
   padding: 16px;
-  /* Clears the floating pill tab bar (≈74px) + safe-area inset + breathing room */
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  /* Pill-bar clearance is provided by the global ad slot rendered after each page */
+  padding-bottom: 16px;
 }
 
 /* ===== PANEL WRAPPER (modal/sheet) ===== */
