@@ -91,10 +91,10 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">เบอร์โทร</span>
             <input
-              type="tel" inputMode="tel" value={phone}
+              type="tel" inputMode="tel" autoComplete="tel" value={phone}
               onChange={e => setPhone(e.target.value)}
               placeholder="เช่น 081-234-5678"
-              className="w-full text-body mt-1" />
+              className="w-full text-body tabular mt-1" />
           </label>
           {error && (
             <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"
