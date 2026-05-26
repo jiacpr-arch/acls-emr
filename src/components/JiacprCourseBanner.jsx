@@ -34,7 +34,11 @@ export default function JiacprCourseBanner() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mt-4">
+      <div className="text-caption text-text-muted mt-3">
+        ติดต่อสอบถาม / สมัครเรียน · {jiacprCourse.orgName}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mt-2">
         <a
           href={jiacprCourse.lineUrl}
           target="_blank"
