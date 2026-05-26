@@ -49,9 +49,10 @@ export default function Learn() {
         {
           title: t('learn_reference', lang),
           items: [
-            { path: '/als',       emoji: '📚', label: t('als_knowledge', lang), subtitle: 'ALS Book',    desc: t('als_knowledge_desc', lang), tone: 'info' },
-            { path: '/algorithm', emoji: '📋', label: t('algorithms', lang),    subtitle: 'Algorithms',  desc: t('algorithms_desc', lang),    tone: 'purple' },
-            { path: '/guide',     emoji: '📖', label: t('guide', lang),         subtitle: 'Field Guide', desc: t('guide_desc', lang),         tone: 'success' },
+            { path: '/als',           emoji: '📚', label: t('als_knowledge', lang), subtitle: 'ALS Book',    desc: t('als_knowledge_desc', lang), tone: 'info' },
+            { path: '/qa-acls-deep',  emoji: '💬', label: t('qa_deep', lang),       subtitle: 'Q&A Deep',    desc: t('qa_deep_desc', lang),       tone: 'shock' },
+            { path: '/algorithm',     emoji: '📋', label: t('algorithms', lang),    subtitle: 'Algorithms',  desc: t('algorithms_desc', lang),    tone: 'purple' },
+            { path: '/guide',         emoji: '📖', label: t('guide', lang),         subtitle: 'Field Guide', desc: t('guide_desc', lang),         tone: 'success' },
           ],
         },
         {
