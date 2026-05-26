@@ -92,7 +92,7 @@ function MarkdownImage({ src, alt }) {
       src={src}
       alt={alt || ''}
       loading="lazy"
-      className="w-full h-auto block border border-border my-3"
+      className="w-full h-auto block border border-border my-6"
       style={{ borderRadius: 'var(--radius-sm)', ...style }}
       {...handlers}
     />
