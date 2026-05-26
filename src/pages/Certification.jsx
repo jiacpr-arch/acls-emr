@@ -28,8 +28,10 @@ function saveCertData(data) {
 export default function Certification() {
   const [cases, setCases] = useState([]);
   const [certData, setCertData] = useState(getCertData());
-  const [studentName, setStudentName] = useState(certData.studentName || '');
   const activeStudent = usePreCourseStore(s => s.activeStudent);
+  // Default the certificate name to the name the student already entered at
+  // registration; an existing generated cert takes precedence.
+  const [studentName, setStudentName] = useState(certData.studentName || activeStudent?.name || '');
   const [preCourseProgress, setPreCourseProgress] = useState([]);
   const [preCourseAttempts, setPreCourseAttempts] = useState([]);
 
