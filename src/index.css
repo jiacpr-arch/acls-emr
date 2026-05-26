@@ -816,14 +816,14 @@ input, textarea, select {
   font-size: 14px;
   border-radius: var(--radius);
 }
-input[type="text"], input[type="number"], input[type="email"], textarea, select {
+input[type="text"], input[type="number"], input[type="email"], input[type="tel"], textarea, select {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   padding: 10px 12px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   color: var(--color-text-primary);
 }
-input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, textarea:focus, select:focus {
+input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="tel"]:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--color-info);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
@@ -900,7 +900,7 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
 .dark .bottom-pill-bar button.active { background: rgba(96, 165, 250, 0.14); }
 .dark .bottom-pill-bar button:hover:not(.active) { background: rgba(255, 255, 255, 0.05); }
 .dark input[type="range"] { background: transparent; }
-.dark input[type="text"], .dark input[type="number"], .dark input[type="email"], .dark textarea, .dark select {
+.dark input[type="text"], .dark input[type="number"], .dark input[type="email"], .dark input[type="tel"], .dark textarea, .dark select {
   background: var(--color-bg-tertiary);
   border-color: var(--color-border-strong);
 }

@@ -2,11 +2,15 @@ import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { upsertStudent, findStudentByStudentId } from '../../db/database';
 import { usePreCourseStore } from '../../stores/preCourseStore';
+import { useClassStore } from '../../stores/classStore';
 import { scheduleFlush } from '../../services/syncEngine';
 import { User, X, Check, AlertCircle } from 'lucide-react';
 
 export default function StudentIdentityModal({ open, onClose, onConfirm }) {
   const setActiveStudent = usePreCourseStore(s => s.setActiveStudent);
+  // In a class the server roster keys on student id, so it stays required.
+  // Standalone (offline) use never syncs, so the id is optional there.
+  const requireStudentId = useClassStore(s => !!s.classCode);
   const [name, setName] = useState('');
   const [studentId, setStudentId] = useState('');
   const [phone, setPhone] = useState('');
@@ -20,8 +24,10 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
     const n = name.trim();
     const sid = studentId.trim();
     const tel = phone.trim();
-    if (!n || !sid || !tel) {
-      setError('กรุณากรอกชื่อ รหัสนักเรียน และเบอร์โทร');
+    if (!n || !tel || (requireStudentId && !sid)) {
+      setError(requireStudentId
+        ? 'กรุณากรอกชื่อ รหัสนักเรียน และเบอร์โทร'
+        : 'กรุณากรอกชื่อ และเบอร์โทร');
       return;
     }
     if (tel.replace(/\D/g, '').length < 9) {
@@ -30,11 +36,11 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
     }
     setBusy(true);
     try {
-      const existing = await findStudentByStudentId(sid);
+      const existing = sid ? await findStudentByStudentId(sid) : null;
       const unchanged = existing && existing.name === n && existing.phone === tel;
       const record = existing
         ? { ...existing, name: n, phone: tel, syncedAt: unchanged ? existing.syncedAt : null }
-        : { id: uuidv4(), studentId: sid, name: n, phone: tel, createdAt: new Date().toISOString() };
+        : { id: uuidv4(), studentId: sid || null, name: n, phone: tel, createdAt: new Date().toISOString() };
       await upsertStudent(record);
       setActiveStudent(record);
       scheduleFlush();
@@ -81,7 +87,12 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
               className="w-full text-body mt-1" />
           </label>
           <label className="block">
-            <span className="text-caption font-semibold text-text-secondary">รหัสนักเรียน</span>
+            <span className="text-caption font-semibold text-text-secondary">
+              รหัสนักเรียน
+              {!requireStudentId && (
+                <span className="font-normal text-text-muted"> (ถ้ามี)</span>
+              )}
+            </span>
             <input
               type="text" value={studentId}
               onChange={e => setStudentId(e.target.value)}
@@ -91,10 +102,10 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">เบอร์โทร</span>
             <input
-              type="tel" inputMode="tel" value={phone}
+              type="tel" inputMode="tel" autoComplete="tel" value={phone}
               onChange={e => setPhone(e.target.value)}
               placeholder="เช่น 081-234-5678"
-              className="w-full text-body mt-1" />
+              className="w-full text-body tabular mt-1" />
           </label>
           {error && (
             <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"

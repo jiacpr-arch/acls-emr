@@ -91,7 +91,7 @@ export default function BLSProgressCard({
                 {activeStudent.name}
               </div>
               <div className="text-[10px] text-text-muted font-mono">
-                รหัส {activeStudent.studentId}
+                {activeStudent.studentId ? `รหัส ${activeStudent.studentId}` : activeStudent.phone}
               </div>
             </div>
             <button

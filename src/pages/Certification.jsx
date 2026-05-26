@@ -171,7 +171,7 @@ export default function Certification() {
         <div className="dash-card !p-3 space-y-2">
           <div className="flex items-center justify-between">
             <div className="text-overline text-text-muted">Pre-course — {activeStudent.name}</div>
-            <span className="text-[11px] text-text-muted font-mono">{activeStudent.studentId}</span>
+            <span className="text-[11px] text-text-muted font-mono">{activeStudent.studentId || activeStudent.phone}</span>
           </div>
           {preCourseStatus.map(({ lesson, read, bestScore, passed }) => (
             <div key={lesson.id} className="flex items-center gap-2 text-caption">

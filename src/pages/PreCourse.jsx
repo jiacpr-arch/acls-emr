@@ -260,7 +260,7 @@ export default function PreCourse() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-body-strong text-text-primary truncate">{activeStudent.name}</div>
-              <div className="text-[11px] text-text-muted font-mono">รหัส: {activeStudent.studentId}</div>
+              <div className="text-[11px] text-text-muted font-mono">{activeStudent.studentId ? `รหัส: ${activeStudent.studentId}` : activeStudent.phone}</div>
             </div>
             <button onClick={() => { clearActiveStudent(); setShowIdentity(true); }}
               className="btn btn-ghost btn-sm">
