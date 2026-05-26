@@ -28,7 +28,7 @@ export default function ResultsSummary({ attempt, lesson, student }) {
         </div>
         {student && (
           <div className="text-caption text-text-muted mt-2">
-            {student.name} · {student.studentId}
+            {student.name}{student.studentId ? ` · ${student.studentId}` : ''}
           </div>
         )}
       </div>
