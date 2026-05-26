@@ -3,6 +3,7 @@
 // The banner lands on LINE OA + phone — not the course web page.
 
 export const jiacprCourse = {
+  orgName: 'JIA Trainer Center',
   lineUrl: 'https://line.me/R/ti/p/@jiacpr',
   phone: '0909791212',
   phoneDisplay: '090-979-1212',

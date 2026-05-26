@@ -1,4 +1,5 @@
 import { Phone, MessageCircle, Sparkles, Users, Award } from 'lucide-react';
+import { jiacprCourse } from '../../data/jiacprCourse';
 
 const PHONE_NUMBER = '0909791212';
 const PHONE_DISPLAY = '090-979-1212';
@@ -86,7 +87,10 @@ export default function BLSCourseUpsellCard() {
           </ul>
 
           {/* Contact buttons */}
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="text-[11px] font-semibold text-white/85 mt-4">
+            ติดต่อสอบถาม / จัดอบรมโดย {jiacprCourse.orgName}
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
             <a
               href={`tel:${PHONE_NUMBER}`}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white text-emerald-700 font-extrabold text-[13px] hover:bg-white/95 transition-colors"
