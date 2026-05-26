@@ -1,9 +1,38 @@
 import jsPDF from 'jspdf';
 
+const LOGO_URL = '/images/logo-morroo.png';
+
+// Loads an image from a URL and returns its dataURL + natural dimensions.
+// Returns null if the file is missing or fails to load, so callers can skip
+// the logo gracefully without breaking certificate generation.
+async function loadImage(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    const dataUrl = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+    const dims = await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+      img.onerror = () => resolve(null);
+      img.src = dataUrl;
+    });
+    if (!dims || !dims.w || !dims.h) return null;
+    return { dataUrl, ...dims };
+  } catch {
+    return null;
+  }
+}
+
 // Renders a landscape A4 certificate using the bundled Helvetica font (ASCII only).
 // The HTML view (in Certification.jsx) keeps full Thai for screen display; this
 // PDF is the printable/shareable artifact.
-export function exportCertificatePDF({ cert, certConfig }) {
+export async function exportCertificatePDF({ cert, certConfig }) {
   const doc = new jsPDF('l', 'mm', 'a4');
   const pw = doc.internal.pageSize.getWidth();   // 297
   const ph = doc.internal.pageSize.getHeight();  // 210
@@ -26,6 +55,17 @@ export function exportCertificatePDF({ cert, certConfig }) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.text(certConfig.subtitle, pw / 2, 33, { align: 'center' });
+
+  // Center logo (skipped gracefully if the asset is not present)
+  const logo = await loadImage(certConfig.logoUrl || LOGO_URL);
+  if (logo) {
+    const boxW = 42, boxH = 16;
+    let w = boxW, h = (logo.h / logo.w) * w;
+    if (h > boxH) { h = boxH; w = (logo.w / logo.h) * h; }
+    try {
+      doc.addImage(logo.dataUrl, 'PNG', (pw - w) / 2, 39, w, h);
+    } catch { /* ignore malformed image, certificate still renders */ }
+  }
 
   // "This certifies that"
   doc.setTextColor(80);

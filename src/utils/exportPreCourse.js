@@ -42,7 +42,7 @@ function pageFooter(doc) {
     doc.setTextColor(150);
     doc.setFont(PDF_FONT, 'normal');
     doc.text(
-      `ACLS EMR Pre-course | Generated ${new Date().toLocaleString('en-US')} | Page ${i}/${pages}`,
+      `แบบทดสอบก่อนเรียน ACLS EMR | สร้างเมื่อ ${new Date().toLocaleString('en-GB')} | หน้า ${i}/${pages}`,
       pw / 2, ph - 6, { align: 'center' }
     );
   }
@@ -57,20 +57,20 @@ function pageFooter(doc) {
 export function exportStudentResultPDF({ student, attempt, lesson }) {
   const doc = new jsPDF('p', 'mm', 'a4');
   doc.setFont(PDF_FONT, 'normal');
-  brandedHeader(doc, 'Pre-course Quiz Report');
+  brandedHeader(doc, 'รายงานแบบทดสอบก่อนเรียน');
   let y = 20;
 
   const summary = [
-    ['Student name', S(student?.name) || '-'],
-    ['Student ID', S(student?.studentId) || '-'],
-    ['Phone', S(student?.phone) || '-'],
-    ['Lesson', S(lesson?.title || attempt?.lessonId) || '-'],
-    ['Started', fmtDate(attempt?.startedAt)],
-    ['Finished', fmtDate(attempt?.finishedAt)],
-    ['Score', `${attempt?.score ?? 0}% (${attempt?.correctCount ?? 0}/${attempt?.totalQuestions ?? 0})`],
-    ['Passing score', `${lesson?.passingScore ?? 70}%`],
-    ['Result', attempt?.passed ? 'PASS' : 'FAIL'],
-    ['Attempt #', String(attempt?.attemptNumber ?? 1)],
+    ['ชื่อ-นามสกุล', S(student?.name) || '-'],
+    ['รหัสนักเรียน', S(student?.studentId) || '-'],
+    ['เบอร์โทร', S(student?.phone) || '-'],
+    ['บทเรียน', S(lesson?.title || attempt?.lessonId) || '-'],
+    ['เริ่มทำ', fmtDate(attempt?.startedAt)],
+    ['ทำเสร็จ', fmtDate(attempt?.finishedAt)],
+    ['คะแนน', `${attempt?.score ?? 0}% (${attempt?.correctCount ?? 0}/${attempt?.totalQuestions ?? 0})`],
+    ['เกณฑ์ผ่าน', `${lesson?.passingScore ?? 70}%`],
+    ['ผลการสอบ', attempt?.passed ? 'ผ่าน' : 'ไม่ผ่าน'],
+    ['ครั้งที่', String(attempt?.attemptNumber ?? 1)],
   ];
 
   autoTable(doc, {
@@ -92,7 +92,7 @@ export function exportStudentResultPDF({ student, attempt, lesson }) {
       String(i + 1),
       a.chosenId?.toUpperCase() || '-',
       q?.correctId?.toUpperCase() || '-',
-      a.correct ? 'OK' : 'X',
+      a.correct ? 'ถูก' : 'ผิด',
       chosenText.length > 50 ? chosenText.slice(0, 47) + '...' : chosenText,
       correctText.length > 50 ? correctText.slice(0, 47) + '...' : correctText,
     ];
@@ -101,7 +101,7 @@ export function exportStudentResultPDF({ student, attempt, lesson }) {
   if (rows.length) {
     autoTable(doc, {
       startY: y,
-      head: [['#', 'Chosen', 'Correct', 'OK?', 'Chosen text', 'Correct text']],
+      head: [['ข้อ', 'ตอบ', 'เฉลย', 'ผล', 'ตัวเลือกที่ตอบ', 'ตัวเลือกที่ถูก']],
       body: rows,
       theme: 'grid',
       headStyles: { font: PDF_FONT, fillColor: HEADER_COLOR, fontSize: 8 },
@@ -132,16 +132,16 @@ export function exportStudentResultPDF({ student, attempt, lesson }) {
 export function exportCohortPDF({ rows, lesson }) {
   const doc = new jsPDF('p', 'mm', 'a4');
   doc.setFont(PDF_FONT, 'normal');
-  brandedHeader(doc, 'Pre-course Cohort Report');
+  brandedHeader(doc, 'รายงานรวมทั้งกลุ่ม (ก่อนเรียน)');
   let y = 18;
 
   doc.setFontSize(10);
   doc.setFont(PDF_FONT, 'bold');
-  doc.text(`Lesson: ${S(lesson?.title || lesson?.id) || '-'}`, 14, y);
+  doc.text(`บทเรียน: ${S(lesson?.title || lesson?.id) || '-'}`, 14, y);
   y += 4;
   doc.setFontSize(8);
   doc.setFont(PDF_FONT, 'normal');
-  doc.text(`Passing score: ${lesson?.passingScore ?? 70}%   |   Students: ${rows.length}`, 14, y);
+  doc.text(`เกณฑ์ผ่าน: ${lesson?.passingScore ?? 70}%   |   จำนวนผู้เรียน: ${rows.length}`, 14, y);
   y += 4;
 
   const body = rows.map((r, i) => [
@@ -149,16 +149,16 @@ export function exportCohortPDF({ rows, lesson }) {
     S(r.studentId) || '-',
     S(r.name) || '-',
     S(r.phone) || '-',
-    r.read ? 'YES' : 'NO',
+    r.read ? 'อ่านแล้ว' : 'ยัง',
     r.attemptCount ? String(r.attemptCount) : '0',
     r.bestScore != null ? `${r.bestScore}%` : '-',
-    r.passed ? 'PASS' : (r.attemptCount ? 'FAIL' : '-'),
+    r.passed ? 'ผ่าน' : (r.attemptCount ? 'ไม่ผ่าน' : '-'),
     fmtDate(r.lastAttemptAt),
   ]);
 
   autoTable(doc, {
     startY: y,
-    head: [['#', 'Student ID', 'Name', 'Phone', 'Read', 'Attempts', 'Best', 'Result', 'Last attempt']],
+    head: [['ลำดับ', 'รหัสนักเรียน', 'ชื่อ', 'เบอร์โทร', 'อ่านบท', 'จำนวนครั้ง', 'สูงสุด', 'ผล', 'ล่าสุด']],
     body,
     theme: 'grid',
     headStyles: { font: PDF_FONT, fillColor: HEADER_COLOR, fontSize: 8 },

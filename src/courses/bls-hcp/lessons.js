@@ -229,7 +229,7 @@ const lessonDefs = [
           { id: 'd', text: 'ถอดแผ่นออกแล้วใส่ใหม่' },
         ],
         correctId: 'c',
-        explanation: '"No shock advised" → CPR ต่อทันที 2 นาที (rhythm อาจเป็น PEA/Asystole หรือ ROSC — BLS ไม่ต้องแยก) AED จะวิเคราะห์รอบถัดไปอัตโนมัติ' },
+        explanation: '"No shock advised" → CPR ต่อทันที 2 นาที (rhythm อาจเป็น PEA/Asystole หรือ ROSC — BLS เน้น minimize interruptions ไม่ต้องเสียเวลาคลำชีพจร) AED จะวิเคราะห์รอบถัดไปอัตโนมัติ\nหมายเหตุ (HCP): ถ้าจังหวะบนจอมีระเบียบ/สงสัย ROSC คลำชีพจรสั้นๆ ≤ 10 วินาทีได้ ถ้าไม่มีชีพจรให้กดหน้าอกต่อทันที' },
       { type: 'quiz', id: 'bls-3-q6',
         question: 'BLS-HCP ใช้เครื่อง defibrillator แบบใด?',
         choices: [
