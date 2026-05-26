@@ -2,6 +2,7 @@
   "name": "acls-reader",
   "version": "0.1.0",
   "private": true,
+  "description": "ACLS reading app (chapters + Q&A) over the existing Supabase content.",
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
