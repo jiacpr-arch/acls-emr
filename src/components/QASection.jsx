@@ -102,14 +102,14 @@ function MarkdownImage({ src, alt }) {
 const mdComponents = {
   h1: ({ children }) => (
     <h3
-      className="text-[18px] font-extrabold text-text-primary leading-snug mt-5 mb-2.5 first:mt-1 pb-1.5"
+      className="text-[20px] font-extrabold text-text-primary leading-snug mt-5 mb-2.5 first:mt-1 pb-1.5"
       style={{ borderBottom: '2px solid var(--color-border)' }}
     >
       {children}
     </h3>
   ),
   h2: ({ children }) => (
-    <h4 className="text-[18px] font-bold text-danger leading-snug mt-7 mb-3.5 first:mt-1 flex items-center gap-2">
+    <h4 className="text-[17.5px] font-bold text-danger leading-snug mt-7 mb-3.5 first:mt-1 flex items-center gap-2">
       <span
         aria-hidden
         className="inline-block shrink-0"
@@ -126,7 +126,7 @@ const mdComponents = {
   p: ({ children }) => (
     <p
       className="text-[15.5px] text-text-secondary mb-3.5 last:mb-0"
-      style={{ lineHeight: 1.85, textIndent: '1.5em' }}
+      style={{ lineHeight: 1.85 }}
     >
       {children}
     </p>
@@ -306,21 +306,32 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
                     <HelpCircle size={15} strokeWidth={2.4} />
                   </div>
                 )}
-                <h2 className="text-[16px] sm:text-[17px] font-extrabold text-text-primary leading-snug pt-0.5">
+                <h2 className="text-[18px] sm:text-[19px] font-extrabold text-text-primary leading-snug pt-0.5">
                   {item.q}
                 </h2>
               </div>
             </header>
 
-            {/* Body: infographics + answer */}
+            {/* Body: answer first, then infographics as a closing summary */}
             <div className="px-4 py-4 sm:px-5 sm:py-4">
+              {item.a && (
+                <div>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                    {normalizeAnswerMarkdown(item.a)}
+                  </ReactMarkdown>
+                </div>
+              )}
+
               {item.images?.length > 0 && (
-                <div className="mb-4">
-                  {/* Section label + divider above the infographics */}
+                <div className={item.a ? 'mt-5' : ''}>
+                  {/* Divider before the summary (only when answer text precedes it) */}
+                  {item.a && <hr className="mb-4 border-border" />}
+
+                  {/* Section label */}
                   <div className="flex items-center gap-2.5 mb-3">
                     <span className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-info shrink-0">
                       <ImageIcon size={14} strokeWidth={2.4} />
-                      Infographic
+                      สรุปเป็นภาพ
                     </span>
                     <span className="flex-1 h-px bg-border" />
                   </div>
@@ -334,17 +345,6 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
                       กดค้างที่รูปเพื่อดาวน์โหลด
                     </p>
                   </div>
-
-                  {/* Divider after the infographics, before the answer */}
-                  {item.a && <hr className="mt-4 border-border" />}
-                </div>
-              )}
-
-              {item.a && (
-                <div>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
-                    {normalizeAnswerMarkdown(item.a)}
-                  </ReactMarkdown>
                 </div>
               )}
             </div>
