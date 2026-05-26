@@ -198,7 +198,7 @@ function CoverImage({ img, fallbackAlt }) {
   const press = useLongPressDownload(img.src, img.alt || fallbackAlt);
   const { style, ...handlers } = press;
   return (
-    <div className="relative">
+    <div className="relative mb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
       <img
         src={img.src}
         alt={img.alt || fallbackAlt}
