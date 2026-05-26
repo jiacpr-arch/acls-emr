@@ -197,7 +197,7 @@ export default function ClassGateModal({ open, onClose }) {
 
         <div className="border-t border-border pt-3">
           <button onClick={useOffline}
-            className="btn btn-ghost btn-block font-bold text-text-primary">
+            className="btn btn-success btn-block font-bold">
             <BookOpen size={15} strokeWidth={2.2} /> เรียนคนเดียว / ฝึกเอง
           </button>
           <p className="text-[11px] text-text-muted text-center mt-1.5">
