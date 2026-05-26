@@ -1,4 +1,8 @@
 import jsPDF from 'jspdf';
+import { registerPDFFonts, PDF_FONT } from '../assets/fonts/registerFonts.js';
+import { sanitisePDFText as S } from './pdfText.js';
+
+registerPDFFonts();
 
 const LOGO_URL = '/images/logo-morroo.png';
 
@@ -29,11 +33,12 @@ async function loadImage(url) {
   }
 }
 
-// Renders a landscape A4 certificate using the bundled Helvetica font (ASCII only).
-// The HTML view (in Certification.jsx) keeps full Thai for screen display; this
-// PDF is the printable/shareable artifact.
+// Renders a landscape A4 certificate using the embedded Sarabun font so Thai
+// student names (and any Thai config text) render correctly. The HTML view in
+// Certification.jsx is the on-screen version; this PDF is the printable artifact.
 export async function exportCertificatePDF({ cert, certConfig }) {
   const doc = new jsPDF('l', 'mm', 'a4');
+  doc.setFont(PDF_FONT, 'normal');
   const pw = doc.internal.pageSize.getWidth();   // 297
   const ph = doc.internal.pageSize.getHeight();  // 210
   const brand = certConfig.brandColor || [37, 99, 235];
@@ -49,10 +54,10 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   doc.setFillColor(...brand);
   doc.rect(14, 14, pw - 28, 22, 'F');
   doc.setTextColor(255);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.setFontSize(20);
   doc.text(certConfig.title, pw / 2, 26, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(PDF_FONT, 'normal');
   doc.setFontSize(10);
   doc.text(certConfig.subtitle, pw / 2, 33, { align: 'center' });
 
@@ -74,9 +79,9 @@ export async function exportCertificatePDF({ cert, certConfig }) {
 
   // Student name — large
   doc.setTextColor(20);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.setFontSize(28);
-  doc.text(cert.studentName || '-', pw / 2, 78, { align: 'center' });
+  doc.text(S(cert.studentName) || '-', pw / 2, 78, { align: 'center' });
 
   // Underline
   doc.setDrawColor(...brand);
@@ -85,7 +90,7 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   doc.line((pw - nameWidth) / 2, 82, (pw + nameWidth) / 2, 82);
 
   // Body text
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(PDF_FONT, 'normal');
   doc.setFontSize(11);
   doc.setTextColor(60);
   const body1 = `has successfully completed the ${certConfig.subtitle} course`;
