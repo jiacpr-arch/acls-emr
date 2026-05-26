@@ -28,8 +28,10 @@ function saveCertData(data) {
 export default function Certification() {
   const [cases, setCases] = useState([]);
   const [certData, setCertData] = useState(getCertData());
-  const [studentName, setStudentName] = useState(certData.studentName || '');
   const activeStudent = usePreCourseStore(s => s.activeStudent);
+  // Default the certificate name to the name the student already entered at
+  // registration; an existing generated cert takes precedence.
+  const [studentName, setStudentName] = useState(certData.studentName || activeStudent?.name || '');
   const [preCourseProgress, setPreCourseProgress] = useState([]);
   const [preCourseAttempts, setPreCourseAttempts] = useState([]);
 
@@ -108,8 +110,8 @@ export default function Certification() {
     setCertData({ ...certData, ...data, studentName });
   };
 
-  const downloadPDF = () => {
-    exportCertificatePDF({ cert: certData, certConfig });
+  const downloadPDF = async () => {
+    await exportCertificatePDF({ cert: certData, certConfig });
   };
 
   const issuedDate = certData.completedAt ? new Date(certData.completedAt) : null;
@@ -258,6 +260,12 @@ export default function Certification() {
           >
             <Trophy size={28} strokeWidth={2.4} className="text-white" />
           </div>
+          <img
+            src="/images/logo-morroo.png"
+            alt=""
+            className="mx-auto h-12 object-contain"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
           <div>
             <div className="text-title text-text-primary">{certConfig.title}</div>
             <div className="text-caption text-text-muted mt-1">{certConfig.subtitle}</div>
