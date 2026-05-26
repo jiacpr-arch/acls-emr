@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { ArrowLeft, BookOpen, ListOrdered } from 'lucide-react';
 import QASection from '../components/QASection';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
@@ -14,6 +14,7 @@ const UNCATEGORIZED = '_uncategorized';
 
 export default function QAAclsDeepCategory() {
   const { chapterId } = useParams();
+  const location = useLocation();
   const [items, setItems] = useState([]);
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +41,17 @@ export default function QAAclsDeepCategory() {
     }
     return items.filter(it => it.chapterId === chapterId);
   }, [items, chapterId]);
+
+  // Deep-link support: when arriving with a #qa-N hash (e.g. from search),
+  // scroll to that question once the list has rendered.
+  useEffect(() => {
+    if (loading || !location.hash) return;
+    const id = location.hash.slice(1);
+    const t = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+    return () => clearTimeout(t);
+  }, [loading, location.hash, categoryItems.length]);
 
   const { num, name } = useMemo(() => {
     if (chapterId === UNCATEGORIZED) return { num: null, name: 'ยังไม่จัดหมวด' };

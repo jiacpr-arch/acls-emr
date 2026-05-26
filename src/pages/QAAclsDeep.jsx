@@ -41,11 +41,37 @@ export default function QAAclsDeep() {
     return { byChapter: map, uncategorized };
   }, [items]);
 
-  const filteredChapters = useMemo(() => {
-    if (!query.trim()) return chapters;
+  const chapterById = useMemo(() => {
+    const m = new Map();
+    for (const c of chapters) m.set(c.id, c);
+    return m;
+  }, [chapters]);
+
+  // Within-chapter position (1-based) for each item — mirrors the qa-N anchors
+  // rendered on the category page, so a search hit can deep-link to the question.
+  // Keyed by the item object (static fallback items have no stable id).
+  const itemAnchor = useMemo(() => {
+    const seen = new Map();
+    const m = new Map();
+    for (const it of items) {
+      const key = it.chapterId || '_uncategorized';
+      const n = (seen.get(key) ?? 0) + 1;
+      seen.set(key, n);
+      m.set(it, { chapterKey: key, num: n });
+    }
+    return m;
+  }, [items]);
+
+  // Search now matches question + answer text + chapter title (was title-only).
+  const matchedItems = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return chapters.filter(c => (c.title || '').toLowerCase().includes(q));
-  }, [chapters, query]);
+    if (!q) return [];
+    return items.filter((it) => {
+      const ch = it.chapterId ? chapterById.get(it.chapterId) : null;
+      const hay = `${it.question || ''} ${it.answer || ''} ${ch?.title || ''}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }, [items, chapterById, query]);
 
   // Pick a random Q&A that has an infographic to feature at the top.
   const featured = useMemo(() => {
@@ -121,7 +147,7 @@ export default function QAAclsDeep() {
 
       {askOpen && <StudentQuestionForm onClose={() => setAskOpen(false)} />}
 
-      {!loading && featured && featuredImage && (
+      {!loading && featured && featuredImage && !query.trim() && (
         <Link
           to={featuredHref}
           className="block overflow-hidden hover:-translate-y-0.5 active:scale-[0.99] transition-all"
@@ -197,7 +223,7 @@ export default function QAAclsDeep() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ค้นหาหมวดความรู้…"
+          placeholder="ค้นหาคำถาม คำตอบ หรือหมวด…"
           className="w-full pl-9 pr-3 py-2 bg-bg-secondary border border-border text-caption text-text-primary focus:outline-none focus:border-info"
           style={{ borderRadius: 'var(--radius-md)' }}
         />
@@ -205,16 +231,56 @@ export default function QAAclsDeep() {
 
       {loading ? (
         <div className="text-center text-caption text-text-muted py-8">กำลังโหลด…</div>
+      ) : query.trim() ? (
+        <div className="space-y-2.5">
+          <div className="text-[11px] uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
+            {matchedItems.length > 0 ? `พบ ${matchedItems.length} คำถาม` : 'ผลการค้นหา'}
+          </div>
+          {matchedItems.map((it, idx) => {
+            const anchor = itemAnchor.get(it);
+            const ch = it.chapterId ? chapterById.get(it.chapterId) : null;
+            const href = `/qa-acls-deep/${encodeURIComponent(anchor?.chapterKey || '_uncategorized')}${anchor ? `#qa-${anchor.num}` : ''}`;
+            return (
+              <Link
+                key={it.id ?? `m-${idx}`}
+                to={href}
+                className="dash-card !p-0 flex items-start gap-3 px-4 py-3 hover:bg-bg-tertiary/50 transition-colors text-left"
+              >
+                <div
+                  className="w-8 h-8 inline-flex items-center justify-center shrink-0 bg-info/12 text-info"
+                  style={{ borderRadius: 'var(--radius-md)' }}
+                >
+                  <MessageCircleQuestion size={16} strokeWidth={2.2} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-body-strong text-text-primary leading-snug line-clamp-2">
+                    {it.question}
+                  </div>
+                  <div className="text-[11px] text-text-muted mt-1 flex items-center gap-1">
+                    <span className="shrink-0">{ch ? (ch.icon || '📘') : '📌'}</span>
+                    <span className="truncate">{ch ? parseChapterTitle(ch.title).name : 'ยังไม่จัดหมวด'}</span>
+                  </div>
+                </div>
+                <ChevronRight size={16} strokeWidth={2.4} className="text-text-muted shrink-0 mt-1" />
+              </Link>
+            );
+          })}
+          {matchedItems.length === 0 && (
+            <div className="dash-card text-center text-caption text-text-muted py-6">
+              ไม่พบคำถามหรือหมวดที่ตรงกับ “{query.trim()}”
+            </div>
+          )}
+        </div>
       ) : (
         <div className="space-y-3">
-          {featured && !query.trim() && (
+          {featured && (
             <div className="text-[11px] uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
               อ่านเรื่องอื่นๆ ต่อ
             </div>
           )}
 
           <div className="space-y-2.5">
-            {filteredChapters.map((ch, idx) => {
+            {chapters.map((ch, idx) => {
               const palette = CHAPTER_PALETTE[idx % CHAPTER_PALETTE.length];
               const n = counts.byChapter.get(ch.id) ?? 0;
               const { num, name } = parseChapterTitle(ch.title);
@@ -291,12 +357,6 @@ export default function QAAclsDeep() {
               </Link>
             )}
           </div>
-
-          {filteredChapters.length === 0 && (
-            <div className="dash-card text-center text-caption text-text-muted py-6">
-              ไม่พบหมวดที่ตรงกับคำค้น
-            </div>
-          )}
         </div>
       )}
     </div>
