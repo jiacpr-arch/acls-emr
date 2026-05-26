@@ -1,5 +1,9 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { registerPDFFonts, PDF_FONT } from '../assets/fonts/registerFonts.js';
+import { sanitisePDFText as S } from './pdfText.js';
+
+registerPDFFonts();
 
 const HEADER_COLOR = [37, 99, 235];
 
@@ -20,9 +24,9 @@ function brandedHeader(doc, title) {
   doc.setFillColor(...HEADER_COLOR);
   doc.rect(0, 0, pw, 14, 'F');
   doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.setTextColor(255);
-  doc.text(title, pw / 2, 7, { align: 'center' });
+  doc.text(S(title), pw / 2, 7, { align: 'center' });
   doc.setFontSize(7);
   doc.text('JIA Trainer Center — jia1669.com', pw / 2, 12, { align: 'center' });
   doc.setTextColor(0);
@@ -36,7 +40,7 @@ function pageFooter(doc) {
     doc.setPage(i);
     doc.setFontSize(6.5);
     doc.setTextColor(150);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(PDF_FONT, 'normal');
     doc.text(
       `ACLS EMR Pre-course | Generated ${new Date().toLocaleString('en-US')} | Page ${i}/${pages}`,
       pw / 2, ph - 6, { align: 'center' }
@@ -46,20 +50,21 @@ function pageFooter(doc) {
 
 /**
  * Export one student's quiz attempt as a PDF report.
- * Non-ASCII (Thai) fields are stripped to ASCII-safe placeholders since the built-in
- * jsPDF font does not support Thai. The PDF is meant as an instructor-facing receipt
- * with score and per-question results; the in-app view keeps full Thai text.
+ * Uses the embedded Sarabun font so Thai text (names, lesson titles, choice
+ * text) renders correctly. The PDF is an instructor-facing receipt with score
+ * and per-question results.
  */
 export function exportStudentResultPDF({ student, attempt, lesson }) {
   const doc = new jsPDF('p', 'mm', 'a4');
+  doc.setFont(PDF_FONT, 'normal');
   brandedHeader(doc, 'Pre-course Quiz Report');
   let y = 20;
 
   const summary = [
-    ['Student name', student?.name || '-'],
-    ['Student ID', student?.studentId || '-'],
-    ['Phone', student?.phone || '-'],
-    ['Lesson', lesson?.title || attempt?.lessonId || '-'],
+    ['Student name', S(student?.name) || '-'],
+    ['Student ID', S(student?.studentId) || '-'],
+    ['Phone', S(student?.phone) || '-'],
+    ['Lesson', S(lesson?.title || attempt?.lessonId) || '-'],
     ['Started', fmtDate(attempt?.startedAt)],
     ['Finished', fmtDate(attempt?.finishedAt)],
     ['Score', `${attempt?.score ?? 0}% (${attempt?.correctCount ?? 0}/${attempt?.totalQuestions ?? 0})`],
@@ -73,17 +78,16 @@ export function exportStudentResultPDF({ student, attempt, lesson }) {
     body: summary,
     theme: 'plain',
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45 } },
-    styles: { fontSize: 9, cellPadding: 1.6 },
+    styles: { font: PDF_FONT, fontSize: 9, cellPadding: 1.6 },
     margin: { left: 14, right: 14 },
   });
   y = doc.lastAutoTable.finalY + 4;
 
-  // Per-question table — use question index + chosen/correct id; long Thai text is
-  // shown by index only so the PDF stays readable in the bundled font.
+  // Per-question table — full Thai choice text now renders via the embedded font.
   const rows = (attempt?.answers || []).map((a, i) => {
     const q = (lesson?.quiz || []).find(qq => qq.id === a.questionId);
-    const chosenText = q?.choices.find(c => c.id === a.chosenId)?.text || '-';
-    const correctText = q?.choices.find(c => c.id === q.correctId)?.text || '-';
+    const chosenText = S(q?.choices.find(c => c.id === a.chosenId)?.text) || '-';
+    const correctText = S(q?.choices.find(c => c.id === q.correctId)?.text) || '-';
     return [
       String(i + 1),
       a.chosenId?.toUpperCase() || '-',
@@ -100,8 +104,8 @@ export function exportStudentResultPDF({ student, attempt, lesson }) {
       head: [['#', 'Chosen', 'Correct', 'OK?', 'Chosen text', 'Correct text']],
       body: rows,
       theme: 'grid',
-      headStyles: { fillColor: HEADER_COLOR, fontSize: 8 },
-      styles: { fontSize: 7.5, cellPadding: 1.5, overflow: 'linebreak' },
+      headStyles: { font: PDF_FONT, fillColor: HEADER_COLOR, fontSize: 8 },
+      styles: { font: PDF_FONT, fontSize: 7.5, cellPadding: 1.5, overflow: 'linebreak' },
       columnStyles: {
         0: { cellWidth: 10, halign: 'center', fontStyle: 'bold' },
         1: { cellWidth: 18, halign: 'center' },
@@ -127,23 +131,24 @@ export function exportStudentResultPDF({ student, attempt, lesson }) {
  */
 export function exportCohortPDF({ rows, lesson }) {
   const doc = new jsPDF('p', 'mm', 'a4');
+  doc.setFont(PDF_FONT, 'normal');
   brandedHeader(doc, 'Pre-course Cohort Report');
   let y = 18;
 
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text(`Lesson: ${lesson?.title || lesson?.id || '-'}`, 14, y);
+  doc.setFont(PDF_FONT, 'bold');
+  doc.text(`Lesson: ${S(lesson?.title || lesson?.id) || '-'}`, 14, y);
   y += 4;
   doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(PDF_FONT, 'normal');
   doc.text(`Passing score: ${lesson?.passingScore ?? 70}%   |   Students: ${rows.length}`, 14, y);
   y += 4;
 
   const body = rows.map((r, i) => [
     String(i + 1),
-    r.studentId || '-',
-    r.name || '-',
-    r.phone || '-',
+    S(r.studentId) || '-',
+    S(r.name) || '-',
+    S(r.phone) || '-',
     r.read ? 'YES' : 'NO',
     r.attemptCount ? String(r.attemptCount) : '0',
     r.bestScore != null ? `${r.bestScore}%` : '-',
@@ -156,8 +161,8 @@ export function exportCohortPDF({ rows, lesson }) {
     head: [['#', 'Student ID', 'Name', 'Phone', 'Read', 'Attempts', 'Best', 'Result', 'Last attempt']],
     body,
     theme: 'grid',
-    headStyles: { fillColor: HEADER_COLOR, fontSize: 8 },
-    styles: { fontSize: 7.5, cellPadding: 1.5, overflow: 'linebreak' },
+    headStyles: { font: PDF_FONT, fillColor: HEADER_COLOR, fontSize: 8 },
+    styles: { font: PDF_FONT, fontSize: 7.5, cellPadding: 1.5, overflow: 'linebreak' },
     columnStyles: {
       0: { cellWidth: 8, halign: 'center' },
       1: { cellWidth: 22 },

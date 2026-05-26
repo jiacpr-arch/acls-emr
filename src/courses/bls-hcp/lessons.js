@@ -460,14 +460,14 @@ const lessonDefs = [
   {
     id: 'bls-6',
     title: 'บทที่ 7: CPR ในทารก (< 1 ปี)',
-    description: 'เทคนิคพิเศษสำหรับทารก: 2-finger / 2-thumb encircling, brachial pulse',
+    description: 'เทคนิคพิเศษสำหรับทารก: heel-of-1-hand / 2-thumb encircling, brachial pulse',
     estMinutes: 7,
     passingScore: 75,
     steps: [
       { type: 'read', heading: 'การตรวจชีพจรในทารก',
         body: 'ใช้ brachial pulse (inner upper arm) เป็นมาตรฐาน; femoral pulse ใช้แทนได้ — carotid ยากในทารกเพราะคอสั้น ตรวจไม่เกิน 10 วินาที\nHR < 60 + poor perfusion (แม้ให้ ventilation/O₂ เพียงพอแล้ว) → start compressions ทันที' },
       { type: 'read', heading: 'เทคนิคการกดหน้าอก',
-        body: '• 1 ผู้ช่วยเหลือ: 2-finger technique (2 นิ้วบน sternum ใต้เส้น nipple)\n• 2 ผู้ช่วยเหลือ (HCP): 2-thumb encircling technique (โอบรอบหน้าอก ใช้นิ้วโป้งกด) — ให้ output ดีกว่า\n• ความลึก ~ 4 ซม. หรือ 1/3 ของ AP diameter\n• อัตรา 100–120 ครั้ง/นาที' },
+        body: '• Guideline ใหม่ (2025): "เลิกใช้" 2-finger technique เพราะมักกดได้ไม่ลึกพอ\n• 1 ผู้ช่วยเหลือ: ใช้ heel-of-1-hand (ฝ่ามือข้างเดียว — ส้นมือกดบน sternum ใต้เส้น nipple) หรือ 2-thumb encircling\n• 2 ผู้ช่วยเหลือ (HCP): 2-thumb encircling technique (โอบรอบหน้าอก ใช้นิ้วโป้งกด) — output ดีที่สุด; ถ้ามือเล็กโอบไม่รอบ ให้ใช้ heel-of-1-hand\n• ความลึก ~ 4 ซม. หรือ 1/3 ของ AP diameter\n• อัตรา 100–120 ครั้ง/นาที' },
       { type: 'read', heading: 'อัตราส่วน Compression : Ventilation',
         body: '• 1-rescuer: 30:2\n• 2-rescuer (HCP): 15:2\n• AED < 1 ปี: ใช้ manual defibrillator ถ้ามี; ถ้าไม่มีใช้ AED with pediatric attenuator; ถ้าไม่มีใช้ adult AED ได้' },
       { type: 'quiz', id: 'bls-6-q1',
