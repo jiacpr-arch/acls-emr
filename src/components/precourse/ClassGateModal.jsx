@@ -3,7 +3,7 @@ import { useClassStore } from '../../stores/classStore';
 import { COURSE_MODE } from '../../config/courseMode';
 import { rpcCreateClass, rpcVerifyClassCode } from '../../services/cohortSync';
 import { scheduleFlush } from '../../services/syncEngine';
-import { Cloud, CloudOff, KeyRound, Plus, AlertCircle, Check, Copy } from 'lucide-react';
+import { Cloud, BookOpen, KeyRound, Plus, AlertCircle, Check, Copy } from 'lucide-react';
 
 // Shown on /pre-course when no class is selected and the user hasn't opted into offline mode.
 // Two flows: Join existing class (by code) or Create new class (instructor) — both write
@@ -197,11 +197,11 @@ export default function ClassGateModal({ open, onClose }) {
 
         <div className="border-t border-border pt-3">
           <button onClick={useOffline}
-            className="btn btn-ghost btn-sm btn-block text-text-muted">
-            <CloudOff size={13} strokeWidth={2.2} /> ใช้แบบ offline เท่านั้น
+            className="btn btn-success btn-block font-bold">
+            <BookOpen size={15} strokeWidth={2.2} /> เรียนคนเดียว / ฝึกเอง
           </button>
-          <p className="text-[11px] text-text-muted text-center mt-1">
-            ข้อมูลจะเก็บในเครื่องนี้เท่านั้น ไม่ sync ไป cloud
+          <p className="text-[11px] text-text-muted text-center mt-1.5">
+            เริ่มเรียนได้เลย ไม่ต้องใช้รหัสคลาส (ข้อมูลเก็บในเครื่องนี้)
           </p>
         </div>
       </div>
