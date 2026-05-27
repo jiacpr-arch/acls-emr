@@ -59,7 +59,7 @@ export default function AdminStudentQuestions() {
   };
 
   return (
-    <div className="page-container space-y-4">
+    <div className="page-container space-y-5">
       <div className="flex items-center justify-between gap-2">
         <div className="inline-flex items-center gap-2">
           <div

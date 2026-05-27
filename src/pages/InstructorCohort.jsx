@@ -148,7 +148,7 @@ export default function InstructorCohort() {
   };
 
   return (
-    <div className="page-container space-y-4">
+    <div className="page-container space-y-5">
       <button onClick={() => navigate('/pre-course')}
         className="inline-flex items-center gap-1 text-caption text-text-muted hover:text-text-primary">
         <ChevronLeft size={14} strokeWidth={2.2} /> กลับไป Pre-course

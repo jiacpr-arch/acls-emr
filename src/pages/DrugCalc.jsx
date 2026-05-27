@@ -22,7 +22,7 @@ export default function DrugCalc() {
   ];
 
   return (
-    <div className="page-container space-y-4">
+    <div className="page-container space-y-5">
       <div className="flex items-center gap-3">
         <div className="w-11 h-11 inline-flex items-center justify-center bg-info/15 text-info"
           style={{ borderRadius: 'var(--radius-md)' }}>

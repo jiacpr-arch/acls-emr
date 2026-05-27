@@ -41,7 +41,7 @@ export default function DrillTimer() {
 
   if (!mode) {
     return (
-      <div className="page-container space-y-4">
+      <div className="page-container space-y-5">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 inline-flex items-center justify-center bg-success/15 text-success"
             style={{ borderRadius: 'var(--radius-md)' }}>
@@ -67,7 +67,7 @@ export default function DrillTimer() {
 
   if (mode === 'compression') {
     return (
-      <div className="page-container space-y-4 text-center">
+      <div className="page-container space-y-5 text-center">
         <PageTitle Icon={HeartPulse} text="Compression Rate Practice" />
 
         <CircularTimer value={elapsed % 120} max={120} size={180} strokeWidth={12}
@@ -109,7 +109,7 @@ export default function DrillTimer() {
     const cycleCount = Math.floor(count / 32);
 
     return (
-      <div className="page-container space-y-4 text-center">
+      <div className="page-container space-y-5 text-center">
         <PageTitle Icon={Wind} text="30:2 Timing Practice" />
 
         <div className={`text-numeric text-6xl ${isBreathPhase ? 'text-info animate-pulse' : 'text-success'}`}>
@@ -143,7 +143,7 @@ export default function DrillTimer() {
     const overTime = elapsed > 10;
 
     return (
-      <div className="page-container space-y-4 text-center">
+      <div className="page-container space-y-5 text-center">
         <PageTitle Icon={Timer} text="Pulse Check Practice" />
         <p className="text-caption text-text-muted">Target: ≤10 seconds</p>
 

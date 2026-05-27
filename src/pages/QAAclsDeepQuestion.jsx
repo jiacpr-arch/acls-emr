@@ -68,7 +68,7 @@ export default function QAAclsDeepQuestion() {
     : [];
 
   return (
-    <div className="page-container space-y-4">
+    <div className="page-container space-y-5">
       <div className="flex items-center gap-2">
         <Link to={listHref} className="btn btn-ghost btn-sm">
           <ArrowLeft size={14} strokeWidth={2.2} />
