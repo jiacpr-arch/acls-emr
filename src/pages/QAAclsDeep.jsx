@@ -47,8 +47,8 @@ export default function QAAclsDeep() {
     return m;
   }, [chapters]);
 
-  // Within-chapter position (1-based) for each item — mirrors the qa-N anchors
-  // rendered on the category page, so a search hit can deep-link to the question.
+  // Within-chapter position (1-based) for each item — used as the :qNum route
+  // param so a search hit or the featured card can link to that question's page.
   // Keyed by the item object (static fallback items have no stable id).
   const itemAnchor = useMemo(() => {
     const seen = new Map();
@@ -91,7 +91,11 @@ export default function QAAclsDeep() {
   }, [featured, chapters]);
 
   const featuredHref = featured
-    ? `/qa-acls-deep/${encodeURIComponent(featured.chapterId || '_uncategorized')}`
+    ? (() => {
+        const anchor = itemAnchor.get(featured);
+        const key = anchor?.chapterKey || featured.chapterId || '_uncategorized';
+        return `/qa-acls-deep/${encodeURIComponent(key)}${anchor ? `/${anchor.num}` : ''}`;
+      })()
     : null;
 
   return (
@@ -239,7 +243,7 @@ export default function QAAclsDeep() {
           {matchedItems.map((it, idx) => {
             const anchor = itemAnchor.get(it);
             const ch = it.chapterId ? chapterById.get(it.chapterId) : null;
-            const href = `/qa-acls-deep/${encodeURIComponent(anchor?.chapterKey || '_uncategorized')}${anchor ? `#qa-${anchor.num}` : ''}`;
+            const href = `/qa-acls-deep/${encodeURIComponent(anchor?.chapterKey || '_uncategorized')}${anchor ? `/${anchor.num}` : ''}`;
             return (
               <Link
                 key={it.id ?? `m-${idx}`}
