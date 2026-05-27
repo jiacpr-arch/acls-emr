@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAlsChapters } from '../hooks/useAlsChapters';
-import { ekgQuestions, rhythmLabels, shuffleOptions, quizCategories } from '../data/ekgQuiz';
+import { ekgQuestions, rhythmLabels, shuffleOptions, quizCategories, EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
 import EKGWaveform from '../components/EKGWaveform';
 import QASection from '../components/QASection';
 import {
@@ -120,6 +120,12 @@ export default function ALSKnowledge() {
       if (final > quizBest) {
         setQuizBest(final);
         localStorage.setItem(QUIZ_KEY, String(final));
+      }
+      // The certification gate is the full bank only — category practice runs
+      // don't count toward "passed the EKG test".
+      if (quizCat === 'all') {
+        const pct = Math.round((final / Math.max(quizPool.length, 1)) * 100);
+        if (pct >= EKG_TEST_PASS_PERCENT) localStorage.setItem(EKG_TEST_PASSED_KEY, 'true');
       }
     }
     setQuizChoice(null);
@@ -464,6 +470,11 @@ export default function ALSKnowledge() {
               </div>
               {quizScore > quizBest && (
                 <div className="text-caption text-success font-bold">สถิติใหม่!</div>
+              )}
+              {quizCat === 'all' && (quizScore / Math.max(quizPool.length, 1)) * 100 >= EKG_TEST_PASS_PERCENT && (
+                <div className="text-caption text-success font-bold inline-flex items-center justify-center gap-1.5 w-full">
+                  <Check size={14} strokeWidth={2.6} /> ผ่าน EKG test (เกณฑ์ {EKG_TEST_PASS_PERCENT}%) — นับเป็นเงื่อนไข Certification
+                </div>
               )}
               <button onClick={resetQuiz} className="btn btn-primary btn-block">
                 <RotateCcw size={14} strokeWidth={2.2} /> เริ่มใหม่

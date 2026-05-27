@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { getAllCases, getLessonProgress, getAttemptsForStudent } from '../db/database';
-import { scenarios } from '../data/scenarios';
+import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostTest';
+import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
+import { EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
 import { certConfig } from '../data/activeCert';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { exportCertificatePDF } from '../utils/exportCertificate';
 import {
-  Trophy, BookOpen, GraduationCap, Award, BarChart3,
-  Check, Circle, ClipboardCheck, Download,
+  Trophy, BookOpen, Sparkles, Activity,
+  Check, Circle, ClipboardCheck, Download, MapPin,
 } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
@@ -26,7 +27,6 @@ function saveCertData(data) {
 }
 
 export default function Certification() {
-  const [cases, setCases] = useState([]);
   const [certData, setCertData] = useState(getCertData());
   const activeStudent = usePreCourseStore(s => s.activeStudent);
   // Default the certificate name to the name the student already entered at
@@ -34,12 +34,7 @@ export default function Certification() {
   const [studentName, setStudentName] = useState(certData.studentName || activeStudent?.name || '');
   const [preCourseProgress, setPreCourseProgress] = useState([]);
   const [preCourseAttempts, setPreCourseAttempts] = useState([]);
-
-  // ACLS-only: scenarios-based metrics. BLS mode skips loading cases.
-  useEffect(() => {
-    if (IS_BLS) return;
-    getAllCases().then(setCases);
-  }, []);
+  const ekgTestDone = localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
 
   useEffect(() => {
     if (!activeStudent) {
@@ -56,17 +51,6 @@ export default function Certification() {
     });
   }, [activeStudent?.id]);
 
-  const trainingCases = cases.filter(c => c.mode === 'training' && c.outcome !== 'ongoing');
-  const totalScenarios = scenarios.length;
-
-  const basicDone = trainingCases.filter(c => c.events?.length >= 3).length >= 3;
-  const interDone = trainingCases.filter(c => c.events?.length >= 5).length >= 1;
-  const megaDone = trainingCases.filter(c => c.events?.length >= 7).length >= 1;
-  const avgScore = trainingCases.length > 0
-    ? Math.round(trainingCases.reduce((a, c) => a + (c.ccf || 50), 0) / trainingCases.length)
-    : 0;
-  const passExam = avgScore >= 80;
-
   const preCourseStatus = preCourseLessons.map(l => {
     const read = preCourseProgress.some(p => p.lessonId === l.id);
     const lessonAttempts = preCourseAttempts.filter(a => a.lessonId === l.id);
@@ -79,19 +63,23 @@ export default function Certification() {
   const postTestBest = postTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
   const postTestDone = !!postTestBest?.passed;
 
-  // BLS: 2 requirements (knowledge-only course); ACLS: 6 (knowledge + recorded simulations)
+  const preTestAttempts = preCourseAttempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
+  const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+  const preTestDone = !!preTestBest?.passed;
+
+  // BLS: 2 knowledge requirements. ACLS: online theory certification — the four
+  // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
+  // skills are completed separately at a training center.
   const requirements = IS_BLS
     ? [
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck },
       ]
     : [
-        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่าน)', done: preCourseDone, Icon: BookOpen },
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles },
+        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck },
-        { label: 'Complete 3+ Basic scenarios', done: basicDone, Icon: BookOpen },
-        { label: 'Complete 1+ Intermediate scenario', done: interDone, Icon: GraduationCap },
-        { label: 'Complete 1+ Megacode scenario', done: megaDone, Icon: Award },
-        { label: 'Average score ≥ 80%', done: passExam, Icon: BarChart3 },
+        { label: `ผ่าน EKG test ≥ ${EKG_TEST_PASS_PERCENT}%`, done: ekgTestDone, Icon: Activity },
       ];
 
   const allDone = requirements.every(r => r.done);
@@ -101,9 +89,10 @@ export default function Certification() {
     const data = {
       studentName,
       completedAt: new Date().toISOString(),
-      scenariosDone: trainingCases.length,
-      avgScore: IS_BLS ? null : avgScore,
+      preTestScore: IS_BLS ? null : (preTestBest?.score ?? null),
       postTestScore: postTestBest?.score ?? null,
+      ekgPassed: IS_BLS ? null : ekgTestDone,
+      theoryOnly: !!certConfig.theoryOnly,
       certId: `${certConfig.certIdPrefix}-${Date.now().toString(36).toUpperCase()}`,
     };
     saveCertData({ ...certData, ...data, studentName });
@@ -197,16 +186,22 @@ export default function Certification() {
       {!IS_BLS && (
         <div className="grid grid-cols-3 gap-2">
           <div className="stat-box">
-            <div className="stat-value text-lg text-text-primary">{trainingCases.length}</div>
-            <div className="stat-label">Completed</div>
+            <div className={`stat-value text-lg ${preTestDone ? 'text-success' : 'text-warning'}`}>
+              {preTestBest ? `${preTestBest.score}%` : '—'}
+            </div>
+            <div className="stat-label">Pre-test</div>
           </div>
           <div className="stat-box">
-            <div className={`stat-value text-lg ${avgScore >= 80 ? 'text-success' : 'text-warning'}`}>{avgScore}%</div>
-            <div className="stat-label">Avg Score</div>
+            <div className={`stat-value text-lg ${postTestDone ? 'text-success' : 'text-warning'}`}>
+              {postTestBest ? `${postTestBest.score}%` : '—'}
+            </div>
+            <div className="stat-label">Post-test</div>
           </div>
           <div className="stat-box">
-            <div className="stat-value text-lg text-text-primary">{totalScenarios}</div>
-            <div className="stat-label">Total Scenarios</div>
+            <div className={`stat-value text-lg ${ekgTestDone ? 'text-success' : 'text-warning'}`}>
+              {ekgTestDone ? 'ผ่าน' : '—'}
+            </div>
+            <div className="stat-label">EKG test</div>
           </div>
         </div>
       )}
@@ -261,9 +256,9 @@ export default function Certification() {
             <Trophy size={28} strokeWidth={2.4} className="text-white" />
           </div>
           <img
-            src="/images/logo-morroo.png"
+            src={certConfig.logoUrl || '/images/logo-morroo.png'}
             alt=""
-            className="mx-auto h-12 object-contain"
+            className="mx-auto h-20 object-contain"
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
           <div>
@@ -271,9 +266,14 @@ export default function Certification() {
             <div className="text-caption text-text-muted mt-1">{certConfig.subtitle}</div>
             <div className="text-body text-text-secondary mt-2 font-bold">{certData.studentName}</div>
           </div>
+          {certConfig.theoryOnly && certConfig.theoryStatement && (
+            <div className="text-caption font-semibold text-success">{certConfig.theoryStatement}</div>
+          )}
           {!IS_BLS && (
             <div className="text-caption text-text-muted">
-              Completed {certData.scenariosDone} scenarios · Score: {certData.avgScore}%
+              Pre-test: {certData.preTestScore != null ? `${certData.preTestScore}%` : '—'}
+              {' · '}Post-test: {certData.postTestScore != null ? `${certData.postTestScore}%` : '—'}
+              {' · '}EKG: {certData.ekgPassed ? 'ผ่าน' : '—'}
             </div>
           )}
           {IS_BLS && certData.postTestScore != null && (
@@ -287,6 +287,12 @@ export default function Certification() {
           </div>
           <div className="font-mono text-[11px] text-info">ID: {certData.certId}</div>
           <div className="text-[11px] text-text-muted">{certConfig.centerName} · {certConfig.centerUrl}</div>
+          {certConfig.theoryOnly && certConfig.practicalRecommendation && (
+            <div className="dash-card !p-3 !bg-info/10 border border-info/30 text-caption text-info flex items-start gap-2 text-left">
+              <MapPin size={15} strokeWidth={2.4} className="text-info shrink-0 mt-0.5" />
+              <span>{certConfig.practicalRecommendation}</span>
+            </div>
+          )}
           <button onClick={downloadPDF} className="btn btn-info btn-block mt-3">
             <Download size={16} strokeWidth={2.4} /> Download PDF Certificate
           </button>
