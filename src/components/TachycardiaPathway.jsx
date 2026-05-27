@@ -4,6 +4,7 @@ import { useTimerStore } from '../stores/timerStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
+import ChecklistItem from './ChecklistItem';
 import { TrendingUp, Zap, Activity } from 'lucide-react';
 
 // Escalating biphasic energy ladder for cardioversion / defib (ILCOR 2025)
@@ -170,15 +171,8 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
             { key: 'chest_pain', label: 'Chest Pain / ACS Signs', icon: '💔' },
             { key: 'resp_distress', label: `Respiratory Distress${spo2 < 94 ? ` ← SpO₂=${spo2}%` : ''}`, icon: '🫁' },
           ].map(s => (
-            <button key={s.key} onClick={() => toggleUnstable(s.key)}
-              className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg mb-1.5 transition-colors ${
-                unstableSigns[s.key] ? 'bg-danger/10 border border-danger/30' : 'bg-bg-primary border border-bg-tertiary'
-              }`}>
-              <span className={`w-5 h-5 rounded flex items-center justify-center text-xs ${
-                unstableSigns[s.key] ? 'bg-danger text-white' : 'bg-bg-tertiary text-text-muted'
-              }`}>{unstableSigns[s.key] ? '✓' : ''}</span>
-              <span className="text-xs text-text-primary">{s.icon} {s.label}</span>
-            </button>
+            <ChecklistItem key={s.key} checked={!!unstableSigns[s.key]} onClick={() => toggleUnstable(s.key)}
+              tone="danger" label={`${s.icon} ${s.label}`} />
           ))}
         </div>
 

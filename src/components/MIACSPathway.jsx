@@ -339,15 +339,8 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
             { key: 'st_dev', label: 'ST deviation ≥ 0.5mm' },
             { key: 'troponin', label: 'Troponin (+)' },
           ].map(t => (
-            <button key={t.key} onClick={() => setTimiScore(prev => ({ ...prev, [t.key]: !prev[t.key] }))}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg mb-1 text-left ${
-                timiScore[t.key] ? 'bg-warning/10 border border-warning/30' : 'bg-bg-primary border border-bg-tertiary'
-              }`}>
-              <span className={`w-4 h-4 rounded text-[10px] flex items-center justify-center ${
-                timiScore[t.key] ? 'bg-warning text-white' : 'bg-bg-tertiary'
-              }`}>{timiScore[t.key] ? '✓' : ''}</span>
-              <span className="text-xs text-text-primary">{t.label}</span>
-            </button>
+            <ChecklistItem key={t.key} checked={!!timiScore[t.key]} onClick={() => setTimiScore(prev => ({ ...prev, [t.key]: !prev[t.key] }))}
+              tone="warning" label={t.label} />
           ))}
         </div>
 
