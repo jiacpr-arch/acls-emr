@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
+import ChecklistItem from './ChecklistItem';
 import { HeartPulse } from 'lucide-react';
 
 // MI/ACS Pathway — ILCOR 2025
@@ -28,18 +29,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
   };
 
   const Check = ({ id, label, sub, logAs }) => (
-    <button onClick={() => toggleCheck(id, logAs)}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
-        checklist[id] ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
-      }`}>
-      <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
-        checklist[id] ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
-      }`}>{checklist[id] ? '✓' : ''}</span>
-      <div>
-        <div className="text-xs font-semibold text-text-primary">{label}</div>
-        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
-      </div>
-    </button>
+    <ChecklistItem checked={!!checklist[id]} onClick={() => toggleCheck(id, logAs)} label={label} sub={sub} />
   );
 
   // ===== INITIAL ASSESSMENT =====
