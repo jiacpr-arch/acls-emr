@@ -61,33 +61,34 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   doc.setFontSize(10);
   doc.text(certConfig.subtitle, pw / 2, 33, { align: 'center' });
 
-  // Center logo (skipped gracefully if the asset is not present)
+  // Center logo (skipped gracefully if the asset is not present), sized large
+  // for prominence. Constrained to a box; aspect ratio is preserved.
   const logo = await loadImage(certConfig.logoUrl || LOGO_URL);
   if (logo) {
-    const boxW = 42, boxH = 16;
+    const boxW = 64, boxH = 34;
     let w = boxW, h = (logo.h / logo.w) * w;
     if (h > boxH) { h = boxH; w = (logo.w / logo.h) * h; }
     try {
-      doc.addImage(logo.dataUrl, 'PNG', (pw - w) / 2, 39, w, h);
+      doc.addImage(logo.dataUrl, 'PNG', (pw - w) / 2, 40, w, h);
     } catch { /* ignore malformed image, certificate still renders */ }
   }
 
   // "This certifies that"
   doc.setTextColor(80);
   doc.setFontSize(11);
-  doc.text('This is to certify that', pw / 2, 60, { align: 'center' });
+  doc.text('This is to certify that', pw / 2, 82, { align: 'center' });
 
   // Student name — large
   doc.setTextColor(20);
   doc.setFont(PDF_FONT, 'bold');
   doc.setFontSize(28);
-  doc.text(S(cert.studentName) || '-', pw / 2, 78, { align: 'center' });
+  doc.text(S(cert.studentName) || '-', pw / 2, 98, { align: 'center' });
 
   // Underline
   doc.setDrawColor(...brand);
   doc.setLineWidth(0.6);
   const nameWidth = Math.min(180, pw - 60);
-  doc.line((pw - nameWidth) / 2, 82, (pw + nameWidth) / 2, 82);
+  doc.line((pw - nameWidth) / 2, 102, (pw + nameWidth) / 2, 102);
 
   // Body text
   doc.setFont(PDF_FONT, 'normal');
@@ -95,8 +96,8 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   doc.setTextColor(60);
   const body1 = `has successfully completed the ${certConfig.subtitle} course`;
   const body2 = `in accordance with the ${certConfig.issuingBody} curriculum.`;
-  doc.text(body1, pw / 2, 96, { align: 'center' });
-  doc.text(body2, pw / 2, 103, { align: 'center' });
+  doc.text(body1, pw / 2, 114, { align: 'center' });
+  doc.text(body2, pw / 2, 121, { align: 'center' });
 
   // Stats row
   const issued = cert.completedAt ? new Date(cert.completedAt) : new Date();
