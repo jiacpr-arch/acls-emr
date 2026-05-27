@@ -261,14 +261,19 @@ export default function Certification() {
             <Trophy size={28} strokeWidth={2.4} className="text-white" />
           </div>
           <img
-            src="/images/logo-morroo.png"
+            src={certConfig.logoUrl || '/images/logo-morroo.png'}
             alt=""
-            className="mx-auto h-12 object-contain"
+            className="mx-auto h-16 object-contain"
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
           <div>
             <div className="text-title text-text-primary">{certConfig.title}</div>
             <div className="text-caption text-text-muted mt-1">{certConfig.subtitle}</div>
+            {certConfig.onlineTag && (
+              <div className="text-overline text-info mt-1 font-bold uppercase tracking-wide">
+                {certConfig.onlineTag}
+              </div>
+            )}
             <div className="text-body text-text-secondary mt-2 font-bold">{certData.studentName}</div>
           </div>
           {!IS_BLS && (
@@ -287,6 +292,11 @@ export default function Certification() {
           </div>
           <div className="font-mono text-[11px] text-info">ID: {certData.certId}</div>
           <div className="text-[11px] text-text-muted">{certConfig.centerName} · {certConfig.centerUrl}</div>
+          {Array.isArray(certConfig.disclaimer) && (
+            <div className="text-[11px] text-text-muted leading-snug border-t border-border pt-2 mt-1">
+              {certConfig.disclaimer.map((line, i) => <p key={i}>{line}</p>)}
+            </div>
+          )}
           <button onClick={downloadPDF} className="btn btn-info btn-block mt-3">
             <Download size={16} strokeWidth={2.4} /> Download PDF Certificate
           </button>
