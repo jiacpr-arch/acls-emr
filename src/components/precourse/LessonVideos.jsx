@@ -54,8 +54,8 @@ function VideoThumb({ videoId, label, watchUrl }) {
         <div className="flex items-center justify-between px-3 py-2 border-t border-bg-tertiary">
           <span className="text-[11px] text-text-muted truncate">{label}</span>
           <a href={watchUrl} target="_blank" rel="noopener noreferrer"
-            className="text-[11px] font-bold text-info inline-flex items-center gap-1 hover:underline shrink-0">
-            <Maximize2 size={12} strokeWidth={2.4} /> YouTube
+            className="btn btn-ghost btn-sm shrink-0">
+            <Maximize2 size={14} strokeWidth={2.4} /> YouTube
           </a>
         </div>
       )}

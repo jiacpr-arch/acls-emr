@@ -70,7 +70,7 @@ export default function EndCaseModal({ onClose, onROSC, onTerminate, onDashboard
           <Square size={15} strokeWidth={2.2} /> Cancel Case — Do Not Save
         </button>
 
-        <button onClick={onClose} className="w-full text-text-muted text-caption py-2">
+        <button onClick={onClose} className="btn btn-ghost btn-sm btn-block">
           Continue Recording
         </button>
       </div>

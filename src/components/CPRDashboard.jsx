@@ -406,7 +406,7 @@ export default function CPRDashboard({
             );
           })}
           <button onClick={() => setShowPauseReason(false)}
-            className="w-full text-text-muted text-[11px] underline mt-1">Cancel</button>
+            className="btn btn-ghost btn-sm btn-block mt-1">Cancel</button>
         </div>
       )}
     </div>

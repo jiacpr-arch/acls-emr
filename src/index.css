@@ -130,6 +130,10 @@ button, [role="button"] {
 .btn-xl { height: 60px; font-size: 17px; padding: 0 28px; border-radius: var(--radius-full); gap: 10px; }
 .btn-full, .btn-block { width: 100%; }
 
+/* Square icon-only button — pairs with .btn .btn-ghost (e.g. modal ✕ close) */
+.btn-icon { padding: 0; width: 46px; min-width: 46px; }
+.btn-icon.btn-sm { width: 34px; min-width: 34px; }
+
 /* ===== CTA with built-in arrow → (roodee style) =====
    Add the modifier class .btn-cta to any .btn to append an animated arrow.
    Example: <button class="btn btn-primary btn-lg btn-cta">สมัครฟรี</button> */

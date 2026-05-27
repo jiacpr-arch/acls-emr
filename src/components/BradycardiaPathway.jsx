@@ -89,8 +89,8 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
           {autoSymptomatic ? '⚠️ Symptomatic → Atropine' : 'Continue → Assessment'}
         </button>
 
-        <button onClick={() => setPhase('assess')} className="text-text-muted text-xs underline">Skip vitals →</button>
-        <button onClick={onRecheckPulse} className="text-text-muted text-xs underline">← Re-check pulse</button>
+        <button onClick={() => setPhase('assess')} className="btn btn-ghost btn-sm">Skip vitals →</button>
+        <button onClick={onRecheckPulse} className="btn btn-ghost btn-sm">← Re-check pulse</button>
       </div>
     );
   }
@@ -169,7 +169,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
           </div>
         )}
 
-        <button onClick={onRecheckPulse} className="text-text-muted text-xs underline">← Re-check pulse</button>
+        <button onClick={onRecheckPulse} className="btn btn-ghost btn-sm">← Re-check pulse</button>
       </div>
     );
   }

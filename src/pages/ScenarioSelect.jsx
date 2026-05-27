@@ -166,7 +166,7 @@ export default function ScenarioSelect() {
               className="btn btn-success btn-lg btn-block disabled:opacity-50">
               <Sparkles size={16} strokeWidth={2.4} /> {loading ? 'Loading…' : 'Start Scenario'}
             </button>
-            <button onClick={() => setBriefScenario(null)} className="w-full text-text-muted text-caption">Cancel</button>
+            <button onClick={() => setBriefScenario(null)} className="btn btn-ghost btn-sm btn-block">Cancel</button>
           </div>
         </div>
       )}

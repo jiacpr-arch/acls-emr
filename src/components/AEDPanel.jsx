@@ -153,7 +153,7 @@ export default function AEDPanel({
           ⚡ กด SHOCK
         </BigButton>
         {onROSC && (
-          <button onClick={onROSC} className="text-success text-xs underline mt-2">
+          <button onClick={onROSC} className="btn btn-ghost btn-sm mt-2">
             🟢 พบ ROSC (มีชีพจร) → สิ้นสุด arrest
           </button>
         )}
@@ -183,7 +183,7 @@ export default function AEDPanel({
           ▶️ Resume CPR
         </BigButton>
         {onROSC && (
-          <button onClick={onROSC} className="text-success text-xs underline mt-2">
+          <button onClick={onROSC} className="btn btn-ghost btn-sm mt-2">
             🟢 พบสัญญาณ ROSC ชัดเจน (หายใจ/ขยับ) → สิ้นสุด arrest
           </button>
         )}

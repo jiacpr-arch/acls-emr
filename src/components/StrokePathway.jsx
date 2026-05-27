@@ -117,7 +117,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
           Continue → Initial Treatment
         </button>
 
-        <button onClick={onRecheckPulse} className="text-text-muted text-xs underline">← Re-assess</button>
+        <button onClick={onRecheckPulse} className="btn btn-ghost btn-sm">← Re-assess</button>
         <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
       </div>
     );

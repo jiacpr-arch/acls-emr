@@ -141,8 +141,8 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
           {autoUnstable ? '⚡ UNSTABLE → Cardioversion' : 'Continue → Assessment'}
         </button>
 
-        <button onClick={() => { setPhase('unstable_check'); }} className="text-text-muted text-xs underline">Skip vitals →</button>
-        <button onClick={onRecheckPulse} className="text-text-muted text-xs underline">← Re-check pulse</button>
+        <button onClick={() => { setPhase('unstable_check'); }} className="btn btn-ghost btn-sm">Skip vitals →</button>
+        <button onClick={onRecheckPulse} className="btn btn-ghost btn-sm">← Re-check pulse</button>
       </div>
     );
   }
@@ -197,7 +197,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
           </button>
         </div>
 
-        <button onClick={onRecheckPulse} className="text-text-muted text-xs underline">← Re-check pulse</button>
+        <button onClick={onRecheckPulse} className="btn btn-ghost btn-sm">← Re-check pulse</button>
       </div>
     );
   }
@@ -383,7 +383,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
         </div>
 
         <div className="text-[10px] text-text-muted">Not sure? → Take EKG photo. Treat based on stability.</div>
-        <button onClick={() => setPhase('unstable_check')} className="text-text-muted text-xs underline">← Back to assessment</button>
+        <button onClick={() => setPhase('unstable_check')} className="btn btn-ghost btn-sm">← Back to assessment</button>
       </div>
     );
   }
@@ -431,7 +431,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
           className="w-full btn-action btn-success py-3.5 text-sm font-bold">✅ Converted → Monitor</button>
         <button onClick={() => setPhase('cardioversion')}
           className="w-full btn-action btn-ghost py-3 text-sm">⚡ Not responding → Cardioversion 100J</button>
-        <button onClick={() => setPhase('rhythm_select')} className="text-text-muted text-xs underline">← Back</button>
+        <button onClick={() => setPhase('rhythm_select')} className="btn btn-ghost btn-sm">← Back</button>
       </div>
     );
   }
@@ -469,7 +469,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
           className="w-full btn-action btn-success py-3.5 text-sm font-bold">✅ Rate Controlled → Monitor</button>
         <button onClick={() => setPhase('cardioversion')}
           className="w-full btn-action btn-ghost py-3 text-sm">⚡ Cardioversion 200J</button>
-        <button onClick={() => setPhase('rhythm_select')} className="text-text-muted text-xs underline">← Back</button>
+        <button onClick={() => setPhase('rhythm_select')} className="btn btn-ghost btn-sm">← Back</button>
       </div>
     );
   }
@@ -501,7 +501,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
         <button onClick={() => { setPhase('cardioversion'); setCardioversionEnergy(100); }}
           className="w-full btn-action btn-shock py-3 text-sm">⚡ Deteriorating → Cardioversion 100J</button>
         <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
-        <button onClick={() => setPhase('rhythm_select')} className="text-text-muted text-xs underline">← Back</button>
+        <button onClick={() => setPhase('rhythm_select')} className="btn btn-ghost btn-sm">← Back</button>
       </div>
     );
   }
@@ -537,7 +537,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
           onArrest();
         }} className="w-full btn-action btn-shock py-3 text-sm">⚡ Polymorphic VT → Defib (Unsync)</button>
         <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
-        <button onClick={() => setPhase('rhythm_select')} className="text-text-muted text-xs underline">← Back</button>
+        <button onClick={() => setPhase('rhythm_select')} className="btn btn-ghost btn-sm">← Back</button>
       </div>
     );
   }

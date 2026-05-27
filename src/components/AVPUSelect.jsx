@@ -212,7 +212,7 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
         <button onClick={saveDetail} className="w-full btn-action btn-info py-3 text-sm font-bold">
           Save Assessment (GCS {gcsTotal})
         </button>
-        <button onClick={() => setShowDetail(false)} className="text-text-muted text-xs underline w-full text-center">Cancel</button>
+        <button onClick={() => setShowDetail(false)} className="btn btn-ghost btn-sm btn-block">Cancel</button>
       </div>
     );
   }

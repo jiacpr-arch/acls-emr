@@ -134,7 +134,7 @@ export default function Dashboard() {
               <FileText size={26} strokeWidth={1.6} />
             </div>
             <div className="text-body text-text-muted">No cases recorded yet</div>
-            <Link to="/" className="inline-flex items-center gap-1 text-info text-caption mt-2 font-semibold hover:underline">
+            <Link to="/" className="btn btn-ghost btn-sm mt-2">
               Start your first case <ChevronRight size={14} strokeWidth={2.4} />
             </Link>
           </div>

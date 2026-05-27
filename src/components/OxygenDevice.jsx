@@ -44,8 +44,8 @@ export default function OxygenDevice({ onClose, situation = 'pulse_present' }) {
             <DIcon size={16} strokeWidth={2.2} className="text-text-secondary" /> {device.label}
           </span>
           <button onClick={() => setDevice(null)}
-            className="text-text-muted text-caption inline-flex items-center gap-1 hover:text-text-primary">
-            <ChevronLeft size={12} strokeWidth={2.2} /> Change
+            className="btn btn-ghost btn-sm">
+            <ChevronLeft size={14} strokeWidth={2.2} /> Change
           </button>
         </div>
         <ScrollPicker

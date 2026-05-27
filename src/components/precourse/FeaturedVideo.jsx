@@ -67,9 +67,9 @@ export default function FeaturedVideo({ video }) {
             href={watchUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] font-bold text-info inline-flex items-center gap-1 hover:underline shrink-0"
+            className="btn btn-ghost btn-sm shrink-0"
           >
-            <Maximize2 size={12} strokeWidth={2.4} /> YouTube
+            <Maximize2 size={14} strokeWidth={2.4} /> YouTube
           </a>
         </div>
       )}
