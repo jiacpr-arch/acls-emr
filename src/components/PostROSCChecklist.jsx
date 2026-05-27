@@ -216,7 +216,7 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
       {/* Training scorecard */}
       {isTraining && (
         <button onClick={() => setShowScore(!showScore)}
-          className="w-full text-[10px] text-info underline">
+          className="btn btn-ghost btn-sm btn-block">
           {showScore ? 'Hide scorecard' : 'Show performance scorecard'}
         </button>
       )}
@@ -238,7 +238,7 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
       </button>
 
       {/* Allow skip in real emergencies */}
-      <button onClick={onDone} className="text-text-muted text-[10px] underline">
+      <button onClick={onDone} className="btn btn-ghost btn-sm">
         Skip checklist → Dashboard
       </button>
     </div>

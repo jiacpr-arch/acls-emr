@@ -70,7 +70,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
           Start MONA Protocol →
         </button>
 
-        <button onClick={onRecheckPulse} className="text-text-muted text-xs underline">← Re-assess</button>
+        <button onClick={onRecheckPulse} className="btn btn-ghost btn-sm">← Re-assess</button>
         <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
       </div>
     );
@@ -307,7 +307,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
           <div className="mt-1">Single IV bolus over 5 sec</div>
         </div>
 
-        <button onClick={() => { setPhase('stemi'); }} className="text-text-muted text-xs underline">← Back to STEMI</button>
+        <button onClick={() => { setPhase('stemi'); }} className="btn btn-ghost btn-sm">← Back to STEMI</button>
         <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
       </div>
     );

@@ -571,7 +571,7 @@ function ShockStep({ onShocked, onSkip, isTraining }) {
         useTimerStore.getState().resetCycle();
         onShocked();
       }}>⚡ SHOCK DELIVERED</BigButton>
-      <button onClick={onSkip} className="text-text-muted text-xs underline">Skip → Resume CPR</button>
+      <button onClick={onSkip} className="btn btn-ghost btn-sm">Skip → Resume CPR</button>
     </StepCard>
   );
 }
@@ -630,7 +630,7 @@ function DrugStep({ onDone, isTraining }) {
         <div className="glass-card !p-3 text-left text-xs text-text-secondary mb-2">
           <div className="flex items-center justify-between mb-1">
             <span className="font-bold text-text-primary">Technique</span>
-            <button onClick={() => setShowTech(null)} className="text-text-muted text-[10px]">✕</button>
+            <button onClick={() => setShowTech(null)} className="btn btn-ghost btn-icon btn-sm">✕</button>
           </div>
           <div>{techniques[showTech] || 'Standard IV push → flush 20ml'}</div>
         </div>
@@ -671,7 +671,7 @@ function DrugStep({ onDone, isTraining }) {
           </button>
         ))}
       </div>
-      <button onClick={onDone} className="text-text-muted text-xs underline">← Back to CPR</button>
+      <button onClick={onDone} className="btn btn-ghost btn-sm">← Back to CPR</button>
     </StepCard>
   );
 }
@@ -709,7 +709,7 @@ function ShockModal({ onClose, isTraining }) {
       style={{ boxShadow: '0 -4px 24px rgba(0,0,0,0.15)' }}>
       <div className="flex items-center justify-between">
         <span className="font-bold text-text-primary">⚡ Shock #{shockCount + 1}</span>
-        <button onClick={onClose} className="text-text-muted text-sm font-bold">✕</button>
+        <button onClick={onClose} className="btn btn-ghost btn-icon btn-sm">✕</button>
       </div>
       <div className="text-sm text-text-secondary">{currentRhythm?.abbreviation} → {energy}J Biphasic</div>
       {isTraining && <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-xs text-blue-700">Charge during CPR → pause &lt;5s → Clear → Shock → Resume CPR</div>}
@@ -738,7 +738,7 @@ function VentGuard({ onClose, onNeedAirway }) {
           <button onClick={onNeedAirway} className="w-full btn-action btn-info py-3 text-sm font-bold">
             🫁 Open Airway Panel
           </button>
-          <button onClick={onClose} className="text-text-muted text-xs underline">Cancel</button>
+          <button onClick={onClose} className="btn btn-ghost btn-sm btn-block">Cancel</button>
         </div>
       </div>
     );

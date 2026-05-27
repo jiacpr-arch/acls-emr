@@ -214,8 +214,8 @@ export default function PreCourse() {
 
         <div className="flex justify-end px-1 pt-1">
           <button onClick={() => navigate('/pre-course/cohort')}
-            className="text-[11px] font-bold inline-flex items-center gap-1 text-info hover:underline">
-            <Users size={12} strokeWidth={2.4} /> สำหรับอาจารย์
+            className="btn btn-ghost btn-sm">
+            <Users size={14} strokeWidth={2.4} /> สำหรับอาจารย์
           </button>
         </div>
 
@@ -308,8 +308,8 @@ export default function PreCourse() {
       <div className="flex items-center justify-between px-1">
         <div className="text-overline text-text-muted">บทเรียน</div>
         <button onClick={() => navigate('/pre-course/cohort')}
-          className="text-[11px] font-bold inline-flex items-center gap-1 text-info hover:underline">
-          <Users size={12} strokeWidth={2.4} /> สำหรับอาจารย์
+          className="btn btn-ghost btn-sm">
+          <Users size={14} strokeWidth={2.4} /> สำหรับอาจารย์
         </button>
       </div>
 

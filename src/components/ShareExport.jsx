@@ -101,7 +101,7 @@ export default function ShareExport({ caseData, onClose }) {
           <Copy size={16} strokeWidth={2.2} /> Copy Summary
         </button>
 
-        <button onClick={onClose} className="w-full text-text-muted text-caption text-center py-2">Cancel</button>
+        <button onClick={onClose} className="btn btn-ghost btn-sm btn-block">Cancel</button>
       </div>
     </div>
   );

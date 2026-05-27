@@ -208,7 +208,7 @@ function PageTitle({ Icon, text }) {
 
 function BackButton({ onClick }) {
   return (
-    <button onClick={onClick} className="inline-flex items-center gap-1 text-text-muted text-caption mx-auto hover:text-text-primary">
+    <button onClick={onClick} className="btn btn-ghost btn-sm mx-auto">
       <ChevronLeft size={14} strokeWidth={2.2} /> Back
     </button>
   );

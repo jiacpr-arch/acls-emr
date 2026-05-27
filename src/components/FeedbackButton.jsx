@@ -89,7 +89,7 @@ function FeedbackPanel({ onClose }) {
           className="w-full btn-action btn-info py-3 text-sm font-bold disabled:opacity-40">
           Send Feedback
         </button>
-        <button onClick={onClose} className="w-full text-text-muted text-xs underline text-center">Cancel</button>
+        <button onClick={onClose} className="btn btn-ghost btn-sm btn-block">Cancel</button>
       </div>
     </div>
   );
