@@ -64,30 +64,30 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   // Center logo (skipped gracefully if the asset is not present)
   const logo = await loadImage(certConfig.logoUrl || LOGO_URL);
   if (logo) {
-    const boxW = 42, boxH = 16;
+    const boxW = 60, boxH = 26;
     let w = boxW, h = (logo.h / logo.w) * w;
     if (h > boxH) { h = boxH; w = (logo.w / logo.h) * h; }
     try {
-      doc.addImage(logo.dataUrl, 'PNG', (pw - w) / 2, 39, w, h);
+      doc.addImage(logo.dataUrl, 'PNG', (pw - w) / 2, 37, w, h);
     } catch { /* ignore malformed image, certificate still renders */ }
   }
 
   // "This certifies that"
   doc.setTextColor(80);
   doc.setFontSize(11);
-  doc.text('This is to certify that', pw / 2, 60, { align: 'center' });
+  doc.text('This is to certify that', pw / 2, 70, { align: 'center' });
 
   // Student name — large
   doc.setTextColor(20);
   doc.setFont(PDF_FONT, 'bold');
   doc.setFontSize(28);
-  doc.text(S(cert.studentName) || '-', pw / 2, 78, { align: 'center' });
+  doc.text(S(cert.studentName) || '-', pw / 2, 86, { align: 'center' });
 
   // Underline
   doc.setDrawColor(...brand);
   doc.setLineWidth(0.6);
   const nameWidth = Math.min(180, pw - 60);
-  doc.line((pw - nameWidth) / 2, 82, (pw + nameWidth) / 2, 82);
+  doc.line((pw - nameWidth) / 2, 90, (pw + nameWidth) / 2, 90);
 
   // Body text
   doc.setFont(PDF_FONT, 'normal');
@@ -97,15 +97,15 @@ export async function exportCertificatePDF({ cert, certConfig }) {
     ? `has successfully completed the online theoretical portion of the ${certConfig.subtitle} course`
     : `has successfully completed the ${certConfig.subtitle} course`;
   const body2 = `in accordance with the ${certConfig.issuingBody} curriculum.`;
-  doc.text(body1, pw / 2, 96, { align: 'center' });
-  doc.text(body2, pw / 2, 103, { align: 'center' });
+  doc.text(body1, pw / 2, 102, { align: 'center' });
+  doc.text(body2, pw / 2, 109, { align: 'center' });
 
   // Theory statement (Thai) — rendered with the embedded Sarabun font.
   if (certConfig.theoryOnly && certConfig.theoryStatement) {
     doc.setFont(PDF_FONT, 'bold');
     doc.setFontSize(11);
     doc.setTextColor(...brand);
-    doc.text(S(certConfig.theoryStatement), pw / 2, 112, { align: 'center' });
+    doc.text(S(certConfig.theoryStatement), pw / 2, 118, { align: 'center' });
     doc.setFont(PDF_FONT, 'normal');
   }
 
