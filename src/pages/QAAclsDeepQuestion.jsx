@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, BookOpen, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import QASection from '../components/QASection';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
@@ -11,8 +12,8 @@ import {
 
 const UNCATEGORIZED = '_uncategorized';
 
-export default function QAAclsDeepCategory() {
-  const { chapterId } = useParams();
+export default function QAAclsDeepQuestion() {
+  const { chapterId, qNum } = useParams();
   const [items, setItems] = useState([]);
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,13 +53,26 @@ export default function QAAclsDeepCategory() {
     return chapterPaletteAt(chapters.findIndex(c => c.id === chapterId));
   }, [chapters, chapterId]);
 
-  const listBase = `/qa-acls-deep/${encodeURIComponent(chapterId)}`;
+  const total = categoryItems.length;
+  const idx = Math.floor(Number(qNum)) - 1;
+  const item = Number.isInteger(idx) && idx >= 0 ? categoryItems[idx] : undefined;
+
+  // Reset scroll when navigating between questions.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [chapterId, qNum]);
+
+  const listHref = `/qa-acls-deep/${encodeURIComponent(chapterId)}`;
+  const qa = item
+    ? [{ q: item.question, a: item.answer, cover: item.cover ?? null, images: item.infographics ?? [] }]
+    : [];
 
   return (
     <div className="page-container space-y-4">
       <div className="flex items-center gap-2">
-        <Link to="/qa-acls-deep" className="btn btn-ghost btn-sm">
-          <ArrowLeft size={14} strokeWidth={2.2} /> ทุกหมวด
+        <Link to={listHref} className="btn btn-ghost btn-sm">
+          <ArrowLeft size={14} strokeWidth={2.2} />
+          {name ? `ทุกคำถาม · ${name}` : 'ทุกคำถามในหมวด'}
         </Link>
       </div>
 
@@ -106,61 +120,64 @@ export default function QAAclsDeepCategory() {
             >
               {name || ' '}
             </h1>
-            <span
-              className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1"
-              style={{
-                background: 'rgba(255, 255, 255, 0.20)',
-                borderRadius: 999,
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-              }}
-            >
-              <BookOpen size={12} strokeWidth={2.4} />
-              {loading ? 'กำลังโหลด…' : `${categoryItems.length} คำถามในหมวดนี้`}
-            </span>
+            {!loading && total > 0 && (
+              <span
+                className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.20)',
+                  borderRadius: 999,
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
+                }}
+              >
+                <BookOpen size={12} strokeWidth={2.4} />
+                {item ? `คำถามที่ ${idx + 1} จาก ${total}` : `${total} คำถามในหมวดนี้`}
+              </span>
+            )}
           </div>
         </div>
       </header>
 
       {loading ? (
         <div className="text-center text-caption text-text-muted py-8">กำลังโหลด…</div>
-      ) : categoryItems.length === 0 ? (
-        <div className="dash-card text-center space-y-2 py-6">
+      ) : !item ? (
+        <div className="dash-card text-center space-y-3 py-6">
           <BookOpen size={28} strokeWidth={2.2} className="mx-auto text-text-muted" />
-          <p className="text-caption text-text-muted">ยังไม่มีคำถามในหมวดนี้</p>
+          <p className="text-caption text-text-muted">ไม่พบคำถามนี้ในหมวด</p>
+          <Link to={listHref} className="btn btn-primary btn-sm">
+            <ArrowLeft size={14} strokeWidth={2.2} /> กลับไปรายการคำถาม
+          </Link>
         </div>
       ) : (
-        <div className="space-y-2.5">
-          <div className="text-[11px] uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
-            เลือกคำถามที่ต้องการอ่าน
-          </div>
-          {categoryItems.map((it, idx) => (
-            <Link
-              key={it.id ?? idx}
-              to={`${listBase}/${idx + 1}`}
-              className="dash-card !p-0 flex items-start gap-3 px-4 py-3 hover:bg-bg-tertiary/50 transition-colors text-left"
-            >
-              <span
-                className="inline-flex items-center justify-center shrink-0 font-extrabold text-white text-[12px]"
-                style={{
-                  minWidth: 32,
-                  height: 28,
-                  padding: '0 8px',
-                  background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
-                  borderRadius: 999,
-                  letterSpacing: '0.02em',
-                  marginTop: 1,
-                }}
-              >
-                Q{idx + 1}
+        <>
+          <QASection qa={qa} startIndex={idx} accent={palette.accent} />
+
+          <nav className="flex items-center justify-between gap-2" aria-label="คำถามก่อนหน้า/ถัดไป">
+            {idx > 0 ? (
+              <Link to={`${listHref}/${idx}`} className="btn btn-outline btn-sm">
+                <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
+              </Link>
+            ) : (
+              <span className="btn btn-outline btn-sm invisible pointer-events-none" aria-hidden>
+                <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
               </span>
-              <span className="flex-1 min-w-0 text-body-strong text-text-primary leading-snug">
-                {it.question}
+            )}
+
+            <span className="text-caption text-text-muted font-bold shrink-0">
+              {idx + 1} / {total}
+            </span>
+
+            {idx < total - 1 ? (
+              <Link to={`${listHref}/${idx + 2}`} className="btn btn-outline btn-sm">
+                ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
+              </Link>
+            ) : (
+              <span className="btn btn-outline btn-sm invisible pointer-events-none" aria-hidden>
+                ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
               </span>
-              <ChevronRight size={16} strokeWidth={2.4} className="text-text-muted shrink-0 mt-1" />
-            </Link>
-          ))}
-        </div>
+            )}
+          </nav>
+        </>
       )}
     </div>
   );
