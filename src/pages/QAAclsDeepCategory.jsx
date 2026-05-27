@@ -130,7 +130,7 @@ export default function QAAclsDeepCategory() {
           <p className="text-caption text-text-muted">ยังไม่มีคำถามในหมวดนี้</p>
         </div>
       ) : (
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           <div className="text-[11px] uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
             เลือกคำถามที่ต้องการอ่าน
           </div>

@@ -130,7 +130,7 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
 
             {/* Photos taken */}
             {photos.length > 0 && (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="text-overline">Captured ECGs ({photos.length})</div>
                 {photos.map((ph, i) => (
                   <div key={i} className="glass-card !p-2">

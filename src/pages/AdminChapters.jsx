@@ -60,7 +60,7 @@ export default function AdminChapters() {
       {loading ? (
         <div className="text-center text-caption text-text-muted py-8">กำลังโหลด…</div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {chapters.map(ch => {
             const isOpen = openId === ch.id;
             return (

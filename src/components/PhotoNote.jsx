@@ -68,7 +68,7 @@ export default function PhotoNote({ onClose }) {
               </button>
             </div>
             {photos.length > 0 && (
-              <div className="space-y-2 max-h-[30vh] overflow-y-auto">
+              <div className="space-y-3 max-h-[30vh] overflow-y-auto">
                 {photos.map((p, i) => (
                   <div key={i} className="dash-card !p-2">
                     <img src={p.dataUrl} alt={p.name} style={{ borderRadius: 'var(--radius-sm)' }} className="w-full" />

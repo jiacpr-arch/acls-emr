@@ -313,7 +313,7 @@ export default function PreCourse() {
         </button>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {preCourseLessons.map(l => {
           const st = lessonState(l.id);
           return <LessonCard key={l.id} lesson={l} {...st} />;

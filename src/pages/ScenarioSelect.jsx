@@ -82,7 +82,7 @@ export default function ScenarioSelect() {
       </div>
 
       {/* Scenario list */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {filtered.map(s => {
           const CatIcon = categoryIcon[s.category] || FileText;
           return (

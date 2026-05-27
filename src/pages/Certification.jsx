@@ -136,7 +136,7 @@ export default function Certification() {
       </div>
 
       {/* Requirements */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {requirements.map((r, i) => {
           const RIcon = r.Icon;
           return (

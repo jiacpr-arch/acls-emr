@@ -34,7 +34,7 @@ export default function ResultsSummary({ attempt, lesson, student }) {
       </div>
 
       {wrongAnswers.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="text-overline text-text-muted px-1">ข้อที่ตอบผิด</div>
           {wrongAnswers.map((a) => {
             const q = lesson.quiz.find(qq => qq.id === a.questionId);

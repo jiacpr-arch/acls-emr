@@ -41,7 +41,7 @@ export default function DrugCalc() {
           min={3} max={150} step={1} unit="kg" />
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-3">
         {calcs.map((c, i) => (
           <div key={i} className="dash-card !p-3 flex items-start gap-3">
             <div className="w-8 h-8 inline-flex items-center justify-center bg-bg-tertiary shrink-0"
