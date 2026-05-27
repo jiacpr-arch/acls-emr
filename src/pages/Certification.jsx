@@ -256,9 +256,9 @@ export default function Certification() {
             <Trophy size={28} strokeWidth={2.4} className="text-white" />
           </div>
           <img
-            src="/images/logo-morroo.png"
+            src={certConfig.logoUrl || '/images/logo-morroo.png'}
             alt=""
-            className="mx-auto h-12 object-contain"
+            className="mx-auto h-20 object-contain"
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
           <div>

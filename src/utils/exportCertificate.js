@@ -50,44 +50,44 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   doc.setLineWidth(0.4);
   doc.rect(14, 14, pw - 28, ph - 28);
 
-  // Top band
-  doc.setFillColor(...brand);
-  doc.rect(14, 14, pw - 28, 22, 'F');
-  doc.setTextColor(255);
-  doc.setFont(PDF_FONT, 'bold');
-  doc.setFontSize(20);
-  doc.text(certConfig.title, pw / 2, 26, { align: 'center' });
-  doc.setFont(PDF_FONT, 'normal');
-  doc.setFontSize(10);
-  doc.text(certConfig.subtitle, pw / 2, 33, { align: 'center' });
-
-  // Center logo (skipped gracefully if the asset is not present)
+  // Seal at the very top — the badge gives the certificate its identity, so no
+  // heavy colour band is needed.
   const logo = await loadImage(certConfig.logoUrl || LOGO_URL);
   if (logo) {
-    const boxW = 60, boxH = 26;
+    const boxW = 64, boxH = 38;
     let w = boxW, h = (logo.h / logo.w) * w;
     if (h > boxH) { h = boxH; w = (logo.w / logo.h) * h; }
     try {
-      doc.addImage(logo.dataUrl, 'PNG', (pw - w) / 2, 37, w, h);
+      doc.addImage(logo.dataUrl, 'PNG', (pw - w) / 2, 18, w, h);
     } catch { /* ignore malformed image, certificate still renders */ }
   }
+
+  // Title + subtitle below the seal
+  doc.setTextColor(...brand);
+  doc.setFont(PDF_FONT, 'bold');
+  doc.setFontSize(22);
+  doc.text(certConfig.title, pw / 2, 66, { align: 'center' });
+  doc.setFont(PDF_FONT, 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(110);
+  doc.text(certConfig.subtitle, pw / 2, 73, { align: 'center' });
 
   // "This certifies that"
   doc.setTextColor(80);
   doc.setFontSize(11);
-  doc.text('This is to certify that', pw / 2, 70, { align: 'center' });
+  doc.text('This is to certify that', pw / 2, 89, { align: 'center' });
 
   // Student name — large
   doc.setTextColor(20);
   doc.setFont(PDF_FONT, 'bold');
   doc.setFontSize(28);
-  doc.text(S(cert.studentName) || '-', pw / 2, 86, { align: 'center' });
+  doc.text(S(cert.studentName) || '-', pw / 2, 104, { align: 'center' });
 
   // Underline
   doc.setDrawColor(...brand);
   doc.setLineWidth(0.6);
   const nameWidth = Math.min(180, pw - 60);
-  doc.line((pw - nameWidth) / 2, 90, (pw + nameWidth) / 2, 90);
+  doc.line((pw - nameWidth) / 2, 108, (pw + nameWidth) / 2, 108);
 
   // Body text
   doc.setFont(PDF_FONT, 'normal');
@@ -97,15 +97,15 @@ export async function exportCertificatePDF({ cert, certConfig }) {
     ? `has successfully completed the online theoretical portion of the ${certConfig.subtitle} course`
     : `has successfully completed the ${certConfig.subtitle} course`;
   const body2 = `in accordance with the ${certConfig.issuingBody} curriculum.`;
-  doc.text(body1, pw / 2, 102, { align: 'center' });
-  doc.text(body2, pw / 2, 109, { align: 'center' });
+  doc.text(body1, pw / 2, 119, { align: 'center' });
+  doc.text(body2, pw / 2, 126, { align: 'center' });
 
   // Theory statement (Thai) — rendered with the embedded Sarabun font.
   if (certConfig.theoryOnly && certConfig.theoryStatement) {
     doc.setFont(PDF_FONT, 'bold');
     doc.setFontSize(11);
     doc.setTextColor(...brand);
-    doc.text(S(certConfig.theoryStatement), pw / 2, 118, { align: 'center' });
+    doc.text(S(certConfig.theoryStatement), pw / 2, 134, { align: 'center' });
     doc.setFont(PDF_FONT, 'normal');
   }
 
@@ -118,8 +118,8 @@ export async function exportCertificatePDF({ cert, certConfig }) {
 
   doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text(`Issued: ${fmt(issued)}`, pw * 0.30, 130, { align: 'center' });
-  doc.text(`Valid through: ${fmt(expires)}`, pw * 0.70, 130, { align: 'center' });
+  doc.text(`Issued: ${fmt(issued)}`, pw * 0.30, 145, { align: 'center' });
+  doc.text(`Valid through: ${fmt(expires)}`, pw * 0.70, 145, { align: 'center' });
 
   const scoreParts = [];
   if (cert.preTestScore != null) scoreParts.push(`Pre-test ${cert.preTestScore}%`);
@@ -128,18 +128,18 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   if (scoreParts.length) {
     doc.setFontSize(10);
     doc.setTextColor(40);
-    doc.text(scoreParts.join('     '), pw / 2, 138, { align: 'center' });
+    doc.text(scoreParts.join('     '), pw / 2, 152, { align: 'center' });
   }
 
   // Practical-training recommendation (Thai) for online theory certificates.
   if (certConfig.theoryOnly && certConfig.practicalRecommendation) {
     doc.setFontSize(9);
     doc.setTextColor(120);
-    doc.text(S(certConfig.practicalRecommendation), pw / 2, 146, { align: 'center' });
+    doc.text(S(certConfig.practicalRecommendation), pw / 2, 159, { align: 'center' });
   }
 
   // Signature lines
-  const sigY = ph - 50;
+  const sigY = ph - 40;
   doc.setDrawColor(120);
   doc.setLineWidth(0.3);
   doc.line(pw * 0.18, sigY, pw * 0.38, sigY);

@@ -10,6 +10,9 @@ export const certConfig = {
   brandColor: [220, 38, 38],    // #DC2626 — red
   validityMonths: 24,
   certIdPrefix: 'JIA-ACLS',
+  // Seal shown on the certificate (PDF + on-screen card). Kept separate from
+  // the Morroo brand logo used elsewhere in the app.
+  logoUrl: '/images/acls-badge.png',
   // Online theory-only certification: earned by passing the knowledge gates
   // (pre-test, pre-course, post-test, EKG test). Hands-on skills are completed
   // separately at a training center.
