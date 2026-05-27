@@ -99,7 +99,7 @@ export default function QAAclsDeep() {
     : null;
 
   return (
-    <div className="page-container space-y-4">
+    <div className="page-container space-y-5">
       <div className="text-center space-y-2">
         {page.coverImage ? (
           <img

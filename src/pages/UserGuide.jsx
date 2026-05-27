@@ -39,7 +39,7 @@ export default function UserGuide() {
   };
 
   return (
-    <div className="page-container space-y-4">
+    <div className="page-container space-y-5">
       {/* Header */}
       <div className="text-center space-y-2">
         <div

@@ -98,7 +98,7 @@ export default function PostTestExam() {
 
   if (!activeStudent) {
     return (
-      <div className="page-container space-y-4">
+      <div className="page-container space-y-5">
         <Header />
         <div className="dash-card text-center !p-6 space-y-3">
           <AlertTriangle size={32} className="mx-auto text-warning" />
@@ -121,7 +121,7 @@ export default function PostTestExam() {
 
   if (!gatePassed) {
     return (
-      <div className="page-container space-y-4">
+      <div className="page-container space-y-5">
         <Header />
         <div className="dash-card text-center !p-6 space-y-3">
           <div className="w-12 h-12 mx-auto inline-flex items-center justify-center bg-warning/15 text-warning"
@@ -142,7 +142,7 @@ export default function PostTestExam() {
 
   if (loadError) {
     return (
-      <div className="page-container space-y-4">
+      <div className="page-container space-y-5">
         <Header />
         <div className="dash-card text-center !p-6 space-y-2">
           <AlertTriangle size={28} className="mx-auto text-danger" />
@@ -227,7 +227,7 @@ export default function PostTestExam() {
   }
 
   return (
-    <div className="page-container space-y-4 pb-24">
+    <div className="page-container space-y-5 pb-24">
       <Header subtitle={`${exam.set.title} · ${questions.length} ข้อ · เกณฑ์ผ่าน ${exam.bank?.pass_percent ?? POST_TEST_PASS_PERCENT}%`} />
 
       <div className="dash-card !py-3 space-y-2">

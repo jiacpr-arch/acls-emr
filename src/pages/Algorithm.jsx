@@ -202,7 +202,7 @@ export default function Algorithm() {
   const algo = algorithms.find(a => a.id === selected);
 
   return (
-    <div className="page-container space-y-4">
+    <div className="page-container space-y-5">
       <div>
         <h1 className="text-title text-text-primary">ACLS Algorithms</h1>
         <p className="text-caption text-text-muted mt-0.5">Evidence-based decision flowcharts</p>

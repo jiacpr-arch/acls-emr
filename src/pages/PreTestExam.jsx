@@ -69,7 +69,7 @@ export default function PreTestExam() {
 
   if (!IS_ACLS) {
     return (
-      <div className="page-container space-y-4">
+      <div className="page-container space-y-5">
         <Header />
         <div className="dash-card text-center !p-6 space-y-3">
           <AlertTriangle size={32} className="mx-auto text-warning" />
@@ -83,7 +83,7 @@ export default function PreTestExam() {
 
   if (!activeStudent) {
     return (
-      <div className="page-container space-y-4">
+      <div className="page-container space-y-5">
         <Header />
         <div className="dash-card text-center !p-6 space-y-3">
           <AlertTriangle size={32} className="mx-auto text-warning" />
@@ -98,7 +98,7 @@ export default function PreTestExam() {
 
   if (loadError) {
     return (
-      <div className="page-container space-y-4">
+      <div className="page-container space-y-5">
         <Header />
         <div className="dash-card text-center !p-6 space-y-2">
           <AlertTriangle size={28} className="mx-auto text-danger" />
@@ -179,7 +179,7 @@ export default function PreTestExam() {
   }
 
   return (
-    <div className="page-container space-y-4 pb-24">
+    <div className="page-container space-y-5 pb-24">
       <Header subtitle={`Pre-test · ${questions.length} ข้อ · ก่อนเริ่มเรียน`} />
 
       <div className="dash-card !py-3 space-y-2">

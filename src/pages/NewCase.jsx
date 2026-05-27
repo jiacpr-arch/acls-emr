@@ -122,7 +122,7 @@ export default function NewCase() {
       )}
 
       <div
-        className="page-container pb-28 flex flex-col gap-4"
+        className="page-container pb-28 flex flex-col gap-5"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
         <ACLSHero isClinical={isClinical} />

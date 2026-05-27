@@ -30,7 +30,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="page-container max-w-md mx-auto py-12 space-y-4">
+    <div className="page-container max-w-md mx-auto py-12 space-y-5">
       <div className="text-center space-y-2">
         <div
           className="w-16 h-16 mx-auto inline-flex items-center justify-center"

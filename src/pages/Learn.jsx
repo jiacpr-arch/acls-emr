@@ -102,7 +102,7 @@ export default function Learn() {
       {sections.map(section => (
         <div key={section.title} className="space-y-2">
           <div className="text-overline text-text-muted px-1">{section.title}</div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {section.items.map(item => (
               <button
                 key={item.path}
