@@ -81,7 +81,7 @@ export default function Learn() {
   };
 
   return (
-    <div className="page-container space-y-6 pb-24">
+    <div className="page-container space-y-5 pb-24">
       <div className="text-center space-y-2">
         <div className="w-16 h-16 mx-auto inline-flex items-center justify-center"
           style={{
@@ -113,15 +113,15 @@ export default function Learn() {
                   {item.emoji}
                 </span>
                 <span
-                  className="text-[15px] font-bold leading-tight"
+                  className="text-[14px] font-bold leading-tight"
                   style={{ color: toneColor[item.tone] || toneColor.info }}
                 >
                   {item.label}
                 </span>
-                <span className="text-[13px] font-semibold text-text-primary leading-tight mt-0.5">
+                <span className="text-[14px] font-semibold text-text-primary leading-tight mt-0.5">
                   {item.subtitle}
                 </span>
-                <span className="text-[11px] text-text-muted leading-tight mt-1.5">
+                <span className="text-[12px] text-text-muted leading-snug mt-1">
                   {item.desc}
                 </span>
               </button>
