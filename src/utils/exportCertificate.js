@@ -93,10 +93,21 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   doc.setFont(PDF_FONT, 'normal');
   doc.setFontSize(11);
   doc.setTextColor(60);
-  const body1 = `has successfully completed the ${certConfig.subtitle} course`;
+  const body1 = certConfig.theoryOnly
+    ? `has successfully completed the online theoretical portion of the ${certConfig.subtitle} course`
+    : `has successfully completed the ${certConfig.subtitle} course`;
   const body2 = `in accordance with the ${certConfig.issuingBody} curriculum.`;
   doc.text(body1, pw / 2, 96, { align: 'center' });
   doc.text(body2, pw / 2, 103, { align: 'center' });
+
+  // Theory statement (Thai) — rendered with the embedded Sarabun font.
+  if (certConfig.theoryOnly && certConfig.theoryStatement) {
+    doc.setFont(PDF_FONT, 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...brand);
+    doc.text(S(certConfig.theoryStatement), pw / 2, 112, { align: 'center' });
+    doc.setFont(PDF_FONT, 'normal');
+  }
 
   // Stats row
   const issued = cert.completedAt ? new Date(cert.completedAt) : new Date();
@@ -110,10 +121,21 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   doc.text(`Issued: ${fmt(issued)}`, pw * 0.30, 130, { align: 'center' });
   doc.text(`Valid through: ${fmt(expires)}`, pw * 0.70, 130, { align: 'center' });
 
-  if (cert.postTestScore != null) {
+  const scoreParts = [];
+  if (cert.preTestScore != null) scoreParts.push(`Pre-test ${cert.preTestScore}%`);
+  if (cert.postTestScore != null) scoreParts.push(`Post-test ${cert.postTestScore}%`);
+  if (cert.ekgPassed) scoreParts.push('EKG test passed');
+  if (scoreParts.length) {
     doc.setFontSize(10);
     doc.setTextColor(40);
-    doc.text(`Post-test score: ${cert.postTestScore}%`, pw / 2, 138, { align: 'center' });
+    doc.text(scoreParts.join('     '), pw / 2, 138, { align: 'center' });
+  }
+
+  // Practical-training recommendation (Thai) for online theory certificates.
+  if (certConfig.theoryOnly && certConfig.practicalRecommendation) {
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+    doc.text(S(certConfig.practicalRecommendation), pw / 2, 146, { align: 'center' });
   }
 
   // Signature lines

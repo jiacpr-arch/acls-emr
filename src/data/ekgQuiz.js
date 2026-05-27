@@ -4,6 +4,14 @@
 //   - imageUrl: real EKG image hosted under /public (e.g. /ekg/vf-01.png)
 // imageUrl takes precedence if both are set.
 
+// Pass mark for the EKG test when taken over the full bank (category 'all').
+// Used as a theory-certification gate in Certification.jsx.
+export const EKG_TEST_PASS_PERCENT = 80;
+
+// localStorage flag set once the learner clears the full bank at/above the pass
+// mark. Device-level, matching the existing `ekg_quiz_best` behaviour.
+export const EKG_TEST_PASSED_KEY = 'ekg_test_passed';
+
 export const quizCategories = [
   { id: 'all', label: 'ทั้งหมด', color: 'info' },
   { id: 'arrest', label: 'Cardiac Arrest', color: 'danger' },
