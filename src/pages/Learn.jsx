@@ -97,6 +97,33 @@ export default function Learn() {
 
       {IS_ACLS && <JiacprCourseBanner />}
 
+      {IS_ACLS && (
+        <a
+          href="https://www.morroo.com/acls-reader"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block text-left rounded-2xl px-4 py-4"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-primary) 100%)',
+            color: '#fff',
+            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)',
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-3xl leading-none" aria-hidden="true">📖</span>
+            <div className="flex-1">
+              <div className="text-[15px] font-bold leading-tight">
+                {lang === 'th' ? 'อ่านเนื้อหา ACLS เวอร์ชันใหม่' : 'Read ACLS content — new version'}
+              </div>
+              <div className="text-[12px] leading-tight mt-0.5" style={{ opacity: 0.9 }}>
+                {lang === 'th' ? 'อ่านง่าย สวยขึ้น บนเว็บ morroo (เปิดแท็บใหม่)' : 'Easier to read, nicer design on morroo (opens new tab)'}
+              </div>
+            </div>
+            <span className="text-xl leading-none" aria-hidden="true">→</span>
+          </div>
+        </a>
+      )}
+
       <MorrooAdCard />
 
       {sections.map(section => (
