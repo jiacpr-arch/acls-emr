@@ -109,7 +109,7 @@ export default function UserGuide() {
       <MorrooAdCard />
 
       {/* Sections */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {filtered.length === 0 && (
           <div className="text-center text-text-muted text-caption py-10">ไม่พบข้อมูลที่ค้นหา</div>
         )}

@@ -139,7 +139,7 @@ export default function Dashboard() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             {filteredCases.map(c => (
               <div key={c.id}>
                 <div onClick={() => handleSelect(c.id)}
@@ -382,7 +382,7 @@ function CaseDetail({ data }) {
       )}
 
       {tab === 'ht' && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="dash-card !p-3">
             <div className="text-overline mb-2 flex items-center gap-1.5"><HelpCircle size={12} strokeWidth={2} /> Reversible Causes Investigated</div>
             {suspectedCauses.length === 0 ? (
