@@ -260,7 +260,7 @@ export default function PreCourse() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-body-strong text-text-primary truncate">{activeStudent.name}</div>
-              <div className="text-[11px] text-text-muted font-mono">{activeStudent.studentId ? `รหัส: ${activeStudent.studentId}` : activeStudent.phone}</div>
+              <div className="text-[12px] text-text-muted font-mono">{activeStudent.studentId ? `รหัส: ${activeStudent.studentId}` : activeStudent.phone}</div>
             </div>
             <button onClick={() => { clearActiveStudent(); setShowIdentity(true); }}
               className="btn btn-ghost btn-sm">
@@ -275,7 +275,7 @@ export default function PreCourse() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-body-strong text-text-primary">ยังไม่ได้ระบุตัวผู้เรียน</div>
-              <div className="text-[11px] text-text-muted">ใส่ชื่อและรหัสก่อนเริ่มเพื่อบันทึกผล</div>
+              <div className="text-[12px] text-text-muted">ใส่ชื่อและรหัสก่อนเริ่มเพื่อบันทึกผล</div>
             </div>
             <button onClick={() => setShowIdentity(true)} className="btn btn-primary btn-sm">
               ระบุตัวตน
