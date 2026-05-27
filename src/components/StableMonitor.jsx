@@ -3,6 +3,7 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import ScrollPicker from './ScrollPicker';
 import AVPUSelect from './AVPUSelect';
+import ChecklistItem from './ChecklistItem';
 import {
   Activity, Check as CheckIcon, AlertTriangle, AlertCircle, RefreshCw, ChevronLeft,
 } from 'lucide-react';
@@ -36,20 +37,7 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
   };
 
   const Check = ({ id, label, sub }) => (
-    <button onClick={() => toggleCheck(id, label)}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 mb-1.5 text-left transition-colors border ${
-        checklist[id] ? 'bg-success/10 border-success/30' : 'bg-bg-primary border-border'
-      }`} style={{ borderRadius: 'var(--radius)' }}>
-      <span className={`w-5 h-5 inline-flex items-center justify-center shrink-0 ${
-        checklist[id] ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
-      }`} style={{ borderRadius: 'var(--radius-sm)' }}>
-        {checklist[id] && <CheckIcon size={12} strokeWidth={2.6} />}
-      </span>
-      <div>
-        <div className="text-caption font-semibold text-text-primary">{label}</div>
-        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
-      </div>
-    </button>
+    <ChecklistItem checked={!!checklist[id]} onClick={() => toggleCheck(id, label)} label={label} sub={sub} />
   );
 
   const saveVitals = () => {

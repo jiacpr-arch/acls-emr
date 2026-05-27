@@ -5,6 +5,7 @@ import { useSettingsStore } from '../stores/settingsStore';
 import { exportCasePDF } from '../utils/exportPDF';
 import { calculateScore } from '../utils/scoring';
 import ScrollPicker from './ScrollPicker';
+import ChecklistItem from './ChecklistItem';
 
 // Post-ROSC needs actual value entry, not just checkboxes
 
@@ -38,18 +39,7 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
   };
 
   const Check = ({ id, label, sub }) => (
-    <button onClick={() => toggleCheck(id, label)}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1.5 text-left transition-colors ${
-        checklist[id] ? 'bg-success/10 border border-success/30' : 'bg-bg-primary border border-bg-tertiary'
-      }`}>
-      <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
-        checklist[id] ? 'bg-success text-white' : 'bg-bg-tertiary text-text-muted'
-      }`}>{checklist[id] ? '✓' : ''}</span>
-      <div>
-        <div className="text-xs font-semibold text-text-primary">{label}</div>
-        {sub && <div className="text-[10px] text-text-muted">{sub}</div>}
-      </div>
-    </button>
+    <ChecklistItem checked={!!checklist[id]} onClick={() => toggleCheck(id, label)} label={label} sub={sub} />
   );
 
   const totalItems = 15;
