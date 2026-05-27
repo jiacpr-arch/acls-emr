@@ -34,7 +34,7 @@ function seeded(seed) {
 //   st: ST level (mm, + = elevation)
 //   t: { amp, dur, inverted, peaked }
 //   u: small U wave amp (mm)
-function beat(x0, opts) {
+function beat(x0, opts, cycleMm) {
   const o = {
     p: { amp: 1.5, dur: 2.5, polarity: 1, present: true, ...(opts.p || {}) },
     pr: opts.pr ?? 4, // mm from P start to QRS start
@@ -43,6 +43,25 @@ function beat(x0, opts) {
     t: { amp: 3.5, dur: 6, inverted: false, peaked: false, ...(opts.t || {}) },
     u: opts.u ?? 0,
   };
+
+  // Repolarisation (ST segment + T wave) shortens at fast rates, like QT does,
+  // so beats don't overlap when the cycle is short. Depolarisation (P/PR/QRS)
+  // stays fixed. Only compress when a cycle length is supplied and too tight.
+  let stMm = 4;
+  let tDur = o.t.dur;
+  if (cycleMm) {
+    const minGap = 1; // mm of isoelectric baseline before the next beat
+    const uMm = o.u > 0 ? 4 : 0;
+    const fixed = o.pr + o.qrs.width + uMm;
+    const avail = cycleMm - minGap - fixed;
+    const repol = stMm + tDur;
+    if (avail < repol) {
+      const scale = Math.max(0.12, avail / repol);
+      stMm *= scale;
+      tDur *= scale;
+    }
+  }
+
   let d = '';
   let x = x0;
 
@@ -84,13 +103,13 @@ function beat(x0, opts) {
   }
   x += qw;
 
-  // ST segment (4 mm)
-  const stW = 4 * MM;
+  // ST segment
+  const stW = stMm * MM;
   d += ` L ${x + stW} ${up(o.st)}`;
   x += stW;
 
   // T wave
-  const tw = o.t.dur * MM;
+  const tw = tDur * MM;
   const tDir = o.t.inverted ? -1 : 1; // +1 upright
   if (o.t.peaked) {
     // tall narrow tented T (hyperkalemia)
@@ -121,7 +140,7 @@ function sinusStrip(bpm, beatOpts, startBase = BASE) {
   let d = `M 0 ${startBase}`;
   let x = 0;
   while (x < W + cw) {
-    const res = beat(x, beatOpts);
+    const res = beat(x, beatOpts, cycleMm);
     d += res.d;
     // baseline to next beat start
     const next = x + cw;
@@ -196,30 +215,42 @@ function buildPath(rhythmId) {
     }
 
     case 'avb3': {
-      // AV dissociation: independent P (faster) and QRS (slower, wide escape)
-      let d = `M 0 ${BASE}`;
-      const pRate = 90;
-      const qRate = 35;
-      const pInt = (60 / pRate) * 25 * MM;
-      const qInt = (60 / qRate) * 25 * MM;
-      const events = [];
-      for (let x = pInt * 0.4; x < W; x += pInt) events.push({ x, type: 'p' });
-      for (let x = qInt * 0.3; x < W; x += qInt) events.push({ x, type: 'q' });
-      events.sort((a, b) => a.x - b.x);
-      for (const e of events) {
-        d += ` L ${e.x} ${BASE}`;
-        if (e.type === 'p') {
-          const pw = 2.5 * MM;
-          d += ` Q ${e.x + pw / 2} ${up(1.5)} ${e.x + pw} ${BASE}`;
-        } else {
-          const qw = 5 * MM;
-          d += ` Q ${e.x + qw * 0.25} ${up(10)} ${e.x + qw * 0.5} ${up(10)}`;
-          d += ` Q ${e.x + qw * 0.75} ${dn(4)} ${e.x + qw} ${BASE}`;
-          const tw = 6 * MM;
-          d += ` Q ${e.x + qw + tw / 2} ${dn(3)} ${e.x + qw + tw} ${BASE}`;
+      // AV dissociation: atria (P, faster) and ventricles (wide escape QRS-T,
+      // slower) fire independently. Sample the trace left-to-right and sum both
+      // contributions so P waves ride on top of QRS/T without crossing lines.
+      const pInt = (60 / 90) * 25;  // mm between P waves
+      const qInt = (60 / 38) * 25;  // mm between escape beats
+      const pPhase0 = pInt * 0.45;
+      const qPhase0 = qInt * 0.3;
+      const pAmp = 1.6, pHalf = 1.4;            // P wave (mm)
+      const rAmp = 11, qrsW = 4.5;              // wide escape R (mm)
+      const stGap = 1.5, tAmp = 3.5, tDur = 6;  // ST + T (mm)
+      // up-positive vertical offset (mm) contributed by a recurring complex
+      const pAt = (xm) => {
+        const k = Math.round((xm - pPhase0) / pInt);
+        let off = 0;
+        for (let j = k - 1; j <= k + 1; j++) {
+          const dt = xm - (pPhase0 + j * pInt);
+          if (Math.abs(dt) <= pHalf) off += pAmp * 0.5 * (1 + Math.cos(Math.PI * dt / pHalf));
         }
+        return off;
+      };
+      const qAt = (xm) => {
+        const k = Math.round((xm - qPhase0) / qInt);
+        let off = 0;
+        for (let j = k - 1; j <= k + 1; j++) {
+          const tau = xm - (qPhase0 + j * qInt); // mm since complex onset
+          if (tau >= 0 && tau <= qrsW) off += rAmp * Math.sin(Math.PI * tau / qrsW);
+          else if (tau >= qrsW + stGap && tau <= qrsW + stGap + tDur)
+            off += tAmp * Math.sin(Math.PI * (tau - qrsW - stGap) / tDur);
+        }
+        return off;
+      };
+      let d = `M 0 ${BASE}`;
+      for (let px = 0; px <= W; px += 1) {
+        const xm = px / MM;
+        d += ` L ${px} ${BASE - (pAt(xm) + qAt(xm)) * AMP}`;
       }
-      d += ` L ${W} ${BASE}`;
       return d;
     }
 
