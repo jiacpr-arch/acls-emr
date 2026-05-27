@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playMetronomeClick, playBeep } from '../utils/sound';
+import ChecklistItem from '../components/ChecklistItem';
 import { ChevronLeft, Play, Pause, RotateCcw, HeartPulse, Wind } from 'lucide-react';
 
 const TARGET_RATE = 110;        // กลางช่วง 100–120
@@ -158,24 +159,13 @@ export default function BLSSkillPractice() {
         )}
 
         {/* 30:2 mode toggle */}
-        <div className="dash-card">
-          <label className="flex items-center justify-between gap-3 cursor-pointer">
-            <div className="flex-1">
-              <div className="text-sm font-semibold inline-flex items-center gap-2">
-                <Wind size={16} className="text-info" /> โหมด 30:2 (ช่วยหายใจ)
-              </div>
-              <div className="text-[11px] text-text-muted mt-0.5">
-                BLS-HCP standard: หยุดกดทุก 30 ครั้ง เพื่อช่วยหายใจ 2 ครั้ง (ก่อนใส่ advanced airway)
-              </div>
-            </div>
-            <input
-              type="checkbox"
-              checked={ratio302}
-              onChange={(e) => setRatio302(e.target.checked)}
-              className="w-5 h-5 accent-info"
-            />
-          </label>
-        </div>
+        <ChecklistItem
+          checked={ratio302}
+          onClick={() => setRatio302(!ratio302)}
+          tone="info"
+          label="🌬️ โหมด 30:2 (ช่วยหายใจ)"
+          sub="BLS-HCP standard: หยุดกดทุก 30 ครั้ง เพื่อช่วยหายใจ 2 ครั้ง (ก่อนใส่ advanced airway)"
+        />
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
