@@ -47,7 +47,7 @@ export default function DrugTimers() {
                   </span>
                   <button
                     onClick={() => removeDrugTimer(timer.id)}
-                    className="text-text-muted hover:text-danger text-xs px-1"
+                    className="btn btn-ghost btn-icon btn-sm"
                   >
                     ✕
                   </button>

@@ -164,8 +164,8 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
         </button>
 
         <button onClick={() => setPhase('reassess')}
-          className="inline-flex items-center gap-1 text-text-muted text-caption mx-auto hover:text-text-primary">
-          <ChevronLeft size={12} strokeWidth={2.2} /> Re-assess (deteriorating?)
+          className="btn btn-ghost btn-sm mx-auto">
+          <ChevronLeft size={14} strokeWidth={2.2} /> Re-assess (deteriorating?)
         </button>
         <button onClick={onArrest} className="btn btn-danger btn-block">
           <AlertCircle size={14} strokeWidth={2.4} /> No Pulse → CPR

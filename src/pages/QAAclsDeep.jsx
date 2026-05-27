@@ -172,9 +172,9 @@ export default function QAAclsDeep() {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); setShuffleSeed(Math.random()); }}
-              className="inline-flex items-center gap-1 text-[10px] text-text-muted hover:text-text-primary"
+              className="btn btn-ghost btn-sm"
             >
-              <Shuffle size={11} strokeWidth={2.2} />
+              <Shuffle size={13} strokeWidth={2.2} />
               สุ่มใหม่
             </button>
           </div>
