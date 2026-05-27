@@ -19,6 +19,8 @@
   --color-danger-dark: #B91C1C;
   --color-info: #2563EB;
   --color-info-dark: #1D4ED8;
+  --color-primary: #4F46E5;
+  --color-primary-dark: #4338CA;
   --color-success: #059669;
   --color-success-dark: #047857;
   --color-warning: #D97706;
@@ -52,7 +54,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
   font-size: 14px;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
@@ -863,6 +865,8 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
   --color-danger-dark: #EF4444;
   --color-info: #60A5FA;
   --color-info-dark: #3B82F6;
+  --color-primary: #818CF8;
+  --color-primary-dark: #6366F1;
   --color-success: #34D399;
   --color-success-dark: #10B981;
   --color-warning: #FBBF24;
