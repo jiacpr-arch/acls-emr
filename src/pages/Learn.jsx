@@ -4,6 +4,7 @@ import { t } from '../utils/i18n';
 import { IS_BLS, IS_ACLS } from '../config/courseMode';
 import { GraduationCap } from '../components/ui/Icon';
 import MorrooAdCard from '../components/MorrooAdCard';
+import NewsCard from '../components/NewsCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 export default function Learn() {
@@ -96,6 +97,8 @@ export default function Learn() {
       </div>
 
       {IS_ACLS && <JiacprCourseBanner />}
+
+      <NewsCard />
 
       <MorrooAdCard />
 
