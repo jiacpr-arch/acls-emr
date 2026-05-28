@@ -14,6 +14,7 @@
     "test": "node --test 'api/**/*.test.js'"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.99.0",
     "@supabase/supabase-js": "^2.106.1",
     "@vercel/analytics": "^2.0.1",
     "call-bind": "^1.0.8",
