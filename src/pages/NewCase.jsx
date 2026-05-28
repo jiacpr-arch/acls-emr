@@ -9,6 +9,7 @@ import ACLSHero from '../components/newcase/ACLSHero';
 import ACLSQuickActions from '../components/newcase/ACLSQuickActions';
 import MorrooAdCard from '../components/MorrooAdCard';
 import NewsCard from '../components/NewsCard';
+import StreakBadge from '../components/StreakBadge';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   HeartPulse, AlertTriangle, Hospital,
@@ -127,6 +128,8 @@ export default function NewCase() {
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
         <ACLSHero isClinical={isClinical} />
+
+        <StreakBadge />
 
         <NewsCard />
 

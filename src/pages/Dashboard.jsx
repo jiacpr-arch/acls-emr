@@ -8,6 +8,8 @@ import TeachingAnnotation, { AnnotationBadge } from '../components/TeachingAnnot
 import ShareExport from '../components/ShareExport';
 import MorrooAdCard from '../components/MorrooAdCard';
 import NewsCard from '../components/NewsCard';
+import StreakBadge from '../components/StreakBadge';
+import DailyQuiz from '../components/DailyQuiz';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import { IS_ACLS } from '../config/courseMode';
 import {
@@ -98,9 +100,13 @@ export default function Dashboard() {
 
       {IS_ACLS && <JiacprCourseBanner />}
 
+      <StreakBadge />
+
       <MorrooAdCard />
 
       <NewsCard />
+
+      <DailyQuiz />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
