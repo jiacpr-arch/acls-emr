@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAlsChapters } from '../hooks/useAlsChapters';
 import { ekgQuestions, rhythmLabels, shuffleOptions, quizCategories, EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
 import EKGWaveform from '../components/EKGWaveform';
@@ -72,7 +72,11 @@ function setTodayCache(topic, text) {
 
 export default function ALSKnowledge() {
   const { chapters: alsChapters } = useAlsChapters();
-  const [tab, setTab] = useState('book');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(() => {
+    const t = searchParams.get('tab');
+    return ['book', 'tip', 'ekg', 'saved'].includes(t) ? t : 'book';
+  });
   const [openCh, setOpenCh] = useState(null);
   const [tip, setTip] = useState('');
   const [tipLoading, setTipLoading] = useState(false);

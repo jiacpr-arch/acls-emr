@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostTest';
@@ -10,7 +11,7 @@ import { usePreCourseStore } from '../stores/preCourseStore';
 import { exportCertificatePDF } from '../utils/exportCertificate';
 import {
   Trophy, BookOpen, Sparkles, Activity,
-  Check, Circle, ClipboardCheck, Download, MapPin,
+  Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight,
 } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
@@ -72,14 +73,14 @@ export default function Certification() {
   // skills are completed separately at a training center.
   const requirements = IS_BLS
     ? [
-        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen },
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck },
+        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: '/pre-course/post-test' },
       ]
     : [
-        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles },
-        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen },
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck },
-        { label: `ผ่าน EKG test ≥ ${EKG_TEST_PASS_PERCENT}%`, done: ekgTestDone, Icon: Activity },
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: '/pre-course/pre-test' },
+        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: '/pre-course/post-test' },
+        { label: `ผ่าน EKG test ≥ ${EKG_TEST_PASS_PERCENT}%`, done: ekgTestDone, Icon: Activity, to: '/als?tab=ekg' },
       ];
 
   const allDone = requirements.every(r => r.done);
@@ -140,7 +141,8 @@ export default function Certification() {
         {requirements.map((r, i) => {
           const RIcon = r.Icon;
           return (
-            <div key={i} className={`dash-card !p-3 flex items-center gap-3 border ${r.done ? 'border-success/40' : 'border-border'}`}>
+            <Link key={i} to={r.to}
+              className={`dash-card !p-3 flex items-center gap-3 border transition-colors hover:border-info/40 ${r.done ? 'border-success/40' : 'border-border'}`}>
               <div className={`w-9 h-9 inline-flex items-center justify-center shrink-0 ${
                 r.done ? 'bg-success/15 text-success' : 'bg-bg-tertiary text-text-muted'
               }`} style={{ borderRadius: 'var(--radius-sm)' }}>
@@ -152,7 +154,8 @@ export default function Certification() {
               ) : (
                 <Circle size={16} strokeWidth={2} className="text-text-muted" />
               )}
-            </div>
+              <ChevronRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />
+            </Link>
           );
         })}
       </div>
@@ -165,7 +168,8 @@ export default function Certification() {
             <span className="text-[11px] text-text-muted font-mono">{activeStudent.studentId || activeStudent.phone}</span>
           </div>
           {preCourseStatus.map(({ lesson, read, bestScore, passed }) => (
-            <div key={lesson.id} className="flex items-center gap-2 text-caption">
+            <Link key={lesson.id} to={`/pre-course/${lesson.id}`}
+              className="flex items-center gap-2 text-caption rounded-md -mx-1 px-1 py-0.5 transition-colors hover:bg-bg-tertiary">
               <span className={`w-5 h-5 inline-flex items-center justify-center shrink-0 ${
                 passed ? 'bg-success/15 text-success' : 'bg-bg-tertiary text-text-muted'
               }`} style={{ borderRadius: 'var(--radius-sm)' }}>
@@ -177,7 +181,8 @@ export default function Certification() {
               }`}>
                 {bestScore != null ? `${bestScore}%` : (read ? 'อ่านแล้ว' : 'ยังไม่อ่าน')}
               </span>
-            </div>
+              <ChevronRight size={14} strokeWidth={2.2} className="text-text-muted shrink-0" />
+            </Link>
           ))}
         </div>
       )}
