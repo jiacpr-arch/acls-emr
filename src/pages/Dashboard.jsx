@@ -7,6 +7,7 @@ import { LineChart, Line, XAxis, YAxis, ReferenceLine, ResponsiveContainer } fro
 import TeachingAnnotation, { AnnotationBadge } from '../components/TeachingAnnotation';
 import ShareExport from '../components/ShareExport';
 import MorrooAdCard from '../components/MorrooAdCard';
+import NewsCard from '../components/NewsCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import { IS_ACLS } from '../config/courseMode';
 import {
@@ -98,6 +99,8 @@ export default function Dashboard() {
       {IS_ACLS && <JiacprCourseBanner />}
 
       <MorrooAdCard />
+
+      <NewsCard />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
