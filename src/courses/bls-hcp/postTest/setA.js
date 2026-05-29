@@ -80,11 +80,11 @@ export const setA = {
       question: 'ผู้ป่วยมี pacemaker ตำแหน่งวาง pads ควรเป็นอย่างไร?',
       choices: [
         { id: 'a', text: 'วางบน pacemaker เลย' },
-        { id: 'b', text: 'ห่างจาก pacemaker ≥ 2.5 ซม.' },
+        { id: 'b', text: 'วางห่างจาก pacemaker มากที่สุดเท่าที่ทำได้ (ควร ≥ 8 ซม.) ห้ามวางทับ' },
         { id: 'c', text: 'ไม่ shock' },
         { id: 'd', text: 'ปิด pacemaker ก่อน' },
       ],
-      correctId: 'b', explanation: 'ห่างจาก pacemaker ≥ 2.5 ซม.' },
+      correctId: 'b', explanation: 'หลักคือวางให้ห่าง pacemaker มากที่สุดเท่าที่ทำได้ ควร ≥ 8 ซม. (3.1 นิ้ว) ห้ามวางทับ — ค่า 2.5 ซม./1 นิ้ว เป็นของแผ่นแปะยา ไม่ใช่ pacemaker' },
 
     // ---- Team dynamics / 2-rescuer (3) ----
     { id: 'bls-a-10', topic: 'team',
