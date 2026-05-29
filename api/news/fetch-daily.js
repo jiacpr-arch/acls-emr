@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
+import { broadcastNewsItem } from '../_lib/pushBroadcast.js';
 
 export const config = { maxDuration: 300 };
 
@@ -130,15 +131,27 @@ export default async function handler(req, res) {
   const { data: inserted, error } = await supabase
     .from('news')
     .insert(fresh)
-    .select('id, title, course, language');
+    .select('id, title, summary, source_url, course, language');
   if (error) {
     return res.status(500).json({ error: error.message, attempted: fresh.length });
+  }
+
+  // Broadcast push notification for the first (most relevant) item.
+  // Don't spam — pushing more than one per day will fatigue users.
+  let pushResult = null;
+  if (inserted.length > 0) {
+    try {
+      pushResult = await broadcastNewsItem(inserted[0]);
+    } catch (e) {
+      pushResult = { error: String(e?.message || e) };
+    }
   }
 
   return res.status(200).json({
     inserted: inserted.length,
     deduped: rows.length - fresh.length,
-    items: inserted,
+    items: inserted.map(({ summary, source_url, ...rest }) => rest),
+    push: pushResult,
   });
 }
 

@@ -6,7 +6,7 @@ import { IS_BLS } from '../config/courseMode';
 import {
   HeartPulse, FileText, Pill, Menu,
   BarChart3, GraduationCap,
-  MessageSquare, Settings, X, Award,
+  MessageSquare, Settings, X, Award, Bell,
 } from './ui/Icon';
 
 export default function BottomTabBar() {
@@ -35,12 +35,14 @@ export default function BottomTabBar() {
     ? [
         { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR Metronome' },
         { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
+        { path: '/news', Icon: Bell, label: 'ข่าว' },
         { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
         { path: '/settings', Icon: Settings, label: t('settings', lang) },
       ]
     : [
         { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
         { path: '/compare', Icon: BarChart3, label: 'Compare' },
+        { path: '/news', Icon: Bell, label: 'ข่าว' },
         { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
         { path: '/settings', Icon: Settings, label: t('settings', lang) },
       ];

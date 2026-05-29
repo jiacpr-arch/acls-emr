@@ -36,6 +36,8 @@
     "remark-gfm": "^4.0.1",
     "set-function-length": "^1.2.2",
     "uuid": "^13.0.0",
+    "web-push": "^3.6.7",
+    "workbox-precaching": "^7.4.1",
     "zustand": "^5.0.12"
   },
   "overrides": {

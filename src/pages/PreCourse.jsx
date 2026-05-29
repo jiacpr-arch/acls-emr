@@ -19,6 +19,7 @@ import BLSCourseUpsellCard from '../components/precourse/BLSCourseUpsellCard';
 import ACLSCourseUpsellCard from '../components/precourse/ACLSCourseUpsellCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import NewsCard from '../components/NewsCard';
+import StreakBadge from '../components/StreakBadge';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
 import { IS_ACLS, IS_BLS, courseMeta } from '../config/courseMode';
@@ -250,6 +251,8 @@ export default function PreCourse() {
       </div>
 
       {IS_ACLS && <JiacprCourseBanner />}
+
+      <StreakBadge />
 
       <NewsCard />
 

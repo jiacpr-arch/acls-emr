@@ -30,6 +30,7 @@ import InstructorCohort from './pages/InstructorCohort';
 import PostTestExam from './pages/PostTestExam';
 import PreTestExam from './pages/PreTestExam';
 import BLSSkillPractice from './pages/BLSSkillPractice';
+import NewsPage from './pages/NewsPage';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import OfflineIndicator from './components/OfflineIndicator';
@@ -87,6 +88,7 @@ function App() {
         <Route path="/certification" element={<Certification />} />
         <Route path="/guide" element={<UserGuide />} />
         <Route path="/feedback" element={<Feedback />} />
+        <Route path="/news" element={<NewsPage />} />
 
         {/* pre-course flow — ทั้งสอง mode ใช้ (lesson content เปลี่ยนตาม mode ผ่าน activeLessons shim) */}
         <Route path="/pre-course" element={<PreCourse />} />
