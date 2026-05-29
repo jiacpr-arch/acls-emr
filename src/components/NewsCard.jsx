@@ -4,12 +4,16 @@ import { Bell, ChevronRight } from './ui/Icon';
 
 const COURSE_LABEL = { acls: 'ACLS', bls: 'BLS', both: 'ทั่วไป' };
 
+// Only surface news from the last 30 days — older items stay on the /news page
+// but never show up as "ข่าวล่าสุด" on the home/dashboard cards.
+const MAX_AGE_DAYS = 30;
+
 export default function NewsCard() {
   const [item, setItem] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetchNews({ limit: 1 }).then(rows => {
+    fetchNews({ limit: 1, maxAgeDays: MAX_AGE_DAYS }).then(rows => {
       if (!cancelled) setItem(rows[0] || null);
     });
     return () => { cancelled = true; };

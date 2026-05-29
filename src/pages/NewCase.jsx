@@ -131,8 +131,6 @@ export default function NewCase() {
 
         <StreakBadge />
 
-        <NewsCard />
-
         {/* Resume active session — keeps the warning border accent */}
         {activeSession && (
           <div className="dash-card border-l-4 border-l-warning animate-slide-up"
@@ -238,6 +236,8 @@ export default function NewCase() {
             <MessageSquare size={18} strokeWidth={2} /> Feedback
           </button>
         </div>
+
+        <NewsCard />
 
         <JiacprCourseBanner />
 
