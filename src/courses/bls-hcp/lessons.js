@@ -177,9 +177,9 @@ const lessonDefs = [
       { type: 'read', heading: '⚠ BLS-HCP: ใช้ AED mode เท่านั้น',
         body: 'ใน scope ของ BLS-HCP ใช้ AED automated mode เท่านั้น\n• ไม่ต้องอ่าน rhythm strip / interpret VF/pVT/PEA/Asystole เอง\n• ไม่ต้องเลือก Joule manual — AED จัดการพลังงานให้อัตโนมัติ\n• ทำตามคำสั่งเสียง: "Shock advised" → shock; "No shock advised" → CPR ต่อ\n• Manual defibrillator + rhythm interpretation = ทักษะระดับ ACLS' },
       { type: 'read', heading: 'ตำแหน่ง pads',
-        body: '• Anterolateral: pad 1 ใต้กระดูกไหปลาร้าขวา; pad 2 กลางสีข้างซ้าย ระดับ mid-axillary line (~ICS 5–6 ระดับเดียวกับ nipple)\n• Anteroposterior: กลางอกหน้า + กลางหลัง — เป็นทางเลือก equivalent กับ anterolateral; แนะนำเมื่อมี pacemaker/ICD หรือ pads ขนาดใหญ่ทับซ้อนกัน\n• ระยะห่างจาก pacemaker/ICD อย่างน้อย 2.5 ซม.' },
+        body: '• Anterolateral: pad 1 ใต้กระดูกไหปลาร้าขวา; pad 2 กลางสีข้างซ้าย ระดับ mid-axillary line (~ICS 5–6 ระดับเดียวกับ nipple)\n• Anteroposterior: กลางอกหน้า + กลางหลัง — เป็นทางเลือก equivalent กับ anterolateral; แนะนำเมื่อมี pacemaker/ICD หรือ pads ขนาดใหญ่ทับซ้อนกัน\n• Pacemaker/ICD (คลำเป็นก้อนแข็งใต้ผิวหนัง มักอยู่ใต้ไหปลาร้าซ้าย): วางให้ห่างมากที่สุดเท่าที่ทำได้ (ควร ≥ 8 ซม. / 3.1 นิ้ว) ห้ามวางทับตัวเครื่องเด็ดขาด — ถ้าพื้นที่ไม่พอให้ยึดหลัก "ห่างเท่าที่ทำได้" เพราะ defib สำคัญที่สุด' },
       { type: 'read', heading: 'สถานการณ์พิเศษ',
-        body: '• Hairy chest: โกนเร็ว ๆ หรือใช้ pads สำรองดึงขนออก\n• Wet chest: เช็ดให้แห้งก่อนติด pads\n• Patch (ยา transdermal): ดึงออก เช็ดยาออกก่อน\n• ในน้ำ: ย้ายผู้ป่วยขึ้นแห้งก่อน\n• เด็ก < 8 ปี หรือน้ำหนัก < 25 กก.: ใช้ pediatric pads / dose attenuator ถ้ามี; ถ้าไม่มีใช้ผู้ใหญ่ได้' },
+        body: '• Hairy chest: โกนเร็ว ๆ หรือใช้ pads สำรองดึงขนออก\n• Wet chest: เช็ดให้แห้งก่อนติด pads\n• Patch (ยา transdermal เช่น nitroglycerin/fentanyl): ดึงออก เช็ดยาออกก่อน — ห้าม shock ผ่าน patch (บล็อกกระแส/ผิวไหม้); ถ้าดึงไม่ทัน วาง pad ห่างจาก patch ≥ 2.5 ซม. (1 นิ้ว)\n• ในน้ำ: ย้ายผู้ป่วยขึ้นแห้งก่อน\n• เด็ก < 8 ปี หรือน้ำหนัก < 25 กก.: ใช้ pediatric pads / dose attenuator ถ้ามี; ถ้าไม่มีใช้ผู้ใหญ่ได้' },
       { type: 'quiz', id: 'bls-3-q1',
         question: 'ทันทีหลัง shock ควรทำอะไรต่อ?',
         choices: [
@@ -214,12 +214,12 @@ const lessonDefs = [
         question: 'ผู้ป่วยใส่ pacemaker อยู่ ต้องวาง pads อย่างไร?',
         choices: [
           { id: 'a', text: 'วางตรงบน pacemaker' },
-          { id: 'b', text: 'ห่างจาก pacemaker อย่างน้อย 2.5 ซม.' },
+          { id: 'b', text: 'วางให้ห่างจาก pacemaker มากที่สุดเท่าที่ทำได้ (ควร ≥ 8 ซม.) ห้ามวางทับ' },
           { id: 'c', text: 'ไม่ shock เลย' },
           { id: 'd', text: 'ปิด pacemaker ก่อน' },
         ],
         correctId: 'b',
-        explanation: 'หลีกเลี่ยงตรง pacemaker เพื่อไม่ให้เครื่องเสียหาย แต่ต้อง shock ได้' },
+        explanation: 'หลีกเลี่ยงการวางทับ pacemaker (กระแสถูกบล็อก/เครื่องเสียหาย) — หลักคือวางห่างมากที่สุดเท่าที่ทำได้ ควร ≥ 8 ซม. (3.1 นิ้ว); ถ้าพื้นที่ไม่พอให้ห่างเท่าที่ทำได้ เพราะ defib สำคัญที่สุด (หมายเหตุ: ค่า 2.5 ซม./1 นิ้ว เป็นของแผ่นแปะยา ไม่ใช่ pacemaker)' },
       { type: 'quiz', id: 'bls-3-q5',
         question: 'เมื่อ AED บอก "No shock advised" ขั้นตอนถัดไปคืออะไร?',
         choices: [

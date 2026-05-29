@@ -84,7 +84,7 @@ export const setB = {
         { id: 'c', text: 'หลีกเลี่ยง AED' },
         { id: 'd', text: 'รอ patch ออกฤทธิ์หมด' },
       ],
-      correctId: 'b', explanation: 'ดึง patch + เช็ดออก ห้าม shock ผ่าน patch (ลุกไหม้/burn)' },
+      correctId: 'b', explanation: 'ดึง patch + เช็ดออก ห้าม shock ผ่าน patch (ลุกไหม้/burn) — ถ้าดึงไม่ทันให้วาง pad ห่างจาก patch ≥ 2.5 ซม. (1 นิ้ว)' },
     { id: 'bls-b-9', topic: 'aed',
       question: 'AED แนะนำ "no shock advised" + ผู้ป่วยไม่มีชีพจร ทำอะไรต่อ?',
       choices: [
