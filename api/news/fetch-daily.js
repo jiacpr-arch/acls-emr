@@ -21,8 +21,18 @@ Search strategy:
    ราชวิทยาลัยอายุรแพทย์, สมาคมโรคหัวใจ, สพฉ./1669, hfocus, mgronline สุขภาพ).
    Use Thai queries: "CPR ข่าว", "หัวใจหยุดเต้น", "AED", "ช่วยชีวิต ข่าว 2026",
    "ACLS ประเทศไทย", "ผู้ป่วยวิกฤต ข่าว", "1669 ข่าว".
-2. If you find fewer than ${MAX_ITEMS_PER_RUN} good Thai items, supplement with English
+2. IMPORTANT — actively search for ACLS / advanced-care topics too, not just basic CPR/AED.
+   The ACLS feed tends to be starved because most rescue stories get tagged 'bls'.
+   Run extra queries: "หัวใจวายเฉียบพลัน ข่าว", "STEMI", "กล้ามเนื้อหัวใจตายเฉียบพลัน",
+   "ภาวะหัวใจเต้นผิดจังหวะ", "ICU วิกฤต ข่าว", "post cardiac arrest", "ROSC",
+   "resuscitation guideline 2026", "antiarrhythmic amiodarone", "vasopressor sepsis",
+   "สมาคมแพทย์โรคหัวใจ แนวทาง", "targeted temperature management".
+3. If you find fewer than ${MAX_ITEMS_PER_RUN} good Thai items, supplement with English
    sources (AHA, ERC, Resuscitation journal, NEJM, JAMA, BMJ, Reuters Health).
+
+Balance: aim for a healthy mix — at least 2 of the items should be relevant to ACLS
+learners (course 'acls' or 'both'). Prefer the freshest items; do not pad the list with
+months-old guideline explainers when recent news exists.
 
 Quality bar:
 - Skip ads, press releases with no news value, opinion pieces, listicles.
@@ -37,8 +47,15 @@ For EACH item produce:
 - source_url: the article URL (must be the actual article, not the homepage)
 - source_name: short publisher name e.g. "Hfocus", "AHA", "Reuters"
 - language: 'th' if source is Thai, 'en' otherwise
-- course: 'bls' (CPR/AED/lay-rescuer/basic), 'acls' (algorithms/drugs/post-arrest/critical care),
-  or 'both' (guidelines updates, big events)
+- course: choose carefully — this decides which site(s) the item appears on.
+    'bls'  = ONLY pure lay-rescuer / community / basic content: public CPR-AED training drives,
+             "how to do CPR" explainers for the general public, school/workplace courses.
+    'acls' = clearly advanced/clinical only: algorithms, drugs, arrhythmia management, ACS/STEMI,
+             post-arrest/ICU/critical care, defibrillation strategy aimed at clinicians.
+    'both' = DEFAULT for any real clinical resuscitation event or news — a cardiac-arrest
+             rescue/CPR save (in hospital or out), OHCA, ROSC, AED used on a real patient,
+             resuscitation research, or guideline updates. When unsure between bls and acls,
+             choose 'both'. Most "หัวใจหยุดเต้น / ช่วยชีวิต" news stories are 'both', not 'bls'.
 - topics: 1-4 short Thai tags e.g. ["AED", "CPR", "หัวใจหยุดเต้น"]
 - published_at: ISO 8601 date of publication (from the article)
 
