@@ -12,7 +12,7 @@ import {
   Star, Bell, MessageSquare, Send, Mic, Volume2, VolumeX,
   Eye, EyeOff, Lightbulb, Info, HelpCircle,
   ListOrdered, List, Layers, Sparkles, Shield, ShieldCheck, Hospital,
-  Sun, Moon, Monitor,
+  Sun, Moon, Monitor, GitBranch,
 } from 'lucide-react';
 
 const map = {
@@ -91,7 +91,7 @@ export {
   Star, Bell, MessageSquare, Send, Mic, Volume2, VolumeX,
   Eye, EyeOff, Lightbulb, Info, HelpCircle,
   ListOrdered, List, Layers, Sparkles, Shield, ShieldCheck, Hospital,
-  Sun, Moon, Monitor,
+  Sun, Moon, Monitor, GitBranch,
 };
 
 /**
