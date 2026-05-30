@@ -17,6 +17,7 @@ import BLSQuickActions from '../components/precourse/BLSQuickActions';
 import BLSSplash from '../components/precourse/BLSSplash';
 import BLSCourseUpsellCard from '../components/precourse/BLSCourseUpsellCard';
 import ACLSCourseUpsellCard from '../components/precourse/ACLSCourseUpsellCard';
+import ACLSProgressCard from '../components/precourse/ACLSProgressCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import NewsCard from '../components/NewsCard';
 import StreakBadge from '../components/StreakBadge';
@@ -24,7 +25,7 @@ import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
 import { IS_ACLS, IS_BLS, courseMeta } from '../config/courseMode';
 import {
-  GraduationCap, User, UserCheck, Users, RefreshCw,
+  GraduationCap, Users,
   Cloud, CloudOff, ChevronDown,
 } from 'lucide-react';
 
@@ -235,6 +236,12 @@ export default function PreCourse() {
     );
   }
 
+  // ACLS pre-test / post-test best scores
+  const preTestAttempts = attempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
+  const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+  const preTestPassed = preTestBest?.passed ?? false;
+  const preTestAttempted = preTestAttempts.length > 0;
+
   return (
     <div className="page-container space-y-5">
       <div className="text-center space-y-2">
@@ -246,103 +253,85 @@ export default function PreCourse() {
           }}>
           <GraduationCap size={28} strokeWidth={2.2} className="text-white" />
         </div>
-        <h1 className="text-title text-text-primary">Pre-course</h1>
-        <p className="text-caption text-text-muted">อ่านบทเรียนและทำ quiz ก่อนเข้าเรียนจริง</p>
+        <h1 className="text-title text-text-primary">บทเรียน ACLS</h1>
+        <p className="text-caption text-text-muted">3 ขั้นตอน: Pre-test → บทเรียน → Post-test</p>
       </div>
 
       {IS_ACLS && <JiacprCourseBanner />}
 
-      <StreakBadge />
-
-      <NewsCard />
-
-      {/* Active student banner */}
-      <div className="dash-card flex items-center gap-3">
-        {activeStudent ? (
-          <>
-            <div className="w-10 h-10 inline-flex items-center justify-center bg-success/12 text-success shrink-0"
-              style={{ borderRadius: 'var(--radius-md)' }}>
-              <UserCheck size={18} strokeWidth={2.2} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-body-strong text-text-primary truncate">{activeStudent.name}</div>
-              <div className="text-[12px] text-text-muted font-mono">{activeStudent.studentId ? `รหัส: ${activeStudent.studentId}` : activeStudent.phone}</div>
-            </div>
-            <button onClick={() => { clearActiveStudent(); setShowIdentity(true); }}
-              className="btn btn-ghost btn-sm">
-              <RefreshCw size={13} strokeWidth={2.2} /> เปลี่ยนผู้เรียน
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="w-10 h-10 inline-flex items-center justify-center bg-bg-tertiary text-text-muted shrink-0"
-              style={{ borderRadius: 'var(--radius-md)' }}>
-              <User size={18} strokeWidth={2.2} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-body-strong text-text-primary">ยังไม่ได้ระบุตัวผู้เรียน</div>
-              <div className="text-[12px] text-text-muted">ใส่ชื่อและรหัสก่อนเริ่มเพื่อบันทึกผล</div>
-            </div>
-            <button onClick={() => setShowIdentity(true)} className="btn btn-primary btn-sm">
-              ระบุตัวตน
-            </button>
-          </>
-        )}
-      </div>
+      {/* Hero: progress + smart next-step CTA. Replaces the previous
+          stand-alone active-student banner because identity is shown inside. */}
+      <ACLSProgressCard
+        activeStudent={activeStudent}
+        preTestPassed={preTestPassed}
+        preTestAttempted={preTestAttempted}
+        lessonsPassed={lessonsPassed}
+        totalLessons={totalLessons}
+        nextLesson={nextLesson}
+        postTestPassed={postTestPassed}
+        postTestUnlocked={postTestUnlocked}
+        onIdentify={() => setShowIdentity(true)}
+        onChangeStudent={() => { clearActiveStudent(); setShowIdentity(true); }}
+      />
 
       {classBanner}
 
+      {/* Step 1 — Pre-test */}
+      {activeStudent && (
+        <div className="space-y-2">
+          <div className="text-overline text-text-muted px-1 flex items-center gap-2">
+            <StepNumber n={1} />
+            ข้อสอบก่อนเรียน
+          </div>
+          <PreTestCard
+            bestScore={preTestBest?.score ?? null}
+            passed={preTestPassed}
+            attemptCount={preTestAttempts.length}
+          />
+        </div>
+      )}
+
+      {/* Step 2 — Lessons */}
+      <div className="space-y-2" id="acls-lessons">
+        <div className="flex items-center justify-between px-1">
+          <div className="text-overline text-text-muted flex items-center gap-2">
+            <StepNumber n={2} />
+            บทเรียน · {lessonsPassed}/{totalLessons} ผ่าน
+          </div>
+          <button onClick={() => navigate('/pre-course/cohort')}
+            className="btn btn-ghost btn-sm">
+            <Users size={14} strokeWidth={2.4} /> สำหรับอาจารย์
+          </button>
+        </div>
+        <div className="space-y-3">
+          {preCourseLessons.map(l => {
+            const st = lessonState(l.id);
+            return <LessonCard key={l.id} lesson={l} {...st} />;
+          })}
+        </div>
+      </div>
+
+      {/* Step 3 — Post-test */}
+      <div className="space-y-2">
+        <div className="text-overline text-text-muted px-1 flex items-center gap-2">
+          <StepNumber n={3} />
+          ข้อสอบหลังเรียน
+        </div>
+        <PostTestCard
+          unlocked={postTestUnlocked}
+          bestScore={postBest?.score ?? null}
+          passed={postTestPassed}
+          attemptCount={postAttempts.length}
+          lessonCount={totalLessons}
+        />
+      </div>
+
+      {/* Supplementary content — pushed below the main flow so it does not
+          bury the lesson list */}
+      <StreakBadge />
+      <NewsCard />
       {courseMeta.featuredVideo && <FeaturedVideo video={courseMeta.featuredVideo} />}
-
       <VideoLinksPanel videos={preCourseVideos} />
-
-      {IS_ACLS && activeStudent && (() => {
-        const ptAttempts = attempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
-        const ptBest = ptAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-        return (
-          <>
-            <div className="text-overline text-text-muted px-1">ข้อสอบก่อนเรียน</div>
-            <PreTestCard
-              bestScore={ptBest?.score ?? null}
-              passed={ptBest?.passed ?? false}
-              attemptCount={ptAttempts.length}
-            />
-          </>
-        );
-      })()}
-
-      <div className="flex items-center justify-between px-1">
-        <div className="text-overline text-text-muted">บทเรียน</div>
-        <button onClick={() => navigate('/pre-course/cohort')}
-          className="btn btn-ghost btn-sm">
-          <Users size={14} strokeWidth={2.4} /> สำหรับอาจารย์
-        </button>
-      </div>
-
-      <div className="space-y-3">
-        {preCourseLessons.map(l => {
-          const st = lessonState(l.id);
-          return <LessonCard key={l.id} lesson={l} {...st} />;
-        })}
-      </div>
-
-      {(() => {
-        const lessonsPassedAll = preCourseLessons.every(l => lessonState(l.id).passed);
-        const ptAttempts = attempts.filter(a => a.lessonId === POST_TEST_LESSON_ID);
-        const ptBest = ptAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-        return (
-          <>
-            <div className="text-overline text-text-muted px-1 pt-1">ข้อสอบหลังเรียน</div>
-            <PostTestCard
-              unlocked={!!activeStudent && lessonsPassedAll}
-              bestScore={ptBest?.score ?? null}
-              passed={ptBest?.passed ?? false}
-              attemptCount={ptAttempts.length}
-              lessonCount={preCourseLessons.length}
-            />
-          </>
-        );
-      })()}
 
       <ClassGateModal
         open={showClassGate}
@@ -355,6 +344,17 @@ export default function PreCourse() {
         onConfirm={() => setShowIdentity(false)}
       />
     </div>
+  );
+}
+
+function StepNumber({ n }) {
+  return (
+    <span
+      className="inline-flex items-center justify-center w-5 h-5 bg-info text-white text-[11px] font-extrabold shrink-0"
+      style={{ borderRadius: '50%' }}
+    >
+      {n}
+    </span>
   );
 }
 

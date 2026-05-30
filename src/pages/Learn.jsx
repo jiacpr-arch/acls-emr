@@ -42,9 +42,9 @@ export default function Learn() {
         {
           title: t('learn_prepare', lang),
           items: [
-            { path: '/pre-course',           emoji: '🎓', label: t('pre_course', lang), subtitle: 'Pre-course',      desc: t('pre_course_desc', lang), tone: 'info' },
-            { path: '/pre-course/pre-test',  emoji: '📝', label: t('pre_test',   lang), subtitle: 'Knowledge Check', desc: t('pre_test_desc', lang),   tone: 'purple' },
-            { path: '/pre-course/post-test', emoji: '🏆', label: t('post_test',  lang), subtitle: 'Final Exam',      desc: t('post_test_desc', lang),  tone: 'shock' },
+            { path: '/pre-course',           emoji: '🎓', label: t('pre_course', lang), subtitle: 'บทเรียน + Quiz',  desc: t('pre_course_desc', lang), tone: 'info',   step: 2, featured: true },
+            { path: '/pre-course/pre-test',  emoji: '📝', label: t('pre_test',   lang), subtitle: 'Knowledge Check', desc: t('pre_test_desc', lang),   tone: 'purple', step: 1 },
+            { path: '/pre-course/post-test', emoji: '🏆', label: t('post_test',  lang), subtitle: 'Final Exam',      desc: t('post_test_desc', lang),  tone: 'shock',  step: 3 },
           ],
         },
         {
@@ -110,8 +110,23 @@ export default function Learn() {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`learn-card tone-${item.tone || 'info'} flex flex-col items-center text-center px-3 pt-5 pb-4`}
+                className={`learn-card tone-${item.tone || 'info'} relative flex flex-col items-center text-center px-3 pt-5 pb-4`}
+                /* Inline gridColumn overrides .learn-card:last-child:nth-child(odd)
+                   auto-span, so we control which card spans the row */
+                style={{ gridColumn: item.featured ? '1 / -1' : 'auto' }}
               >
+                {item.step != null && (
+                  <span
+                    className="absolute top-2 left-2 inline-flex items-center justify-center w-6 h-6 text-[11px] font-extrabold text-white shadow-sm"
+                    style={{
+                      borderRadius: '50%',
+                      background: toneColor[item.tone] || toneColor.info,
+                    }}
+                    aria-hidden="true"
+                  >
+                    {item.step}
+                  </span>
+                )}
                 <span className="text-[44px] leading-none mb-2" aria-hidden="true">
                   {item.emoji}
                 </span>

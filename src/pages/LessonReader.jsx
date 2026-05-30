@@ -166,11 +166,25 @@ export default function LessonReader() {
 
       {/* Progress bar */}
       <div className="dash-card !p-3 space-y-2">
-        <div className="flex items-center justify-between text-[11px]">
-          <span className="text-text-muted font-bold">
-            {isOnSummary ? 'พร้อมส่ง' : `ขั้นที่ ${safeIndex + 1} / ${totalSteps}`}
-          </span>
-          <span className="text-text-secondary">
+        <div className="flex items-center justify-between gap-2">
+          {isOnSummary ? (
+            <span
+              className="inline-flex items-center gap-1 bg-success text-white text-[12px] font-extrabold px-2.5 py-1 shrink-0"
+              style={{ borderRadius: 99 }}
+            >
+              พร้อมส่ง
+            </span>
+          ) : (
+            <span
+              className="inline-flex items-center gap-1.5 bg-info text-white text-[12px] font-extrabold px-2.5 py-1 shrink-0"
+              style={{ borderRadius: 99 }}
+            >
+              ขั้นที่ <span className="tabular-nums">{safeIndex + 1}</span>
+              <span className="opacity-70">/</span>
+              <span className="tabular-nums opacity-90">{totalSteps}</span>
+            </span>
+          )}
+          <span className="text-text-secondary text-[11px] text-right">
             ตอบถูก <span className="text-success font-bold">{correctSoFar}</span>
             {answeredQuizCount > 0 && <span className="text-text-muted"> / {answeredQuizCount} ที่ตอบ</span>}
             <span className="text-text-muted"> (จาก {totalQuiz} ข้อ)</span>
@@ -231,13 +245,20 @@ export default function LessonReader() {
         </button>
         <div className="flex-1" />
         {!isOnSummary ? (
-          <button
-            onClick={goNext}
-            disabled={step?.type === 'quiz' && !answers[step.id]}
-            className="btn btn-primary btn-sm disabled:opacity-40">
-            {step?.type === 'quiz' && !answers[step.id] ? 'เลือกคำตอบก่อน' : 'ถัดไป'}
-            <ChevronRight size={14} strokeWidth={2.2} />
-          </button>
+          (() => {
+            const quizUnanswered = step?.type === 'quiz' && !answers[step.id];
+            const ready = !quizUnanswered;
+            return (
+              <button
+                onClick={goNext}
+                disabled={quizUnanswered}
+                className={`btn btn-primary disabled:opacity-40 ${ready ? 'lesson-next-ready' : 'btn-sm'}`}
+              >
+                {quizUnanswered ? 'เลือกคำตอบก่อน' : 'ถัดไป'}
+                <ChevronRight size={ready ? 18 : 14} strokeWidth={2.4} />
+              </button>
+            );
+          })()
         ) : (
           <>
             <button onClick={restartFromBeginning} className="btn btn-ghost btn-sm">
