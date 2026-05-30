@@ -104,8 +104,6 @@ export default function Dashboard() {
 
       <MorrooAdCard />
 
-      <NewsCard />
-
       <DailyQuiz />
 
       {/* Stats Cards */}
@@ -207,6 +205,8 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      <NewsCard />
 
       {annotatingCase && (
         <TeachingAnnotation caseId={annotatingCase} onClose={() => setAnnotatingCase(null)} />

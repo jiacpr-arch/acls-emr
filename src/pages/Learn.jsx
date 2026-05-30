@@ -98,8 +98,6 @@ export default function Learn() {
 
       {IS_ACLS && <JiacprCourseBanner />}
 
-      <NewsCard />
-
       <MorrooAdCard />
 
       {sections.map(section => (
@@ -147,6 +145,8 @@ export default function Learn() {
           </div>
         </div>
       ))}
+
+      <NewsCard />
     </div>
   );
 }
