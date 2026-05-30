@@ -517,6 +517,20 @@ button, [role="button"] {
 .dark .learn-card.tone-danger  { background: color-mix(in srgb, var(--color-danger)  18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-danger)  28%, var(--color-border)); }
 .dark .learn-card.tone-shock   { background: color-mix(in srgb, var(--color-shock)   18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-shock)   28%, var(--color-border)); }
 
+/* ===== Lesson reader: Next button highlight =====
+   Gently pulses the primary next button once the student has answered,
+   so the next action stays obvious without being aggressive. */
+@keyframes lesson-next-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-info) 45%, transparent); }
+  50%      { box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-info) 0%, transparent); }
+}
+.lesson-next-ready {
+  animation: lesson-next-pulse 1.8s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lesson-next-ready { animation: none; }
+}
+
 /* ===== ALS CHAPTER CARD ===== */
 .chapter-card {
   position: relative;
