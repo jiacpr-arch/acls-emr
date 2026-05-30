@@ -215,6 +215,8 @@ export default function NewCase() {
           </span>
         </button>
 
+        <NewsCard />
+
         <div className="grid grid-cols-2 gap-6 pt-2">
           <button onClick={() => navigate('/guide')}
             className="btn btn-ghost btn-block"
@@ -227,8 +229,6 @@ export default function NewCase() {
             <MessageSquare size={18} strokeWidth={2} /> Feedback
           </button>
         </div>
-
-        <NewsCard />
 
         <JiacprCourseBanner />
 
