@@ -11,7 +11,7 @@ import { usePreCourseStore } from '../stores/preCourseStore';
 import { exportCertificatePDF } from '../utils/exportCertificate';
 import {
   Trophy, BookOpen, Sparkles, Activity,
-  Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight,
+  Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield,
 } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
@@ -122,6 +122,16 @@ export default function Certification() {
       </div>
 
       {!IS_BLS && <JiacprCourseBanner />}
+
+      {IS_BLS && (
+        <div className="dash-card !p-3 bg-info/10 border border-info/30 flex items-start gap-2">
+          <Shield size={16} strokeWidth={2.4} className="text-info shrink-0 mt-0.5" />
+          <div className="text-caption text-text-secondary">
+            <span className="font-bold text-info">{courseMeta.standard}</span>
+            {' · '}อายุใบประกาศ {certConfig.validityMonths} เดือน — ต้องต่ออายุก่อนหมดอายุ
+          </div>
+        </div>
+      )}
 
       <MorrooAdCard />
 

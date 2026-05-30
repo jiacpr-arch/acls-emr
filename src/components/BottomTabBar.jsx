@@ -7,6 +7,7 @@ import {
   HeartPulse, FileText, Pill, Menu,
   BarChart3, GraduationCap,
   MessageSquare, Settings, X, Award, Bell,
+  GitBranch, Zap, Wind,
 } from './ui/Icon';
 
 export default function BottomTabBar() {
@@ -33,6 +34,9 @@ export default function BottomTabBar() {
 
   const moreItems = IS_BLS
     ? [
+        { path: '/bls/algorithm', Icon: GitBranch, label: 'Algorithm' },
+        { path: '/bls/aed', Icon: Zap, label: 'การใช้ AED' },
+        { path: '/bls/choking', Icon: Wind, label: 'สำลัก' },
         { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR Metronome' },
         { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
         { path: '/news', Icon: Bell, label: 'ข่าว' },
