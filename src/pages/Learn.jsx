@@ -101,21 +101,20 @@ export default function Learn() {
       <MorrooAdCard />
 
       {sections.map(section => (
-        <div key={section.title} className="space-y-2">
-          <div className="text-overline text-text-muted px-1">{section.title}</div>
-          <div className="grid grid-cols-2 gap-4">
+        <div key={section.title} className="space-y-3">
+          <h2 className="text-[18px] font-bold text-text-primary px-1 leading-tight">
+            {section.title}
+          </h2>
+          <div className="flex flex-col gap-3">
             {section.items.map(item => (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`learn-card tone-${item.tone || 'info'} relative flex flex-col items-center text-center px-3 pt-5 pb-4`}
-                /* Inline gridColumn overrides .learn-card:last-child:nth-child(odd)
-                   auto-span, so we control which card spans the row */
-                style={{ gridColumn: item.featured ? '1 / -1' : 'auto' }}
+                className={`learn-card tone-${item.tone || 'info'} relative flex items-center text-left gap-4 px-4 py-4 w-full`}
               >
                 {item.step != null && (
                   <span
-                    className="absolute top-2 left-2 inline-flex items-center justify-center w-6 h-6 text-[11px] font-extrabold text-white shadow-sm"
+                    className="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 text-[11px] font-extrabold text-white shadow-sm"
                     style={{
                       borderRadius: '50%',
                       background: toneColor[item.tone] || toneColor.info,
@@ -125,20 +124,34 @@ export default function Learn() {
                     {item.step}
                   </span>
                 )}
-                <span className="text-[44px] leading-none mb-2" aria-hidden="true">
+                <span
+                  className="flex-shrink-0 inline-flex items-center justify-center w-14 h-14 rounded-2xl text-[32px] leading-none"
+                  style={{
+                    background: `color-mix(in srgb, ${toneColor[item.tone] || toneColor.info} 18%, transparent)`,
+                  }}
+                  aria-hidden="true"
+                >
                   {item.emoji}
                 </span>
+                <span className="flex-1 min-w-0 flex flex-col">
+                  <span
+                    className="text-[17px] font-bold leading-tight"
+                    style={{ color: toneColor[item.tone] || toneColor.info }}
+                  >
+                    {item.label}
+                  </span>
+                  <span className="text-[14px] font-semibold text-text-primary leading-tight mt-0.5">
+                    {item.subtitle}
+                  </span>
+                  <span className="text-[13px] text-text-muted leading-snug mt-1">
+                    {item.desc}
+                  </span>
+                </span>
                 <span
-                  className="text-[14px] font-bold leading-tight"
-                  style={{ color: toneColor[item.tone] || toneColor.info }}
+                  className="flex-shrink-0 text-text-muted text-[20px] leading-none"
+                  aria-hidden="true"
                 >
-                  {item.label}
-                </span>
-                <span className="text-[14px] font-semibold text-text-primary leading-tight mt-0.5">
-                  {item.subtitle}
-                </span>
-                <span className="text-[12px] text-text-muted leading-snug mt-1">
-                  {item.desc}
+                  ›
                 </span>
               </button>
             ))}
