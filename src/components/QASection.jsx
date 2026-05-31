@@ -101,17 +101,25 @@ function MarkdownImage({ src, alt }) {
 
 const mdComponents = {
   h1: ({ children }) => (
-    <h3 className="text-[21px] font-extrabold text-text-primary leading-snug mt-8 mb-3 first:mt-2">
+    <h3
+      className="text-[21px] font-extrabold text-text-primary leading-snug mt-8 mb-3 first:mt-2 pb-1.5"
+      style={{ borderBottom: '2px solid var(--color-border)' }}
+    >
       {children}
     </h3>
   ),
   h2: ({ children }) => (
-    <h4 className="text-[19px] font-extrabold text-text-primary leading-snug mt-8 mb-3 first:mt-2">
+    <h4 className="text-[19px] font-extrabold text-danger leading-snug mt-8 mb-3 first:mt-2 flex items-center gap-2">
+      <span
+        aria-hidden
+        className="inline-block shrink-0"
+        style={{ width: 4, height: 20, background: 'var(--color-danger)', borderRadius: 2 }}
+      />
       {children}
     </h4>
   ),
   h3: ({ children }) => (
-    <h5 className="text-[16.5px] font-bold text-text-primary leading-snug mt-6 mb-2.5 first:mt-2">
+    <h5 className="text-[16.5px] font-bold text-info leading-snug mt-6 mb-2.5 first:mt-2">
       {children}
     </h5>
   ),
@@ -124,13 +132,13 @@ const mdComponents = {
     </p>
   ),
   ul: ({ children }) => (
-    <ul className="list-disc pl-6 space-y-2 text-[15.5px] text-text-secondary mb-4 last:mb-0 marker:text-text-muted"
+    <ul className="list-disc pl-6 space-y-2 text-[15.5px] text-text-secondary mb-4 last:mb-0 marker:text-info"
       style={{ lineHeight: 1.85 }}>
       {children}
     </ul>
   ),
   ol: ({ children }) => (
-    <ol className="list-decimal pl-6 space-y-2 text-[15.5px] text-text-secondary mb-4 last:mb-0 marker:text-text-muted marker:font-bold"
+    <ol className="list-decimal pl-6 space-y-2 text-[15.5px] text-text-secondary mb-4 last:mb-0 marker:text-info marker:font-bold"
       style={{ lineHeight: 1.85 }}>
       {children}
     </ol>
