@@ -42,9 +42,9 @@ export default function Learn() {
         {
           title: t('learn_prepare', lang),
           items: [
+            { path: '/pre-course/pre-test',  emoji: '📝', label: t('pre_test',   lang), subtitle: 'Knowledge Check', desc: t('pre_test_desc', lang),   tone: 'purple', step: 1, featured: true },
             { path: '/pre-course',           emoji: '🎓', label: t('pre_course', lang), subtitle: 'บทเรียน + Quiz',  desc: t('pre_course_desc', lang), tone: 'info',   step: 2, featured: true },
-            { path: '/pre-course/pre-test',  emoji: '📝', label: t('pre_test',   lang), subtitle: 'Knowledge Check', desc: t('pre_test_desc', lang),   tone: 'purple', step: 1 },
-            { path: '/pre-course/post-test', emoji: '🏆', label: t('post_test',  lang), subtitle: 'Final Exam',      desc: t('post_test_desc', lang),  tone: 'shock',  step: 3 },
+            { path: '/pre-course/post-test', emoji: '🏆', label: t('post_test',  lang), subtitle: 'Final Exam',      desc: t('post_test_desc', lang),  tone: 'shock',  step: 3, featured: true },
           ],
         },
         {
