@@ -101,45 +101,37 @@ function MarkdownImage({ src, alt }) {
 
 const mdComponents = {
   h1: ({ children }) => (
-    <h3
-      className="text-[20px] font-extrabold text-text-primary leading-snug mt-5 mb-2.5 first:mt-1 pb-1.5"
-      style={{ borderBottom: '2px solid var(--color-border)' }}
-    >
+    <h3 className="text-[21px] font-extrabold text-text-primary leading-snug mt-8 mb-3 first:mt-2">
       {children}
     </h3>
   ),
   h2: ({ children }) => (
-    <h4 className="text-[17.5px] font-bold text-danger leading-snug mt-7 mb-3.5 first:mt-1 flex items-center gap-2">
-      <span
-        aria-hidden
-        className="inline-block shrink-0"
-        style={{ width: 4, height: 18, background: 'var(--color-danger)', borderRadius: 2 }}
-      />
+    <h4 className="text-[19px] font-extrabold text-text-primary leading-snug mt-8 mb-3 first:mt-2">
       {children}
     </h4>
   ),
   h3: ({ children }) => (
-    <h5 className="text-[16px] font-bold text-info leading-snug mt-5 mb-2.5 first:mt-1">
+    <h5 className="text-[16.5px] font-bold text-text-primary leading-snug mt-6 mb-2.5 first:mt-2">
       {children}
     </h5>
   ),
   p: ({ children }) => (
     <p
-      className="text-[15.5px] text-text-secondary mb-3.5 last:mb-0"
-      style={{ lineHeight: 1.85 }}
+      className="text-[15.5px] text-text-secondary mb-4 last:mb-0"
+      style={{ lineHeight: 1.9 }}
     >
       {children}
     </p>
   ),
   ul: ({ children }) => (
-    <ul className="list-disc pl-6 space-y-2 text-[15.5px] text-text-secondary mb-3.5 last:mb-0 marker:text-info"
-      style={{ lineHeight: 1.8 }}>
+    <ul className="list-disc pl-6 space-y-2 text-[15.5px] text-text-secondary mb-4 last:mb-0 marker:text-text-muted"
+      style={{ lineHeight: 1.85 }}>
       {children}
     </ul>
   ),
   ol: ({ children }) => (
-    <ol className="list-decimal pl-6 space-y-2 text-[15.5px] text-text-secondary mb-3.5 last:mb-0 marker:text-info marker:font-bold"
-      style={{ lineHeight: 1.8 }}>
+    <ol className="list-decimal pl-6 space-y-2 text-[15.5px] text-text-secondary mb-4 last:mb-0 marker:text-text-muted marker:font-bold"
+      style={{ lineHeight: 1.85 }}>
       {children}
     </ol>
   ),
@@ -238,7 +230,9 @@ function Figure({ img, fallbackAlt, rounded = 'var(--radius-sm)' }) {
   );
 }
 
-export default function QASection({ qa, startIndex = 0, showNumber = true, accent = null }) {
+export default function QASection({ qa, startIndex = 0, showNumber = true, accent = null, variant = 'card' }) {
+  const isArticle = variant === 'article';
+
   // When a chapter accent is supplied, theme the question header + badge to it;
   // otherwise fall back to the default info-blue (used on the ALS knowledge page).
   const badgeGradient = accent
@@ -253,6 +247,50 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
   const iconChip = accent
     ? { background: `color-mix(in srgb, ${accent} 15%, transparent)`, color: accent }
     : null;
+
+  // Article variant: no card chrome, no question header, no cover. The caller
+  // renders the breadcrumb/title/cover above; we just render the answer body
+  // and any infographics summary at the end.
+  if (isArticle) {
+    return (
+      <div className="space-y-8">
+        {qa.map((item, idx) => {
+          const num = startIndex + idx + 1;
+          const anchorId = `qa-${num}`;
+          return (
+            <article key={idx} id={anchorId} style={{ scrollMarginTop: 12 }}>
+              {item.a && (
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                  {normalizeAnswerMarkdown(item.a)}
+                </ReactMarkdown>
+              )}
+
+              {item.images?.length > 0 && (
+                <div className={item.a ? 'mt-8' : ''}>
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-text-muted shrink-0">
+                      <ImageIcon size={14} strokeWidth={2.4} />
+                      สรุปเป็นภาพ
+                    </span>
+                    <span className="flex-1 h-px bg-border" />
+                  </div>
+                  <div className="space-y-3">
+                    {item.images.map((img, j) => (
+                      <Figure key={j} img={img} fallbackAlt={item.q} />
+                    ))}
+                    <p className="flex items-center gap-1.5 text-[11.5px] text-text-muted">
+                      <Download size={12} strokeWidth={2.2} />
+                      กดค้างที่รูปเพื่อดาวน์โหลด
+                    </p>
+                  </div>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
