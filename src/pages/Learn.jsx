@@ -61,13 +61,13 @@ export default function Learn() {
           items: [
             { path: '/scenarios', emoji: '🎮', label: t('scenarios', lang), subtitle: 'Scenarios',     desc: t('scenarios_desc', lang), tone: 'warning' },
             { path: '/sim',       emoji: '🚨', label: t('code_sim', lang),  subtitle: 'Code Blue Sim', desc: t('code_sim_desc', lang),  tone: 'danger' },
-            { path: '/drill',     emoji: '⚡', label: t('drill', lang),     subtitle: 'Skill Drill',   desc: t('drill_desc', lang),     tone: 'shock' },
+            { path: '/drill',     emoji: '⚡', label: t('drill', lang),     subtitle: 'Skill Drill',   desc: t('drill_desc', lang),     tone: 'shock', featured: true },
           ],
         },
         {
           title: t('learn_progress', lang),
           items: [
-            { path: '/certification', emoji: '🏅', label: t('cert', lang), subtitle: 'My Records', desc: t('cert_desc', lang), tone: 'warning' },
+            { path: '/certification', emoji: '🏅', label: t('cert', lang), subtitle: 'My Records', desc: t('cert_desc', lang), tone: 'warning', featured: true },
           ],
         },
       ];
