@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, BookOpen, ChevronRight } from 'lucide-react';
+import { BookOpen, ChevronRight, Home } from 'lucide-react';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
@@ -55,70 +55,43 @@ export default function QAAclsDeepCategory() {
   const listBase = `/qa-acls-deep/${encodeURIComponent(chapterId)}`;
 
   return (
-    <div className="page-container space-y-5">
-      <div className="flex items-center gap-2">
-        <Link to="/qa-acls-deep" className="btn btn-ghost btn-sm">
-          <ArrowLeft size={14} strokeWidth={2.2} /> ทุกหมวด
+    <div className="page-container space-y-6">
+      {/* Breadcrumb */}
+      <nav
+        className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[12px] text-text-muted"
+        aria-label="เส้นทางหน้า"
+      >
+        <Link to="/qa-acls-deep" className="inline-flex items-center gap-1 hover:text-info">
+          <Home size={12} strokeWidth={2.4} />
+          หน้าแรก Q&A
         </Link>
-      </div>
+        <span className="text-text-muted/60">/</span>
+        <span className="text-text-secondary font-bold truncate max-w-[60vw]">
+          {num ? `บทที่ ${num}` : 'หมวด'}
+        </span>
+      </nav>
 
       <JiacprCourseBanner />
 
-      <header
-        className="relative overflow-hidden text-white"
-        style={{
-          borderRadius: 'var(--radius-3xl)',
-          background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
-          boxShadow: `0 1px 2px rgba(15, 26, 46, 0.04), 0 14px 30px -14px ${palette.accent}88`,
-        }}
-      >
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(circle at 26% 16%, rgba(255,255,255,0.30) 0%, transparent 56%)' }}
-        />
-        <div className="relative flex items-center gap-4 px-5 py-5">
-          <span
-            className="leading-none shrink-0"
-            style={{ fontSize: 52, filter: 'drop-shadow(0 6px 10px rgba(0, 0, 0, 0.28))' }}
-          >
-            {icon}
-          </span>
-          <div className="min-w-0 flex-1 space-y-1.5">
-            {num && (
-              <span
-                className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.22)',
-                  borderRadius: 999,
-                  border: '1px solid rgba(255, 255, 255, 0.32)',
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.25)',
-                }}
-              >
-                บทที่ {num}
-              </span>
-            )}
-            <h1
-              className="text-[20px] font-extrabold leading-tight"
-              style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.22)' }}
-            >
-              {name || ' '}
-            </h1>
-            <span
-              className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1"
-              style={{
-                background: 'rgba(255, 255, 255, 0.20)',
-                borderRadius: 999,
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-              }}
-            >
-              <BookOpen size={12} strokeWidth={2.4} />
-              {loading ? 'กำลังโหลด…' : `${categoryItems.length} คำถามในหมวดนี้`}
-            </span>
-          </div>
+      {/* Article-style header: chapter pill + page title */}
+      <header className="space-y-3">
+        <span
+          className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1"
+          style={{
+            background: `color-mix(in srgb, ${palette.accent} 12%, transparent)`,
+            color: palette.accent,
+            borderRadius: 999,
+          }}
+        >
+          <span className="text-[13px] leading-none">{icon}</span>
+          {num ? `บทที่ ${num}` : 'หมวดคำถาม'}
+        </span>
+        <h1 className="text-[24px] sm:text-[26px] font-extrabold text-text-primary leading-tight">
+          {name || ' '}
+        </h1>
+        <div className="flex items-center gap-1.5 text-[12px] text-text-muted">
+          <BookOpen size={12} strokeWidth={2.4} />
+          {loading ? 'กำลังโหลด…' : `${categoryItems.length} คำถามในหมวดนี้`}
         </div>
       </header>
 

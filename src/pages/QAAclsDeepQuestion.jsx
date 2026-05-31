@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Home } from 'lucide-react';
 import QASection from '../components/QASection';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
@@ -66,77 +66,34 @@ export default function QAAclsDeepQuestion() {
   const qa = item
     ? [{ q: item.question, a: item.answer, cover: item.cover ?? null, images: item.infographics ?? [] }]
     : [];
+  const chapterLabel = num ? `บทที่ ${num}: ${name}` : (name || 'หมวดคำถาม');
 
   return (
-    <div className="page-container space-y-5">
-      <div className="flex items-center gap-2">
-        <Link to={listHref} className="btn btn-ghost btn-sm">
-          <ArrowLeft size={14} strokeWidth={2.2} />
-          {name ? `ทุกคำถาม · ${name}` : 'ทุกคำถามในหมวด'}
+    <div className="page-container space-y-6">
+      {/* Breadcrumb */}
+      <nav
+        className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[12px] text-text-muted"
+        aria-label="เส้นทางหน้า"
+      >
+        <Link to="/qa-acls-deep" className="inline-flex items-center gap-1 hover:text-info">
+          <Home size={12} strokeWidth={2.4} />
+          หน้าแรก Q&A
         </Link>
-      </div>
+        <span className="text-text-muted/60">/</span>
+        <Link to={listHref} className="hover:text-info truncate max-w-[60vw]">
+          {chapterLabel}
+        </Link>
+        {item && (
+          <>
+            <span className="text-text-muted/60">/</span>
+            <span className="text-text-secondary font-bold">
+              คำถามที่ {idx + 1}
+            </span>
+          </>
+        )}
+      </nav>
 
       <JiacprCourseBanner />
-
-      <header
-        className="relative overflow-hidden text-white"
-        style={{
-          borderRadius: 'var(--radius-3xl)',
-          background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
-          boxShadow: `0 1px 2px rgba(15, 26, 46, 0.04), 0 14px 30px -14px ${palette.accent}88`,
-        }}
-      >
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(circle at 26% 16%, rgba(255,255,255,0.30) 0%, transparent 56%)' }}
-        />
-        <div className="relative flex items-center gap-4 px-5 py-5">
-          <span
-            className="leading-none shrink-0"
-            style={{ fontSize: 52, filter: 'drop-shadow(0 6px 10px rgba(0, 0, 0, 0.28))' }}
-          >
-            {icon}
-          </span>
-          <div className="min-w-0 flex-1 space-y-1.5">
-            {num && (
-              <span
-                className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.22)',
-                  borderRadius: 999,
-                  border: '1px solid rgba(255, 255, 255, 0.32)',
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.25)',
-                }}
-              >
-                บทที่ {num}
-              </span>
-            )}
-            <h1
-              className="text-[20px] font-extrabold leading-tight"
-              style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.22)' }}
-            >
-              {name || ' '}
-            </h1>
-            {!loading && total > 0 && (
-              <span
-                className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.20)',
-                  borderRadius: 999,
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                }}
-              >
-                <BookOpen size={12} strokeWidth={2.4} />
-                {item ? `คำถามที่ ${idx + 1} จาก ${total}` : `${total} คำถามในหมวดนี้`}
-              </span>
-            )}
-          </div>
-        </div>
-      </header>
 
       {loading ? (
         <div className="text-center text-caption text-text-muted py-8">กำลังโหลด…</div>
@@ -145,38 +102,100 @@ export default function QAAclsDeepQuestion() {
           <BookOpen size={28} strokeWidth={2.2} className="mx-auto text-text-muted" />
           <p className="text-caption text-text-muted">ไม่พบคำถามนี้ในหมวด</p>
           <Link to={listHref} className="btn btn-primary btn-sm">
-            <ArrowLeft size={14} strokeWidth={2.2} /> กลับไปรายการคำถาม
+            <ChevronLeft size={14} strokeWidth={2.2} /> กลับไปรายการคำถาม
           </Link>
         </div>
       ) : (
         <>
-          <QASection qa={qa} startIndex={idx} accent={palette.accent} />
+          {/* Article header: chapter pill + question as page title */}
+          <header className="space-y-3">
+            <Link
+              to={listHref}
+              className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 hover:opacity-85 transition-opacity"
+              style={{
+                background: `color-mix(in srgb, ${palette.accent} 12%, transparent)`,
+                color: palette.accent,
+                borderRadius: 999,
+              }}
+            >
+              <span className="text-[13px] leading-none">{icon}</span>
+              {chapterLabel}
+            </Link>
+            <h1 className="text-[24px] sm:text-[26px] font-extrabold text-text-primary leading-tight">
+              {item.q}
+            </h1>
+            <div className="flex items-center gap-1.5 text-[12px] text-text-muted">
+              <BookOpen size={12} strokeWidth={2.4} />
+              คำถามที่ {idx + 1} จาก {total}
+            </div>
+          </header>
 
-          <nav className="flex items-center justify-between gap-2" aria-label="คำถามก่อนหน้า/ถัดไป">
-            {idx > 0 ? (
-              <Link to={`${listHref}/${idx}`} className="btn btn-outline btn-sm">
-                <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
-              </Link>
-            ) : (
-              <span className="btn btn-outline btn-sm invisible pointer-events-none" aria-hidden>
-                <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
+          {/* Cover image (rounded, full-width) */}
+          {item.cover && (
+            <figure className="m-0">
+              <img
+                src={item.cover.src}
+                alt={item.cover.alt || item.question}
+                loading="eager"
+                className="w-full h-auto block"
+                style={{ borderRadius: 'var(--radius-2xl)' }}
+              />
+              {item.cover.caption && (
+                <figcaption className="text-[12px] text-text-muted italic mt-2 px-1 leading-relaxed">
+                  {item.cover.caption}
+                </figcaption>
+              )}
+            </figure>
+          )}
+
+          {/* Article body — pass cover=null so QASection doesn't render it again */}
+          <QASection
+            qa={[{ ...qa[0], cover: null }]}
+            startIndex={idx}
+            accent={palette.accent}
+            variant="article"
+          />
+
+          {/* Footer: back to category + prev/next */}
+          <div
+            className="mt-2 pt-5 space-y-4"
+            style={{ borderTop: '1px solid var(--color-border)' }}
+          >
+            <Link
+              to={listHref}
+              className="inline-flex items-center gap-1.5 text-[13px] font-bold hover:opacity-80"
+              style={{ color: palette.accent }}
+            >
+              <ChevronLeft size={14} strokeWidth={2.4} />
+              กลับไปดูคำถามทั้งหมดในหมวด
+            </Link>
+
+            <nav className="flex items-center justify-between gap-2" aria-label="คำถามก่อนหน้า/ถัดไป">
+              {idx > 0 ? (
+                <Link to={`${listHref}/${idx}`} className="btn btn-outline btn-sm">
+                  <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
+                </Link>
+              ) : (
+                <span className="btn btn-outline btn-sm invisible pointer-events-none" aria-hidden>
+                  <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
+                </span>
+              )}
+
+              <span className="text-caption text-text-muted font-bold shrink-0">
+                {idx + 1} / {total}
               </span>
-            )}
 
-            <span className="text-caption text-text-muted font-bold shrink-0">
-              {idx + 1} / {total}
-            </span>
-
-            {idx < total - 1 ? (
-              <Link to={`${listHref}/${idx + 2}`} className="btn btn-outline btn-sm">
-                ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
-              </Link>
-            ) : (
-              <span className="btn btn-outline btn-sm invisible pointer-events-none" aria-hidden>
-                ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
-              </span>
-            )}
-          </nav>
+              {idx < total - 1 ? (
+                <Link to={`${listHref}/${idx + 2}`} className="btn btn-outline btn-sm">
+                  ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
+                </Link>
+              ) : (
+                <span className="btn btn-outline btn-sm invisible pointer-events-none" aria-hidden>
+                  ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
+                </span>
+              )}
+            </nav>
+          </div>
         </>
       )}
     </div>
