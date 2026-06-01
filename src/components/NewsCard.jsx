@@ -13,10 +13,22 @@ export default function NewsCard() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchNews({ limit: 1, maxAgeDays: MAX_AGE_DAYS }).then(rows => {
-      if (!cancelled) setItem(rows[0] || null);
-    });
-    return () => { cancelled = true; };
+    const load = () => {
+      fetchNews({ limit: 1, maxAgeDays: MAX_AGE_DAYS, freshOnly: true }).then(rows => {
+        if (!cancelled) setItem(rows[0] || null);
+      });
+    };
+    load();
+    // Refetch when the user comes back to the tab/app so a long-lived session
+    // doesn't keep showing a snapshot from when it was first opened.
+    const onVisible = () => { if (document.visibilityState === 'visible') load(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', load);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', load);
+    };
   }, []);
 
   if (!item) return null;
