@@ -6,15 +6,28 @@ export const config = { maxDuration: 300 };
 
 const MODEL = 'claude-sonnet-4-6';
 const MAX_ITEMS_PER_RUN = 6;
+// A fresh news item must be published within this many days. Anything older is
+// treated as "evergreen" reference material (guidelines, landmark research).
+const FRESH_MAX_DAYS = 21;
+// Evergreen reference is valuable but must never dominate the feed, otherwise the
+// top of the (published_at-sorted) feed stops advancing and looks stale. Allow at
+// most this many evergreen items per run; the rest of each run must be fresh news.
+const MAX_EVERGREEN_PER_RUN = 1;
 
 const SYSTEM_PROMPT = `You curate a daily medical news feed for two Thai e-learning sites:
 - acls.morroo.com (ACLS — Advanced Cardiac Life Support, ILCOR 2025)
 - bls.morroo.com (BLS — Basic Life Support, CPR, AED)
 
-Use the web_search tool to find RECENT news (prefer past 7 days, never older than 60 days)
-that is clinically or educationally relevant to ACLS / BLS / CPR / cardiac arrest /
-post-resuscitation care / AED / public access defibrillation / Thai EMS / 1669 /
-out-of-hospital cardiac arrest / resuscitation guidelines / hypothermia / ROSC.
+Use the web_search tool to find RECENT news (prefer past 7 days, and for fresh news
+NEVER older than ${FRESH_MAX_DAYS} days) that is clinically or educationally relevant
+to ACLS / BLS / CPR / cardiac arrest / post-resuscitation care / AED / public access
+defibrillation / Thai EMS / 1669 / out-of-hospital cardiac arrest / resuscitation
+guidelines / hypothermia / ROSC.
+
+The feed is sorted by publication date, so this run's value is the FRESH news it adds.
+The overwhelming majority of items you return MUST be genuine news published within the
+last ${FRESH_MAX_DAYS} days. Re-running the same evergreen guideline/research explainers
+every day makes the feed look frozen — do not do it.
 
 Search strategy:
 1. First search Thai-language sources (เช่น hfocus.org, thairath.co.th, hospital sites,
@@ -33,6 +46,12 @@ Search strategy:
 Balance: aim for a healthy mix — at least 2 of the items should be relevant to ACLS
 learners (course 'acls' or 'both'). Prefer the freshest items; do not pad the list with
 months-old guideline explainers when recent news exists.
+
+Evergreen reference material (major guideline updates like AHA/ERC/ILCOR, landmark
+trials such as TTM) is allowed but limited: include AT MOST 1 evergreen item, and only
+if it is genuinely important and not already a tired re-run. Mark such an item with
+"is_evergreen": true. Every other item must be fresh news (is_evergreen false). If you
+cannot find fresh news, return fewer items rather than padding with old reference pieces.
 
 Quality bar:
 - Skip ads, press releases with no news value, opinion pieces, listicles.
@@ -58,10 +77,13 @@ For EACH item produce:
              choose 'both'. Most "หัวใจหยุดเต้น / ช่วยชีวิต" news stories are 'both', not 'bls'.
 - topics: 1-4 short Thai tags e.g. ["AED", "CPR", "หัวใจหยุดเต้น"]
 - published_at: ISO 8601 date of publication (from the article)
+- is_evergreen: true ONLY for a major guideline/landmark-research reference that is
+  intentionally older than ${FRESH_MAX_DAYS} days; false for genuine fresh news
 
 Return strictly this JSON shape, no prose:
 {"items": [ { "title":"...", "summary":"...", "source_url":"...", "source_name":"...",
-  "language":"th|en", "course":"acls|bls|both", "topics":["..."], "published_at":"YYYY-MM-DD" } ]}
+  "language":"th|en", "course":"acls|bls|both", "topics":["..."], "published_at":"YYYY-MM-DD",
+  "is_evergreen": false } ]}
 
 Aim for ${MAX_ITEMS_PER_RUN} items. If you genuinely cannot find that many recent
 relevant items, return fewer — never invent.`;
@@ -123,10 +145,14 @@ export default async function handler(req, res) {
     return res.status(502).json({ error: 'no items parsed', raw: lastText.slice(0, 500) });
   }
 
-  const rows = items
-    .map(normalizeItem)
-    .filter(Boolean)
-    .slice(0, MAX_ITEMS_PER_RUN);
+  const normalized = items.map(normalizeItem).filter(Boolean);
+
+  // Keep all fresh items, but cap evergreen reference so a run can never be mostly
+  // old-dated material (which would leave the feed looking stale). Fresh items keep
+  // their natural order (already published_at-desc-ish from the model).
+  const freshItems = normalized.filter(r => !r.is_evergreen);
+  const evergreenItems = normalized.filter(r => r.is_evergreen).slice(0, MAX_EVERGREEN_PER_RUN);
+  const rows = [...freshItems, ...evergreenItems].slice(0, MAX_ITEMS_PER_RUN);
 
   if (!rows.length) {
     return res.status(200).json({ inserted: 0, parsed: items.length });
@@ -139,18 +165,18 @@ export default async function handler(req, res) {
     .select('source_url')
     .in('source_url', urls);
   const existingSet = new Set((existing || []).map(e => e.source_url));
-  const fresh = rows.filter(r => !r.source_url || !existingSet.has(r.source_url));
+  const toInsert = rows.filter(r => !r.source_url || !existingSet.has(r.source_url));
 
-  if (!fresh.length) {
+  if (!toInsert.length) {
     return res.status(200).json({ inserted: 0, skipped: rows.length, reason: 'all duplicates' });
   }
 
   const { data: inserted, error } = await supabase
     .from('news')
-    .insert(fresh)
+    .insert(toInsert)
     .select('id, title, summary, source_url, course, language');
   if (error) {
-    return res.status(500).json({ error: error.message, attempted: fresh.length });
+    return res.status(500).json({ error: error.message, attempted: toInsert.length });
   }
 
   // Broadcast push notification for the first (most relevant) item.
@@ -166,7 +192,8 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     inserted: inserted.length,
-    deduped: rows.length - fresh.length,
+    deduped: rows.length - toInsert.length,
+    evergreen: evergreenItems.length,
     items: inserted.map(({ summary, source_url, ...rest }) => rest),
     push: pushResult,
   });
@@ -213,6 +240,14 @@ function normalizeItem(it) {
     const d = new Date(it.published_at);
     if (!Number.isNaN(d.getTime())) published_at = d.toISOString();
   }
+  const publishedIso = published_at || new Date().toISOString();
+
+  // An item is evergreen if the model flagged it, OR if its publication date is
+  // already older than the fresh window — this stops old-dated reference pieces
+  // from sneaking in disguised as fresh news.
+  const ageMs = Date.now() - new Date(publishedIso).getTime();
+  const tooOldToBeFresh = ageMs > FRESH_MAX_DAYS * 24 * 60 * 60 * 1000;
+  const is_evergreen = it.is_evergreen === true || tooOldToBeFresh;
 
   return {
     title,
@@ -222,6 +257,7 @@ function normalizeItem(it) {
     language,
     course,
     topics,
-    published_at: published_at || new Date().toISOString(),
+    published_at: publishedIso,
+    is_evergreen,
   };
 }

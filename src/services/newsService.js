@@ -3,10 +3,10 @@ import { IS_BLS } from '../config/courseMode';
 
 const COURSE_FILTER = IS_BLS ? ['bls', 'both'] : ['acls', 'both'];
 
-export async function fetchNews({ limit = 5, course = null, search = null, maxAgeDays = null } = {}) {
+export async function fetchNews({ limit = 5, course = null, search = null, maxAgeDays = null, freshOnly = false } = {}) {
   let q = supabase
     .from('news')
-    .select('id, title, summary, source_url, source_name, language, course, topics, published_at')
+    .select('id, title, summary, source_url, source_name, language, course, topics, published_at, is_evergreen')
     .eq('is_active', true)
     .order('published_at', { ascending: false })
     .limit(limit);
@@ -15,6 +15,12 @@ export async function fetchNews({ limit = 5, course = null, search = null, maxAg
     q = q.eq('course', course);
   } else {
     q = q.in('course', COURSE_FILTER);
+  }
+
+  // Exclude evergreen reference (guidelines, landmark research) — used by the
+  // homepage card so it always surfaces genuine fresh news, never an old paper.
+  if (freshOnly) {
+    q = q.eq('is_evergreen', false);
   }
 
   // Hide stale items — used by the compact NewsCard so the homepage never

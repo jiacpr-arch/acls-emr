@@ -31,11 +31,25 @@ export default function NewsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setItems(null);
-    fetchNews({ limit: 50, course: filter, search: debouncedSearch || null }).then(rows => {
-      if (!cancelled) setItems(rows);
-    });
-    return () => { cancelled = true; };
+    const load = (showLoading = false) => {
+      if (showLoading) setItems(null);
+      fetchNews({ limit: 50, course: filter, search: debouncedSearch || null }).then(rows => {
+        if (!cancelled) setItems(rows);
+      });
+    };
+    // Show the loading skeleton on filter/search change; silent on background refresh.
+    load(true);
+    // Refresh silently when the user returns to the tab so the feed reflects the
+    // latest daily fetch without a full reload.
+    const onVisible = () => { if (document.visibilityState === 'visible') load(); };
+    const onFocus = () => load();
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [filter, debouncedSearch]);
 
   const grouped = useMemo(() => groupByDate(items || []), [items]);
@@ -153,22 +167,39 @@ function NewsItem({ item }) {
   );
 }
 
+// Fixed display order: fresh news bucketed by date first, then evergreen
+// reference material (guidelines / landmark research) always last so it never
+// buries genuinely fresh news.
+const GROUP_ORDER = ['today', 'yesterday', 'week', 'month', 'older', 'reference'];
+const GROUP_LABEL = {
+  today: 'วันนี้',
+  yesterday: 'เมื่อวาน',
+  week: 'สัปดาห์นี้',
+  month: 'เดือนนี้',
+  older: 'ก่อนหน้านี้',
+  reference: 'อ้างอิง / ไกด์ไลน์สำคัญ',
+};
+
 function groupByDate(items) {
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const groups = new Map();
   for (const item of items) {
-    const d = new Date(item.published_at);
-    d.setHours(0, 0, 0, 0);
-    const diffDays = Math.floor((today - d) / (1000 * 60 * 60 * 24));
-    let key, label;
-    if (diffDays <= 0) { key = 'today'; label = 'วันนี้'; }
-    else if (diffDays === 1) { key = 'yesterday'; label = 'เมื่อวาน'; }
-    else if (diffDays < 7) { key = 'week'; label = 'สัปดาห์นี้'; }
-    else if (diffDays < 30) { key = 'month'; label = 'เดือนนี้'; }
-    else { key = 'older'; label = 'ก่อนหน้านี้'; }
+    let key;
+    if (item.is_evergreen) {
+      key = 'reference';
+    } else {
+      const d = new Date(item.published_at);
+      d.setHours(0, 0, 0, 0);
+      const diffDays = Math.floor((today - d) / (1000 * 60 * 60 * 24));
+      if (diffDays <= 0) key = 'today';
+      else if (diffDays === 1) key = 'yesterday';
+      else if (diffDays < 7) key = 'week';
+      else if (diffDays < 30) key = 'month';
+      else key = 'older';
+    }
 
-    if (!groups.has(key)) groups.set(key, { key, label, items: [] });
+    if (!groups.has(key)) groups.set(key, { key, label: GROUP_LABEL[key], items: [] });
     groups.get(key).items.push(item);
   }
-  return Array.from(groups.values());
+  return GROUP_ORDER.filter(k => groups.has(k)).map(k => groups.get(k));
 }
