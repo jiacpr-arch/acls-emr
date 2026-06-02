@@ -43,9 +43,13 @@ Search strategy:
 3. If you find fewer than ${MAX_ITEMS_PER_RUN} good Thai items, supplement with English
    sources (AHA, ERC, Resuscitation journal, NEJM, JAMA, BMJ, Reuters Health).
 
-Balance: aim for a healthy mix — at least 2 of the items should be relevant to ACLS
-learners (course 'acls' or 'both'). Prefer the freshest items; do not pad the list with
-months-old guideline explainers when recent news exists.
+Balance: every run MUST include at least 2 FRESH (non-evergreen, within ${FRESH_MAX_DAYS}
+days) items that are visible to ACLS learners (course 'acls' or 'both'). Run the ACLS /
+advanced-care searches in step 2 BEFORE you finalize the list, so clinical items are not
+crowded out by the item budget. The ACLS feed only shows 'acls' + 'both' items, so if a run
+returns only 'bls' items the ACLS site looks frozen — that is the failure mode to avoid.
+Prefer the freshest items; do not pad the list with months-old guideline explainers when
+recent news exists.
 
 Evergreen reference material (major guideline updates like AHA/ERC/ILCOR, landmark
 trials such as TTM) is allowed but limited: include AT MOST 1 evergreen item, and only
@@ -67,14 +71,20 @@ For EACH item produce:
 - source_name: short publisher name e.g. "Hfocus", "AHA", "Reuters"
 - language: 'th' if source is Thai, 'en' otherwise
 - course: choose carefully — this decides which site(s) the item appears on.
-    'bls'  = ONLY pure lay-rescuer / community / basic content: public CPR-AED training drives,
-             "how to do CPR" explainers for the general public, school/workplace courses.
+    'bls'  = ONLY purely LOCAL lay-rescuer / community basics with no clinical or
+             professional-body angle: a specific school / workplace / police / single-hospital
+             CPR drill or staff training session, a local "how to do CPR" explainer for the
+             general public.
     'acls' = clearly advanced/clinical only: algorithms, drugs, arrhythmia management, ACS/STEMI,
              post-arrest/ICU/critical care, defibrillation strategy aimed at clinicians.
     'both' = DEFAULT for any real clinical resuscitation event or news — a cardiac-arrest
              rescue/CPR save (in hospital or out), OHCA, ROSC, AED used on a real patient,
-             resuscitation research, or guideline updates. When unsure between bls and acls,
-             choose 'both'. Most "หัวใจหยุดเต้น / ช่วยชีวิต" news stories are 'both', not 'bls'.
+             resuscitation research, or guideline updates. ALSO use 'both' for any CPR / AED
+             awareness campaign, survey, statement, or guidance from a medical authority or
+             professional body (AHA, ERC, ILCOR, Red Cross, สพฉ./1669 national programs,
+             สมาคมแพทย์ / ราชวิทยาลัย) — these matter to ACLS learners too, not just lay rescuers.
+             When unsure between bls and acls, choose 'both'. Most "หัวใจหยุดเต้น / ช่วยชีวิต"
+             news stories are 'both', not 'bls'.
 - topics: 1-4 short Thai tags e.g. ["AED", "CPR", "หัวใจหยุดเต้น"]
 - published_at: ISO 8601 date of publication (from the article)
 - is_evergreen: true ONLY for a major guideline/landmark-research reference that is
@@ -190,10 +200,15 @@ export default async function handler(req, res) {
     }
   }
 
+  // How many inserted items are visible to the ACLS feed ('acls' or 'both'). The ACLS
+  // site looks stale when this is 0, so surface it for monitoring the balance requirement.
+  const aclsVisible = inserted.filter(r => r.course === 'acls' || r.course === 'both').length;
+
   return res.status(200).json({
     inserted: inserted.length,
     deduped: rows.length - toInsert.length,
     evergreen: evergreenItems.length,
+    aclsVisible,
     items: inserted.map(({ summary, source_url, ...rest }) => rest),
     push: pushResult,
   });
