@@ -12,7 +12,15 @@ const FRESH_MAX_DAYS = 21;
 // Evergreen reference is valuable but must never dominate the feed, otherwise the
 // top of the (published_at-sorted) feed stops advancing and looks stale. Allow at
 // most this many evergreen items per run; the rest of each run must be fresh news.
+// Hard rule: if a run already has fewer than MIN_FRESH_PER_RUN fresh items, the
+// evergreen cap drops to 0 so the feed never accumulates an evergreen majority.
 const MAX_EVERGREEN_PER_RUN = 1;
+const MIN_FRESH_PER_RUN = 3;
+// Cron now fires 3x/day. The previous 20h dedupe window was sized for a single
+// daily run with one sibling project — at 3x/day it would suppress every later run.
+// Use a window smaller than the cron interval so each scheduled tick gets a real
+// chance to fetch, but still big enough to dedupe the simultaneous sibling project.
+const IDEMPOTENCY_WINDOW_HOURS = 5;
 
 const SYSTEM_PROMPT = `You curate a daily medical news feed for two Thai e-learning sites:
 - acls.morroo.com (ACLS — Advanced Cardiac Life Support, ILCOR 2025)
@@ -120,52 +128,59 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
   }
 
-  // Idempotent: if we already inserted >=3 items in the past 20h, skip.
-  // (Two Vercel projects share one DB, so both crons would otherwise double-insert.)
+  // Idempotent: skip if a sibling cron already filled this window with fresh news.
+  // Two Vercel projects (acls + bls) deploy from the same repo and fire simultaneously;
+  // the first to insert wins, the second skips. Only fresh items count toward the
+  // threshold so a window stuffed with evergreen doesn't suppress a real news pull.
   const supabase = getSupabaseAdmin();
-  const since = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
-  const { count: recentCount } = await supabase
+  const since = new Date(Date.now() - IDEMPOTENCY_WINDOW_HOURS * 60 * 60 * 1000).toISOString();
+  const { count: recentFreshCount } = await supabase
     .from('news')
     .select('id', { count: 'exact', head: true })
-    .gte('fetched_at', since);
-  if ((recentCount || 0) >= 3 && req.method === 'GET') {
-    return res.status(200).json({ skipped: true, recentCount });
+    .gte('fetched_at', since)
+    .eq('is_evergreen', false);
+  if ((recentFreshCount || 0) >= MIN_FRESH_PER_RUN && req.method === 'GET') {
+    return res.status(200).json({ skipped: true, recentFreshCount });
   }
 
   const client = new Anthropic({ apiKey });
 
-  let response;
+  let normalized;
   try {
-    response = await client.messages.create({
-      model: MODEL,
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 10 }],
-      messages: [{ role: 'user', content: USER_PROMPT }],
-    });
+    normalized = await runCuration(client, SYSTEM_PROMPT, USER_PROMPT);
   } catch (err) {
     return res.status(502).json({ error: 'anthropic call failed', detail: String(err?.message || err) });
   }
-
-  // Final assistant turn = last text block
-  const textBlocks = response.content.filter(b => b.type === 'text');
-  const lastText = textBlocks[textBlocks.length - 1]?.text || '';
-  const items = extractItems(lastText);
-  if (!items.length) {
-    return res.status(502).json({ error: 'no items parsed', raw: lastText.slice(0, 500) });
+  if (!normalized) {
+    return res.status(502).json({ error: 'no items parsed (initial)' });
   }
 
-  const normalized = items.map(normalizeItem).filter(Boolean);
+  // If the initial run came back fresh-thin, retry once with a Thai-only,
+  // last-7-days, no-evergreen prompt. The retry runs against different
+  // search hints so it isn't just re-rolling the same queries.
+  let retryFresh = 0;
+  if (normalized.filter(r => !r.is_evergreen).length < MIN_FRESH_PER_RUN) {
+    try {
+      const retry = await runCuration(client, RETRY_SYSTEM_PROMPT, RETRY_USER_PROMPT);
+      if (retry && retry.length) {
+        retryFresh = retry.filter(r => !r.is_evergreen).length;
+        normalized = mergeUnique(normalized, retry);
+      }
+    } catch {
+      // Retry is best-effort; fall through with what we have.
+    }
+  }
 
-  // Keep all fresh items, but cap evergreen reference so a run can never be mostly
-  // old-dated material (which would leave the feed looking stale). Fresh items keep
-  // their natural order (already published_at-desc-ish from the model).
+  // Keep all fresh items. Evergreen is capped — and when this run is already short
+  // on fresh news, evergreen is forbidden entirely so the feed never tilts toward
+  // old reference material.
   const freshItems = normalized.filter(r => !r.is_evergreen);
-  const evergreenItems = normalized.filter(r => r.is_evergreen).slice(0, MAX_EVERGREEN_PER_RUN);
+  const evergreenAllowed = freshItems.length >= MIN_FRESH_PER_RUN ? MAX_EVERGREEN_PER_RUN : 0;
+  const evergreenItems = normalized.filter(r => r.is_evergreen).slice(0, evergreenAllowed);
   const rows = [...freshItems, ...evergreenItems].slice(0, MAX_ITEMS_PER_RUN);
 
   if (!rows.length) {
-    return res.status(200).json({ inserted: 0, parsed: items.length });
+    return res.status(200).json({ inserted: 0, parsed: normalized.length });
   }
 
   // De-dupe against existing source_url
@@ -209,10 +224,63 @@ export default async function handler(req, res) {
     deduped: rows.length - toInsert.length,
     evergreen: evergreenItems.length,
     aclsVisible,
+    retryFresh,
     items: inserted.map(({ summary, source_url, ...rest }) => rest),
     push: pushResult,
   });
 }
+
+async function runCuration(client, systemPrompt, userPrompt) {
+  const response = await client.messages.create({
+    model: MODEL,
+    max_tokens: 4096,
+    system: systemPrompt,
+    tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 10 }],
+    messages: [{ role: 'user', content: userPrompt }],
+  });
+  const textBlocks = response.content.filter(b => b.type === 'text');
+  const lastText = textBlocks[textBlocks.length - 1]?.text || '';
+  const items = extractItems(lastText);
+  if (!items.length) return null;
+  return items.map(normalizeItem).filter(Boolean);
+}
+
+function mergeUnique(a, b) {
+  const seen = new Set(a.map(r => r.source_url).filter(Boolean));
+  const out = [...a];
+  for (const r of b) {
+    if (r.source_url && seen.has(r.source_url)) continue;
+    if (r.source_url) seen.add(r.source_url);
+    out.push(r);
+  }
+  return out;
+}
+
+const RETRY_SYSTEM_PROMPT = `The previous curation pass produced too few fresh items for the Thai
+ACLS/BLS news feed. Run a focused retry that ONLY adds genuine fresh news,
+no evergreen reference.
+
+Hard rules:
+- Every item MUST be published within the last 7 days (published_at within the last week).
+- NO guideline summaries, NO landmark trials, NO "is_evergreen": true — set is_evergreen
+  to false on every item, and skip anything older than 7 days entirely.
+- Prefer Thai-language sources this time: Hfocus, Thai PBS, Thairath, Bangkok Post Thai,
+  MGR Online สุขภาพ, Sanook Health, Komchadluek, สพฉ./1669, Department of Disease Control,
+  ราชวิทยาลัยอายุรแพทย์, สมาคมโรคหัวใจ, hospital press rooms, university medical schools.
+- Run varied queries beyond the obvious: "ฮีโร่ ปั๊มหัวใจ", "CPR ช่วยชีวิต ล่าสุด",
+  "AED สนามบิน", "หัวใจวาย ดารา", "ผู้ป่วยฉุกเฉิน 1669", "สพฉ. ข่าว",
+  "ราชวิทยาลัยอายุรแพทย์ แถลง", "โรงพยาบาล กู้ชีพ", news from this week on Thai EMS.
+- Tag course conservatively: most real rescue/CPR stories are 'both', not 'bls'.
+
+Return the same JSON shape as the system prompt requires:
+{"items": [ { "title", "summary", "source_url", "source_name",
+  "language", "course", "topics", "published_at", "is_evergreen": false } ]}
+
+Aim for ${MIN_FRESH_PER_RUN}-${MAX_ITEMS_PER_RUN} items. Return fewer rather than padding.
+Do NOT repeat URLs from the prior pass.`;
+
+const RETRY_USER_PROMPT = `รอบแรกได้ข่าวสดไม่พอ ค้นใหม่เฉพาะข่าวสด 7 วันล่าสุด ห้ามใส่ evergreen
+ตอบ JSON อย่างเดียว`;
 
 function extractItems(text) {
   if (!text) return [];
