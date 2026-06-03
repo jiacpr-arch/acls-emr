@@ -4,6 +4,8 @@
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "crons": [
-    { "path": "/api/news/fetch-daily", "schedule": "0 22 * * *" }
+    { "path": "/api/news/fetch-daily", "schedule": "0 22 * * *" },
+    { "path": "/api/news/fetch-daily", "schedule": "0 4 * * *" },
+    { "path": "/api/news/fetch-daily", "schedule": "0 11 * * *" }
   ]
 }
