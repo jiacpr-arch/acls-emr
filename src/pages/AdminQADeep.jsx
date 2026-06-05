@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   LogOut, Plus, Shield, ExternalLink, ChevronDown, Filter, MessageCircleQuestion, Sparkles,
+  FilePlus2, ListChecks,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 import {
@@ -60,6 +61,18 @@ export default function AdminQADeep() {
     if (filter === UNCATEGORIZED_FILTER) return items.filter(i => !i.chapter_id);
     return items.filter(i => i.chapter_id === filter);
   }, [items, filter]);
+
+  // Drafts = newly added items whose question is still empty → shown in the
+  // "add new" section at the top so they can be filled in without scrolling.
+  // Posted = items that already have a question.
+  const draftItems = useMemo(
+    () => filteredItems.filter(i => !(i.question || '').trim()),
+    [filteredItems],
+  );
+  const postedItems = useMemo(
+    () => filteredItems.filter(i => (i.question || '').trim()),
+    [filteredItems],
+  );
 
   const handleLogout = async () => {
     await signOut();
@@ -179,31 +192,6 @@ export default function AdminQADeep() {
           <ChevronDown size={14} strokeWidth={2.2}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
         </div>
-
-        {filter === ALL_FILTER && (
-          <label className="block">
-            <span className="text-caption font-bold text-text-secondary mb-1 block">
-              หมวดสำหรับ Q&A ที่จะเพิ่มใหม่ <span className="text-text-muted font-normal">(เลือกก่อนกด “เพิ่ม Q&A”)</span>
-            </span>
-            <div className="relative">
-              <select
-                value={newItemChapter}
-                onChange={(e) => setNewItemChapter(e.target.value)}
-                className="w-full pl-3 pr-10 py-2 bg-bg-secondary border border-border text-caption text-text-primary focus:outline-none focus:border-info appearance-none"
-                style={{ borderRadius: 'var(--radius-sm)' }}
-              >
-                <option value="">— ยังไม่จัดหมวด —</option>
-                {chapters.map(c => (
-                  <option key={c.id} value={c.id}>
-                    {c.icon ? `${c.icon} ` : ''}{c.title}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={14} strokeWidth={2.2}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
-            </div>
-          </label>
-        )}
       </div>
 
       {counts.uncategorized > 0 && (
@@ -229,41 +217,98 @@ export default function AdminQADeep() {
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-body-strong text-text-primary">
-          รายการ Q&A ({filteredItems.length})
-        </h2>
-        <button
-          onClick={handleAdd}
-          disabled={creating}
-          className="btn btn-primary btn-sm disabled:opacity-50"
-        >
-          <Plus size={14} strokeWidth={2.2} />
-          {creating ? 'กำลังเพิ่ม…' : 'เพิ่ม Q&A'}
-        </button>
+      {/* ───── ส่วนที่ 1: เพิ่มคำถามใหม่ (อยู่บนสุด ไม่ต้องเลื่อนลงล่าง) ───── */}
+      <div className="dash-card space-y-3" style={{ borderColor: 'var(--color-info)' }}>
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-overline text-info inline-flex items-center gap-1.5">
+            <FilePlus2 size={12} strokeWidth={2.2} /> เพิ่มคำถามใหม่
+          </div>
+          <button
+            onClick={handleAdd}
+            disabled={creating}
+            className="btn btn-primary btn-sm disabled:opacity-50"
+          >
+            <Plus size={14} strokeWidth={2.2} />
+            {creating ? 'กำลังเพิ่ม…' : 'เพิ่ม Q&A'}
+          </button>
+        </div>
+
+        {filter === ALL_FILTER && (
+          <label className="block">
+            <span className="text-caption font-bold text-text-secondary mb-1 block">
+              หมวดสำหรับ Q&A ที่จะเพิ่มใหม่ <span className="text-text-muted font-normal">(เลือกก่อนกด “เพิ่ม Q&A”)</span>
+            </span>
+            <div className="relative">
+              <select
+                value={newItemChapter}
+                onChange={(e) => setNewItemChapter(e.target.value)}
+                className="w-full pl-3 pr-10 py-2 bg-bg-secondary border border-border text-caption text-text-primary focus:outline-none focus:border-info appearance-none"
+                style={{ borderRadius: 'var(--radius-sm)' }}
+              >
+                <option value="">— ยังไม่จัดหมวด —</option>
+                {chapters.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.icon ? `${c.icon} ` : ''}{c.title}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={14} strokeWidth={2.2}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+            </div>
+          </label>
+        )}
+
+        {draftItems.length > 0 ? (
+          <div className="space-y-3">
+            <p className="text-[11px] text-text-muted">
+              ฉบับร่างที่ยังไม่ได้กรอกคำถาม — กรอกคำถาม–คำตอบแล้วกด “บันทึก” รายการจะย้ายไปอยู่ใน “โพสต์ไปแล้ว”
+            </p>
+            {draftItems.map(item => (
+              <QADeepItemEditor
+                key={item.id}
+                item={item}
+                allItems={items}
+                chapters={chapters}
+                onChange={load}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-[11px] text-text-muted">
+            กด “เพิ่ม Q&A” เพื่อสร้างคำถามใหม่ — รายการใหม่จะปรากฏที่นี่ให้กรอกทันที (ไม่ต้องเลื่อนลงไปล่างสุด)
+          </p>
+        )}
       </div>
 
-      {loading ? (
-        <div className="text-center text-caption text-text-muted py-8">กำลังโหลด…</div>
-      ) : filteredItems.length === 0 ? (
-        <div className="dash-card text-center text-caption text-text-muted py-6">
-          {filter === ALL_FILTER
-            ? 'ยังไม่มี Q&A — กด “เพิ่ม Q&A” เพื่อสร้างรายการแรก'
-            : 'ยังไม่มี Q&A ในหมวดนี้'}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredItems.map(item => (
-            <QADeepItemEditor
-              key={item.id}
-              item={item}
-              allItems={items}
-              chapters={chapters}
-              onChange={load}
-            />
-          ))}
-        </div>
-      )}
+      {/* ───── ส่วนที่ 2: ที่โพสต์ไปแล้ว ───── */}
+      <div className="space-y-3">
+        <h2 className="text-body-strong text-text-primary inline-flex items-center gap-1.5">
+          <ListChecks size={16} strokeWidth={2.2} className="text-text-muted" />
+          โพสต์ไปแล้ว ({postedItems.length})
+        </h2>
+
+        {loading ? (
+          <div className="text-center text-caption text-text-muted py-8">กำลังโหลด…</div>
+        ) : postedItems.length === 0 ? (
+          <div className="dash-card text-center text-caption text-text-muted py-6">
+            {filter === ALL_FILTER
+              ? 'ยังไม่มี Q&A ที่โพสต์ — เพิ่มคำถามใหม่ด้านบนเพื่อเริ่มต้น'
+              : 'ยังไม่มี Q&A ที่โพสต์ในหมวดนี้'}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {postedItems.map(item => (
+              <QADeepItemEditor
+                key={item.id}
+                item={item}
+                allItems={items}
+                chapters={chapters}
+                onChange={load}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <p className="text-[11px] text-text-muted text-center pt-2">
         เนื้อหาจะ refresh ในแอป end-user ภายใน 6 ชั่วโมง (cache TTL) — เปิดหน้าผู้ใช้แบบ incognito เพื่อดูทันที
