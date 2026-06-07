@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Upload, Trash2, Image as ImageIcon, ChevronUp, ChevronDown,
-  Save, HelpCircle, Layers, Sparkles,
+  Save, HelpCircle, Layers, Sparkles, X,
 } from 'lucide-react';
 import {
   updateQaItem,
@@ -20,27 +20,72 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
   const [saving, setSaving] = useState(false);
   const [classifying, setClassifying] = useState(false);
   const [classifyHint, setClassifyHint] = useState(null);
+  // รูปที่เลือกไว้แต่ยังไม่อัปโหลด — จะอัปโหลดพร้อมกดบันทึกครั้งเดียว
+  // [{ tempId, file, type, previewUrl }]
+  const [staged, setStaged] = useState([]);
 
+  // รีเซ็ตฟอร์มเฉพาะตอนสลับไป Q&A คนละข้อเท่านั้น
+  // (ไม่รีเซ็ตตอน refetch ข้อเดิม เพื่อไม่ให้ข้อความที่พิมพ์ค้างไว้หาย)
   useEffect(() => {
     setQuestion(item.question || '');
     setAnswer(item.answer || '');
     setChapterId(item.chapter_id || '');
     setClassifyHint(null);
-  }, [item.id, item.question, item.answer, item.chapter_id]);
+    setStaged(prev => {
+      prev.forEach(s => URL.revokeObjectURL(s.previewUrl));
+      return [];
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.id]);
+
+  // เคลียร์ preview url ตอน unmount
+  useEffect(() => {
+    return () => {
+      setStaged(prev => {
+        prev.forEach(s => URL.revokeObjectURL(s.previewUrl));
+        return prev;
+      });
+    };
+  }, []);
 
   const dirty =
     question !== (item.question || '') ||
     answer !== (item.answer || '') ||
-    chapterId !== (item.chapter_id || '');
+    chapterId !== (item.chapter_id || '') ||
+    staged.length > 0;
+
+  const stageImage = (file, type) => {
+    if (!file) return;
+    setStaged(prev => [
+      ...prev,
+      { tempId: crypto.randomUUID(), file, type, previewUrl: URL.createObjectURL(file) },
+    ]);
+  };
+
+  const unstageImage = (tempId) => {
+    setStaged(prev => {
+      const found = prev.find(s => s.tempId === tempId);
+      if (found) URL.revokeObjectURL(found.previewUrl);
+      return prev.filter(s => s.tempId !== tempId);
+    });
+  };
 
   const handleSave = async () => {
     setSaving(true);
     try {
+      // 1) บันทึกข้อความ
       await updateQaItem(item.id, {
         question,
         answer,
         chapter_id: chapterId || null,
       });
+      // 2) อัปโหลดรูปที่เลือกไว้ทั้งหมด
+      for (const s of staged) {
+        await uploadItemImage(s.file, item.id, s.type);
+      }
+      // 3) เคลียร์รูปที่ค้างไว้
+      staged.forEach(s => URL.revokeObjectURL(s.previewUrl));
+      setStaged([]);
       onChange?.();
     } catch (err) {
       alert('บันทึกไม่สำเร็จ: ' + (err?.message || err));
@@ -102,6 +147,8 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
 
   const covers = (item.images || []).filter(i => i.image_type === 'cover');
   const infos = (item.images || []).filter(i => i.image_type === 'infographic');
+  const stagedCovers = staged.filter(s => s.type === 'cover');
+  const stagedInfos = staged.filter(s => s.type === 'infographic');
 
   return (
     <div className="dash-card space-y-3">
@@ -194,15 +241,6 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
         />
       </label>
 
-      <button
-        onClick={handleSave}
-        disabled={!dirty || saving}
-        className="btn btn-primary btn-sm disabled:opacity-40"
-      >
-        <Save size={12} strokeWidth={2.2} />
-        {saving ? 'กำลังบันทึก…' : 'บันทึก'}
-      </button>
-
       <div
         className="border border-border bg-bg-tertiary/40 p-3 space-y-3"
         style={{ borderRadius: 'var(--radius-md)' }}
@@ -215,8 +253,10 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
           label="รูปหน้าปกของ Q&A"
           helper="แสดงเหนือคำถาม · แนะนำ 1 รูป"
           images={covers}
-          itemId={item.id}
+          staged={stagedCovers}
           imageType="cover"
+          onStage={stageImage}
+          onUnstage={unstageImage}
           onChange={onChange}
         />
 
@@ -226,30 +266,36 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
           label="Infographic"
           helper="แสดงระหว่างคำถาม–คำตอบ · เพิ่มได้หลายรูป"
           images={infos}
-          itemId={item.id}
+          staged={stagedInfos}
           imageType="infographic"
+          onStage={stageImage}
+          onUnstage={unstageImage}
           onChange={onChange}
         />
       </div>
+
+      <button
+        onClick={handleSave}
+        disabled={!dirty || saving}
+        className="btn btn-primary btn-sm btn-block disabled:opacity-40"
+      >
+        <Save size={12} strokeWidth={2.2} />
+        {saving
+          ? 'กำลังบันทึก…'
+          : staged.length > 0
+          ? `บันทึกข้อความ + รูป (${staged.length})`
+          : 'บันทึก'}
+      </button>
     </div>
   );
 }
 
-function ImageGroup({ label, helper, images, itemId, imageType, onChange }) {
-  const [uploading, setUploading] = useState(false);
+function ImageGroup({ label, helper, images, staged, imageType, onStage, onUnstage, onChange }) {
   const [busyId, setBusyId] = useState(null);
 
-  const handleUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      await uploadItemImage(file, itemId, imageType);
-      onChange?.();
-    } catch (err) {
-      alert('อัปโหลดไม่สำเร็จ: ' + (err?.message || err));
-    }
-    setUploading(false);
+  const handlePick = (e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(f => onStage(f, imageType));
     e.target.value = '';
   };
 
@@ -282,16 +328,42 @@ function ImageGroup({ label, helper, images, itemId, imageType, onChange }) {
         <div>
           <div className="text-caption font-bold text-text-secondary inline-flex items-center gap-1">
             <ImageIcon size={12} strokeWidth={2.2} /> {label}
-            <span className="text-text-muted font-normal">({images.length})</span>
+            <span className="text-text-muted font-normal">({images.length + staged.length})</span>
           </div>
           <div className="text-[11px] text-text-muted">{helper}</div>
         </div>
-        <label className="btn btn-primary btn-sm cursor-pointer shrink-0">
+        <label className="btn btn-ghost btn-sm cursor-pointer shrink-0">
           <Upload size={12} strokeWidth={2.2} />
-          {uploading ? 'อัปโหลด…' : 'เพิ่มรูป'}
-          <input type="file" accept="image/*" onChange={handleUpload} disabled={uploading} className="hidden" />
+          เลือกรูป
+          <input type="file" accept="image/*" multiple onChange={handlePick} className="hidden" />
         </label>
       </div>
+
+      {staged.length > 0 && (
+        <div className="space-y-2">
+          {staged.map(s => (
+            <div
+              key={s.tempId}
+              className="border border-info/50 bg-info/5 p-2 flex gap-2 items-center"
+              style={{ borderRadius: 'var(--radius-sm)' }}
+            >
+              <img src={s.previewUrl} alt="" className="w-20 h-20 object-cover shrink-0" style={{ borderRadius: 'var(--radius-sm)' }} />
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] font-bold text-info">รอบันทึก</div>
+                <div className="text-[11px] text-text-muted truncate">{s.file.name}</div>
+                <div className="text-[11px] text-text-muted">กด “บันทึก” ด้านล่างเพื่ออัปโหลดพร้อมข้อความ</div>
+              </div>
+              <button
+                onClick={() => onUnstage(s.tempId)}
+                className="btn btn-ghost btn-sm text-danger shrink-0"
+                title="เอารูปนี้ออก"
+              >
+                <X size={14} strokeWidth={2.2} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {images.length > 0 && (
         <div className="space-y-2">
