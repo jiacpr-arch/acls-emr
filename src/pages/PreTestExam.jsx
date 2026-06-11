@@ -9,6 +9,7 @@ import {
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getAttemptCount, saveQuizAttempt } from '../db/database';
 import { scheduleFlush } from '../services/syncEngine';
+import { track } from '../services/analytics';
 import {
   loadExamForBank,
   submitAttempt as submitRemoteAttempt,
@@ -158,6 +159,9 @@ export default function PreTestExam() {
         passPercent,
       });
       scheduleFlush();
+      track('pre_test_completed', {
+        props: { score, passed, attempt_number: attemptNumber },
+      });
 
       submitRemoteAttempt({
         studentLocalId: activeStudent.id,

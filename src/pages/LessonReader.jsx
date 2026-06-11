@@ -8,6 +8,7 @@ import {
   getAttemptCount,
 } from '../db/database';
 import { scheduleFlush } from '../services/syncEngine';
+import { track } from '../services/analytics';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import LessonVideos from '../components/precourse/LessonVideos';
@@ -127,6 +128,9 @@ export default function LessonReader() {
       };
       const autoId = await saveQuizAttempt(attempt);
       scheduleFlush();
+      track('lesson_quiz_completed', {
+        props: { lesson_id: lesson.id, score, passed, attempt_number: prevCount + 1 },
+      });
       clearAttempt();
       navigate(`/pre-course/results/${autoId}`);
     } finally {

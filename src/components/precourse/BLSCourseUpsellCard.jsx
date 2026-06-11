@@ -1,5 +1,6 @@
 import { Phone, MessageCircle, Sparkles, Users, Award } from 'lucide-react';
 import { jiacprCourse } from '../../data/jiacprCourse';
+import { track } from '../../services/analytics';
 
 const PHONE_NUMBER = '0909791212';
 const PHONE_DISPLAY = '090-979-1212';
@@ -93,6 +94,10 @@ export default function BLSCourseUpsellCard() {
           <div className="mt-2 grid grid-cols-2 gap-2">
             <a
               href={`tel:${PHONE_NUMBER}`}
+              onClick={() => track('contact_click', {
+                meta: 'Contact',
+                props: { channel: 'phone', source: 'bls_upsell_card', value: 2500, currency: 'THB' },
+              })}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white text-emerald-700 font-extrabold text-[13px] hover:bg-white/95 transition-colors"
               style={{ borderRadius: 'var(--radius-md)' }}
             >
@@ -103,6 +108,10 @@ export default function BLSCourseUpsellCard() {
               href={LINE_URL}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track('contact_click', {
+                meta: 'Contact',
+                props: { channel: 'line', source: 'bls_upsell_card', value: 2500, currency: 'THB' },
+              })}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 font-extrabold text-[13px] text-white transition-colors"
               style={{
                 borderRadius: 'var(--radius-md)',

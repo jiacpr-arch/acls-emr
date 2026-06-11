@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { trackPageview } from '../services/analytics';
 
 const PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID || '1524889459310260';
 
@@ -18,9 +19,9 @@ export default function MetaPixel() {
     window.fbq('init', PIXEL_ID);
   }, []);
 
+  // Single source of pageviews for both Meta Pixel and PostHog.
   useEffect(() => {
-    if (!PIXEL_ID || !window.fbq) return;
-    window.fbq('track', 'PageView');
+    trackPageview();
   }, [location.pathname]);
 
   return null;
