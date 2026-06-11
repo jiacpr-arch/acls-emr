@@ -3,7 +3,9 @@
 // หายไปได้ตลอดเวลา การ track ล้มเหลวถือเป็นเรื่องปกติ
 import { COURSE_MODE } from '../config/courseMode';
 
-const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
+// Public (publishable) project key — ฝังในโค้ดได้เหมือน PIXEL_ID ใน MetaPixel.jsx
+const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY
+  || 'phc_zYMrFeM7HEGEBUdgeyixzNw24pt5XUom38QAAJfAwgLr';
 const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com';
 
 const FIRST_TOUCH_KEY = 'jiacpr_attribution_first';
