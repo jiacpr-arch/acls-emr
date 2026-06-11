@@ -115,14 +115,17 @@ export function trackPageview() {
 
 /**
  * track('contact_click', {
- *   meta: 'Contact',              // Meta standard event (optional)
- *   metaCustom: 'PostTestDone',   // Meta custom event (optional)
- *   props: { channel: 'line' },   // ส่งทั้ง PostHog และ Meta
+ *   meta: 'Contact',                // Meta standard event — string หรือ array ['Contact','Lead']
+ *   metaCustom: 'PostTestDone',     // Meta custom event (optional)
+ *   props: { channel: 'line' },     // ส่งทั้ง PostHog และ Meta
  * })
  */
 export function track(name, { meta, metaCustom, props = {} } = {}) {
   const merged = { ...baseProps(), ...props };
-  if (meta) fb('track', meta, merged);
+  // meta รับได้ทั้ง string เดี่ยวและ array — ยิงได้หลาย standard event เช่น Contact + Lead
+  for (const ev of [].concat(meta ?? [])) {
+    if (ev) fb('track', ev, merged);
+  }
   if (metaCustom) fb('trackCustom', metaCustom, merged);
   ph(posthog => posthog.capture(name, merged));
 }
