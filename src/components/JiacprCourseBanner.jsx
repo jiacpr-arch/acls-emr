@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { GraduationCap, MessageSquare, Phone } from './ui/Icon';
 import { jiacprCourse, pickRandomJiaCourse } from '../data/jiacprCourse';
+import { track } from '../services/analytics';
 
 export default function JiacprCourseBanner() {
   const course = useMemo(() => pickRandomJiaCourse(), []);
@@ -43,6 +44,10 @@ export default function JiacprCourseBanner() {
           href={jiacprCourse.lineUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => track('contact_click', {
+            meta: 'Contact',
+            props: { channel: 'line', source: 'jiacpr_banner', course_id: course.id, value: 2500, currency: 'THB' },
+          })}
           className="btn btn-success btn-block no-underline"
           style={{ textDecoration: 'none' }}
         >
@@ -50,6 +55,10 @@ export default function JiacprCourseBanner() {
         </a>
         <a
           href={`tel:${jiacprCourse.phone}`}
+          onClick={() => track('contact_click', {
+            meta: 'Contact',
+            props: { channel: 'phone', source: 'jiacpr_banner', course_id: course.id, value: 2500, currency: 'THB' },
+          })}
           className="btn btn-info btn-block no-underline"
           style={{ textDecoration: 'none' }}
         >

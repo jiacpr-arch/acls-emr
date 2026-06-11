@@ -1,4 +1,5 @@
 import { HeartPulse, Activity, Award, ChevronRight } from 'lucide-react';
+import { track } from '../../services/analytics';
 
 const ACLS_URL = 'https://acls.morroo.com';
 
@@ -13,6 +14,10 @@ export default function ACLSCourseUpsellCard() {
         href={ACLS_URL}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => track('acls_course_click', {
+          meta: 'Lead',
+          props: { source: 'acls_upsell_card', content_name: 'acls_online_course', value: 9900, currency: 'THB' },
+        })}
         className="relative overflow-hidden text-white block no-underline group"
         style={{
           textDecoration: 'none',

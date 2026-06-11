@@ -4,6 +4,7 @@ import { upsertStudent, findStudentByStudentId } from '../../db/database';
 import { usePreCourseStore } from '../../stores/preCourseStore';
 import { useClassStore } from '../../stores/classStore';
 import { scheduleFlush } from '../../services/syncEngine';
+import { track, identifyStudent } from '../../services/analytics';
 import { User, X, Check, AlertCircle } from 'lucide-react';
 
 export default function StudentIdentityModal({ open, onClose, onConfirm }) {
@@ -44,6 +45,12 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
       await upsertStudent(record);
       setActiveStudent(record);
       scheduleFlush();
+      // ใช้ UUID เป็น distinct id — ไม่ส่งชื่อ/เบอร์โทร (PDPA)
+      track('student_registered', {
+        meta: 'CompleteRegistration',
+        props: { has_student_code: !!sid, is_returning: !!existing },
+      });
+      identifyStudent(record.id, { student_code: sid || null });
       onConfirm?.(record);
     } catch (err) {
       setError(err?.message || 'บันทึกไม่สำเร็จ');
