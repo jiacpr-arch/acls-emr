@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import {
-  Hospital, BookOpen, FlaskConical, FileText, MessageSquare, HeartPulse, ChevronRight,
+  Hospital, BookOpen, FlaskConical, FileText, MessageSquare, HeartPulse,
+  Heart, Stethoscope, Bandage, Pill, TestTube, GraduationCap, ChevronRight,
 } from './ui/Icon';
 import { pickRandomAd } from '../data/morrooAds';
 
@@ -11,6 +12,12 @@ const ICONS = {
   FileText,
   MessageSquare,
   HeartPulse,
+  Heart,
+  Stethoscope,
+  Bandage,
+  Pill,
+  TestTube,
+  GraduationCap,
 };
 
 const TONE_VARS = {
