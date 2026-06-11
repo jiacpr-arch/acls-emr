@@ -99,6 +99,14 @@ const allAds = [
     icon: 'MessageSquare',
     tone: 'shock',
   },
+  {
+    id: 'roodee',
+    name: 'RooDee',
+    tagline: 'รู้ดี — ตะลุยโจทย์ข้อสอบด้วย AI',
+    url: 'https://roodee.me',
+    icon: 'GraduationCap',
+    tone: 'purple',
+  },
 ];
 
 // Never advertise the site to its own visitors — drop the ad matching the
