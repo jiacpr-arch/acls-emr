@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { fetchNews } from '../services/newsService';
+import { fetchNews, fetchJiaAedNews } from '../services/newsService';
 import { Bell, Search, ChevronRight } from '../components/ui/Icon';
 import { IS_BLS } from '../config/courseMode';
 import PushToggle from '../components/PushToggle';
@@ -51,6 +51,13 @@ export default function NewsPage() {
       window.removeEventListener('focus', onFocus);
     };
   }, [filter, debouncedSearch]);
+
+  const [jiaItems, setJiaItems] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchJiaAedNews(5).then(rows => { if (!cancelled) setJiaItems(rows); });
+    return () => { cancelled = true; };
+  }, []);
 
   const grouped = useMemo(() => groupByDate(items || []), [items]);
 
@@ -110,6 +117,21 @@ export default function NewsPage() {
             {group.items.map(item => <NewsItem key={item.id} item={item} />)}
           </div>
         ))
+      )}
+
+      {/* ฟีดจาก jiaaed.com — โชว์เฉพาะตอนไม่ได้ค้นหา เพราะ search ไม่ครอบคลุมฟีดนี้ */}
+      {!debouncedSearch && jiaItems.length > 0 && (
+        <div className="space-y-2 pt-2">
+          <div className="text-overline text-text-muted px-1">ข่าวสุขภาพ & AED จาก JiaAED</div>
+          {jiaItems.map((item, i) => <NewsItem key={item.source_url || i} item={item} />)}
+          <div className="text-caption text-text-muted text-center pt-1">
+            ฟีดข่าวจาก{' '}
+            <a href="https://jiaaed.com" target="_blank" rel="noopener noreferrer" className="underline">
+              jiaaed.com
+            </a>{' '}
+            — แตะข่าวเพื่ออ่านต้นฉบับ
+          </div>
+        </div>
       )}
     </div>
   );

@@ -41,3 +41,25 @@ export async function fetchNews({ limit = 5, course = null, search = null, maxAg
   }
   return data || [];
 }
+
+// ข่าวสุขภาพ/AED จากฟีดสาธารณะของ jiaaed.com — แยกจากตาราง news ของเราเอง
+// ทุก item ต้องลิงก์กลับไปข่าวต้นฉบับ (source_url) เพราะลิขสิทธิ์เป็นของสำนักข่าวเดิม
+export async function fetchJiaAedNews(limit = 5) {
+  try {
+    const res = await fetch(`https://jiaaed.com/api/news/public?limit=${limit}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!Array.isArray(data?.items)) return [];
+    return data.items.map(n => ({
+      title: n.source_title,
+      summary: n.our_blurb,
+      source_url: n.source_url,
+      source_name: n.source_name,
+      topics: n.topic ? [n.topic] : [],
+      published_at: n.published_at,
+    }));
+  } catch (e) {
+    console.warn('jiaaed news fetch failed', e?.message);
+    return [];
+  }
+}
