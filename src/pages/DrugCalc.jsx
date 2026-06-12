@@ -34,7 +34,7 @@ export default function DrugCalc() {
         </div>
       </div>
 
-      <JiacprCourseBanner />
+      <JiacprCourseBanner courseId="acls-drug" />
 
       <div className="dash-card">
         <ScrollPicker label="Patient Weight" value={weight} onChange={setWeight}

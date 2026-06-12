@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
-import { IS_BLS, IS_ACLS } from '../config/courseMode';
+import { IS_BLS } from '../config/courseMode';
 import { GraduationCap } from '../components/ui/Icon';
 import MorrooAdCard from '../components/MorrooAdCard';
 import NewsCard from '../components/NewsCard';
@@ -96,7 +96,7 @@ export default function Learn() {
         <p className="text-caption text-text-muted">{t('learn_subtitle', lang)}</p>
       </div>
 
-      {IS_ACLS && <JiacprCourseBanner />}
+      <JiacprCourseBanner />
 
       <MorrooAdCard />
 

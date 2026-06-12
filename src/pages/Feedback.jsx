@@ -5,7 +5,6 @@ import {
 } from '../components/ui/Icon';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
-import { IS_ACLS } from '../config/courseMode';
 
 const categories = [
   { key: 'bug', Icon: AlertCircle, label: 'แจ้งปัญหา' },
@@ -93,7 +92,7 @@ export default function Feedback() {
         <p className="text-caption text-text-muted">ช่วยเราปรับปรุงแอป ACLS EMR</p>
       </div>
 
-      {IS_ACLS && <JiacprCourseBanner />}
+      <JiacprCourseBanner />
 
       <MorrooAdCard />
 

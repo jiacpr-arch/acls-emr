@@ -6,7 +6,6 @@ import {
 } from '../components/ui/Icon';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
-import { IS_ACLS } from '../config/courseMode';
 
 export default function Settings() {
   const settings = useSettingsStore();
@@ -123,7 +122,7 @@ export default function Settings() {
         </SettingSection>
       )}
 
-      {IS_ACLS && <JiacprCourseBanner />}
+      <JiacprCourseBanner />
 
       <MorrooAdCard />
 
