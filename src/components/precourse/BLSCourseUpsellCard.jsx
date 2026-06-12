@@ -95,8 +95,8 @@ export default function BLSCourseUpsellCard() {
             <a
               href={`tel:${PHONE_NUMBER}`}
               onClick={() => track('contact_click', {
-                meta: 'Contact',
-                props: { channel: 'phone', source: 'bls_upsell_card', value: 2500, currency: 'THB' },
+                meta: ['Contact', 'Lead'],
+                props: { channel: 'phone', source: 'bls_upsell_card', content_name: 'bls_inperson_course', value: 2500, currency: 'THB' },
               })}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white text-emerald-700 font-extrabold text-[13px] hover:bg-white/95 transition-colors"
               style={{ borderRadius: 'var(--radius-md)' }}
@@ -109,8 +109,8 @@ export default function BLSCourseUpsellCard() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => track('contact_click', {
-                meta: 'Contact',
-                props: { channel: 'line', source: 'bls_upsell_card', value: 2500, currency: 'THB' },
+                meta: ['Contact', 'Lead'],
+                props: { channel: 'line', source: 'bls_upsell_card', content_name: 'bls_inperson_course', value: 2500, currency: 'THB' },
               })}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 font-extrabold text-[13px] text-white transition-colors"
               style={{
