@@ -208,7 +208,7 @@ export default function Algorithm() {
         <p className="text-caption text-text-muted mt-0.5">Evidence-based decision flowcharts</p>
       </div>
 
-      <JiacprCourseBanner />
+      <JiacprCourseBanner courseId="acls-full" />
 
       {/* Algorithm tabs — pill row */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">

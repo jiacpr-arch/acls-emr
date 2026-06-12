@@ -23,7 +23,7 @@ import NewsCard from '../components/NewsCard';
 import StreakBadge from '../components/StreakBadge';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
-import { IS_ACLS, IS_BLS, courseMeta } from '../config/courseMode';
+import { IS_BLS, courseMeta } from '../config/courseMode';
 import {
   GraduationCap, Users,
   Cloud, CloudOff, ChevronDown,
@@ -257,7 +257,7 @@ export default function PreCourse() {
         <p className="text-caption text-text-muted">3 ขั้นตอน: Pre-test → บทเรียน → Post-test</p>
       </div>
 
-      {IS_ACLS && <JiacprCourseBanner />}
+      <JiacprCourseBanner />
 
       {/* Hero: progress + smart next-step CTA. Replaces the previous
           stand-alone active-student banner because identity is shown inside. */}

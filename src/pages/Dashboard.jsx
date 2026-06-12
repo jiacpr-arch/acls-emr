@@ -11,7 +11,6 @@ import NewsCard from '../components/NewsCard';
 import StreakBadge from '../components/StreakBadge';
 import DailyQuiz from '../components/DailyQuiz';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
-import { IS_ACLS } from '../config/courseMode';
 import {
   FileText, HeartPulse, BarChart3, AlertCircle, Plus, Layers,
   Download, Share, Edit, Trash, Play, HelpCircle, Activity, Pill,
@@ -98,7 +97,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {IS_ACLS && <JiacprCourseBanner />}
+      <JiacprCourseBanner />
 
       <StreakBadge />
 

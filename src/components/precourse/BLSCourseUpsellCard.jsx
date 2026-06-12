@@ -9,7 +9,8 @@ const LINE_DISPLAY = '@jiacpr';
 
 // Promo card for the in-person BLS course. Placed after the post-test card
 // where students have shown completion intent and may want hands-on training.
-export default function BLSCourseUpsellCard() {
+// source: ระบุจุดที่การ์ดแสดง เพื่อแยกใน analytics ว่า CTA จุดไหนทำยอด
+export default function BLSCourseUpsellCard({ source = 'bls_upsell_card' }) {
   return (
     <div className="space-y-2">
       <div className="text-overline text-text-muted px-1">คอร์สสอนจริง (Hands-on)</div>
@@ -96,7 +97,7 @@ export default function BLSCourseUpsellCard() {
               href={`tel:${PHONE_NUMBER}`}
               onClick={() => track('contact_click', {
                 meta: ['Contact', 'Lead'],
-                props: { channel: 'phone', source: 'bls_upsell_card', content_name: 'bls_inperson_course', value: 2500, currency: 'THB' },
+                props: { channel: 'phone', source, content_name: 'bls_inperson_course', value: 2500, currency: 'THB' },
               })}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white text-emerald-700 font-extrabold text-[13px] hover:bg-white/95 transition-colors"
               style={{ borderRadius: 'var(--radius-md)' }}
@@ -110,7 +111,7 @@ export default function BLSCourseUpsellCard() {
               rel="noopener noreferrer"
               onClick={() => track('contact_click', {
                 meta: ['Contact', 'Lead'],
-                props: { channel: 'line', source: 'bls_upsell_card', content_name: 'bls_inperson_course', value: 2500, currency: 'THB' },
+                props: { channel: 'line', source, content_name: 'bls_inperson_course', value: 2500, currency: 'THB' },
               })}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 font-extrabold text-[13px] text-white transition-colors"
               style={{

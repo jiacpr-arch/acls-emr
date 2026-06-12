@@ -7,6 +7,8 @@ export const jiacprCourse = {
   lineUrl: 'https://line.me/R/ti/p/@jiacpr',
   phone: '0909791212',
   phoneDisplay: '090-979-1212',
+  // หน้า product จริง — แนบ UTM เพื่อให้รู้ว่า traffic มาจากแอป
+  courseUrl: 'https://www.jiacpr.com/newcourse?utm_source=morroo_app&utm_medium=referral&utm_campaign=course_banner',
 };
 
 // Full catalogue advertised on the ACLS build, one course shown per render.
@@ -150,4 +152,14 @@ export const jiaCourses = [
 
 export function pickRandomJiaCourse() {
   return jiaCourses[Math.floor(Math.random() * jiaCourses.length)];
+}
+
+// เลือกคอร์สตามบริบทหน้า: ระบุ courseId ตรงๆ หรือกรองตาม group แล้วสุ่ม
+export function pickJiaCourse({ courseId, group } = {}) {
+  if (courseId) {
+    const found = jiaCourses.find(c => c.id === courseId);
+    if (found) return found;
+  }
+  const pool = group ? jiaCourses.filter(c => c.group === group) : jiaCourses;
+  return pool.length ? pool[Math.floor(Math.random() * pool.length)] : pickRandomJiaCourse();
 }

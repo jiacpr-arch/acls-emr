@@ -36,6 +36,7 @@ import BLSChokingRelief from './pages/BLSChokingRelief';
 import NewsPage from './pages/NewsPage';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
+import LineFloatButton from './components/LineFloatButton';
 import OfflineIndicator from './components/OfflineIndicator';
 import MetaPixel from './components/MetaPixel';
 import { useSyncEngine } from './services/syncEngine';
@@ -199,6 +200,7 @@ function App() {
       </Routes>
       {/* Bottom pill bar on all pages except recording + admin */}
       {!isRecording && !isAdmin && <BottomTabBar />}
+      {!isRecording && !isAdmin && <LineFloatButton />}
       <Analytics />
       <MetaPixel />
     </div>

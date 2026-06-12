@@ -121,7 +121,7 @@ export default function Certification() {
         </div>
       </div>
 
-      {!IS_BLS && <JiacprCourseBanner />}
+      <JiacprCourseBanner />
 
       {IS_BLS && (
         <div className="dash-card !p-3 bg-info/10 border border-info/30 flex items-start gap-2">

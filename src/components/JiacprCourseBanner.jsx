@@ -1,10 +1,16 @@
 import { useMemo } from 'react';
 import { GraduationCap, MessageSquare, Phone } from './ui/Icon';
-import { jiacprCourse, pickRandomJiaCourse } from '../data/jiacprCourse';
+import { jiacprCourse, pickJiaCourse } from '../data/jiacprCourse';
+import { IS_BLS } from '../config/courseMode';
 import { track } from '../services/analytics';
 
-export default function JiacprCourseBanner() {
-  const course = useMemo(() => pickRandomJiaCourse(), []);
+// courseId: บังคับโชว์คอร์สที่ตรงบริบทหน้า (เช่น หน้าคำนวณยา → acls-drug)
+// group: กรองกลุ่มคอร์ส — ค่า default โหมด BLS โชว์เฉพาะกลุ่ม BLS/CPR
+export default function JiacprCourseBanner({ courseId, group }) {
+  const course = useMemo(
+    () => pickJiaCourse({ courseId, group: group ?? (IS_BLS ? 'BLS / CPR & AED' : undefined) }),
+    [courseId, group],
+  );
 
   return (
     <div
@@ -63,6 +69,20 @@ export default function JiacprCourseBanner() {
           style={{ textDecoration: 'none' }}
         >
           <Phone size={16} strokeWidth={2.4} /> โทร {jiacprCourse.phoneDisplay}
+        </a>
+      </div>
+
+      <div className="text-center mt-2">
+        <a
+          href={jiacprCourse.courseUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => track('course_page_click', {
+            props: { source: 'jiacpr_banner', course_id: course.id },
+          })}
+          className="text-caption text-text-muted underline"
+        >
+          ดูคอร์สทั้งหมดที่ jiacpr.com →
         </a>
       </div>
     </div>
