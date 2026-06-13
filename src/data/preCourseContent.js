@@ -12,6 +12,8 @@
 //   overview · team · assessment · rrt · airway · vf_pvt · pea_asystole
 //   bradycardia · tachycardia · pharmacology · post_arrest · acs · stroke
 
+import { lessonVideoMap } from './courseVideos';
+
 export const preCourseVideos = [
   {
     platform: 'youtube',
@@ -1809,7 +1811,7 @@ function deriveLesson(l) {
     correctId: s.correctId,
     explanation: s.explanation,
   }));
-  return { ...l, sections, quiz };
+  return { ...l, sections, quiz, videos: lessonVideoMap[l.id] ?? [] };
 }
 
 export const preCourseLessons = lessonDefs.map(deriveLesson);

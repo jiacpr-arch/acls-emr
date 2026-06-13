@@ -239,6 +239,13 @@ export default function LessonReader() {
         </section>
       )}
 
+      {/* วิดีโอประกอบของบทนี้ — การ์ดเล็ก คลิกเปิด lightbox (อยู่เหนือปุ่ม navigation) */}
+      {lesson.videos?.length > 0 && (
+        <div className="pt-1">
+          <LessonVideos videos={lesson.videos} />
+        </div>
+      )}
+
       {/* Navigation buttons */}
       <div className="flex items-center gap-2 pt-1">
         <button
@@ -278,13 +285,6 @@ export default function LessonReader() {
           </>
         )}
       </div>
-
-      {/* วิดีโอประกอบของบทนี้ (ใช้พื้นที่ว่างใต้ปุ่ม navigation) */}
-      {lesson.videos?.length > 0 && (
-        <div className="pt-2">
-          <LessonVideos videos={lesson.videos} />
-        </div>
-      )}
 
       <StudentIdentityModal
         open={showIdentity}
