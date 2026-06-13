@@ -36,6 +36,7 @@ import BLSChokingRelief from './pages/BLSChokingRelief';
 import NewsPage from './pages/NewsPage';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
+import SiteFooter from './components/SiteFooter';
 import LineFloatButton from './components/LineFloatButton';
 import OfflineIndicator from './components/OfflineIndicator';
 import MetaPixel from './components/MetaPixel';
@@ -198,6 +199,8 @@ function App() {
         {IS_BLS && <Route path="/bls/aed" element={<BLSAedGuide />} />}
         {IS_BLS && <Route path="/bls/choking" element={<BLSChokingRelief />} />}
       </Routes>
+      {/* "เว็บในเครือเรา" footer — sibling morroo.com sites, like morroo.com */}
+      {!isRecording && !isAdmin && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin */}
       {!isRecording && !isAdmin && <BottomTabBar />}
       {!isRecording && !isAdmin && <LineFloatButton />}
