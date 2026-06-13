@@ -1,70 +1,50 @@
 import { useState } from 'react';
-import { Play, Maximize2, ExternalLink } from 'lucide-react';
+import { Play, ExternalLink } from 'lucide-react';
+import VideoLightbox from './VideoLightbox';
 
 function getYouTubeId(url) {
   if (!url) return null;
-  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
+  // รองรับ youtu.be/, watch?v=, embed/ และ shorts/ (วิดีโอแนวตั้ง)
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
   return m ? m[1] : null;
 }
 
-function VideoThumb({ videoId, label, watchUrl }) {
-  const [loaded, setLoaded] = useState(false);
+// การ์ด thumbnail เล็ก — คลิกเพื่อเปิด lightbox (ไม่ embed inline เพื่อไม่ดันเลย์เอาต์ให้ยาว)
+function VideoCard({ videoId, label, orientation, onPlay }) {
+  const isPortrait = orientation === 'portrait';
   const thumb = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
-
   return (
-    <div className="dash-card !p-0 overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }}>
-      <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-        {loaded ? (
-          <iframe
-            className="absolute inset-0 w-full h-full"
-            src={embedUrl}
-            title={label}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setLoaded(true)}
-            className="absolute inset-0 w-full h-full group cursor-pointer"
-            style={{
-              backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.55) 100%), url(${thumb})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-            aria-label={`เล่นวีดีโอ ${label}`}
-          >
-            <span className="absolute inset-0 flex items-center justify-center">
-              <span className="w-14 h-14 inline-flex items-center justify-center bg-white/95 group-hover:scale-110 transition-transform"
-                style={{ borderRadius: '50%', boxShadow: '0 8px 24px rgba(0,0,0,0.32)' }}>
-                <Play size={24} strokeWidth={2.4} className="text-danger ml-1" />
-              </span>
-            </span>
-            <span className="absolute left-3 right-3 bottom-2">
-              <span className="block text-white text-sm font-bold drop-shadow">
-                {label}
-              </span>
-            </span>
-          </button>
-        )}
-      </div>
-      {loaded && (
-        <div className="flex items-center justify-between px-3 py-2 border-t border-bg-tertiary">
-          <span className="text-[11px] text-text-muted truncate">{label}</span>
-          <a href={watchUrl} target="_blank" rel="noopener noreferrer"
-            className="btn btn-ghost btn-sm shrink-0">
-            <Maximize2 size={14} strokeWidth={2.4} /> YouTube
-          </a>
-        </div>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={onPlay}
+      className="group relative overflow-hidden shrink-0 cursor-pointer"
+      style={{
+        width: isPortrait ? 132 : 200,
+        aspectRatio: isPortrait ? '9 / 16' : '16 / 9',
+        borderRadius: 'var(--radius-lg)',
+        backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.6) 100%), url(${thumb})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        boxShadow: 'var(--shadow-sm)',
+      }}
+      aria-label={`เล่นวีดีโอ ${label}`}
+    >
+      <span className="absolute inset-0 flex items-center justify-center">
+        <span className="w-11 h-11 inline-flex items-center justify-center bg-white/95 group-hover:scale-110 transition-transform"
+          style={{ borderRadius: '50%', boxShadow: '0 6px 18px rgba(0,0,0,0.32)' }}>
+          <Play size={20} strokeWidth={2.4} className="text-danger ml-0.5" />
+        </span>
+      </span>
+      <span className="absolute left-2 right-2 bottom-1.5 block text-white text-[11px] font-bold leading-tight drop-shadow line-clamp-2">
+        {label}
+      </span>
+    </button>
   );
 }
 
 export default function LessonVideos({ videos }) {
   const items = (videos || []).filter(v => v.url);
+  const [active, setActive] = useState(null);
   if (!items.length) return null;
 
   return (
@@ -73,19 +53,21 @@ export default function LessonVideos({ videos }) {
         <Play size={14} strokeWidth={2.4} className="text-info" />
         <span className="text-overline text-text-muted">วิดีโอประกอบบทนี้</span>
       </div>
-      <div className={`grid gap-3 ${items.length > 1 ? 'sm:grid-cols-2' : ''}`}>
+      <div className="flex flex-wrap gap-3">
         {items.map((v, i) => {
           const id = getYouTubeId(v.url);
           if (id) {
             return (
-              <VideoThumb
+              <VideoCard
                 key={`${v.url}-${i}`}
                 videoId={id}
                 label={v.label}
-                watchUrl={v.url}
+                orientation={v.orientation}
+                onPlay={() => setActive({ id, label: v.label, orientation: v.orientation })}
               />
             );
           }
+          // ไม่ใช่ลิงก์ YouTube → fallback เป็นลิงก์ภายนอก
           return (
             <a key={`${v.url}-${i}`} href={v.url} target="_blank" rel="noopener noreferrer"
               className="dash-card flex items-center gap-2 hover:bg-bg-tertiary/50 transition-colors">
@@ -95,6 +77,14 @@ export default function LessonVideos({ videos }) {
           );
         })}
       </div>
+
+      <VideoLightbox
+        open={!!active}
+        onClose={() => setActive(null)}
+        videoId={active?.id}
+        orientation={active?.orientation}
+        label={active?.label}
+      />
     </div>
   );
 }
