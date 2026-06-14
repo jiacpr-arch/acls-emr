@@ -12,6 +12,8 @@
 //   overview · team · assessment · rrt · airway · vf_pvt · pea_asystole
 //   bradycardia · tachycardia · pharmacology · post_arrest · acs · stroke
 
+import { lessonVideoMap } from './courseVideos';
+
 export const preCourseVideos = [
   {
     platform: 'youtube',
@@ -1800,8 +1802,15 @@ const lessonDefs = [
 
 // Derive `sections` and `quiz` from `steps` for compatibility with ResultsSummary, cohort logic, etc.
 function deriveLesson(l) {
-  const sections = l.steps.filter(s => s.type === 'read').map(s => ({ heading: s.heading, body: s.body }));
-  const quiz = l.steps.filter(s => s.type === 'quiz').map(s => ({
+  // ใส่ id เสถียรให้ read step (read step เดิมไม่มี id) เพื่อผูกรูปประกอบจาก Supabase
+  // ผูกตามลำดับ read step ในบท: pc01-r0, pc01-r1, ...
+  let readIdx = 0;
+  const steps = l.steps.map(s => {
+    if (s.type === 'read') return { ...s, id: s.id ?? `${l.id}-r${readIdx++}` };
+    return s;
+  });
+  const sections = steps.filter(s => s.type === 'read').map(s => ({ id: s.id, heading: s.heading, body: s.body }));
+  const quiz = steps.filter(s => s.type === 'quiz').map(s => ({
     id: s.id,
     topic: s.topic,
     question: s.question,
@@ -1809,7 +1818,7 @@ function deriveLesson(l) {
     correctId: s.correctId,
     explanation: s.explanation,
   }));
-  return { ...l, sections, quiz };
+  return { ...l, steps, sections, quiz, videos: lessonVideoMap[l.id] ?? [] };
 }
 
 export const preCourseLessons = lessonDefs.map(deriveLesson);

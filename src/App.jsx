@@ -46,6 +46,7 @@ import { useSyncEngine } from './services/syncEngine';
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminChapters = lazy(() => import('./pages/AdminChapters'));
+const AdminPreCourseImages = lazy(() => import('./pages/AdminPreCourseImages'));
 const AdminQADeep = lazy(() => import('./pages/AdminQADeep'));
 const AdminQADeepPosted = lazy(() => import('./pages/AdminQADeepPosted'));
 const AdminStudentQuestions = lazy(() => import('./pages/AdminStudentQuestions'));
@@ -148,6 +149,18 @@ function App() {
               <Suspense fallback={<AdminFallback />}>
                 <RequireAdmin>
                   <AdminChapters />
+                </RequireAdmin>
+              </Suspense>
+            }
+          />
+        )}
+        {IS_ACLS && (
+          <Route
+            path="/admin/precourse-images"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <RequireAdmin>
+                  <AdminPreCourseImages />
                 </RequireAdmin>
               </Suspense>
             }

@@ -12,6 +12,9 @@ import { track } from '../services/analytics';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import LessonVideos from '../components/precourse/LessonVideos';
+import LessonImages from '../components/precourse/LessonImages';
+import ReadBody from '../components/precourse/ReadBody';
+import { fetchPreCourseMedia } from '../services/precourseImageService';
 import {
   ChevronLeft, ChevronRight, BookOpen, AlertCircle,
   Check, Send,
@@ -30,6 +33,21 @@ export default function LessonReader() {
 
   const [showIdentity, setShowIdentity] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [imagesByStep, setImagesByStep] = useState({});
+  const [videosByStep, setVideosByStep] = useState({});
+
+  // โหลดสื่อประกอบของบทเรียน (รูป + วิดีโอ จาก Supabase, แคชไว้) ครั้งเดียวตอนเข้า
+  useEffect(() => {
+    let alive = true;
+    fetchPreCourseMedia()
+      .then(({ imagesByStep, videosByStep }) => {
+        if (!alive) return;
+        setImagesByStep(imagesByStep);
+        setVideosByStep(videosByStep);
+      })
+      .catch(() => { /* ออฟไลน์/โหลดไม่ได้ — ไม่แสดงสื่อ ไม่ถือเป็น error */ });
+    return () => { alive = false; };
+  }, []);
 
   // Initialize / resume attempt for this lesson
   useEffect(() => {
@@ -204,6 +222,14 @@ export default function LessonReader() {
         <section className="dash-card space-y-3 !p-5">
           <div className="text-headline text-info">{step.heading}</div>
           <ReadBody body={step.body} />
+          {imagesByStep[step.id]?.length > 0 && (
+            <LessonImages images={imagesByStep[step.id]} fallbackAlt={step.heading} />
+          )}
+          {videosByStep[step.id]?.length > 0 && (
+            <div className="pt-1">
+              <LessonVideos videos={videosByStep[step.id]} />
+            </div>
+          )}
         </section>
       )}
 
@@ -237,6 +263,13 @@ export default function LessonReader() {
             </div>
           )}
         </section>
+      )}
+
+      {/* วิดีโอประกอบของบทนี้ — การ์ดเล็ก คลิกเปิด lightbox (อยู่เหนือปุ่ม navigation) */}
+      {lesson.videos?.length > 0 && (
+        <div className="pt-1">
+          <LessonVideos videos={lesson.videos} />
+        </div>
       )}
 
       {/* Navigation buttons */}
@@ -279,68 +312,11 @@ export default function LessonReader() {
         )}
       </div>
 
-      {/* วิดีโอประกอบของบทนี้ (ใช้พื้นที่ว่างใต้ปุ่ม navigation) */}
-      {lesson.videos?.length > 0 && (
-        <div className="pt-2">
-          <LessonVideos videos={lesson.videos} />
-        </div>
-      )}
-
       <StudentIdentityModal
         open={showIdentity}
         onClose={() => setShowIdentity(false)}
         onConfirm={() => setShowIdentity(false)}
       />
-    </div>
-  );
-}
-
-function ReadBody({ body }) {
-  const lines = (body ?? '').split('\n').map(l => l.trim()).filter(Boolean);
-
-  const items = lines.map((line) => {
-    const bullet = line.match(/^([•\-*])\s+(.*)$/);
-    if (bullet) return { kind: 'bullet', marker: '•', text: bullet[2] };
-    const numbered = line.match(/^(\d+)[).]\s+(.*)$/);
-    if (numbered) return { kind: 'numbered', marker: `${numbered[1]}.`, text: numbered[2] };
-    return { kind: 'text', text: line };
-  });
-
-  return (
-    <div
-      className="text-text-secondary"
-      style={{ fontSize: '16px', lineHeight: 1.7 }}
-    >
-      {items.map((it, i) => {
-        if (it.kind === 'text') {
-          return (
-            <p key={i} className={i > 0 ? 'mt-3' : ''}>
-              {it.text}
-            </p>
-          );
-        }
-        const isNumbered = it.kind === 'numbered';
-        return (
-          <div
-            key={i}
-            className={i > 0 ? 'mt-2.5' : ''}
-            style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}
-          >
-            <span
-              className={isNumbered ? 'text-info font-bold' : 'text-info'}
-              style={{
-                flexShrink: 0,
-                minWidth: isNumbered ? '22px' : '14px',
-                fontSize: isNumbered ? '16px' : '18px',
-                lineHeight: 1.55,
-              }}
-            >
-              {it.marker}
-            </span>
-            <span style={{ flex: 1 }}>{it.text}</span>
-          </div>
-        );
-      })}
     </div>
   );
 }
