@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight,
+  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 
@@ -18,6 +18,14 @@ const SECTIONS = [
     title: 'Q&A ACLS เชิงลึก',
     desc: 'เพิ่ม/แก้ไขคำถาม-คำตอบ จัดหมวดและรูป',
     icon: MessageCircleQuestion,
+    gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
+    shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
+  },
+  {
+    to: '/admin/precourse-images',
+    title: 'รูปประกอบบทเรียน',
+    desc: 'อัปโหลดรูปเข้าแต่ละหัวข้อของบทเรียน pre-course',
+    icon: Images,
     gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
     shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
   },

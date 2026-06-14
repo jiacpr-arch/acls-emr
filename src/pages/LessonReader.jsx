@@ -12,6 +12,8 @@ import { track } from '../services/analytics';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import LessonVideos from '../components/precourse/LessonVideos';
+import LessonImages from '../components/precourse/LessonImages';
+import { fetchPreCourseImages } from '../services/precourseImageService';
 import {
   ChevronLeft, ChevronRight, BookOpen, AlertCircle,
   Check, Send,
@@ -30,6 +32,16 @@ export default function LessonReader() {
 
   const [showIdentity, setShowIdentity] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [imagesByStep, setImagesByStep] = useState({});
+
+  // โหลดรูปประกอบของบทเรียน (จาก Supabase, แคชไว้) ครั้งเดียวตอนเข้า
+  useEffect(() => {
+    let alive = true;
+    fetchPreCourseImages()
+      .then(map => { if (alive) setImagesByStep(map); })
+      .catch(() => { /* ออฟไลน์/โหลดไม่ได้ — ไม่แสดงรูป ไม่ถือเป็น error */ });
+    return () => { alive = false; };
+  }, []);
 
   // Initialize / resume attempt for this lesson
   useEffect(() => {
@@ -204,6 +216,9 @@ export default function LessonReader() {
         <section className="dash-card space-y-3 !p-5">
           <div className="text-headline text-info">{step.heading}</div>
           <ReadBody body={step.body} />
+          {imagesByStep[step.id]?.length > 0 && (
+            <LessonImages images={imagesByStep[step.id]} fallbackAlt={step.heading} />
+          )}
         </section>
       )}
 
