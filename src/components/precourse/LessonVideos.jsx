@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { Play, ExternalLink } from 'lucide-react';
 import VideoLightbox from './VideoLightbox';
-
-function getYouTubeId(url) {
-  if (!url) return null;
-  // รองรับ youtu.be/, watch?v=, embed/ และ shorts/ (วิดีโอแนวตั้ง)
-  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
-  return m ? m[1] : null;
-}
+import { getYouTubeId } from '../../utils/youtube';
 
 // การ์ด thumbnail เล็ก — คลิกเพื่อเปิด lightbox (ไม่ embed inline เพื่อไม่ดันเลย์เอาต์ให้ยาว)
 function VideoCard({ videoId, label, orientation, onPlay }) {
