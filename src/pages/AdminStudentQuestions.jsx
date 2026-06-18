@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  LogOut, Shield, ExternalLink, ChevronDown, Filter, MessageCircleQuestion, RefreshCw,
+  LogOut, Shield, ExternalLink, ChevronDown, ChevronLeft, Filter, MessageCircleQuestion, RefreshCw,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 import {
@@ -60,6 +60,9 @@ export default function AdminStudentQuestions() {
 
   return (
     <div className="page-container space-y-5">
+      <button onClick={() => navigate('/admin')} className="btn btn-ghost btn-sm">
+        <ChevronLeft size={14} strokeWidth={2.2} /> กลับไป Admin
+      </button>
       <div className="flex items-center justify-between gap-2">
         <div className="inline-flex items-center gap-2">
           <div
