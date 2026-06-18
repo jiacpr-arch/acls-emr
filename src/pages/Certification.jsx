@@ -9,6 +9,7 @@ import { certConfig } from '../data/activeCert';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { exportCertificatePDF } from '../utils/exportCertificate';
+import { notifyCertIssued } from '../services/certNotify';
 import {
   Trophy, BookOpen, Sparkles, Activity,
   Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield,
@@ -98,6 +99,16 @@ export default function Certification() {
     };
     saveCertData({ ...certData, ...data, studentName });
     setCertData({ ...certData, ...data, studentName });
+    // Best-effort admin LINE alert — fire and forget, never blocks the UI.
+    notifyCertIssued({
+      studentName,
+      courseTitle: certConfig.title,
+      certId: data.certId,
+      completedAt: data.completedAt,
+      preTestScore: data.preTestScore,
+      postTestScore: data.postTestScore,
+      ekgPassed: data.ekgPassed,
+    });
   };
 
   const downloadPDF = async () => {
