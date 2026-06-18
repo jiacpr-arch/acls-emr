@@ -11,9 +11,6 @@ import {
 import ResultsSummary from '../components/precourse/ResultsSummary';
 import { exportStudentResultPDF } from '../utils/exportPreCourse';
 import { ChevronLeft, ChevronRight, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';
-import JiacprCourseBanner from '../components/JiacprCourseBanner';
-import { IS_BLS } from '../config/courseMode';
-import BLSCourseUpsellCard from '../components/precourse/BLSCourseUpsellCard';
 
 export default function QuizResults() {
   const navigate = useNavigate();
@@ -133,15 +130,6 @@ export default function QuizResults() {
       </div>
 
       <ResultsSummary attempt={attempt} lesson={lesson} student={student} />
-
-      {/* จังหวะทอง: สอบผ่าน = พร้อมต่อยอดคอร์สจริงที่สุด */}
-      {attempt.passed ? (
-        IS_BLS
-          ? <BLSCourseUpsellCard source="quiz_results_passed" />
-          : <JiacprCourseBanner courseId="acls-full" />
-      ) : (
-        <JiacprCourseBanner />
-      )}
 
       {nextPath && (
         <button onClick={() => navigate(nextPath)}

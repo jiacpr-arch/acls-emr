@@ -15,10 +15,7 @@ import BLSHero from '../components/precourse/BLSHero';
 import BLSProgressCard from '../components/precourse/BLSProgressCard';
 import BLSQuickActions from '../components/precourse/BLSQuickActions';
 import BLSSplash from '../components/precourse/BLSSplash';
-import BLSCourseUpsellCard from '../components/precourse/BLSCourseUpsellCard';
-import ACLSCourseUpsellCard from '../components/precourse/ACLSCourseUpsellCard';
 import ACLSProgressCard from '../components/precourse/ACLSProgressCard';
-import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import NewsCard from '../components/NewsCard';
 import StreakBadge from '../components/StreakBadge';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
@@ -209,10 +206,6 @@ export default function PreCourse() {
           />
         </div>
 
-        <BLSCourseUpsellCard />
-
-        <ACLSCourseUpsellCard />
-
         <VideoLinksPanel videos={preCourseVideos} />
 
         <div className="flex justify-end px-1 pt-1">
@@ -256,8 +249,6 @@ export default function PreCourse() {
         <h1 className="text-title text-text-primary">บทเรียน ACLS</h1>
         <p className="text-caption text-text-muted">3 ขั้นตอน: Pre-test → บทเรียน → Post-test</p>
       </div>
-
-      <JiacprCourseBanner />
 
       {/* Hero: progress + smart next-step CTA. Replaces the previous
           stand-alone active-student banner because identity is shown inside. */}

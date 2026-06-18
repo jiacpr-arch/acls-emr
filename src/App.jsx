@@ -84,6 +84,10 @@ function App() {
   // Admin pages also hide the bottom tab bar
   const isRecording = location.pathname === '/recording';
   const isAdmin = location.pathname.startsWith('/admin');
+  // โซนเรียนของนักเรียน (pre-course) — ไม่โชว์โฆษณา/CTA ขายคอร์ส ระหว่างเรียน
+  // ใน BLS mode หน้าแรก "/" คือ PreCourse ด้วย
+  const isPreCourse = location.pathname.startsWith('/pre-course')
+    || (IS_BLS && location.pathname === '/');
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -213,10 +217,10 @@ function App() {
         {IS_BLS && <Route path="/bls/choking" element={<BLSChokingRelief />} />}
       </Routes>
       {/* "เว็บในเครือเรา" footer — sibling morroo.com sites, like morroo.com */}
-      {!isRecording && !isAdmin && <SiteFooter />}
+      {!isRecording && !isAdmin && !isPreCourse && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin */}
       {!isRecording && !isAdmin && <BottomTabBar />}
-      {!isRecording && !isAdmin && <LineFloatButton />}
+      {!isRecording && !isAdmin && !isPreCourse && <LineFloatButton />}
       <Analytics />
       <MetaPixel />
     </div>
