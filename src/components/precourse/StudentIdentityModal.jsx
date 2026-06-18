@@ -15,6 +15,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
   const [name, setName] = useState('');
   const [studentId, setStudentId] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -25,6 +26,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
     const n = name.trim();
     const sid = studentId.trim();
     const tel = phone.trim();
+    const mail = email.trim().toLowerCase();
     if (!n || !tel || (requireStudentId && !sid)) {
       setError(requireStudentId
         ? 'กรุณากรอกชื่อ รหัสนักเรียน และเบอร์โทร'
@@ -35,13 +37,17 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
       setError('เบอร์โทรไม่ถูกต้อง');
       return;
     }
+    if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
+      setError('อีเมลไม่ถูกต้อง');
+      return;
+    }
     setBusy(true);
     try {
       const existing = sid ? await findStudentByStudentId(sid) : null;
-      const unchanged = existing && existing.name === n && existing.phone === tel;
+      const unchanged = existing && existing.name === n && existing.phone === tel && existing.email === (mail || null);
       const record = existing
-        ? { ...existing, name: n, phone: tel, syncedAt: unchanged ? existing.syncedAt : null }
-        : { id: uuidv4(), studentId: sid || null, name: n, phone: tel, createdAt: new Date().toISOString() };
+        ? { ...existing, name: n, phone: tel, email: mail || null, syncedAt: unchanged ? existing.syncedAt : null }
+        : { id: uuidv4(), studentId: sid || null, name: n, phone: tel, email: mail || null, createdAt: new Date().toISOString() };
       await upsertStudent(record);
       setActiveStudent(record);
       scheduleFlush();
@@ -113,6 +119,17 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
               onChange={e => setPhone(e.target.value)}
               placeholder="เช่น 081-234-5678"
               className="w-full text-body tabular mt-1" />
+          </label>
+          <label className="block">
+            <span className="text-caption font-semibold text-text-secondary">
+              อีเมล
+              <span className="font-normal text-text-muted"> (ถ้ามี)</span>
+            </span>
+            <input
+              type="email" inputMode="email" autoComplete="email" value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="เช่น name@email.com"
+              className="w-full text-body mt-1" />
           </label>
           {error && (
             <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"

@@ -16,6 +16,7 @@ export default async function handler(req, res) {
   const body = typeof req.body === 'string' ? safeJson(req.body) : (req.body || {});
 
   const studentName = String(body.studentName || '').trim().slice(0, MAX_NAME_LEN);
+  const studentPhone = String(body.studentPhone || '').trim().slice(0, 20);
   const certId = String(body.certId || '').trim().slice(0, 60);
   const course = body.course === 'bls' ? 'bls' : 'acls';
   const preTestScore = numOrNull(body.preTestScore);
@@ -47,6 +48,7 @@ export default async function handler(req, res) {
 
   const result = await sendCertNotification({
     studentName,
+    studentPhone,
     certId,
     course,
     courseTitle: String(body.courseTitle || '').trim().slice(0, 120) || null,

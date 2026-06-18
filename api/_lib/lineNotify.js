@@ -12,10 +12,11 @@ const MAX_NAME_LEN = 80;
 const MAX_ID_LEN = 60;
 
 // Build the admin alert text. Pure function (no I/O) so it's unit-testable.
-// payload: { studentName, course, courseTitle, certId, completedAt,
+// payload: { studentName, studentPhone, course, courseTitle, certId, completedAt,
 //            preTestScore, postTestScore, ekgPassed }
 export function buildCertMessage(payload = {}) {
   const name = String(payload.studentName || '').trim().slice(0, MAX_NAME_LEN) || '(ไม่ระบุชื่อ)';
+  const phone = String(payload.studentPhone || '').trim().slice(0, 20);
   const isBls = payload.course === 'bls';
   const title = String(payload.courseTitle || (isBls ? 'BLS' : 'ACLS')).trim();
   const certId = String(payload.certId || '').trim().slice(0, MAX_ID_LEN) || '—';
@@ -31,6 +32,7 @@ export function buildCertMessage(payload = {}) {
     `คอร์ส: ${title}`,
     `ชื่อ: ${name}`,
   ];
+  if (phone) lines.push(`เบอร์โทร: ${phone}`);
   if (scoreParts.length) lines.push(scoreParts.join(' · '));
   lines.push(`รหัสใบ: ${certId}`);
   lines.push(`วันที่: ${date}`);
