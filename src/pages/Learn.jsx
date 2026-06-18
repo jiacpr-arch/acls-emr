@@ -5,7 +5,6 @@ import { IS_BLS } from '../config/courseMode';
 import { GraduationCap } from '../components/ui/Icon';
 import MorrooAdCard from '../components/MorrooAdCard';
 import NewsCard from '../components/NewsCard';
-import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 export default function Learn() {
   const navigate = useNavigate();
@@ -96,7 +95,7 @@ export default function Learn() {
         <p className="text-caption text-text-muted">{t('learn_subtitle', lang)}</p>
       </div>
 
-      <JiacprCourseBanner />
+      <NewsCard />
 
       <MorrooAdCard />
 
@@ -145,8 +144,6 @@ export default function Learn() {
           </div>
         </div>
       ))}
-
-      <NewsCard />
     </div>
   );
 }
