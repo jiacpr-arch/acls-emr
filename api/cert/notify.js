@@ -1,3 +1,4 @@
+import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
 import { sendCertNotification } from '../_lib/lineNotify.js';
 
 export const config = { maxDuration: 10 };
@@ -17,10 +18,32 @@ export default async function handler(req, res) {
   const studentName = String(body.studentName || '').trim().slice(0, MAX_NAME_LEN);
   const certId = String(body.certId || '').trim().slice(0, 60);
   const course = body.course === 'bls' ? 'bls' : 'acls';
+  const preTestScore = numOrNull(body.preTestScore);
+  const postTestScore = numOrNull(body.postTestScore);
+  const ekgPassed = !!body.ekgPassed;
 
   if (!studentName || !certId) {
     return res.status(400).json({ error: 'missing studentName or certId' });
   }
+
+  // Best-effort: persist the issuance so the admin stats page can count it.
+  // Wrapped so a missing Supabase config or an insert error never blocks the
+  // LINE alert or the student's response. Upsert on cert_id keeps it idempotent.
+  let recorded = false;
+  try {
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase
+      .from('certificates')
+      .upsert({
+        cert_id: certId,
+        student_name: studentName,
+        course_mode: course,
+        pre_test_score: preTestScore,
+        post_test_score: postTestScore,
+        ekg_passed: ekgPassed,
+      }, { onConflict: 'cert_id' });
+    recorded = !error;
+  } catch { /* Supabase not configured — skip silently */ }
 
   const result = await sendCertNotification({
     studentName,
@@ -28,14 +51,14 @@ export default async function handler(req, res) {
     course,
     courseTitle: String(body.courseTitle || '').trim().slice(0, 120) || null,
     completedAt: body.completedAt || null,
-    preTestScore: numOrNull(body.preTestScore),
-    postTestScore: numOrNull(body.postTestScore),
-    ekgPassed: !!body.ekgPassed,
+    preTestScore,
+    postTestScore,
+    ekgPassed,
   });
 
-  // Best-effort: even if LINE isn't configured or the push fails, the cert was
+  // Best-effort: even if LINE/Supabase isn't configured or fails, the cert was
   // still issued client-side — don't surface a hard error to the student.
-  return res.status(200).json(result);
+  return res.status(200).json({ ...result, recorded });
 }
 
 function numOrNull(v) {
