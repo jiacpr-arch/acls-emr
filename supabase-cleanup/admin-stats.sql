@@ -67,3 +67,36 @@ as $$
     )
   );
 $$;
+
+-- ---------------------------------------------------------------
+-- Migration: admin_student_roster
+-- Full student roster for /admin/students (name + phone + class + pass status).
+-- ---------------------------------------------------------------
+create or replace function public.get_student_roster()
+returns json
+language sql
+stable
+as $$
+  select coalesce(json_agg(t order by t.created_at desc), '[]'::json)
+  from (
+    select
+      s.id,
+      s.student_id,
+      s.name,
+      s.phone,
+      c.name        as class_name,
+      c.code        as class_code,
+      c.course_mode,
+      s.created_at,
+      exists (
+        select 1 from public.cohort_quiz_attempts q
+        where q.student_pk = s.id and q.lesson_id = 'pre-test' and q.passed
+      ) as pre_test_passed,
+      exists (
+        select 1 from public.cohort_quiz_attempts q
+        where q.student_pk = s.id and q.lesson_id in ('post-test', 'bls-post-test') and q.passed
+      ) as post_test_passed
+    from public.cohort_students s
+    join public.cohort_classes c on c.id = s.class_id
+  ) t;
+$$;

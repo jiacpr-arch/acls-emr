@@ -51,6 +51,7 @@ const AdminQADeep = lazy(() => import('./pages/AdminQADeep'));
 const AdminQADeepPosted = lazy(() => import('./pages/AdminQADeepPosted'));
 const AdminStudentQuestions = lazy(() => import('./pages/AdminStudentQuestions'));
 const AdminStats = lazy(() => import('./pages/AdminStats'));
+const AdminStudents = lazy(() => import('./pages/AdminStudents'));
 
 const AdminFallback = () => (
   <div className="page-container py-12 text-center text-caption text-text-muted">
@@ -216,6 +217,18 @@ function App() {
               <Suspense fallback={<AdminFallback />}>
                 <RequireAdmin>
                   <AdminStats />
+                </RequireAdmin>
+              </Suspense>
+            }
+          />
+        )}
+        {IS_ACLS && (
+          <Route
+            path="/admin/students"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <RequireAdmin>
+                  <AdminStudents />
                 </RequireAdmin>
               </Suspense>
             }

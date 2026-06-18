@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3,
+  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3, Users,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 
@@ -12,6 +12,14 @@ const SECTIONS = [
     icon: BarChart3,
     gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
     shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
+  },
+  {
+    to: '/admin/students',
+    title: 'รายชื่อนักเรียน',
+    desc: 'รายชื่อ + เบอร์โทร ทุกคลาส · ค้นหา/Export CSV',
+    icon: Users,
+    gradient: 'linear-gradient(135deg, var(--color-success, #16a34a) 0%, var(--color-success-dark, #15803d) 100%)',
+    shadow: '0 8px 20px rgba(22, 163, 74, 0.22)',
   },
   {
     to: '/admin/chapters',
