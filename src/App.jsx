@@ -84,6 +84,12 @@ function App() {
   // Admin pages also hide the bottom tab bar
   const isRecording = location.pathname === '/recording';
   const isAdmin = location.pathname.startsWith('/admin');
+  // หน้าที่นักเรียน "กำลังเรียน/สอบจริง" (อ่านบทเรียน + ทำข้อสอบ pre/post) —
+  // ไม่โชว์ปุ่ม LINE ลอย + footer โฆษณา เพื่อไม่รบกวนระหว่างเรียน
+  // ครอบคลุม /pre-course/<lessonId>[/quiz], /pre-course/pre-test, /pre-course/post-test
+  // ไม่รวมหน้า landing (/pre-course, /), หน้าผลสอบ (/results), หน้าอาจารย์ (/cohort)
+  const isStudying = /^\/pre-course\/[^/]+(\/quiz)?$/.test(location.pathname)
+    && location.pathname !== '/pre-course/cohort';
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -213,10 +219,10 @@ function App() {
         {IS_BLS && <Route path="/bls/choking" element={<BLSChokingRelief />} />}
       </Routes>
       {/* "เว็บในเครือเรา" footer — sibling morroo.com sites, like morroo.com */}
-      {!isRecording && !isAdmin && <SiteFooter />}
+      {!isRecording && !isAdmin && !isStudying && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin */}
       {!isRecording && !isAdmin && <BottomTabBar />}
-      {!isRecording && !isAdmin && <LineFloatButton />}
+      {!isRecording && !isAdmin && !isStudying && <LineFloatButton />}
       <Analytics />
       <MetaPixel />
     </div>
