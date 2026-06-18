@@ -33,20 +33,12 @@ const TONE_VARS = {
   danger:  { bg: 'rgba(220, 38, 38, 0.10)',  fg: '#DC2626' },
 };
 
-// สลับหน้าทุก ~5 วิ ให้เห็นเว็บในเครือครบทุกตัวแบบไม่รบกวน
+// สลับการ์ดทุก ~5 วิ ให้เห็นเว็บในเครือครบทุกตัวแบบไม่รบกวน
 const ROTATE_MS = 5000;
-// จำนวนการ์ดต่อสไลด์ (2 คอลัมน์ × 2 แถว) — คงความหนาแน่นไว้แต่ยังสไลด์ได้
-const PER_PAGE = 4;
-
-function chunk(arr, size) {
-  const out = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-  return out;
-}
 
 export default function SiteFooter() {
-  const pages = useMemo(() => chunk(morrooAds, PER_PAGE), []);
-  const count = pages.length;
+  const sites = useMemo(() => morrooAds, []);
+  const count = sites.length;
   const [index, setIndex] = useState(0);
   const paused = useRef(false);
 
@@ -96,53 +88,50 @@ export default function SiteFooter() {
               transition: 'transform 480ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            {pages.map((page, pi) => (
-              <div key={pi} className="w-full shrink-0 grid grid-cols-2 gap-2">
-                {page.map((site) => {
-                  const Icon = ICONS[site.icon] ?? Hospital;
-                  const tone = TONE_VARS[site.tone] ?? TONE_VARS.info;
-                  return (
-                    <a
-                      key={site.id}
-                      href={site.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="glass-card flex items-center gap-2.5 hover:shadow-2 transition-shadow group no-underline"
-                      style={{ textDecoration: 'none', padding: '12px' }}
+            {sites.map((site) => {
+              const Icon = ICONS[site.icon] ?? Hospital;
+              const tone = TONE_VARS[site.tone] ?? TONE_VARS.info;
+              return (
+                <div key={site.id} className="w-full shrink-0 px-0.5">
+                  <a
+                    href={site.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="glass-card flex items-center gap-2.5 hover:shadow-2 transition-shadow group no-underline"
+                    style={{ textDecoration: 'none', padding: '12px' }}
+                  >
+                    <div
+                      className="w-9 h-9 inline-flex items-center justify-center shrink-0"
+                      style={{ background: tone.bg, color: tone.fg, borderRadius: 'var(--radius)' }}
                     >
-                      <div
-                        className="w-9 h-9 inline-flex items-center justify-center shrink-0"
-                        style={{ background: tone.bg, color: tone.fg, borderRadius: 'var(--radius)' }}
-                      >
-                        <Icon size={18} strokeWidth={2} />
+                      <Icon size={18} strokeWidth={2} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-body-strong text-text-primary truncate">
+                        MorRoo {site.name}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-body-strong text-text-primary truncate">
-                          MorRoo {site.name}
-                        </div>
-                        <div className="text-caption text-text-muted truncate">{site.tagline}</div>
-                      </div>
-                      <ChevronRight
-                        size={16}
-                        strokeWidth={2.2}
-                        className="text-text-muted group-hover:text-info shrink-0 transition-colors"
-                      />
-                    </a>
-                  );
-                })}
-              </div>
-            ))}
+                      <div className="text-caption text-text-muted truncate">{site.tagline}</div>
+                    </div>
+                    <ChevronRight
+                      size={16}
+                      strokeWidth={2.2}
+                      className="text-text-muted group-hover:text-info shrink-0 transition-colors"
+                    />
+                  </a>
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* จุดบอกตำแหน่ง + กดข้ามได้ (โชว์เฉพาะเมื่อมีหลายหน้า) */}
         {count > 1 && (
           <div className="flex items-center justify-center gap-1.5 mt-4">
-            {pages.map((_, i) => (
+            {sites.map((site, i) => (
               <button
-                key={i}
+                key={site.id}
                 type="button"
-                aria-label={`ดูเว็บในเครือ หน้า ${i + 1}`}
+                aria-label={`ดูเว็บ MorRoo ${site.name}`}
                 onClick={() => setIndex(i)}
                 className="h-1.5 rounded-full transition-all"
                 style={{
