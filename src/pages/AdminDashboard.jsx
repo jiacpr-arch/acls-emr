@@ -1,10 +1,18 @@
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images,
+  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 
 const SECTIONS = [
+  {
+    to: '/admin/stats',
+    title: 'สถิติผู้เรียน',
+    desc: 'ดูจำนวนนักเรียน คลาส และใบรับรอง รวมทุกคลาส',
+    icon: BarChart3,
+    gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
+    shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
+  },
   {
     to: '/admin/chapters',
     title: 'คลังความรู้ ALS',
