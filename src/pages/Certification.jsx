@@ -10,9 +10,11 @@ import { IS_BLS, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { exportCertificatePDF } from '../utils/exportCertificate';
 import { notifyCertIssued } from '../services/certNotify';
+import { track } from '../services/analytics';
+import { jiacprCourse } from '../data/jiacprCourse';
 import {
   Trophy, BookOpen, Sparkles, Activity,
-  Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield,
+  Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield, MessageCircle,
 } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
@@ -36,6 +38,8 @@ export default function Certification() {
   const [studentName, setStudentName] = useState(certData.studentName || activeStudent?.name || '');
   const [preCourseProgress, setPreCourseProgress] = useState([]);
   const [preCourseAttempts, setPreCourseAttempts] = useState([]);
+  // Soft gate: ปลดล็อกปุ่มดาวน์โหลดเมื่อกดเพิ่มเพื่อน LINE OA (หรือกดข้าม) — จำค่าไว้ข้าม refresh
+  const [lineUnlocked, setLineUnlocked] = useState(!!certData.lineFollowed);
   const ekgTestDone = localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
 
   useEffect(() => {
@@ -52,6 +56,15 @@ export default function Certification() {
       setPreCourseAttempts(a);
     });
   }, [activeStudent?.id]);
+
+  // วัด funnel ของ soft gate: ยิงครั้งเดียวตอนผู้ใช้เห็นด่านเพิ่มเพื่อน LINE
+  useEffect(() => {
+    if (certData.certId && !lineUnlocked) {
+      track('cert_line_gate_view', {
+        props: { source: 'cert_gate', course: IS_BLS ? 'bls' : 'acls' },
+      });
+    }
+  }, [certData.certId, lineUnlocked]);
 
   const preCourseStatus = preCourseLessons.map(l => {
     const read = preCourseProgress.some(p => p.lessonId === l.id);
@@ -111,7 +124,36 @@ export default function Certification() {
     });
   };
 
+  // ปลดล็อกปุ่มดาวน์โหลด + จำค่าไว้ใน cert data เพื่อให้รอด refresh
+  const unlockDownload = (via) => {
+    const next = { ...certData, lineFollowed: true };
+    saveCertData(next);
+    setCertData(next);
+    setLineUnlocked(true);
+    if (via === 'skip') {
+      track('cert_line_skip', {
+        props: { source: 'cert_gate', course: IS_BLS ? 'bls' : 'acls' },
+      });
+    }
+  };
+
+  // กดเพิ่มเพื่อน LINE OA = เปิด LINE (ผ่าน href) + นับเป็น Contact/Lead + ปลดล็อกดาวน์โหลด
+  // หมายเหตุ: เว็บยืนยันการ add จริงไม่ได้ จึงเป็น honor-system — วัดผลจริงเทียบกับ LINE OA dashboard
+  const handleAddLine = () => {
+    track('cert_line_add', {
+      meta: ['Contact', 'Lead'],
+      props: {
+        channel: 'line', source: 'cert_gate',
+        course: IS_BLS ? 'bls' : 'acls', value: 2500, currency: 'THB',
+      },
+    });
+    unlockDownload('line');
+  };
+
   const downloadPDF = async () => {
+    track('cert_download', {
+      props: { source: 'cert_card', course: IS_BLS ? 'bls' : 'acls' },
+    });
     await exportCertificatePDF({ cert: certData, certConfig });
   };
 
@@ -319,9 +361,39 @@ export default function Certification() {
               <span>{certConfig.practicalRecommendation}</span>
             </div>
           )}
-          <button onClick={downloadPDF} className="btn btn-info btn-block mt-3">
-            <Download size={16} strokeWidth={2.4} /> Download PDF Certificate
-          </button>
+          {lineUnlocked ? (
+            <button onClick={downloadPDF} className="btn btn-info btn-block mt-3">
+              <Download size={16} strokeWidth={2.4} /> Download PDF Certificate
+            </button>
+          ) : (
+            <div className="dash-card !p-4 mt-3 !bg-success/5 border border-success/30 space-y-3 text-left">
+              <div className="flex items-start gap-2">
+                <MessageCircle size={18} strokeWidth={2.4} className="shrink-0 mt-0.5" style={{ color: '#06C755' }} />
+                <div className="text-caption text-text-secondary">
+                  <span className="font-bold text-text-primary">เพิ่มเพื่อน LINE OA เพื่อรับใบประกาศ</span>
+                  <div className="mt-0.5">
+                    รับสิทธิพิเศษส่วนลดคอร์สภาคปฏิบัติ + แจ้งเตือนก่อนใบประกาศหมดอายุ
+                  </div>
+                </div>
+              </div>
+              <a
+                href={jiacprCourse.lineUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleAddLine}
+                className="btn btn-block no-underline"
+                style={{ background: '#06C755', color: '#fff', textDecoration: 'none' }}
+              >
+                <MessageCircle size={16} strokeWidth={2.4} /> เพิ่มเพื่อน LINE แล้วรับใบประกาศ
+              </a>
+              <button
+                onClick={() => unlockDownload('skip')}
+                className="block w-full text-center text-caption text-text-muted underline bg-transparent"
+              >
+                ข้ามไปก่อน — ดาวน์โหลดเลย
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
