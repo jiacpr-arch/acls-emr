@@ -115,6 +115,7 @@ export default function Certification() {
     // Best-effort admin LINE alert — fire and forget, never blocks the UI.
     notifyCertIssued({
       studentName,
+      studentPhone: activeStudent?.phone || null,
       courseTitle: certConfig.title,
       certId: data.certId,
       completedAt: data.completedAt,

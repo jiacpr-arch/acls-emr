@@ -4,7 +4,7 @@ import { IS_BLS } from '../config/courseMode';
 // alert to the admin OA. Never throws — a failed alert must not break the
 // student's "Generate Certificate" flow.
 export async function notifyCertIssued({
-  studentName, courseTitle, certId, completedAt,
+  studentName, studentPhone, courseTitle, certId, completedAt,
   preTestScore, postTestScore, ekgPassed,
 }) {
   try {
@@ -13,6 +13,7 @@ export async function notifyCertIssued({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         studentName,
+        studentPhone: studentPhone || null,
         course: IS_BLS ? 'bls' : 'acls',
         courseTitle,
         certId,
