@@ -178,6 +178,23 @@ export default function NewCase() {
             </span>
           </button>
 
+          <button onClick={() => navigate('/video-lessons')}
+            className="btn btn-xl btn-block text-white"
+            style={{
+              height: 'auto',
+              paddingTop: 18,
+              paddingBottom: 18,
+              fontSize: 17,
+              background: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
+              boxShadow: '0 8px 20px rgba(124, 58, 237, 0.28)',
+            }}>
+            <span className="text-[22px] leading-none" aria-hidden="true">📹</span>
+            <span className="flex flex-col items-center leading-tight">
+              <span>วิดีโอบทเรียน</span>
+              <span className="text-[13px] font-medium opacity-85 mt-1">คลิปสอนเชิงลึกทุกหัวข้อ</span>
+            </span>
+          </button>
+
           <button onClick={() => handleStart('rrt')} disabled={loading}
             className="btn btn-primary btn-xl btn-block disabled:opacity-50"
             style={{ height: 'auto', paddingTop: 18, paddingBottom: 18 }}>
