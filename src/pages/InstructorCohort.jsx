@@ -261,12 +261,9 @@ export default function InstructorCohort() {
             const active = selectedId === l.id;
             return (
               <button key={l.id} onClick={() => setSelectedId(l.id)}
-                className={`text-[11px] font-bold px-3 py-1.5 border inline-flex items-center gap-1 ${
-                  active
-                    ? isAssessment ? 'border-warning bg-warning text-white' : 'border-info bg-info text-white'
-                    : 'border-border bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
-                }`}
-                style={{ borderRadius: 99 }}>
+                className={`cohort-chip ${
+                  active ? (isAssessment ? 'is-active-warning' : 'is-active-info') : ''
+                }`}>
                 {Icon && <Icon size={11} strokeWidth={2.4} />}
                 {l.title}
               </button>
