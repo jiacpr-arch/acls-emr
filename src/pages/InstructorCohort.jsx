@@ -167,6 +167,12 @@ export default function InstructorCohort() {
               : `จากเครื่องนี้ · ${summary.length} นักเรียน`}
           </p>
         </div>
+        <a
+          href={`${import.meta.env.BASE_URL}instructor-cohort-guide.pdf`}
+          target="_blank" rel="noopener noreferrer" download
+          className="btn btn-ghost btn-sm shrink-0">
+          <FileText size={14} strokeWidth={2.2} /> คู่มือ (PDF)
+        </a>
       </div>
 
       {/* Sync status bar */}
