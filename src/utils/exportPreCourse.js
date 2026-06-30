@@ -184,6 +184,112 @@ export function exportCohortPDF({ rows, lesson }) {
 }
 
 /**
+ * Export the cohort OVERALL summary — one row per student covering every lesson
+ * (read/passed counts) plus pre-test and post-test results. This is the report
+ * an instructor submits to a committee, so it bundles the whole picture in a
+ * single file rather than one lesson at a time.
+ */
+export function exportCohortSummaryPDF({ rows, className, classCode, isAcls = true }) {
+  const doc = new jsPDF('p', 'mm', 'a4');
+  doc.setFont(PDF_FONT, 'normal');
+  brandedHeader(doc, 'รายงานสรุปผลผู้เรียน (ภาพรวม)');
+  let y = 18;
+
+  doc.setFontSize(10);
+  doc.setFont(PDF_FONT, 'bold');
+  doc.text(S(`คลาส: ${className || '-'}${classCode ? ` (${classCode})` : ''}`), 14, y);
+  y += 4;
+  doc.setFontSize(8);
+  doc.setFont(PDF_FONT, 'normal');
+  doc.text(`จำนวนผู้เรียน: ${rows.length}`, 14, y);
+  y += 4;
+
+  const head = isAcls
+    ? [['ลำดับ', 'รหัส', 'ชื่อ', 'เบอร์โทร', 'อ่านบท', 'ผ่านบท', 'Pre-test', 'Post-test']]
+    : [['ลำดับ', 'รหัส', 'ชื่อ', 'เบอร์โทร', 'อ่านบท', 'ผ่านบท', 'Post-test']];
+  const fmtTest = (score, passed) =>
+    score != null ? `${score}% ${passed ? '(ผ่าน)' : '(ไม่ผ่าน)'}` : '-';
+  const body = rows.map((r, i) => {
+    const base = [
+      String(i + 1),
+      S(r.studentId) || '-',
+      S(r.name) || '-',
+      S(r.phone) || '-',
+      `${r.readCount}/${r.total}`,
+      `${r.passedCount}/${r.total}`,
+    ];
+    const post = fmtTest(r.postTestScore, r.postTestPassed);
+    return isAcls ? [...base, fmtTest(r.preTestScore, r.preTestPassed), post] : [...base, post];
+  });
+
+  autoTable(doc, {
+    startY: y,
+    head,
+    body,
+    theme: 'grid',
+    headStyles: { font: PDF_FONT, fillColor: HEADER_COLOR, fontSize: 8 },
+    styles: { font: PDF_FONT, fontSize: 7.5, cellPadding: 1.5, overflow: 'linebreak' },
+    columnStyles: {
+      0: { cellWidth: 9, halign: 'center' },
+      1: { cellWidth: 20 },
+      2: { cellWidth: 34 },
+      3: { cellWidth: 24 },
+      4: { cellWidth: 14, halign: 'center' },
+      5: { cellWidth: 14, halign: 'center', fontStyle: 'bold' },
+    },
+    margin: { left: 10, right: 10 },
+  });
+
+  pageFooter(doc);
+  const fname = `precourse_summary_${classCode || 'local'}.pdf`;
+  doc.save(fname);
+  return fname;
+}
+
+/**
+ * CSV version of the overall summary. UTF-8 BOM so Excel opens Thai correctly.
+ */
+export function exportCohortSummaryCSV({ rows, isAcls = true }) {
+  const headers = [
+    'No', 'Student ID', 'Name', 'Phone', 'Lessons read', 'Lessons passed',
+    ...(isAcls ? ['Pre-test (%)', 'Pre-test result'] : []),
+    'Post-test (%)', 'Post-test result',
+  ];
+  const esc = (v) => {
+    if (v == null) return '';
+    const s = String(v);
+    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+    return s;
+  };
+  const result = (score, passed) => (score == null ? '' : (passed ? 'PASS' : 'FAIL'));
+  const lines = [headers.join(',')];
+  rows.forEach((r, i) => {
+    const cells = [
+      i + 1,
+      esc(r.studentId),
+      esc(r.name),
+      esc(r.phone || ''),
+      `${r.readCount}/${r.total}`,
+      `${r.passedCount}/${r.total}`,
+      ...(isAcls ? [r.preTestScore ?? '', result(r.preTestScore, r.preTestPassed)] : []),
+      r.postTestScore ?? '',
+      result(r.postTestScore, r.postTestPassed),
+    ];
+    lines.push(cells.join(','));
+  });
+  const csv = '﻿' + lines.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'precourse_summary.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
  * Export cohort to CSV. Uses UTF-8 BOM so Excel opens Thai correctly.
  */
 export function exportCohortCSV({ rows, lesson }) {

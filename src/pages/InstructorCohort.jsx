@@ -13,7 +13,10 @@ import {
 } from '../data/activePostTest';
 import { IS_ACLS } from '../config/courseMode';
 import CohortTable from '../components/precourse/CohortTable';
-import { exportCohortCSV, exportCohortPDF } from '../utils/exportPreCourse';
+import {
+  exportCohortCSV, exportCohortPDF,
+  exportCohortSummaryCSV, exportCohortSummaryPDF,
+} from '../utils/exportPreCourse';
 import { ChevronLeft, Users, Download, FileText, Trash, Sparkles, Award, Cloud, CloudOff, RefreshCw } from 'lucide-react';
 
 export default function InstructorCohort() {
@@ -249,6 +252,25 @@ export default function InstructorCohort() {
         </table>
       </div>
 
+      {/* Overall summary export — the one-file report an instructor submits to a committee */}
+      {overallRows.length > 0 && (
+        <div className="space-y-1.5">
+          <div className="text-overline text-text-muted px-1">ดาวน์โหลดสรุปผลรวม (สำหรับส่งคณะกรรมการ)</div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => exportCohortSummaryCSV({ rows: overallRows, isAcls: IS_ACLS })}
+              className="btn btn-ghost btn-block">
+              <FileText size={14} strokeWidth={2.2} /> สรุปรวม CSV
+            </button>
+            <button
+              onClick={() => exportCohortSummaryPDF({ rows: overallRows, className, classCode, isAcls: IS_ACLS })}
+              className="btn btn-primary btn-block">
+              <Download size={14} strokeWidth={2.2} /> สรุปรวม PDF
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Per-entry selector */}
       <div className="space-y-2">
         <div className="text-overline text-text-muted px-1">ดูตามรายการ</div>
@@ -278,19 +300,22 @@ export default function InstructorCohort() {
         <CohortTable rows={rows} lesson={selected} onDeleteStudent={handleDelete} />
       )}
 
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          onClick={() => exportCohortCSV({ rows, lesson: selected })}
-          disabled={!rows.length}
-          className="btn btn-ghost btn-block disabled:opacity-40">
-          <FileText size={14} strokeWidth={2.2} /> Export CSV
-        </button>
-        <button
-          onClick={() => exportCohortPDF({ rows, lesson: selected })}
-          disabled={!rows.length}
-          className="btn btn-primary btn-block disabled:opacity-40">
-          <Download size={14} strokeWidth={2.2} /> Export PDF
-        </button>
+      <div className="space-y-1.5">
+        <div className="text-overline text-text-muted px-1">ดาวน์โหลดเฉพาะรายการที่เลือก ({selected?.title || '—'})</div>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => exportCohortCSV({ rows, lesson: selected })}
+            disabled={!rows.length}
+            className="btn btn-ghost btn-block disabled:opacity-40">
+            <FileText size={14} strokeWidth={2.2} /> รายการนี้ CSV
+          </button>
+          <button
+            onClick={() => exportCohortPDF({ rows, lesson: selected })}
+            disabled={!rows.length}
+            className="btn btn-primary btn-block disabled:opacity-40">
+            <Download size={14} strokeWidth={2.2} /> รายการนี้ PDF
+          </button>
+        </div>
       </div>
 
       {summary.length > 0 && (
