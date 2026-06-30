@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getLessonProgress, getAttemptsForStudent } from '../db/database';
+import { getLessonProgress, getAttemptsForStudent, upsertStudent } from '../db/database';
+import { scheduleFlush } from '../services/syncEngine';
 import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
@@ -14,7 +15,7 @@ import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
 import {
   Trophy, BookOpen, Sparkles, Activity, Video,
-  Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield, MessageCircle,
+  Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield, MessageCircle, AlertCircle,
 } from 'lucide-react';
 import { useVideoLessons } from '../hooks/useVideoLessons';
 import { computeVideoCompletion } from '../utils/videoProgress';
@@ -35,9 +36,16 @@ function saveCertData(data) {
 export default function Certification() {
   const [certData, setCertData] = useState(getCertData());
   const activeStudent = usePreCourseStore(s => s.activeStudent);
+  const setActiveStudent = usePreCourseStore(s => s.setActiveStudent);
   // Default the certificate name to the name the student already entered at
   // registration; an existing generated cert takes precedence.
   const [studentName, setStudentName] = useState(certData.studentName || activeStudent?.name || '');
+  // Phone/email are collected here at the certificate step — a high-intent
+  // moment, so we require the full contact set even though registration made
+  // them optional. Prefill from whatever the student already gave.
+  const [studentPhone, setStudentPhone] = useState(certData.studentPhone || activeStudent?.phone || '');
+  const [studentEmail, setStudentEmail] = useState(certData.studentEmail || activeStudent?.email || '');
+  const [formError, setFormError] = useState('');
   const [preCourseProgress, setPreCourseProgress] = useState([]);
   const [preCourseAttempts, setPreCourseAttempts] = useState([]);
   // Soft gate: ปลดล็อกปุ่มดาวน์โหลดเมื่อกดเพิ่มเพื่อน LINE OA (หรือกดข้าม) — จำค่าไว้ข้าม refresh
@@ -111,9 +119,30 @@ export default function Certification() {
   const allDone = requirements.every(r => r.done);
   const progress = Math.round((requirements.filter(r => r.done).length / requirements.length) * 100);
 
-  const generateCertificate = () => {
+  const generateCertificate = async () => {
+    const name = studentName.trim();
+    const tel = studentPhone.trim();
+    const mail = studentEmail.trim().toLowerCase();
+    if (!name) { setFormError('กรุณากรอกชื่อ'); return; }
+    if (tel.replace(/\D/g, '').length < 9) { setFormError('เบอร์โทรไม่ถูกต้อง'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { setFormError('อีเมลไม่ถูกต้อง'); return; }
+    setFormError('');
+
+    // Persist the completed contact set back to the student record so it syncs
+    // to the server (roster) and prefills on future visits.
+    if (activeStudent) {
+      const updated = { ...activeStudent, name, phone: tel, email: mail, syncedAt: null };
+      try {
+        await upsertStudent(updated);
+        setActiveStudent(updated);
+        scheduleFlush();
+      } catch { /* non-blocking — cert must still issue */ }
+    }
+
     const data = {
-      studentName,
+      studentName: name,
+      studentPhone: tel,
+      studentEmail: mail,
       completedAt: new Date().toISOString(),
       preTestScore: IS_BLS ? null : (preTestBest?.score ?? null),
       postTestScore: postTestBest?.score ?? null,
@@ -122,13 +151,13 @@ export default function Certification() {
       theoryOnly: !!certConfig.theoryOnly,
       certId: `${certConfig.certIdPrefix}-${Date.now().toString(36).toUpperCase()}`,
     };
-    saveCertData({ ...certData, ...data, studentName });
-    setCertData({ ...certData, ...data, studentName });
-    // Best-effort admin LINE alert — fire and forget, never blocks the UI.
+    saveCertData({ ...certData, ...data });
+    setCertData({ ...certData, ...data });
+    // Best-effort admin LINE alert + certificates-table record — fire and forget.
     notifyCertIssued({
-      studentName,
-      studentPhone: activeStudent?.phone || null,
-      studentEmail: activeStudent?.email || null,
+      studentName: name,
+      studentPhone: tel,
+      studentEmail: mail,
       courseTitle: certConfig.title,
       certId: data.certId,
       completedAt: data.completedAt,
@@ -306,19 +335,46 @@ export default function Certification() {
         </div>
       )}
 
-      {/* Student name + Generate */}
+      {/* Student details + Generate — full contact set required at this step */}
       {allDone && !certData.certId && (
         <div className="dash-card space-y-3">
           <div className="text-headline text-success text-center inline-flex items-center justify-center gap-2 w-full">
-            <Trophy size={18} strokeWidth={2.4} /> Congratulations!
+            <Trophy size={18} strokeWidth={2.4} /> ยินดีด้วย! กรอกข้อมูลเพื่อรับใบประกาศ
           </div>
-          <input type="text" value={studentName}
-            onChange={e => setStudentName(e.target.value)}
-            placeholder="Enter your name for certificate"
-            className="w-full text-body text-center" />
-          <button onClick={generateCertificate} disabled={!studentName.trim()}
+          <p className="text-[11px] text-text-muted text-center -mt-1">
+            ใช้ชื่อบนใบประกาศ และไว้ส่งใบประกาศ/แจ้งเตือนก่อนหมดอายุ
+          </p>
+          <label className="block">
+            <span className="text-caption font-semibold text-text-secondary">ชื่อ–นามสกุล (บนใบประกาศ)</span>
+            <input type="text" value={studentName}
+              onChange={e => setStudentName(e.target.value)}
+              placeholder="เช่น อนันต์ ใจดี"
+              className="w-full text-body mt-1" />
+          </label>
+          <label className="block">
+            <span className="text-caption font-semibold text-text-secondary">เบอร์โทร</span>
+            <input type="tel" inputMode="tel" autoComplete="tel" value={studentPhone}
+              onChange={e => setStudentPhone(e.target.value)}
+              placeholder="เช่น 081-234-5678"
+              className="w-full text-body tabular mt-1" />
+          </label>
+          <label className="block">
+            <span className="text-caption font-semibold text-text-secondary">อีเมล</span>
+            <input type="email" inputMode="email" autoComplete="email" value={studentEmail}
+              onChange={e => setStudentEmail(e.target.value)}
+              placeholder="เช่น name@email.com"
+              className="w-full text-body mt-1" />
+          </label>
+          {formError && (
+            <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <AlertCircle size={14} strokeWidth={2.2} /> {formError}
+            </div>
+          )}
+          <button onClick={generateCertificate}
+            disabled={!studentName.trim() || !studentPhone.trim() || !studentEmail.trim()}
             className="btn btn-success btn-lg btn-block disabled:opacity-40">
-            <Trophy size={16} strokeWidth={2.4} /> Generate Certificate
+            <Trophy size={16} strokeWidth={2.4} /> ออกใบประกาศนียบัตร
           </button>
         </div>
       )}
