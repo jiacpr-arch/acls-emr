@@ -5,7 +5,7 @@ import { t } from '../utils/i18n';
 import { IS_BLS } from '../config/courseMode';
 import {
   HeartPulse, FileText, Pill, Menu,
-  BarChart3, GraduationCap,
+  BarChart3, GraduationCap, Users,
   MessageSquare, Settings, X, Award, Bell,
   GitBranch, Zap, Wind,
 } from './ui/Icon';
@@ -39,11 +39,13 @@ export default function BottomTabBar() {
         { path: '/bls/choking', Icon: Wind, label: 'สำลัก' },
         { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR Metronome' },
         { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
+        { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
         { path: '/news', Icon: Bell, label: 'ข่าว' },
         { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
         { path: '/settings', Icon: Settings, label: t('settings', lang) },
       ]
     : [
+        { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
         { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
         { path: '/compare', Icon: BarChart3, label: 'Compare' },
         { path: '/news', Icon: Bell, label: 'ข่าว' },
