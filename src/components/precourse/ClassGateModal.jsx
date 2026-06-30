@@ -3,16 +3,21 @@ import { useClassStore } from '../../stores/classStore';
 import { COURSE_MODE } from '../../config/courseMode';
 import { rpcCreateClass, rpcVerifyClassCode } from '../../services/cohortSync';
 import { scheduleFlush } from '../../services/syncEngine';
-import { Cloud, BookOpen, KeyRound, Plus, AlertCircle, Check, Copy } from 'lucide-react';
+import { BookOpen, KeyRound, AlertCircle, Check, Copy, Play, ChevronLeft } from 'lucide-react';
 
 // Shown on /pre-course when no class is selected and the user hasn't opted into offline mode.
-// Two flows: Join existing class (by code) or Create new class (instructor) — both write
-// classStore so subsequent writes get synced.
+// Three modes:
+//   home   — student-first landing: "start now" (solo) is the primary action,
+//            joining a class is a secondary option, creating a class is a small
+//            instructor-only link. This split fixes the old equal-weight 3-way
+//            choice that made students tap the wrong thing.
+//   join   — enter a class code (students with a code from their instructor).
+//   create — make a new class (instructors only).
 export default function ClassGateModal({ open, onClose }) {
   const setClass = useClassStore(s => s.setClass);
   const disableSync = useClassStore(s => s.disableSync);
 
-  const [tab, setTab] = useState('join');     // 'join' | 'create'
+  const [mode, setMode] = useState('home');   // 'home' | 'join' | 'create'
   const [code, setCode] = useState('');
   const [className, setClassName] = useState('');
   const [busy, setBusy] = useState(false);
@@ -20,6 +25,8 @@ export default function ClassGateModal({ open, onClose }) {
   const [createdCode, setCreatedCode] = useState(null);
 
   if (!open) return null;
+
+  const goHome = () => { setMode('home'); setError(''); };
 
   const submitJoin = async (e) => {
     e?.preventDefault();
@@ -117,93 +124,128 @@ export default function ClassGateModal({ open, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in p-4">
       <div className="w-full max-w-md bg-bg-secondary animate-slide-up p-5 space-y-4"
         style={{ borderRadius: 'var(--radius-2xl)', boxShadow: 'var(--shadow-pop)' }}>
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 inline-flex items-center justify-center bg-info/15 text-info"
-            style={{ borderRadius: 'var(--radius-md)' }}>
-            <Cloud size={18} strokeWidth={2.2} />
-          </div>
-          <div>
-            <div className="text-headline">เชื่อมต่อคลาส</div>
-            <div className="text-[11px] text-text-muted">เพื่อให้อาจารย์ดูคะแนนได้จากทุกเครื่อง</div>
-          </div>
-        </div>
 
-        <div className="flex gap-1.5">
-          <button onClick={() => { setTab('join'); setError(''); }}
-            className={`flex-1 text-caption font-bold px-3 py-2 border ${
-              tab === 'join'
-                ? 'border-info bg-info text-white'
-                : 'border-border bg-bg-tertiary text-text-secondary'
-            }`}
-            style={{ borderRadius: 'var(--radius-md)' }}>
-            <KeyRound size={13} strokeWidth={2.4} className="inline mr-1" />
-            เข้าคลาส
-          </button>
-          <button onClick={() => { setTab('create'); setError(''); }}
-            className={`flex-1 text-caption font-bold px-3 py-2 border ${
-              tab === 'create'
-                ? 'border-info bg-info text-white'
-                : 'border-border bg-bg-tertiary text-text-secondary'
-            }`}
-            style={{ borderRadius: 'var(--radius-md)' }}>
-            <Plus size={13} strokeWidth={2.4} className="inline mr-1" />
-            สร้างคลาสใหม่
-          </button>
-        </div>
+        {mode === 'home' && (
+          <>
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 inline-flex items-center justify-center bg-info/15 text-info"
+                style={{ borderRadius: 'var(--radius-md)' }}>
+                <BookOpen size={18} strokeWidth={2.2} />
+              </div>
+              <div>
+                <div className="text-headline">พร้อมเริ่มเรียนแล้ว</div>
+                <div className="text-[11px] text-text-muted">เริ่มทำข้อสอบได้เลย ไม่ต้องใช้รหัส</div>
+              </div>
+            </div>
 
-        {tab === 'join' ? (
-          <form onSubmit={submitJoin} className="space-y-3">
-            <label className="block">
-              <span className="text-caption font-semibold text-text-secondary">รหัสคลาส (6 หลัก)</span>
-              <input
-                type="text" autoFocus value={code}
-                onChange={e => setCode(e.target.value.toUpperCase())}
-                placeholder="เช่น K7M2QX" maxLength={6}
-                className="w-full text-2xl font-mono tracking-[0.3em] text-center mt-1" />
-            </label>
-            {error && (
-              <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"
-                style={{ borderRadius: 'var(--radius-md)' }}>
-                <AlertCircle size={14} strokeWidth={2.2} /> {error}
-              </div>
-            )}
-            <button type="submit" disabled={busy}
-              className="btn btn-primary btn-block disabled:opacity-50">
-              {busy ? 'กำลังเชื่อมต่อ…' : 'เข้าคลาส'}
+            {/* Primary action — the path almost every student wants */}
+            <div>
+              <button onClick={useOffline}
+                className="btn btn-primary btn-lg btn-block font-bold">
+                <Play size={18} strokeWidth={2.4} /> เริ่มเรียนเลย
+              </button>
+              <p className="text-[11px] text-text-muted text-center mt-1.5">
+                เริ่มทำข้อสอบได้ทันที (ข้อมูลเก็บในเครื่องนี้)
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-[11px] text-text-muted">หรือ</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+
+            {/* Secondary — only for students who got a code from their instructor */}
+            <button onClick={() => { setMode('join'); setError(''); }}
+              className="w-full text-caption font-bold px-3 py-2.5 border border-border bg-bg-tertiary text-text-secondary inline-flex items-center justify-center gap-1.5"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <KeyRound size={14} strokeWidth={2.4} />
+              มีรหัสคลาสจากอาจารย์? เข้าคลาส
             </button>
-          </form>
-        ) : (
-          <form onSubmit={submitCreate} className="space-y-3">
-            <label className="block">
-              <span className="text-caption font-semibold text-text-secondary">ชื่อคลาส</span>
-              <input
-                type="text" autoFocus value={className}
-                onChange={e => setClassName(e.target.value)}
-                placeholder="เช่น BLS รุ่นที่ 12 / 2025"
-                className="w-full text-body mt-1" />
-            </label>
-            {error && (
-              <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"
-                style={{ borderRadius: 'var(--radius-md)' }}>
-                <AlertCircle size={14} strokeWidth={2.2} /> {error}
-              </div>
-            )}
-            <button type="submit" disabled={busy}
-              className="btn btn-primary btn-block disabled:opacity-50">
-              {busy ? 'กำลังสร้าง…' : 'สร้างคลาส (สำหรับอาจารย์)'}
-            </button>
-          </form>
+
+            {/* Instructor-only, de-emphasized so students don't tap it by mistake */}
+            <div className="border-t border-border pt-3 text-center">
+              <button onClick={() => { setMode('create'); setError(''); }}
+                className="text-[11px] text-text-muted underline underline-offset-2">
+                เป็นอาจารย์? สร้างคลาสใหม่
+              </button>
+            </div>
+          </>
         )}
 
-        <div className="border-t border-border pt-3">
-          <button onClick={useOffline}
-            className="btn btn-success btn-block font-bold">
-            <BookOpen size={15} strokeWidth={2.2} /> เรียนคนเดียว / ฝึกเอง
-          </button>
-          <p className="text-[11px] text-text-muted text-center mt-1.5">
-            เริ่มเรียนได้เลย ไม่ต้องใช้รหัสคลาส (ข้อมูลเก็บในเครื่องนี้)
-          </p>
-        </div>
+        {mode === 'join' && (
+          <>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={goHome}
+                className="w-8 h-8 inline-flex items-center justify-center text-text-muted hover:bg-bg-tertiary"
+                style={{ borderRadius: 'var(--radius-full)' }} aria-label="ย้อนกลับ">
+                <ChevronLeft size={18} strokeWidth={2.4} />
+              </button>
+              <div>
+                <div className="text-headline">เข้าคลาส</div>
+                <div className="text-[11px] text-text-muted">กรอกรหัสที่ได้จากอาจารย์</div>
+              </div>
+            </div>
+
+            <form onSubmit={submitJoin} className="space-y-3">
+              <label className="block">
+                <span className="text-caption font-semibold text-text-secondary">รหัสคลาส (6 หลัก)</span>
+                <input
+                  type="text" autoFocus value={code}
+                  onChange={e => setCode(e.target.value.toUpperCase())}
+                  placeholder="เช่น K7M2QX" maxLength={6}
+                  className="w-full text-2xl font-mono tracking-[0.3em] text-center mt-1" />
+              </label>
+              {error && (
+                <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"
+                  style={{ borderRadius: 'var(--radius-md)' }}>
+                  <AlertCircle size={14} strokeWidth={2.2} /> {error}
+                </div>
+              )}
+              <button type="submit" disabled={busy}
+                className="btn btn-primary btn-block disabled:opacity-50">
+                {busy ? 'กำลังเชื่อมต่อ…' : 'เข้าคลาส'}
+              </button>
+            </form>
+          </>
+        )}
+
+        {mode === 'create' && (
+          <>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={goHome}
+                className="w-8 h-8 inline-flex items-center justify-center text-text-muted hover:bg-bg-tertiary"
+                style={{ borderRadius: 'var(--radius-full)' }} aria-label="ย้อนกลับ">
+                <ChevronLeft size={18} strokeWidth={2.4} />
+              </button>
+              <div>
+                <div className="text-headline">สร้างคลาสใหม่</div>
+                <div className="text-[11px] text-text-muted">สำหรับอาจารย์ — ได้รหัสไว้แจกนักเรียน</div>
+              </div>
+            </div>
+
+            <form onSubmit={submitCreate} className="space-y-3">
+              <label className="block">
+                <span className="text-caption font-semibold text-text-secondary">ชื่อคลาส</span>
+                <input
+                  type="text" autoFocus value={className}
+                  onChange={e => setClassName(e.target.value)}
+                  placeholder="เช่น BLS รุ่นที่ 12 / 2025"
+                  className="w-full text-body mt-1" />
+              </label>
+              {error && (
+                <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"
+                  style={{ borderRadius: 'var(--radius-md)' }}>
+                  <AlertCircle size={14} strokeWidth={2.2} /> {error}
+                </div>
+              )}
+              <button type="submit" disabled={busy}
+                className="btn btn-primary btn-block disabled:opacity-50">
+                {busy ? 'กำลังสร้าง…' : 'สร้างคลาส'}
+              </button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
