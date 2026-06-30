@@ -43,9 +43,9 @@ export default function Learn() {
           items: [
             { path: '/pre-course/pre-test',  emoji: '📝', label: t('pre_test',   lang), subtitle: 'Knowledge Check', desc: t('pre_test_desc', lang),       tone: 'purple',  step: 1, featured: true },
             { path: '/pre-course',           emoji: '🎓', label: t('pre_course', lang), subtitle: 'บทเรียน + Quiz',  desc: t('pre_course_desc', lang),     tone: 'info',    step: 2, featured: true },
-            { path: '/pre-course/post-test', emoji: '🏆', label: t('post_test',  lang), subtitle: 'Final Exam',      desc: t('post_test_desc', lang),      tone: 'shock',   step: 3, featured: true },
-            { path: '/als?tab=ekg',          emoji: '💓', label: t('ekg_quiz', lang),       subtitle: 'EKG Quiz',        desc: t('ekg_quiz_desc', lang),       tone: 'danger',  step: 4, featured: true },
-            { path: '/video-lessons',        emoji: '📹', label: t('video_lessons', lang),  subtitle: 'Video Lessons',   desc: t('video_lessons_desc', lang),  tone: 'purple',  step: 5, featured: true },
+            { path: '/als?tab=ekg',          emoji: '💓', label: t('ekg_quiz', lang),       subtitle: 'EKG Quiz',        desc: t('ekg_quiz_desc', lang),       tone: 'danger',  step: 3, featured: true },
+            { path: '/video-lessons',        emoji: '📹', label: t('video_lessons', lang),  subtitle: 'Video Lessons',   desc: t('video_lessons_desc', lang),  tone: 'purple',  step: 4, featured: true },
+            { path: '/pre-course/post-test', emoji: '🏆', label: t('post_test',  lang), subtitle: 'Final Exam',      desc: t('post_test_desc', lang),      tone: 'shock',   step: 5, featured: true },
             { path: '/certification',        emoji: '🏅', label: t('cert', lang),           subtitle: 'My Records',      desc: t('cert_desc', lang),           tone: 'warning', featured: true },
           ],
         },
