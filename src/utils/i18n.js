@@ -81,7 +81,7 @@ const translations = {
   'statistics': { en: 'Statistics', th: 'สถิติ' },
   'drill': { en: 'Drill', th: 'ฝึก' },
   'drugs': { en: 'Drugs', th: 'ยา' },
-  'cert': { en: 'Cert', th: 'ใบรับรอง' },
+  'cert': { en: 'Cert', th: 'ใบประกาศนียบัตร' },
   'algorithms': { en: 'Algorithms', th: 'แนวทาง' },
   'als_knowledge': { en: 'ALS Book', th: 'ความรู้ ALS' },
   'qa_deep': { en: 'Q&A Deep', th: 'Q&A เชิงลึก' },

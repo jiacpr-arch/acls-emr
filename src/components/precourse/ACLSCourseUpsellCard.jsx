@@ -73,7 +73,7 @@ export default function ACLSCourseUpsellCard() {
             </li>
             <li className="flex items-center gap-2 text-[12px] text-white/90">
               <Award size={13} strokeWidth={2.4} className="shrink-0" />
-              สอบรับใบประกาศ ILCOR 2025 ใช้ได้ 24 เดือน
+              สอบรับใบประกาศนียบัตร ILCOR 2025 ใช้ได้ 24 เดือน
             </li>
           </ul>
 

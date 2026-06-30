@@ -1,6 +1,6 @@
 import { videoLessonKey } from '../data/videoTopics';
 
-// ตรรกะ "ผ่าน" ของคลิปวิดีโอ ใช้ร่วมกันระหว่างหน้าไลบรารี/รายละเอียด และเงื่อนไขใบประกาศ
+// ตรรกะ "ผ่าน" ของคลิปวิดีโอ ใช้ร่วมกันระหว่างหน้าไลบรารี/รายละเอียด และเงื่อนไขใบประกาศนียบัตร
 // นิยาม: ดูจบ (มีใน lessonProgress) AND (ไม่มีควิซ หรือ ผ่านควิซแล้ว)
 //   progressLessonIds : Set<string> ของ lessonId ที่อ่าน/ดูแล้ว
 //   passedLessonIds   : Set<string> ของ lessonId ที่มี attempt ผ่าน
@@ -25,7 +25,7 @@ export function buildProgressSets(progress, attempts) {
   return { progressLessonIds, passedLessonIds };
 }
 
-// สรุปความคืบหน้าวิดีโอสำหรับใบประกาศ — นับเฉพาะคลิป required
+// สรุปความคืบหน้าวิดีโอสำหรับใบประกาศนียบัตร — นับเฉพาะคลิป required
 // คืน { total, done, allDone }
 export function computeVideoCompletion(lessons, progress, attempts) {
   const required = (lessons || []).filter(l => l.required);

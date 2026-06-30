@@ -14,7 +14,7 @@ create table if not exists public.video_lessons (
   orientation   text not null default 'portrait',    -- 'portrait' | 'landscape'
   start_sec     integer,                             -- ตัดช่วง (null = ตั้งแต่ต้น)
   end_sec       integer,                             -- ตัดช่วง (null = จนจบ)
-  required      boolean not null default true,       -- บังคับเพื่อใบประกาศหรือไม่
+  required      boolean not null default true,       -- บังคับเพื่อใบประกาศนียบัตรหรือไม่
   key_points    text not null default '',            -- บล็อก B (markdown bullet)
   chapters      jsonb not null default '[]'::jsonb,  -- บล็อก A: [{ "t": seconds, "label": "..." }]
   quiz          jsonb not null default '[]'::jsonb,  -- บล็อก C: [{ "id","question","choices":[{"id","text"}],"correctId","explanation" }]

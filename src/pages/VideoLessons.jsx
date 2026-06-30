@@ -40,7 +40,7 @@ export default function VideoLessons() {
           <Video size={28} strokeWidth={2.2} className="text-white" />
         </div>
         <h1 className="text-title text-text-primary">วิดีโอบทเรียน</h1>
-        <p className="text-caption text-text-muted">คลิปสอนเชิงลึกทุกหัวข้อ · ดูครบ + ผ่านควิซ = นับเข้าใบประกาศ</p>
+        <p className="text-caption text-text-muted">คลิปสอนเชิงลึกทุกหัวข้อ · ดูครบ + ผ่านควิซ = นับเข้าใบประกาศนียบัตร</p>
       </div>
 
       {requiredTotal > 0 && (
@@ -108,7 +108,7 @@ export default function VideoLessons() {
       {!activeStudent && topics.length > 0 && (
         <div className="dash-card !p-3 bg-info/8 border border-info/30 flex items-start gap-2 text-caption text-text-secondary">
           <Lock size={15} strokeWidth={2.2} className="text-info shrink-0 mt-0.5" />
-          <span>ลงทะเบียนเข้าเรียน (ที่หน้า Pre-course) เพื่อบันทึกความคืบหน้าและนับเข้าเงื่อนไขใบประกาศ</span>
+          <span>ลงทะเบียนเข้าเรียน (ที่หน้า Pre-course) เพื่อบันทึกความคืบหน้าและนับเข้าเงื่อนไขใบประกาศนียบัตร</span>
         </div>
       )}
     </div>

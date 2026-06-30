@@ -41,7 +41,7 @@ export default function BLSQuickActions({
     },
     {
       Icon: Award,
-      label: 'ใบประกาศ',
+      label: 'ใบประกาศนียบัตร',
       sub: postTestPassed ? 'พร้อมดาวน์โหลด' : 'ผ่าน Post-test ก่อน',
       onClick: () => navigate('/certification'),
       iconBg: postTestPassed

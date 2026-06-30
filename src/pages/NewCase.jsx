@@ -174,7 +174,7 @@ export default function NewCase() {
             <GraduationCap size={24} strokeWidth={2.4} />
             <span className="flex flex-col items-center leading-tight">
               <span>โหมดเรียน</span>
-              <span className="text-[13px] font-medium opacity-85 mt-1">บทเรียน · scenarios · ใบประกาศ</span>
+              <span className="text-[13px] font-medium opacity-85 mt-1">บทเรียน · scenarios · ใบประกาศนียบัตร</span>
             </span>
           </button>
 

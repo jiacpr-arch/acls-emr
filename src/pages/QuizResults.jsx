@@ -90,7 +90,7 @@ export default function QuizResults() {
     }
   } else if (isPostTest) {
     nextPath = '/certification';
-    nextLabel = 'ไปหน้าใบรับรอง';
+    nextLabel = 'ไปหน้าใบประกาศนียบัตร';
   } else if (!isAssessment) {
     const idx = preCourseLessons.findIndex(l => l.id === attempt.lessonId);
     const nextLesson = idx >= 0 ? preCourseLessons[idx + 1] : null;
@@ -166,7 +166,7 @@ export default function QuizResults() {
       {!isPostTest && (
         <button onClick={() => navigate('/certification')}
           className="btn btn-ghost btn-block">
-          ดูสถานะใบรับรอง
+          ดูสถานะใบประกาศนียบัตร
         </button>
       )}
     </div>

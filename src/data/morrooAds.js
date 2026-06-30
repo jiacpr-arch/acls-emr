@@ -30,7 +30,7 @@ const allAds = [
   {
     id: 'acls',
     name: 'ACLS',
-    tagline: 'เรียนต่อ ACLS ออนไลน์ + สอบใบประกาศ ILCOR 2025',
+    tagline: 'เรียนต่อ ACLS ออนไลน์ + สอบใบประกาศนียบัตร ILCOR 2025',
     url: 'https://acls.morroo.com',
     icon: 'HeartPulse',
     tone: 'danger',

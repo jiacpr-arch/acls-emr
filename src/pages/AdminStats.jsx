@@ -44,7 +44,7 @@ export default function AdminStats() {
     { label: 'นักเรียนทั้งหมด', value: stats?.students_total, Icon: Users, tone: 'text-info' },
     { label: 'คลาสทั้งหมด', value: stats?.classes_total, sub: stats != null ? `กำลังเปิด ${stats.classes_active}` : null, Icon: GraduationCap, tone: 'text-text-primary' },
     { label: 'ผ่าน Post-test', value: stats?.post_test_passed, Icon: ClipboardCheck, tone: 'text-success' },
-    { label: 'ใบรับรองที่ออก', value: stats?.certs_total, Icon: Award, tone: 'text-warning' },
+    { label: 'ใบประกาศนียบัตรที่ออก', value: stats?.certs_total, Icon: Award, tone: 'text-warning' },
   ];
 
   return (
@@ -97,7 +97,7 @@ export default function AdminStats() {
               <th className="px-3 py-2 text-left">คอร์ส</th>
               <th className="px-3 py-2 text-center">นักเรียน</th>
               <th className="px-3 py-2 text-center">คลาส</th>
-              <th className="px-3 py-2 text-center">ใบรับรอง</th>
+              <th className="px-3 py-2 text-center">ใบประกาศนียบัตร</th>
             </tr>
           </thead>
           <tbody>
@@ -122,7 +122,7 @@ export default function AdminStats() {
       {/* Caveat — same data scope as the instructor cohort page */}
       <div className="dash-card !p-3 bg-info/10 border border-info/30 text-caption text-text-secondary">
         นับเฉพาะนักเรียนที่เข้าคลาสด้วยรหัสคลาส (class code) — คนที่เรียนโดยไม่กรอกรหัสจะไม่ถูกนับ
-        ส่วน "ใบรับรองที่ออก" นับทุกใบที่ออกในแอป ไม่ว่าจะเข้าคลาสหรือไม่
+        ส่วน "ใบประกาศนียบัตรที่ออก" นับทุกใบที่ออกในแอป ไม่ว่าจะเข้าคลาสหรือไม่
       </div>
     </div>
   );
