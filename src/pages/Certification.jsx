@@ -13,9 +13,11 @@ import { notifyCertIssued } from '../services/certNotify';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
 import {
-  Trophy, BookOpen, Sparkles, Activity,
+  Trophy, BookOpen, Sparkles, Activity, Video,
   Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield, MessageCircle,
 } from 'lucide-react';
+import { useVideoLessons } from '../hooks/useVideoLessons';
+import { computeVideoCompletion } from '../utils/videoProgress';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
@@ -82,6 +84,12 @@ export default function Certification() {
   const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
   const preTestDone = !!preTestBest?.passed;
 
+  // เงื่อนไขบทเรียนวิดีโอ — ดูครบ + ผ่านควิซ ทุกหัวข้อ required (ACLS เท่านั้น)
+  // ถ้ายังไม่มีวิดีโอ (total = 0) จะไม่เพิ่มเป็นเงื่อนไข เพื่อไม่บล็อกใบประกาศช่วงเปลี่ยนผ่าน
+  const { lessons: videoLessons } = useVideoLessons();
+  const videoComp = computeVideoCompletion(videoLessons, preCourseProgress, preCourseAttempts);
+  const videoGateActive = !IS_BLS && videoComp.total > 0;
+
   // BLS: 2 knowledge requirements. ACLS: online theory certification — the four
   // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
   // skills are completed separately at a training center.
@@ -95,6 +103,9 @@ export default function Certification() {
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: '/pre-course/post-test' },
         { label: `ผ่าน EKG test ≥ ${EKG_TEST_PASS_PERCENT}%`, done: ekgTestDone, Icon: Activity, to: '/als?tab=ekg' },
+        ...(videoGateActive
+          ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
+          : []),
       ];
 
   const allDone = requirements.every(r => r.done);
@@ -107,6 +118,7 @@ export default function Certification() {
       preTestScore: IS_BLS ? null : (preTestBest?.score ?? null),
       postTestScore: postTestBest?.score ?? null,
       ekgPassed: IS_BLS ? null : ekgTestDone,
+      videoCompleted: videoGateActive ? videoComp.allDone : null,
       theoryOnly: !!certConfig.theoryOnly,
       certId: `${certConfig.certIdPrefix}-${Date.now().toString(36).toUpperCase()}`,
     };

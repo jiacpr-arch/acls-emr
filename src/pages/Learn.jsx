@@ -47,6 +47,12 @@ export default function Learn() {
           ],
         },
         {
+          title: t('learn_video', lang),
+          items: [
+            { path: '/video-lessons', emoji: '📹', label: t('video_lessons', lang), subtitle: 'Video Lessons', desc: t('video_lessons_desc', lang), tone: 'purple', featured: true },
+          ],
+        },
+        {
           title: t('learn_reference', lang),
           items: [
             { path: '/als',           emoji: '📚', label: t('als_knowledge', lang), subtitle: 'ALS Book',    desc: t('als_knowledge_desc', lang), tone: 'info' },

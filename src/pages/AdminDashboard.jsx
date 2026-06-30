@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3, Users,
+  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3, Users, Video,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 
@@ -44,6 +44,14 @@ const SECTIONS = [
     icon: Images,
     gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
     shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
+  },
+  {
+    to: '/admin/video-lessons',
+    title: 'วิดีโอบทเรียน',
+    desc: 'เพิ่ม/แก้คลิป YouTube + สรุป + สารบัญ + ควิซ (เป็นเงื่อนไขใบประกาศ)',
+    icon: Video,
+    gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
+    shadow: '0 8px 20px rgba(124, 58, 237, 0.22)',
   },
   {
     to: '/admin/student-questions',

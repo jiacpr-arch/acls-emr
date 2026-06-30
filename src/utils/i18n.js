@@ -112,6 +112,9 @@ const translations = {
   'cert_desc': { en: 'My learning records', th: 'ผลการเรียนของฉัน' },
   'cpr_drill': { en: 'CPR Drill', th: 'ฝึก CPR' },
   'cpr_drill_desc': { en: 'Compression rhythm', th: 'ฝึกกดหน้าอกตามจังหวะ' },
+  'learn_video': { en: 'Video Lessons', th: 'วิดีโอบทเรียน' },
+  'video_lessons': { en: 'Video Lessons', th: 'วิดีโอบทเรียน' },
+  'video_lessons_desc': { en: 'In-depth clips, all topics', th: 'คลิปสอนเชิงลึกทุกหัวข้อ' },
 };
 
 // Get translation

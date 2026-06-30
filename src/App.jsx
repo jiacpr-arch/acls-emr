@@ -24,6 +24,8 @@ import QAAclsDeepQuestion from './pages/QAAclsDeepQuestion';
 import CodeBlueSim from './pages/CodeBlueSim';
 import PreCourse from './pages/PreCourse';
 import Learn from './pages/Learn';
+import VideoLessons from './pages/VideoLessons';
+import VideoLessonDetail from './pages/VideoLessonDetail';
 import LessonReader from './pages/LessonReader';
 import QuizResults from './pages/QuizResults';
 import InstructorCohort from './pages/InstructorCohort';
@@ -52,6 +54,7 @@ const AdminQADeepPosted = lazy(() => import('./pages/AdminQADeepPosted'));
 const AdminStudentQuestions = lazy(() => import('./pages/AdminStudentQuestions'));
 const AdminStats = lazy(() => import('./pages/AdminStats'));
 const AdminStudents = lazy(() => import('./pages/AdminStudents'));
+const AdminVideoLessons = lazy(() => import('./pages/AdminVideoLessons'));
 
 const AdminFallback = () => (
   <div className="page-container py-12 text-center text-caption text-text-muted">
@@ -128,6 +131,8 @@ function App() {
         {IS_ACLS && <Route path="/qa-acls-deep/:chapterId" element={<QAAclsDeepCategory />} />}
         {IS_ACLS && <Route path="/qa-acls-deep/:chapterId/:qNum" element={<QAAclsDeepQuestion />} />}
         {IS_ACLS && <Route path="/sim" element={<CodeBlueSim />} />}
+        {IS_ACLS && <Route path="/video-lessons" element={<VideoLessons />} />}
+        {IS_ACLS && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
         {IS_ACLS && (
           <Route
             path="/admin/login"
@@ -229,6 +234,18 @@ function App() {
               <Suspense fallback={<AdminFallback />}>
                 <RequireAdmin>
                   <AdminStudents />
+                </RequireAdmin>
+              </Suspense>
+            }
+          />
+        )}
+        {IS_ACLS && (
+          <Route
+            path="/admin/video-lessons"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <RequireAdmin>
+                  <AdminVideoLessons />
                 </RequireAdmin>
               </Suspense>
             }
