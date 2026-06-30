@@ -85,7 +85,7 @@ export default function Certification() {
   const preTestDone = !!preTestBest?.passed;
 
   // เงื่อนไขบทเรียนวิดีโอ — ดูครบ + ผ่านควิซ ทุกหัวข้อ required (ACLS เท่านั้น)
-  // ถ้ายังไม่มีวิดีโอ (total = 0) จะไม่เพิ่มเป็นเงื่อนไข เพื่อไม่บล็อกใบประกาศช่วงเปลี่ยนผ่าน
+  // ถ้ายังไม่มีวิดีโอ (total = 0) จะไม่เพิ่มเป็นเงื่อนไข เพื่อไม่บล็อกใบประกาศนียบัตรช่วงเปลี่ยนผ่าน
   const { lessons: videoLessons } = useVideoLessons();
   const videoComp = computeVideoCompletion(videoLessons, preCourseProgress, preCourseAttempts);
   const videoGateActive = !IS_BLS && videoComp.total > 0;
@@ -194,7 +194,7 @@ export default function Certification() {
           <Shield size={16} strokeWidth={2.4} className="text-info shrink-0 mt-0.5" />
           <div className="text-caption text-text-secondary">
             <span className="font-bold text-info">{courseMeta.standard}</span>
-            {' · '}อายุใบประกาศ {certConfig.validityMonths} เดือน — ต้องต่ออายุก่อนหมดอายุ
+            {' · '}อายุใบประกาศนียบัตร {certConfig.validityMonths} เดือน — ต้องต่ออายุก่อนหมดอายุ
           </div>
         </div>
       )}
@@ -383,9 +383,9 @@ export default function Certification() {
               <div className="flex items-start gap-2">
                 <MessageCircle size={18} strokeWidth={2.4} className="shrink-0 mt-0.5" style={{ color: '#06C755' }} />
                 <div className="text-caption text-text-secondary">
-                  <span className="font-bold text-text-primary">เพิ่มเพื่อน LINE OA เพื่อรับใบประกาศ</span>
+                  <span className="font-bold text-text-primary">เพิ่มเพื่อน LINE OA เพื่อรับใบประกาศนียบัตร</span>
                   <div className="mt-0.5">
-                    รับสิทธิพิเศษส่วนลดคอร์สภาคปฏิบัติ + แจ้งเตือนก่อนใบประกาศหมดอายุ
+                    รับสิทธิพิเศษส่วนลดคอร์สภาคปฏิบัติ + แจ้งเตือนก่อนใบประกาศนียบัตรหมดอายุ
                   </div>
                 </div>
               </div>
@@ -397,7 +397,7 @@ export default function Certification() {
                 className="btn btn-block no-underline"
                 style={{ background: '#06C755', color: '#fff', textDecoration: 'none' }}
               >
-                <MessageCircle size={16} strokeWidth={2.4} /> เพิ่มเพื่อน LINE แล้วรับใบประกาศ
+                <MessageCircle size={16} strokeWidth={2.4} /> เพิ่มเพื่อน LINE แล้วรับใบประกาศนียบัตร
               </a>
               <button
                 onClick={() => unlockDownload('skip')}

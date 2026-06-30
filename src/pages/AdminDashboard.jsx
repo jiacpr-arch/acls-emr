@@ -8,7 +8,7 @@ const SECTIONS = [
   {
     to: '/admin/stats',
     title: 'สถิติผู้เรียน',
-    desc: 'ดูจำนวนนักเรียน คลาส และใบรับรอง รวมทุกคลาส',
+    desc: 'ดูจำนวนนักเรียน คลาส และใบประกาศนียบัตร รวมทุกคลาส',
     icon: BarChart3,
     gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
     shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
@@ -48,7 +48,7 @@ const SECTIONS = [
   {
     to: '/admin/video-lessons',
     title: 'วิดีโอบทเรียน',
-    desc: 'เพิ่ม/แก้คลิป YouTube + สรุป + สารบัญ + ควิซ (เป็นเงื่อนไขใบประกาศ)',
+    desc: 'เพิ่ม/แก้คลิป YouTube + สรุป + สารบัญ + ควิซ (เป็นเงื่อนไขใบประกาศนียบัตร)',
     icon: Video,
     gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
     shadow: '0 8px 20px rgba(124, 58, 237, 0.22)',

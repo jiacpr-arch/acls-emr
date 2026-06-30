@@ -57,7 +57,7 @@ export default function BLSCourseUpsellCard({ source = 'bls_upsell_card' }) {
                 คอร์สอบรม BLS ภาคปฏิบัติ
               </h2>
               <div className="text-[12px] text-white/85 mt-0.5">
-                ฝึกกับหุ่น CPR จริง · รับใบประกาศ ILCOR 2025
+                ฝึกกับหุ่น CPR จริง · รับใบประกาศนียบัตร ILCOR 2025
               </div>
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function BLSCourseUpsellCard({ source = 'bls_upsell_card' }) {
             </li>
             <li className="flex items-center gap-2 text-[12px] text-white/90">
               <Award size={13} strokeWidth={2.4} className="shrink-0" />
-              ใบประกาศจากสถาบันใช้ได้ 24 เดือน
+              ใบประกาศนียบัตรจากสถาบันใช้ได้ 24 เดือน
             </li>
           </ul>
 

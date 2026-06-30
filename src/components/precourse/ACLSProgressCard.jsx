@@ -39,7 +39,7 @@ export default function ACLSProgressCard({
     };
   } else if (postTestPassed) {
     cta = {
-      label: 'ดูใบประกาศ',
+      label: 'ดูใบประกาศนียบัตร',
       icon: Award,
       tone: 'success',
       onClick: () => navigate('/certification'),

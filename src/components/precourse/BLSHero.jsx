@@ -48,7 +48,7 @@ export default function BLSHero() {
           </h1>
           <div className="inline-flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-white/85">
             <ShieldCheck size={12} strokeWidth={2.6} />
-            ILCOR 2025 · ใบประกาศใช้ได้ 24 เดือน
+            ILCOR 2025 · ใบประกาศนียบัตรใช้ได้ 24 เดือน
           </div>
         </div>
       </div>

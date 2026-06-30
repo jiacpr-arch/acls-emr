@@ -28,7 +28,7 @@ export function buildCertMessage(payload = {}) {
   if (!isBls) scoreParts.push(`EKG ${payload.ekgPassed ? 'ผ่าน' : '—'}`);
 
   const lines = [
-    '🎓 มีนักเรียนได้รับใบรับรองใหม่',
+    '🎓 มีนักเรียนได้รับใบประกาศนียบัตรใหม่',
     `คอร์ส: ${title}`,
     `ชื่อ: ${name}`,
   ];

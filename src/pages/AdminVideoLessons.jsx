@@ -192,7 +192,7 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, saving }) {
 
         <label className="flex items-center gap-2 cursor-pointer py-1">
           <input type="checkbox" checked={form.required} onChange={e => upd({ required: e.target.checked })} className="w-4 h-4" />
-          <span className="text-caption font-bold text-text-secondary">บังคับเพื่อใบประกาศ (required)</span>
+          <span className="text-caption font-bold text-text-secondary">บังคับเพื่อใบประกาศนียบัตร (required)</span>
         </label>
 
         {/* B */}

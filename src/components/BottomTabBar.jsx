@@ -21,7 +21,7 @@ export default function BottomTabBar() {
         { path: '/', Icon: GraduationCap, label: 'เรียน' },
         { path: '/new-case', Icon: HeartPulse, label: 'ฝึก code' },
         { path: '/history', Icon: FileText, label: 'ประวัติ' },
-        { path: '/certification', Icon: Award, label: 'ใบประกาศ' },
+        { path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร' },
         { key: 'more', Icon: Menu, label: 'More' },
       ]
     : [
