@@ -128,6 +128,7 @@ export default function Certification() {
     notifyCertIssued({
       studentName,
       studentPhone: activeStudent?.phone || null,
+      studentEmail: activeStudent?.email || null,
       courseTitle: certConfig.title,
       certId: data.certId,
       completedAt: data.completedAt,

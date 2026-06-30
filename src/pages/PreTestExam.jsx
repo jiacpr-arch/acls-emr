@@ -167,6 +167,8 @@ export default function PreTestExam() {
         studentLocalId: activeStudent.id,
         studentCode: activeStudent.studentId,
         studentName: activeStudent.name,
+        studentPhone: activeStudent.phone,
+        studentEmail: activeStudent.email,
         bankId: PRE_TEST_BANK_ID,
         setId: exam.set.id,
         score, totalQuestions: total, correctCount: correct, passed,

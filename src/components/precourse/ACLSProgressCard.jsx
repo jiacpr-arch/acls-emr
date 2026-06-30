@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Award, Sparkles, ClipboardCheck, User, UserCheck, RefreshCw } from 'lucide-react';
+import { Play, Award, ClipboardCheck, User, UserCheck, RefreshCw } from 'lucide-react';
 
 // At-a-glance progress + next-step CTA for ACLS pre-course flow.
 // Decides what the student should do next:
@@ -16,6 +16,7 @@ export default function ACLSProgressCard({
   postTestPassed,
   postTestUnlocked,
   onIdentify,
+  onStartPretest,
   onChangeStudent,
 }) {
   const navigate = useNavigate();
@@ -31,11 +32,14 @@ export default function ACLSProgressCard({
 
   let cta;
   if (!activeStudent) {
+    // Action-first framing: the funnel's biggest drop was here, where the CTA
+    // used to read "identify to start". Lead with the exam; identity is a quick
+    // name field that opens on click and then drops straight into the Pre-test.
     cta = {
-      label: 'ระบุตัวตนเพื่อเริ่ม',
-      icon: Sparkles,
+      label: 'เริ่มทำ Pre-test',
+      icon: ClipboardCheck,
       tone: 'primary',
-      onClick: onIdentify,
+      onClick: onStartPretest || onIdentify,
     };
   } else if (postTestPassed) {
     cta = {

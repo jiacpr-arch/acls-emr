@@ -138,13 +138,15 @@ export async function loadExamForSet(setId) {
 }
 
 export async function submitAttempt(payload) {
-  // payload: { studentLocalId, studentCode, studentName, bankId, setId,
-  //   score, totalQuestions, correctCount, passed, durationSeconds, answers,
-  //   startedAt, finishedAt }
+  // payload: { studentLocalId, studentCode, studentName, studentPhone,
+  //   studentEmail, bankId, setId, score, totalQuestions, correctCount,
+  //   passed, durationSeconds, answers, startedAt, finishedAt }
   const row = {
     student_local_id: payload.studentLocalId ?? null,
     student_code: payload.studentCode ?? null,
     student_name: payload.studentName ?? null,
+    student_phone: payload.studentPhone ?? null,
+    student_email: payload.studentEmail ?? null,
     bank_id: payload.bankId,
     set_id: payload.setId ?? null,
     score: payload.score,
