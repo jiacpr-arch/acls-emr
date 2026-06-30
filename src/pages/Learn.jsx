@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, Circle } from 'lucide-react';
 import { useSettingsStore } from '../stores/settingsStore';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { t } from '../utils/i18n';
@@ -66,21 +66,19 @@ export default function Learn() {
   // show (no active student / key without tracking). `total` present => the step
   // is a multi-item unit and renders xx/xx while incomplete.
   const statusFor = (key) => {
-    if (!key) return null;
+    if (!key || !activeStudent) return null;
     switch (key) {
       case 'preTest':
-        return activeStudent ? { complete: passedFor(PRE_TEST_LESSON_ID) } : null;
+        return { complete: passedFor(PRE_TEST_LESSON_ID) };
       case 'lessons':
-        return activeStudent
-          ? { complete: totalLessons > 0 && lessonsPassed === totalLessons, done: lessonsPassed, total: totalLessons }
-          : null;
+        return { complete: totalLessons > 0 && lessonsPassed === totalLessons, done: lessonsPassed, total: totalLessons };
       case 'ekg':
         return { complete: ekgDone };
       case 'video':
-        if (videoComp.total === 0) return null;
+        if (videoComp.total === 0) return { complete: false };
         return { complete: videoComp.allDone, done: videoComp.done, total: videoComp.total };
       case 'postTest':
-        return activeStudent ? { complete: passedFor(POST_TEST_LESSON_ID) } : null;
+        return { complete: passedFor(POST_TEST_LESSON_ID) };
       case 'cert':
         return { complete: certDone };
       default:
@@ -267,6 +265,13 @@ export default function Learn() {
                         aria-hidden="true"
                       >
                         {status.done}/{status.total}
+                      </span>
+                    ) : status ? (
+                      <span
+                        className="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 text-text-muted"
+                        title={t('learn_not_started', lang)}
+                      >
+                        <Circle size={16} strokeWidth={2.2} />
                       </span>
                     ) : null}
 
