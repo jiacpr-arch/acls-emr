@@ -115,6 +115,8 @@ const translations = {
   'learn_video': { en: 'Video Lessons', th: 'วิดีโอบทเรียน' },
   'video_lessons': { en: 'Video Lessons', th: 'วิดีโอบทเรียน' },
   'video_lessons_desc': { en: 'In-depth clips, all topics', th: 'คลิปสอนเชิงลึกทุกหัวข้อ' },
+  'ekg_quiz': { en: 'EKG Quiz', th: 'ทดสอบ EKG' },
+  'ekg_quiz_desc': { en: 'Rhythm recognition test', th: 'ฝึกอ่านคลื่นหัวใจ' },
 };
 
 // Get translation
