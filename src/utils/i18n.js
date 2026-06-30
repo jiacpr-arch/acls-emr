@@ -117,6 +117,13 @@ const translations = {
   'video_lessons_desc': { en: 'In-depth clips, all topics', th: 'คลิปสอนเชิงลึกทุกหัวข้อ' },
   'ekg_quiz': { en: 'EKG Quiz', th: 'ทดสอบ EKG' },
   'ekg_quiz_desc': { en: 'Rhythm recognition test', th: 'ฝึกอ่านคลื่นหัวใจ' },
+
+  // ===== Learn progress markers =====
+  'learn_passed': { en: 'Passed', th: 'ผ่านแล้ว' },
+  'learn_not_started': { en: 'Not started', th: 'รอเรียน' },
+  'learn_continue': { en: 'Continue here', th: 'เรียนต่อตรงนี้' },
+  'learn_steps_done': { en: 'done', th: 'ผ่านแล้ว' },
+  'learn_identify_hint': { en: 'Sign in on the lessons page to track your progress', th: 'ลงทะเบียนในหน้าบทเรียนเพื่อบันทึกความก้าวหน้า' },
 };
 
 // Get translation
