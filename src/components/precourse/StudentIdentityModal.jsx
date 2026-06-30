@@ -15,7 +15,6 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
   const [name, setName] = useState('');
   const [studentId, setStudentId] = useState('');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -26,7 +25,6 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
     const n = name.trim();
     const sid = studentId.trim();
     const tel = phone.trim();
-    const mail = email.trim().toLowerCase();
     // Phone is optional now — requiring it before the quiz was the biggest
     // drop-off in the funnel. We still keep it (for follow-up) when given, and
     // only validate the format if the student actually typed something.
@@ -40,17 +38,15 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
       setError('เบอร์โทรไม่ถูกต้อง');
       return;
     }
-    if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
-      setError('อีเมลไม่ถูกต้อง');
-      return;
-    }
     setBusy(true);
     try {
       const existing = sid ? await findStudentByStudentId(sid) : null;
-      const unchanged = existing && existing.name === n && existing.phone === (tel || null) && existing.email === (mail || null);
+      // Email is no longer collected here — it's gathered later at the
+      // certificate step. Preserve any value a returning student already had.
+      const unchanged = existing && existing.name === n && existing.phone === (tel || null);
       const record = existing
-        ? { ...existing, name: n, phone: tel || null, email: mail || null, syncedAt: unchanged ? existing.syncedAt : null }
-        : { id: uuidv4(), studentId: sid || null, name: n, phone: tel || null, email: mail || null, createdAt: new Date().toISOString() };
+        ? { ...existing, name: n, phone: tel || null, syncedAt: unchanged ? existing.syncedAt : null }
+        : { id: uuidv4(), studentId: sid || null, name: n, phone: tel || null, email: null, createdAt: new Date().toISOString() };
       await upsertStudent(record);
       setActiveStudent(record);
       scheduleFlush();
@@ -102,19 +98,18 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
               placeholder="เช่น อนันต์ ใจดี"
               className="w-full text-body mt-1" />
           </label>
-          <label className="block">
-            <span className="text-caption font-semibold text-text-secondary">
-              รหัสนักเรียน
-              {!requireStudentId && (
-                <span className="font-normal text-text-muted"> (ถ้ามี)</span>
-              )}
-            </span>
-            <input
-              type="text" value={studentId}
-              onChange={e => setStudentId(e.target.value)}
-              placeholder="เช่น 65001"
-              className="w-full text-body mt-1" />
-          </label>
+          {requireStudentId && (
+            <label className="block">
+              <span className="text-caption font-semibold text-text-secondary">
+                รหัสนักเรียน
+              </span>
+              <input
+                type="text" value={studentId}
+                onChange={e => setStudentId(e.target.value)}
+                placeholder="เช่น 65001"
+                className="w-full text-body mt-1" />
+            </label>
+          )}
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">
               เบอร์โทร
@@ -125,17 +120,6 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
               onChange={e => setPhone(e.target.value)}
               placeholder="เช่น 081-234-5678"
               className="w-full text-body tabular mt-1" />
-          </label>
-          <label className="block">
-            <span className="text-caption font-semibold text-text-secondary">
-              อีเมล
-              <span className="font-normal text-text-muted"> (ถ้ามี)</span>
-            </span>
-            <input
-              type="email" inputMode="email" autoComplete="email" value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="เช่น name@email.com"
-              className="w-full text-body mt-1" />
           </label>
           {error && (
             <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"
@@ -150,7 +134,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
           <Check size={16} strokeWidth={2.4} /> ยืนยันและเริ่ม
         </button>
         <p className="text-[11px] text-text-muted text-center">
-          ระบบจะบันทึกชื่อ-รหัสไว้ในเครื่องนี้เท่านั้น (offline)
+          ระบบจะบันทึกชื่อ–เบอร์ไว้ในเครื่องนี้ (offline)
         </p>
       </form>
     </div>
