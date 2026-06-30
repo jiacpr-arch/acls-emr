@@ -17,6 +17,7 @@ export default async function handler(req, res) {
 
   const studentName = String(body.studentName || '').trim().slice(0, MAX_NAME_LEN);
   const studentPhone = String(body.studentPhone || '').trim().slice(0, 20);
+  const studentEmail = String(body.studentEmail || '').trim().slice(0, 120);
   const certId = String(body.certId || '').trim().slice(0, 60);
   const course = body.course === 'bls' ? 'bls' : 'acls';
   const preTestScore = numOrNull(body.preTestScore);
@@ -38,6 +39,8 @@ export default async function handler(req, res) {
       .upsert({
         cert_id: certId,
         student_name: studentName,
+        student_phone: studentPhone || null,
+        student_email: studentEmail || null,
         course_mode: course,
         pre_test_score: preTestScore,
         post_test_score: postTestScore,

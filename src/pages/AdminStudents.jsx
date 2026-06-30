@@ -39,15 +39,15 @@ export default function AdminStudents() {
     const q = query.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter(r =>
-      [r.name, r.phone, r.class_name, r.class_code, r.student_id]
+      [r.name, r.phone, r.email, r.class_name, r.class_code, r.student_id]
         .some(v => String(v || '').toLowerCase().includes(q)),
     );
   }, [rows, query]);
 
   const downloadCSV = () => {
-    const header = ['ชื่อ', 'เบอร์โทร', 'รหัสนักเรียน', 'คลาส', 'รหัสคลาส', 'คอร์ส', 'Pre-test', 'Post-test', 'เข้าเมื่อ'];
+    const header = ['ชื่อ', 'เบอร์โทร', 'อีเมล', 'รหัสนักเรียน', 'คลาส', 'รหัสคลาส', 'คอร์ส', 'Pre-test', 'Post-test', 'เข้าเมื่อ'];
     const lines = filtered.map(r => [
-      r.name, r.phone, r.student_id, r.class_name, r.class_code,
+      r.name, r.phone, r.email, r.student_id, r.class_name, r.class_code,
       String(r.course_mode || '').toUpperCase(),
       r.pre_test_passed ? 'ผ่าน' : '-',
       r.post_test_passed ? 'ผ่าน' : '-',
@@ -150,8 +150,8 @@ export default function AdminStudents() {
       </div>
 
       <div className="dash-card !p-3 bg-warning/10 border border-warning/30 text-caption text-text-secondary">
-        ข้อมูลส่วนบุคคล (ชื่อ–เบอร์โทร) — ใช้ภายในเพื่อการอบรมเท่านั้น (PDPA)
-        · นับเฉพาะนักเรียนที่เข้าคลาสด้วยรหัสคลาส
+        ข้อมูลส่วนบุคคล (ชื่อ–เบอร์โทร–อีเมล) — ใช้ภายในเพื่อการอบรมเท่านั้น (PDPA)
+        · รวมนักเรียนทุกคน ทั้งที่เข้าคลาสด้วยรหัสคลาส และที่ทำ Pre/Post-test แบบเดี่ยว
       </div>
     </div>
   );

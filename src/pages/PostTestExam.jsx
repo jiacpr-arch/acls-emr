@@ -216,6 +216,8 @@ export default function PostTestExam() {
           studentLocalId: activeStudent.id,
           studentCode: activeStudent.studentId,
           studentName: activeStudent.name,
+          studentPhone: activeStudent.phone,
+          studentEmail: activeStudent.email,
           bankId: POST_TEST_BANK_ID,
           setId: exam.set.id,
           score, totalQuestions: total, correctCount: correct, passed,
