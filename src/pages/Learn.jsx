@@ -46,7 +46,7 @@ export default function Learn() {
             { path: '/als?tab=ekg',          emoji: '💓', label: t('ekg_quiz', lang),       subtitle: 'EKG Quiz',        desc: t('ekg_quiz_desc', lang),       tone: 'danger',  step: 3, featured: true },
             { path: '/video-lessons',        emoji: '📹', label: t('video_lessons', lang),  subtitle: 'Video Lessons',   desc: t('video_lessons_desc', lang),  tone: 'purple',  step: 4, featured: true },
             { path: '/pre-course/post-test', emoji: '🏆', label: t('post_test',  lang), subtitle: 'Final Exam',      desc: t('post_test_desc', lang),      tone: 'shock',   step: 5, featured: true },
-            { path: '/certification',        emoji: '🏅', label: t('cert', lang),           subtitle: 'My Records',      desc: t('cert_desc', lang),           tone: 'warning', featured: true },
+            { path: '/certification',        emoji: '🏅', label: t('cert', lang),           subtitle: 'My Records',      desc: t('cert_desc', lang),           tone: 'warning', badge: '👑', featured: true },
           ],
         },
         {
@@ -109,7 +109,7 @@ export default function Learn() {
                    auto-span, so we control which card spans the row */
                 style={{ gridColumn: item.featured ? '1 / -1' : 'auto' }}
               >
-                {item.step != null && (
+                {(item.step != null || item.badge) && (
                   <span
                     className="absolute top-2 left-2 inline-flex items-center justify-center w-6 h-6 text-[11px] font-extrabold text-white shadow-sm"
                     style={{
@@ -118,7 +118,7 @@ export default function Learn() {
                     }}
                     aria-hidden="true"
                   >
-                    {item.step}
+                    {item.badge || item.step}
                   </span>
                 )}
                 <span className="text-[44px] leading-none mb-2" aria-hidden="true">
