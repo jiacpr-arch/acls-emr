@@ -27,13 +27,16 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
     const sid = studentId.trim();
     const tel = phone.trim();
     const mail = email.trim().toLowerCase();
-    if (!n || !tel || (requireStudentId && !sid)) {
+    // Phone is optional now — requiring it before the quiz was the biggest
+    // drop-off in the funnel. We still keep it (for follow-up) when given, and
+    // only validate the format if the student actually typed something.
+    if (!n || (requireStudentId && !sid)) {
       setError(requireStudentId
-        ? 'กรุณากรอกชื่อ รหัสนักเรียน และเบอร์โทร'
-        : 'กรุณากรอกชื่อ และเบอร์โทร');
+        ? 'กรุณากรอกชื่อ และรหัสนักเรียน'
+        : 'กรุณากรอกชื่อ');
       return;
     }
-    if (tel.replace(/\D/g, '').length < 9) {
+    if (tel && tel.replace(/\D/g, '').length < 9) {
       setError('เบอร์โทรไม่ถูกต้อง');
       return;
     }
@@ -44,10 +47,10 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
     setBusy(true);
     try {
       const existing = sid ? await findStudentByStudentId(sid) : null;
-      const unchanged = existing && existing.name === n && existing.phone === tel && existing.email === (mail || null);
+      const unchanged = existing && existing.name === n && existing.phone === (tel || null) && existing.email === (mail || null);
       const record = existing
-        ? { ...existing, name: n, phone: tel, email: mail || null, syncedAt: unchanged ? existing.syncedAt : null }
-        : { id: uuidv4(), studentId: sid || null, name: n, phone: tel, email: mail || null, createdAt: new Date().toISOString() };
+        ? { ...existing, name: n, phone: tel || null, email: mail || null, syncedAt: unchanged ? existing.syncedAt : null }
+        : { id: uuidv4(), studentId: sid || null, name: n, phone: tel || null, email: mail || null, createdAt: new Date().toISOString() };
       await upsertStudent(record);
       setActiveStudent(record);
       scheduleFlush();
@@ -113,7 +116,10 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
               className="w-full text-body mt-1" />
           </label>
           <label className="block">
-            <span className="text-caption font-semibold text-text-secondary">เบอร์โทร</span>
+            <span className="text-caption font-semibold text-text-secondary">
+              เบอร์โทร
+              <span className="font-normal text-text-muted"> (ถ้ามี — ไว้ส่งผล/ใบประกาศ)</span>
+            </span>
             <input
               type="tel" inputMode="tel" autoComplete="tel" value={phone}
               onChange={e => setPhone(e.target.value)}

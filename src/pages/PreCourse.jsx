@@ -38,6 +38,10 @@ export default function PreCourse() {
   const [progress, setProgress] = useState([]);     // [{studentId, lessonId, readAt}]
   const [attempts, setAttempts] = useState([]);     // [{...}]
   const [showIdentity, setShowIdentity] = useState(false);
+  // When the identity modal is opened from the "start Pre-test" CTA, drop the
+  // student straight into the exam once they've entered their name — removes the
+  // extra tap that used to sit between registering and actually starting.
+  const [identityNext, setIdentityNext] = useState(null); // 'pretest' | null
   const [lessonsOpen, setLessonsOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(IS_BLS && !blsSplashSeen);
   const lessonsRef = useRef(null);
@@ -90,6 +94,15 @@ export default function PreCourse() {
     if (!found) return null;
     return { id: found.id, shortTitle: shortenLessonTitle(found.title) };
   })();
+
+  const startPretest = () => { setIdentityNext('pretest'); setShowIdentity(true); };
+  const confirmIdentity = () => {
+    setShowIdentity(false);
+    const next = identityNext;
+    setIdentityNext(null);
+    if (next === 'pretest') navigate('/pre-course/pre-test');
+  };
+  const closeIdentity = () => { setIdentityNext(null); setShowIdentity(false); };
 
   const scrollToLessons = () => {
     setLessonsOpen(true);
@@ -262,6 +275,7 @@ export default function PreCourse() {
         postTestPassed={postTestPassed}
         postTestUnlocked={postTestUnlocked}
         onIdentify={() => setShowIdentity(true)}
+        onStartPretest={startPretest}
         onChangeStudent={() => { clearActiveStudent(); setShowIdentity(true); }}
       />
 
@@ -331,8 +345,8 @@ export default function PreCourse() {
 
       <StudentIdentityModal
         open={showIdentity}
-        onClose={() => setShowIdentity(false)}
-        onConfirm={() => setShowIdentity(false)}
+        onClose={closeIdentity}
+        onConfirm={confirmIdentity}
       />
     </div>
   );
