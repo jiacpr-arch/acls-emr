@@ -55,8 +55,14 @@ export default function SiteFooter() {
 
   return (
     <footer
-      className="max-w-lg mx-auto px-4 pt-8"
+      className="max-w-lg px-4 pt-8"
       style={{
+        // Center on wide (desktop) screens. The global `* { margin: 0 }` reset in
+        // index.css is unlayered, so it overrides Tailwind's layered `mx-auto`
+        // utility — auto margins must be set inline (like .page-container does) to
+        // win the cascade and keep the footer centered.
+        marginLeft: 'auto',
+        marginRight: 'auto',
         // Cancel the page-container's bottom clearance (96px + safe-area) so the
         // footer sits right after the page content, then re-add clearance for the
         // floating pill bar below.
