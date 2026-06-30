@@ -377,6 +377,36 @@ button, [role="button"] {
   box-shadow: var(--shadow-1);
 }
 
+/* ===== COHORT CHIP (instructor per-item selector) =====
+   Needs explicit styling because the global `button` reset above is
+   unlayered and would otherwise clobber Tailwind bg/border utilities. */
+.cohort-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.cohort-chip:hover { background: var(--color-bg-tertiary); }
+.cohort-chip.is-active-info {
+  border-color: var(--color-info);
+  background: var(--color-info);
+  color: #fff;
+}
+.cohort-chip.is-active-warning {
+  border-color: var(--color-warning);
+  background: var(--color-warning);
+  color: #fff;
+}
+
 /* ===== INSTRUCTION LIST ===== */
 .instruction-list {
   background: var(--color-bg-secondary);
