@@ -69,3 +69,12 @@ export async function deleteVideoLesson(id) {
   if (error) throw error;
   invalidateVideoLessonsCache();
 }
+
+// สลับ sort_order ระหว่างคลิป 2 อันที่อยู่ติดกัน (เลื่อนขึ้น/ลง)
+export async function swapVideoLessonOrder(a, b) {
+  const { error: e1 } = await supabase.from('video_lessons').update({ sort_order: b.sortOrder }).eq('id', a.id);
+  if (e1) throw e1;
+  const { error: e2 } = await supabase.from('video_lessons').update({ sort_order: a.sortOrder }).eq('id', b.id);
+  if (e2) throw e2;
+  invalidateVideoLessonsCache();
+}

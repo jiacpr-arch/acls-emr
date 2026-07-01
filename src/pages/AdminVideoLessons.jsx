@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Shield, Plus, Trash2, Pencil, X, Video } from 'lucide-react';
+import { LogOut, Shield, Plus, Trash2, Pencil, X, Video, ChevronUp, ChevronDown } from 'lucide-react';
 import { signOut } from '../services/auth';
 import { VIDEO_TOPICS, VIDEO_TOPIC_MAP } from '../data/videoTopics';
 import { getYouTubeId } from '../utils/youtube';
 import {
-  listVideoLessonsAdmin, createVideoLesson, updateVideoLesson, deleteVideoLesson,
+  listVideoLessonsAdmin, createVideoLesson, updateVideoLesson, deleteVideoLesson, swapVideoLessonOrder,
 } from '../services/videoLessonAdminService';
 
 const LETTERS = ['a', 'b', 'c', 'd', 'e'];
@@ -68,6 +68,13 @@ export default function AdminVideoLessons() {
     catch (err) { alert('ลบไม่สำเร็จ: ' + (err?.message || err)); }
   };
 
+  const move = async (clips, index, dir) => {
+    const other = clips[index + dir];
+    if (!other) return;
+    try { await swapVideoLessonOrder(clips[index], other); await reload(); }
+    catch (err) { alert('เรียงลำดับไม่สำเร็จ: ' + (err?.message || err)); }
+  };
+
   return (
     <div className="page-container space-y-4 pb-24">
       <div className="flex items-center justify-between">
@@ -88,7 +95,7 @@ export default function AdminVideoLessons() {
               <div className="text-overline text-text-muted">{tpc.emoji} {tpc.label} ({clips.length})</div>
               <button onClick={() => startCreate(tpc.id)} className="btn btn-ghost btn-sm text-purple"><Plus size={14} strokeWidth={2.4} /> เพิ่มคลิป</button>
             </div>
-            {clips.map(item => (
+            {clips.map((item, i) => (
               <div key={item.id} className="dash-card !p-3 flex items-center gap-3">
                 <Video size={16} strokeWidth={2.2} className="text-purple shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -97,6 +104,10 @@ export default function AdminVideoLessons() {
                     {item.youtubeId} · {item.quiz?.length || 0} ควิซ · {item.chapters?.length || 0} สารบัญ
                     {!item.required && ' · เสริม'}
                   </div>
+                </div>
+                <div className="flex flex-col shrink-0">
+                  <button onClick={() => move(clips, i, -1)} disabled={i === 0} className="btn btn-ghost btn-sm !p-1 disabled:opacity-30"><ChevronUp size={14} strokeWidth={2.2} /></button>
+                  <button onClick={() => move(clips, i, 1)} disabled={i === clips.length - 1} className="btn btn-ghost btn-sm !p-1 disabled:opacity-30"><ChevronDown size={14} strokeWidth={2.2} /></button>
                 </div>
                 <button onClick={() => startEdit(item)} className="btn btn-ghost btn-sm"><Pencil size={14} strokeWidth={2.2} /></button>
                 <button onClick={() => remove(item)} className="btn btn-ghost btn-sm text-danger"><Trash2 size={14} strokeWidth={2.2} /></button>
