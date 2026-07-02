@@ -10,7 +10,6 @@ import {
   ArrowRight, Heart, HeartPulse, Brain, Stethoscope, Shield, ShieldCheck,
   Users, Wind, Zap, Pill,
 } from 'lucide-react';
-import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 /* === Per-chapter visual theme: icon + gradient + accent ===
    Keyed by chapter id (ch1..ch13) with title-based fallback. */
@@ -185,8 +184,6 @@ export default function ALSKnowledge() {
         <h1 className="text-title text-text-primary">คลังความรู้ ALS</h1>
         <p className="text-caption text-text-muted">Advanced Life Support Knowledge Base</p>
       </div>
-
-      <JiacprCourseBanner />
 
       <div className="tab-group">
         <button onClick={() => setTab('book')} className={`tab-item ${tab === 'book' ? 'active' : ''}`}>
