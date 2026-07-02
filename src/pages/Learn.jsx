@@ -13,8 +13,6 @@ import { PRE_TEST_LESSON_ID } from '../data/assessment';
 import { EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
 import { computeVideoCompletion } from '../utils/videoProgress';
 import { useVideoLessons } from '../hooks/useVideoLessons';
-import MorrooAdCard from '../components/MorrooAdCard';
-import NewsCard from '../components/NewsCard';
 
 export default function Learn() {
   const navigate = useNavigate();
@@ -192,10 +190,6 @@ export default function Learn() {
         <h1 className="text-title text-text-primary">{t('learn', lang)}</h1>
         <p className="text-caption text-text-muted">{t('learn_subtitle', lang)}</p>
       </div>
-
-      <NewsCard />
-
-      <MorrooAdCard />
 
       {sections.map(section => {
         const isPrep = section.title === t('learn_prepare', lang);
