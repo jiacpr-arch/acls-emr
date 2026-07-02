@@ -21,6 +21,8 @@ import { track } from '../services/analytics';
 import { IS_ACLS } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import QuizQuestion from '../components/precourse/QuizQuestion';
+import LoadingCard from '../components/ui/LoadingCard';
+import ErrorCard from '../components/ui/ErrorCard';
 import {
   Award, ChevronLeft, ChevronRight, AlertTriangle,
   Send, Check, Lock, BookOpen,
@@ -42,6 +44,7 @@ export default function PostTestExam() {
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
   const [exam, setExam] = useState(null); // { bank, set, questions }
   const [loadError, setLoadError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   // --- Gate: all pre-course lessons passed ---
   useEffect(() => {
@@ -83,7 +86,7 @@ export default function PostTestExam() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gateChecked, gatePassed, activeStudent?.id]);
+  }, [gateChecked, gatePassed, activeStudent?.id, reloadKey]);
 
   const questions = exam?.questions ?? [];
   const answers = currentPostTest?.answers ?? {};
@@ -113,11 +116,7 @@ export default function PostTestExam() {
   }
 
   if (!gateChecked) {
-    return (
-      <div className="page-container">
-        <div className="dash-card text-center !p-6 text-text-muted text-caption">กำลังตรวจสอบสิทธิ์...</div>
-      </div>
-    );
+    return <LoadingCard label="กำลังตรวจสอบสิทธิ์..." fullPage />;
   }
 
   if (!gatePassed) {
@@ -145,21 +144,14 @@ export default function PostTestExam() {
     return (
       <div className="page-container space-y-5">
         <Header />
-        <div className="dash-card text-center !p-6 space-y-2">
-          <AlertTriangle size={28} className="mx-auto text-danger" />
-          <div className="text-body text-danger">โหลดข้อสอบไม่สำเร็จ</div>
-          <div className="text-caption text-text-muted">{loadError}</div>
-        </div>
+        <ErrorCard title="โหลดข้อสอบไม่สำเร็จ" detail={loadError}
+          onRetry={() => { setLoadError(null); setExam(null); setReloadKey(k => k + 1); }} />
       </div>
     );
   }
 
   if (!exam || !currentQ) {
-    return (
-      <div className="page-container">
-        <div className="dash-card text-center !p-6 text-text-muted text-caption">กำลังเตรียมข้อสอบ...</div>
-      </div>
-    );
+    return <LoadingCard label="กำลังเตรียมข้อสอบ..." fullPage />;
   }
 
   async function handleSubmit() {
