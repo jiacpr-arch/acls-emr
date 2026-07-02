@@ -25,6 +25,9 @@ export default async function handler(req, res) {
   }
 
   const { data, error } = await supabase.rpc('get_student_roster');
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) {
+    console.error('get_student_roster failed:', error.message);
+    return res.status(500).json({ error: 'Failed to load student roster' });
+  }
   return res.status(200).json({ students: data || [] });
 }

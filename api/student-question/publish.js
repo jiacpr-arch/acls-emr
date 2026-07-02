@@ -34,7 +34,10 @@ export default async function handler(req, res) {
     .select('id, question, deepseek_answer, suggested_chapter_id, generated_image_url, status, published_item_id')
     .eq('id', id)
     .maybeSingle();
-  if (loadErr) return res.status(500).json({ error: loadErr.message });
+  if (loadErr) {
+    console.error('load student question failed:', loadErr.message);
+    return res.status(500).json({ error: 'Failed to load question' });
+  }
   if (!row) return res.status(404).json({ error: 'not found' });
   if (row.status === 'published' && row.published_item_id) {
     return res.status(409).json({ error: 'already published', publishedItemId: row.published_item_id });
@@ -53,7 +56,10 @@ export default async function handler(req, res) {
     .select('sort_order')
     .order('sort_order', { ascending: false })
     .limit(1);
-  if (tailErr) return res.status(500).json({ error: tailErr.message });
+  if (tailErr) {
+    console.error('read qa_deep sort_order failed:', tailErr.message);
+    return res.status(500).json({ error: 'Failed to compute sort order' });
+  }
   const nextOrder = (tail?.[0]?.sort_order ?? 0) + 1;
 
   const { data: created, error: insErr } = await supabase
@@ -66,7 +72,10 @@ export default async function handler(req, res) {
     })
     .select('id')
     .single();
-  if (insErr) return res.status(500).json({ error: `create item failed: ${insErr.message}` });
+  if (insErr) {
+    console.error('create qa_deep item failed:', insErr.message);
+    return res.status(500).json({ error: 'create item failed' });
+  }
 
   if (row.generated_image_url) {
     const { error: imgErr } = await supabase
@@ -94,7 +103,10 @@ export default async function handler(req, res) {
       updated_at: new Date().toISOString(),
     })
     .eq('id', id);
-  if (updErr) return res.status(500).json({ error: `mark published failed: ${updErr.message}` });
+  if (updErr) {
+    console.error('mark published failed:', updErr.message);
+    return res.status(500).json({ error: 'mark published failed' });
+  }
 
   return res.status(200).json({ ok: true, itemId: created.id });
 }
