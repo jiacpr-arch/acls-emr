@@ -41,6 +41,11 @@ test('accepts the default admin email (case-insensitive)', async () => {
   assert.equal(user.email, 'Admin@ACLS-EMR.local');
 });
 
+test('accepts the owner email included in the default allowlist', async () => {
+  const user = await requireAdmin(reqWith('Bearer tok'), { getUser: okUser('jiacpr@gmail.com') });
+  assert.equal(user.email, 'jiacpr@gmail.com');
+});
+
 test('ADMIN_EMAILS env overrides the allowlist', async (t) => {
   const prev = process.env.ADMIN_EMAILS;
   process.env.ADMIN_EMAILS = 'boss@example.com, second@example.com';

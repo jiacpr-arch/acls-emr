@@ -3,7 +3,9 @@ import { getSupabaseAdmin } from './supabaseAdmin.js';
 // A valid JWT alone is not enough: any Supabase user of the project would pass
 // auth.getUser(), so the admin identity must also be on this allowlist.
 // Override via ADMIN_EMAILS (comma-separated, case-insensitive).
-const DEFAULT_ADMIN_EMAILS = 'admin@acls-emr.local';
+// Must stay in sync with the video_lessons RLS policy in Supabase
+// (supabase-cleanup/video-lessons-tighten-rls.sql).
+const DEFAULT_ADMIN_EMAILS = 'admin@acls-emr.local,jiacpr@gmail.com';
 
 export function getAdminEmails(env = process.env) {
   return (env.ADMIN_EMAILS || DEFAULT_ADMIN_EMAILS)

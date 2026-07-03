@@ -1,8 +1,9 @@
 -- ============================================================================
--- video_lessons: tighten the write policy (review, then run in Supabase SQL
--- editor — same review-only convention as the rest of this folder).
+-- video_lessons: tighten the write policy.
+-- STATUS: APPLIED to emr-ai-clinic (elyyijlcjfvhxbpzscnv) on 2026-07-03 as
+-- migration `video_lessons_tighten_rls`. Kept here as documentation.
 --
--- Problem: the current policy from video-lessons.sql is
+-- Problem: the original policy from video-lessons.sql was
 --
 --   create policy video_lessons_admin_write
 --     on public.video_lessons for all
@@ -10,13 +11,11 @@
 --     using (true) with check (true);
 --
 -- "authenticated" is NOT the same as "admin" — any Supabase user of this
--- project (should sign-up ever be enabled, or another product share the
--- project) could insert/update/delete video lessons. The app only ever has
--- one legitimate writer: the admin account used by src/services/auth.js.
+-- project could insert/update/delete video lessons.
 --
--- Fix: bind the write policy to the admin email(s). Keep public read as-is.
--- If you change the admin email (or add more), update the list below AND the
--- ADMIN_EMAILS env var on Vercel so the API allowlist stays in sync.
+-- Fix: bind the write policy to the admin allowlist. Keep public read as-is.
+-- The email list must stay in sync with DEFAULT_ADMIN_EMAILS /
+-- the ADMIN_EMAILS env var used by api/_lib/requireAdmin.js.
 -- ============================================================================
 
 drop policy if exists video_lessons_admin_write on public.video_lessons;
@@ -24,10 +23,10 @@ create policy video_lessons_admin_write
   on public.video_lessons for all
   to authenticated
   using (
-    lower(coalesce(auth.jwt() ->> 'email', '')) in ('admin@acls-emr.local')
+    lower(coalesce(auth.jwt() ->> 'email', '')) in ('admin@acls-emr.local', 'jiacpr@gmail.com')
   )
   with check (
-    lower(coalesce(auth.jwt() ->> 'email', '')) in ('admin@acls-emr.local')
+    lower(coalesce(auth.jwt() ->> 'email', '')) in ('admin@acls-emr.local', 'jiacpr@gmail.com')
   );
 
 -- Verify: as the admin session, insert/update should still work from the
