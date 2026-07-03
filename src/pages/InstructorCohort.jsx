@@ -13,11 +13,15 @@ import {
 } from '../data/activePostTest';
 import { IS_ACLS } from '../config/courseMode';
 import CohortTable from '../components/precourse/CohortTable';
+import ClassGateModal from '../components/precourse/ClassGateModal';
 import {
   exportCohortCSV, exportCohortPDF,
   exportCohortSummaryCSV, exportCohortSummaryPDF,
 } from '../utils/exportPreCourse';
-import { ChevronLeft, Users, Download, FileText, Trash, Sparkles, Award, Cloud, CloudOff, RefreshCw } from 'lucide-react';
+import {
+  ChevronLeft, Users, Download, FileText, Trash, Sparkles, Award,
+  Cloud, CloudOff, RefreshCw, Copy, Check, Plus, KeyRound,
+} from 'lucide-react';
 
 export default function InstructorCohort() {
   const navigate = useNavigate();
@@ -54,6 +58,10 @@ export default function InstructorCohort() {
   const [reloadKey, setReloadKey] = useState(0);
   const [source, setSource] = useState('local');  // 'cloud' | 'local'
   const [pendingCount, setPendingCount] = useState(0);
+  // Class setup happens right here on the instructor page — no need to hunt
+  // for the tiny "create class" link buried in the student-facing gate modal.
+  const [gateMode, setGateMode] = useState(null); // null | 'create' | 'join'
+  const [copiedCode, setCopiedCode] = useState(false);
 
   const classCode = useClassStore(s => s.classCode);
   const className = useClassStore(s => s.className);
@@ -101,6 +109,13 @@ export default function InstructorCohort() {
   const handleSyncNow = () => {
     scheduleFlush();
     setTimeout(refresh, 800);
+  };
+
+  const copyClassCode = () => {
+    if (!classCode) return;
+    navigator.clipboard?.writeText(classCode);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 1500);
   };
 
   const selected = allEntries.find(l => l.id === selectedId);
@@ -177,6 +192,87 @@ export default function InstructorCohort() {
           <FileText size={14} strokeWidth={2.2} /> คู่มือ (PDF)
         </a>
       </div>
+
+      {/* Class card — create / join / share the class code without leaving
+          this page. Previously instructors had to find a tiny link inside the
+          student-facing modal on /pre-course, which nobody could locate. */}
+      {classCode ? (
+        <div className="dash-card space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 inline-flex items-center justify-center bg-info/12 text-info shrink-0"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <Cloud size={18} strokeWidth={2.2} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-body-strong text-text-primary truncate">
+                คลาส: {className || '—'}
+              </div>
+              <div className="text-[11px] text-text-muted">
+                แจกรหัสด้านล่างให้นักเรียนใช้เข้าคลาส
+              </div>
+            </div>
+          </div>
+          <div className="bg-bg-tertiary p-3 flex items-center justify-between gap-3"
+            style={{ borderRadius: 'var(--radius-md)' }}>
+            <div className="min-w-0">
+              <div className="text-overline text-text-muted">รหัสคลาส</div>
+              <div className="text-2xl font-mono font-bold tracking-[0.25em] text-text-primary">
+                {classCode}
+              </div>
+            </div>
+            <button onClick={copyClassCode} className="btn btn-ghost btn-sm shrink-0">
+              {copiedCode
+                ? <><Check size={13} strokeWidth={2.4} /> คัดลอกแล้ว</>
+                : <><Copy size={13} strokeWidth={2.2} /> คัดลอก</>}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setGateMode('create')} className="btn btn-ghost btn-sm">
+              <Plus size={13} strokeWidth={2.4} /> สร้างคลาสใหม่
+            </button>
+            <button onClick={() => setGateMode('join')} className="btn btn-ghost btn-sm">
+              <KeyRound size={13} strokeWidth={2.2} /> ใส่รหัสคลาสอื่น
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="dash-card space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 inline-flex items-center justify-center bg-warning/12 text-warning shrink-0"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <CloudOff size={18} strokeWidth={2.2} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-body-strong text-text-primary">ยังไม่ได้เชื่อมต่อคลาส</div>
+              <div className="text-[11px] text-text-muted">
+                สร้างคลาสก่อน ผลของนักเรียนถึงจะรวมมาแสดงหน้านี้
+              </div>
+            </div>
+          </div>
+          <ol className="text-caption text-text-secondary space-y-1 list-none">
+            {[
+              'สร้างคลาส → ได้รหัสคลาส 6 หลัก',
+              'แจกรหัสให้นักเรียนใช้ "เข้าคลาส" บนเครื่องของตัวเอง',
+              'ผลเรียน/คะแนนสอบของทุกคนจะขึ้นหน้านี้อัตโนมัติ',
+            ].map((step, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="inline-flex items-center justify-center w-[18px] h-[18px] shrink-0 bg-info text-white text-[10px] font-extrabold mt-px"
+                  style={{ borderRadius: '50%' }}>{i + 1}</span>
+                {step}
+              </li>
+            ))}
+          </ol>
+          <button onClick={() => setGateMode('create')}
+            className="btn btn-primary btn-block font-bold">
+            <Plus size={16} strokeWidth={2.4} /> สร้างคลาสใหม่ (สำหรับอาจารย์)
+          </button>
+          <button onClick={() => setGateMode('join')}
+            className="w-full text-caption font-bold px-3 py-2.5 border border-border bg-bg-tertiary text-text-secondary inline-flex items-center justify-center gap-1.5"
+            style={{ borderRadius: 'var(--radius-md)' }}>
+            <KeyRound size={14} strokeWidth={2.4} /> มีรหัสคลาสอยู่แล้ว? เชื่อมต่อด้วยรหัส
+          </button>
+        </div>
+      )}
 
       {/* Sync status bar */}
       <div className="dash-card flex items-center gap-3 !py-2">
@@ -334,6 +430,12 @@ export default function InstructorCohort() {
           <Trash size={13} strokeWidth={2.2} /> ล้างข้อมูลทั้งหมด
         </button>
       )}
+
+      <ClassGateModal
+        open={gateMode !== null}
+        initialMode={gateMode || 'home'}
+        onClose={() => setGateMode(null)}
+      />
     </div>
   );
 }

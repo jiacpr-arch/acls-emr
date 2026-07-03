@@ -13,20 +13,35 @@ import { BookOpen, KeyRound, AlertCircle, Check, Copy, Play, ChevronLeft } from 
 //            choice that made students tap the wrong thing.
 //   join   — enter a class code (students with a code from their instructor).
 //   create — make a new class (instructors only).
-export default function ClassGateModal({ open, onClose }) {
+// initialMode lets instructor-facing pages open straight into 'create' or
+// 'join', skipping the student-first home screen entirely.
+export default function ClassGateModal({ open, onClose, initialMode = 'home' }) {
   const setClass = useClassStore(s => s.setClass);
   const disableSync = useClassStore(s => s.disableSync);
 
-  const [mode, setMode] = useState('home');   // 'home' | 'join' | 'create'
+  const [mode, setMode] = useState(initialMode);   // 'home' | 'join' | 'create'
   const [code, setCode] = useState('');
   const [className, setClassName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [createdCode, setCreatedCode] = useState(null);
 
+  // Re-sync to initialMode each time the modal (re)opens, adjusting state
+  // during render (https://react.dev/learn/you-might-not-need-an-effect).
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) { setMode(initialMode); setError(''); }
+  }
+
   if (!open) return null;
 
-  const goHome = () => { setMode('home'); setError(''); };
+  // Opened directly into a sub-mode (instructor page): back = close, since
+  // the student-first home screen would only confuse an instructor.
+  const goHome = () => {
+    if (initialMode !== 'home') { onClose?.(); return; }
+    setMode('home'); setError('');
+  };
 
   const submitJoin = async (e) => {
     e?.preventDefault();
