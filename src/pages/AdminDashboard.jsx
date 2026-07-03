@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3, Users, Video,
+  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3, Users, Video, School,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 
@@ -20,6 +20,14 @@ const SECTIONS = [
     icon: Users,
     gradient: 'linear-gradient(135deg, var(--color-success, #16a34a) 0%, var(--color-success-dark, #15803d) 100%)',
     shadow: '0 8px 20px rgba(22, 163, 74, 0.22)',
+  },
+  {
+    to: '/admin/classes',
+    title: 'คลาสทั้งหมด',
+    desc: 'รหัสเข้าคลาส + รหัสอาจารย์ทุกคลาส · กู้รหัส · ปิดคลาสที่จบแล้ว',
+    icon: School,
+    gradient: 'linear-gradient(135deg, var(--color-warning, #d97706) 0%, #b45309 100%)',
+    shadow: '0 8px 20px rgba(217, 119, 6, 0.22)',
   },
   {
     to: '/admin/chapters',

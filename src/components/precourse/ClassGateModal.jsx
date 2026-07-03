@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useClassStore } from '../../stores/classStore';
 import { COURSE_MODE } from '../../config/courseMode';
-import { rpcCreateClass, rpcVerifyClassCode } from '../../services/cohortSync';
+import {
+  rpcCreateClass, rpcVerifyClassCode, rpcVerifyInstructorCode,
+} from '../../services/cohortSync';
 import { scheduleFlush } from '../../services/syncEngine';
-import { BookOpen, KeyRound, AlertCircle, Check, Copy, Play, ChevronLeft } from 'lucide-react';
+import { track } from '../../services/analytics';
+import { BookOpen, KeyRound, AlertCircle, Check, Copy, Play, ChevronLeft, ShieldCheck } from 'lucide-react';
 
 // Shown on /pre-course when no class is selected and the user hasn't opted into offline mode.
 // Three modes:
@@ -15,23 +18,28 @@ import { BookOpen, KeyRound, AlertCircle, Check, Copy, Play, ChevronLeft } from 
 //   create — make a new class (instructors only).
 // initialMode lets instructor-facing pages open straight into 'create' or
 // 'join', skipping the student-first home screen entirely.
-export default function ClassGateModal({ open, onClose, initialMode = 'home' }) {
+// instructor=true switches join mode to instructor-code verification (the
+// code that unlocks the cohort summary; legacy class codes still work).
+// initialCode prefills the join input — used by /pre-course?join=CODE links.
+export default function ClassGateModal({
+  open, onClose, initialMode = 'home', instructor = false, initialCode = '',
+}) {
   const setClass = useClassStore(s => s.setClass);
   const disableSync = useClassStore(s => s.disableSync);
 
   const [mode, setMode] = useState(initialMode);   // 'home' | 'join' | 'create'
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(initialCode);
   const [className, setClassName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [createdCode, setCreatedCode] = useState(null);
+  const [created, setCreated] = useState(null);    // { code, instructorCode }
 
   // Re-sync to initialMode each time the modal (re)opens, adjusting state
   // during render (https://react.dev/learn/you-might-not-need-an-effect).
   const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
     setPrevOpen(open);
-    if (open) { setMode(initialMode); setError(''); }
+    if (open) { setMode(initialMode); setError(''); setCode(initialCode); }
   }
 
   if (!open) return null;
@@ -51,6 +59,45 @@ export default function ClassGateModal({ open, onClose, initialMode = 'home' }) 
       return;
     }
     setBusy(true); setError('');
+
+    if (instructor) {
+      // Instructor reconnect: verify the instructor code (legacy class codes
+      // also pass). Returns the student join code so both get stored.
+      const { data, error: rpcErr } = await rpcVerifyInstructorCode(normalized);
+      if (rpcErr) {
+        setBusy(false);
+        const msg = rpcErr.message || '';
+        if (msg.includes('invalid_code')) {
+          // Common slip: typing the student join code of a new-style class.
+          const { data: studentClass } = await rpcVerifyClassCode(normalized);
+          if (studentClass) {
+            setError('นี่คือรหัสสำหรับนักเรียนเข้าคลาส — การดูผลรวมต้องใช้ "รหัสอาจารย์" ที่ได้ตอนสร้างคลาส');
+          } else {
+            setError('ไม่พบคลาสนี้ ตรวจสอบรหัสอีกครั้ง');
+          }
+        } else {
+          setError('เชื่อมต่อไม่สำเร็จ: ' + msg);
+        }
+        return;
+      }
+      setBusy(false);
+      if (data.courseMode !== COURSE_MODE) {
+        setError(`คลาสนี้เป็นของหลักสูตร ${data.courseMode.toUpperCase()} — เปิดผิดเว็บ`);
+        return;
+      }
+      setClass({
+        classId: data.classId,
+        classCode: data.classCode,
+        instructorCode: data.instructorCode,
+        className: data.className,
+        courseMode: data.courseMode,
+      });
+      track('instructor_class_connected');
+      scheduleFlush();
+      onClose?.();
+      return;
+    }
+
     const { data, error: rpcErr } = await rpcVerifyClassCode(normalized);
     setBusy(false);
     if (rpcErr) {
@@ -68,6 +115,9 @@ export default function ClassGateModal({ open, onClose, initialMode = 'home' }) 
       classCode: normalized,
       className: data.className,
       courseMode: data.courseMode,
+    });
+    track('class_joined', {
+      props: { via: initialCode && normalized === initialCode.toUpperCase() ? 'link' : 'manual' },
     });
     // Push any rows that were created while offline / before class was set
     scheduleFlush();
@@ -87,20 +137,18 @@ export default function ClassGateModal({ open, onClose, initialMode = 'home' }) 
     setClass({
       classId: data.classId,
       classCode: data.code,
+      instructorCode: data.instructorCode,
       className: n,
       courseMode: COURSE_MODE,
     });
+    track('class_created');
     scheduleFlush();
-    setCreatedCode(data.code);
+    setCreated({ code: data.code, instructorCode: data.instructorCode });
   };
 
   const useOffline = () => { disableSync(); onClose?.(); };
 
-  const copyCode = () => {
-    if (createdCode) navigator.clipboard?.writeText(createdCode);
-  };
-
-  if (createdCode) {
+  if (created) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in p-4">
         <div className="w-full max-w-md bg-bg-secondary animate-slide-up p-5 space-y-4"
@@ -112,21 +160,41 @@ export default function ClassGateModal({ open, onClose, initialMode = 'home' }) 
             </div>
             <div>
               <div className="text-headline">สร้างคลาสสำเร็จ</div>
-              <div className="text-[11px] text-text-muted">แจกรหัสนี้ให้นักเรียนใช้เข้าคลาส</div>
+              <div className="text-[11px] text-text-muted">ได้รหัส 2 ชุด — ใช้คนละหน้าที่</div>
             </div>
           </div>
+
           <div className="bg-bg-tertiary p-4 text-center"
             style={{ borderRadius: 'var(--radius-md)' }}>
-            <div className="text-overline text-text-muted mb-1">รหัสคลาส</div>
+            <div className="text-overline text-text-muted mb-1">รหัสเข้าคลาส (แจกนักเรียน)</div>
             <div className="text-3xl font-mono font-bold tracking-[0.3em] text-text-primary">
-              {createdCode}
+              {created.code}
             </div>
-            <button onClick={copyCode}
+            <button onClick={() => navigator.clipboard?.writeText(created.code)}
               className="btn btn-ghost btn-sm mt-2">
               <Copy size={13} strokeWidth={2.2} /> คัดลอก
             </button>
           </div>
-          <button onClick={() => { setCreatedCode(null); onClose?.(); }}
+
+          <div className="bg-warning/8 border border-warning/30 p-4 text-center"
+            style={{ borderRadius: 'var(--radius-md)' }}>
+            <div className="text-overline text-warning mb-1 inline-flex items-center gap-1">
+              <ShieldCheck size={12} strokeWidth={2.4} /> รหัสอาจารย์ (เก็บเป็นความลับ)
+            </div>
+            <div className="text-2xl font-mono font-bold tracking-[0.3em] text-text-primary">
+              {created.instructorCode}
+            </div>
+            <button onClick={() => navigator.clipboard?.writeText(created.instructorCode)}
+              className="btn btn-ghost btn-sm mt-2">
+              <Copy size={13} strokeWidth={2.2} /> คัดลอก
+            </button>
+            <p className="text-[11px] text-text-muted mt-1">
+              ใช้ดูผลรวมทั้งคลาส และเชื่อมต่อคลาสนี้บนเครื่องอื่น —
+              จดเก็บไว้ให้ดี อย่าแจกให้นักเรียน
+            </p>
+          </div>
+
+          <button onClick={() => { setCreated(null); onClose?.(); }}
             className="btn btn-primary btn-block">
             เรียบร้อย
           </button>
@@ -197,14 +265,20 @@ export default function ClassGateModal({ open, onClose, initialMode = 'home' }) 
                 <ChevronLeft size={18} strokeWidth={2.4} />
               </button>
               <div>
-                <div className="text-headline">เข้าคลาส</div>
-                <div className="text-[11px] text-text-muted">กรอกรหัสที่ได้จากอาจารย์</div>
+                <div className="text-headline">{instructor ? 'เชื่อมต่อคลาส (อาจารย์)' : 'เข้าคลาส'}</div>
+                <div className="text-[11px] text-text-muted">
+                  {instructor
+                    ? 'ใช้รหัสอาจารย์ที่ได้ตอนสร้างคลาส (คลาสรุ่นเก่าใช้รหัสคลาสได้)'
+                    : 'กรอกรหัสที่ได้จากอาจารย์'}
+                </div>
               </div>
             </div>
 
             <form onSubmit={submitJoin} className="space-y-3">
               <label className="block">
-                <span className="text-caption font-semibold text-text-secondary">รหัสคลาส (6 หลัก)</span>
+                <span className="text-caption font-semibold text-text-secondary">
+                  {instructor ? 'รหัสอาจารย์ (6 หลัก)' : 'รหัสคลาส (6 หลัก)'}
+                </span>
                 <input
                   type="text" autoFocus value={code}
                   onChange={e => setCode(e.target.value.toUpperCase())}

@@ -20,13 +20,39 @@ export async function rpcVerifyClassCode(code) {
 }
 
 export async function rpcCreateClass({ name, courseMode }) {
-  const { data, error } = await supabase.rpc('create_class', {
+  const { data, error } = await supabase.rpc('create_class_v2', {
     p_name: name,
     p_course_mode: courseMode,
   });
   if (error) return { error };
   const row = Array.isArray(data) ? data[0] : data;
-  return { data: { classId: row.class_id, code: row.code } };
+  return {
+    data: {
+      classId: row.class_id,
+      code: row.code,
+      instructorCode: row.instructor_code,
+    },
+  };
+}
+
+// Verify an instructor code (or a legacy class code). Returns the student
+// join code too, so an instructor can reconnect — and recover a lost join
+// code — from just the instructor code.
+export async function rpcVerifyInstructorCode(code) {
+  const { data, error } = await supabase.rpc('verify_instructor_code', {
+    p_code: code,
+  });
+  if (error) return { error };
+  const row = Array.isArray(data) ? data[0] : data;
+  return {
+    data: {
+      classId: row.class_id,
+      className: row.class_name,
+      courseMode: row.course_mode,
+      classCode: row.class_code,
+      instructorCode: row.instructor_code,
+    },
+  };
 }
 
 export async function rpcJoinClass({ code, studentUuid, studentId, name, phone }) {
@@ -74,21 +100,28 @@ export async function rpcSubmitQuizAttempt({ attemptUuid, studentPk, lessonId, p
   return error ? { error } : { data: true };
 }
 
+// Instructor-level RPCs use the instructor code when the class has one;
+// legacy classes fall back to the shared class code (old bearer behaviour).
+function instructorAccessCode() {
+  const { classCode, instructorCode } = getClassContext();
+  return instructorCode || classCode;
+}
+
 export async function rpcGetCohortSummary(lessonIds) {
-  const { classCode } = getClassContext();
-  if (!classCode) return { error: new Error('no_class') };
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
   const { data, error } = await supabase.rpc('get_cohort_summary', {
-    p_code: classCode,
+    p_code: code,
     p_lesson_ids: lessonIds,
   });
   return error ? { error } : { data: data || [] };
 }
 
 export async function rpcDeleteCohortStudent(studentPk) {
-  const { classCode } = getClassContext();
-  if (!classCode) return { error: new Error('no_class') };
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
   const { error } = await supabase.rpc('delete_cohort_student', {
-    p_code: classCode,
+    p_code: code,
     p_student_pk: studentPk,
   });
   return error ? { error } : { data: true };
