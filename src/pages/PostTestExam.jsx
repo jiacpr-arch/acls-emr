@@ -227,7 +227,7 @@ export default function PostTestExam() {
   }
 
   return (
-    <div className="page-container space-y-5 pb-24">
+    <div className="page-container page-with-action-bar space-y-5">
       <Header subtitle={`${exam.set.title} · ${questions.length} ข้อ · เกณฑ์ผ่าน ${exam.bank?.pass_percent ?? POST_TEST_PASS_PERCENT}%`} />
 
       <div className="dash-card !py-3 space-y-2">
@@ -273,7 +273,7 @@ export default function PostTestExam() {
         </div>
       </div>
 
-      <div className="fixed left-0 right-0 bottom-16 bg-bg-primary/95 backdrop-blur border-t border-border px-4 py-3 z-40">
+      <div className="above-tab-bar bg-bg-primary/95 backdrop-blur border-y border-border px-4 py-3">
         <div className="max-w-[820px] mx-auto flex items-center gap-2">
           <button
             onClick={() => setPostTestIndex(Math.max(0, safeIndex - 1))}

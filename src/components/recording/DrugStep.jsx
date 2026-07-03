@@ -76,8 +76,8 @@ export default function DrugStep({ onDone, isTraining }) {
           <button key={d.id} className="btn-action btn-ghost py-2.5 text-[10px] relative"
             onClick={() => give(`${d.label} (${d.detail})`, d.id)}>
             <div className="font-semibold">{d.label}</div>
-            <div className="text-[8px] text-text-muted">{d.detail}</div>
-            <button onClick={(e) => { e.stopPropagation(); setShowTech(d.id); }} className="absolute top-0.5 right-1 text-[8px] text-info">?</button>
+            <div className="text-[9px] text-text-muted">{d.detail}</div>
+            <button onClick={(e) => { e.stopPropagation(); setShowTech(d.id); }} className="absolute top-0.5 right-1 text-[9px] text-info">?</button>
           </button>
         ))}
       </div>
