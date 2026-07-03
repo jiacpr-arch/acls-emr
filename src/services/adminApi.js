@@ -12,3 +12,21 @@ export async function authedGet(path) {
   if (!res.ok) throw new Error(json?.error || `HTTP ${res.status}`);
   return json;
 }
+
+export async function authedPost(path, body) {
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  if (!token) throw new Error('ไม่มี session — กรุณา login ใหม่');
+
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body ?? {}),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json?.error || `HTTP ${res.status}`);
+  return json;
+}

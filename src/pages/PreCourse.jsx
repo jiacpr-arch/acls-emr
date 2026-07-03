@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { preCourseLessons, preCourseVideos } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
@@ -48,10 +48,16 @@ export default function PreCourse() {
   const classCode = useClassStore(s => s.classCode);
   const className = useClassStore(s => s.className);
   const clearClass = useClassStore(s => s.clearClass);
+  // /pre-course?join=K7M2QX — students arriving from the instructor's QR /
+  // shared link land straight on the join form with the code prefilled.
+  const [searchParams] = useSearchParams();
+  const joinParam = (searchParams.get('join') || '').trim().toUpperCase();
   const [showClassGate, setShowClassGate] = useState(() => {
     const s = useClassStore.getState();
+    if (joinParam && s.classCode !== joinParam) return true;
     return !s.classCode && !s.syncDisabled;
   });
+  const gateInitialMode = joinParam && classCode !== joinParam ? 'join' : 'home';
 
   useEffect(() => {
     const id = activeStudent?.id;
@@ -230,6 +236,8 @@ export default function PreCourse() {
 
         <ClassGateModal
           open={showClassGate}
+          initialMode={gateInitialMode}
+          initialCode={joinParam}
           onClose={() => setShowClassGate(false)}
         />
 
@@ -340,6 +348,8 @@ export default function PreCourse() {
 
       <ClassGateModal
         open={showClassGate}
+        initialMode={gateInitialMode}
+        initialCode={joinParam}
         onClose={() => setShowClassGate(false)}
       />
 
