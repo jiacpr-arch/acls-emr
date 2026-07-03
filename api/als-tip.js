@@ -1,7 +1,11 @@
+import { enforceRateLimit } from './_lib/rateLimit.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  if (!enforceRateLimit(req, res, { key: 'als-tip', limit: 5, windowMs: 60_000 })) return;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {

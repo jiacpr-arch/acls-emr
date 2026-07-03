@@ -18,9 +18,12 @@ import {
   Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield, MessageCircle, AlertCircle,
 } from 'lucide-react';
 import { useVideoLessons } from '../hooks/useVideoLessons';
+import { useAsyncData } from '../hooks/useAsyncData';
 import { computeVideoCompletion } from '../utils/videoProgress';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import LoadingCard from '../components/ui/LoadingCard';
+import ErrorCard from '../components/ui/ErrorCard';
 
 const CERT_KEY = `${courseMeta.id}_certification`;
 
@@ -46,26 +49,23 @@ export default function Certification() {
   const [studentPhone, setStudentPhone] = useState(certData.studentPhone || activeStudent?.phone || '');
   const [studentEmail, setStudentEmail] = useState(certData.studentEmail || activeStudent?.email || '');
   const [formError, setFormError] = useState('');
-  const [preCourseProgress, setPreCourseProgress] = useState([]);
-  const [preCourseAttempts, setPreCourseAttempts] = useState([]);
   // Soft gate: ปลดล็อกปุ่มดาวน์โหลดเมื่อกดเพิ่มเพื่อน LINE OA (หรือกดข้าม) — จำค่าไว้ข้าม refresh
   const [lineUnlocked, setLineUnlocked] = useState(!!certData.lineFollowed);
   const ekgTestDone = localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
 
-  useEffect(() => {
-    if (!activeStudent) {
-      setPreCourseProgress([]);
-      setPreCourseAttempts([]);
-      return;
-    }
-    Promise.all([
-      getLessonProgress(activeStudent.id),
-      getAttemptsForStudent(activeStudent.id),
-    ]).then(([p, a]) => {
-      setPreCourseProgress(p);
-      setPreCourseAttempts(a);
-    });
-  }, [activeStudent?.id]);
+  const {
+    data: preCourseData,
+    loading: progressLoading,
+    error: progressError,
+    reload: reloadProgress,
+  } = useAsyncData(
+    () => (activeStudent
+      ? Promise.all([getLessonProgress(activeStudent.id), getAttemptsForStudent(activeStudent.id)])
+      : [[], []]),
+    [activeStudent?.id],
+  );
+  const preCourseProgress = preCourseData?.[0] ?? [];
+  const preCourseAttempts = preCourseData?.[1] ?? [];
 
   // วัด funnel ของ soft gate: ยิงครั้งเดียวตอนผู้ใช้เห็นด่านเพิ่มเพื่อน LINE
   useEffect(() => {
@@ -94,7 +94,7 @@ export default function Certification() {
 
   // เงื่อนไขบทเรียนวิดีโอ — ดูครบ + ผ่านควิซ ทุกหัวข้อ required (ACLS เท่านั้น)
   // ถ้ายังไม่มีวิดีโอ (total = 0) จะไม่เพิ่มเป็นเงื่อนไข เพื่อไม่บล็อกใบประกาศนียบัตรช่วงเปลี่ยนผ่าน
-  const { lessons: videoLessons } = useVideoLessons();
+  const { lessons: videoLessons, loading: videoLoading, error: videoError } = useVideoLessons();
   const videoComp = computeVideoCompletion(videoLessons, preCourseProgress, preCourseAttempts);
   const videoGateActive = !IS_BLS && videoComp.total > 0;
 
@@ -116,7 +116,13 @@ export default function Certification() {
           : []),
       ];
 
-  const allDone = requirements.every(r => r.done);
+  // While the video list (ACLS) or the local progress records are still
+  // loading, the requirements list is incomplete — computing allDone from it
+  // would briefly drop the video gate and expose the generate-cert form.
+  // On a load error, keep the gate locked (fail closed).
+  const requirementsLoading = progressLoading || (!IS_BLS && videoLoading);
+  const requirementsError = progressError || (!IS_BLS ? videoError : null);
+  const allDone = !requirementsLoading && !requirementsError && requirements.every(r => r.done);
   const progress = Math.round((requirements.filter(r => r.done).length / requirements.length) * 100);
 
   const generateCertificate = async () => {
@@ -231,6 +237,17 @@ export default function Certification() {
 
       <MorrooAdCard />
 
+      {/* Progress + Requirements — gated on the data they're computed from */}
+      {requirementsLoading && <LoadingCard label="กำลังตรวจสอบความคืบหน้า..." />}
+      {!requirementsLoading && requirementsError && (
+        <ErrorCard
+          title="โหลดข้อมูลความคืบหน้าไม่สำเร็จ"
+          detail="ตรวจสอบการเชื่อมต่อแล้วลองใหม่"
+          onRetry={progressError ? reloadProgress : () => window.location.reload()}
+        />
+      )}
+      {!requirementsLoading && !requirementsError && (
+      <>
       {/* Progress */}
       <div className="dash-card text-center">
         <div className={`text-numeric text-5xl ${allDone ? 'text-success' : 'text-warning'}`}>{progress}%</div>
@@ -265,6 +282,8 @@ export default function Certification() {
           );
         })}
       </div>
+      </>
+      )}
 
       {/* Pre-course breakdown (only when a student is active) */}
       {activeStudent && (

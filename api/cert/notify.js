@@ -1,9 +1,14 @@
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
 import { sendCertNotification } from '../_lib/lineNotify.js';
+import { enforceRateLimit } from '../_lib/rateLimit.js';
 
 export const config = { maxDuration: 10 };
 
 const MAX_NAME_LEN = 80;
+// Client generates cert ids as `${JIA-ACLS|JIA-BLS}-${Date.now().toString(36).toUpperCase()}`
+// (src/pages/Certification.jsx) — reject anything else so this public endpoint
+// can't be used to stuff arbitrary ids into the certificates table.
+const CERT_ID_RE = /^JIA-(ACLS|BLS)-[0-9A-Z]{6,16}$/;
 
 // Public endpoint: the student's browser calls this right after generating a
 // certificate so the admin LINE OA gets an alert. The cert itself is created
@@ -12,6 +17,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  if (!enforceRateLimit(req, res, { key: 'cert-notify', limit: 5, windowMs: 60_000 })) return;
 
   const body = typeof req.body === 'string' ? safeJson(req.body) : (req.body || {});
 
@@ -27,10 +34,15 @@ export default async function handler(req, res) {
   if (!studentName || !certId) {
     return res.status(400).json({ error: 'missing studentName or certId' });
   }
+  if (!CERT_ID_RE.test(certId)) {
+    return res.status(400).json({ error: 'invalid certId' });
+  }
 
   // Best-effort: persist the issuance so the admin stats page can count it.
   // Wrapped so a missing Supabase config or an insert error never blocks the
-  // LINE alert or the student's response. Upsert on cert_id keeps it idempotent.
+  // LINE alert or the student's response. ignoreDuplicates makes this
+  // insert-only: retries stay idempotent, but an existing record can never be
+  // overwritten by a later (possibly forged) request with the same cert_id.
   let recorded = false;
   try {
     const supabase = getSupabaseAdmin();
@@ -45,7 +57,7 @@ export default async function handler(req, res) {
         pre_test_score: preTestScore,
         post_test_score: postTestScore,
         ekg_passed: ekgPassed,
-      }, { onConflict: 'cert_id' });
+      }, { onConflict: 'cert_id', ignoreDuplicates: true });
     recorded = !error;
   } catch { /* Supabase not configured — skip silently */ }
 

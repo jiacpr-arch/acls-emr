@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
 import { processStudentQuestion } from '../_lib/processStudentQuestion.js';
+import { enforceRateLimit } from '../_lib/rateLimit.js';
 
 export const config = { maxDuration: 60 };
 
@@ -11,6 +12,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // Each submission runs a paid AI pipeline (DeepSeek + image gen) — keep it slow per IP.
+  if (!enforceRateLimit(req, res, { key: 'student-question', limit: 3, windowMs: 5 * 60_000 })) return;
 
   const body = typeof req.body === 'string' ? safeJson(req.body) : (req.body || {});
   const question = String(body.question || '').trim();
@@ -48,7 +52,8 @@ export default async function handler(req, res) {
     .select('id')
     .single();
   if (insErr) {
-    return res.status(500).json({ error: `บันทึกคำถามไม่สำเร็จ: ${insErr.message}` });
+    console.error('insert student question failed:', insErr.message);
+    return res.status(500).json({ error: 'บันทึกคำถามไม่สำเร็จ กรุณาลองใหม่อีกครั้ง' });
   }
 
   const id = inserted.id;

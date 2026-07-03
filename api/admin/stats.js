@@ -25,6 +25,9 @@ export default async function handler(req, res) {
   }
 
   const { data, error } = await supabase.rpc('get_admin_stats');
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) {
+    console.error('get_admin_stats failed:', error.message);
+    return res.status(500).json({ error: 'Failed to load admin stats' });
+  }
   return res.status(200).json(data || {});
 }
