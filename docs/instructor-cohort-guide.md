@@ -17,15 +17,17 @@
 ถ้ายังไม่เชื่อมต่อคลาส ข้อมูลจะอยู่ในเครื่องนั้น ๆ (offline) เท่านั้น ดูข้ามเครื่องไม่ได้
 
 ```
-อาจารย์สร้างคลาส ──> ได้รหัสคลาส 6 หลัก (เช่น K7M2QX)
+อาจารย์สร้างคลาส ──> ได้รหัส 2 ชุด
         │
-        └─ แจกรหัสให้นักเรียน
+        ├─ รหัสเข้าคลาส (เช่น K7M2QX) ── แจกนักเรียน ผ่าน QR / ลิงก์ / บอกรหัส
+        │
+        └─ รหัสอาจารย์ (เช่น TQ8ZWD) ── เก็บเป็นความลับ ไว้ดูผลรวม + กู้รหัส
                 │
-   นักเรียนแต่ละคน "เข้าคลาส" ด้วยรหัส ──> เรียน / ทำ Pre-test / Post-test
+   นักเรียนแต่ละคน "เข้าคลาส" ด้วยรหัสเข้าคลาส ──> เรียน / ทำ Pre-test / Post-test
                 │
         ผลถูก sync ขึ้น cloud อัตโนมัติ
                 │
-   อาจารย์เปิดหน้า "สำหรับอาจารย์" ──> เห็นผลนักเรียนทั้งคลาส + Export
+   อาจารย์เปิดหน้า "สำหรับอาจารย์" (มีรหัสอาจารย์) ──> เห็นผลทั้งคลาส + Export
 ```
 
 ---
@@ -155,9 +157,10 @@ A: ใช้ภายในเพื่อการอบรมเท่าน�
 | หน้าที่ | ไฟล์ |
 |--------|------|
 | หน้าต่างเปิด/เข้าคลาส | `src/components/precourse/ClassGateModal.jsx` |
-| สถานะคลาส (state) | `src/stores/classStore.js` |
-| หน้าอาจารย์ (รวมผลคลาส) | `src/pages/InstructorCohort.jsx` (route `/pre-course/cohort`) |
+| สถานะคลาส (state, รหัสทั้ง 2 ชุด) | `src/stores/classStore.js` |
+| หน้าอาจารย์ (รวมผลคลาส + QR) | `src/pages/InstructorCohort.jsx` (route `/pre-course/cohort`) |
 | ตารางแสดงผลนักเรียน | `src/components/precourse/CohortTable.jsx` |
 | รายชื่อรวมทุกคลาส (แอดมิน) | `src/pages/AdminStudents.jsx` (route `/admin/students`) |
+| คลาสทั้งหมด + กู้รหัส/ปิดคลาส (แอดมิน) | `src/pages/AdminClasses.jsx` (route `/admin/classes`) |
 | RPC sync กับ cloud | `src/services/cohortSync.js` |
-| สคีมา/RPC ฝั่ง Supabase | `supabase-cleanup/cohort-sync.sql` |
+| สคีมา/RPC ฝั่ง Supabase | `supabase-cleanup/cohort-sync.sql`, `supabase-cleanup/instructor-code.sql` |
