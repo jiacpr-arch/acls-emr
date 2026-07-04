@@ -29,7 +29,7 @@ function VideoCard({ videoId, label, orientation, onPlay }) {
           <Play size={20} strokeWidth={2.4} className="text-danger ml-0.5" />
         </span>
       </span>
-      <span className="absolute left-2 right-2 bottom-1.5 block text-white text-[11px] font-bold leading-tight drop-shadow line-clamp-2">
+      <span className="absolute left-2 right-2 bottom-1.5 block text-white text-2xs font-bold leading-tight drop-shadow line-clamp-2">
         {label}
       </span>
     </button>

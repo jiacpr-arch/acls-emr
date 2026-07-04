@@ -16,7 +16,7 @@ function Figure({ img, fallbackAlt }) {
         {...handlers}
       />
       {img.caption && (
-        <figcaption className="text-[12px] text-text-muted mt-1.5 leading-relaxed italic px-1">
+        <figcaption className="text-xs text-text-muted mt-1.5 leading-relaxed italic px-1">
           {img.caption}
         </figcaption>
       )}
@@ -31,7 +31,7 @@ export default function LessonImages({ images, fallbackAlt }) {
   return (
     <div className="mt-4">
       <div className="flex items-center gap-2.5 mb-3">
-        <span className="inline-flex items-center gap-1.5 text-[12px] font-bold text-info shrink-0">
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-info shrink-0">
           <ImageIcon size={13} strokeWidth={2.4} /> ภาพประกอบ
         </span>
         <span className="flex-1 h-px bg-border" />

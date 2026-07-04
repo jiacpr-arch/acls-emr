@@ -174,7 +174,7 @@ export default function AdminClasses() {
         </table>
       </div>
 
-      <p className="text-[11px] text-text-muted px-1">
+      <p className="text-2xs text-text-muted px-1">
         คลาสรุ่นเก่า (สร้างก่อนมีรหัสอาจารย์) จะไม่มีรหัสอาจารย์ — รหัสเข้าคลาสใช้ดูผลรวมได้ตามเดิม
         · ปิดคลาสแล้วรหัสทั้งคู่จะใช้ไม่ได้ แต่ข้อมูลยังอยู่ครบ เปิดอีกครั้งได้ตลอด
       </p>

@@ -93,7 +93,7 @@ export default function AdminPreCourseImages() {
           </div>
           <div>
             <h1 className="text-body-strong text-text-primary">Admin — สื่อประกอบบทเรียน</h1>
-            <p className="text-[11px] text-text-muted">เดินทีละหัวข้อเหมือนหน้านักเรียน แล้วจัดการรูป/วิดีโอของหัวข้อนั้น</p>
+            <p className="text-2xs text-text-muted">เดินทีละหัวข้อเหมือนหน้านักเรียน แล้วจัดการรูป/วิดีโอของหัวข้อนั้น</p>
           </div>
         </div>
         <button onClick={handleLogout} className="btn btn-ghost btn-sm">
@@ -131,14 +131,14 @@ export default function AdminPreCourseImages() {
           <div className="dash-card !p-3 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <span
-                className="inline-flex items-center gap-1.5 bg-info text-white text-[12px] font-extrabold px-2.5 py-1 shrink-0"
+                className="inline-flex items-center gap-1.5 bg-info text-white text-xs font-extrabold px-2.5 py-1 shrink-0"
                 style={{ borderRadius: 99 }}
               >
                 ขั้นที่ <span className="tabular-nums">{safeIdx + 1}</span>
                 <span className="opacity-70">/</span>
                 <span className="tabular-nums opacity-90">{totalSteps}</span>
               </span>
-              <span className="text-[11px] font-bold text-text-secondary">
+              <span className="text-2xs font-bold text-text-secondary">
                 {step?.type === 'read' ? 'หัวข้อเนื้อหา (มีสื่อ)' : 'คำถาม (ไม่มีสื่อ)'}
               </span>
             </div>
@@ -151,7 +151,7 @@ export default function AdminPreCourseImages() {
           {step?.type === 'read' && (
             <>
               <section className="dash-card space-y-3 !p-5">
-                <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-text-muted">
+                <div className="inline-flex items-center gap-1.5 text-2xs font-bold text-text-muted">
                   <Eye size={12} strokeWidth={2.2} /> มุมมองนักเรียน
                 </div>
                 <div className="text-headline text-info">{step.heading}</div>
@@ -167,7 +167,7 @@ export default function AdminPreCourseImages() {
               </section>
 
               <section className="dash-card space-y-4 !p-4 border border-info/30">
-                <div className="inline-flex items-center gap-1.5 text-[12px] font-bold text-info">
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-info">
                   <SlidersHorizontal size={13} strokeWidth={2.4} /> จัดการสื่อของหัวข้อนี้
                 </div>
                 <ImageManager
@@ -189,7 +189,7 @@ export default function AdminPreCourseImages() {
           {/* quiz step — โชว์คำถามให้เห็นบริบท (อ่านอย่างเดียว ไม่มีสื่อ) */}
           {step?.type === 'quiz' && (
             <section className="dash-card space-y-3 !p-5">
-              <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-text-muted">
+              <div className="inline-flex items-center gap-1.5 text-2xs font-bold text-text-muted">
                 <Eye size={12} strokeWidth={2.2} /> มุมมองนักเรียน · คำถาม (สเต็ปนี้ไม่ใส่สื่อ)
               </div>
               <QuizQuestion
@@ -227,7 +227,7 @@ export default function AdminPreCourseImages() {
         </>
       )}
 
-      <p className="text-[11px] text-text-muted text-center pt-2 inline-flex items-center justify-center gap-1 w-full">
+      <p className="text-2xs text-text-muted text-center pt-2 inline-flex items-center justify-center gap-1 w-full">
         <BookOpen size={11} strokeWidth={2.2} /> สื่อจะ refresh ในแอปนักเรียนภายใน 6 ชั่วโมง (cache TTL)
       </p>
       <div className="text-center">

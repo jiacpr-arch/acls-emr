@@ -290,7 +290,7 @@ export default function Certification() {
         <div className="dash-card !p-3 space-y-2">
           <div className="flex items-center justify-between">
             <div className="text-overline text-text-muted">Pre-course — {activeStudent.name}</div>
-            <span className="text-[11px] text-text-muted font-mono">{activeStudent.studentId || activeStudent.phone}</span>
+            <span className="text-2xs text-text-muted font-mono">{activeStudent.studentId || activeStudent.phone}</span>
           </div>
           {preCourseStatus.map(({ lesson, read, bestScore, passed }) => (
             <Link key={lesson.id} to={`/pre-course/${lesson.id}`}
@@ -301,7 +301,7 @@ export default function Certification() {
                 {passed ? <Check size={12} strokeWidth={2.6} /> : <Circle size={10} strokeWidth={2} />}
               </span>
               <span className="flex-1 text-text-secondary truncate">{lesson.title}</span>
-              <span className={`text-[11px] font-bold ${
+              <span className={`text-2xs font-bold ${
                 passed ? 'text-success' : bestScore != null ? 'text-warning' : 'text-text-muted'
               }`}>
                 {bestScore != null ? `${bestScore}%` : (read ? 'อ่านแล้ว' : 'ยังไม่อ่าน')}
@@ -360,7 +360,7 @@ export default function Certification() {
           <div className="text-headline text-success text-center inline-flex items-center justify-center gap-2 w-full">
             <Trophy size={18} strokeWidth={2.4} /> ยินดีด้วย! กรอกข้อมูลเพื่อรับใบประกาศ
           </div>
-          <p className="text-[11px] text-text-muted text-center -mt-1">
+          <p className="text-2xs text-text-muted text-center -mt-1">
             ใช้ชื่อบนใบประกาศ และไว้ส่งใบประกาศ/แจ้งเตือนก่อนหมดอายุ
           </p>
           <label className="block">
@@ -442,8 +442,8 @@ export default function Certification() {
             Issued: {issuedDate?.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' })}
             {expiresDate && ` · Valid through: ${expiresDate.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' })}`}
           </div>
-          <div className="font-mono text-[11px] text-info">ID: {certData.certId}</div>
-          <div className="text-[11px] text-text-muted">{certConfig.centerName} · {certConfig.centerUrl}</div>
+          <div className="font-mono text-2xs text-info">ID: {certData.certId}</div>
+          <div className="text-2xs text-text-muted">{certConfig.centerName} · {certConfig.centerUrl}</div>
           {certConfig.theoryOnly && certConfig.practicalRecommendation && (
             <div className="dash-card !p-3 !bg-info/10 border border-info/30 text-caption text-info flex items-start gap-2 text-left">
               <MapPin size={15} strokeWidth={2.4} className="text-info shrink-0 mt-0.5" />

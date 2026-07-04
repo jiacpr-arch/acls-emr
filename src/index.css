@@ -34,6 +34,12 @@
   --color-border: #E2E8F0;
   --color-border-strong: #CBD5E1;
 
+  /* === Type scale extension ===
+     text-2xs — micro label ขั้นต่ำที่ยังอ่านออกบนมือถือ ใช้แทน
+     ขนาด ad-hoc 10–11px ที่เคยกระจายอยู่ทั่วแอป */
+  --text-2xs: 0.6875rem; /* 11px */
+  --text-2xs--line-height: 1.45;
+
   /* === Radii (re-enabled, soft medical-tool feel) === */
   --radius-sm: 6px;
   --radius: 8px;

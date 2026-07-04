@@ -48,7 +48,7 @@ export default function VideoManager({ stepId, videos, onChange }) {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="ลิงก์ YouTube (youtu.be/ · watch?v= · shorts/)"
-          className="w-full px-2 py-1 bg-bg-primary border border-border text-[12px]"
+          className="w-full px-2 py-1 bg-bg-primary border border-border text-xs"
           style={{ borderRadius: 4 }}
         />
         <input
@@ -56,7 +56,7 @@ export default function VideoManager({ stepId, videos, onChange }) {
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder="ชื่อคลิป (ไม่ใส่ได้ → 'ดูคลิป')"
-          className="w-full px-2 py-1 bg-bg-primary border border-border text-[12px]"
+          className="w-full px-2 py-1 bg-bg-primary border border-border text-xs"
           style={{ borderRadius: 4 }}
         />
         <div className="flex items-center gap-2">
@@ -85,7 +85,7 @@ function OrientationButton({ active, onClick, label }) {
     <button
       type="button"
       onClick={onClick}
-      className={`text-[11px] font-bold px-2 py-1 border transition-colors ${
+      className={`text-2xs font-bold px-2 py-1 border transition-colors ${
         active ? 'border-info bg-info/15 text-info' : 'border-border bg-bg-primary text-text-muted'
       }`}
       style={{ borderRadius: 4 }}
@@ -140,7 +140,7 @@ function VideoRow({ video, onChange }) {
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder="ชื่อคลิป"
-          className="w-full px-2 py-1 bg-bg-primary border border-border text-[12px]"
+          className="w-full px-2 py-1 bg-bg-primary border border-border text-xs"
           style={{ borderRadius: 4 }}
         />
         <div className="flex items-center gap-1">

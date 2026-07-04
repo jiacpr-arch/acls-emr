@@ -151,7 +151,7 @@ export default function Feedback() {
                       style={{ borderRadius: 'var(--radius-md)' }}
                     >
                       <CIcon size={20} strokeWidth={2.2} />
-                      <div className="text-[11px] font-bold">{c.label}</div>
+                      <div className="text-2xs font-bold">{c.label}</div>
                     </button>
                   );
                 })}
@@ -201,7 +201,7 @@ export default function Feedback() {
                           {cat?.label || item.type || 'อื่นๆ'}
                         </span>
                       </div>
-                      <div className="text-[10px] text-text-muted font-mono">
+                      <div className="text-2xs text-text-muted font-mono">
                         {new Date(item.timestamp).toLocaleDateString('th-TH', {
                           day: 'numeric', month: 'short', year: '2-digit',
                           hour: '2-digit', minute: '2-digit',

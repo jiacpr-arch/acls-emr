@@ -58,7 +58,7 @@ export default function QAAclsDeepCategory() {
     <div className="page-container space-y-6">
       {/* Breadcrumb */}
       <nav
-        className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[12px] text-text-muted"
+        className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-xs text-text-muted"
         aria-label="เส้นทางหน้า"
       >
         <Link to="/qa-acls-deep" className="inline-flex items-center gap-1 hover:text-info">
@@ -76,7 +76,7 @@ export default function QAAclsDeepCategory() {
       {/* Article-style header: chapter pill + page title */}
       <header className="space-y-3">
         <span
-          className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1"
+          className="inline-flex items-center gap-1.5 text-2xs font-extrabold uppercase tracking-wider px-2.5 py-1"
           style={{
             background: `color-mix(in srgb, ${palette.accent} 12%, transparent)`,
             color: palette.accent,
@@ -89,7 +89,7 @@ export default function QAAclsDeepCategory() {
         <h1 className="text-[24px] sm:text-[26px] font-extrabold text-text-primary leading-tight">
           {name || ' '}
         </h1>
-        <div className="flex items-center gap-1.5 text-[12px] text-text-muted">
+        <div className="flex items-center gap-1.5 text-xs text-text-muted">
           <BookOpen size={12} strokeWidth={2.4} />
           {loading ? 'กำลังโหลด…' : `${categoryItems.length} คำถามในหมวดนี้`}
         </div>
@@ -104,7 +104,7 @@ export default function QAAclsDeepCategory() {
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="text-[11px] uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
+          <div className="text-2xs uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
             เลือกคำถามที่ต้องการอ่าน
           </div>
           {categoryItems.map((it, idx) => (
@@ -114,7 +114,7 @@ export default function QAAclsDeepCategory() {
               className="dash-card !p-0 flex items-start gap-3 px-4 py-3 hover:bg-bg-tertiary/50 transition-colors text-left"
             >
               <span
-                className="inline-flex items-center justify-center shrink-0 font-extrabold text-white text-[12px]"
+                className="inline-flex items-center justify-center shrink-0 font-extrabold text-white text-xs"
                 style={{
                   minWidth: 32,
                   height: 28,

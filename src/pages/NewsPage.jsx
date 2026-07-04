@@ -170,7 +170,7 @@ function NewsItem({ item }) {
         {item.topics?.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             {item.topics.map(t => (
-              <span key={t} className="text-[10px] text-text-muted bg-bg-tertiary px-1.5 py-0.5"
+              <span key={t} className="text-2xs text-text-muted bg-bg-tertiary px-1.5 py-0.5"
                 style={{ borderRadius: 'var(--radius-sm)' }}>
                 #{t}
               </span>

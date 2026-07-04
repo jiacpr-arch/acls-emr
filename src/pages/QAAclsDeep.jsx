@@ -144,7 +144,7 @@ export default function QAAclsDeep() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-body-strong text-text-primary">ถามคำถามของคุณ</div>
-          <div className="text-[11px] text-text-muted">AI ตอบเชิงลึก + จัดหมวด · อาจารย์ตรวจก่อนเผยแพร่</div>
+          <div className="text-2xs text-text-muted">AI ตอบเชิงลึก + จัดหมวด · อาจารย์ตรวจก่อนเผยแพร่</div>
         </div>
         <ArrowRight size={16} strokeWidth={2.2} className="text-info shrink-0" />
       </button>
@@ -165,7 +165,7 @@ export default function QAAclsDeep() {
           <div className="flex items-center justify-between gap-2 px-3 pt-2.5 pb-1">
             <div className="inline-flex items-center gap-1.5">
               <Sparkles size={12} strokeWidth={2.4} className="text-info" />
-              <span className="text-[10px] uppercase tracking-wider text-info font-bold">
+              <span className="text-2xs uppercase tracking-wider text-info font-bold">
                 สุ่มแนะนำวันนี้
               </span>
             </div>
@@ -186,21 +186,21 @@ export default function QAAclsDeep() {
               className="w-full h-auto block"
             />
             {featuredImage.caption && (
-              <figcaption className="text-[11px] text-text-muted px-3 pt-1.5 leading-relaxed">
+              <figcaption className="text-2xs text-text-muted px-3 pt-1.5 leading-relaxed">
                 {featuredImage.caption}
               </figcaption>
             )}
           </figure>
           <div className="px-3 py-2.5 space-y-2">
             <span
-              className="inline-flex items-center gap-1.5 max-w-full rounded-full px-2.5 py-1 text-[12px] font-bold"
+              className="inline-flex items-center gap-1.5 max-w-full rounded-full px-2.5 py-1 text-xs font-bold"
               style={
                 featuredChapter
                   ? { background: 'rgba(37, 99, 235, 0.1)', color: 'var(--color-info)' }
                   : { background: 'var(--color-bg-tertiary)', color: 'var(--color-text-secondary)' }
               }
             >
-              <span className="shrink-0 text-[14px] leading-none">
+              <span className="shrink-0 text-sm leading-none">
                 {featuredChapter ? (featuredChapter.icon || '📘') : '📌'}
               </span>
               <span className="truncate">
@@ -211,7 +211,7 @@ export default function QAAclsDeep() {
               {featured.question}
             </div>
             <div className="flex items-center justify-end">
-              <span className="inline-flex items-center gap-1 text-[11px] text-info font-bold shrink-0">
+              <span className="inline-flex items-center gap-1 text-2xs text-info font-bold shrink-0">
                 อ่านคำตอบเต็ม
                 <ArrowRight size={12} strokeWidth={2.4} />
               </span>
@@ -237,7 +237,7 @@ export default function QAAclsDeep() {
         <div className="text-center text-caption text-text-muted py-8">กำลังโหลด…</div>
       ) : query.trim() ? (
         <div className="space-y-2.5">
-          <div className="text-[11px] uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
+          <div className="text-2xs uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
             {matchedItems.length > 0 ? `พบ ${matchedItems.length} คำถาม` : 'ผลการค้นหา'}
           </div>
           {matchedItems.map((it, idx) => {
@@ -260,7 +260,7 @@ export default function QAAclsDeep() {
                   <div className="text-body-strong text-text-primary leading-snug line-clamp-2">
                     {it.question}
                   </div>
-                  <div className="text-[11px] text-text-muted mt-1 flex items-center gap-1">
+                  <div className="text-2xs text-text-muted mt-1 flex items-center gap-1">
                     <span className="shrink-0">{ch ? (ch.icon || '📘') : '📌'}</span>
                     <span className="truncate">{ch ? parseChapterTitle(ch.title).name : 'ยังไม่จัดหมวด'}</span>
                   </div>
@@ -278,7 +278,7 @@ export default function QAAclsDeep() {
       ) : (
         <div className="space-y-3">
           {featured && (
-            <div className="text-[11px] uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
+            <div className="text-2xs uppercase tracking-wider text-text-muted font-bold px-1 pt-1">
               อ่านเรื่องอื่นๆ ต่อ
             </div>
           )}

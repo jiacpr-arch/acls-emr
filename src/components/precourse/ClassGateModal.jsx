@@ -160,7 +160,7 @@ export default function ClassGateModal({
             </div>
             <div>
               <div className="text-headline">สร้างคลาสสำเร็จ</div>
-              <div className="text-[11px] text-text-muted">ได้รหัส 2 ชุด — ใช้คนละหน้าที่</div>
+              <div className="text-2xs text-text-muted">ได้รหัส 2 ชุด — ใช้คนละหน้าที่</div>
             </div>
           </div>
 
@@ -188,7 +188,7 @@ export default function ClassGateModal({
               className="btn btn-ghost btn-sm mt-2">
               <Copy size={13} strokeWidth={2.2} /> คัดลอก
             </button>
-            <p className="text-[11px] text-text-muted mt-1">
+            <p className="text-2xs text-text-muted mt-1">
               ใช้ดูผลรวมทั้งคลาส และเชื่อมต่อคลาสนี้บนเครื่องอื่น —
               จดเก็บไว้ให้ดี อย่าแจกให้นักเรียน
             </p>
@@ -217,7 +217,7 @@ export default function ClassGateModal({
               </div>
               <div>
                 <div className="text-headline">พร้อมเริ่มเรียนแล้ว</div>
-                <div className="text-[11px] text-text-muted">เริ่มทำข้อสอบได้เลย ไม่ต้องใช้รหัส</div>
+                <div className="text-2xs text-text-muted">เริ่มทำข้อสอบได้เลย ไม่ต้องใช้รหัส</div>
               </div>
             </div>
 
@@ -227,14 +227,14 @@ export default function ClassGateModal({
                 className="btn btn-primary btn-lg btn-block font-bold">
                 <Play size={18} strokeWidth={2.4} /> เริ่มเรียนเลย
               </button>
-              <p className="text-[11px] text-text-muted text-center mt-1.5">
+              <p className="text-2xs text-text-muted text-center mt-1.5">
                 เริ่มทำข้อสอบได้ทันที (ข้อมูลเก็บในเครื่องนี้)
               </p>
             </div>
 
             <div className="flex items-center gap-2">
               <div className="flex-1 h-px bg-border" />
-              <span className="text-[11px] text-text-muted">หรือ</span>
+              <span className="text-2xs text-text-muted">หรือ</span>
               <div className="flex-1 h-px bg-border" />
             </div>
 
@@ -249,7 +249,7 @@ export default function ClassGateModal({
             {/* Instructor-only, de-emphasized so students don't tap it by mistake */}
             <div className="border-t border-border pt-3 text-center">
               <button onClick={() => { setMode('create'); setError(''); }}
-                className="text-[11px] text-text-muted underline underline-offset-2">
+                className="text-2xs text-text-muted underline underline-offset-2">
                 เป็นอาจารย์? สร้างคลาสใหม่
               </button>
             </div>
@@ -266,7 +266,7 @@ export default function ClassGateModal({
               </button>
               <div>
                 <div className="text-headline">{instructor ? 'เชื่อมต่อคลาส (อาจารย์)' : 'เข้าคลาส'}</div>
-                <div className="text-[11px] text-text-muted">
+                <div className="text-2xs text-text-muted">
                   {instructor
                     ? 'ใช้รหัสอาจารย์ที่ได้ตอนสร้างคลาส (คลาสรุ่นเก่าใช้รหัสคลาสได้)'
                     : 'กรอกรหัสที่ได้จากอาจารย์'}
@@ -309,7 +309,7 @@ export default function ClassGateModal({
               </button>
               <div>
                 <div className="text-headline">สร้างคลาสใหม่</div>
-                <div className="text-[11px] text-text-muted">สำหรับอาจารย์ — ได้รหัสไว้แจกนักเรียน</div>
+                <div className="text-2xs text-text-muted">สำหรับอาจารย์ — ได้รหัสไว้แจกนักเรียน</div>
               </div>
             </div>
 

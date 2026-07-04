@@ -77,7 +77,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
             </div>
             <div>
               <div className="text-headline">ระบุตัวผู้เรียน</div>
-              <div className="text-[11px] text-text-muted">ใช้สำหรับบันทึกผลก่อนเริ่ม Quiz</div>
+              <div className="text-2xs text-text-muted">ใช้สำหรับบันทึกผลก่อนเริ่ม Quiz</div>
             </div>
           </div>
           {onClose && (
@@ -133,7 +133,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
           className="btn btn-primary btn-lg btn-block disabled:opacity-50">
           <Check size={16} strokeWidth={2.4} /> ยืนยันและเริ่ม
         </button>
-        <p className="text-[11px] text-text-muted text-center">
+        <p className="text-2xs text-text-muted text-center">
           ระบบจะบันทึกชื่อ–เบอร์ไว้ในเครื่องนี้ (offline)
         </p>
       </form>

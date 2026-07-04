@@ -245,7 +245,7 @@ export default function InstructorCohort() {
               <div className="text-body-strong text-text-primary truncate">
                 คลาส: {className || '—'}
               </div>
-              <div className="text-[11px] text-text-muted">
+              <div className="text-2xs text-text-muted">
                 นักเรียนเข้าคลาสได้ 2 ทาง: สแกน QR หรือกรอกรหัส
               </div>
             </div>
@@ -326,7 +326,7 @@ export default function InstructorCohort() {
               <KeyRound size={13} strokeWidth={2.2} /> เชื่อมต่อคลาสอื่น
             </button>
           </div>
-          <p className="text-[11px] text-text-muted text-center">
+          <p className="text-2xs text-text-muted text-center">
             สลับคลาสได้โดยข้อมูลคลาสเดิมไม่หาย — กลับมาเชื่อมต่อด้วยรหัสเดิมได้ตลอด
           </p>
         </div>
@@ -339,7 +339,7 @@ export default function InstructorCohort() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-body-strong text-text-primary">ยังไม่ได้เชื่อมต่อคลาส</div>
-              <div className="text-[11px] text-text-muted">
+              <div className="text-2xs text-text-muted">
                 สร้างคลาสก่อน ผลของนักเรียนถึงจะรวมมาแสดงหน้านี้
               </div>
             </div>
@@ -351,7 +351,7 @@ export default function InstructorCohort() {
               'ผลเรียน/คะแนนสอบของทุกคนจะขึ้นหน้านี้อัตโนมัติ',
             ].map((step, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="inline-flex items-center justify-center w-[18px] h-[18px] shrink-0 bg-info text-white text-[10px] font-extrabold mt-px"
+                <span className="inline-flex items-center justify-center w-[18px] h-[18px] shrink-0 bg-info text-white text-2xs font-extrabold mt-px"
                   style={{ borderRadius: '50%' }}>{i + 1}</span>
                 {step}
               </li>

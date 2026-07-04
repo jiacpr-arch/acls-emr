@@ -69,7 +69,7 @@ export default function BLSSplash({ onDismiss }) {
           <HeartPulse size={52} strokeWidth={2.2} className="text-white animate-heartbeat" />
         </div>
 
-        <div className="text-[12px] font-bold uppercase tracking-[0.32em] text-white/80 mb-2">
+        <div className="text-xs font-bold uppercase tracking-[0.32em] text-white/80 mb-2">
           Basic Life Support
         </div>
         <h1
@@ -82,7 +82,7 @@ export default function BLSSplash({ onDismiss }) {
           สำหรับบุคลากรทางการแพทย์
         </div>
         <div
-          className="mt-5 inline-flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white"
+          className="mt-5 inline-flex items-center gap-2 px-4 py-1.5 text-2xs font-bold uppercase tracking-widest text-white"
           style={{
             background: 'rgba(255,255,255,0.14)',
             border: '1px solid rgba(255,255,255,0.28)',
@@ -99,7 +99,7 @@ export default function BLSSplash({ onDismiss }) {
         aria-hidden
       >
         <ChevronUp size={18} strokeWidth={2.6} />
-        <div className="text-[12px] font-bold tracking-wider mt-1">แตะเพื่อเริ่ม</div>
+        <div className="text-xs font-bold tracking-wider mt-1">แตะเพื่อเริ่ม</div>
       </div>
     </div>
   );

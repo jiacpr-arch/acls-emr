@@ -50,13 +50,13 @@ export default function BLSCourseUpsellCard({ source = 'bls_upsell_card' }) {
               <Sparkles size={22} strokeWidth={2.4} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 bg-white/20 rounded-full">
+              <div className="inline-flex items-center gap-1.5 text-2xs font-extrabold uppercase tracking-wider px-2 py-0.5 bg-white/20 rounded-full">
                 โปรโมชั่นพิเศษ · ลดสูงสุด 50%
               </div>
-              <h2 className="text-[18px] font-extrabold leading-tight tracking-tight mt-1.5">
+              <h2 className="text-lg font-extrabold leading-tight tracking-tight mt-1.5">
                 คอร์สอบรม BLS ภาคปฏิบัติ
               </h2>
-              <div className="text-[12px] text-white/85 mt-0.5">
+              <div className="text-xs text-white/85 mt-0.5">
                 ฝึกกับหุ่น CPR จริง · รับใบประกาศนียบัตร ILCOR 2025
               </div>
             </div>
@@ -70,26 +70,26 @@ export default function BLSCourseUpsellCard({ source = 'bls_upsell_card' }) {
             <span className="text-[22px] font-extrabold leading-none">
               2,500 – 3,500
             </span>
-            <span className="text-[12px] text-white/85 font-semibold">บาท / ท่าน</span>
+            <span className="text-xs text-white/85 font-semibold">บาท / ท่าน</span>
           </div>
-          <div className="text-[11px] text-white/75 mt-1">
+          <div className="text-2xs text-white/75 mt-1">
             * ราคาขึ้นอยู่กับจำนวนผู้เรียนและสถานที่
           </div>
 
           {/* Value bullets */}
           <ul className="mt-3 grid grid-cols-1 gap-1.5">
-            <li className="flex items-center gap-2 text-[12px] text-white/90">
+            <li className="flex items-center gap-2 text-xs text-white/90">
               <Users size={13} strokeWidth={2.4} className="shrink-0" />
               สอนสด · กลุ่มเล็ก · ครูพี่เลี้ยงดูแลใกล้ชิด
             </li>
-            <li className="flex items-center gap-2 text-[12px] text-white/90">
+            <li className="flex items-center gap-2 text-xs text-white/90">
               <Award size={13} strokeWidth={2.4} className="shrink-0" />
               ใบประกาศนียบัตรจากสถาบันใช้ได้ 24 เดือน
             </li>
           </ul>
 
           {/* Contact buttons */}
-          <div className="text-[11px] font-semibold text-white/85 mt-4">
+          <div className="text-2xs font-semibold text-white/85 mt-4">
             ติดต่อสอบถาม / จัดอบรมโดย {jiacprCourse.orgName}
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2">

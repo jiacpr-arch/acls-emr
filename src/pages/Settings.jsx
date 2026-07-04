@@ -116,7 +116,7 @@ export default function Settings() {
             onChange={e => settings.setMetronomeRate(parseInt(e.target.value))}
             className="w-full accent-info"
           />
-          <div className="flex justify-between text-[10px] text-text-muted mt-1 font-mono">
+          <div className="flex justify-between text-2xs text-text-muted mt-1 font-mono">
             <span>80</span><span>110</span><span>140</span>
           </div>
         </SettingSection>
@@ -140,8 +140,8 @@ export default function Settings() {
         </div>
         <div className="text-headline text-text-primary">ACLS EMR</div>
         <div className="text-caption text-text-secondary">Advanced Cardiac Life Support Recording</div>
-        <div className="font-mono text-[11px] text-text-muted mt-1">v2.0.0 · PWA Offline-First</div>
-        <div className="text-text-muted text-[11px]">JIA Trainer Center · jia1669.com</div>
+        <div className="font-mono text-2xs text-text-muted mt-1">v2.0.0 · PWA Offline-First</div>
+        <div className="text-text-muted text-2xs">JIA Trainer Center · jia1669.com</div>
       </div>
     </div>
   );

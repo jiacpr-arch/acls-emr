@@ -65,7 +65,7 @@ export default function Statistics() {
                 <Hospital size={15} strokeWidth={2.2} />
               </div>
               <div className="text-numeric text-xl text-info">{clinical}</div>
-              <div className="text-[10px] text-text-muted font-semibold uppercase tracking-wide">Clinical</div>
+              <div className="text-2xs text-text-muted font-semibold uppercase tracking-wide">Clinical</div>
             </div>
             <div>
               <div className="w-8 h-8 mx-auto inline-flex items-center justify-center bg-purple/12 text-purple mb-1"
@@ -73,7 +73,7 @@ export default function Statistics() {
                 <GraduationCap size={15} strokeWidth={2.2} />
               </div>
               <div className="text-numeric text-xl text-purple">{training}</div>
-              <div className="text-[10px] text-text-muted font-semibold uppercase tracking-wide">Training</div>
+              <div className="text-2xs text-text-muted font-semibold uppercase tracking-wide">Training</div>
             </div>
           </div>
         </div>
@@ -149,7 +149,7 @@ function BigStat({ Icon, tone, value, label }) {
         <Icon size={20} strokeWidth={2.2} />
       </div>
       <div className={`text-numeric text-3xl ${valueColor[tone]}`}>{value}</div>
-      <div className="text-[11px] text-text-muted font-semibold uppercase tracking-wide mt-0.5">{label}</div>
+      <div className="text-2xs text-text-muted font-semibold uppercase tracking-wide mt-0.5">{label}</div>
     </div>
   );
 }

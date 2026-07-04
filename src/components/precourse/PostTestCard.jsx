@@ -21,7 +21,7 @@ export default function PostTestCard({ unlocked, bestScore, passed, attemptCount
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-body-strong text-text-primary truncate">Post-test Exam</div>
-          <div className="text-[11px] text-text-muted mt-0.5">
+          <div className="text-2xs text-text-muted mt-0.5">
             {POST_TEST_QUESTION_COUNT} ข้อ · เกณฑ์ {POST_TEST_PASS_PERCENT}% · สุ่มจาก 3 ชุด
           </div>
         </div>
@@ -30,12 +30,12 @@ export default function PostTestCard({ unlocked, bestScore, passed, attemptCount
 
       <div className="px-4 pb-3 flex items-center gap-2 flex-wrap">
         {!unlocked ? (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 bg-bg-tertiary text-text-muted"
+          <span className="inline-flex items-center gap-1 text-2xs font-bold px-2 py-1 bg-bg-tertiary text-text-muted"
             style={{ borderRadius: 99 }}>
             <Lock size={11} strokeWidth={2.4} /> ปลดล็อกเมื่อผ่านบทเรียนทั้ง {lessonCount ?? 6} บท
           </span>
         ) : (
-          <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 ${
+          <span className={`inline-flex items-center gap-1 text-2xs font-bold px-2 py-1 ${
             passed ? 'bg-success/12 text-success'
               : hasAttempt ? 'bg-warning/12 text-warning'
               : 'bg-warning/12 text-warning'
@@ -52,7 +52,7 @@ export default function PostTestCard({ unlocked, bestScore, passed, attemptCount
         {unlocked && (
           <button
             onClick={(e) => { e.stopPropagation(); navigate('/pre-course/post-test'); }}
-            className="text-[11px] font-bold px-3 py-1.5 inline-flex items-center gap-1 bg-warning text-white hover:opacity-90"
+            className="text-2xs font-bold px-3 py-1.5 inline-flex items-center gap-1 bg-warning text-white hover:opacity-90"
             style={{ borderRadius: 99 }}>
             {hasAttempt ? 'ทำใหม่' : 'เริ่มสอบ'}
           </button>

@@ -76,7 +76,7 @@ export default function AdminLogin() {
         </button>
       </form>
 
-      <p className="text-[11px] text-text-muted text-center">
+      <p className="text-2xs text-text-muted text-center">
         Email: <code className="px-1 py-0.5 bg-bg-tertiary font-mono">admin@acls-emr.local</code>
       </p>
     </div>

@@ -40,7 +40,7 @@ export default function QaEditor({ qa, onChange }) {
       </div>
 
       <label className="block">
-        <span className="text-[11px] font-bold text-text-muted mb-1 block">คำถาม</span>
+        <span className="text-2xs font-bold text-text-muted mb-1 block">คำถาม</span>
         <input
           type="text"
           value={q}
@@ -51,12 +51,12 @@ export default function QaEditor({ qa, onChange }) {
       </label>
 
       <label className="block">
-        <span className="text-[11px] font-bold text-text-muted mb-1 block">คำตอบ (Markdown)</span>
+        <span className="text-2xs font-bold text-text-muted mb-1 block">คำตอบ (Markdown)</span>
         <textarea
           value={a}
           onChange={(e) => setA(e.target.value)}
           rows={12}
-          className="w-full px-2 py-1.5 bg-bg-primary border border-border text-[12px] font-mono leading-relaxed"
+          className="w-full px-2 py-1.5 bg-bg-primary border border-border text-xs font-mono leading-relaxed"
           style={{ borderRadius: 'var(--radius-sm)' }}
         />
       </label>

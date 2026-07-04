@@ -47,7 +47,7 @@ export default function AdminChapters() {
           </div>
           <div>
             <h1 className="text-body-strong text-text-primary">Admin — คลังความรู้ ALS</h1>
-            <p className="text-[11px] text-text-muted">แก้ไขเนื้อหา บันทึกอัตโนมัติเข้า Supabase</p>
+            <p className="text-2xs text-text-muted">แก้ไขเนื้อหา บันทึกอัตโนมัติเข้า Supabase</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -78,7 +78,7 @@ export default function AdminChapters() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <span className="text-body-strong text-text-primary block truncate">{ch.title}</span>
-                    <span className="text-[11px] text-text-muted">
+                    <span className="text-2xs text-text-muted">
                       {ch.sectionCount} หัวข้อ · อัปเดตล่าสุด {new Date(ch.updated_at).toLocaleDateString('th-TH')}
                     </span>
                   </div>
@@ -100,7 +100,7 @@ export default function AdminChapters() {
         </div>
       )}
 
-      <p className="text-[11px] text-text-muted text-center pt-2">
+      <p className="text-2xs text-text-muted text-center pt-2">
         เนื้อหาจะ refresh ในแอป end-user ภายใน 6 ชั่วโมง (cache TTL) — กด refresh เพื่อดูทันที
       </p>
     </div>

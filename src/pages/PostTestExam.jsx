@@ -260,7 +260,7 @@ export default function PostTestExam() {
             return (
               <button key={q.id}
                 onClick={() => setPostTestIndex(i)}
-                className={`h-8 text-[11px] font-bold transition-colors ${
+                className={`h-8 text-2xs font-bold transition-colors ${
                   isCurrent ? 'bg-info text-white border border-info'
                     : answered ? 'bg-success/15 text-success border border-success/30 hover:bg-success/25'
                     : 'bg-bg-tertiary text-text-muted border border-border hover:bg-border'
@@ -338,7 +338,7 @@ function Header({ subtitle }) {
       </div>
       <div className="flex-1 min-w-0">
         <h1 className="text-title text-text-primary">Post-test Exam</h1>
-        <p className="text-[11px] text-text-muted">{subtitle ?? `${POST_TEST_QUESTION_COUNT} ข้อ · ครอบคลุม ACLS ทั้งหมด`}</p>
+        <p className="text-2xs text-text-muted">{subtitle ?? `${POST_TEST_QUESTION_COUNT} ข้อ · ครอบคลุม ACLS ทั้งหมด`}</p>
       </div>
     </div>
   );

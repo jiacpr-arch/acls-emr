@@ -132,15 +132,15 @@ export default function StudentQuestionReviewItem({ item, chapters, onChange }) 
       {/* Header */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="inline-flex items-center gap-2">
-          <span className={`inline-flex items-center gap-1 text-[11px] font-bold ${meta.color}`}>
+          <span className={`inline-flex items-center gap-1 text-2xs font-bold ${meta.color}`}>
             <StatusIcon size={12} strokeWidth={2.4} />
             {meta.label}
           </span>
-          <span className="text-[11px] text-text-muted">
+          <span className="text-2xs text-text-muted">
             {new Date(item.created_at).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}
           </span>
           {item.student_name && (
-            <span className="text-[11px] text-text-muted">
+            <span className="text-2xs text-text-muted">
               · {item.student_name}
             </span>
           )}
@@ -171,7 +171,7 @@ export default function StudentQuestionReviewItem({ item, chapters, onChange }) 
       {item.error_message && (
         <div className="dash-card border-l-4 border-l-warning flex items-start gap-2 py-2">
           <AlertTriangle size={12} strokeWidth={2.2} className="text-warning shrink-0 mt-0.5" />
-          <div className="text-[11px] text-text-secondary leading-relaxed font-mono break-all">
+          <div className="text-2xs text-text-secondary leading-relaxed font-mono break-all">
             {item.error_message}
           </div>
         </div>
@@ -218,7 +218,7 @@ export default function StudentQuestionReviewItem({ item, chapters, onChange }) 
           ))}
         </select>
         {item.classification_reason && (
-          <div className="text-[11px] text-text-muted mt-1 italic">
+          <div className="text-2xs text-text-muted mt-1 italic">
             เหตุผล AI: {item.classification_reason}
           </div>
         )}
@@ -314,7 +314,7 @@ export default function StudentQuestionReviewItem({ item, chapters, onChange }) 
           </button>
         )}
         {item.status === 'published' && item.published_item_id && (
-          <span className="text-[11px] text-success inline-flex items-center gap-1 px-2 py-1">
+          <span className="text-2xs text-success inline-flex items-center gap-1 px-2 py-1">
             <CheckCircle2 size={12} strokeWidth={2.2} />
             เผยแพร่แล้ว
             {item.published_at && (

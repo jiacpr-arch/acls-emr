@@ -90,7 +90,7 @@ export default function VideoLessons() {
                       <div className="text-caption font-bold text-text-primary truncate">
                         <span className="text-text-muted font-mono mr-1.5">{idx + 1}.</span>{clip.title}
                       </div>
-                      <div className="text-[11px] text-text-muted mt-0.5">
+                      <div className="text-2xs text-text-muted mt-0.5">
                         {watched && !done ? 'ดูแล้ว · ยังไม่ผ่านควิซ' : done ? 'ผ่านแล้ว' : 'ยังไม่ดู'}
                         {clip.quiz?.length > 0 && <span className="ml-1.5">· มีควิซ</span>}
                         {!clip.required && <span className="ml-1.5 text-text-muted">· เสริม</span>}
