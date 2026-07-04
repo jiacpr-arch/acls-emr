@@ -129,7 +129,7 @@ export default function AdminQADeepPosted() {
           </div>
           <div>
             <h1 className="text-body-strong text-text-primary">Admin — จัดเก็บ Q&A ที่โพสต์แล้ว</h1>
-            <p className="text-[11px] text-text-muted">แก้ไขคำถาม-คำตอบ จัดหมวด เรียงลำดับ และลบ</p>
+            <p className="text-2xs text-text-muted">แก้ไขคำถาม-คำตอบ จัดหมวด เรียงลำดับ และลบ</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ export default function AdminQADeepPosted() {
         )}
       </div>
 
-      <p className="text-[11px] text-text-muted text-center pt-2">
+      <p className="text-2xs text-text-muted text-center pt-2">
         เนื้อหาจะ refresh ในแอป end-user ภายใน 6 ชั่วโมง (cache TTL) — เปิดหน้าผู้ใช้แบบ incognito เพื่อดูทันที
       </p>
     </div>

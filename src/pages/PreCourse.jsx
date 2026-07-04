@@ -129,7 +129,7 @@ export default function PreCourse() {
             <div className="text-body-strong text-text-primary truncate">
               คลาส: {className || '—'}
             </div>
-            <div className="text-[11px] text-text-muted font-mono">รหัสคลาส: {classCode}</div>
+            <div className="text-2xs text-text-muted font-mono">รหัสคลาส: {classCode}</div>
           </div>
           <button onClick={() => { clearClass(); setShowClassGate(true); }}
             className="btn btn-ghost btn-sm">
@@ -144,7 +144,7 @@ export default function PreCourse() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-body-strong text-text-primary">โหมด offline</div>
-            <div className="text-[11px] text-text-muted">ข้อมูลเก็บในเครื่องนี้เท่านั้น</div>
+            <div className="text-2xs text-text-muted">ข้อมูลเก็บในเครื่องนี้เท่านั้น</div>
           </div>
           <button onClick={() => setShowClassGate(true)} className="btn btn-ghost btn-sm">
             เชื่อมต่อคลาส
@@ -365,7 +365,7 @@ export default function PreCourse() {
 function StepNumber({ n }) {
   return (
     <span
-      className="inline-flex items-center justify-center w-5 h-5 bg-info text-white text-[11px] font-extrabold shrink-0"
+      className="inline-flex items-center justify-center w-5 h-5 bg-info text-white text-2xs font-extrabold shrink-0"
       style={{ borderRadius: '50%' }}
     >
       {n}

@@ -116,7 +116,7 @@ export default function VideoLessonDetail() {
       <div>
         <div className="flex items-start justify-between gap-2">
           <h1 className="text-headline text-text-primary">{clip.title}</h1>
-          {done && <span className="inline-flex items-center gap-1 text-[11px] font-bold text-success shrink-0 mt-1"><CheckCircle2 size={14} strokeWidth={2.4} /> ผ่านแล้ว</span>}
+          {done && <span className="inline-flex items-center gap-1 text-2xs font-bold text-success shrink-0 mt-1"><CheckCircle2 size={14} strokeWidth={2.4} /> ผ่านแล้ว</span>}
         </div>
         <div className="text-caption text-text-muted mt-0.5">
           คลิป {clipIndex + 1}/{topicClips.length}
@@ -132,7 +132,7 @@ export default function VideoLessonDetail() {
             {clip.chapters.map((ch, i) => (
               <button key={i} onClick={() => playerRef.current?.seekTo(ch.t)}
                 className="w-full flex items-center gap-2.5 py-1.5 text-left rounded-md px-1 -mx-1 transition-colors hover:bg-bg-tertiary">
-                <span className="text-[12px] font-bold text-purple bg-purple/10 px-2 py-0.5 shrink-0" style={{ borderRadius: 7, fontVariantNumeric: 'tabular-nums' }}>
+                <span className="text-xs font-bold text-purple bg-purple/10 px-2 py-0.5 shrink-0" style={{ borderRadius: 7, fontVariantNumeric: 'tabular-nums' }}>
                   {formatClipTime(ch.t)}
                 </span>
                 <span className="text-caption text-text-secondary flex-1">{ch.label}</span>

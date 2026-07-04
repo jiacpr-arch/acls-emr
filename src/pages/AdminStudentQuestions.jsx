@@ -76,7 +76,7 @@ export default function AdminStudentQuestions() {
           </div>
           <div>
             <h1 className="text-body-strong text-text-primary">คำถามจากนักเรียน</h1>
-            <p className="text-[11px] text-text-muted">ตรวจสอบคำตอบที่ AI ร่าง · แก้ไข · เผยแพร่เข้า Q&A</p>
+            <p className="text-2xs text-text-muted">ตรวจสอบคำตอบที่ AI ร่าง · แก้ไข · เผยแพร่เข้า Q&A</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

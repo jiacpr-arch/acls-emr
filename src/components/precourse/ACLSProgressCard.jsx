@@ -126,13 +126,13 @@ export default function ACLSProgressCard({
               <div className="text-[15px] font-bold text-text-primary truncate">
                 {activeStudent.name}
               </div>
-              <div className="text-[10px] text-text-muted font-mono">
+              <div className="text-2xs text-text-muted font-mono">
                 {activeStudent.studentId ? `รหัส ${activeStudent.studentId}` : activeStudent.phone}
               </div>
             </div>
             <button
               onClick={onChangeStudent}
-              className="text-[11px] font-bold inline-flex items-center gap-1 px-2.5 py-1.5 text-text-secondary bg-bg-tertiary"
+              className="text-2xs font-bold inline-flex items-center gap-1 px-2.5 py-1.5 text-text-secondary bg-bg-tertiary"
               style={{ borderRadius: 99 }}
             >
               <RefreshCw size={11} strokeWidth={2.4} /> เปลี่ยน
@@ -150,13 +150,13 @@ export default function ACLSProgressCard({
               <div className="text-[15px] font-bold text-text-primary">
                 ยังไม่ได้ระบุตัวผู้เรียน
               </div>
-              <div className="text-[10px] text-text-muted">
+              <div className="text-2xs text-text-muted">
                 ใส่ชื่อก่อนเริ่ม เพื่อบันทึกผล
               </div>
             </div>
             <button
               onClick={onIdentify}
-              className="text-[11px] font-bold px-3 py-1.5 bg-info text-white"
+              className="text-2xs font-bold px-3 py-1.5 bg-info text-white"
               style={{ borderRadius: 99 }}
             >
               ระบุตัวตน
@@ -178,14 +178,14 @@ export default function ACLSProgressCard({
         <div className="flex items-center gap-4">
           <ProgressRing percent={percent} />
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+            <div className="text-2xs font-bold uppercase tracking-wider text-text-muted">
               ความคืบหน้า ACLS
             </div>
-            <div className="text-[20px] font-extrabold text-text-primary leading-tight tabular-nums">
-              {lessonsPassed}<span className="text-text-muted text-[14px] font-bold">/{totalLessons}</span>
+            <div className="text-xl font-extrabold text-text-primary leading-tight tabular-nums">
+              {lessonsPassed}<span className="text-text-muted text-sm font-bold">/{totalLessons}</span>
               <span className="text-text-secondary text-[13px] font-semibold ml-1.5">บทผ่าน</span>
             </div>
-            <div className="text-[11px] text-text-muted mt-0.5">{statusLine}</div>
+            <div className="text-2xs text-text-muted mt-0.5">{statusLine}</div>
           </div>
         </div>
 
@@ -237,7 +237,7 @@ function StepRow({ preTestPassed, preTestAttempted, lessonsPassed, totalLessons,
       {steps.map((s, i) => (
         <Fragment key={s.n}>
           <div
-            className={`flex-1 flex items-center gap-1.5 px-2 py-1.5 text-[11px] font-bold ${
+            className={`flex-1 flex items-center gap-1.5 px-2 py-1.5 text-2xs font-bold ${
               s.state === 'done' ? 'bg-success/12 text-success'
               : s.state === 'active' ? 'bg-info/12 text-info'
               : 'bg-bg-tertiary text-text-muted'
@@ -245,7 +245,7 @@ function StepRow({ preTestPassed, preTestAttempted, lessonsPassed, totalLessons,
             style={{ borderRadius: 99 }}
           >
             <span
-              className={`w-4 h-4 inline-flex items-center justify-center text-[10px] font-extrabold shrink-0 ${
+              className={`w-4 h-4 inline-flex items-center justify-center text-2xs font-extrabold shrink-0 ${
                 s.state === 'done' ? 'bg-success text-white'
                 : s.state === 'active' ? 'bg-info text-white'
                 : 'bg-bg-secondary text-text-muted'
@@ -257,7 +257,7 @@ function StepRow({ preTestPassed, preTestAttempted, lessonsPassed, totalLessons,
             <span className="truncate">{s.label}</span>
           </div>
           {i < steps.length - 1 && (
-            <span className="text-text-muted text-[10px] shrink-0">›</span>
+            <span className="text-text-muted text-2xs shrink-0">›</span>
           )}
         </Fragment>
       ))}
@@ -303,7 +303,7 @@ function ProgressRing({ percent }) {
         </defs>
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-[14px] font-extrabold text-info tabular-nums">{percent}%</span>
+        <span className="text-sm font-extrabold text-info tabular-nums">{percent}%</span>
       </div>
     </div>
   );

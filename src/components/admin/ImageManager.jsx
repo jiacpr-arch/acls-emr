@@ -87,7 +87,7 @@ function ImageRow({ img, busy, onSave, onDelete }) {
           value={alt}
           onChange={(e) => setAlt(e.target.value)}
           placeholder="alt text"
-          className="w-full px-2 py-1 bg-bg-primary border border-border text-[12px]"
+          className="w-full px-2 py-1 bg-bg-primary border border-border text-xs"
           style={{ borderRadius: 4 }}
         />
         <input
@@ -95,7 +95,7 @@ function ImageRow({ img, busy, onSave, onDelete }) {
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           placeholder="caption"
-          className="w-full px-2 py-1 bg-bg-primary border border-border text-[12px]"
+          className="w-full px-2 py-1 bg-bg-primary border border-border text-xs"
           style={{ borderRadius: 4 }}
         />
         <div className="flex gap-1">

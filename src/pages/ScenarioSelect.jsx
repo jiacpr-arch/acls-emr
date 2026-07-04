@@ -95,7 +95,7 @@ export default function ScenarioSelect() {
               <div className="flex-1 min-w-0">
                 <div className="text-body-strong text-text-primary truncate">{s.title_th}</div>
                 <div className="text-caption text-text-muted truncate">{s.description_th}</div>
-                <div className="flex items-center gap-2 text-[10px] text-text-muted mt-0.5 font-mono">
+                <div className="flex items-center gap-2 text-2xs text-text-muted mt-0.5 font-mono">
                   <span>{s.steps.length} steps</span>
                   <span>·</span>
                   <span>{s.category}</span>
@@ -144,20 +144,20 @@ export default function ScenarioSelect() {
 
             <div className="bg-bg-primary p-3 border border-border" style={{ borderRadius: 'var(--radius-md)' }}>
               <div className="text-caption text-text-secondary">{briefScenario.description_th}</div>
-              <div className="text-[11px] text-text-muted mt-2 font-mono">Steps: {briefScenario.steps.length} · Mode: {mode}</div>
+              <div className="text-2xs text-text-muted mt-2 font-mono">Steps: {briefScenario.steps.length} · Mode: {mode}</div>
             </div>
 
             <div className="bg-bg-primary p-3 border border-border" style={{ borderRadius: 'var(--radius-md)' }}>
               <div className="section-header">You will practice</div>
               <div className="space-y-1">
                 {briefScenario.steps.slice(0, 4).map((s, i) => (
-                  <div key={i} className="text-[11px] text-text-secondary flex items-start gap-1.5">
+                  <div key={i} className="text-2xs text-text-secondary flex items-start gap-1.5">
                     <span className="text-info shrink-0 mt-1">•</span>
                     <span>{s.correctActions?.join(', ')}</span>
                   </div>
                 ))}
                 {briefScenario.steps.length > 4 && (
-                  <div className="text-[10px] text-text-muted">+ {briefScenario.steps.length - 4} more…</div>
+                  <div className="text-2xs text-text-muted">+ {briefScenario.steps.length - 4} more…</div>
                 )}
               </div>
             </div>

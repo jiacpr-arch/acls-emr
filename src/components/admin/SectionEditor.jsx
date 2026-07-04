@@ -71,7 +71,7 @@ export default function SectionEditor({ section, allSections, onChange }) {
       </div>
 
       <label className="block">
-        <span className="text-[11px] font-bold text-text-muted mb-1 block">หัวข้อ (heading)</span>
+        <span className="text-2xs font-bold text-text-muted mb-1 block">หัวข้อ (heading)</span>
         <input
           type="text"
           value={heading}
@@ -83,7 +83,7 @@ export default function SectionEditor({ section, allSections, onChange }) {
       </label>
 
       <label className="block">
-        <span className="text-[11px] font-bold text-text-muted mb-1 block">เนื้อหา (body — plain text)</span>
+        <span className="text-2xs font-bold text-text-muted mb-1 block">เนื้อหา (body — plain text)</span>
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}

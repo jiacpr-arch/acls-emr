@@ -28,7 +28,7 @@ export default function VideoLinksPanel({ videos }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-body-strong text-text-primary">วิดีโอประกอบการเรียน</div>
-          <div className="text-[11px] text-text-muted">สำหรับนักเรียนที่อยากดูเป็นวิดีโอจากอาจารย์</div>
+          <div className="text-2xs text-text-muted">สำหรับนักเรียนที่อยากดูเป็นวิดีโอจากอาจารย์</div>
         </div>
       </div>
 

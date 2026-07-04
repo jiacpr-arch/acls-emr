@@ -94,7 +94,7 @@ export default function AdminDashboard() {
           </div>
           <div>
             <h1 className="text-body-strong text-text-primary">Admin Dashboard</h1>
-            <p className="text-[11px] text-text-muted">เลือกส่วนที่ต้องการเพิ่ม/แก้ไขเนื้อหา</p>
+            <p className="text-2xs text-text-muted">เลือกส่วนที่ต้องการเพิ่ม/แก้ไขเนื้อหา</p>
           </div>
         </div>
         <button onClick={handleLogout} className="btn btn-ghost btn-sm">
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex-1 min-w-0">
               <span className="text-body-strong text-text-primary block truncate">{title}</span>
-              <span className="text-[11px] text-text-muted">{desc}</span>
+              <span className="text-2xs text-text-muted">{desc}</span>
             </div>
             <ChevronRight
               size={16}

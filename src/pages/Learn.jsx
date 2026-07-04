@@ -231,7 +231,7 @@ export default function Learn() {
                   >
                     {(item.step != null || item.badge) && (
                       <span
-                        className="absolute top-2 left-2 inline-flex items-center justify-center w-6 h-6 text-[11px] font-extrabold text-white shadow-sm"
+                        className="absolute top-2 left-2 inline-flex items-center justify-center w-6 h-6 text-2xs font-extrabold text-white shadow-sm"
                         style={{
                           borderRadius: '50%',
                           background: color,
@@ -254,7 +254,7 @@ export default function Learn() {
                       </span>
                     ) : status?.total ? (
                       <span
-                        className="absolute top-2 right-2 inline-flex items-center justify-center px-1.5 h-6 text-[11px] font-extrabold text-white shadow-sm"
+                        className="absolute top-2 right-2 inline-flex items-center justify-center px-1.5 h-6 text-2xs font-extrabold text-white shadow-sm"
                         style={{ borderRadius: '999px', background: color }}
                         aria-hidden="true"
                       >
@@ -273,21 +273,21 @@ export default function Learn() {
                       {item.emoji}
                     </span>
                     <span
-                      className="text-[14px] font-bold leading-tight"
+                      className="text-sm font-bold leading-tight"
                       style={{ color }}
                     >
                       {item.label}
                     </span>
-                    <span className="text-[14px] font-semibold text-text-primary leading-tight mt-0.5">
+                    <span className="text-sm font-semibold text-text-primary leading-tight mt-0.5">
                       {item.subtitle}
                     </span>
-                    <span className="text-[12px] text-text-muted leading-snug mt-1">
+                    <span className="text-xs text-text-muted leading-snug mt-1">
                       {item.desc}
                     </span>
 
                     {isNext && !status?.complete && (
                       <span
-                        className="text-[11px] font-bold mt-1.5 inline-flex items-center gap-1"
+                        className="text-2xs font-bold mt-1.5 inline-flex items-center gap-1"
                         style={{ color }}
                       >
                         👉 {t('learn_continue', lang)}

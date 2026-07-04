@@ -64,7 +64,7 @@ export default function ChapterEditor({ chapterId, onChange }) {
       <div className="dash-card space-y-2 !p-3">
         <div className="grid grid-cols-[80px_1fr] gap-2">
           <label>
-            <span className="text-[11px] font-bold text-text-muted mb-1 block">Icon</span>
+            <span className="text-2xs font-bold text-text-muted mb-1 block">Icon</span>
             <input
               type="text"
               value={icon}
@@ -75,7 +75,7 @@ export default function ChapterEditor({ chapterId, onChange }) {
             />
           </label>
           <label>
-            <span className="text-[11px] font-bold text-text-muted mb-1 block">ชื่อบท</span>
+            <span className="text-2xs font-bold text-text-muted mb-1 block">ชื่อบท</span>
             <input
               type="text"
               value={title}

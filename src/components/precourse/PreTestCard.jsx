@@ -18,7 +18,7 @@ export default function PreTestCard({ bestScore, passed, attemptCount }) {
           <div className="flex items-center gap-2">
             <div className="text-body-strong text-text-primary truncate">Pre-test ACLS</div>
             {hasAttempt && (
-              <span className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 shrink-0 ${
+              <span className={`inline-flex items-center gap-0.5 text-2xs font-bold px-1.5 py-0.5 shrink-0 ${
                 passed ? 'bg-success/12 text-success' : 'bg-warning/12 text-warning'
               }`} style={{ borderRadius: 99 }}>
                 {passed ? <Check size={10} strokeWidth={2.6} /> : <RotateCcw size={10} strokeWidth={2.6} />}
@@ -26,7 +26,7 @@ export default function PreTestCard({ bestScore, passed, attemptCount }) {
               </span>
             )}
           </div>
-          <div className="text-[11px] text-text-muted mt-0.5">
+          <div className="text-2xs text-text-muted mt-0.5">
             {PRE_TEST_QUESTION_COUNT} ข้อ · เกณฑ์ {PRE_TEST_PASS_PERCENT}%
             {hasAttempt && attemptCount > 1
               ? <> · พยายาม {attemptCount} ครั้ง</>

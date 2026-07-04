@@ -100,7 +100,7 @@ export default function AdminVideoLessons() {
                 <Video size={16} strokeWidth={2.2} className="text-purple shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="text-caption font-bold text-text-primary truncate">{item.title}</div>
-                  <div className="text-[11px] text-text-muted">
+                  <div className="text-2xs text-text-muted">
                     {item.youtubeId} · {item.quiz?.length || 0} ควิซ · {item.chapters?.length || 0} สารบัญ
                     {!item.required && ' · เสริม'}
                   </div>
@@ -179,7 +179,7 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, saving }) {
           <span className="text-caption font-bold text-text-secondary">🔗 ลิงก์ YouTube (วางลิงก์ ไม่ต้องอัปไฟล์)</span>
           <input value={form.youtubeId} onChange={e => upd({ youtubeId: e.target.value })} className={inputCls} style={inputStyle} placeholder="https://youtu.be/xxxxxxxxxxx" />
           {form.youtubeId && (
-            <span className={`text-[11px] ${ytId ? 'text-success' : 'text-danger'}`}>{ytId ? `id: ${ytId}` : 'ลิงก์ไม่ถูกต้อง'}</span>
+            <span className={`text-2xs ${ytId ? 'text-success' : 'text-danger'}`}>{ytId ? `id: ${ytId}` : 'ลิงก์ไม่ถูกต้อง'}</span>
           )}
         </label>
 
@@ -231,14 +231,14 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, saving }) {
           {form.quiz.map((q, qi) => (
             <div key={q.id || qi} className="dash-card !p-3 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-text-muted">ข้อ {qi + 1}</span>
+                <span className="text-2xs font-bold text-text-muted">ข้อ {qi + 1}</span>
                 <button onClick={() => delQuestion(qi)} className="btn btn-ghost btn-sm text-danger"><Trash2 size={13} /></button>
               </div>
               <input value={q.question} onChange={e => setQuestion(qi, { question: e.target.value })} className={inputCls} style={inputStyle} placeholder="คำถาม" />
               {q.choices.map((c, ci) => (
                 <div key={c.id} className="flex items-center gap-2">
                   <input type="radio" name={`correct-${qi}`} checked={q.correctId === c.id} onChange={() => setQuestion(qi, { correctId: c.id })} className="w-4 h-4 shrink-0" title="ตอบถูก" />
-                  <span className="text-[11px] font-mono text-text-muted w-4">{c.id}</span>
+                  <span className="text-2xs font-mono text-text-muted w-4">{c.id}</span>
                   <input value={c.text} onChange={e => setChoice(qi, ci, e.target.value)} className={inputCls} style={inputStyle} placeholder={`ตัวเลือก ${c.id}`} />
                   <button onClick={() => delChoice(qi, ci)} className="btn btn-ghost btn-sm text-danger shrink-0" disabled={q.choices.length <= 2}><X size={13} /></button>
                 </div>

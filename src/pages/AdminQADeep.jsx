@@ -78,7 +78,7 @@ export default function AdminQADeep() {
           </div>
           <div>
             <h1 className="text-body-strong text-text-primary">Admin — เพิ่ม Q&A ACLS เชิงลึก</h1>
-            <p className="text-[11px] text-text-muted">เพิ่มคำถาม-คำตอบใหม่ · รายการที่โพสต์แล้วอยู่ในหน้า “จัดเก็บ”</p>
+            <p className="text-2xs text-text-muted">เพิ่มคำถาม-คำตอบใหม่ · รายการที่โพสต์แล้วอยู่ในหน้า “จัดเก็บ”</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -139,7 +139,7 @@ export default function AdminQADeep() {
           <div className="text-center text-caption text-text-muted py-4">กำลังโหลด…</div>
         ) : draftItems.length > 0 ? (
           <div className="space-y-3">
-            <p className="text-[11px] text-text-muted">
+            <p className="text-2xs text-text-muted">
               ฉบับร่างที่ยังไม่ได้กรอกคำถาม — กรอกคำถาม–คำตอบแล้วกด “บันทึก” รายการจะย้ายไปอยู่ในหน้า “จัดเก็บ”
             </p>
             {draftItems.map(item => (
@@ -153,7 +153,7 @@ export default function AdminQADeep() {
             ))}
           </div>
         ) : (
-          <p className="text-[11px] text-text-muted">
+          <p className="text-2xs text-text-muted">
             กด “เพิ่ม Q&A” เพื่อสร้างคำถามใหม่ — รายการใหม่จะปรากฏที่นี่ให้กรอกทันที (ไม่ต้องเลื่อนลงไปล่างสุด)
           </p>
         )}
@@ -171,7 +171,7 @@ export default function AdminQADeep() {
           </div>
           <div>
             <div className="text-caption font-bold text-text-primary">จัดเก็บ Q&A ที่โพสต์แล้ว</div>
-            <div className="text-[11px] text-text-muted">
+            <div className="text-2xs text-text-muted">
               {loading ? 'กำลังนับ…' : `${postedCount} รายการ`} — แก้ไข จัดหมวด เรียงลำดับ และลบ
             </div>
           </div>
@@ -179,7 +179,7 @@ export default function AdminQADeep() {
         <ExternalLink size={14} strokeWidth={2.2} className="text-text-muted shrink-0" />
       </Link>
 
-      <p className="text-[11px] text-text-muted text-center pt-2">
+      <p className="text-2xs text-text-muted text-center pt-2">
         เนื้อหาจะ refresh ในแอป end-user ภายใน 6 ชั่วโมง (cache TTL) — เปิดหน้าผู้ใช้แบบ incognito เพื่อดูทันที
       </p>
     </div>

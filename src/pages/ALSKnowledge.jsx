@@ -341,7 +341,7 @@ export default function ALSKnowledge() {
                 <Lightbulb size={12} strokeWidth={2.2} /> เกร็ดความรู้ ALS
               </div>
               <div className="text-caption text-text-secondary leading-relaxed whitespace-pre-line">{tip}</div>
-              <div className="text-[11px] text-success mt-2 inline-flex items-center gap-1">
+              <div className="text-2xs text-success mt-2 inline-flex items-center gap-1">
                 <Bookmark size={11} strokeWidth={2.2} /> บันทึกแล้วอัตโนมัติ
               </div>
             </div>
@@ -352,7 +352,7 @@ export default function ALSKnowledge() {
               <AlertCircle size={14} strokeWidth={2.2} /> {tipError}
             </div>
           )}
-          <div className="text-[11px] text-text-muted text-center">
+          <div className="text-2xs text-text-muted text-center">
             cache วันละ 1 ครั้งต่อหัวข้อ — ควรตรวจสอบกับแหล่งข้อมูลทางการแพทย์เสมอ
           </div>
         </div>
@@ -363,7 +363,7 @@ export default function ALSKnowledge() {
           <div className="flex flex-wrap gap-1.5">
             {quizCategories.map(c => (
               <button key={c.id} onClick={() => handleCategoryChange(c.id)}
-                className={`px-2.5 py-1 text-[11px] font-bold border transition-colors ${
+                className={`px-2.5 py-1 text-2xs font-bold border transition-colors ${
                   quizCat === c.id
                     ? 'bg-info/15 border-info/50 text-info'
                     : 'bg-bg-secondary border-border text-text-secondary hover:bg-bg-tertiary'
@@ -397,13 +397,13 @@ export default function ALSKnowledge() {
                   <Activity size={12} strokeWidth={2.2} /> จังหวะนี้คืออะไร?
                 </div>
                 {quizQ.pulse === 'none' && (
-                  <span className="px-2 py-0.5 text-[10px] font-bold bg-danger/15 text-danger border border-danger/40"
+                  <span className="px-2 py-0.5 text-2xs font-bold bg-danger/15 text-danger border border-danger/40"
                     style={{ borderRadius: 99 }}>
                     คลำชีพจรไม่ได้ · NO PULSE
                   </span>
                 )}
                 {quizQ.pulse === 'present' && (
-                  <span className="px-2 py-0.5 text-[10px] font-bold bg-success/15 text-success border border-success/40"
+                  <span className="px-2 py-0.5 text-2xs font-bold bg-success/15 text-success border border-success/40"
                     style={{ borderRadius: 99 }}>
                     มีชีพจร · PULSE PRESENT
                   </span>
@@ -483,7 +483,7 @@ export default function ALSKnowledge() {
             </div>
           )}
 
-          <div className="text-[11px] text-text-muted text-center">
+          <div className="text-2xs text-text-muted text-center">
             ภาพ EKG เป็นภาพประกอบเพื่อการเรียนรู้ — การวินิจฉัยจริงต้องใช้ EKG 12 leads
           </div>
         </div>
@@ -501,7 +501,7 @@ export default function ALSKnowledge() {
                     <span className="text-caption font-bold text-info inline-flex items-center gap-1.5">
                       <Lightbulb size={13} strokeWidth={2.2} /> {item.topic}
                     </span>
-                    <span className="text-[10px] text-text-muted font-mono">
+                    <span className="text-2xs text-text-muted font-mono">
                       {new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>

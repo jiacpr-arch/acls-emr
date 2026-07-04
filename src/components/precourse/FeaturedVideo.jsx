@@ -48,7 +48,7 @@ export default function FeaturedVideo({ video }) {
                 {video.title || 'Featured video'}
               </span>
               {video.description && (
-                <span className="block text-white/85 text-[11px] mt-0.5 drop-shadow">
+                <span className="block text-white/85 text-2xs mt-0.5 drop-shadow">
                   {video.description}
                 </span>
               )}
@@ -60,7 +60,7 @@ export default function FeaturedVideo({ video }) {
       {/* Footer with open-on-YouTube link */}
       {loaded && (
         <div className="flex items-center justify-between px-3 py-2 border-t border-bg-tertiary">
-          <span className="text-[11px] text-text-muted truncate">
+          <span className="text-2xs text-text-muted truncate">
             {video.title || 'Featured video'}
           </span>
           <a

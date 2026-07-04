@@ -72,7 +72,7 @@ export default function QAAclsDeepQuestion() {
     <div className="page-container space-y-6">
       {/* Breadcrumb */}
       <nav
-        className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[12px] text-text-muted"
+        className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-xs text-text-muted"
         aria-label="เส้นทางหน้า"
       >
         <Link to="/qa-acls-deep" className="inline-flex items-center gap-1 hover:text-info">
@@ -111,7 +111,7 @@ export default function QAAclsDeepQuestion() {
           <header className="space-y-3">
             <Link
               to={listHref}
-              className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 hover:opacity-85 transition-opacity"
+              className="inline-flex items-center gap-1.5 text-2xs font-extrabold uppercase tracking-wider px-2.5 py-1 hover:opacity-85 transition-opacity"
               style={{
                 background: `color-mix(in srgb, ${palette.accent} 12%, transparent)`,
                 color: palette.accent,
@@ -124,7 +124,7 @@ export default function QAAclsDeepQuestion() {
             <h1 className="text-[24px] sm:text-[26px] font-extrabold text-text-primary leading-tight">
               {item.q}
             </h1>
-            <div className="flex items-center gap-1.5 text-[12px] text-text-muted">
+            <div className="flex items-center gap-1.5 text-xs text-text-muted">
               <BookOpen size={12} strokeWidth={2.4} />
               คำถามที่ {idx + 1} จาก {total}
             </div>
@@ -141,7 +141,7 @@ export default function QAAclsDeepQuestion() {
                 style={{ borderRadius: 'var(--radius-2xl)' }}
               />
               {item.cover.caption && (
-                <figcaption className="text-[12px] text-text-muted italic mt-2 px-1 leading-relaxed">
+                <figcaption className="text-xs text-text-muted italic mt-2 px-1 leading-relaxed">
                   {item.cover.caption}
                 </figcaption>
               )}

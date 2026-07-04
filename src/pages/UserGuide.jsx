@@ -126,7 +126,7 @@ export default function UserGuide() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-body-strong text-text-primary block truncate">{section.title}</span>
-                  <span className="text-[11px] text-text-muted">{section.content.length} รายการ</span>
+                  <span className="text-2xs text-text-muted">{section.content.length} รายการ</span>
                 </div>
                 <ChevronDown size={16} strokeWidth={2.2}
                   className={`text-text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
@@ -159,7 +159,7 @@ export default function UserGuide() {
       </div>
 
       {/* Footer */}
-      <div className="text-center text-[10px] text-text-muted pt-2 space-y-1">
+      <div className="text-center text-2xs text-text-muted pt-2 space-y-1">
         <div>ACLS EMR v2.0 — JIA Trainer Center</div>
         <div>พัฒนาสำหรับการฝึกอบรมและบันทึกการช่วยชีวิตขั้นสูง</div>
       </div>

@@ -23,7 +23,7 @@ export default function CaseCompare() {
     return (
       <div className="grid grid-cols-3 gap-2 items-center py-2 border-b border-border last:border-b-0">
         <div className={`text-right text-numeric text-base ${aWin && caseB ? 'text-success' : 'text-text-primary'}`}>{a || '—'}</div>
-        <div className="text-center text-[11px] text-text-muted font-semibold uppercase tracking-wide">{label}</div>
+        <div className="text-center text-2xs text-text-muted font-semibold uppercase tracking-wide">{label}</div>
         <div className={`text-left text-numeric text-base ${bWin && caseA ? 'text-success' : 'text-text-primary'}`}>{b || '—'}</div>
       </div>
     );

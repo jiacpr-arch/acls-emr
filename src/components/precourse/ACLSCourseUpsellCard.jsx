@@ -53,13 +53,13 @@ export default function ACLSCourseUpsellCard() {
               <HeartPulse size={22} strokeWidth={2.4} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 bg-white/20 rounded-full">
+              <div className="inline-flex items-center gap-1.5 text-2xs font-extrabold uppercase tracking-wider px-2 py-0.5 bg-white/20 rounded-full">
                 คอร์สต่อยอด · ฟรี
               </div>
-              <h2 className="text-[18px] font-extrabold leading-tight tracking-tight mt-1.5">
+              <h2 className="text-lg font-extrabold leading-tight tracking-tight mt-1.5">
                 เรียนต่อ ACLS ออนไลน์
               </h2>
-              <div className="text-[12px] text-white/85 mt-0.5">
+              <div className="text-xs text-white/85 mt-0.5">
                 ต่อยอดจาก BLS สู่การช่วยชีวิตขั้นสูง
               </div>
             </div>
@@ -67,11 +67,11 @@ export default function ACLSCourseUpsellCard() {
 
           {/* Value bullets */}
           <ul className="mt-4 grid grid-cols-1 gap-1.5">
-            <li className="flex items-center gap-2 text-[12px] text-white/90">
+            <li className="flex items-center gap-2 text-xs text-white/90">
               <Activity size={13} strokeWidth={2.4} className="shrink-0" />
               ฝึกอ่าน EKG · อัลกอริทึม ACLS · ยาฉุกเฉิน
             </li>
-            <li className="flex items-center gap-2 text-[12px] text-white/90">
+            <li className="flex items-center gap-2 text-xs text-white/90">
               <Award size={13} strokeWidth={2.4} className="shrink-0" />
               สอบรับใบประกาศนียบัตร ILCOR 2025 ใช้ได้ 24 เดือน
             </li>

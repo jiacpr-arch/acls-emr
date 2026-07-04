@@ -64,7 +64,7 @@ export default function LessonCard({ lesson, read, bestScore, passed, inProgress
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-body-strong text-text-primary truncate">{lesson.title}</div>
-          <div className="text-[11px] text-text-muted inline-flex items-center gap-2 mt-0.5">
+          <div className="text-2xs text-text-muted inline-flex items-center gap-2 mt-0.5">
             <Clock size={11} strokeWidth={2.2} /> ~{lesson.estMinutes} นาที
             <span className="text-text-muted">·</span>
             <span>{stepCount} ขั้น · {lesson.quiz.length} ข้อ</span>
@@ -76,7 +76,7 @@ export default function LessonCard({ lesson, read, bestScore, passed, inProgress
       </button>
 
       <div className="pl-5 pr-4 pb-3 flex items-center gap-2 flex-wrap">
-        <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 ${
+        <span className={`inline-flex items-center gap-1 text-2xs font-bold px-2 py-1 ${
           passed ? 'bg-success/12 text-success'
             : hasAttempt ? 'bg-warning/12 text-warning'
             : inProgress ? 'bg-info/12 text-info'
@@ -92,7 +92,7 @@ export default function LessonCard({ lesson, read, bestScore, passed, inProgress
         <div className="flex-1" />
         <button
           onClick={(e) => { e.stopPropagation(); go(); }}
-          className={`text-[11px] font-bold px-3 py-1.5 inline-flex items-center gap-1 text-white hover:opacity-90 ${tone.btn}`}
+          className={`text-2xs font-bold px-3 py-1.5 inline-flex items-center gap-1 text-white hover:opacity-90 ${tone.btn}`}
           style={{ borderRadius: 99 }}>
           {inProgress ? 'เรียนต่อ' : hasAttempt ? 'ทำใหม่' : 'เริ่มเรียน'}
         </button>

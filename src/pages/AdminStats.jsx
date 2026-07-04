@@ -84,7 +84,7 @@ export default function AdminStats() {
             <div className={`text-numeric text-3xl mt-1 ${tone}`}>
               {loading || value == null ? '—' : value}
             </div>
-            {sub && <div className="text-[11px] text-text-muted mt-0.5">{sub}</div>}
+            {sub && <div className="text-2xs text-text-muted mt-0.5">{sub}</div>}
           </div>
         ))}
       </div>

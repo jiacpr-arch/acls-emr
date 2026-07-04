@@ -40,13 +40,13 @@ export default function BLSHero() {
           <HeartPulse size={28} strokeWidth={2.4} className="text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-white/80">
+          <div className="text-2xs font-bold uppercase tracking-wider text-white/80">
             Basic Life Support
           </div>
-          <h1 className="text-[20px] font-extrabold leading-tight tracking-tight">
+          <h1 className="text-xl font-extrabold leading-tight tracking-tight">
             BLS for Healthcare Providers
           </h1>
-          <div className="inline-flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-white/85">
+          <div className="inline-flex items-center gap-1.5 mt-1 text-2xs font-semibold text-white/85">
             <ShieldCheck size={12} strokeWidth={2.6} />
             ILCOR 2025 · ใบประกาศนียบัตรใช้ได้ 24 เดือน
           </div>

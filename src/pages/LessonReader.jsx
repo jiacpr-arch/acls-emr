@@ -180,7 +180,7 @@ export default function LessonReader() {
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-title text-text-primary">{lesson.title}</h1>
-          <div className="text-[11px] text-text-muted mt-1">
+          <div className="text-2xs text-text-muted mt-1">
             {totalQuiz} ข้อสอบ · เกณฑ์ผ่าน {lesson.passingScore}%
           </div>
         </div>
@@ -191,14 +191,14 @@ export default function LessonReader() {
         <div className="flex items-center justify-between gap-2">
           {isOnSummary ? (
             <span
-              className="inline-flex items-center gap-1 bg-success text-white text-[12px] font-extrabold px-2.5 py-1 shrink-0"
+              className="inline-flex items-center gap-1 bg-success text-white text-xs font-extrabold px-2.5 py-1 shrink-0"
               style={{ borderRadius: 99 }}
             >
               พร้อมส่ง
             </span>
           ) : (
             <span
-              className="inline-flex items-center gap-1.5 bg-info text-white text-[12px] font-extrabold px-2.5 py-1 shrink-0"
+              className="inline-flex items-center gap-1.5 bg-info text-white text-xs font-extrabold px-2.5 py-1 shrink-0"
               style={{ borderRadius: 99 }}
             >
               ขั้นที่ <span className="tabular-nums">{safeIndex + 1}</span>
@@ -206,7 +206,7 @@ export default function LessonReader() {
               <span className="tabular-nums opacity-90">{totalSteps}</span>
             </span>
           )}
-          <span className="text-text-secondary text-[11px] text-right">
+          <span className="text-text-secondary text-2xs text-right">
             ตอบถูก <span className="text-success font-bold">{correctSoFar}</span>
             {answeredQuizCount > 0 && <span className="text-text-muted"> / {answeredQuizCount} ที่ตอบ</span>}
             <span className="text-text-muted"> (จาก {totalQuiz} ข้อ)</span>

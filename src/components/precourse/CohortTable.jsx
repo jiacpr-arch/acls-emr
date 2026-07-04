@@ -48,14 +48,14 @@ export default function CohortTable({ rows, lesson, onDeleteStudent }) {
                 {r.bestScore == null ? (
                   <span className="text-text-muted">-</span>
                 ) : r.passed ? (
-                  <span className="text-[10px] font-bold bg-success/15 text-success px-2 py-0.5"
+                  <span className="text-2xs font-bold bg-success/15 text-success px-2 py-0.5"
                     style={{ borderRadius: 99 }}>PASS</span>
                 ) : (
-                  <span className="text-[10px] font-bold bg-warning/15 text-warning px-2 py-0.5"
+                  <span className="text-2xs font-bold bg-warning/15 text-warning px-2 py-0.5"
                     style={{ borderRadius: 99 }}>FAIL</span>
                 )}
               </td>
-              <td className="px-3 py-2 text-[11px] text-text-muted">
+              <td className="px-3 py-2 text-2xs text-text-muted">
                 {r.lastAttemptAt
                   ? new Date(r.lastAttemptAt).toLocaleString('th-TH', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
                   : '-'}
@@ -75,7 +75,7 @@ export default function CohortTable({ rows, lesson, onDeleteStudent }) {
           ))}
         </tbody>
       </table>
-      <div className="px-3 py-2 text-[11px] text-text-muted border-t border-border">
+      <div className="px-3 py-2 text-2xs text-text-muted border-t border-border">
         {lesson?.title || ''} · เกณฑ์ผ่าน {lesson?.passingScore ?? 70}%
       </div>
     </div>

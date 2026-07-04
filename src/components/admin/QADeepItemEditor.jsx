@@ -202,7 +202,7 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
         {classifyHint && (
           <div
             className={
-              'text-[11px] mt-1 ' +
+              'text-2xs mt-1 ' +
               (classifyHint.type === 'ok'
                 ? 'text-info'
                 : classifyHint.type === 'warn'
@@ -330,7 +330,7 @@ function ImageGroup({ label, helper, images, staged, imageType, onStage, onUnsta
             <ImageIcon size={12} strokeWidth={2.2} /> {label}
             <span className="text-text-muted font-normal">({images.length + staged.length})</span>
           </div>
-          <div className="text-[11px] text-text-muted">{helper}</div>
+          <div className="text-2xs text-text-muted">{helper}</div>
         </div>
         <label className="btn btn-ghost btn-sm cursor-pointer shrink-0">
           <Upload size={12} strokeWidth={2.2} />
@@ -349,9 +349,9 @@ function ImageGroup({ label, helper, images, staged, imageType, onStage, onUnsta
             >
               <img src={s.previewUrl} alt="" className="w-20 h-20 object-cover shrink-0" style={{ borderRadius: 'var(--radius-sm)' }} />
               <div className="flex-1 min-w-0">
-                <div className="text-[12px] font-bold text-info">รอบันทึก</div>
-                <div className="text-[11px] text-text-muted truncate">{s.file.name}</div>
-                <div className="text-[11px] text-text-muted">กด “บันทึก” ด้านล่างเพื่ออัปโหลดพร้อมข้อความ</div>
+                <div className="text-xs font-bold text-info">รอบันทึก</div>
+                <div className="text-2xs text-text-muted truncate">{s.file.name}</div>
+                <div className="text-2xs text-text-muted">กด “บันทึก” ด้านล่างเพื่ออัปโหลดพร้อมข้อความ</div>
               </div>
               <button
                 onClick={() => onUnstage(s.tempId)}
@@ -396,7 +396,7 @@ function ImageRow({ img, busy, onSave, onDelete }) {
           value={alt}
           onChange={(e) => setAlt(e.target.value)}
           placeholder="alt text"
-          className="w-full px-2 py-1 bg-bg-primary border border-border text-[12px]"
+          className="w-full px-2 py-1 bg-bg-primary border border-border text-xs"
           style={{ borderRadius: 4 }}
         />
         <input
@@ -404,7 +404,7 @@ function ImageRow({ img, busy, onSave, onDelete }) {
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           placeholder="caption"
-          className="w-full px-2 py-1 bg-bg-primary border border-border text-[12px]"
+          className="w-full px-2 py-1 bg-bg-primary border border-border text-xs"
           style={{ borderRadius: 4 }}
         />
         <div className="flex gap-1">
