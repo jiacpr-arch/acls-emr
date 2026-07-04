@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Upload, Trash2, Image as ImageIcon, ChevronUp, ChevronDown,
-  Save, HelpCircle, Layers, Sparkles, X,
+  Save, HelpCircle, Layers, Sparkles, X, ExternalLink,
 } from 'lucide-react';
 import {
   updateQaItem,
@@ -12,6 +12,9 @@ import {
   deleteItemImage,
   classifyQaItem,
 } from '../../services/qaDeepAdminService';
+
+// หน้า Q&A รายข้อฝั่งผู้อ่าน อยู่บนเว็บหมอรู้ (คนละ deploy กับแอปนี้)
+const PUBLIC_QA_URL_BASE = 'https://www.morroo.com/acls-reader/qa-deep/q';
 
 export default function QADeepItemEditor({ item, allItems, chapters, onChange }) {
   const [question, setQuestion] = useState(item.question || '');
@@ -159,6 +162,17 @@ export default function QADeepItemEditor({ item, allItems, chapters, onChange })
         </div>
         <span className="text-overline text-text-muted">#{item.sort_order}</span>
         <div className="flex-1" />
+        {(item.question || '').trim() && (
+          <a
+            href={`${PUBLIC_QA_URL_BASE}/${item.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-ghost btn-sm text-info no-underline"
+            title="เปิดหน้าที่ผู้อ่านเห็นบนเว็บหมอรู้"
+          >
+            <ExternalLink size={14} strokeWidth={2.2} /> ดูบนเว็บ
+          </a>
+        )}
         <button onClick={() => handleMove('up')} className="btn btn-ghost btn-sm" title="ย้ายขึ้น">
           <ChevronUp size={14} strokeWidth={2.2} />
         </button>
