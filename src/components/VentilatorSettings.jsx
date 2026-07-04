@@ -53,7 +53,7 @@ export default function VentilatorSettings({ onClose }) {
             min={21} max={100} step={1} unit="%"
             targetLow={21} targetHigh={60} alertHigh={60} />
           {fio2 > 60 && (
-            <div className="text-[11px] text-warning font-bold px-1 inline-flex items-center gap-1.5">
+            <div className="text-2xs text-warning font-bold px-1 inline-flex items-center gap-1.5">
               <AlertTriangle size={11} strokeWidth={2.4} /> FiO₂ &gt;60% — Try to wean if SpO₂ allows
             </div>
           )}
@@ -89,7 +89,7 @@ export default function VentilatorSettings({ onClose }) {
             </div>
           </div>
           {parseFloat(tvPerKg) > 8 && (
-            <div className="text-[11px] text-danger font-bold mt-2 inline-flex items-center gap-1.5">
+            <div className="text-2xs text-danger font-bold mt-2 inline-flex items-center gap-1.5">
               <AlertTriangle size={11} strokeWidth={2.4} /> TV &gt;8ml/kg — Use lung protective ventilation (6-8 ml/kg)
             </div>
           )}

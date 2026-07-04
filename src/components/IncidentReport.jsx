@@ -94,7 +94,7 @@ Report Generated: ${new Date().toLocaleString('en-US')}
           <Copy size={13} strokeWidth={2.2} /> Copy
         </button>
       </div>
-      <pre className="text-[11px] font-mono text-text-primary whitespace-pre-wrap leading-relaxed bg-bg-primary p-4 border border-border"
+      <pre className="text-2xs font-mono text-text-primary whitespace-pre-wrap leading-relaxed bg-bg-primary p-4 border border-border"
         style={{ borderRadius: 'var(--radius-md)' }}>
         {reportText}
       </pre>

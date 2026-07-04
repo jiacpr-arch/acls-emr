@@ -46,7 +46,7 @@ export function EventLogPanel({ onClose }) {
                   <I size={13} strokeWidth={2} />
                 </div>
                 <span className="flex-1 truncate text-body-strong text-text-primary">{ev.type}</span>
-                <span className="text-text-muted font-mono text-[11px] shrink-0">{formatElapsed(ev.elapsed)}</span>
+                <span className="text-text-muted font-mono text-2xs shrink-0">{formatElapsed(ev.elapsed)}</span>
               </div>
             );
           })}

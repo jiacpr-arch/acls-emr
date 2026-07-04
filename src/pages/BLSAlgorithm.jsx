@@ -96,7 +96,7 @@ export default function BLSAlgorithm() {
         </div>
         <div className="flex-1">
           <div className="text-caption font-semibold text-text-primary">ฝึก CPR Metronome</div>
-          <div className="text-[11px] text-text-muted">ฝึก compression rate 100–120/นาที</div>
+          <div className="text-2xs text-text-muted">ฝึก compression rate 100–120/นาที</div>
         </div>
         <ChevronRight size={16} strokeWidth={2.2} className="text-text-muted" />
       </Link>

@@ -72,7 +72,7 @@ export default function PhotoNote({ onClose }) {
                 {photos.map((p, i) => (
                   <div key={i} className="dash-card !p-2">
                     <img src={p.dataUrl} alt={p.name} style={{ borderRadius: 'var(--radius-sm)' }} className="w-full" />
-                    <div className="text-[10px] text-text-muted mt-1 font-mono">{p.name}</div>
+                    <div className="text-3xs text-text-muted mt-1 font-mono">{p.name}</div>
                   </div>
                 ))}
               </div>

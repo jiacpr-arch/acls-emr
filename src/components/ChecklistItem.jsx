@@ -33,7 +33,7 @@ export default function ChecklistItem({ checked, onClick, label, sub, tone = 'su
       </span>
       <div className="flex-1 min-w-0 text-left">
         <div className="text-sm font-bold leading-tight">{label}</div>
-        {sub && <div className={`text-[11px] leading-snug mt-0.5 ${checked ? 'text-white/85' : 'text-text-muted'}`}>{sub}</div>}
+        {sub && <div className={`text-2xs leading-snug mt-0.5 ${checked ? 'text-white/85' : 'text-text-muted'}`}>{sub}</div>}
       </div>
     </button>
   );

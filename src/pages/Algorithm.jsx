@@ -318,7 +318,7 @@ function BranchSide({ side }) {
       <h4 className={`text-caption font-bold mb-2 ${tone.text}`}>{side.title}</h4>
       <ul className="space-y-1">
         {side.items.map((item, j) => (
-          <li key={j} className="text-[11px] text-text-secondary leading-snug">{item}</li>
+          <li key={j} className="text-2xs text-text-secondary leading-snug">{item}</li>
         ))}
       </ul>
     </div>
@@ -337,8 +337,8 @@ function HsAndTsSection() {
             {reversibleCauses.hs.map((cause, i) => (
               <div key={i} className="bg-bg-primary p-2.5 border border-border" style={{ borderRadius: 'var(--radius)' }}>
                 <div className="text-caption font-bold text-text-primary">{cause.name}</div>
-                <div className="text-[10px] text-text-muted mt-0.5">{cause.signs}</div>
-                <div className="text-[10px] text-info mt-0.5 font-medium">Tx: {cause.treatment}</div>
+                <div className="text-3xs text-text-muted mt-0.5">{cause.signs}</div>
+                <div className="text-3xs text-info mt-0.5 font-medium">Tx: {cause.treatment}</div>
               </div>
             ))}
           </div>
@@ -351,8 +351,8 @@ function HsAndTsSection() {
             {reversibleCauses.ts.map((cause, i) => (
               <div key={i} className="bg-bg-primary p-2.5 border border-border" style={{ borderRadius: 'var(--radius)' }}>
                 <div className="text-caption font-bold text-text-primary">{cause.name}</div>
-                <div className="text-[10px] text-text-muted mt-0.5">{cause.signs}</div>
-                <div className="text-[10px] text-danger mt-0.5 font-medium">Tx: {cause.treatment}</div>
+                <div className="text-3xs text-text-muted mt-0.5">{cause.signs}</div>
+                <div className="text-3xs text-danger mt-0.5 font-medium">Tx: {cause.treatment}</div>
               </div>
             ))}
           </div>

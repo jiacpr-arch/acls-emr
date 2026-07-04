@@ -71,7 +71,7 @@ function FeedbackPanel({ onClose }) {
         <div className="grid grid-cols-4 gap-1.5">
           {types.map(t => (
             <button key={t.key} onClick={() => setType(t.key)}
-              className={`py-2.5 rounded-full text-center text-[10px] font-bold transition-colors ${
+              className={`py-2.5 rounded-full text-center text-3xs font-bold transition-colors ${
                 type === t.key ? 'bg-info text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
               }`}>
               {t.label}

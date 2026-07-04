@@ -160,7 +160,7 @@ export default function CPRDashboard({
       {/* Total time header */}
       <div className="dash-card !py-2.5 !px-4 flex items-center justify-between">
         <div className="text-left">
-          <div className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Total Duration</div>
+          <div className="text-3xs text-text-muted font-bold uppercase tracking-wider">Total Duration</div>
           <div className="text-numeric text-2xl text-text-primary tracking-tight">{formatTimeLong(elapsed)}</div>
         </div>
         <div className="flex gap-2">
@@ -199,7 +199,7 @@ export default function CPRDashboard({
           <div className={`text-numeric text-[1.75rem] tracking-tight ${almostDone ? 'text-danger' : 'text-success'}`}>
             {formatTime(remaining)}
           </div>
-          <div className="text-[10px] text-text-muted font-semibold">/ {formatTime(cycleDuration)}</div>
+          <div className="text-3xs text-text-muted font-semibold">/ {formatTime(cycleDuration)}</div>
         </CircularTimer>
 
         <CircularTimer
@@ -217,12 +217,12 @@ export default function CPRDashboard({
               <div className={`text-numeric text-[1.75rem] tracking-tight ${epiDue ? 'text-danger' : 'text-purple'}`}>
                 {epiDue ? 'DUE' : formatTime(epiRemaining)}
               </div>
-              <div className="text-[10px] text-text-muted font-semibold">q3-5 min</div>
+              <div className="text-3xs text-text-muted font-semibold">q3-5 min</div>
             </>
           ) : (
             <>
               <div className="text-xl font-bold text-text-muted">--:--</div>
-              <div className="text-[10px] text-text-muted">No Epi yet</div>
+              <div className="text-3xs text-text-muted">No Epi yet</div>
             </>
           )}
         </CircularTimer>
@@ -274,7 +274,7 @@ export default function CPRDashboard({
       </div>
 
       {IS_BLS && (
-        <div className="text-[10px] text-text-muted text-center -mt-1">
+        <div className="text-3xs text-text-muted text-center -mt-1">
           BLS-HCP ในรพ. ใช้ BVM (Ambu bag) + O₂ เป็นหลัก — ไม่ใช้ hand-only
         </div>
       )}
@@ -331,7 +331,7 @@ export default function CPRDashboard({
         <span className="text-caption text-text-muted inline-flex items-center gap-1.5">
           <Wind size={13} strokeWidth={2} /> EtCO₂
         </span>
-        <span className="text-[11px] text-text-muted">Place ETT/SGA first to measure EtCO₂</span>
+        <span className="text-2xs text-text-muted">Place ETT/SGA first to measure EtCO₂</span>
       </div>
       )}
 
@@ -431,7 +431,7 @@ function PauseCountdown({ data, now, onResume, isTraining }) {
         </div>
       )}
       {isTraining && overTime && (
-        <div className="text-[11px] text-danger mt-0.5">Pause too long = score penalty</div>
+        <div className="text-2xs text-danger mt-0.5">Pause too long = score penalty</div>
       )}
       <button onClick={onResume} className="btn btn-success btn-lg btn-block mt-2">
         <Play size={16} strokeWidth={2.4} /> Resume CPR

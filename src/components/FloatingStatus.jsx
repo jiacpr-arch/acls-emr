@@ -7,7 +7,7 @@ export default function FloatingStatus({ onNoPulse, onUnresponsive, onROSC, onEK
   const elapsed = useTimerStore(s => s.elapsed);
   const isArrest = currentStep === 'cpr_cycle' || currentStep === 'shock_decision' || currentStep === 'rhythm_check';
 
-  const baseClass = "flex-1 flex items-center justify-center gap-1 text-[11px] py-2 font-bold transition-colors";
+  const baseClass = "flex-1 flex items-center justify-center gap-1 text-2xs py-2 font-bold transition-colors";
   const radius = { borderRadius: 'var(--radius)' };
 
   return (

@@ -53,15 +53,15 @@ export default function StepRouter({ step, startMode, scenario, isTraining, onGo
           <div className="grid grid-cols-1 gap-3 w-full">
             <BigButton color="bg-danger" onClick={() => { log('other', '❌ Unresponsive + Not Breathing'); goStep(STEPS.CALL_FOR_HELP); }}>
               ❌ Unresponsive + Not Breathing
-              <div className="text-[10px] font-normal mt-0.5">→ Call for help → Check Pulse</div>
+              <div className="text-3xs font-normal mt-0.5">→ Call for help → Check Pulse</div>
             </BigButton>
             <BigButton color="bg-danger" onClick={() => { log('other', '❌ Unresponsive + Gasping (agonal breathing)'); goStep(STEPS.CALL_FOR_HELP); }}>
               ❌ Unresponsive + Gasping
-              <div className="text-[10px] font-normal mt-0.5">Gasping = NOT normal → treat as no breathing</div>
+              <div className="text-3xs font-normal mt-0.5">Gasping = NOT normal → treat as no breathing</div>
             </BigButton>
             <BigButton color="bg-warning text-black" onClick={() => { log('other', '❌ Unresponsive BUT Breathing normally → Recovery position'); goStep(STEPS.PULSE_PRESENT); }}>
               ❌ Unresponsive BUT Breathing Normally
-              <div className="text-[10px] font-normal mt-0.5">Has pulse → Recovery position → Monitor</div>
+              <div className="text-3xs font-normal mt-0.5">Has pulse → Recovery position → Monitor</div>
             </BigButton>
             <BigButton color="bg-success" onClick={() => { log('other', '✅ Responsive + Breathing'); goStep(STEPS.PULSE_PRESENT); }}>
               ✅ Responsive + Breathing

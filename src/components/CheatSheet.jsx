@@ -122,8 +122,8 @@ export default function CheatSheet({ onClose }) {
 function DrugRow({ name, dose, note }) {
   return (
     <div className="flex items-start gap-2 px-2 py-1.5 bg-bg-primary rounded-lg">
-      <div className="min-w-[80px]"><span className="text-[10px] font-bold text-text-primary">{name}</span></div>
-      <div className="min-w-[70px]"><span className="text-[10px] font-mono font-bold text-info">{dose}</span></div>
+      <div className="min-w-[80px]"><span className="text-3xs font-bold text-text-primary">{name}</span></div>
+      <div className="min-w-[70px]"><span className="text-3xs font-mono font-bold text-info">{dose}</span></div>
       <div className="flex-1"><span className="text-[9px] text-text-muted">{note}</span></div>
     </div>
   );
@@ -132,8 +132,8 @@ function DrugRow({ name, dose, note }) {
 function EnergyRow({ rhythm, energy, note }) {
   return (
     <div className="flex items-center gap-2 px-2 py-1.5 bg-bg-primary rounded-lg">
-      <div className="min-w-[120px]"><span className="text-[10px] font-bold text-text-primary">{rhythm}</span></div>
-      <div className="min-w-[50px]"><span className="text-[10px] font-mono font-bold text-shock">{energy}</span></div>
+      <div className="min-w-[120px]"><span className="text-3xs font-bold text-text-primary">{rhythm}</span></div>
+      <div className="min-w-[50px]"><span className="text-3xs font-mono font-bold text-shock">{energy}</span></div>
       <div className="flex-1"><span className="text-[9px] text-text-muted">{note}</span></div>
     </div>
   );
@@ -142,8 +142,8 @@ function EnergyRow({ rhythm, energy, note }) {
 function AirwayRow({ label, value }) {
   return (
     <div className="flex items-center justify-between px-2 py-1.5 bg-bg-primary rounded-lg">
-      <span className="text-[10px] font-bold text-text-primary">{label}</span>
-      <span className="text-[10px] font-mono text-info">{value}</span>
+      <span className="text-3xs font-bold text-text-primary">{label}</span>
+      <span className="text-3xs font-mono text-info">{value}</span>
     </div>
   );
 }
@@ -151,7 +151,7 @@ function AirwayRow({ label, value }) {
 function HTRow({ cause, treatment }) {
   return (
     <div className="flex items-start gap-2 px-2 py-1.5 bg-bg-primary rounded-lg">
-      <div className="min-w-[110px]"><span className="text-[10px] font-bold text-text-primary">{cause}</span></div>
+      <div className="min-w-[110px]"><span className="text-3xs font-bold text-text-primary">{cause}</span></div>
       <div className="flex-1"><span className="text-[9px] text-success font-semibold">→ {treatment}</span></div>
     </div>
   );

@@ -67,7 +67,7 @@ export default function RhythmPanel() {
           const catRhythms = getRhythmsByCategory(cat.id);
           return (
             <div key={cat.id}>
-              <div className="text-[11px] text-text-muted mb-1 font-medium">{cat.label}</div>
+              <div className="text-2xs text-text-muted mb-1 font-medium">{cat.label}</div>
               <div className="flex flex-wrap gap-1.5">
                 {catRhythms.map(r => {
                   const active = currentRhythm?.id === r.id;
@@ -75,7 +75,7 @@ export default function RhythmPanel() {
                     <button
                       key={r.id}
                       onClick={() => handleSelect(r)}
-                      className={`px-2.5 py-1.5 text-[12px] font-bold transition-colors ${
+                      className={`px-2.5 py-1.5 text-xs font-bold transition-colors ${
                         active
                           ? toneClass[cat.tone]
                           : 'bg-bg-tertiary text-text-secondary hover:bg-border-strong hover:text-text-primary'

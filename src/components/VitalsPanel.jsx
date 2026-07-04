@@ -169,7 +169,7 @@ function Alert({ tone, children }) {
     warning: 'bg-warning/10 border-warning/30 text-warning',
   };
   return (
-    <div className={`text-[11px] font-bold border px-2 py-1.5 inline-flex items-center gap-1.5 ${tones[tone]}`}
+    <div className={`text-2xs font-bold border px-2 py-1.5 inline-flex items-center gap-1.5 ${tones[tone]}`}
       style={{ borderRadius: 'var(--radius-sm)' }}>
       {children}
     </div>
@@ -179,7 +179,7 @@ function Alert({ tone, children }) {
 function O2Btn({ label, type, addEvent, elapsed, variant }) {
   return (
     <button onClick={() => addEvent({ elapsed, category: 'airway', type, details: {} })}
-      className={`btn btn-sm btn-block !min-h-[28px] !text-[10px] ${variant === 'info' ? 'btn-info' : 'btn-ghost'}`}>
+      className={`btn btn-sm btn-block !min-h-[28px] !text-3xs ${variant === 'info' ? 'btn-info' : 'btn-ghost'}`}>
       <Wind size={10} strokeWidth={2.2} /> {label}
     </button>
   );

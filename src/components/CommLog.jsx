@@ -50,7 +50,7 @@ export default function CommLog({ onClose }) {
                     style={{ borderRadius: 'var(--radius-sm)' }}>
                     <NIcon size={13} strokeWidth={2.2} />
                   </div>
-                  <span className="text-[11px] font-semibold text-text-primary truncate">{n.label}</span>
+                  <span className="text-2xs font-semibold text-text-primary truncate">{n.label}</span>
                 </button>
               );
             })}
@@ -78,7 +78,7 @@ export default function CommLog({ onClose }) {
                 <div key={i} className="dash-card !p-2 flex items-center gap-2">
                   <Phone size={12} strokeWidth={2.2} className="text-text-muted shrink-0" />
                   <span className="flex-1 text-caption text-text-primary truncate">{e.type?.replace('📞 ', '')}</span>
-                  <span className="text-[10px] text-text-muted font-mono">
+                  <span className="text-3xs text-text-muted font-mono">
                     {Math.floor(e.elapsed / 60)}:{String(e.elapsed % 60).padStart(2, '0')}
                   </span>
                 </div>

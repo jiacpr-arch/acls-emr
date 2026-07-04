@@ -111,7 +111,7 @@ export default function Recording() {
     <div className={`h-[100dvh] flex flex-col overflow-hidden relative ${isTraining ? 'bg-blue-50 dark:bg-slate-900 ring-4 ring-blue-300/30 ring-inset' : 'bg-bg-primary'}`}>
       {/* Training mode banner */}
       {isTraining && !scenario && (
-        <div className="bg-info text-white text-center text-[10px] font-bold py-1.5 tracking-wider shrink-0 z-50">TRAINING MODE</div>
+        <div className="bg-info text-white text-center text-3xs font-bold py-1.5 tracking-wider shrink-0 z-50">TRAINING MODE</div>
       )}
 
       {/* Simulation engine */}

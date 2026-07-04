@@ -72,7 +72,7 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
                 <div className="text-xs font-bold text-warning mb-2">When to Suspect</div>
                 <div className="space-y-1">
                   {selectedCause.whenToSuspect.map((item, i) => (
-                    <div key={i} className="flex items-start gap-2 text-[11px] text-text-secondary">
+                    <div key={i} className="flex items-start gap-2 text-2xs text-text-secondary">
                       <span className="text-warning shrink-0 mt-0.5">!</span>
                       <span>{item}</span>
                     </div>
@@ -89,7 +89,7 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
                   {selectedCause.protocol.map((step, i) => {
                     const isSubStep = step.startsWith('  ');
                     return (
-                      <div key={i} className={`flex items-start gap-2 text-[11px] ${isSubStep ? 'ml-4' : ''}`}>
+                      <div key={i} className={`flex items-start gap-2 text-2xs ${isSubStep ? 'ml-4' : ''}`}>
                         {!isSubStep && (
                           <span className="w-5 h-5 rounded-full bg-success/15 text-success text-[9px] font-bold flex items-center justify-center shrink-0">
                             {i + 1 - selectedCause.protocol.slice(0, i).filter(s => s.startsWith('  ')).length}
@@ -112,7 +112,7 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
                 <div className="text-xs font-bold text-info mb-2">Key Points</div>
                 <div className="space-y-1.5">
                   {selectedCause.keyPoints.map((point, i) => (
-                    <div key={i} className="flex items-start gap-2 text-[11px] text-text-secondary">
+                    <div key={i} className="flex items-start gap-2 text-2xs text-text-secondary">
                       <span className="text-info shrink-0">*</span>
                       <span>{point}</span>
                     </div>
@@ -127,7 +127,7 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
                 <div className="text-xs font-bold text-purple mb-2">Labs / Diagnostics</div>
                 <div className="flex flex-wrap gap-1.5">
                   {selectedCause.labsNeeded.map((lab, i) => (
-                    <span key={i} className="text-[10px] font-medium bg-purple/10 text-purple px-2 py-1 rounded-lg">
+                    <span key={i} className="text-3xs font-medium bg-purple/10 text-purple px-2 py-1 rounded-lg">
                       {lab}
                     </span>
                   ))}
@@ -146,7 +146,7 @@ export default function ReversibleCausesPanel({ onClose, onOpenAirway, onOpenLab
                     <div className="text-body-strong text-success inline-flex items-center gap-2">
                       <Check size={15} strokeWidth={2.4} /> {action.label}
                     </div>
-                    {action.detail && <div className="text-[11px] text-text-muted font-normal mt-0.5 ml-6">{action.detail}</div>}
+                    {action.detail && <div className="text-2xs text-text-muted font-normal mt-0.5 ml-6">{action.detail}</div>}
                   </button>
                 ))}
               </div>
@@ -211,8 +211,8 @@ function CauseColumn({ letter, tone, causes, corrected, handleSelect }) {
                 <div className="text-caption font-bold text-text-primary truncate">{c.name}</div>
                 {done && <Check size={13} strokeWidth={2.4} className="text-success shrink-0" />}
               </div>
-              <div className="text-[10px] text-text-muted mt-0.5 line-clamp-2">{c.signs}</div>
-              <div className={`text-[10px] mt-0.5 font-medium ${arrowTone}`}>→ {c.treatment}</div>
+              <div className="text-3xs text-text-muted mt-0.5 line-clamp-2">{c.signs}</div>
+              <div className={`text-3xs mt-0.5 font-medium ${arrowTone}`}>→ {c.treatment}</div>
             </button>
           );
         })}

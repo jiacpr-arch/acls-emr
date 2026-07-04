@@ -45,7 +45,7 @@ export default function CircularTimer({
           {children}
         </div>
       </div>
-      {label && <div className="mt-1.5 text-[10px] text-text-muted font-bold uppercase tracking-wider">{label}</div>}
+      {label && <div className="mt-1.5 text-3xs text-text-muted font-bold uppercase tracking-wider">{label}</div>}
       {sublabel && <div className="text-xs font-bold text-text-primary">{sublabel}</div>}
     </div>
   );

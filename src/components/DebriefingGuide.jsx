@@ -107,7 +107,7 @@ export default function DebriefingGuide({ onClose }) {
           {strengths.length > 0 ? strengths.map((s, i) => (
             <div key={i} className="dash-card !p-2.5 mb-1.5 border-l-4 border-l-success">
               <div className="text-caption font-bold text-text-primary">{s.text}</div>
-              {s.detail && <div className="text-[10px] text-text-muted">{s.detail}</div>}
+              {s.detail && <div className="text-3xs text-text-muted">{s.detail}</div>}
             </div>
           )) : (
             <div className="text-caption text-text-muted">No data to analyze yet</div>
@@ -122,7 +122,7 @@ export default function DebriefingGuide({ onClose }) {
           {improvements.length > 0 ? improvements.map((s, i) => (
             <div key={i} className="dash-card !p-2.5 mb-1.5 border-l-4 border-l-warning">
               <div className="text-caption font-bold text-text-primary">{s.text}</div>
-              {s.detail && <div className="text-[10px] text-text-muted">{s.detail}</div>}
+              {s.detail && <div className="text-3xs text-text-muted">{s.detail}</div>}
             </div>
           )) : (
             <div className="text-caption text-success font-semibold">No issues found — great job!</div>

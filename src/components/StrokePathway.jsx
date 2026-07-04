@@ -35,7 +35,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
   if (phase === 'fast') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">Stroke Assessment</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-purple">Stroke Assessment</div>
         <div className="pathway-icon-tile bg-purple/12 text-purple"><Brain size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">FAST Assessment</h1>
 
@@ -66,7 +66,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
             <div className="flex gap-2 mt-1">
               {['Normal', 'Left drift', 'Right drift', 'Both'].map(v => (
                 <button key={v} onClick={() => setFast(p => ({ ...p, arms: v }))}
-                  className={`flex-1 py-2 rounded-lg text-[10px] font-semibold ${
+                  className={`flex-1 py-2 rounded-lg text-3xs font-semibold ${
                     fast.arms === v ? (v === 'Normal' ? 'bg-success text-white' : 'bg-danger text-white') : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
                   }`}>{v}</button>
               ))}
@@ -127,7 +127,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
   if (phase === 'initial_tx') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">Stroke — Immediate Care</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-purple">Stroke — Immediate Care</div>
         <h1 className="text-xl font-black text-text-primary">Initial Treatment</h1>
 
         <div className="glass-card !p-3 text-left space-y-0.5">
@@ -188,7 +188,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
 
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">NIHSS Score</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-purple">NIHSS Score</div>
         <div className="flex items-center justify-center gap-3">
           <h1 className="text-xl font-black text-text-primary">NIHSS</h1>
           <span className={`text-3xl font-mono font-black ${sevColor}`}>{total}/42</span>
@@ -235,7 +235,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
   if (phase === 'ct') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">CT Brain Result</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-purple">CT Brain Result</div>
         <h1 className="text-xl font-black text-text-primary">CT Result</h1>
 
         <div className="grid grid-cols-1 gap-2.5">
@@ -245,7 +245,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
             setPhase('tpa_criteria');
           }} className="btn-action btn-info py-4 text-sm font-bold text-left px-4">
             <div>⚪ Normal / Ischemic</div>
-            <div className="text-[10px] font-normal opacity-80">No hemorrhage → Consider tPA</div>
+            <div className="text-3xs font-normal opacity-80">No hemorrhage → Consider tPA</div>
           </button>
 
           <button onClick={() => {
@@ -254,11 +254,11 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
             setPhase('hemorrhagic');
           }} className="btn-action btn-danger py-4 text-sm font-bold text-left px-4">
             <div>🔴 Hemorrhagic</div>
-            <div className="text-[10px] font-normal opacity-80">Bleeding → Neurosurgery consult</div>
+            <div className="text-3xs font-normal opacity-80">Bleeding → Neurosurgery consult</div>
           </button>
         </div>
 
-        <div className="text-[10px] text-text-muted">📸 Take photo of CT for record</div>
+        <div className="text-3xs text-text-muted">📸 Take photo of CT for record</div>
         <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
       </div>
     );
@@ -271,13 +271,13 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
 
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">tPA (Alteplase) Criteria</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-purple">tPA (Alteplase) Criteria</div>
         <h1 className="text-xl font-black text-text-primary">tPA Eligibility</h1>
 
         {/* D2N timer */}
         {d2nStart && (
           <div className="glass-card !p-2 text-center">
-            <div className="text-[10px] text-text-muted">Door-to-Needle</div>
+            <div className="text-3xs text-text-muted">Door-to-Needle</div>
             <div className={`text-xl font-mono font-black ${
               (elapsed - d2nStart) > 3600 ? 'text-danger' : 'text-success'
             }`}>
@@ -339,14 +339,14 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
   if (phase === 'tpa_admin') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">tPA Administration</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-purple">tPA Administration</div>
         <h1 className="text-xl font-black text-text-primary">Alteplase 0.9 mg/kg</h1>
 
         <div className="glass-card !p-3 text-left text-xs text-text-secondary">
           <div className="font-bold text-text-primary mb-1">Dosing (max 90mg):</div>
           <div>10% = bolus IV over 1 min</div>
           <div>90% = infusion over 60 min</div>
-          <div className="mt-1 text-[10px]">Do NOT shake vial</div>
+          <div className="mt-1 text-3xs">Do NOT shake vial</div>
         </div>
 
         <div className="glass-card !p-3 text-left space-y-0.5">
@@ -379,7 +379,7 @@ export default function StrokePathway({ onLog, onMonitor, onArrest, onRecheckPul
   if (phase === 'hemorrhagic') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Hemorrhagic Stroke</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-danger">Hemorrhagic Stroke</div>
         <h1 className="text-xl font-black text-text-primary">ICH Management</h1>
 
         <div className="glass-card !p-3 text-left space-y-0.5">

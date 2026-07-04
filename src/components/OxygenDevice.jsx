@@ -79,7 +79,7 @@ export default function OxygenDevice({ onClose, situation = 'pulse_present' }) {
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-caption font-semibold text-text-primary truncate">{dev.label}</div>
-              <div className="text-[10px] text-text-muted truncate">{dev.desc}</div>
+              <div className="text-3xs text-text-muted truncate">{dev.desc}</div>
             </div>
           </button>
         );

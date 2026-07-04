@@ -51,7 +51,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'vitals') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">Bradycardia — Quick Vitals</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-info">Bradycardia — Quick Vitals</div>
         <div className="pathway-icon-tile bg-info/12 text-info"><TrendingDown size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">HR &lt; 50 — Enter Vitals</h1>
 
@@ -66,7 +66,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
           <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" alertLow={94} />
           {spo2 < 94 && (
             <div className="bg-danger/10 border border-danger/30 rounded-lg px-2 py-1.5 space-y-1">
-              <div className="text-[10px] text-danger font-bold">⚠️ SpO₂ {spo2}% — Give O₂</div>
+              <div className="text-3xs text-danger font-bold">⚠️ SpO₂ {spo2}% — Give O₂</div>
               <div className="grid grid-cols-3 gap-1">
                 {[{l:'👃 Cannula',v:'Nasal Cannula 3L'},{l:'😷 Mask',v:'Simple Mask 8L'},{l:'🎭 NRB',v:'NRB 15L'}].map(o=>(
                   <button key={o.l} onClick={()=>addEvent({elapsed,category:'airway',type:`🌬️ O₂: ${o.v}`,details:{}})}
@@ -99,7 +99,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'assess') {
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">Bradycardia Algorithm</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-info">Bradycardia Algorithm</div>
         <div className="pathway-icon-tile bg-info/12 text-info"><TrendingDown size={32} strokeWidth={2.2} /></div>
         <h1 className="text-2xl font-black text-text-primary">HR &lt; 50 — Assessment</h1>
 
@@ -133,7 +133,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
               </button>
             ))}
           </div>
-          <div className="text-[10px] text-text-muted mt-2">
+          <div className="text-3xs text-text-muted mt-2">
             Not sure? → Take photo of EKG. Treat based on symptoms regardless.
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'atropine') {
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">Bradycardia — Atropine</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-purple">Bradycardia — Atropine</div>
         <div className="pathway-icon-tile bg-purple/12 text-purple"><Syringe size={32} strokeWidth={2.2} /></div>
         <h1 className="text-2xl font-black text-text-primary">Atropine Protocol</h1>
         <div className="text-sm text-text-secondary">Doses: {atropineCount}/3 (max 3mg)</div>
@@ -232,14 +232,14 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
     if (tcpPhase === 'setup') {
       return (
         <div className="text-center space-y-4 animate-slide-up px-2">
-          <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-warning">Transcutaneous Pacing</div>
+          <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-warning">Transcutaneous Pacing</div>
           <div className="pathway-icon-tile bg-warning/12 text-warning"><Zap size={32} strokeWidth={2.2} /></div>
           <h1 className="text-2xl font-black text-text-primary">TCP Setup</h1>
 
           <div className="glass-card !p-3 text-left">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-semibold text-text-muted uppercase">Mode</span>
-              <span className="text-[10px] font-bold text-info uppercase tracking-wider">{tcpMode}</span>
+              <span className="text-3xs font-semibold text-text-muted uppercase">Mode</span>
+              <span className="text-3xs font-bold text-info uppercase tracking-wider">{tcpMode}</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {[
@@ -268,7 +268,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
 
           <div className="glass-card !p-3 text-left">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-semibold text-text-muted uppercase">Rate</span>
+              <span className="text-3xs font-semibold text-text-muted uppercase">Rate</span>
               <span className="text-lg font-mono font-black text-text-primary">{tcpRate} bpm</span>
             </div>
             <input type="range" min={40} max={180} step={10} value={tcpRate}
@@ -277,7 +277,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
 
           <div className="glass-card !p-3 text-left">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-semibold text-text-muted uppercase">Output</span>
+              <span className="text-3xs font-semibold text-text-muted uppercase">Output</span>
               <span className={`text-lg font-mono font-black ${tcpOutput > 0 ? 'text-warning' : 'text-text-muted'}`}>{tcpOutput} mA</span>
             </div>
             <input type="range" min={0} max={200} step={1} value={tcpOutput}
@@ -306,7 +306,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
     // Captured
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-success">TCP — Captured</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-success">TCP — Captured</div>
         <div className="pathway-icon-tile bg-warning/12 text-warning"><Zap size={32} strokeWidth={2.2} /></div>
         <h1 className="text-2xl font-black text-text-primary">Pacing Active</h1>
 
@@ -350,7 +350,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'vasopressors') {
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-purple">Vasopressor Infusion</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-purple">Vasopressor Infusion</div>
         <div className="pathway-icon-tile bg-purple/12 text-purple"><Syringe size={32} strokeWidth={2.2} /></div>
 
         <div className="glass-card !p-3 text-left">

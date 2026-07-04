@@ -128,7 +128,7 @@ function CoverImage({ img, fallbackAlt }) {
         {...handlers}
       />
       {img.caption && (
-        <div className="px-4 pt-2 text-[12px] text-text-muted italic leading-relaxed">
+        <div className="px-4 pt-2 text-xs text-text-muted italic leading-relaxed">
           {img.caption}
         </div>
       )}
@@ -150,7 +150,7 @@ function Figure({ img, fallbackAlt, rounded = 'var(--radius-sm)' }) {
         {...handlers}
       />
       {img.caption && (
-        <figcaption className="text-[12px] text-text-muted mt-1.5 leading-relaxed italic px-1">
+        <figcaption className="text-xs text-text-muted mt-1.5 leading-relaxed italic px-1">
           {img.caption}
         </figcaption>
       )}
@@ -196,7 +196,7 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
               {item.images?.length > 0 && (
                 <div className={item.a ? 'mt-8' : ''}>
                   <div className="flex items-center gap-2.5 mb-4">
-                    <span className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-text-muted shrink-0">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text-muted shrink-0">
                       <ImageIcon size={14} strokeWidth={2.4} />
                       สรุปเป็นภาพ
                     </span>
@@ -272,7 +272,7 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
                     <HelpCircle size={15} strokeWidth={2.4} />
                   </div>
                 )}
-                <h2 className="text-[18px] sm:text-[19px] font-extrabold text-text-primary leading-snug pt-0.5">
+                <h2 className="text-lg sm:text-[19px] font-extrabold text-text-primary leading-snug pt-0.5">
                   {item.q}
                 </h2>
               </div>
@@ -295,7 +295,7 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
 
                   {/* Section label */}
                   <div className="flex items-center gap-2.5 mb-3">
-                    <span className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-info shrink-0">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-info shrink-0">
                       <ImageIcon size={14} strokeWidth={2.4} />
                       สรุปเป็นภาพ
                     </span>

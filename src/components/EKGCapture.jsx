@@ -100,7 +100,7 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
               </div>
             ))}
 
-            <div className="text-[10px] text-text-muted text-center">
+            <div className="text-3xs text-text-muted text-center">
               Not sure? Take a photo → review later or send to cardiologist
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function EKGCapture({ onClose, onRhythmSelect }) {
 
             {/* Notes */}
             <div>
-              <div className="text-[10px] text-text-muted font-semibold mb-1">ECG Interpretation Notes</div>
+              <div className="text-3xs text-text-muted font-semibold mb-1">ECG Interpretation Notes</div>
               <textarea value={notes} onChange={e => setNotes(e.target.value)}
                 placeholder="e.g., ST elevation V1-V4, Anterior STEMI"
                 className="w-full px-3 py-2 rounded-lg bg-bg-primary border border-bg-tertiary text-xs text-text-primary focus:outline-none focus:border-info"

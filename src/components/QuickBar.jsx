@@ -132,7 +132,7 @@ export default function QuickBar({
                       style={{ borderRadius: 'var(--radius-sm)' }}>
                       <ItemIcon size={17} strokeWidth={2} />
                     </span>
-                    <span className="text-[10px] font-semibold text-text-secondary">{item.label}</span>
+                    <span className="text-3xs font-semibold text-text-secondary">{item.label}</span>
                   </button>
                 );
               })}

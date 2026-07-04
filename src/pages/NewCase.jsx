@@ -77,8 +77,8 @@ export default function NewCase() {
             </div>
             <h1 className="text-display text-text-primary">BLS Practice</h1>
             <p className="text-caption text-text-muted mt-1.5 tracking-wide">{courseMeta.titleTh}</p>
-            <p className="text-text-muted text-[10px] font-mono mt-1 opacity-60">v2.0.0</p>
-            <div className={`inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 text-[11px] font-bold ${
+            <p className="text-text-muted text-3xs font-mono mt-1 opacity-60">v2.0.0</p>
+            <div className={`inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 text-2xs font-bold ${
               isClinical ? 'bg-danger/10 text-danger' : 'bg-info/10 text-info'
             }`}
             style={{ borderRadius: 'var(--radius-full)' }}>
@@ -226,7 +226,7 @@ export default function NewCase() {
           <BookOpen size={20} strokeWidth={2.4} />
           <span className="flex flex-col items-center leading-tight">
             <span>Q&A ACLS เชิงลึก</span>
-            <span className="text-[12px] font-medium opacity-85 mt-0.5">
+            <span className="text-xs font-medium opacity-85 mt-0.5">
               13 หมวด พร้อม infographic
             </span>
           </span>
@@ -251,7 +251,7 @@ export default function NewCase() {
 
         <MorrooAdCard />
 
-        <div className="text-center text-text-muted text-[10px] font-mono opacity-60 pt-1">
+        <div className="text-center text-text-muted text-3xs font-mono opacity-60 pt-1">
           v2.0.0 · ACLS EMR
         </div>
       </div>

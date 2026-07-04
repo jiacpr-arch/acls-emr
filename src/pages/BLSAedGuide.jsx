@@ -61,7 +61,7 @@ export default function BLSAedGuide() {
             </div>
             <div className="flex-1">
               <div className="text-caption font-semibold text-text-primary">{s.title}</div>
-              <div className="text-[12px] text-text-secondary mt-0.5">{s.detail}</div>
+              <div className="text-xs text-text-secondary mt-0.5">{s.detail}</div>
             </div>
           </div>
         ))}

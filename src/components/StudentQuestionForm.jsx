@@ -66,7 +66,7 @@ export default function StudentQuestionForm({ onClose }) {
             </div>
             <div>
               <div className="text-body-strong text-text-primary leading-tight">ถามคำถาม ACLS</div>
-              <div className="text-[11px] text-text-muted">AI จะร่างคำตอบเชิงลึก รออาจารย์ตรวจก่อนเผยแพร่</div>
+              <div className="text-2xs text-text-muted">AI จะร่างคำตอบเชิงลึก รออาจารย์ตรวจก่อนเผยแพร่</div>
             </div>
           </div>
           <button
@@ -102,7 +102,7 @@ export default function StudentQuestionForm({ onClose }) {
                   className="w-full px-3 py-2 bg-bg-secondary border border-border text-body text-text-primary focus:outline-none focus:border-info disabled:opacity-60"
                   style={{ borderRadius: 'var(--radius-sm)' }}
                 />
-                <div className="flex justify-between mt-1 text-[11px] text-text-muted">
+                <div className="flex justify-between mt-1 text-2xs text-text-muted">
                   <span>อย่างน้อย 5 ตัวอักษร</span>
                   <span>{question.length}/2000</span>
                 </div>
@@ -139,7 +139,7 @@ export default function StudentQuestionForm({ onClose }) {
                   <Loader2 size={14} strokeWidth={2.2} className="text-info shrink-0 mt-0.5 animate-spin" />
                   <div className="space-y-1">
                     <div className="text-caption text-text-primary font-bold">{STAGES[stageIdx]}</div>
-                    <div className="text-[11px] text-text-muted">
+                    <div className="text-2xs text-text-muted">
                       ระบบกำลังให้ DeepSeek ตอบและสร้างรูป — โดยปกติใช้เวลาประมาณ 15-40 วินาที กรุณาอย่าปิดหน้าจอ
                     </div>
                   </div>
@@ -162,7 +162,7 @@ export default function StudentQuestionForm({ onClose }) {
                 )}
               </button>
 
-              <p className="text-[11px] text-text-muted text-center">
+              <p className="text-2xs text-text-muted text-center">
                 คำตอบที่ได้เป็นการสร้างจาก AI — อาจารย์จะตรวจสอบก่อนนำขึ้นแสดงในหน้า Q&A
               </p>
             </form>
@@ -190,7 +190,7 @@ function ResultPanel({ result, onClose, onReset }) {
           <div className="text-caption text-text-secondary leading-relaxed">
             {result.message}
           </div>
-          <div className="text-[10px] text-text-muted font-mono break-all pt-1">
+          <div className="text-3xs text-text-muted font-mono break-all pt-1">
             รหัสคำถาม: {result.id}
           </div>
         </div>

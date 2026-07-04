@@ -70,7 +70,7 @@ export default function TeachingAnnotation({ caseId, onClose }) {
                 <ICmp size={13} strokeWidth={2.4} className="shrink-0 mt-0.5" />
                 <span>{a.text}</span>
               </div>
-              <div className="text-[10px] opacity-60 mt-1 ml-5 font-mono">
+              <div className="text-3xs opacity-60 mt-1 ml-5 font-mono">
                 {a.author} · {new Date(a.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
@@ -84,7 +84,7 @@ export default function TeachingAnnotation({ caseId, onClose }) {
             const CIcon = c.Icon;
             return (
               <button key={c.key} onClick={() => setCategory(c.key)}
-                className={`py-2 text-[10px] font-bold inline-flex items-center justify-center gap-1 ${
+                className={`py-2 text-3xs font-bold inline-flex items-center justify-center gap-1 ${
                   category === c.key ? 'ring-2 ring-info' : ''
                 } ${c.color} border`}
                 style={{ borderRadius: 'var(--radius-sm)' }}>
