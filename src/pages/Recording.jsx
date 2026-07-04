@@ -137,7 +137,7 @@ export default function Recording() {
       )}
 
       {/* Step Content */}
-      <div className="flex-1 flex items-start justify-center px-4 py-4 overflow-y-auto pb-20">
+      <div className="flex-1 flex items-start justify-center px-4 py-4 overflow-y-auto pb-[calc(96px+env(safe-area-inset-bottom,0px))]">
         <div className="w-full max-w-md">
           <StepRouter
             step={step}

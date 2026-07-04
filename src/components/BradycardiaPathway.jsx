@@ -70,7 +70,7 @@ export default function BradycardiaPathway({ onLog, onMonitor, onArrest, onReche
               <div className="grid grid-cols-3 gap-1">
                 {[{l:'👃 Cannula',v:'Nasal Cannula 3L'},{l:'😷 Mask',v:'Simple Mask 8L'},{l:'🎭 NRB',v:'NRB 15L'}].map(o=>(
                   <button key={o.l} onClick={()=>addEvent({elapsed,category:'airway',type:`🌬️ O₂: ${o.v}`,details:{}})}
-                    className="btn-action btn-ghost py-1 text-[8px] !min-h-[24px]">{o.l}</button>
+                    className="btn-action btn-ghost py-1 text-[9px] !min-h-[24px]">{o.l}</button>
                 ))}
               </div>
             </div>

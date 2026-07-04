@@ -503,9 +503,9 @@ function LabValue({ label, value, unit, low, high }) {
   const colorClass = isLow || isHigh ? 'text-danger font-bold' : 'text-text-primary';
   return (
     <div>
-      <div className="text-[8px] text-text-muted uppercase font-bold tracking-wider">{label}</div>
+      <div className="text-[9px] text-text-muted uppercase font-bold tracking-wider">{label}</div>
       <div className={`text-[12px] font-mono font-bold ${colorClass}`}>{value}</div>
-      <div className="text-[7px] text-text-muted">{unit}</div>
+      <div className="text-[9px] text-text-muted">{unit}</div>
     </div>
   );
 }

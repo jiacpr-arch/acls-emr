@@ -60,7 +60,7 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
                 value === a.key ? `${a.color} text-white` : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
               }`}>
               <div className="text-sm font-black">{a.key}</div>
-              <div className={`text-[8px] font-medium ${value === a.key ? 'opacity-90' : 'text-text-muted'}`}>{a.label}</div>
+              <div className={`text-[9px] font-medium ${value === a.key ? 'opacity-90' : 'text-text-muted'}`}>{a.label}</div>
             </button>
           ))}
         </div>
@@ -233,7 +233,7 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
               <div className="text-xs font-bold">{a.label}</div>
               <div className={`text-[10px] ${value === a.key ? 'opacity-80' : 'text-text-muted'}`}>{a.desc}</div>
             </div>
-            {!a.stable && <span className={`text-[8px] font-bold shrink-0 ${value === a.key ? 'opacity-80' : 'text-danger'}`}>⚠️</span>}
+            {!a.stable && <span className={`text-[9px] font-bold shrink-0 ${value === a.key ? 'opacity-80' : 'text-danger'}`}>⚠️</span>}
           </button>
         ))}
       </div>

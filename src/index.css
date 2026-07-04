@@ -809,8 +809,25 @@ button, [role="button"] {
   max-width: 32rem;
   margin: 0 auto;
   padding: 16px;
-  /* Clears the floating pill tab bar (≈74px) + safe-area inset + breathing room */
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  /* Clears the floating pill tab bar (≈76px) and the LINE float button
+     that sits above it (ends ≈118px up) + safe-area inset + breathing room */
+  padding-bottom: calc(128px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ===== FIXED ACTION BAR (exam prev/next ฯลฯ) =====
+   Full-width bar pinned just above the floating pill tab bar — the pill bar
+   occupies bottom 10px→~76px (+safe-area), so anchoring at 84px keeps the
+   buttons visible instead of hidden behind the tab bar. */
+.above-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+  z-index: 40;
+}
+/* Pair with .above-tab-bar: page padding tall enough for tab bar + action bar */
+.page-with-action-bar {
+  padding-bottom: calc(176px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ===== PANEL WRAPPER (modal/sheet) ===== */
@@ -886,15 +903,20 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
+/* Desktop bump applies to the base button only — the size variants
+   (.btn-sm/.btn-lg/.btn-xl/.btn-icon) keep their own scale; without the
+   :not() guards this rule is later in the sheet and silently inflates
+   every .btn-sm to 15px/50px on tablet & desktop. min-height (not height)
+   so two-line Thai labels never get clipped. */
 @media (min-width: 768px) {
-  .btn { font-size: 15px; }
+  .btn:not(.btn-sm):not(.btn-lg):not(.btn-xl):not(.btn-icon) { font-size: 15px; }
   .btn-action { font-size: 13px; }
   .grid-responsive { grid-template-columns: repeat(3, 1fr); }
   .bottom-pill-bar button { font-size: 11px; }
 }
 @media (min-width: 1024px) {
-  .btn { height: 50px; font-size: 15px; }
-  .btn-lg { height: 56px; }
+  .btn:not(.btn-sm):not(.btn-lg):not(.btn-xl):not(.btn-icon) { min-height: 50px; font-size: 15px; }
+  .btn-lg { min-height: 56px; }
   .grid-responsive { grid-template-columns: repeat(4, 1fr); }
 }
 
