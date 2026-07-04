@@ -103,7 +103,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'vitals') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Tachycardia — Quick Vitals</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-danger">Tachycardia — Quick Vitals</div>
         <div className="pathway-icon-tile bg-danger/12 text-danger"><TrendingUp size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">HR &gt; 150 — Enter Vitals</h1>
 
@@ -118,7 +118,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
           <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" alertLow={94} />
           {spo2 < 94 && (
             <div className="bg-danger/10 border border-danger/30 rounded-lg px-2 py-1.5 space-y-1">
-              <div className="text-[10px] text-danger font-bold">⚠️ SpO₂ {spo2}% — Give O₂</div>
+              <div className="text-3xs text-danger font-bold">⚠️ SpO₂ {spo2}% — Give O₂</div>
               <div className="grid grid-cols-3 gap-1">
                 {[{l:'👃 Cannula',v:'Nasal Cannula 3L'},{l:'😷 Mask',v:'Simple Mask 8L'},{l:'🎭 NRB',v:'NRB 15L'}].map(o=>(
                   <button key={o.l} onClick={()=>addEvent({elapsed,category:'airway',type:`🌬️ O₂: ${o.v}`,details:{}})}
@@ -151,7 +151,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'unstable_check') {
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Tachycardia Algorithm</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-danger">Tachycardia Algorithm</div>
         <div className="pathway-icon-tile bg-danger/12 text-danger"><TrendingUp size={32} strokeWidth={2.2} /></div>
         <h1 className="text-2xl font-black text-text-primary">Stable or Unstable?</h1>
 
@@ -211,7 +211,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
 
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
-        <div className={`text-[11px] font-extrabold uppercase tracking-[0.2em] ${isDefib ? 'text-danger' : 'text-shock'}`}>
+        <div className={`text-2xs font-extrabold uppercase tracking-[0.2em] ${isDefib ? 'text-danger' : 'text-shock'}`}>
           {headerLabel}
         </div>
         <div className={`pathway-icon-tile ${isDefib ? 'bg-danger/12 text-danger' : 'bg-shock/12 text-shock'}`}>
@@ -229,7 +229,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
 
         {/* STEP 1: Rhythm selector — clear cards */}
         <div className="glass-card !p-3 text-left">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2">
+          <div className="text-3xs font-extrabold uppercase tracking-wider text-text-muted mb-2">
             1. เลือก Rhythm ที่ตรงกับ EKG
           </div>
           <div className="grid grid-cols-1 gap-1.5">
@@ -262,10 +262,10 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
                     </span>
                     <span className="text-left">
                       <span className="text-xs font-bold block">{r.label}</span>
-                      <span className="text-[10px] opacity-75 font-normal block">{r.detail}</span>
+                      <span className="text-3xs opacity-75 font-normal block">{r.detail}</span>
                     </span>
                   </span>
-                  <span className="text-[10px] font-mono opacity-75 shrink-0">start {r.initial}J</span>
+                  <span className="text-3xs font-mono opacity-75 shrink-0">start {r.initial}J</span>
                 </button>
               );
             })}
@@ -275,11 +275,11 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
         {/* STEP 2: Energy ladder — escalating */}
         <div className="glass-card !p-3 text-left">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted">
+            <div className="text-3xs font-extrabold uppercase tracking-wider text-text-muted">
               2. Energy (Biphasic) — Shock #{cardioShockCount + 1}
             </div>
             {lastShockEnergy && (
-              <div className="text-[10px] text-text-muted font-mono">last: {lastShockEnergy}J ↑</div>
+              <div className="text-3xs text-text-muted font-mono">last: {lastShockEnergy}J ↑</div>
             )}
           </div>
           <div className="grid grid-cols-6 gap-1">
@@ -294,7 +294,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
                   key={j}
                   disabled={disabled}
                   onClick={() => setCardioversionEnergy(j)}
-                  className={`py-2.5 rounded-lg text-[11px] font-bold relative ${
+                  className={`py-2.5 rounded-lg text-2xs font-bold relative ${
                     disabled
                       ? 'bg-bg-tertiary/40 text-text-muted/40 cursor-not-allowed line-through'
                       : selected
@@ -312,7 +312,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
               );
             })}
           </div>
-          <div className="text-[10px] text-text-muted mt-1.5">
+          <div className="text-3xs text-text-muted mt-1.5">
             Max {defibMaxEnergy}J · {energyAllowed.length} steps · เครื่องบางรุ่นได้แค่ 200J (ตั้งใน Settings)
           </div>
         </div>
@@ -339,7 +339,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
         </div>
 
         {!cardioRhythm && (
-          <div className="text-[10px] text-text-muted">เลือก rhythm ก่อนถึงจะกด {actionLabel} ได้</div>
+          <div className="text-3xs text-text-muted">เลือก rhythm ก่อนถึงจะกด {actionLabel} ได้</div>
         )}
 
         <div className="text-xs text-text-muted font-semibold">Re-assess after {actionLabel.toLowerCase()} ↓</div>
@@ -360,7 +360,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'rhythm_select') {
     return (
       <div className="text-center space-y-4 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">Stable Tachycardia — ID Rhythm</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-info">Stable Tachycardia — ID Rhythm</div>
         <div className="pathway-icon-tile bg-info/12 text-info"><Activity size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">Select Rhythm Pattern</h1>
 
@@ -377,12 +377,12 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
               setPhase(r.key);
             }} className={`btn-action py-4 text-sm font-semibold ${r.color}`}>
               {r.label}
-              <div className="text-[10px] font-normal opacity-80 mt-1">{r.sub}</div>
+              <div className="text-3xs font-normal opacity-80 mt-1">{r.sub}</div>
             </button>
           ))}
         </div>
 
-        <div className="text-[10px] text-text-muted">Not sure? → Take EKG photo. Treat based on stability.</div>
+        <div className="text-3xs text-text-muted">Not sure? → Take EKG photo. Treat based on stability.</div>
         <button onClick={() => setPhase('unstable_check')} className="btn btn-ghost btn-sm">← Back to assessment</button>
       </div>
     );
@@ -392,14 +392,14 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'narrow_regular') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">SVT — Narrow Regular</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-info">SVT — Narrow Regular</div>
         <h1 className="text-xl font-black text-text-primary">SVT Treatment</h1>
 
         <div className="space-y-2">
           <button onClick={() => { onLog('other', '🫁 Vagal maneuver (Modified Valsalva)'); }}
             className="w-full btn-action btn-ghost py-3 text-sm font-semibold text-left px-4">
             <div>1. 🫁 Vagal Maneuver</div>
-            <div className="text-[10px] text-text-muted font-normal">Modified Valsalva: blow syringe 15s → lie flat + legs up 15s</div>
+            <div className="text-3xs text-text-muted font-normal">Modified Valsalva: blow syringe 15s → lie flat + legs up 15s</div>
           </button>
 
           <button onClick={() => {
@@ -407,7 +407,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
             onLog('drug', '💉 Adenosine 6mg rapid IV push', { drugId: 'adenosine_first', dose: '6 mg', route: 'IV', doseNumber: 1 });
           }} className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>2. 💉 Adenosine 6mg</div>
-            <div className="text-[10px] text-text-muted font-normal">Rapid push + flush 20ml simultaneously (3-way stopcock)</div>
+            <div className="text-3xs text-text-muted font-normal">Rapid push + flush 20ml simultaneously (3-way stopcock)</div>
           </button>
 
           <button onClick={() => {
@@ -415,13 +415,13 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
             onLog('drug', '💉 Adenosine 12mg rapid IV push', { drugId: 'adenosine_second', dose: '12 mg', route: 'IV' });
           }} className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>3. 💉 Adenosine 12mg (repeat)</div>
-            <div className="text-[10px] text-text-muted font-normal">Same technique. May repeat once.</div>
+            <div className="text-3xs text-text-muted font-normal">Same technique. May repeat once.</div>
           </button>
 
           <button onClick={() => onLog('drug', '💉 Diltiazem 15-20mg IV over 2min', { drugId: 'diltiazem', dose: '15-20 mg', route: 'IV' })}
             className="w-full btn-action btn-ghost py-3 text-sm font-semibold text-left px-4">
             <div>4. 💉 Diltiazem / Beta-blocker</div>
-            <div className="text-[10px] text-text-muted font-normal">If Adenosine fails</div>
+            <div className="text-3xs text-text-muted font-normal">If Adenosine fails</div>
           </button>
         </div>
 
@@ -440,24 +440,24 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'narrow_irregular') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">AF/Flutter — Rate Control</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-info">AF/Flutter — Rate Control</div>
         <h1 className="text-xl font-black text-text-primary">AF/Flutter Treatment</h1>
 
         <div className="space-y-2">
           <button onClick={() => onLog('drug', '💉 Diltiazem 15-20mg IV over 2min', { drugId: 'diltiazem', dose: '15-20 mg', route: 'IV' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Diltiazem 15-20mg IV</div>
-            <div className="text-[10px] text-text-muted font-normal">Over 2 min. Repeat 20-25mg after 15 min if needed.</div>
+            <div className="text-3xs text-text-muted font-normal">Over 2 min. Repeat 20-25mg after 15 min if needed.</div>
           </button>
           <button onClick={() => onLog('drug', '💉 Metoprolol 5mg IV q5min (max 15mg)', { dose: '5 mg', route: 'IV' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Metoprolol 5mg IV</div>
-            <div className="text-[10px] text-text-muted font-normal">q5min, max 15mg</div>
+            <div className="text-3xs text-text-muted font-normal">q5min, max 15mg</div>
           </button>
           <button onClick={() => onLog('drug', '💉 Amiodarone 150mg IV over 10min', { drugId: 'amiodarone_vt', dose: '150 mg', route: 'IV' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Amiodarone 150mg IV</div>
-            <div className="text-[10px] text-text-muted font-normal">150mg + D5W 100ml → drip 10 min</div>
+            <div className="text-3xs text-text-muted font-normal">150mg + D5W 100ml → drip 10 min</div>
           </button>
         </div>
 
@@ -478,19 +478,19 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'wide_regular') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-warning">Stable VT — Wide Regular</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-warning">Stable VT — Wide Regular</div>
         <h1 className="text-xl font-black text-text-primary">VT Treatment</h1>
 
         <div className="space-y-2">
           <button onClick={() => onLog('drug', '💉 Amiodarone 150mg + D5W 100ml drip 10min', { drugId: 'amiodarone_vt', dose: '150 mg', route: 'IV' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Amiodarone 150mg IV over 10min</div>
-            <div className="text-[10px] text-text-muted font-normal">150mg + D5W 100ml → drip 10 min. ⚠️ Do NOT rapid push (has pulse!)</div>
+            <div className="text-3xs text-text-muted font-normal">150mg + D5W 100ml → drip 10 min. ⚠️ Do NOT rapid push (has pulse!)</div>
           </button>
           <button onClick={() => onLog('drug', '💉 Amiodarone 150mg repeat', { drugId: 'amiodarone_vt', dose: '150 mg', route: 'IV', repeat: true })}
             className="w-full btn-action btn-ghost py-3 text-sm font-semibold text-left px-4">
             <div>💉 Amiodarone 150mg (repeat)</div>
-            <div className="text-[10px] text-text-muted font-normal">Maintenance: 1mg/min x 6hr → 0.5mg/min x 18hr</div>
+            <div className="text-3xs text-text-muted font-normal">Maintenance: 1mg/min x 6hr → 0.5mg/min x 18hr</div>
           </button>
         </div>
 
@@ -510,7 +510,7 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
   if (phase === 'wide_irregular') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Wide Irregular — Caution!</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-danger">Wide Irregular — Caution!</div>
         <h1 className="text-xl font-black text-text-primary">Wide Irregular Tachycardia</h1>
 
         <div className="bg-danger/10 border border-danger/30 rounded-xl px-3 py-2 text-xs text-danger font-semibold">
@@ -521,12 +521,12 @@ export default function TachycardiaPathway({ onLog, onMonitor, onArrest, onReche
           <button onClick={() => onLog('drug', '💉 Amiodarone 150mg IV over 10min (wide irregular)', { drugId: 'amiodarone_vt', dose: '150 mg', route: 'IV', context: 'wide_irregular' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 Amiodarone 150mg</div>
-            <div className="text-[10px] text-text-muted font-normal">Safe in WPW</div>
+            <div className="text-3xs text-text-muted font-normal">Safe in WPW</div>
           </button>
           <button onClick={() => onLog('drug', '💉 MgSO₄ 2g IV (Torsades)', { drugId: 'magnesium', dose: '2 g', route: 'IV', context: 'torsades' })}
             className="w-full btn-action btn-purple py-3 text-sm font-semibold text-left px-4">
             <div>💉 MgSO₄ 2g IV (if Torsades)</div>
-            <div className="text-[10px] text-text-muted font-normal">IV push over 1-2 min. Look for QT prolongation cause.</div>
+            <div className="text-3xs text-text-muted font-normal">IV push over 1-2 min. Look for QT prolongation cause.</div>
           </button>
         </div>
 

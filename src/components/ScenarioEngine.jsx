@@ -129,7 +129,7 @@ export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTake
             {isLearning ? <GraduationCap size={11} strokeWidth={2.4} /> : <Edit size={11} strokeWidth={2.4} />}
             {isLearning ? 'LEARNING' : 'EXAM'} · {scenario.title_th}
           </span>
-          <span className="text-[11px] font-mono font-bold bg-white/20 px-2 py-0.5"
+          <span className="text-2xs font-mono font-bold bg-white/20 px-2 py-0.5"
             style={{ borderRadius: 'var(--radius-sm)' }}>
             {currentStepIdx + 1}/{scenario.steps.length}
           </span>
@@ -140,7 +140,7 @@ export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTake
 
         {/* EKG indicator */}
         {currentStep.ekg && (
-          <div className="mt-2 px-3 py-1.5 bg-white/20 inline-flex items-center gap-1.5 text-[12px] font-bold"
+          <div className="mt-2 px-3 py-1.5 bg-white/20 inline-flex items-center gap-1.5 text-xs font-bold"
             style={{ borderRadius: 'var(--radius-sm)' }}>
             <Activity size={13} strokeWidth={2.4} /> EKG: {currentStep.ekg.toUpperCase()}
           </div>
@@ -148,7 +148,7 @@ export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTake
 
         {/* Learning hint */}
         {isLearning && currentStep.hint_th && (
-          <div className="mt-2 px-3 py-1.5 bg-white/15 inline-flex items-start gap-1.5 text-[11px] w-full"
+          <div className="mt-2 px-3 py-1.5 bg-white/15 inline-flex items-start gap-1.5 text-2xs w-full"
             style={{ borderRadius: 'var(--radius-sm)' }}>
             <Lightbulb size={12} strokeWidth={2.2} className="shrink-0 mt-0.5" /> {currentStep.hint_th}
           </div>
@@ -176,7 +176,7 @@ export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTake
 
       {/* Score (learning mode only) */}
       {isLearning && (
-        <div className="flex items-center justify-center gap-4 px-4 py-1.5 bg-bg-tertiary/50 text-[11px] text-text-muted font-mono">
+        <div className="flex items-center justify-center gap-4 px-4 py-1.5 bg-bg-tertiary/50 text-2xs text-text-muted font-mono">
           <span className="inline-flex items-center gap-1"><Check size={11} strokeWidth={2.4} className="text-success" /> {score.correct}</span>
           <span className="inline-flex items-center gap-1"><X size={11} strokeWidth={2.4} className="text-danger" /> {score.wrong}</span>
           <span>Avg: {score.reactions.length > 0 ? (score.reactions.reduce((a, b) => a + b, 0) / score.reactions.length).toFixed(1) : '—'}s</span>
@@ -231,7 +231,7 @@ export function StaffTakeover({ scenario, score, onRetry, onViewAnswer, onNext }
         <div className="dash-card !p-3 text-left">
           <div className="section-header">Review these topics</div>
           {scenario.steps.map((step, i) => (
-            <div key={i} className="text-[11px] text-text-secondary mb-1">
+            <div key={i} className="text-2xs text-text-secondary mb-1">
               {i + 1}. {step.hint_th || step.correctActions?.join(', ')}
             </div>
           ))}
@@ -258,7 +258,7 @@ function ScoreTile({ value, label, tone }) {
   return (
     <div className="bg-bg-primary p-2 text-center border border-border" style={{ borderRadius: 'var(--radius-sm)' }}>
       <div className={`text-numeric text-lg ${valueClass}`}>{value}</div>
-      <div className="text-[10px] text-text-muted font-semibold uppercase tracking-wide">{label}</div>
+      <div className="text-3xs text-text-muted font-semibold uppercase tracking-wide">{label}</div>
     </div>
   );
 }

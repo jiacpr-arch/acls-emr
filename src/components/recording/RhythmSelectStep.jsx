@@ -14,7 +14,7 @@ export default function RhythmSelectStep({ title, subtitle, phase, onSelect, sho
           <button key={r.id} onClick={() => onSelect(r)}
             className={`btn-action py-5 text-lg ${r.shockable ? 'btn-danger' : 'btn-warning'}`}>
             {r.abbreviation}
-            <div className="text-[10px] font-bold mt-1 opacity-80">{r.shockable ? '⚡ Shockable' : '→ CPR continue'}</div>
+            <div className="text-3xs font-bold mt-1 opacity-80">{r.shockable ? '⚡ Shockable' : '→ CPR continue'}</div>
           </button>
         ))}
       </div>

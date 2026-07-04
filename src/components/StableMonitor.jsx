@@ -67,7 +67,7 @@ export default function StableMonitor({ onRecheckPulse, onArrest, onDone, isTrai
           <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" alertLow={94} />
           {spo2 < 94 && (
             <div className="bg-danger/10 border border-danger/30 rounded-lg px-2 py-1.5 space-y-1">
-              <div className="text-[10px] text-danger font-bold">⚠️ SpO₂ {spo2}% — Give O₂</div>
+              <div className="text-3xs text-danger font-bold">⚠️ SpO₂ {spo2}% — Give O₂</div>
               <div className="grid grid-cols-3 gap-1">
                 {[{l:'👃 Cannula',v:'Nasal Cannula 3L'},{l:'😷 Mask',v:'Simple Mask 8L'},{l:'🎭 NRB',v:'NRB 15L'}].map(o=>(
                   <button key={o.l} onClick={()=>addEvent({elapsed,category:'airway',type:`🌬️ O₂: ${o.v}`,details:{}})}

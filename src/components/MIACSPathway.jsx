@@ -36,7 +36,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
   if (phase === 'initial') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">Acute Coronary Syndrome</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-danger">Acute Coronary Syndrome</div>
         <div className="pathway-icon-tile bg-danger/12 text-danger"><HeartPulse size={32} strokeWidth={2.2} /></div>
         <h1 className="text-xl font-black text-text-primary">ACS Assessment</h1>
 
@@ -80,7 +80,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
   if (phase === 'mona') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">ACS — Immediate Treatment</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-danger">ACS — Immediate Treatment</div>
         <h1 className="text-xl font-black text-text-primary">MONA Protocol + 12-Lead</h1>
 
         <div className="glass-card !p-3 text-left space-y-0.5">
@@ -131,7 +131,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
   if (phase === 'ecg_result') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-info">12-Lead ECG Result</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-info">12-Lead ECG Result</div>
         <h1 className="text-xl font-black text-text-primary">What does ECG show?</h1>
 
         <div className="grid grid-cols-1 gap-2.5">
@@ -141,7 +141,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
             setPhase('stemi');
           }} className="btn-action btn-danger py-4 text-sm font-bold text-left px-4">
             <div>🔴 STEMI</div>
-            <div className="text-[10px] font-normal opacity-80">ST elevation ≥1mm in ≥2 contiguous leads</div>
+            <div className="text-3xs font-normal opacity-80">ST elevation ≥1mm in ≥2 contiguous leads</div>
           </button>
 
           <button onClick={() => {
@@ -150,7 +150,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
             setPhase('nstemi');
           }} className="btn-action btn-warning py-4 text-sm font-bold text-left px-4">
             <div>🟡 NSTEMI / Unstable Angina</div>
-            <div className="text-[10px] font-normal opacity-80">ST depression, T inversion, or dynamic changes + Troponin</div>
+            <div className="text-3xs font-normal opacity-80">ST depression, T inversion, or dynamic changes + Troponin</div>
           </button>
 
           <button onClick={() => {
@@ -159,11 +159,11 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
             onMonitor();
           }} className="btn-action btn-success py-4 text-sm font-bold text-left px-4">
             <div>🟢 Normal / Non-diagnostic</div>
-            <div className="text-[10px] font-normal opacity-80">No acute changes — serial ECG + Troponin</div>
+            <div className="text-3xs font-normal opacity-80">No acute changes — serial ECG + Troponin</div>
           </button>
         </div>
 
-        <div className="text-[10px] text-text-muted">Not sure? Take photo → consult cardiology</div>
+        <div className="text-3xs text-text-muted">Not sure? Take photo → consult cardiology</div>
         <button onClick={onArrest} className="w-full btn-action btn-danger py-3 text-sm">🔴 No Pulse → CPR</button>
       </div>
     );
@@ -173,7 +173,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
   if (phase === 'stemi') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-danger">STEMI — Time Critical!</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-danger">STEMI — Time Critical!</div>
         <h1 className="text-xl font-black text-text-primary">STEMI Management</h1>
 
         {isTraining && (
@@ -186,7 +186,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
         {/* Door to Balloon timer */}
         {d2bStart && (
           <div className="glass-card !p-2 text-center">
-            <div className="text-[10px] text-text-muted">Door-to-Balloon</div>
+            <div className="text-3xs text-text-muted">Door-to-Balloon</div>
             <div className={`text-xl font-mono font-black ${
               (elapsed - d2bStart) > 5400 ? 'text-danger' : 'text-info'
             }`}>
@@ -252,13 +252,13 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
   if (phase === 'fibrinolytic') {
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-warning">Fibrinolytic Therapy</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-warning">Fibrinolytic Therapy</div>
         <h1 className="text-xl font-black text-text-primary">tPA / Tenecteplase Criteria</h1>
 
         {/* D2N timer */}
         {d2nStart && (
           <div className="glass-card !p-2 text-center">
-            <div className="text-[10px] text-text-muted">Door-to-Needle</div>
+            <div className="text-3xs text-text-muted">Door-to-Needle</div>
             <div className={`text-xl font-mono font-black ${
               (elapsed - d2nStart) > 1800 ? 'text-danger' : 'text-success'
             }`}>
@@ -301,7 +301,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
           💉 Give Fibrinolytic (Tenecteplase)
         </button>
 
-        <div className="glass-card !p-2 text-left text-[10px] text-text-secondary">
+        <div className="glass-card !p-2 text-left text-3xs text-text-secondary">
           <div className="font-bold text-text-primary mb-1">Tenecteplase dosing:</div>
           <div>&lt;60kg=30mg | 60-69=35mg | 70-79=40mg | 80-89=45mg | ≥90=50mg</div>
           <div className="mt-1">Single IV bolus over 5 sec</div>
@@ -321,7 +321,7 @@ export default function MIACSPathway({ onLog, onMonitor, onArrest, onRecheckPuls
 
     return (
       <div className="text-center space-y-3 animate-slide-up px-2">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-warning">NSTEMI / Unstable Angina</div>
+        <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-warning">NSTEMI / Unstable Angina</div>
         <h1 className="text-xl font-black text-text-primary">Risk Stratification</h1>
 
         {/* TIMI Score */}

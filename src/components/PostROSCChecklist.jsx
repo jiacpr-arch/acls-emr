@@ -80,7 +80,7 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
 
   return (
     <div className="text-center space-y-3 animate-slide-up px-2">
-      <div className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-success">Post-ROSC Care</div>
+      <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-success">Post-ROSC Care</div>
       <h1 className="text-xl font-black text-text-primary">💚 ROSC — Complete Checklist</h1>
 
       {/* Progress bar */}
@@ -100,12 +100,12 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
         <Check id="airway_secure" label="Secure airway — confirm ETT position" sub="EtCO₂ waveform + auscultation + CXR" />
         <ScrollPicker label="SpO₂" value={spo2} onChange={setSpo2} min={50} max={100} step={1} unit="%" targetLow={92} targetHigh={98} alertLow={92} />
         {spo2 < 92 && (
-          <div className="bg-danger/10 border border-danger/30 rounded-lg px-2 py-1.5 text-[10px] text-danger font-bold">
+          <div className="bg-danger/10 border border-danger/30 rounded-lg px-2 py-1.5 text-3xs text-danger font-bold">
             ⚠️ SpO₂ &lt;92% — Increase FiO₂ / check airway
           </div>
         )}
         {spo2 > 98 && (
-          <div className="bg-warning/10 border border-warning/30 rounded-lg px-2 py-1.5 text-[10px] text-warning font-bold">
+          <div className="bg-warning/10 border border-warning/30 rounded-lg px-2 py-1.5 text-3xs text-warning font-bold">
             ⚠️ SpO₂ &gt;98% — Reduce FiO₂ (hyperoxia harmful)
           </div>
         )}
@@ -140,31 +140,31 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
         <div className="text-xs font-semibold text-text-muted mt-2 mb-1">Rhythm Result → May need further treatment:</div>
         <div className="grid grid-cols-2 gap-1.5">
           <button onClick={() => { toggleCheck('rhythm_nsr', 'Rhythm: NSR'); }}
-            className={`py-2 rounded-lg text-[10px] font-bold ${checklist.rhythm_nsr ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+            className={`py-2 rounded-lg text-3xs font-bold ${checklist.rhythm_nsr ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
             ✅ Normal Sinus
           </button>
           {onBrady && (
             <button onClick={() => { addEvent({ elapsed, category: 'rhythm', type: '🐢 Post-ROSC: Bradycardia', details: {} }); onBrady(); }}
-              className="py-2 rounded-lg text-[10px] font-bold bg-warning/10 border border-warning/30 text-warning">
+              className="py-2 rounded-lg text-3xs font-bold bg-warning/10 border border-warning/30 text-warning">
               🐢 Bradycardia → Treat
             </button>
           )}
           {onTachy && (
             <button onClick={() => { addEvent({ elapsed, category: 'rhythm', type: '🐇 Post-ROSC: Tachycardia', details: {} }); onTachy(); }}
-              className="py-2 rounded-lg text-[10px] font-bold bg-danger/10 border border-danger/30 text-danger">
+              className="py-2 rounded-lg text-3xs font-bold bg-danger/10 border border-danger/30 text-danger">
               🐇 Tachycardia → Treat
             </button>
           )}
           {onMI && (
             <button onClick={() => { addEvent({ elapsed, category: 'rhythm', type: '🫀 Post-ROSC: STEMI', details: {} }); onMI(); }}
-              className="py-2 rounded-lg text-[10px] font-bold bg-danger/10 border border-danger/30 text-danger">
+              className="py-2 rounded-lg text-3xs font-bold bg-danger/10 border border-danger/30 text-danger">
               🫀 STEMI → Cath Lab
             </button>
           )}
         </div>
         {onArrest && (
           <button onClick={() => { addEvent({ elapsed, category: 'other', type: '🔴 Re-arrest!', details: {} }); onArrest(); }}
-            className="w-full py-2 rounded-lg text-[10px] font-bold bg-danger text-white mt-1">
+            className="w-full py-2 rounded-lg text-3xs font-bold bg-danger text-white mt-1">
             🔴 Re-arrest → CPR
           </button>
         )}
@@ -273,7 +273,7 @@ function TrainingScorecard({ events }) {
       {metrics.map((m, i) => (
         <div key={i} className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg ${ratingBg[m.rating]}`}>
           <div>
-            <div className="text-[10px] font-semibold text-text-primary">{m.name}</div>
+            <div className="text-3xs font-semibold text-text-primary">{m.name}</div>
             <div className="text-[9px] text-text-muted">Target: {m.target}</div>
           </div>
           <div className={`font-mono font-bold text-xs ${ratingColors[m.rating]}`}>{m.label}</div>

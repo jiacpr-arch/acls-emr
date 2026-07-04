@@ -28,7 +28,7 @@ export default function TimerBar({ onToggleLog, showLog, isTraining, currentStep
           /* CPR mode — show cycle timer */
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-text-muted font-medium">Cycle {cycleNumber}</span>
+              <span className="text-3xs text-text-muted font-medium">Cycle {cycleNumber}</span>
               <span className={`badge ${cprActive ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'}`}>
                 {cprActive ? <HeartPulse size={11} strokeWidth={2.4} /> : <Pause size={11} strokeWidth={2.4} />}
                 {cprActive ? 'CPR' : 'PAUSE'} · {formatTime(cycleRemaining)}
@@ -48,7 +48,7 @@ export default function TimerBar({ onToggleLog, showLog, isTraining, currentStep
                 const due = rem <= 0;
                 return (
                   <div key={t.id} className="flex items-center justify-between">
-                    <span className="text-[10px] text-text-muted font-medium truncate inline-flex items-center gap-1">
+                    <span className="text-3xs text-text-muted font-medium truncate inline-flex items-center gap-1">
                       <Pill size={11} strokeWidth={2.2} /> {t.drugName}
                     </span>
                     <span className={`badge ${due ? 'bg-danger/15 text-danger animate-pulse' : 'bg-purple/15 text-purple'}`}>
@@ -58,7 +58,7 @@ export default function TimerBar({ onToggleLog, showLog, isTraining, currentStep
                 );
               })
             ) : (
-              <div className="text-[10px] text-text-muted">Recording...</div>
+              <div className="text-3xs text-text-muted">Recording...</div>
             )}
           </div>
         )}

@@ -23,8 +23,8 @@ function Column({ letter, tone, causes }) {
           <div key={i} className="bg-bg-primary border border-border p-2.5"
             style={{ borderRadius: 'var(--radius-sm)' }}>
             <div className="text-caption font-bold text-text-primary">{cause.name}</div>
-            <div className="text-[10px] text-text-muted mt-0.5">{cause.signs}</div>
-            <div className={`text-[10px] mt-0.5 font-medium ${labelClass}`}>Tx: {cause.treatment}</div>
+            <div className="text-3xs text-text-muted mt-0.5">{cause.signs}</div>
+            <div className={`text-3xs mt-0.5 font-medium ${labelClass}`}>Tx: {cause.treatment}</div>
           </div>
         ))}
       </div>

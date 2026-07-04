@@ -59,7 +59,7 @@ export default function EventTimeline() {
               </div>
               <div className="text-right shrink-0">
                 <div className="text-xs font-mono text-text-secondary">{formatElapsed(event.elapsed)}</div>
-                <div className="text-[10px] text-text-muted">{formatClock(new Date(event.timestamp))}</div>
+                <div className="text-3xs text-text-muted">{formatClock(new Date(event.timestamp))}</div>
               </div>
             </div>
           );

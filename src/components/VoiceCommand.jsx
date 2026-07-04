@@ -93,7 +93,7 @@ export default function VoiceCommand({ onCommand }) {
   return (
     <div className="flex items-center gap-2">
       <button onClick={toggleListening}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-3xs font-bold transition-all ${
           listening
             ? 'bg-danger text-white animate-pulse shadow-lg'
             : 'bg-bg-primary border border-bg-tertiary text-text-muted'

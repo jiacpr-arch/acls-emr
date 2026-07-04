@@ -251,14 +251,14 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
       {teamMessages.length > 0 && (
         <div className="px-3 py-1.5 bg-bg-tertiary/30 space-y-1 max-h-[60px] overflow-hidden">
           {teamMessages.slice(0, 2).map((msg, i) => (
-            <div key={i} className="text-[10px] text-text-secondary">💬 {msg}</div>
+            <div key={i} className="text-3xs text-text-secondary">💬 {msg}</div>
           ))}
         </div>
       )}
 
       {/* Learning hint */}
       {isLearning && currentStep.hint_th && (
-        <div className="px-3 py-1.5 bg-blue-50 text-[11px] text-blue-700">
+        <div className="px-3 py-1.5 bg-blue-50 text-2xs text-blue-700">
           💡 {currentStep.hint_th}
         </div>
       )}
@@ -274,7 +274,7 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
 
       {/* Score bar (learning only) */}
       {isLearning && (
-        <div className="flex items-center justify-center gap-4 px-4 py-1 bg-bg-tertiary/30 text-[10px] text-text-muted">
+        <div className="flex items-center justify-center gap-4 px-4 py-1 bg-bg-tertiary/30 text-3xs text-text-muted">
           <span>✅ {score.correct}</span>
           <span>❌ {score.wrong}</span>
           <span>Avg: {score.reactions.length > 0 ? (score.reactions.reduce((a, b) => a + b, 0) / score.reactions.length).toFixed(1) : '-'}s</span>

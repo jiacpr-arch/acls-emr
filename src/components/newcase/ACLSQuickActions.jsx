@@ -58,10 +58,10 @@ export default function ACLSQuickActions({ onStart, disabled }) {
               <Icon size={28} strokeWidth={2.4} />
             </div>
             <div className="mt-4">
-              <div className="text-[16px] font-bold text-text-primary leading-tight">
+              <div className="text-base font-bold text-text-primary leading-tight">
                 {t.label}
               </div>
-              <div className="text-[12px] text-text-muted mt-2">{t.sub}</div>
+              <div className="text-xs text-text-muted mt-2">{t.sub}</div>
             </div>
           </button>
         );

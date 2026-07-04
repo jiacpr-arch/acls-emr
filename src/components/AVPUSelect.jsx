@@ -65,9 +65,9 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
           ))}
         </div>
         {value && !levels.find(l => l.key === value)?.stable && (
-          <div className="text-[10px] text-danger font-bold mt-1">⚠️ Altered consciousness — Unstable</div>
+          <div className="text-3xs text-danger font-bold mt-1">⚠️ Altered consciousness — Unstable</div>
         )}
-        {value === 'A' && <div className="text-[10px] text-success font-bold mt-1">✅ Alert — GCS 15</div>}
+        {value === 'A' && <div className="text-3xs text-success font-bold mt-1">✅ Alert — GCS 15</div>}
       </div>
     );
   }
@@ -80,7 +80,7 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
           <div className="text-xs font-bold text-text-primary">
             AVPU: {value} — Detail Assessment
           </div>
-          <button onClick={saveDetail} className="btn-action btn-info px-3 py-1 text-[10px] !min-h-[28px]">Save</button>
+          <button onClick={saveDetail} className="btn-action btn-info px-3 py-1 text-3xs !min-h-[28px]">Save</button>
         </div>
 
         {/* GCS */}
@@ -102,7 +102,7 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
             <div className="text-xs text-danger font-semibold">GCS 3 — No response (auto-set)</div>
           )}
           {gcsTotal <= 8 && (
-            <div className="text-[10px] text-danger font-bold">⚠️ GCS ≤8 — Cannot protect airway → Intubation needed</div>
+            <div className="text-3xs text-danger font-bold">⚠️ GCS ≤8 — Cannot protect airway → Intubation needed</div>
           )}
         </div>
 
@@ -111,36 +111,36 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
           <div className="text-xs font-semibold text-text-muted">Pupil Assessment</div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="text-[10px] text-text-muted mb-1">Left</div>
+              <div className="text-3xs text-text-muted mb-1">Left</div>
               <ScrollPicker label="Size" value={pupilL} onChange={setPupilL} min={1} max={8} step={1} unit="mm" />
               <div className="flex gap-1.5 mt-1">
                 <button onClick={() => setPupilLReactive(true)}
-                  className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${pupilLReactive ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                  className={`flex-1 py-1.5 rounded-full text-3xs font-bold ${pupilLReactive ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
                   Reactive
                 </button>
                 <button onClick={() => setPupilLReactive(false)}
-                  className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${!pupilLReactive ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                  className={`flex-1 py-1.5 rounded-full text-3xs font-bold ${!pupilLReactive ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
                   Fixed
                 </button>
               </div>
             </div>
             <div>
-              <div className="text-[10px] text-text-muted mb-1">Right</div>
+              <div className="text-3xs text-text-muted mb-1">Right</div>
               <ScrollPicker label="Size" value={pupilR} onChange={setPupilR} min={1} max={8} step={1} unit="mm" />
               <div className="flex gap-1.5 mt-1">
                 <button onClick={() => setPupilRReactive(true)}
-                  className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${pupilRReactive ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                  className={`flex-1 py-1.5 rounded-full text-3xs font-bold ${pupilRReactive ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
                   Reactive
                 </button>
                 <button onClick={() => setPupilRReactive(false)}
-                  className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${!pupilRReactive ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
+                  className={`flex-1 py-1.5 rounded-full text-3xs font-bold ${!pupilRReactive ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>
                   Fixed
                 </button>
               </div>
             </div>
           </div>
           {!pupilLReactive && !pupilRReactive && (
-            <div className="text-[10px] text-danger font-bold">⚠️ Bilateral fixed dilated — Poor prognosis</div>
+            <div className="text-3xs text-danger font-bold">⚠️ Bilateral fixed dilated — Poor prognosis</div>
           )}
         </div>
 
@@ -156,7 +156,7 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
                 { key: 'extension', label: 'Extension', gcsM: 2 },
               ].map(m => (
                 <button key={m.key} onClick={() => { setMotorType(m.key); setGcsM(m.gcsM); }}
-                  className={`py-2 rounded-lg text-[10px] font-semibold ${
+                  className={`py-2 rounded-lg text-3xs font-semibold ${
                     motorType === m.key ? 'bg-shock text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'
                   }`}>{m.label}</button>
               ))}
@@ -170,26 +170,26 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
             <div className="text-xs font-semibold text-text-muted">Breathing & Airway</div>
             <div className="flex gap-2">
               <div className="flex-1">
-                <div className="text-[10px] text-text-muted mb-1">Breathing self?</div>
+                <div className="text-3xs text-text-muted mb-1">Breathing self?</div>
                 <div className="flex gap-1.5">
                   <button onClick={() => setBreathingSelf(true)}
-                    className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${breathingSelf === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>Yes</button>
+                    className={`flex-1 py-1.5 rounded-full text-3xs font-bold ${breathingSelf === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>Yes</button>
                   <button onClick={() => setBreathingSelf(false)}
-                    className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${breathingSelf === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>No</button>
+                    className={`flex-1 py-1.5 rounded-full text-3xs font-bold ${breathingSelf === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>No</button>
                 </div>
               </div>
               <div className="flex-1">
-                <div className="text-[10px] text-text-muted mb-1">Airway safe?</div>
+                <div className="text-3xs text-text-muted mb-1">Airway safe?</div>
                 <div className="flex gap-1.5">
                   <button onClick={() => setAirwaySafe(true)}
-                    className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${airwaySafe === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>Yes</button>
+                    className={`flex-1 py-1.5 rounded-full text-3xs font-bold ${airwaySafe === true ? 'bg-success text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>Yes</button>
                   <button onClick={() => setAirwaySafe(false)}
-                    className={`flex-1 py-1.5 rounded-full text-[10px] font-bold ${airwaySafe === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>No</button>
+                    className={`flex-1 py-1.5 rounded-full text-3xs font-bold ${airwaySafe === false ? 'bg-danger text-white' : 'bg-bg-primary border border-bg-tertiary text-text-secondary'}`}>No</button>
                 </div>
               </div>
             </div>
             {airwaySafe === false && (
-              <div className="text-[10px] text-danger font-bold">⚠️ Airway not safe — Secure airway NOW</div>
+              <div className="text-3xs text-danger font-bold">⚠️ Airway not safe — Secure airway NOW</div>
             )}
           </div>
         )}
@@ -201,7 +201,7 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
             <div className="grid grid-cols-3 gap-1.5">
               {['person', 'place', 'time'].map(o => (
                 <button key={o} onClick={() => setOriented(prev => ({ ...prev, [o]: !prev[o] }))}
-                  className={`py-2 rounded-lg text-[10px] font-semibold capitalize ${
+                  className={`py-2 rounded-lg text-3xs font-semibold capitalize ${
                     oriented[o] ? 'bg-success text-white' : 'bg-danger/10 text-danger border border-danger/30'
                   }`}>{o}</button>
               ))}
@@ -221,7 +221,7 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
   return (
     <div>
       <div className="text-xs text-text-muted font-semibold mb-1">Consciousness Assessment</div>
-      <div className="text-[10px] text-text-secondary mb-2">Call patient's name → check response:</div>
+      <div className="text-3xs text-text-secondary mb-2">Call patient's name → check response:</div>
       <div className="space-y-1.5">
         {levels.map(a => (
           <button key={a.key} onClick={() => handleSelect(a.key)}
@@ -231,13 +231,13 @@ export default function AVPUSelect({ value, onChange, compact = false, onDetailS
             <span className="text-xl font-black w-8 text-center shrink-0">{a.key}</span>
             <div className="flex-1">
               <div className="text-xs font-bold">{a.label}</div>
-              <div className={`text-[10px] ${value === a.key ? 'opacity-80' : 'text-text-muted'}`}>{a.desc}</div>
+              <div className={`text-3xs ${value === a.key ? 'opacity-80' : 'text-text-muted'}`}>{a.desc}</div>
             </div>
             {!a.stable && <span className={`text-[9px] font-bold shrink-0 ${value === a.key ? 'opacity-80' : 'text-danger'}`}>⚠️</span>}
           </button>
         ))}
       </div>
-      {value === 'A' && <div className="text-[10px] text-success font-bold mt-1">✅ Alert — GCS 15</div>}
+      {value === 'A' && <div className="text-3xs text-success font-bold mt-1">✅ Alert — GCS 15</div>}
     </div>
   );
 }

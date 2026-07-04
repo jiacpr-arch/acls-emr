@@ -58,19 +58,19 @@ export default function ACLSHero({ isClinical }) {
           <HeartPulse size={28} strokeWidth={2.4} className="text-white animate-heartbeat" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-white/80">
+          <div className="text-2xs font-bold uppercase tracking-wider text-white/80">
             Advanced Cardiac Life Support
           </div>
-          <h1 className="text-[20px] font-extrabold leading-tight tracking-tight">
+          <h1 className="text-xl font-extrabold leading-tight tracking-tight">
             ACLS EMR
           </h1>
-          <div className="inline-flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-white/85">
+          <div className="inline-flex items-center gap-1.5 mt-1 text-2xs font-semibold text-white/85">
             <ShieldCheck size={12} strokeWidth={2.6} />
             ILCOR 2025 · Code Blue Recording
           </div>
         </div>
         <div
-          className="hidden xs:inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shrink-0"
+          className="hidden xs:inline-flex items-center gap-1.5 px-2.5 py-1 text-3xs font-bold uppercase tracking-wider text-white shrink-0"
           style={{
             background: 'rgba(0,0,0,0.18)',
             border: '1px solid rgba(255,255,255,0.28)',

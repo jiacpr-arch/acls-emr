@@ -57,7 +57,7 @@ export default function DrugStep({ onDone, isTraining }) {
         <button onClick={() => give('Epinephrine 1mg IV (1:10,000)', 'epinephrine_arrest', true, 180)}
           className="w-full btn-action btn-purple py-3.5 text-sm text-left px-4">
           <div className="flex items-center justify-between">
-            <div><div className="font-bold">💉 Epinephrine 1mg IV</div><div className="text-[10px] font-normal opacity-80">1:10,000 → push fast → flush 20ml → q3-5 min</div></div>
+            <div><div className="font-bold">💉 Epinephrine 1mg IV</div><div className="text-3xs font-normal opacity-80">1:10,000 → push fast → flush 20ml → q3-5 min</div></div>
             <button onClick={(e) => { e.stopPropagation(); setShowTech('epinephrine_arrest'); }} className="text-[9px] underline opacity-60 shrink-0 ml-2">how?</button>
           </div>
         </button>
@@ -65,7 +65,7 @@ export default function DrugStep({ onDone, isTraining }) {
           <button onClick={() => give('Amiodarone 300mg IV', 'amiodarone_first')}
             className={`w-full btn-action py-3.5 text-sm text-left px-4 ${shockCount >= 3 ? 'btn-info' : 'btn-ghost'}`}>
             <div className="flex items-center justify-between">
-              <div><div className="font-bold">💊 Amiodarone 300mg {shockCount >= 3 && '← recommended'}</div><div className="text-[10px] font-normal opacity-80">+D5W 4ml → push 1-3min → flush NSS 20ml</div></div>
+              <div><div className="font-bold">💊 Amiodarone 300mg {shockCount >= 3 && '← recommended'}</div><div className="text-3xs font-normal opacity-80">+D5W 4ml → push 1-3min → flush NSS 20ml</div></div>
               <button onClick={(e) => { e.stopPropagation(); setShowTech('amiodarone_first'); }} className="text-[9px] underline opacity-60 shrink-0 ml-2">how?</button>
             </div>
           </button>
@@ -73,7 +73,7 @@ export default function DrugStep({ onDone, isTraining }) {
       </div>
       <div className="grid grid-cols-3 gap-2">
         {QUICK_DRUGS.map(d => (
-          <button key={d.id} className="btn-action btn-ghost py-2.5 text-[10px] relative"
+          <button key={d.id} className="btn-action btn-ghost py-2.5 text-3xs relative"
             onClick={() => give(`${d.label} (${d.detail})`, d.id)}>
             <div className="font-semibold">{d.label}</div>
             <div className="text-[9px] text-text-muted">{d.detail}</div>

@@ -93,7 +93,7 @@ export default function AirwayPanel({ onClose }) {
       <div className="space-y-2">
         <button onClick={() => logDevice('BVM + O₂')} className="btn btn-info btn-xl btn-block">
           <Wind size={18} strokeWidth={2.4} /> BVM + O₂
-          <span className="text-[11px] font-normal opacity-80 ml-1">Basic — easiest first</span>
+          <span className="text-2xs font-normal opacity-80 ml-1">Basic — easiest first</span>
         </button>
         <div className="grid grid-cols-2 gap-2">
           <button onClick={() => logDevice('SGA (LMA/i-gel)')} className="btn btn-ghost btn-lg btn-block">

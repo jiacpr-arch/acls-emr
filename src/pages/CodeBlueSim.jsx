@@ -33,7 +33,7 @@ function EcgMonitor({ rhythm, hr, bp, spo2, etco2 }) {
   return (
     <div className="bg-black border-2 border-text-primary p-2">
       <div className="flex items-center justify-between mb-1">
-        <div className="text-[10px] font-mono text-green-400 font-bold">ECG · {rhythm.toUpperCase()}</div>
+        <div className="text-3xs font-mono text-green-400 font-bold">ECG · {rhythm.toUpperCase()}</div>
         <div className="text-[9px] font-mono text-green-400">PT MONITOR</div>
       </div>
       <svg viewBox="0 0 600 60" className="w-full" style={{ height: 50, background: '#040810' }}>
@@ -120,7 +120,7 @@ function TeamMember({ role, active, label, status }) {
           </>}
         </svg>
       </div>
-      <div className={`text-[10px] font-black px-1 ${active ? 'bg-info text-white' : 'text-text-primary'}`}>{label}</div>
+      <div className={`text-3xs font-black px-1 ${active ? 'bg-info text-white' : 'text-text-primary'}`}>{label}</div>
       {status && <div className="text-[9px] font-mono font-bold text-success bg-success/10 px-1 border border-success">{status}</div>}
     </div>
   );
@@ -342,7 +342,7 @@ export default function CodeBlueSim() {
             <TeamMember role="defib" active={false} label="Defib"/>
             <TeamMember role="leader" active={false} label="You (Leader)"/>
           </div>
-          <div className="text-[11px] text-text-secondary leading-relaxed pt-2 border-t border-text-primary space-y-0.5">
+          <div className="text-2xs text-text-secondary leading-relaxed pt-2 border-t border-text-primary space-y-0.5">
             <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>เลือกคำสั่งให้ทีมทำ — แต่ละคำสั่งมีตำแหน่งเป้าหมาย</span></div>
             <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>ตอบถูก: +15 <Star size={10} strokeWidth={2.4} className="inline align-text-bottom text-warning" fill="currentColor" /> (โบนัสเวลา + คอมโบ)</span></div>
             <div className="flex items-start gap-1.5"><span className="text-info shrink-0">•</span><span>ตอบผิด/หมดเวลา: -5 <Star size={10} strokeWidth={2.4} className="inline align-text-bottom text-warning" fill="currentColor" /> และผู้ป่วยอาจแย่ลง</span></div>
@@ -418,7 +418,7 @@ export default function CodeBlueSim() {
   return (
     <div className="page-container space-y-2 pb-28">
       {/* Top bar */}
-      <div className="bg-bg-secondary border-2 border-text-primary p-2 flex items-center gap-2 text-[11px] font-bold">
+      <div className="bg-bg-secondary border-2 border-text-primary p-2 flex items-center gap-2 text-2xs font-bold">
         <span className="text-info">Step {stepIdx + 1}/{scenario.steps.length}</span>
         <span className="text-warning ml-auto inline-flex items-center gap-1">
           <Star size={11} strokeWidth={2.4} fill="currentColor" /> {score}
@@ -489,7 +489,7 @@ export default function CodeBlueSim() {
           {step.commands.map((cmd, i) => (
             <button key={i} onClick={() => handlePick(cmd)}
               className="w-full p-2 text-left border-2 border-text-primary bg-bg-secondary hover:bg-bg-tertiary flex items-center gap-2 transition-colors">
-              <span className="text-[10px] font-black px-1.5 py-0.5 border-2 border-current inline-flex items-center gap-1"
+              <span className="text-3xs font-black px-1.5 py-0.5 border-2 border-current inline-flex items-center gap-1"
                     style={{ color: roleColor(cmd.target) }}>
                 <ChevronRight size={10} strokeWidth={2.6} /> {roleLabel(cmd.target)}
               </span>

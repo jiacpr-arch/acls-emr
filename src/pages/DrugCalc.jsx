@@ -54,7 +54,7 @@ export default function DrugCalc() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-caption font-bold text-text-primary">{c.name}</div>
-              <div className="text-[10px] text-text-muted leading-relaxed">{c.note}</div>
+              <div className="text-3xs text-text-muted leading-relaxed">{c.note}</div>
             </div>
             <div className={`text-numeric text-base shrink-0 ${c.calc ? 'text-info' : 'text-text-primary'}`}>
               {c.dose}
@@ -66,7 +66,7 @@ export default function DrugCalc() {
       <div className="flex items-start gap-2 p-3 bg-warning/8 border border-warning/30"
         style={{ borderRadius: 'var(--radius-md)' }}>
         <AlertTriangle size={14} strokeWidth={2.2} className="text-warning shrink-0 mt-0.5" />
-        <div className="text-[11px] text-text-secondary leading-relaxed">
+        <div className="text-2xs text-text-secondary leading-relaxed">
           Drip calculations based on standard mixing. <span className="font-bold text-text-primary">Verify before administration.</span>
         </div>
       </div>

@@ -174,7 +174,7 @@ export default function Dashboard() {
                     <div className="text-caption text-text-muted truncate mt-0.5">
                       {c.patient?.name || 'No patient info'} · {c.patient?.initialRhythm || 'N/A'}
                     </div>
-                    <div className="text-[10px] text-text-muted font-mono mt-0.5">
+                    <div className="text-3xs text-text-muted font-mono mt-0.5">
                       {new Date(c.startTime).toLocaleDateString('th-TH')}
                     </div>
                   </div>
@@ -296,7 +296,7 @@ function CaseDetail({ data }) {
           <div className="dash-card !p-3">
             <div className="text-overline">Code Summary</div>
             <div className="text-numeric text-2xl text-text-primary mt-0.5">{duration ? formatTimeLong(duration) : '—'}</div>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-text-muted mt-1.5 font-mono">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-2xs text-text-muted mt-1.5 font-mono">
               <span>Start: {data.startTime ? new Date(data.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
               <span>End: {data.endTime ? new Date(data.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
               <span className={`font-bold ${data.outcome === 'ROSC' ? 'text-success' : 'text-danger'}`}>{data.outcome?.toUpperCase()}</span>
@@ -306,17 +306,17 @@ function CaseDetail({ data }) {
           {/* Stats */}
           <div className="grid grid-cols-2 gap-2">
             <DetailStat label="Compressions" value={data.cycleNumber || '—'} unit="cycles" extra={
-              <span className={`text-[11px] font-mono font-bold ${
+              <span className={`text-2xs font-mono font-bold ${
                 (data.ccf || 0) >= 80 ? 'text-success' : (data.ccf || 0) >= 60 ? 'text-warning' : 'text-danger'
               }`}>{data.ccf || 0}% CCF</span>
             } />
             <DetailStat label="Epinephrine" value={epiEvents.length} unit="doses" extra={
-              firstEpi ? <span className="text-[10px] text-text-muted">First: {formatElapsed(firstEpi.elapsed)}</span> : null
+              firstEpi ? <span className="text-3xs text-text-muted">First: {formatElapsed(firstEpi.elapsed)}</span> : null
             } />
             <DetailStat label="Rhythm" value={
               <span className="text-sm">{lastRhythm?.type?.replace('Rhythm: ', '') || data.patient?.initialRhythm || '—'}</span>
             } unit={`Initial: ${data.patient?.initialRhythm || '—'}`} extra={
-              <span className="text-[10px] text-text-muted">Shocks: {shockEvents.length}</span>
+              <span className="text-3xs text-text-muted">Shocks: {shockEvents.length}</span>
             } />
             <DetailStat label="Patient" value={
               data.patient?.name ? <span className="text-sm truncate block">{data.patient.name}</span> : '—'
@@ -330,18 +330,18 @@ function CaseDetail({ data }) {
               <div className="space-y-1.5">
                 {Object.entries(drugGroups).map(([name, evts]) => (
                   <div key={name} className="flex items-start gap-2">
-                    <span className="text-[11px] font-bold text-text-primary min-w-[80px] shrink-0">{name}</span>
+                    <span className="text-2xs font-bold text-text-primary min-w-[80px] shrink-0">{name}</span>
                     <div className="flex-1">
                       <div className="flex flex-wrap gap-1">
                         {evts.slice().reverse().map((e, i) => (
-                          <span key={i} className="text-[10px] font-mono bg-bg-tertiary px-1.5 py-0.5 text-text-secondary"
+                          <span key={i} className="text-3xs font-mono bg-bg-tertiary px-1.5 py-0.5 text-text-secondary"
                             style={{ borderRadius: 'var(--radius-sm)' }}>
                             {formatElapsed(e.elapsed)}
                           </span>
                         ))}
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold text-info shrink-0">x{evts.length}</span>
+                    <span className="text-3xs font-bold text-info shrink-0">x{evts.length}</span>
                   </div>
                 ))}
               </div>
@@ -351,7 +351,7 @@ function CaseDetail({ data }) {
           {data.team && data.team.leader && (
             <div className="dash-card !p-3">
               <div className="text-overline mb-1">Team</div>
-              <div className="text-[11px] text-text-secondary space-y-0.5">
+              <div className="text-2xs text-text-secondary space-y-0.5">
                 {data.team.leader && <div>Leader: <span className="text-text-primary font-semibold">{data.team.leader}</span></div>}
                 {data.team.airway && <div>Airway: <span className="text-text-primary font-semibold">{data.team.airway}</span></div>}
                 {data.team.drugAdmin && <div>Drug: <span className="text-text-primary font-semibold">{data.team.drugAdmin}</span></div>}
@@ -364,7 +364,7 @@ function CaseDetail({ data }) {
               <div className="text-overline mb-2 flex items-center gap-1.5"><Wind size={12} strokeWidth={2} /> EtCO2</div>
               <div className="flex flex-wrap gap-1">
                 {data.etco2Readings.map((r, i) => (
-                  <span key={i} className={`text-[11px] font-mono px-1.5 py-0.5 ${
+                  <span key={i} className={`text-2xs font-mono px-1.5 py-0.5 ${
                     r.value < 10 ? 'bg-danger/10 text-danger' :
                     r.value > 20 ? 'bg-success/10 text-success' :
                     'bg-bg-tertiary text-text-primary'
@@ -409,12 +409,12 @@ function CaseDetail({ data }) {
                           {correction ? 'CORRECTED' : 'SUSPECTED'}
                         </span>
                       </div>
-                      <div className="text-[10px] text-text-muted mt-1 font-mono">
+                      <div className="text-3xs text-text-muted mt-1 font-mono">
                         Investigated: {formatElapsed(ev.elapsed)}
                         {ev.details?.category && <span className="ml-2">({ev.details.category})</span>}
                       </div>
                       {correction && (
-                        <div className="text-[10px] text-success mt-0.5">
+                        <div className="text-3xs text-success mt-0.5">
                           Corrected: {formatElapsed(correction.elapsed)} → {correction.details?.treatment || ''}
                         </div>
                       )}
@@ -435,7 +435,7 @@ function CaseDetail({ data }) {
                   const d = ev.details || {};
                   return (
                     <div key={i} className="bg-bg-primary p-2" style={{ borderRadius: 'var(--radius)' }}>
-                      <div className="text-[10px] font-mono text-text-muted mb-1">{formatElapsed(ev.elapsed)}</div>
+                      <div className="text-3xs font-mono text-text-muted mb-1">{formatElapsed(ev.elapsed)}</div>
                       <div className="grid grid-cols-5 gap-1 text-center">
                         <LabValue label="DTX" value={d.dtx} unit="mg/dL" low={60} high={250} />
                         <LabValue label="Hb" value={d.hb} unit="g/dL" low={7} />
@@ -464,7 +464,7 @@ function CaseDetail({ data }) {
                   <div key={i} className="flex items-center gap-2 px-2 py-2 bg-bg-primary border border-border-strong/40"
                     style={{ borderRadius: 'var(--radius)' }}>
                     <div className="flex flex-col items-center shrink-0 w-12">
-                      <span className="text-[10px] font-mono font-bold text-text-primary">{formatElapsed(ev.elapsed)}</span>
+                      <span className="text-3xs font-mono font-bold text-text-primary">{formatElapsed(ev.elapsed)}</span>
                       <span className="text-[9px] text-text-muted">
                         {ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : ''}
                       </span>
@@ -490,7 +490,7 @@ function DetailStat({ label, value, unit, extra }) {
     <div className="dash-card !p-3">
       <div className="text-overline">{label}</div>
       <div className="text-numeric text-lg text-text-primary mt-0.5">{value}</div>
-      <div className="text-[10px] text-text-muted">{unit}</div>
+      <div className="text-3xs text-text-muted">{unit}</div>
       {extra && <div className="mt-1">{extra}</div>}
     </div>
   );
@@ -504,7 +504,7 @@ function LabValue({ label, value, unit, low, high }) {
   return (
     <div>
       <div className="text-[9px] text-text-muted uppercase font-bold tracking-wider">{label}</div>
-      <div className={`text-[12px] font-mono font-bold ${colorClass}`}>{value}</div>
+      <div className={`text-xs font-mono font-bold ${colorClass}`}>{value}</div>
       <div className="text-[9px] text-text-muted">{unit}</div>
     </div>
   );
