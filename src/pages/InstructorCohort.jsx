@@ -230,12 +230,14 @@ export default function InstructorCohort() {
             className="btn btn-ghost btn-sm">
             <FileText size={14} strokeWidth={2.2} /> คู่มืออาจารย์ (PDF)
           </a>
-          <a
-            href={`${import.meta.env.BASE_URL}student-precourse-guide.pdf`}
-            target="_blank" rel="noopener noreferrer" download
-            className="btn btn-ghost btn-sm">
-            <FileText size={14} strokeWidth={2.2} /> คู่มือนักเรียน (PDF)
-          </a>
+          {IS_ACLS && (
+            <a
+              href={`${import.meta.env.BASE_URL}student-precourse-guide.pdf`}
+              target="_blank" rel="noopener noreferrer" download
+              className="btn btn-ghost btn-sm">
+              <FileText size={14} strokeWidth={2.2} /> คู่มือนักเรียน (PDF)
+            </a>
+          )}
         </div>
       </div>
 
