@@ -76,8 +76,11 @@ export default function InstructorCohort() {
   const syncDisabled = useClassStore(s => s.syncDisabled);
 
   // Students join by scanning/opening this link — no typing, no typos.
+  // openExternalBrowser=1 — เมื่อนักเรียนสแกน QR / กดลิงก์ในแอป LINE ให้ LINE
+  // เด้งไปเปิดในเบราว์เซอร์หลักของเครื่องแทน in-app browser (ไม่งั้นผลการเรียน
+  // ไปเก็บใน WebView ของ LINE ซึ่งแยกจาก Safari/Chrome และถูกล้างได้เอง)
   const joinUrl = classCode
-    ? `${window.location.origin}/pre-course?join=${classCode}`
+    ? `${window.location.origin}/pre-course?join=${classCode}&openExternalBrowser=1`
     : null;
 
   useEffect(() => {

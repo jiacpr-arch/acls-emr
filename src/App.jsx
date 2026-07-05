@@ -41,6 +41,7 @@ import BottomTabBar from './components/BottomTabBar';
 import SiteFooter from './components/SiteFooter';
 import LineFloatButton from './components/LineFloatButton';
 import OfflineIndicator from './components/OfflineIndicator';
+import InAppBrowserGuard from './components/InAppBrowserGuard';
 import MetaPixel from './components/MetaPixel';
 import { useSyncEngine } from './services/syncEngine';
 
@@ -100,6 +101,7 @@ function App() {
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
       <OfflineIndicator />
+      <InAppBrowserGuard />
       <Routes>
         {/* shared across both course modes */}
         <Route path="/settings" element={<Settings />} />
