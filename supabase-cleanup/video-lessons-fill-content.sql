@@ -10,7 +10,9 @@
 -- left untouched.
 --
 -- NOTE: related_path values (/airway/aw01, /ekg/ekg01, ...) come verbatim
--- from the spreadsheet; these routes do not exist in the app yet.
+-- from the spreadsheet; these routes do not exist in the app.
+-- SUPERSEDED on 2026-07-05 by video-lessons-related-links.sql, which points
+-- related_path/related_label at real /pre-course/pcNN chapters instead.
 -- ============================================================================
 
 begin;
