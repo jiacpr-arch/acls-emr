@@ -223,12 +223,20 @@ export default function InstructorCohort() {
               : `จากเครื่องนี้ · ${summary.length} นักเรียน`}
           </p>
         </div>
-        <a
-          href={`${import.meta.env.BASE_URL}instructor-cohort-guide.pdf`}
-          target="_blank" rel="noopener noreferrer" download
-          className="btn btn-ghost btn-sm shrink-0">
-          <FileText size={14} strokeWidth={2.2} /> คู่มือ (PDF)
-        </a>
+        <div className="flex flex-col gap-1 shrink-0">
+          <a
+            href={`${import.meta.env.BASE_URL}instructor-cohort-guide.pdf`}
+            target="_blank" rel="noopener noreferrer" download
+            className="btn btn-ghost btn-sm">
+            <FileText size={14} strokeWidth={2.2} /> คู่มืออาจารย์ (PDF)
+          </a>
+          <a
+            href={`${import.meta.env.BASE_URL}student-precourse-guide.pdf`}
+            target="_blank" rel="noopener noreferrer" download
+            className="btn btn-ghost btn-sm">
+            <FileText size={14} strokeWidth={2.2} /> คู่มือนักเรียน (PDF)
+          </a>
+        </div>
       </div>
 
       {/* Class card — create / join / share the class code without leaving
