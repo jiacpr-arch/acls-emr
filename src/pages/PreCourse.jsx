@@ -22,7 +22,7 @@ import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/assessment';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import {
-  GraduationCap, Users,
+  GraduationCap, Users, FileText,
   Cloud, CloudOff, ChevronDown,
 } from 'lucide-react';
 
@@ -311,10 +311,18 @@ export default function PreCourse() {
             <StepNumber n={2} />
             บทเรียน · {lessonsPassed}/{totalLessons} ผ่าน
           </div>
-          <button onClick={() => navigate('/pre-course/cohort')}
-            className="btn btn-ghost btn-sm">
-            <Users size={14} strokeWidth={2.4} /> สำหรับอาจารย์
-          </button>
+          <div className="flex items-center gap-1">
+            <a
+              href={`${import.meta.env.BASE_URL}student-precourse-guide.pdf`}
+              target="_blank" rel="noopener noreferrer" download
+              className="btn btn-ghost btn-sm">
+              <FileText size={14} strokeWidth={2.4} /> คู่มือ (PDF)
+            </a>
+            <button onClick={() => navigate('/pre-course/cohort')}
+              className="btn btn-ghost btn-sm">
+              <Users size={14} strokeWidth={2.4} /> สำหรับอาจารย์
+            </button>
+          </div>
         </div>
         <div className="space-y-3">
           {preCourseLessons.map(l => {

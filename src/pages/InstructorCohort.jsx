@@ -76,8 +76,11 @@ export default function InstructorCohort() {
   const syncDisabled = useClassStore(s => s.syncDisabled);
 
   // Students join by scanning/opening this link — no typing, no typos.
+  // openExternalBrowser=1 — เมื่อนักเรียนสแกน QR / กดลิงก์ในแอป LINE ให้ LINE
+  // เด้งไปเปิดในเบราว์เซอร์หลักของเครื่องแทน in-app browser (ไม่งั้นผลการเรียน
+  // ไปเก็บใน WebView ของ LINE ซึ่งแยกจาก Safari/Chrome และถูกล้างได้เอง)
   const joinUrl = classCode
-    ? `${window.location.origin}/pre-course?join=${classCode}`
+    ? `${window.location.origin}/pre-course?join=${classCode}&openExternalBrowser=1`
     : null;
 
   useEffect(() => {
@@ -223,12 +226,22 @@ export default function InstructorCohort() {
               : `จากเครื่องนี้ · ${summary.length} นักเรียน`}
           </p>
         </div>
-        <a
-          href={`${import.meta.env.BASE_URL}instructor-cohort-guide.pdf`}
-          target="_blank" rel="noopener noreferrer" download
-          className="btn btn-ghost btn-sm shrink-0">
-          <FileText size={14} strokeWidth={2.2} /> คู่มือ (PDF)
-        </a>
+        <div className="flex flex-col gap-1 shrink-0">
+          <a
+            href={`${import.meta.env.BASE_URL}instructor-cohort-guide.pdf`}
+            target="_blank" rel="noopener noreferrer" download
+            className="btn btn-ghost btn-sm">
+            <FileText size={14} strokeWidth={2.2} /> คู่มืออาจารย์ (PDF)
+          </a>
+          {IS_ACLS && (
+            <a
+              href={`${import.meta.env.BASE_URL}student-precourse-guide.pdf`}
+              target="_blank" rel="noopener noreferrer" download
+              className="btn btn-ghost btn-sm">
+              <FileText size={14} strokeWidth={2.2} /> คู่มือนักเรียน (PDF)
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Class card — create / join / share the class code without leaving
