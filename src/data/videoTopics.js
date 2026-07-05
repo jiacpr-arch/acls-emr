@@ -7,6 +7,7 @@ export const VIDEO_TOPICS = [
   { id: 'brady',      emoji: '🐢', label: 'หัวใจเต้นช้า',          en: 'Bradycardia' },
   { id: 'tachy',      emoji: '🏃', label: 'หัวใจเต้นเร็ว',          en: 'Tachycardia' },
   { id: 'arrest',     emoji: '🫀', label: 'ภาวะหัวใจหยุดเต้น',      en: 'Cardiac Arrest' },
+  { id: 'iv',         emoji: '💉', label: 'ยา (IV)',               en: 'IV Drugs' },
   { id: 'postarrest', emoji: '💗', label: 'ดูแลหลังหัวใจหยุดเต้น',  en: 'Post-ROSC' },
   { id: 'bls',        emoji: '🆘', label: 'CPR/BLS พื้นฐาน',       en: 'BLS / CPR' },
 ];
