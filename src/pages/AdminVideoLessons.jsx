@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut, Shield, Plus, Trash2, Pencil, X, Video, ChevronUp, ChevronDown } from 'lucide-react';
 import { signOut } from '../services/auth';
 import { VIDEO_TOPICS, VIDEO_TOPIC_MAP } from '../data/videoTopics';
-import { getYouTubeId } from '../utils/youtube';
+import { getYouTubeId, parseClipTime, formatClipTime } from '../utils/youtube';
 import {
   listVideoLessonsAdmin, createVideoLesson, updateVideoLesson, deleteVideoLesson, swapVideoLessonOrder,
 } from '../services/videoLessonAdminService';
@@ -53,7 +53,7 @@ export default function AdminVideoLessons() {
     if (!ytId) return alert('ลิงก์ YouTube ไม่ถูกต้อง (ต้องเป็นลิงก์ youtu.be / youtube.com หรือ video id 11 ตัว)');
     setSaving(true);
     try {
-      const payload = { ...f, youtubeId: ytId };
+      const payload = { ...f, youtubeId: ytId, chapters: f.chapters.map(c => ({ ...c, t: Number(c.t) || 0 })) };
       if (f.id) await updateVideoLesson(f.id, payload);
       else await createVideoLesson(payload);
       setEditing(null);
@@ -130,12 +130,37 @@ export default function AdminVideoLessons() {
   );
 }
 
+// ช่องกรอกเวลาแบบ นาที:วินาที — เก็บค่าจริงเป็นวินาที, พิมพ์วินาทีล้วน (เช่น 245) ก็ได้ ระบบแปลงเป็น 4:05 ให้ตอนออกจากช่อง
+function TimeInput({ value, onChange, className, style, placeholder }) {
+  const toText = (v) => (v === '' || v == null ? '' : formatClipTime(v));
+  const [text, setText] = useState(() => toText(value));
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    // ค่าเปลี่ยนจากภายนอก (เช่น ลบแถวแล้ว index เลื่อน) → sync ข้อความในช่องใหม่
+    setPrevValue(value);
+    if ((parseClipTime(text) ?? '') !== (value === '' || value == null ? '' : Number(value))) setText(toText(value));
+  }
+  return (
+    <input
+      inputMode="numeric"
+      value={text}
+      onChange={e => {
+        setText(e.target.value);
+        const sec = parseClipTime(e.target.value);
+        onChange(sec == null ? '' : sec);
+      }}
+      onBlur={() => setText(toText(parseClipTime(text) ?? ''))}
+      className={className} style={style} placeholder={placeholder}
+    />
+  );
+}
+
 function VideoLessonEditor({ form, setForm, onSave, onClose, saving }) {
   const upd = (patch) => setForm(f => ({ ...f, ...patch }));
   const ytId = getYouTubeId(form.youtubeId) || (/^[\w-]{11}$/.test((form.youtubeId || '').trim()) ? form.youtubeId.trim() : '');
 
   // chapters
-  const addChapter = () => upd({ chapters: [...form.chapters, { t: 0, label: '' }] });
+  const addChapter = () => upd({ chapters: [...form.chapters, { t: '', label: '' }] });
   const setChapter = (i, patch) => upd({ chapters: form.chapters.map((c, j) => j === i ? { ...c, ...patch } : c) });
   const delChapter = (i) => upd({ chapters: form.chapters.filter((_, j) => j !== i) });
 
@@ -185,12 +210,12 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, saving }) {
 
         <div className="grid grid-cols-3 gap-2">
           <label className="block">
-            <span className="text-caption font-bold text-text-secondary">เริ่ม (วิ)</span>
-            <input type="number" value={form.startSec} onChange={e => upd({ startSec: e.target.value })} className={inputCls} style={inputStyle} placeholder="0" />
+            <span className="text-caption font-bold text-text-secondary">เริ่ม (นาที:วิ)</span>
+            <TimeInput value={form.startSec} onChange={v => upd({ startSec: v })} className={inputCls} style={inputStyle} placeholder="0:00" />
           </label>
           <label className="block">
-            <span className="text-caption font-bold text-text-secondary">จบ (วิ)</span>
-            <input type="number" value={form.endSec} onChange={e => upd({ endSec: e.target.value })} className={inputCls} style={inputStyle} placeholder="—" />
+            <span className="text-caption font-bold text-text-secondary">จบ (นาที:วิ)</span>
+            <TimeInput value={form.endSec} onChange={v => upd({ endSec: v })} className={inputCls} style={inputStyle} placeholder="—" />
           </label>
           <label className="block">
             <span className="text-caption font-bold text-text-secondary">แนว</span>
@@ -217,7 +242,7 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, saving }) {
           <div className="text-caption font-bold text-purple">📍 A · สารบัญช่วงเวลา</div>
           {form.chapters.map((ch, i) => (
             <div key={i} className="flex items-center gap-2">
-              <input type="number" value={ch.t} onChange={e => setChapter(i, { t: Number(e.target.value) })} className={`${inputCls} !w-20`} style={inputStyle} placeholder="วิ" />
+              <TimeInput value={ch.t} onChange={v => setChapter(i, { t: v })} className={`${inputCls} !w-20`} style={inputStyle} placeholder="0:00" />
               <input value={ch.label} onChange={e => setChapter(i, { label: e.target.value })} className={inputCls} style={inputStyle} placeholder="ชื่อช่วง" />
               <button onClick={() => delChapter(i)} className="btn btn-ghost btn-sm text-danger shrink-0"><Trash2 size={14} /></button>
             </div>
