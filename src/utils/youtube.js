@@ -17,6 +17,17 @@ export function parseStartSeconds(url) {
   return (Number(hms[1] || 0) * 3600) + (Number(hms[2] || 0) * 60) + Number(hms[3] || 0);
 }
 
+// "m:ss" / "h:mm:ss" / วินาทีล้วน → วินาที (null ถ้าว่างหรือไม่ใช่รูปแบบเวลา)
+export function parseClipTime(text) {
+  if (text == null) return null;
+  const t = String(text).trim();
+  if (!t) return null;
+  if (/^\d+$/.test(t)) return Number(t);
+  const m = t.match(/^(?:(\d+):)?(\d+):(\d{0,2})$/);
+  if (!m) return null;
+  return (Number(m[1] || 0) * 3600) + (Number(m[2]) * 60) + Number(m[3] || 0);
+}
+
 // วินาที → "m:ss" หรือ "h:mm:ss" สำหรับแสดงสารบัญช่วงเวลา
 export function formatClipTime(totalSec) {
   const s = Math.max(0, Math.floor(Number(totalSec) || 0));
