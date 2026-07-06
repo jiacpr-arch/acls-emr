@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<!--
+  ต้นฉบับ infographic คู่มือนักเรียน (student-precourse-guide-infographic.png)
+  วิธี regenerate:
+  1. โหลดฟอนต์ Sarabun น้ำหนัก 400/600/700 (.ttf จาก Google Fonts) ไว้ที่ ./fonts/sarabun-{400,600,700}.ttf
+  2. สร้าง QR เข้าคลาส: node -e "require('qrcode').toFile('join-qr-893vfz.png',
+     'https://acls.morroo.com/pre-course?join=893VFZ&openExternalBrowser=1',
+     {width:600, margin:1, errorCorrectionLevel:'H'}, console.log)"
+  3. chromium --headless --screenshot=student-precourse-guide-infographic.png
+     --window-size=1024,1345 --force-device-scale-factor=2 --hide-scrollbars <ไฟล์นี้>
+  หมายเหตุ: QR/รหัส 893VFZ เป็นของคลาส ALS RAM 1/7/67 — เปลี่ยนรุ่นให้แก้รหัสทั้งใน QR และ .code-box
+-->
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Sarabun'; font-weight: 400; src: url('fonts/sarabun-400.ttf'); }
+  @font-face { font-family: 'Sarabun'; font-weight: 600; src: url('fonts/sarabun-600.ttf'); }
+  @font-face { font-family: 'Sarabun'; font-weight: 700; src: url('fonts/sarabun-700.ttf'); }
+  :root {
+    --red: #DC2626; --red-dark: #B91C1C; --red-bg: #FEF2F2;
+    --blue: #2563EB; --blue-dark: #1D4ED8; --blue-bg: #EFF6FF;
+    --green: #059669; --green-bg: #ECFDF5;
+    --yellow-bg: #FFFBEB; --yellow-line: #FDE68A; --amber: #B45309;
+    --ink: #1F2937; --muted: #6B7280; --line: #E5E7EB;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1024px; height: 1345px; font-family: 'Sarabun', sans-serif; color: var(--ink);
+    background: #fff; padding: 26px 28px 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+  .card { border: 2px solid var(--line); border-radius: 18px; background: #fff; }
+
+  /* ── Header ─────────────────────────── */
+  .header { display: flex; gap: 18px; align-items: stretch; }
+  .header-left { flex: 1.35; padding-top: 6px; }
+  h1 { font-size: 44px; font-weight: 700; color: var(--red); line-height: 1.22; }
+  h1 .black { color: var(--ink); }
+  .subtitle { font-size: 19px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+  .summary { flex: 1; background: var(--yellow-bg); border: 2px solid var(--yellow-line);
+    border-radius: 18px; padding: 14px 20px 12px; }
+  .summary .s-title { font-size: 23px; font-weight: 700; color: var(--amber); text-align: center; margin-bottom: 6px; }
+  .summary .row { display: flex; align-items: center; gap: 10px; font-size: 17.5px; font-weight: 600; padding: 1px 0; }
+  .summary .row .em { font-size: 19px; width: 26px; text-align: center; }
+  .summary .arr { color: var(--red); font-weight: 700; margin-left: 36px; font-size: 13px; line-height: 1; }
+
+  /* ── Steps row ──────────────────────── */
+  .steps { display: flex; align-items: stretch; gap: 0; }
+  .step { flex: 1; border: 2px solid var(--line); border-radius: 16px; padding: 12px 10px 14px;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; background: #fff; }
+  .step .head { display: flex; align-items: flex-start; gap: 7px; min-height: 66px; }
+  .step .num { width: 30px; height: 30px; border-radius: 50%; background: var(--red); color: #fff;
+    font-weight: 700; font-size: 17px; display: flex; align-items: center; justify-content: center; flex: none; margin-top: 2px; }
+  .step .t { font-size: 15.5px; font-weight: 700; line-height: 1.35; text-align: left; }
+  .step .art { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+  .step .emoji { font-size: 64px; line-height: 1; }
+  .qr { width: 118px; height: 118px; }
+  .code-box { border: 2.5px dashed var(--red); border-radius: 10px; color: var(--red);
+    font-weight: 700; font-size: 24px; letter-spacing: 3px; padding: 3px 12px; }
+  .arrow { align-self: center; color: var(--red); font-size: 26px; font-weight: 700; padding: 0 4px; }
+  .mini-form { border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 10px; width: 100%; text-align: left; }
+  .mini-form .f { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--muted); padding: 3px 0; }
+  .mini-form .f .ln { flex: 1; border-bottom: 1.5px solid var(--line); height: 12px; }
+
+  /* ── Warning ────────────────────────── */
+  .warning { background: var(--yellow-bg); border: 2.5px solid var(--yellow-line); border-radius: 18px;
+    display: flex; align-items: center; gap: 20px; padding: 16px 26px; }
+  .warning .em { font-size: 56px; line-height: 1; }
+  .warning .txt { font-size: 22.5px; font-weight: 600; line-height: 1.55; }
+  .warning .lead { color: var(--red); font-weight: 700; }
+
+  /* ── Stat cards ─────────────────────── */
+  .stats { display: flex; gap: 14px; }
+  .stat { flex: 1; border-radius: 18px; padding: 16px 14px 14px; text-align: center; border: 2.5px solid; }
+  .stat .em { font-size: 34px; }
+  .stat .big { font-size: 37px; font-weight: 700; line-height: 1.15; margin: 2px 0; }
+  .stat .lbl { font-size: 17px; font-weight: 700; }
+  .stat .sub { font-size: 15.5px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+  .stat.pre  { background: var(--blue-bg);  border-color: #BFDBFE; } .stat.pre .big, .stat.pre .lbl  { color: var(--blue); }
+  .stat.les  { background: var(--red-bg);   border-color: #FECACA; } .stat.les .big, .stat.les .lbl  { color: var(--red); }
+  .stat.post { background: var(--green-bg); border-color: #A7F3D0; } .stat.post .big, .stat.post .lbl { color: var(--green); }
+
+  /* ── Two columns ────────────────────── */
+  .cols { display: flex; gap: 14px; flex: 1; align-items: flex-start; }
+  .col { flex: 1; border: 2px solid var(--line); border-radius: 18px; padding: 14px 20px 10px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; color: #fff; font-weight: 700; font-size: 19px;
+    border-radius: 999px; padding: 6px 22px; margin-bottom: 10px; }
+  .pill.blue { background: var(--blue); } .pill.red { background: var(--red); }
+  .li { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1.5px solid #F3F4F6;
+    font-size: 18.5px; font-weight: 600; line-height: 1.45; }
+  .li:last-child { border-bottom: none; }
+  .li .ic { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 21px; flex: none; }
+  .ic.blue { background: var(--blue-bg); } .ic.red { background: var(--red-bg); }
+
+  /* ── Footer ─────────────────────────── */
+  .footer { margin-top: auto; background: var(--blue-dark); color: #fff; border-radius: 18px 18px 0 0; text-align: center;
+    font-size: 23px; font-weight: 700; padding: 14px 0; margin: 0 -4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>🎓 คู่มือนักเรียน:<br><span class="black">เรียน</span> Pre-course ACLS</h1>
+    <div class="subtitle">ขั้นตอนตั้งแต่เข้าคลาสด้วยรหัสจากอาจารย์<br>จนสอบ Post-test ผ่าน</div>
+  </div>
+  <div class="summary">
+    <div class="s-title">สรุปสั้น</div>
+    <div class="row"><span class="em">🔑</span> เข้าคลาสด้วยรหัส</div>
+    <div class="arr">▼</div>
+    <div class="row"><span class="em">👤</span> ลงชื่อ</div>
+    <div class="arr">▼</div>
+    <div class="row"><span class="em">📝</span> Pre-test</div>
+    <div class="arr">▼</div>
+    <div class="row"><span class="em">📖</span> อ่านครบ 13 บท</div>
+    <div class="arr">▼</div>
+    <div class="row"><span class="em">🏆</span> Post-test ≥85%</div>
+  </div>
+</div>
+
+<div class="steps">
+  <div class="step">
+    <div class="head"><div class="num">1</div><div class="t">สแกน QR / กรอก<br>รหัส 6 หลัก</div></div>
+    <div class="art">
+      <img class="qr" src="join-qr-893vfz.png" alt="QR เข้าคลาส">
+      <div class="code-box">893VFZ</div>
+    </div>
+  </div>
+  <div class="arrow">➜</div>
+  <div class="step">
+    <div class="head"><div class="num">2</div><div class="t">ลงชื่อ:<br>ชื่อจริง + เบอร์โทร</div></div>
+    <div class="art">
+      <div class="emoji">🧑‍⚕️</div>
+      <div class="mini-form">
+        <div class="f">👤 ชื่อจริง <span class="ln"></span></div>
+        <div class="f">📞 เบอร์โทร <span class="ln"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="arrow">➜</div>
+  <div class="step">
+    <div class="head"><div class="num">3</div><div class="t">Pre-test<br>20 ข้อ (ไม่มีตก)</div></div>
+    <div class="art"><div class="emoji">📋</div><div class="emoji" style="font-size:34px">✅</div></div>
+  </div>
+  <div class="arrow">➜</div>
+  <div class="step">
+    <div class="head"><div class="num">4</div><div class="t">บทเรียน 13 บท<br>ผ่านบทละ ≥75%</div></div>
+    <div class="art"><div class="emoji">📖</div><div class="emoji" style="font-size:34px">🔁</div></div>
+  </div>
+  <div class="arrow">➜</div>
+  <div class="step">
+    <div class="head"><div class="num">5</div><div class="t">Post-test<br>30 ข้อ ผ่าน ≥85%</div></div>
+    <div class="art"><div class="emoji">🏆</div><div class="emoji" style="font-size:34px">🎉</div></div>
+  </div>
+</div>
+
+<div class="warning">
+  <div class="em">⚠️</div>
+  <div class="txt"><span class="lead">ต้องเข้าคลาสด้วยรหัสเท่านั้น</span> คะแนนถึงจะส่งถึงอาจารย์<br>
+  ถ้าขึ้น 'โหมด offline' อาจารย์จะไม่เห็นว่าเราเรียนแล้ว</div>
+</div>
+
+<div class="stats">
+  <div class="stat pre">
+    <div class="em">📝</div>
+    <div class="big">20 ข้อ</div>
+    <div class="lbl">Pre-test</div>
+    <div class="sub">ทำก่อนเรียน ไม่มีตก</div>
+  </div>
+  <div class="stat les">
+    <div class="em">📚</div>
+    <div class="big">13 บท · ≥75%</div>
+    <div class="lbl">บทเรียน + ควิซ</div>
+    <div class="sub">ทำซ้ำได้ เก็บคะแนนดีที่สุด</div>
+  </div>
+  <div class="stat post">
+    <div class="em">🏆</div>
+    <div class="big">30 ข้อ · ≥85%</div>
+    <div class="lbl">Post-test</div>
+    <div class="sub">ปลดล็อกเมื่อผ่านครบทุกบท</div>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="col">
+    <div class="pill blue">💡 ข้อควรรู้</div>
+    <div class="li"><div class="ic blue">💻</div> ใช้เครื่องเดิม เบราว์เซอร์เดิมตลอดคอร์ส</div>
+    <div class="li"><div class="ic blue">🕶️</div> ห้ามใช้โหมดไม่ระบุตัวตน (Incognito)</div>
+    <div class="li"><div class="ic blue">📱</div> เปิดลิงก์จาก LINE ระบบจะเด้งไป Safari/Chrome ให้เอง — อย่าเรียนในหน้าต่าง LINE</div>
+    <div class="li"><div class="ic blue">☁️</div> อ่านออฟไลน์ได้ ผล sync เองเมื่อต่อเน็ต</div>
+    <div class="li"><div class="ic blue">🗓️</div> เรียนไปก่อนแล้วค่อยเข้าคลาสทีหลังได้ ผลไม่หาย</div>
+  </div>
+  <div class="col">
+    <div class="pill red">❓ สอบไม่ผ่าน?</div>
+    <div class="li"><div class="ic red">🎯</div> ทบทวนบทที่คะแนนต่ำ แล้วสอบซ้ำได้ไม่จำกัด</div>
+    <div class="li"><div class="ic red">📈</div> ระบบเก็บคะแนนที่ดีที่สุดให้เสมอ</div>
+    <div class="li"><div class="ic red">📊</div> ดูคะแนนรายบทได้ที่หน้า Pre-course</div>
+  </div>
+</div>
+
+<div class="footer">❤️ acls.morroo.com &nbsp;·&nbsp; JIA Trainer Center</div>
+
+</body>
+</html>
