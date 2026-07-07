@@ -4,47 +4,71 @@ import { validateVoucher } from '../../config/vouchers';
 import { jiacprCourse } from '../../data/jiacprCourse';
 import { track } from '../../services/analytics';
 
-// Entry point + status banner for the voucher feature. Shared by both the ACLS
-// and BLS pre-course pages.
-//   - no active voucher → a button that opens the VoucherModal
-//   - active voucher     → a green banner with a "remove" action + a
-//     non-blocking LINE OA prompt (skippable — never gates the exam itself)
+// Entry point + status for the voucher feature. Shared by both the ACLS and
+// BLS pre-course pages. Three states:
+//   - no voucher            → a button that opens the VoucherModal
+//   - voucher, LINE pending → a hard gate: must add the LINE OA friend before
+//                              the code actually unlocks anything
+//   - voucher, LINE done    → the green "unlocked" banner
 export default function VoucherCard({ onOpen }) {
   const voucher = useVoucherStore((s) => s.voucher);
   const clearVoucher = useVoucherStore((s) => s.clearVoucher);
-  const active = !!(voucher && validateVoucher(voucher.code));
+  const confirmLine = useVoucherStore((s) => s.confirmLine);
+  const codeValid = !!(voucher && validateVoucher(voucher.code));
+  const pending = codeValid && !voucher.lineConfirmed;
+  const active = codeValid && !!voucher.lineConfirmed;
 
-  if (active) {
+  if (pending) {
     return (
-      <div className="space-y-2">
-        <div className="dash-card flex items-center gap-3 border border-success/30 !bg-success/8">
+      <div className="dash-card border border-info/30 !bg-info/8 space-y-3">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 inline-flex items-center justify-center bg-success/15 text-success shrink-0"
             style={{ borderRadius: 'var(--radius-md)' }}>
-            <Check size={18} strokeWidth={2.4} />
+            <MessageCircle size={18} strokeWidth={2.4} style={{ color: '#06C755' }} />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-body-strong text-text-primary truncate">ปลดล็อกด้วย voucher แล้ว</div>
-            <div className="text-2xs text-text-muted truncate">
-              {voucher.label || voucher.code} · เข้าทำ Post-test ได้เลย
+            <div className="text-body-strong text-text-primary">เกือบเสร็จแล้ว — เพิ่มเพื่อน LINE ก่อน</div>
+            <div className="text-2xs text-text-muted">
+              {voucher.label || voucher.code} · เพิ่มเพื่อน LINE เพื่อปลดล็อก Pre-test / Post-test
             </div>
           </div>
-          <button onClick={clearVoucher} className="btn btn-ghost btn-sm">
-            <X size={13} strokeWidth={2.4} /> นำออก
-          </button>
         </div>
         <a
           href={jiacprCourse.lineUrl}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => track('contact_click', {
-            meta: 'Contact',
-            props: { channel: 'line', source: 'voucher_card', value: 2500, currency: 'THB' },
-          })}
-          className="flex items-center gap-2 text-caption text-text-secondary hover:text-success transition-colors px-1 no-underline"
+          onClick={() => {
+            confirmLine();
+            track('voucher_line_confirmed', { meta: ['Contact', 'Lead'], props: { code: voucher.code, value: 2500, currency: 'THB' } });
+          }}
+          className="btn btn-block no-underline"
+          style={{ background: '#06C755', color: '#fff', textDecoration: 'none' }}
         >
-          <MessageCircle size={14} strokeWidth={2.4} style={{ color: '#06C755' }} />
-          เพิ่มเพื่อน LINE รับข่าวสาร/สิทธิพิเศษคอร์สอบรม
+          <MessageCircle size={16} strokeWidth={2.4} /> เพิ่มเพื่อน LINE เพื่อปลดล็อก
         </a>
+        <button onClick={clearVoucher} className="block w-full text-center text-2xs text-text-muted underline bg-transparent">
+          ยกเลิกรหัสนี้
+        </button>
+      </div>
+    );
+  }
+
+  if (active) {
+    return (
+      <div className="dash-card flex items-center gap-3 border border-success/30 !bg-success/8">
+        <div className="w-10 h-10 inline-flex items-center justify-center bg-success/15 text-success shrink-0"
+          style={{ borderRadius: 'var(--radius-md)' }}>
+          <Check size={18} strokeWidth={2.4} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-body-strong text-text-primary truncate">ปลดล็อกด้วย voucher แล้ว</div>
+          <div className="text-2xs text-text-muted truncate">
+            {voucher.label || voucher.code} · เข้าทำ Post-test ได้เลย
+          </div>
+        </div>
+        <button onClick={clearVoucher} className="btn btn-ghost btn-sm">
+          <X size={13} strokeWidth={2.4} /> นำออก
+        </button>
       </div>
     );
   }

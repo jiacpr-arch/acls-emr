@@ -39,7 +39,7 @@ export default function PostTestExam() {
   const answerPostTest = usePreCourseStore(s => s.answerPostTest);
   const clearPostTest = usePreCourseStore(s => s.clearPostTest);
   // A valid voucher unlocks the Post-test without passing every lesson.
-  const voucherActive = useVoucherStore(s => !!(s.voucher && validateVoucher(s.voucher.code)));
+  const voucherActive = useVoucherStore(s => !!(s.voucher?.lineConfirmed && validateVoucher(s.voucher.code)));
 
   const [showIdentity, setShowIdentity] = useState(false);
   const [gateChecked, setGateChecked] = useState(false);
