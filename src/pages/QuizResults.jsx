@@ -10,10 +10,14 @@ import {
 } from '../data/activePostTest';
 import ResultsSummary from '../components/precourse/ResultsSummary';
 import { exportStudentResultPDF } from '../utils/exportPreCourse';
-import { ChevronLeft, ChevronRight, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, RotateCcw, Trophy, AlertCircle, MessageCircle } from 'lucide-react';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import { IS_BLS } from '../config/courseMode';
 import BLSCourseUpsellCard from '../components/precourse/BLSCourseUpsellCard';
+import { useVoucherStore } from '../stores/voucherStore';
+import { validateVoucher } from '../config/vouchers';
+import { jiacprCourse } from '../data/jiacprCourse';
+import { track } from '../services/analytics';
 
 export default function QuizResults() {
   const navigate = useNavigate();
@@ -21,6 +25,11 @@ export default function QuizResults() {
   const [attempt, setAttempt] = useState(null);
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Voucher holders skip every lesson, so they never reach the certificate
+  // page's requirements (all lessons + EKG + video) — meaning they'd never
+  // see its LINE-add gate either. Catch that lead right here instead, at the
+  // moment they finish the Post-test.
+  const voucherActive = useVoucherStore(s => !!(s.voucher && validateVoucher(s.voucher.code)));
 
   useEffect(() => {
     let cancelled = false;
@@ -133,6 +142,28 @@ export default function QuizResults() {
       </div>
 
       <ResultsSummary attempt={attempt} lesson={lesson} student={student} />
+
+      {isPostTest && voucherActive && (
+        <a
+          href={jiacprCourse.lineUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => track('contact_click', {
+            meta: 'Contact',
+            props: { channel: 'line', source: 'quiz_results_voucher', value: 2500, currency: 'THB' },
+          })}
+          className="dash-card flex items-center gap-3 border border-success/30 !bg-success/8 no-underline"
+        >
+          <div className="w-10 h-10 inline-flex items-center justify-center bg-success/15 text-success shrink-0"
+            style={{ borderRadius: 'var(--radius-md)' }}>
+            <MessageCircle size={18} strokeWidth={2.4} style={{ color: '#06C755' }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-body-strong text-text-primary">เพิ่มเพื่อน LINE ไว้ติดต่อกลับ</div>
+            <div className="text-2xs text-text-muted">รับข่าวสาร/สิทธิพิเศษคอร์สอบรม — ไม่บังคับ</div>
+          </div>
+        </a>
+      )}
 
       {/* จังหวะทอง: สอบผ่าน = พร้อมต่อยอดคอร์สจริงที่สุด */}
       {attempt.passed ? (
