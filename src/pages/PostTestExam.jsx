@@ -9,6 +9,8 @@ import {
 import { POST_TEST_BANK_ID } from '../data/assessment';
 import { preCourseLessons } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
+import { useVoucherStore } from '../stores/voucherStore';
+import { validateVoucher } from '../config/vouchers';
 import {
   getLessonProgress,
   getAttemptsForStudent,
@@ -36,6 +38,8 @@ export default function PostTestExam() {
   const setPostTestIndex = usePreCourseStore(s => s.setPostTestIndex);
   const answerPostTest = usePreCourseStore(s => s.answerPostTest);
   const clearPostTest = usePreCourseStore(s => s.clearPostTest);
+  // A valid voucher unlocks the Post-test without passing every lesson.
+  const voucherActive = useVoucherStore(s => !!(s.voucher && validateVoucher(s.voucher.code)));
 
   const [showIdentity, setShowIdentity] = useState(false);
   const [gateChecked, setGateChecked] = useState(false);
@@ -61,12 +65,12 @@ export default function PostTestExam() {
           .reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
         return !!best?.passed;
       });
-      setGatePassed(allPassed);
+      setGatePassed(allPassed || voucherActive);
       setGateChecked(true);
     }
     check();
     return () => { cancelled = true; };
-  }, [activeStudent?.id]);
+  }, [activeStudent?.id, voucherActive]);
 
   // --- Load questions from Supabase when ready ---
   useEffect(() => {

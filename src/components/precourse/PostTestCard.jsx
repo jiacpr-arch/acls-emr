@@ -32,7 +32,7 @@ export default function PostTestCard({ unlocked, bestScore, passed, attemptCount
         {!unlocked ? (
           <span className="inline-flex items-center gap-1 text-2xs font-bold px-2 py-1 bg-bg-tertiary text-text-muted"
             style={{ borderRadius: 99 }}>
-            <Lock size={11} strokeWidth={2.4} /> ปลดล็อกเมื่อผ่านบทเรียนทั้ง {lessonCount ?? 6} บท
+            <Lock size={11} strokeWidth={2.4} /> ปลดล็อกเมื่อผ่านบทเรียนทั้ง {lessonCount ?? 6} บท หรือใช้รหัส voucher
           </span>
         ) : (
           <span className={`inline-flex items-center gap-1 text-2xs font-bold px-2 py-1 ${
