@@ -65,7 +65,7 @@ export default function PreCourse() {
   const gateInitialMode = joinParam && classCode !== joinParam ? 'join' : 'home';
 
   // Voucher: unlocks the Post-test without requiring every lesson to be passed.
-  const voucherActive = useVoucherStore(s => !!(s.voucher && validateVoucher(s.voucher.code)));
+  const voucherActive = useVoucherStore(s => !!(s.voucher?.lineConfirmed && validateVoucher(s.voucher.code)));
   const redeemVoucher = useVoucherStore(s => s.redeemVoucher);
   const [showVoucher, setShowVoucher] = useState(false);
   const [voucherInitialCode, setVoucherInitialCode] = useState('');
