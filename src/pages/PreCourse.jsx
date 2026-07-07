@@ -8,8 +8,13 @@ import PostTestCard from '../components/precourse/PostTestCard';
 import PreTestCard from '../components/precourse/PreTestCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import ClassGateModal from '../components/precourse/ClassGateModal';
+import VoucherModal from '../components/precourse/VoucherModal';
+import VoucherCard from '../components/precourse/VoucherCard';
 import VideoLinksPanel from '../components/precourse/VideoLinksPanel';
 import { useClassStore } from '../stores/classStore';
+import { useVoucherStore } from '../stores/voucherStore';
+import { validateVoucher } from '../config/vouchers';
+import { track } from '../services/analytics';
 import FeaturedVideo from '../components/precourse/FeaturedVideo';
 import BLSHero from '../components/precourse/BLSHero';
 import BLSProgressCard from '../components/precourse/BLSProgressCard';
@@ -59,6 +64,31 @@ export default function PreCourse() {
   });
   const gateInitialMode = joinParam && classCode !== joinParam ? 'join' : 'home';
 
+  // Voucher: unlocks the Post-test without requiring every lesson to be passed.
+  const voucherActive = useVoucherStore(s => !!(s.voucher && validateVoucher(s.voucher.code)));
+  const redeemVoucher = useVoucherStore(s => s.redeemVoucher);
+  const [showVoucher, setShowVoucher] = useState(false);
+  const [voucherInitialCode, setVoucherInitialCode] = useState('');
+  // /pre-course?voucher=ACLS2025 — a share-only link for people who already
+  // have the code. Valid → redeem silently; invalid → open the modal prefilled
+  // so they can see/retype it. Mirrors the ?join= class-link pattern.
+  const voucherParam = (searchParams.get('voucher') || '').trim().toUpperCase();
+  useEffect(() => {
+    if (!voucherParam) return;
+    const v = validateVoucher(voucherParam);
+    if (v) {
+      redeemVoucher(v);
+      track('voucher_redeemed', { props: { code: v.code, via: 'link' } });
+    } else {
+      // Invalid link code — open the modal prefilled so the user can see/retype
+      // it. Deferred to a microtask to avoid a synchronous setState-in-effect.
+      Promise.resolve().then(() => {
+        setVoucherInitialCode(voucherParam);
+        setShowVoucher(true);
+      });
+    }
+  }, [voucherParam, redeemVoucher]);
+
   useEffect(() => {
     const id = activeStudent?.id;
     if (!id) {
@@ -92,7 +122,7 @@ export default function PreCourse() {
   const allLessonsPassed = lessonsPassed === totalLessons && totalLessons > 0;
   const postAttempts = attempts.filter(a => a.lessonId === POST_TEST_LESSON_ID);
   const postBest = postAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-  const postTestUnlocked = !!activeStudent && allLessonsPassed;
+  const postTestUnlocked = !!activeStudent && (allLessonsPassed || voucherActive);
   const postTestPassed = postBest?.passed ?? false;
 
   const nextLesson = (() => {
@@ -177,6 +207,8 @@ export default function PreCourse() {
 
         {classBanner}
 
+        <VoucherCard onOpen={() => setShowVoucher(true)} />
+
         <BLSQuickActions
           lessonsPassed={lessonsPassed}
           totalLessons={totalLessons}
@@ -246,6 +278,12 @@ export default function PreCourse() {
           onClose={() => setShowIdentity(false)}
           onConfirm={() => setShowIdentity(false)}
         />
+
+        <VoucherModal
+          open={showVoucher}
+          initialCode={voucherInitialCode}
+          onClose={() => { setShowVoucher(false); setVoucherInitialCode(''); }}
+        />
       </div>
     );
   }
@@ -288,6 +326,8 @@ export default function PreCourse() {
       />
 
       {classBanner}
+
+      <VoucherCard onOpen={() => setShowVoucher(true)} />
 
       {/* Step 1 — Pre-test */}
       {activeStudent && (
@@ -365,6 +405,12 @@ export default function PreCourse() {
         open={showIdentity}
         onClose={closeIdentity}
         onConfirm={confirmIdentity}
+      />
+
+      <VoucherModal
+        open={showVoucher}
+        initialCode={voucherInitialCode}
+        onClose={() => { setShowVoucher(false); setVoucherInitialCode(''); }}
       />
     </div>
   );
