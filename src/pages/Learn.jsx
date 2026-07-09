@@ -87,23 +87,27 @@ export default function Learn() {
   const sections = IS_BLS
     ? [
         {
-          // Numbered study journey (mirrors the ACLS prepare section): full-width
-          // featured cards with step badges so students follow 1 → 2 → 3 → 4.
           title: t('learn_prepare', lang),
           items: [
-            { path: '/pre-course',           emoji: '🎓', label: t('pre_course', lang), subtitle: 'บทเรียน + Quiz', desc: t('pre_course_desc', lang), tone: 'info',    step: 1, featured: true, progressKey: 'lessons' },
-            { path: '/skill-practice',        emoji: '💗', label: t('cpr_drill', lang),  subtitle: 'CPR Drill',     desc: t('cpr_drill_desc', lang),  tone: 'danger',  step: 2, featured: true },
-            { path: '/pre-course/post-test',  emoji: '🏆', label: t('post_test', lang),  subtitle: 'Final Exam',    desc: t('post_test_desc', lang),  tone: 'shock',   step: 3, featured: true, progressKey: 'postTest' },
-            { path: '/certification',         emoji: '🏅', label: t('cert', lang),       subtitle: 'My Records',    desc: t('cert_desc', lang),       tone: 'warning', step: 4, featured: true, progressKey: 'cert' },
+            { path: '/pre-course', emoji: '🎓', label: t('pre_course', lang), subtitle: 'Pre-course', desc: t('pre_course_desc', lang), tone: 'info', progressKey: 'lessons' },
+          ],
+        },
+        {
+          title: t('learn_practice', lang),
+          items: [
+            { path: '/skill-practice', emoji: '💗', label: t('cpr_drill', lang), subtitle: 'CPR Drill', desc: t('cpr_drill_desc', lang), tone: 'danger' },
           ],
         },
         {
           title: t('learn_reference', lang),
           items: [
-            { path: '/guide',         emoji: '📖', label: t('guide', lang),      subtitle: 'Field Guide', desc: t('guide_desc', lang),      tone: 'success' },
-            { path: '/bls/algorithm', emoji: '📋', label: t('algorithms', lang), subtitle: 'Algorithm',   desc: t('algorithms_desc', lang), tone: 'purple' },
-            { path: '/bls/aed',       emoji: '⚡', label: t('bls_aed', lang),     subtitle: 'AED',         desc: t('bls_aed_desc', lang),    tone: 'info' },
-            { path: '/bls/choking',   emoji: '🫁', label: t('bls_choking', lang), subtitle: 'FBAO',        desc: t('bls_choking_desc', lang), tone: 'danger' },
+            { path: '/guide', emoji: '📖', label: t('guide', lang), subtitle: 'Field Guide', desc: t('guide_desc', lang), tone: 'success' },
+          ],
+        },
+        {
+          title: t('learn_progress', lang),
+          items: [
+            { path: '/certification', emoji: '🏅', label: t('cert', lang), subtitle: 'My Records', desc: t('cert_desc', lang), tone: 'warning', progressKey: 'cert' },
           ],
         },
       ]
@@ -184,9 +188,7 @@ export default function Learn() {
           <GraduationCap size={28} strokeWidth={2.2} className="text-white" />
         </div>
         <h1 className="text-title text-text-primary">{t('learn', lang)}</h1>
-        <p className="text-caption text-text-muted">
-          {IS_BLS ? t('learn_subtitle_bls', lang) : t('learn_subtitle', lang)}
-        </p>
+        <p className="text-caption text-text-muted">{t('learn_subtitle', lang)}</p>
       </div>
 
       {sections.map(section => {

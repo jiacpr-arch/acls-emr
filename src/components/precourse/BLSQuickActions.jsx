@@ -1,8 +1,16 @@
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, HeartPulse, Award, FileText } from 'lucide-react';
+import { Check } from 'lucide-react';
 
-// 2x2 quick action grid for BLS landing. Blue-and-white tones with subtle
-// gradient accents per tile so the page feels active rather than text-heavy.
+// Numbered study journey for the BLS landing. Full-width step cards (1 → 4)
+// that mirror the Learn hub's card style, so the Pre-course page is the single
+// place a student follows: อ่านบท → ฝึก CPR → Post-test → ใบประกาศฯ.
+const toneColor = {
+  info:    'var(--color-info)',
+  danger:  'var(--color-danger)',
+  shock:   'var(--color-shock)',
+  warning: 'var(--color-warning)',
+};
+
 export default function BLSQuickActions({
   lessonsPassed,
   totalLessons,
@@ -12,72 +20,103 @@ export default function BLSQuickActions({
 }) {
   const navigate = useNavigate();
 
+  const lessonsComplete = totalLessons > 0 && lessonsPassed === totalLessons;
+
   const tiles = [
     {
-      Icon: BookOpen,
+      step: 1,
+      emoji: '🎓',
       label: 'บทเรียน',
-      sub: `${lessonsPassed}/${totalLessons} ผ่าน`,
+      subtitle: `${totalLessons} บท + Quiz`,
+      desc: 'อ่าน + ทำแบบทดสอบ',
+      tone: 'info',
       onClick: onScrollToLessons,
-      iconBg: 'linear-gradient(135deg, #0EA5E9, #2563EB)',
+      count: { done: lessonsPassed, total: totalLessons },
+      complete: lessonsComplete,
     },
     {
-      Icon: HeartPulse,
+      step: 2,
+      emoji: '💗',
       label: 'ฝึก CPR',
-      sub: 'Metronome 110/min',
+      subtitle: 'Metronome',
+      desc: 'จังหวะ 110/นาที',
+      tone: 'danger',
       onClick: () => navigate('/skill-practice'),
-      iconBg: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
     },
     {
-      Icon: FileText,
+      step: 3,
+      emoji: '🏆',
       label: 'Post-test',
-      sub: postTestPassed
-        ? 'ผ่านแล้ว'
-        : postTestUnlocked
-          ? 'พร้อมสอบ'
-          : 'ยังไม่ปลดล็อก',
+      subtitle: 'ข้อสอบปลายทาง',
+      desc: postTestPassed ? 'ผ่านแล้ว' : postTestUnlocked ? 'พร้อมสอบ' : 'ยังไม่ปลดล็อก',
+      tone: 'shock',
       onClick: () => postTestUnlocked && navigate('/pre-course/post-test'),
-      iconBg: 'linear-gradient(135deg, #3B82F6, #1E40AF)',
       disabled: !postTestUnlocked,
+      complete: postTestPassed,
     },
     {
-      Icon: Award,
+      step: 4,
+      emoji: '🏅',
       label: 'ใบประกาศนียบัตร',
-      sub: postTestPassed ? 'พร้อมดาวน์โหลด' : 'ผ่าน Post-test ก่อน',
+      subtitle: 'My Records',
+      desc: postTestPassed ? 'พร้อมดาวน์โหลด' : 'ผ่าน Post-test ก่อน',
+      tone: 'warning',
       onClick: () => navigate('/certification'),
-      iconBg: postTestPassed
-        ? 'linear-gradient(135deg, #059669, #047857)'
-        : 'linear-gradient(135deg, #93C5FD, #60A5FA)',
+      complete: postTestPassed,
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {tiles.map((t) => {
-        const Icon = t.Icon;
+    <div className="grid grid-cols-1 gap-3">
+      {tiles.map((tile) => {
+        const color = toneColor[tile.tone] || toneColor.info;
         return (
           <button
-            key={t.label}
-            onClick={t.onClick}
-            disabled={t.disabled}
-            className="dash-card text-left flex flex-col justify-between !p-7 min-h-[180px] transition-transform active:scale-[0.97] disabled:opacity-55 disabled:cursor-not-allowed"
-            style={{ borderRadius: 'var(--radius-xl)' }}
+            key={tile.step}
+            onClick={tile.onClick}
+            disabled={tile.disabled}
+            className={`learn-card tone-${tile.tone} relative flex flex-col items-center text-center px-3 pt-6 pb-4 disabled:opacity-55 disabled:cursor-not-allowed`}
           >
-            <div
-              className="w-16 h-16 inline-flex items-center justify-center text-white"
-              style={{
-                background: t.iconBg,
-                borderRadius: 'var(--radius-lg)',
-                boxShadow: '0 6px 14px rgba(37, 99, 235, 0.28)',
-              }}
+            {/* Step number badge — drives the 1 → 2 → 3 → 4 reading order */}
+            <span
+              className="absolute top-2 left-2 inline-flex items-center justify-center w-6 h-6 text-2xs font-extrabold text-white shadow-sm"
+              style={{ borderRadius: '50%', background: color }}
+              aria-hidden="true"
             >
-              <Icon size={28} strokeWidth={2.4} />
-            </div>
-            <div className="mt-4">
-              <div className="text-lg font-bold text-text-primary leading-tight">
-                {t.label}
-              </div>
-              <div className="text-xs text-text-muted mt-2">{t.sub}</div>
-            </div>
+              {tile.step}
+            </span>
+
+            {/* Top-right progress marker: green check when done, xx/xx while a
+                multi-chapter unit is still incomplete. */}
+            {tile.complete ? (
+              <span
+                className="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 text-white shadow-sm"
+                style={{ borderRadius: '50%', background: 'var(--color-success)' }}
+              >
+                <Check size={14} strokeWidth={3} />
+              </span>
+            ) : tile.count?.total ? (
+              <span
+                className="absolute top-2 right-2 inline-flex items-center justify-center px-1.5 h-6 text-2xs font-extrabold text-white shadow-sm"
+                style={{ borderRadius: '999px', background: color }}
+                aria-hidden="true"
+              >
+                {tile.count.done}/{tile.count.total}
+              </span>
+            ) : null}
+
+            <span className="text-[40px] leading-none mb-2" aria-hidden="true">
+              {tile.emoji}
+            </span>
+            <span className="text-base font-bold leading-tight" style={{ color }}>
+              {tile.label}
+            </span>
+            <span className="text-sm font-semibold text-text-primary leading-tight mt-0.5">
+              {tile.subtitle}
+            </span>
+            <span className="text-xs text-text-muted leading-snug mt-1">
+              {tile.desc}
+            </span>
           </button>
         );
       })}
