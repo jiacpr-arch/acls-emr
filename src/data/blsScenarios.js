@@ -600,9 +600,22 @@ export function buildFinalExam() {
   };
 }
 
+// Reorder a step's options so the correct answer is always first — i.e. it
+// always renders as ข้อ ก (option A). This is enforced in code (not just left
+// to how the data happens to be authored) so the invariant holds even after
+// future edits, the final-exam sampler, or any option shuffling.
+function correctFirst(step) {
+  const correct = step.options.filter((o) => o.correct);
+  const rest = step.options.filter((o) => !o.correct);
+  return { ...step, options: [...correct, ...rest] };
+}
+
 export function getStageById(id) {
-  if (id === FINAL_EXAM_ID) return buildFinalExam();
-  return blsScenarios.find((s) => s.id === id) || null;
+  const stage = id === FINAL_EXAM_ID
+    ? buildFinalExam()
+    : blsScenarios.find((s) => s.id === id);
+  if (!stage) return null;
+  return { ...stage, steps: stage.steps.map(correctFirst) };
 }
 
 // ---- Progress persistence (localStorage, same pattern as EKG_TEST_PASSED_KEY) --
