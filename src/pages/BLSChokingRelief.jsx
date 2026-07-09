@@ -11,6 +11,7 @@ const sections = [
       'ถามว่า "สำลักไหม?" — ถ้าไอแรงๆ ได้ ให้รอ',
       'ไอไม่ออก / พูดไม่ได้ → ทำ Abdominal Thrusts (Heimlich)',
       'ยืนด้านหลัง → กำมือใต้สะดือ → กระตุกเข้าและขึ้น',
+      'หญิงตั้งครรภ์ระยะท้าย / อ้วนมาก → ใช้ Chest Thrusts แทน Abdominal Thrusts (Back Blows ทำได้ตามปกติ)',
       'ทำซ้ำจนวัตถุหลุด หรือผู้ป่วยหมดสติ',
     ],
   },
@@ -36,6 +37,7 @@ const sections = [
       'เริ่ม CPR (30:2) — ก่อนเป่าให้ดูในปาก',
       'เห็นวัตถุ → เอาออก (ห้าม blind finger sweep)',
       'CPR ต่อจนทีมช่วยเหลือมาถึง',
+      'หลังช่วยเหลือสำเร็จ ควรให้ EMS/แพทย์ประเมินต่อเสมอ (เสี่ยงบาดเจ็บอวัยวะภายในจาก thrusts + สิ่งของอาจหลงเหลือ)',
     ],
   },
 ];
@@ -71,7 +73,7 @@ export default function BLSChokingRelief() {
       <div className="dash-card !p-3 flex items-start gap-2 bg-warning/10 border border-warning/30">
         <Construction size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
         <span className="text-caption text-text-secondary">
-          หน้านี้กำลังพัฒนา — เนื้อหาแบบเต็ม (รูป + วิดีโอ demo) จะเพิ่มในเร็วๆ นี้
+          เนื้อหาหลักครบแล้ว — กำลังเพิ่มรูป + วิดีโอสาธิตในเร็วๆ นี้
         </span>
       </div>
 
