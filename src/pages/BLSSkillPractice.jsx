@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playMetronomeClick, playBeep } from '../utils/sound';
 import ChecklistItem from '../components/ChecklistItem';
-import { ChevronLeft, Play, Pause, RotateCcw, HeartPulse, Wind } from 'lucide-react';
+import { ChevronLeft, Play, Pause, RotateCcw, HeartPulse, Wind, Brain, ArrowRight } from 'lucide-react';
 
 const TARGET_RATE = 110;        // กลางช่วง 100–120
 const RATE_LOW = 100;
@@ -148,6 +148,23 @@ export default function BLSSkillPractice() {
             เปลี่ยนคนกดทุก <b>2 นาที</b> เพื่อรักษาคุณภาพ
           </div>
         </div>
+
+        {/* Decision-game entry — pairs the hands drill with the algorithm drill */}
+        <button
+          onClick={() => navigate('/bls/scenario')}
+          className="w-full dash-card flex items-center gap-3 text-left transition-transform active:scale-[0.98]"
+          style={{ background: 'color-mix(in srgb, var(--color-info) 8%, var(--color-bg-secondary))' }}
+        >
+          <span className="w-11 h-11 shrink-0 inline-flex items-center justify-center text-white"
+            style={{ background: 'linear-gradient(135deg, var(--color-info), var(--color-primary))', borderRadius: 'var(--radius-md)' }}>
+            <Brain size={22} strokeWidth={2.2} />
+          </span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-sm font-bold text-text-primary">🧠 เกมลำดับขั้นตัดสินใจ</span>
+            <span className="block text-xs text-text-muted mt-0.5">ฝึกลำดับ BLS ทีละขั้น เลือกทำอะไรก่อน-หลัง</span>
+          </span>
+          <ArrowRight size={18} className="text-info shrink-0" />
+        </button>
 
         {/* Breath alert banner */}
         {breathAlert && (

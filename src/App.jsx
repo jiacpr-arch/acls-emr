@@ -32,6 +32,7 @@ import InstructorCohort from './pages/InstructorCohort';
 import PostTestExam from './pages/PostTestExam';
 import PreTestExam from './pages/PreTestExam';
 import BLSSkillPractice from './pages/BLSSkillPractice';
+import BLSScenario from './pages/BLSScenario';
 import BLSAlgorithm from './pages/BLSAlgorithm';
 import BLSAedGuide from './pages/BLSAedGuide';
 import BLSChokingRelief from './pages/BLSChokingRelief';
@@ -272,6 +273,7 @@ function App() {
         {IS_BLS && <Route path="/recording" element={<Recording />} />}
         {IS_BLS && <Route path="/history" element={<Dashboard />} />}
         {IS_BLS && <Route path="/skill-practice" element={<BLSSkillPractice />} />}
+        {IS_BLS && <Route path="/bls/scenario" element={<BLSScenario />} />}
         {IS_BLS && <Route path="/bls/algorithm" element={<BLSAlgorithm />} />}
         {IS_BLS && <Route path="/bls/aed" element={<BLSAedGuide />} />}
         {IS_BLS && <Route path="/bls/choking" element={<BLSChokingRelief />} />}
