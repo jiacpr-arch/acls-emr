@@ -25,7 +25,7 @@ export default function BLSScenarioStageGrid() {
       step: blsScenarios.length + 1,
       emoji: '🏆',
       title: 'ข้อสอบรวม',
-      subtitle: 'สุ่มคำถามจากทุกด่าน',
+      subtitle: 'ทบทวนไล่ตามลำดับทุกเคส',
       locked: !finalUnlocked,
     },
   ];
