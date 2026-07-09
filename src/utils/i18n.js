@@ -96,6 +96,7 @@ const translations = {
   'learn_practice': { en: 'Practice', th: 'ฝึกซ้อม' },
   'learn_progress': { en: 'Progress', th: 'ความก้าวหน้า' },
   'learn_subtitle': { en: 'Study, practice, and track your ACLS progress', th: 'เรียนรู้ ฝึกซ้อม และติดตามความก้าวหน้า ACLS' },
+  'learn_subtitle_bls': { en: 'Study, practice, and track your BLS progress', th: 'เรียนรู้ ฝึกซ้อม และติดตามความก้าวหน้า BLS' },
   'code_sim': { en: 'Code Blue Sim', th: 'จำลองเหตุ Code Blue' },
 
   // ===== Learn tile descriptions =====
@@ -112,6 +113,10 @@ const translations = {
   'cert_desc': { en: 'My learning records', th: 'ผลการเรียนของฉัน' },
   'cpr_drill': { en: 'CPR Drill', th: 'ฝึก CPR' },
   'cpr_drill_desc': { en: 'Compression rhythm', th: 'ฝึกกดหน้าอกตามจังหวะ' },
+  'bls_aed': { en: 'AED', th: 'การใช้ AED' },
+  'bls_aed_desc': { en: 'How to use an AED', th: 'ขั้นตอนการใช้ AED' },
+  'bls_choking': { en: 'Choking', th: 'สำลัก (FBAO)' },
+  'bls_choking_desc': { en: 'Airway obstruction relief', th: 'แก้ทางเดินหายใจอุดกั้น' },
   'learn_video': { en: 'Video Lessons', th: 'วิดีโอบทเรียน' },
   'video_lessons': { en: 'Video Lessons', th: 'วิดีโอบทเรียน' },
   'video_lessons_desc': { en: 'In-depth clips, all topics', th: 'คลิปสอนเชิงลึกทุกหัวข้อ' },
