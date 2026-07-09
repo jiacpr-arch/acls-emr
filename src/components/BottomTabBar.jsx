@@ -18,7 +18,7 @@ export default function BottomTabBar() {
 
   const tabs = IS_BLS
     ? [
-        { path: '/', Icon: GraduationCap, label: 'เรียน' },
+        { path: '/learn', Icon: GraduationCap, label: 'เรียน' },
         { path: '/new-case', Icon: HeartPulse, label: 'ฝึก code' },
         { path: '/history', Icon: FileText, label: 'ประวัติ' },
         { path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร' },
@@ -38,7 +38,7 @@ export default function BottomTabBar() {
         { path: '/bls/aed', Icon: Zap, label: 'การใช้ AED' },
         { path: '/bls/choking', Icon: Wind, label: 'สำลัก' },
         { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR Metronome' },
-        { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
+        { path: '/pre-course', Icon: GraduationCap, label: t('pre_course', lang) },
         { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
         { path: '/news', Icon: Bell, label: 'ข่าว' },
         { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
