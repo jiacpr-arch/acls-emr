@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft, Check, X, RotateCcw, ArrowRight, HeartPulse, Trophy, Clock,
@@ -16,7 +16,10 @@ const POINTS_TIMEOUT = -5;
 export default function BLSScenario() {
   const navigate = useNavigate();
   const { stageId } = useParams();
-  const scenario = getStageById(stageId);
+  // Memoize by stageId so the shuffled option order (and the final exam's
+  // sampled steps) is computed once per stage and stays stable while the
+  // student plays — re-renders on each answer must not reshuffle mid-question.
+  const scenario = useMemo(() => getStageById(stageId), [stageId]);
   const steps = scenario?.steps ?? [];
 
   const [stepIdx, setStepIdx] = useState(0);
