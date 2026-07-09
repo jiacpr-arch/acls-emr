@@ -600,14 +600,13 @@ export function buildFinalExam() {
   };
 }
 
-// Reorder a step's options so the correct answer is always first — i.e. it
-// always renders as ข้อ ก (option A). This is enforced in code (not just left
-// to how the data happens to be authored) so the invariant holds even after
-// future edits, the final-exam sampler, or any option shuffling.
-function correctFirst(step) {
-  const correct = step.options.filter((o) => o.correct);
-  const rest = step.options.filter((o) => !o.correct);
-  return { ...step, options: [...correct, ...rest] };
+// Shuffle each step's options so the correct answer lands in a different
+// position (ข้อ ก/ข/ค/ง) across questions — the data authors the correct
+// option first, but players should not be able to guess by always picking A.
+// getStageById() is memoized by stageId in the game (BLSScenario), so this
+// runs once per stage load and the option order stays put during play.
+function shuffleOptions(step) {
+  return { ...step, options: shuffle(step.options) };
 }
 
 export function getStageById(id) {
@@ -615,7 +614,7 @@ export function getStageById(id) {
     ? buildFinalExam()
     : blsScenarios.find((s) => s.id === id);
   if (!stage) return null;
-  return { ...stage, steps: stage.steps.map(correctFirst) };
+  return { ...stage, steps: stage.steps.map(shuffleOptions) };
 }
 
 // ---- Progress persistence (localStorage, same pattern as EKG_TEST_PASSED_KEY) --
