@@ -10,7 +10,7 @@ const steps = [
   {
     n: 2,
     title: 'ติดแผ่น Pads',
-    detail: 'แผ่นขวาบน (ใต้กระดูกไหปลาร้า) + แผ่นซ้ายล่าง (ใต้รักแร้) — ทารก: ติดหน้า-หลัง',
+    detail: 'แผ่นขวาบน (ใต้กระดูกไหปลาร้า) + แผ่นซ้ายล่าง (ใต้รักแร้) — ทารก: ติดหน้า-หลัง; เด็ก < 8 ปี หรือ < 25 กก.: ใช้ pediatric pads/attenuator ถ้ามี (ไม่มีก็ใช้ผู้ใหญ่ได้)',
   },
   {
     n: 3,
@@ -25,7 +25,7 @@ const steps = [
   {
     n: 5,
     title: 'CPR ต่อ → วิเคราะห์ซ้ำ',
-    detail: 'AED จะ analyze ทุก 2 นาที — ทำซ้ำจนกว่าทีม ALS มาถึง',
+    detail: 'ไม่ว่า "shock advised" หรือ "no shock advised" ให้กดหน้าอกต่อทันที 2 นาทีเสมอ (ห้ามตรวจชีพจรก่อน) — AED จะ analyze ซ้ำทุก 2 นาที ทำซ้ำจนกว่าทีม ALS มาถึง',
   },
 ];
 
@@ -48,7 +48,7 @@ export default function BLSAedGuide() {
       <div className="dash-card !p-3 flex items-start gap-2 bg-warning/10 border border-warning/30">
         <Construction size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
         <span className="text-caption text-text-secondary">
-          หน้านี้กำลังพัฒนา — เนื้อหาแบบเต็ม (รูปประกอบ + วิดีโอ) จะเพิ่มในเร็วๆ นี้
+          เนื้อหาหลักครบแล้ว — กำลังเพิ่มรูปประกอบ + วิดีโอสาธิตในเร็วๆ นี้
         </span>
       </div>
 
@@ -74,7 +74,8 @@ export default function BLSAedGuide() {
         </div>
         <ul className="space-y-1 text-caption text-text-secondary pl-2">
           <li className="flex gap-2"><span className="text-info">•</span><span>หน้าอกเปียก → เช็ดให้แห้งก่อน</span></li>
-          <li className="flex gap-2"><span className="text-info">•</span><span>มีแผ่นยา/เครื่องกระตุ้นหัวใจ → ติดห่าง ≥ 1 นิ้ว</span></li>
+          <li className="flex gap-2"><span className="text-info">•</span><span>แผ่นยา (nitroglycerin/fentanyl patch) → ดึงออก เช็ดยาก่อนติด หรือห่าง ≥ 1 นิ้ว (2.5 ซม.) ถ้าดึงไม่ทัน</span></li>
+          <li className="flex gap-2"><span className="text-info">•</span><span>เครื่องกระตุ้นหัวใจ (pacemaker/ICD, คลำเป็นก้อนแข็งใต้ผิวหนัง) → ติดห่างให้มากที่สุด (ควร ≥ 8 ซม.) ห้ามวางทับ</span></li>
           <li className="flex gap-2"><span className="text-info">•</span><span>ขนหน้าอกหนา → โกนหรือใช้แผ่นสำรอง</span></li>
         </ul>
       </div>
