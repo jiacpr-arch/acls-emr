@@ -19,17 +19,23 @@ export default function CPRDashboard({
   onSecondary,
   isTraining,
 }) {
-  const {
-    cycleElapsed, cycleDuration, cycleNumber,
-    cprActive, startCPR, stopCPR, elapsed,
-    compressorRotateDue, dismissCompressorRotate,
-    getCCF,
-  } = useTimerStore();
+  const cycleElapsed = useTimerStore(s => s.cycleElapsed);
+  const cycleDuration = useTimerStore(s => s.cycleDuration);
+  const cycleNumber = useTimerStore(s => s.cycleNumber);
+  const cprActive = useTimerStore(s => s.cprActive);
+  const startCPR = useTimerStore(s => s.startCPR);
+  const stopCPR = useTimerStore(s => s.stopCPR);
+  const elapsed = useTimerStore(s => s.elapsed);
+  const compressorRotateDue = useTimerStore(s => s.compressorRotateDue);
+  const dismissCompressorRotate = useTimerStore(s => s.dismissCompressorRotate);
+  const getCCF = useTimerStore(s => s.getCCF);
 
-  const {
-    shockCount, currentRhythm, drugTimers, addEvent,
-    addEtCO2, events,
-  } = useCaseStore();
+  const shockCount = useCaseStore(s => s.shockCount);
+  const currentRhythm = useCaseStore(s => s.currentRhythm);
+  const drugTimers = useCaseStore(s => s.drugTimers);
+  const addEvent = useCaseStore(s => s.addEvent);
+  const addEtCO2 = useCaseStore(s => s.addEtCO2);
+  const events = useCaseStore(s => s.events);
 
   const settings = useSettingsStore();
 

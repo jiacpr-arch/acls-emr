@@ -1,7 +1,11 @@
 import { useTimerStore } from '../stores/timerStore';
 
 export default function CPRQuality() {
-  const { totalCPRTime, elapsed, pauses, cycleNumber, cprActive } = useTimerStore();
+  const totalCPRTime = useTimerStore(s => s.totalCPRTime);
+  const elapsed = useTimerStore(s => s.elapsed);
+  const pauses = useTimerStore(s => s.pauses);
+  const cycleNumber = useTimerStore(s => s.cycleNumber);
+  const cprActive = useTimerStore(s => s.cprActive);
   const ccf = elapsed > 0 ? Math.round((totalCPRTime / elapsed) * 100) : 0;
 
   // Calculate quality score

@@ -3,7 +3,10 @@ import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 
 export default function EtCO2Panel() {
-  const { latestEtCO2, etco2Readings, addEtCO2, addEvent } = useCaseStore();
+  const latestEtCO2 = useCaseStore(s => s.latestEtCO2);
+  const etco2Readings = useCaseStore(s => s.etco2Readings);
+  const addEtCO2 = useCaseStore(s => s.addEtCO2);
+  const addEvent = useCaseStore(s => s.addEvent);
   const elapsed = useTimerStore(s => s.elapsed);
   const [inputValue, setInputValue] = useState('');
 

@@ -7,8 +7,17 @@ import { FileText } from 'lucide-react';
 // SBAR Handover auto-generated from case data
 // S: Situation, B: Background, A: Assessment, R: Recommendation
 export default function SBARHandover({ onClose }) {
-  const { currentCase, events, patient, team, shockCount, etco2Readings, airway } = useCaseStore();
-  const { elapsed, getCCF, cycleNumber, totalCPRTime } = useTimerStore();
+  const currentCase = useCaseStore(s => s.currentCase);
+  const events = useCaseStore(s => s.events);
+  const patient = useCaseStore(s => s.patient);
+  const team = useCaseStore(s => s.team);
+  const shockCount = useCaseStore(s => s.shockCount);
+  const etco2Readings = useCaseStore(s => s.etco2Readings);
+  const airway = useCaseStore(s => s.airway);
+  const elapsed = useTimerStore(s => s.elapsed);
+  const getCCF = useTimerStore(s => s.getCCF);
+  const cycleNumber = useTimerStore(s => s.cycleNumber);
+  const totalCPRTime = useTimerStore(s => s.totalCPRTime);
 
   const p = patient || {};
   const outcome = currentCase?.outcome || 'ongoing';

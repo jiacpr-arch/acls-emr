@@ -12,7 +12,12 @@ import ChecklistItem from './ChecklistItem';
 // Post-ROSC Care Checklist — ILCOR 2025
 // Must complete ALL items before case can end
 export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy, onMI, onArrest }) {
-  const { currentCase, events, patient, team, etco2Readings, shockCount } = useCaseStore();
+  const currentCase = useCaseStore(s => s.currentCase);
+  const events = useCaseStore(s => s.events);
+  const patient = useCaseStore(s => s.patient);
+  const team = useCaseStore(s => s.team);
+  const etco2Readings = useCaseStore(s => s.etco2Readings);
+  const shockCount = useCaseStore(s => s.shockCount);
   const elapsed = useTimerStore(s => s.elapsed);
   const addEvent = useCaseStore(s => s.addEvent);
   const [checklist, setChecklist] = useState({});

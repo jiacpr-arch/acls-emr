@@ -33,6 +33,7 @@ export default function LessonReader() {
 
   const [showIdentity, setShowIdentity] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
   const [imagesByStep, setImagesByStep] = useState({});
   const [videosByStep, setVideosByStep] = useState({});
 
@@ -120,6 +121,7 @@ export default function LessonReader() {
   const submitAttempt = async () => {
     if (submitting || !activeStudent) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
       await markLessonRead(activeStudent.id, lesson.id);
 
@@ -151,6 +153,10 @@ export default function LessonReader() {
       });
       clearAttempt();
       navigate(`/pre-course/results/${autoId}`);
+    } catch (err) {
+      // เก็บคำตอบไว้ครบ ให้กดส่งซ้ำได้ — อย่าปล่อยให้ fail เงียบ
+      console.error('submit lesson attempt failed:', err);
+      setSubmitError('บันทึกคำตอบไม่สำเร็จ (พื้นที่จัดเก็บอาจเต็ม) — คำตอบยังอยู่ครบ กดส่งคำตอบอีกครั้ง');
     } finally {
       setSubmitting(false);
     }
@@ -311,6 +317,13 @@ export default function LessonReader() {
           </>
         )}
       </div>
+
+      {submitError && (
+        <div className="dash-card !p-3 text-caption text-danger flex items-center gap-2">
+          <AlertCircle size={16} strokeWidth={2.2} className="shrink-0" />
+          {submitError}
+        </div>
+      )}
 
       <StudentIdentityModal
         open={showIdentity}

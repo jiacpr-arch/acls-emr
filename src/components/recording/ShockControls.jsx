@@ -8,7 +8,10 @@ import { Zap } from 'lucide-react';
 
 // Shared shock-delivery logic for the wizard step and the quick-access modal.
 function useDeliverShock() {
-  const { shockCount, currentRhythm, addShock, addEvent } = useCaseStore();
+  const shockCount = useCaseStore(s => s.shockCount);
+  const currentRhythm = useCaseStore(s => s.currentRhythm);
+  const addShock = useCaseStore(s => s.addShock);
+  const addEvent = useCaseStore(s => s.addEvent);
   const soundEnabled = useSettingsStore(s => s.soundEnabled);
   const elapsed = useTimerStore(s => s.elapsed);
   const energy = getShockEnergy(currentRhythm, shockCount);

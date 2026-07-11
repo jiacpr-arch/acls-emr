@@ -45,6 +45,7 @@ export default function PostTestExam() {
   const [gateChecked, setGateChecked] = useState(false);
   const [gatePassed, setGatePassed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
   const [exam, setExam] = useState(null); // { bank, set, questions }
   const [loadError, setLoadError] = useState(null);
@@ -161,6 +162,7 @@ export default function PostTestExam() {
   async function handleSubmit() {
     if (submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
       const detailed = questions.map(q => {
         const chosen = answers[q.id] || null;
@@ -225,6 +227,10 @@ export default function PostTestExam() {
 
       clearPostTest();
       navigate(`/pre-course/results/${attemptId}`);
+    } catch (err) {
+      // คำตอบยังอยู่ครบใน store — แจ้งให้กดส่งซ้ำ อย่าปล่อยให้ fail เงียบ
+      console.error('submit post-test failed:', err);
+      setSubmitError('บันทึกผลสอบไม่สำเร็จ (พื้นที่จัดเก็บอาจเต็ม) — คำตอบยังอยู่ครบ กดส่งคำตอบอีกครั้ง');
     } finally {
       setSubmitting(false);
     }
@@ -276,6 +282,13 @@ export default function PostTestExam() {
           })}
         </div>
       </div>
+
+      {submitError && (
+        <div className="dash-card !p-3 text-caption text-danger flex items-center gap-2">
+          <AlertTriangle size={16} strokeWidth={2.4} className="shrink-0" />
+          {submitError}
+        </div>
+      )}
 
       <div className="above-tab-bar bg-bg-primary/95 backdrop-blur border-y border-border px-4 py-3">
         <div className="max-w-[820px] mx-auto flex items-center gap-2">

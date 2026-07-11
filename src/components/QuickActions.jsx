@@ -3,8 +3,15 @@ import { useTimerStore } from '../stores/timerStore';
 import { drugs } from '../data/drugs';
 
 export default function QuickActions() {
-  const { addEvent, addShock, currentRhythm, shockCount, addDrugTimer } = useCaseStore();
-  const { elapsed, cprActive, startCPR, stopCPR } = useTimerStore();
+  const addEvent = useCaseStore(s => s.addEvent);
+  const addShock = useCaseStore(s => s.addShock);
+  const currentRhythm = useCaseStore(s => s.currentRhythm);
+  const shockCount = useCaseStore(s => s.shockCount);
+  const addDrugTimer = useCaseStore(s => s.addDrugTimer);
+  const elapsed = useTimerStore(s => s.elapsed);
+  const cprActive = useTimerStore(s => s.cprActive);
+  const startCPR = useTimerStore(s => s.startCPR);
+  const stopCPR = useTimerStore(s => s.stopCPR);
 
   const handleCPR = () => {
     if (cprActive) {

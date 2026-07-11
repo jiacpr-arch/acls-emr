@@ -7,11 +7,16 @@ const buckets = new Map();
 const MAX_BUCKETS = 10_000;
 
 export function getRequestIp(req) {
-  return (
-    String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
-    String(req.headers['x-real-ip'] || '') ||
-    'unknown'
-  );
+  // Only trust headers the platform sets. The left-most x-forwarded-for entry
+  // is client-supplied and trivially spoofable, which would let an attacker
+  // rotate fake IPs past the limit — so prefer Vercel's own header, then
+  // x-real-ip, then the right-most (proxy-appended) x-forwarded-for entry.
+  const vercelIp = String(req.headers['x-vercel-forwarded-for'] || '').split(',')[0].trim();
+  if (vercelIp) return vercelIp;
+  const realIp = String(req.headers['x-real-ip'] || '').trim();
+  if (realIp) return realIp;
+  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',');
+  return forwarded[forwarded.length - 1].trim() || 'unknown';
 }
 
 /**

@@ -41,10 +41,32 @@ test('window reset allows requests again', async () => {
   assert.equal(rateLimit(req(), opts).ok, true);
 });
 
-test('getRequestIp takes the first x-forwarded-for entry', () => {
-  assert.equal(getRequestIp({ headers: { 'x-forwarded-for': '9.9.9.9, 10.0.0.1' } }), '9.9.9.9');
-  assert.equal(getRequestIp({ headers: { 'x-real-ip': '8.8.8.8' } }), '8.8.8.8');
+test('getRequestIp prefers platform headers over x-forwarded-for', () => {
+  assert.equal(
+    getRequestIp({ headers: { 'x-vercel-forwarded-for': '7.7.7.7', 'x-forwarded-for': '9.9.9.9' } }),
+    '7.7.7.7'
+  );
+  assert.equal(
+    getRequestIp({ headers: { 'x-real-ip': '8.8.8.8', 'x-forwarded-for': '9.9.9.9' } }),
+    '8.8.8.8'
+  );
   assert.equal(getRequestIp({ headers: {} }), 'unknown');
+});
+
+test('getRequestIp ignores spoofed left-most x-forwarded-for entries', () => {
+  // Client sends its own XFF; the platform appends the real IP on the right.
+  assert.equal(
+    getRequestIp({ headers: { 'x-forwarded-for': 'spoofed1, spoofed2, 10.0.0.1' } }),
+    '10.0.0.1'
+  );
+  assert.equal(getRequestIp({ headers: { 'x-forwarded-for': '9.9.9.9' } }), '9.9.9.9');
+});
+
+test('rate limit cannot be reset by rotating the client-controlled XFF prefix', () => {
+  const opts = { key: 'k', limit: 1, windowMs: 60_000 };
+  const spoof = (prefix) => ({ headers: { 'x-forwarded-for': `${prefix}, 10.0.0.1` } });
+  assert.equal(rateLimit(spoof('1.1.1.1'), opts).ok, true);
+  assert.equal(rateLimit(spoof('2.2.2.2'), opts).ok, false);
 });
 
 test('enforceRateLimit writes a 429 response when blocked', () => {

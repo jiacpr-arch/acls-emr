@@ -43,7 +43,10 @@ export default function Recording() {
   const startMode = searchParams.get('start') || 'bls';
   const currentCase = useCaseStore(s => s.currentCase);
   const endCase = useCaseStore(s => s.endCase);
-  const { isRunning, elapsed } = useTimerStore();
+  // Narrow selectors: the timer store is set() 5×/sec while running, so a
+  // bare useTimerStore() would re-render this whole page on every tick.
+  const isRunning = useTimerStore(s => s.isRunning);
+  const elapsed = useTimerStore(s => s.elapsed);
   const mode = useSettingsStore(s => s.mode);
   const isTraining = mode === 'training';
 
