@@ -1,6 +1,6 @@
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
 import { processStudentQuestion } from '../_lib/processStudentQuestion.js';
-import { enforceRateLimit } from '../_lib/rateLimit.js';
+import { enforceRateLimit, getRequestIp } from '../_lib/rateLimit.js';
 
 export const config = { maxDuration: 60 };
 
@@ -34,10 +34,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message });
   }
 
-  const requestIp =
-    (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
-    req.headers['x-real-ip'] ||
-    null;
+  const ip = getRequestIp(req);
+  const requestIp = ip === 'unknown' ? null : ip;
 
   // Insert pending row
   const { data: inserted, error: insErr } = await supabase
@@ -64,6 +62,14 @@ export default async function handler(req, res) {
   try {
     await processStudentQuestion(id);
   } catch (err) {
+    if (err?.code === 'ALREADY_PROCESSING') {
+      // Another run holds the row — don't mark it failed under them.
+      return res.status(202).json({
+        id,
+        status: 'processing',
+        message: 'บันทึกคำถามแล้ว ระบบกำลังสร้างคำตอบ รอ admin ตรวจสอบก่อนเผยแพร่',
+      });
+    }
     await supabase
       .from('acls_student_questions')
       .update({

@@ -22,7 +22,8 @@ export default async function handler(req, res) {
   const supabase = getSupabaseAdmin();
 
   try {
-    await processStudentQuestion(id);
+    // force: admins may reprocess a row left stuck in 'processing' by a crash.
+    await processStudentQuestion(id, { force: true });
   } catch (err) {
     await supabase
       .from('acls_student_questions')

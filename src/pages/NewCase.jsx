@@ -22,7 +22,8 @@ let aclsSplashSeen = false;
 
 export default function NewCase() {
   const navigate = useNavigate();
-  const { createCase, restoreSession } = useCaseStore();
+  const createCase = useCaseStore(s => s.createCase);
+  const restoreSession = useCaseStore(s => s.restoreSession);
   const mode = useSettingsStore(s => s.mode);
   const [loading, setLoading] = useState(false);
   const [activeSession, setActiveSession] = useState(null);

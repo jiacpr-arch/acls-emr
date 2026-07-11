@@ -34,13 +34,15 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const err = await response.text();
-      return res.status(response.status).json({ error: err });
+      console.error(`als-tip: upstream ${response.status}:`, err.slice(0, 500));
+      return res.status(502).json({ error: 'AI service unavailable — please try again later' });
     }
 
     const data = await response.json();
     const text = data.content?.[0]?.text || '';
     return res.status(200).json({ tip: text });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('als-tip failed:', err);
+    return res.status(500).json({ error: 'Failed to generate tip — please try again later' });
   }
 }

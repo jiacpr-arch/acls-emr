@@ -58,7 +58,8 @@ export function EventLogPanel({ onClose }) {
 
 // ===== PATIENT INFO PANEL =====
 export function PatientInfoPanel({ onClose }) {
-  const { patient, updatePatient } = useCaseStore();
+  const patient = useCaseStore(s => s.patient);
+  const updatePatient = useCaseStore(s => s.updatePatient);
 
   const Field = ({ label, field, placeholder, type = 'text' }) => (
     <div>
@@ -128,7 +129,8 @@ function YesNoField({ label, field, patient, updatePatient }) {
 
 // ===== TEAM PANEL =====
 export function TeamPanel({ onClose }) {
-  const { team, setTeam } = useCaseStore();
+  const team = useCaseStore(s => s.team);
+  const setTeam = useCaseStore(s => s.setTeam);
   const updateField = (field, value) => setTeam({ ...team, [field]: value });
 
   const RoleField = ({ Icon, label, field, placeholder }) => (

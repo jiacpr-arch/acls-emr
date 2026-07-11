@@ -60,9 +60,33 @@ async function flush() {
   }
 }
 
+// Failure gate: rows whose last failure set a nextRetryAt in the future are
+// skipped this flush (exponential backoff); once a row syncs, its failure
+// record is deleted so syncFailures can't grow forever.
+async function loadFailureGate(table) {
+  const failures = await db.syncFailures.where('table').equals(table).toArray();
+  const now = Date.now();
+  const blocked = new Set();
+  const byRef = new Map();
+  for (const f of failures) {
+    byRef.set(String(f.refId), f);
+    if (f.nextRetryAt && new Date(f.nextRetryAt).getTime() > now) {
+      blocked.add(String(f.refId));
+    }
+  }
+  return { blocked, byRef };
+}
+
+async function clearFailure(gate, refId) {
+  const f = gate.byRef.get(String(refId));
+  if (f) await db.syncFailures.delete(f.autoId);
+}
+
 async function flushStudents(ctx) {
   const rows = await db.students.filter(r => !r.syncedAt).toArray();
+  const gate = await loadFailureGate('students');
   for (const row of rows) {
+    if (gate.blocked.has(String(row.id))) continue;
     const { data, error } = await rpcJoinClass({
       code: ctx.classCode,
       studentUuid: row.id,
@@ -86,12 +110,15 @@ async function flushStudents(ctx) {
     } else {
       await db.students.update(row.id, { syncedAt: new Date().toISOString() });
     }
+    await clearFailure(gate, row.id);
   }
 }
 
 async function flushLessonProgress() {
   const rows = await db.lessonProgress.filter(r => !r.syncedAt).toArray();
+  const gate = await loadFailureGate('lessonProgress');
   for (const row of rows) {
+    if (gate.blocked.has(String(row.autoId))) continue;
     // Skip if the student hasn't been synced yet — will retry next flush
     const student = await db.students.get(row.studentId);
     if (!student?.syncedAt) continue;
@@ -106,12 +133,15 @@ async function flushLessonProgress() {
       continue;
     }
     await db.lessonProgress.update(row.autoId, { syncedAt: new Date().toISOString() });
+    await clearFailure(gate, row.autoId);
   }
 }
 
 async function flushQuizAttempts() {
   const rows = await db.quizAttempts.filter(r => !r.syncedAt).toArray();
+  const gate = await loadFailureGate('quizAttempts');
   for (const row of rows) {
+    if (gate.blocked.has(String(row.autoId))) continue;
     const student = await db.students.get(row.studentId);
     if (!student?.syncedAt) continue;
     if (!row.uuid) {
@@ -139,6 +169,7 @@ async function flushQuizAttempts() {
       continue;
     }
     await db.quizAttempts.update(row.autoId, { syncedAt: new Date().toISOString() });
+    await clearFailure(gate, row.autoId);
   }
 }
 

@@ -15,6 +15,35 @@ function configure() {
   return true;
 }
 
+// A subscription whose pushes keep failing transiently (not a hard 404/410)
+// is likely dead too — disable it once its failure streak reaches this count.
+export const FAILURE_DISABLE_THRESHOLD = 5;
+
+// Pure: partition Promise.allSettled push results into successes, gone
+// subscriptions (404/410 → disable immediately), and transient failures
+// (increment failure_count; disable once the streak reaches the threshold).
+export function tallyPushResults(results, subs, threshold = FAILURE_DISABLE_THRESHOLD) {
+  const successIds = [];
+  const toDisable = [];
+  const toIncrement = [];
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    if (r.status === 'fulfilled') {
+      successIds.push(subs[i].id);
+      continue;
+    }
+    const status = r.reason?.statusCode;
+    if (status === 404 || status === 410) {
+      toDisable.push(subs[i].id);
+      continue;
+    }
+    const failureCount = (subs[i].failure_count || 0) + 1;
+    if (failureCount >= threshold) toDisable.push(subs[i].id);
+    else toIncrement.push({ id: subs[i].id, failure_count: failureCount });
+  }
+  return { successIds, toDisable, toIncrement };
+}
+
 // item: { title, summary, source_url, course }
 // Sends to all active subscriptions matching course (or course='both').
 // Returns { sent, failed, disabled }.
@@ -53,26 +82,10 @@ export async function broadcastNewsItem(item) {
     )
   );
 
-  let sent = 0, failed = 0, disabled = 0;
-  const toDisable = [];
-  const toIncrement = [];
-
-  for (let i = 0; i < results.length; i++) {
-    const r = results[i];
-    if (r.status === 'fulfilled') {
-      sent++;
-      continue;
-    }
-    failed++;
-    const status = r.reason?.statusCode;
-    if (status === 404 || status === 410) {
-      // Subscription gone — disable
-      toDisable.push(subs[i].id);
-      disabled++;
-    } else {
-      toIncrement.push(subs[i]);
-    }
-  }
+  const { successIds, toDisable, toIncrement } = tallyPushResults(results, subs);
+  const sent = successIds.length;
+  const failed = results.length - sent;
+  const disabled = toDisable.length;
 
   if (toDisable.length) {
     await supabase
@@ -81,11 +94,17 @@ export async function broadcastNewsItem(item) {
       .in('id', toDisable);
   }
 
+  // Persist transient-failure streaks so a subscription that keeps failing
+  // eventually crosses the threshold and gets disabled on a later broadcast.
+  for (const { id, failure_count } of toIncrement) {
+    await supabase
+      .from('push_subscriptions')
+      .update({ failure_count })
+      .eq('id', id);
+  }
+
   // Touch last_sent_at on successful ones (best-effort, batch)
   if (sent > 0) {
-    const successIds = results
-      .map((r, i) => (r.status === 'fulfilled' ? subs[i].id : null))
-      .filter(Boolean);
     await supabase
       .from('push_subscriptions')
       .update({ last_sent_at: new Date().toISOString(), failure_count: 0 })

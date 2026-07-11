@@ -18,7 +18,9 @@ const toneClass = {
 };
 
 export default function RhythmPanel() {
-  const { currentRhythm, setRhythm, addEvent } = useCaseStore();
+  const currentRhythm = useCaseStore(s => s.currentRhythm);
+  const setRhythm = useCaseStore(s => s.setRhythm);
+  const addEvent = useCaseStore(s => s.addEvent);
   const elapsed = useTimerStore(s => s.elapsed);
 
   const handleSelect = (rhythm) => {

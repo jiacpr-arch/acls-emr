@@ -5,6 +5,10 @@ import { getSupabaseAdmin } from './supabaseAdmin.js';
 // Override via ADMIN_EMAILS (comma-separated, case-insensitive).
 // Must stay in sync with the video_lessons RLS policy in Supabase
 // (supabase-cleanup/video-lessons-tighten-rls.sql).
+// admin@acls-emr.local is the shared admin login account (src/services/auth.js)
+// — it is only safe on this list while that account exists in Supabase Auth,
+// which blocks anyone else from registering the same address. If that account
+// is ever deleted, remove it here too (or set ADMIN_EMAILS) in the same change.
 const DEFAULT_ADMIN_EMAILS = 'admin@acls-emr.local,jiacpr@gmail.com';
 
 export function getAdminEmails(env = process.env) {

@@ -24,7 +24,8 @@ import { ShockStep } from './ShockControls';
 // The wizard: renders the current step of the resuscitation state machine.
 // All transitions go through onGoStep/onEndCase owned by Recording.
 export default function StepRouter({ step, startMode, scenario, isTraining, onGoStep, onLog, onEndCase, onShock, onOpenLabs, onNavigateHistory }) {
-  const { isRunning, startTimer } = useTimerStore();
+  const isRunning = useTimerStore(s => s.isRunning);
+  const startTimer = useTimerStore(s => s.startTimer);
   const log = onLog;
   const goStep = onGoStep;
 

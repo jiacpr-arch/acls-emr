@@ -10,7 +10,7 @@ import JiacprCourseBanner from '../components/JiacprCourseBanner';
 
 export default function ScenarioSelect() {
   const navigate = useNavigate();
-  const { createCase } = useCaseStore();
+  const createCase = useCaseStore(s => s.createCase);
   const [filterLevel, setFilterLevel] = useState('all');
   const [mode, setMode] = useState('learning');
   const [loading, setLoading] = useState(false);

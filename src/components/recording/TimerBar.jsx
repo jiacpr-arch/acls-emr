@@ -5,8 +5,15 @@ import { CPR_TIMER_STEPS } from '../../data/recordingSteps';
 import { HeartPulse, Pause, Pill, AlertTriangle, FileText, Zap } from 'lucide-react';
 
 export default function TimerBar({ onToggleLog, showLog, isTraining, currentStep }) {
-  const { elapsed, cycleElapsed, cycleNumber, cycleDuration, cprActive, isRunning } = useTimerStore();
-  const { shockCount, events, drugTimers } = useCaseStore();
+  const elapsed = useTimerStore(s => s.elapsed);
+  const cycleElapsed = useTimerStore(s => s.cycleElapsed);
+  const cycleNumber = useTimerStore(s => s.cycleNumber);
+  const cycleDuration = useTimerStore(s => s.cycleDuration);
+  const cprActive = useTimerStore(s => s.cprActive);
+  const isRunning = useTimerStore(s => s.isRunning);
+  const shockCount = useCaseStore(s => s.shockCount);
+  const events = useCaseStore(s => s.events);
+  const drugTimers = useCaseStore(s => s.drugTimers);
   const cycleRemaining = cycleDuration - cycleElapsed;
   const cycleProgress = (cycleElapsed / cycleDuration) * 100;
 

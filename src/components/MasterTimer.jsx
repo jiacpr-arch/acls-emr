@@ -3,10 +3,15 @@ import { useTimerStore } from '../stores/timerStore';
 import { formatTimeLong, formatTime } from '../utils/formatTime';
 
 export default function MasterTimer() {
-  const {
-    elapsed, isRunning, cycleElapsed, cycleNumber, cycleDuration,
-    cprActive, setWorker, tick, newCycle
-  } = useTimerStore();
+  const elapsed = useTimerStore(s => s.elapsed);
+  const isRunning = useTimerStore(s => s.isRunning);
+  const cycleElapsed = useTimerStore(s => s.cycleElapsed);
+  const cycleNumber = useTimerStore(s => s.cycleNumber);
+  const cycleDuration = useTimerStore(s => s.cycleDuration);
+  const cprActive = useTimerStore(s => s.cprActive);
+  const setWorker = useTimerStore(s => s.setWorker);
+  const tick = useTimerStore(s => s.tick);
+  const newCycle = useTimerStore(s => s.newCycle);
 
   const workerRef = useRef(null);
   const prevCycleRef = useRef(0);

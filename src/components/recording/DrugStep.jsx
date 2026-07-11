@@ -7,7 +7,11 @@ import { StepCard, TrainingHint } from '../StepUI';
 import { Syringe } from 'lucide-react';
 
 export default function DrugStep({ onDone, isTraining }) {
-  const { addEvent, addDrugTimer, shockCount, currentRhythm, patient } = useCaseStore();
+  const addEvent = useCaseStore(s => s.addEvent);
+  const addDrugTimer = useCaseStore(s => s.addDrugTimer);
+  const shockCount = useCaseStore(s => s.shockCount);
+  const currentRhythm = useCaseStore(s => s.currentRhythm);
+  const patient = useCaseStore(s => s.patient);
   const elapsed = useTimerStore(s => s.elapsed);
   const isShockable = currentRhythm?.shockable;
   const [showTech, setShowTech] = useState(null);

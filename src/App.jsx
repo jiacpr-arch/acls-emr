@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { useSettingsStore } from './stores/settingsStore';
 import { IS_BLS, IS_ACLS, courseMeta } from './config/courseMode';
@@ -43,6 +43,7 @@ import BottomTabBar from './components/BottomTabBar';
 import SiteFooter from './components/SiteFooter';
 import LineFloatButton from './components/LineFloatButton';
 import OfflineIndicator from './components/OfflineIndicator';
+import ErrorBoundary from './components/ErrorBoundary';
 import InAppBrowserGuard from './components/InAppBrowserGuard';
 import MetaPixel from './components/MetaPixel';
 import { useSyncEngine } from './services/syncEngine';
@@ -104,6 +105,7 @@ function App() {
     <div className="min-h-screen bg-bg-primary text-text-primary">
       <OfflineIndicator />
       <InAppBrowserGuard />
+      <ErrorBoundary>
       <Routes>
         {/* shared across both course modes */}
         <Route path="/settings" element={<Settings />} />
@@ -279,7 +281,12 @@ function App() {
         {IS_BLS && <Route path="/bls/algorithm" element={<BLSAlgorithm />} />}
         {IS_BLS && <Route path="/bls/aed" element={<BLSAedGuide />} />}
         {IS_BLS && <Route path="/bls/choking" element={<BLSChokingRelief />} />}
+
+        {/* unknown paths (including the other course mode's routes) go home
+            instead of rendering an empty page */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </ErrorBoundary>
       {/* "เว็บในเครือเรา" footer — sibling morroo.com sites, like morroo.com */}
       {!isRecording && !isAdmin && !isStudying && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin */}

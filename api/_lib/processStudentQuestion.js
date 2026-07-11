@@ -13,7 +13,7 @@ const OPENAI_IMAGE_URL = 'https://api.openai.com/v1/images/generations';
  * Updates the row in acls_student_questions in-place. Throws on hard failure
  * (the caller is responsible for writing status='failed' + error_message).
  */
-export async function processStudentQuestion(rowId) {
+export async function processStudentQuestion(rowId, { force = false } = {}) {
   const supabase = getSupabaseAdmin();
 
   // 1. Load the row + chapter catalog
@@ -34,11 +34,22 @@ export async function processStudentQuestion(rowId) {
     .order('sort_order');
   if (chErr) throw chErr;
 
-  // Mark as processing so concurrent triggers no-op
-  await supabase
+  // Atomically claim the row so concurrent triggers (a resubmit racing an
+  // admin reprocess) can't both run the paid AI pipeline. `force` lets an
+  // admin reprocess a row left stuck in 'processing' by a crash or timeout.
+  let claim = supabase
     .from('acls_student_questions')
     .update({ status: 'processing', error_message: null, updated_at: new Date().toISOString() })
-    .eq('id', rowId);
+    .eq('id', rowId)
+    .neq('status', 'published');
+  if (!force) claim = claim.neq('status', 'processing');
+  const { data: claimed, error: claimErr } = await claim.select('id');
+  if (claimErr) throw claimErr;
+  if (!claimed?.length) {
+    const err = new Error('Question is already being processed');
+    err.code = 'ALREADY_PROCESSING';
+    throw err;
+  }
 
   // 2. Get an in-depth answer from DeepSeek
   const answer = await deepseekAnswer(row.question);
