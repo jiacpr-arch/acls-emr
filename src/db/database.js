@@ -176,6 +176,40 @@ export async function getAttemptCount(studentId, lessonId) {
   return rows.filter(r => r.lessonId === lessonId).length;
 }
 
+// ===== Pre-course: cloud restore =====
+// Hydrates local IndexedDB from a get_student_progress RPC response — used
+// when a student re-registers on a device with no local record for them
+// (new browser, cleared storage, different phone). Rows are marked
+// already-synced so the sync engine doesn't try to re-push them.
+export async function hydrateStudentProgress(studentId, { lessonProgress = [], quizAttempts = [] } = {}) {
+  const now = new Date().toISOString();
+  for (const row of lessonProgress) {
+    const dup = await db.lessonProgress
+      .where('[studentId+lessonId]').equals([studentId, row.lessonId]).first();
+    if (dup) continue;
+    await db.lessonProgress.add({ studentId, lessonId: row.lessonId, readAt: row.readAt, syncedAt: now });
+  }
+  for (const row of quizAttempts) {
+    if (!row.uuid) continue;
+    const dup = await db.quizAttempts.where('uuid').equals(row.uuid).first();
+    if (dup) continue;
+    await db.quizAttempts.add({
+      uuid: row.uuid,
+      studentId,
+      lessonId: row.lessonId,
+      score: row.score,
+      totalQuestions: row.totalQuestions,
+      correctCount: row.correctCount,
+      answers: row.answers,
+      startedAt: row.startedAt,
+      finishedAt: row.finishedAt,
+      passed: row.passed,
+      attemptNumber: row.attemptNumber,
+      syncedAt: now,
+    });
+  }
+}
+
 // Combined cohort view: every student + their best score & read status per lesson
 export async function getCohortSummary(lessonIds) {
   const [students, allProgress, allAttempts] = await Promise.all([
