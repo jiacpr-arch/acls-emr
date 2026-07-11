@@ -75,6 +75,19 @@ export async function rpcJoinClass({ code, studentUuid, studentId, name, phone }
   };
 }
 
+// Read-only restore: pulls a student's lesson progress + quiz attempts back
+// from the cloud so a device with no local record (new browser, cleared
+// storage, different phone) can catch up instead of starting over. Same
+// bearer model as join_class — the class join code + the student's own id.
+export async function rpcGetStudentProgress({ code, studentId }) {
+  const { data, error } = await supabase.rpc('get_student_progress', {
+    p_code: code,
+    p_student_id: studentId,
+  });
+  if (error) return { error };
+  return { data: data || { student: null } };
+}
+
 export async function rpcUpsertLessonProgress({ studentPk, lessonId, readAt }) {
   const { classCode } = getClassContext();
   if (!classCode) return { error: new Error('no_class') };

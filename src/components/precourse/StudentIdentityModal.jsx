@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { upsertStudent, findStudentByStudentId } from '../../db/database';
+import { upsertStudent, findStudentByStudentId, hydrateStudentProgress } from '../../db/database';
 import { usePreCourseStore } from '../../stores/preCourseStore';
 import { useClassStore } from '../../stores/classStore';
 import { scheduleFlush } from '../../services/syncEngine';
+import { rpcGetStudentProgress } from '../../services/cohortSync';
 import { track, identifyStudent } from '../../services/analytics';
 import { User, X, Check, AlertCircle } from 'lucide-react';
 
@@ -11,7 +12,8 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
   const setActiveStudent = usePreCourseStore(s => s.setActiveStudent);
   // In a class the server roster keys on student id, so it stays required.
   // Standalone (offline) use never syncs, so the id is optional there.
-  const requireStudentId = useClassStore(s => !!s.classCode);
+  const classCode = useClassStore(s => s.classCode);
+  const requireStudentId = !!classCode;
   const [name, setName] = useState('');
   const [studentId, setStudentId] = useState('');
   const [phone, setPhone] = useState('');
@@ -40,7 +42,29 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
     }
     setBusy(true);
     try {
-      const existing = sid ? await findStudentByStudentId(sid) : null;
+      let existing = sid ? await findStudentByStudentId(sid) : null;
+      let restored = null;
+
+      // No local record on this device — check the cloud in case this
+      // student already has progress under this class (different browser,
+      // cleared storage, new phone, LINE in-app browser vs. Safari, etc).
+      // Restores it into local IndexedDB instead of silently starting over.
+      if (!existing && sid && classCode) {
+        const { data } = await rpcGetStudentProgress({ code: classCode, studentId: sid });
+        if (data?.student) {
+          existing = {
+            id: data.student.id,
+            studentId: data.student.studentId,
+            name: data.student.name,
+            phone: data.student.phone,
+            email: null,
+            createdAt: data.student.createdAt,
+            syncedAt: new Date().toISOString(),
+          };
+          restored = { lessonProgress: data.lessonProgress, quizAttempts: data.quizAttempts };
+        }
+      }
+
       // Email is no longer collected here — it's gathered later at the
       // certificate step. Preserve any value a returning student already had.
       const unchanged = existing && existing.name === n && existing.phone === (tel || null);
@@ -48,12 +72,13 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
         ? { ...existing, name: n, phone: tel || null, syncedAt: unchanged ? existing.syncedAt : null }
         : { id: uuidv4(), studentId: sid || null, name: n, phone: tel || null, email: null, createdAt: new Date().toISOString() };
       await upsertStudent(record);
+      if (restored) await hydrateStudentProgress(record.id, restored);
       setActiveStudent(record);
       scheduleFlush();
       // ใช้ UUID เป็น distinct id — ไม่ส่งชื่อ/เบอร์โทร (PDPA)
       track('student_registered', {
         meta: 'CompleteRegistration',
-        props: { has_student_code: !!sid, is_returning: !!existing },
+        props: { has_student_code: !!sid, is_returning: !!existing, restored: !!restored },
       });
       identifyStudent(record.id, { student_code: sid || null });
       onConfirm?.(record);
