@@ -22,6 +22,8 @@ import QAAclsDeep from './pages/QAAclsDeep';
 import QAAclsDeepCategory from './pages/QAAclsDeepCategory';
 import QAAclsDeepQuestion from './pages/QAAclsDeepQuestion';
 import CodeBlueSim from './pages/CodeBlueSim';
+import RecorderGameHub from './pages/RecorderGameHub';
+import RecorderGamePlay from './pages/RecorderGamePlay';
 import PreCourse from './pages/PreCourse';
 import Learn from './pages/Learn';
 import VideoLessons from './pages/VideoLessons';
@@ -94,6 +96,9 @@ function App() {
   // Admin pages also hide the bottom tab bar
   const isRecording = location.pathname === '/recording';
   const isAdmin = location.pathname.startsWith('/admin');
+  // หน้าเล่นเกม Recorder ใช้ GameQuickBar (bottom-pill-bar) ตำแหน่งเดียวกับ BottomTabBar
+  // จึงต้องซ่อน tab bar เฉพาะหน้าเล่นด่าน (ไม่ใช่หน้า hub)
+  const isRecorderGamePlay = /^\/recorder-game\/.+/.test(location.pathname);
   // หน้าที่นักเรียน "กำลังเรียน/สอบจริง" (อ่านบทเรียน + ทำข้อสอบ pre/post) —
   // ไม่โชว์ปุ่ม LINE ลอย + footer โฆษณา เพื่อไม่รบกวนระหว่างเรียน
   // ครอบคลุม /pre-course/<lessonId>[/quiz], /pre-course/pre-test, /pre-course/post-test
@@ -138,6 +143,8 @@ function App() {
         {IS_ACLS && <Route path="/qa-acls-deep/:chapterId" element={<QAAclsDeepCategory />} />}
         {IS_ACLS && <Route path="/qa-acls-deep/:chapterId/:qNum" element={<QAAclsDeepQuestion />} />}
         {IS_ACLS && <Route path="/sim" element={<CodeBlueSim />} />}
+        {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
+        {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
         {IS_ACLS && <Route path="/video-lessons" element={<VideoLessons />} />}
         {IS_ACLS && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
         {IS_ACLS && (
@@ -288,10 +295,10 @@ function App() {
       </Routes>
       </ErrorBoundary>
       {/* "เว็บในเครือเรา" footer — sibling morroo.com sites, like morroo.com */}
-      {!isRecording && !isAdmin && !isStudying && <SiteFooter />}
-      {/* Bottom pill bar on all pages except recording + admin */}
-      {!isRecording && !isAdmin && <BottomTabBar />}
-      {!isRecording && !isAdmin && !isStudying && <LineFloatButton />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && <SiteFooter />}
+      {/* Bottom pill bar on all pages except recording + admin + recorder-game play */}
+      {!isRecording && !isAdmin && !isRecorderGamePlay && <BottomTabBar />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && <LineFloatButton />}
       <Analytics />
       <MetaPixel />
     </div>

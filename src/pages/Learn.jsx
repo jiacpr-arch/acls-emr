@@ -135,9 +135,10 @@ export default function Learn() {
         {
           title: t('learn_practice', lang),
           items: [
-            { path: '/scenarios', emoji: '🎮', label: t('scenarios', lang), subtitle: 'Scenarios',     desc: t('scenarios_desc', lang), tone: 'warning' },
-            { path: '/sim',       emoji: '🚨', label: t('code_sim', lang),  subtitle: 'Code Blue Sim', desc: t('code_sim_desc', lang),  tone: 'danger' },
-            { path: '/drill',     emoji: '⚡', label: t('drill', lang),     subtitle: 'Skill Drill',   desc: t('drill_desc', lang),     tone: 'shock', featured: true },
+            { path: '/scenarios',     emoji: '🎮', label: t('scenarios', lang),     subtitle: 'Scenarios',     desc: t('scenarios_desc', lang),     tone: 'warning' },
+            { path: '/sim',           emoji: '🚨', label: t('code_sim', lang),      subtitle: 'Code Blue Sim', desc: t('code_sim_desc', lang),      tone: 'danger' },
+            { path: '/recorder-game', emoji: '🎯', label: t('recorder_game', lang), subtitle: 'Recorder Hero', desc: t('recorder_game_desc', lang), tone: 'purple' },
+            { path: '/drill',         emoji: '⚡', label: t('drill', lang),         subtitle: 'Skill Drill',   desc: t('drill_desc', lang),         tone: 'shock', featured: true },
           ],
         },
       ];
