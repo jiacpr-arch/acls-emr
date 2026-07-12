@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, RefreshCw, Home, Volume2, VolumeX } from 'lucide-react';
-import { scenario } from '../data/codeBlueScenarios';
+import { scenarios, LEVEL_META } from '../data/codeBlueScenarios';
 import { getCharacter } from '../game/characters';
 import CharacterSprite from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
@@ -32,6 +32,18 @@ const RHYTHM_NAMES = {
   nsr: 'SINUS — ROSC',
 };
 
+const CLEARED_KEY = 'acls_codeblue_cleared'; // เก็บ id เคสที่เคยผ่าน (ROSC)
+const readCleared = () => {
+  try { return new Set(JSON.parse(localStorage.getItem(CLEARED_KEY)) || []); }
+  catch { return new Set(); }
+};
+
+// ปลดล็อกเคส: เคส basic เล่นได้เสมอ; เคสที่ยากกว่าต้องผ่าน basic อย่างน้อย 1 เคสก่อน
+function isUnlocked(sc, cleared) {
+  if ((LEVEL_META[sc.level]?.order || 0) === 0) return true;
+  return scenarios.some((s) => (LEVEL_META[s.level]?.order || 0) === 0 && cleared.has(s.id));
+}
+
 export default function CodeBlueSim() {
   const navigate = useNavigate();
   const [reducedMotion] = useState(
@@ -49,7 +61,10 @@ export default function CodeBlueSim() {
   const S = useRef(createInitialState(DEFAULT_DIFFICULTY));
   const [view, setView] = useState(() => snapshot(createInitialState(DEFAULT_DIFFICULTY)));
 
-  const [screen, setScreen] = useState('title'); // title | game | debrief
+  // เลือกเคส: ถ้ามีเคสเดียวข้ามหน้าเลือกไปหน้า title เลย
+  const [sc, setSc] = useState(scenarios[0]);
+  const [cleared, setCleared] = useState(readCleared);
+  const [screen, setScreen] = useState(scenarios.length > 1 ? 'select' : 'title'); // select | title | game | debrief
   const [speaker, setSpeaker] = useState(null); // { who, pose, popN }
   const [plate, setPlate] = useState(null); // { name } override (time-skip)
   const [dlgHtml, setDlgHtml] = useState('');
@@ -188,9 +203,15 @@ export default function CodeBlueSim() {
       setHiscore(score);
       isHiscore = score > 0;
     }
+    if (won) {
+      const nextCleared = new Set(cleared);
+      nextCleared.add(sc.id);
+      setCleared(nextCleared);
+      localStorage.setItem(CLEARED_KEY, JSON.stringify([...nextCleared]));
+    }
     track('game_completed', {
       props: {
-        scenario_id: scenario.id,
+        scenario_id: sc.id,
         difficulty: st.difficulty,
         won,
         grade,
@@ -303,7 +324,7 @@ export default function CodeBlueSim() {
   }
 
   function advance() {
-    const node = nextNode(S.current, scenario.story);
+    const node = nextNode(S.current, sc.story);
     if (!node) { endCase(true); return; }
     runNode(node);
   }
@@ -391,8 +412,21 @@ export default function CodeBlueSim() {
     setPlate(null);
     setDlgHtml('');
     setScreen('game');
-    track('game_started', { props: { scenario_id: scenario.id, difficulty } });
+    track('game_started', { props: { scenario_id: sc.id, difficulty } });
     later(() => advance(), reducedMotion ? 100 : 400);
+  }
+
+  function pickScenario(chosen) {
+    setSc(chosen);
+    setScreen('title');
+    window.scrollTo(0, 0);
+  }
+
+  function backToSelect() {
+    clearAllTimers();
+    stopMetronome();
+    if (scenarios.length > 1) setScreen('select');
+    else navigate('/');
   }
 
   function chooseDifficulty(id) {
@@ -410,15 +444,55 @@ export default function CodeBlueSim() {
     });
   }
 
+  // ============ CASE SELECT ============
+  if (screen === 'select') {
+    return (
+      <div className="cbs-app">
+        <section className="cbs-select">
+          <div className="cbs-eyebrow">Code Blue · เลือกเคส</div>
+          <h1 className="cbs-select-title"><span className="cbs-gold-text">CODE BLUE</span> ภารกิจกู้ชีพ</h1>
+          <p className="cbs-select-sub">เลือกสถานการณ์ที่จะฝึก — เคสที่ยากกว่าปลดล็อกเมื่อผ่านเคสพื้นฐาน</p>
+          <div className="cbs-case-list">
+            {scenarios.map((c) => {
+              const unlocked = isUnlocked(c, cleared);
+              const done = cleared.has(c.id);
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={`cbs-case ${unlocked ? '' : 'cbs-case-locked'}`}
+                  onClick={() => unlocked && pickScenario(c)}
+                  disabled={!unlocked}
+                >
+                  <div className="cbs-case-top">
+                    <span className={`cbs-case-level cbs-lvl-${c.level}`}>{LEVEL_META[c.level]?.label || c.level}</span>
+                    {done && <span className="cbs-case-done">✓ ผ่านแล้ว</span>}
+                    {!unlocked && <span className="cbs-case-lock">🔒 ล็อก</span>}
+                  </div>
+                  <div className="cbs-case-name">{c.title}</div>
+                  <div className="cbs-case-desc">{c.subtitle}</div>
+                </button>
+              );
+            })}
+          </div>
+          <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/')}>
+            <Home size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
+            กลับหน้าแรก
+          </button>
+        </section>
+      </div>
+    );
+  }
+
   // ============ TITLE ============
   if (screen === 'title') {
     return (
       <div className="cbs-app">
         <section className="cbs-title">
-          <div className="cbs-eyebrow">Code Blue · ER Night Shift</div>
-          <h1>หมอเฮีย<br /><span className="cbs-gold-text">CODE BLUE</span><br />ภารกิจกู้ชีพ</h1>
+          <div className="cbs-eyebrow">Code Blue · {LEVEL_META[sc.level]?.label || 'เคส'}</div>
+          <h1><span className="cbs-gold-text">{sc.title}</span></h1>
           <p className="cbs-title-sub">
-            {scenario.subtitle}<br />
+            {sc.subtitle}<br />
             คุณคือ <b>Team Leader</b> — ทีมทั้งห้องรอฟังคำสั่งของคุณ<br />
             ตัดสินใจผิด ผู้ป่วยแย่ลงจริง เวลาไม่เคยรอใคร
           </p>
@@ -454,11 +528,12 @@ export default function CodeBlueSim() {
             <AlertTriangle size={18} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-3px', marginRight: 8 }} />
             รับเคส
           </button>
-          <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/')}>
-            <Home size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
-            กลับหน้าแรก
+          <button type="button" className="cbs-btn-ghost" onClick={backToSelect}>
+            {scenarios.length > 1
+              ? <>← เลือกเคสอื่น</>
+              : <><Home size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />กลับหน้าแรก</>}
           </button>
-          <div className="cbs-note">DECISION GAME · ACLS TRAINING · MORROO</div>
+          <div className="cbs-note">DECISION GAME · MORROO</div>
         </section>
       </div>
     );
@@ -520,6 +595,11 @@ export default function CodeBlueSim() {
               <RefreshCw size={16} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 8 }} />
               เล่นเคสนี้อีกครั้ง
             </button>
+            {scenarios.length > 1 && (
+              <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('select'); window.scrollTo(0, 0); }}>
+                ← เลือกเคสอื่น
+              </button>
+            )}
             <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/')}>
               กลับหน้าแรก
             </button>

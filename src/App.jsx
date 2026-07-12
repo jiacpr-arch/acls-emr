@@ -146,7 +146,8 @@ function App() {
         {IS_ACLS && <Route path="/qa-acls-deep" element={<QAAclsDeep />} />}
         {IS_ACLS && <Route path="/qa-acls-deep/:chapterId" element={<QAAclsDeepCategory />} />}
         {IS_ACLS && <Route path="/qa-acls-deep/:chapterId/:qNum" element={<QAAclsDeepQuestion />} />}
-        {IS_ACLS && <Route path="/sim" element={<CodeBlueSim />} />}
+        {/* เกม Code Blue เปิดทั้ง ACLS และ BLS/MorRoo — คลังโจทย์กรองตามโหมดเอง */}
+        <Route path="/sim" element={<CodeBlueSim />} />
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
         {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
