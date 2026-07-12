@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, RefreshCw, Home, Volume2, VolumeX } from 'lucide-react';
 import { scenarios as builtInScenarios, LEVEL_META, loadPlayableScenarios } from '../data/codeBlueScenarios';
-import { getCharacter } from '../game/characters';
+import { getCharacter, registerCustomCharacters } from '../game/characters';
+import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
 import CharacterSprite from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
 import {
@@ -79,6 +80,16 @@ export default function CodeBlueSim() {
   const [sc, setSc] = useState(initialPool[0]);
   const [cleared, setCleared] = useState(readCleared);
   const [screen, setScreen] = useState(initialPool.length > 1 ? 'select' : 'title'); // select | title | game | debrief
+
+  const [charsReady, setCharsReady] = useState(false);
+  useEffect(() => {
+    // โหลดตัวละคร custom ก่อนเสมอ (ทั้งโหมด preview และปกติ) เพื่อให้ sprite แสดงถูก
+    let alive = true;
+    fetchCustomCharacters()
+      .then((map) => { if (alive) registerCustomCharacters(map); })
+      .finally(() => { if (alive) setCharsReady(true); });
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     if (preview) return undefined; // โหมดทดลองเล่น — ไม่โหลดคลังจาก DB
@@ -673,7 +684,7 @@ export default function CodeBlueSim() {
           </div>
 
           {speaker && (
-            <div className={`cbs-sprite ${reducedMotion ? '' : 'cbs-pop'}`} key={`sp-${speaker.popN}`}>
+            <div className={`cbs-sprite ${reducedMotion ? '' : 'cbs-pop'}`} key={`sp-${speaker.popN}-${charsReady}`}>
               <CharacterSprite charId={speaker.who} pose={speaker.pose} talking={typing} />
             </div>
           )}

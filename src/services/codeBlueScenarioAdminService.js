@@ -88,6 +88,6 @@ export async function deleteScenario(id) {
 
 // ให้ AI (Claude ผ่าน /api/code-blue/generate-scenario) ร่างโจทย์ — ไม่เขียน DB เอง
 // คืน { scenario, warnings } ให้แอดมินตรวจ/แก้ก่อนบันทึกเป็น draft
-export async function generateScenarioWithAI({ course, level, brief }) {
-  return authedPost('/api/code-blue/generate-scenario', { course, level, brief });
+export async function generateScenarioWithAI({ course, level, brief, characters }) {
+  return authedPost('/api/code-blue/generate-scenario', { course, level, brief, characters });
 }

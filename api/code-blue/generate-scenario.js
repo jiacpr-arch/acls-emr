@@ -4,8 +4,13 @@ export const config = { maxDuration: 60 };
 
 const MODEL = 'claude-sonnet-4-6';
 
-// ตัวละคร + สีหน้า + เป้าหมายคำสั่ง ที่เกมรู้จัก (validator ตรวจซ้ำ)
-const CHARACTERS = ['nurse_mint', 'boy_compressor', 'fon_defib', 'att_dech'];
+// ตัวละคร built-in + สีหน้า + เป้าหมายคำสั่ง ที่เกมรู้จัก (validator ตรวจซ้ำ)
+const BUILTIN_CHARACTERS = [
+  { key: 'nurse_mint', name: 'พยาบาลมิ้นท์', role: 'Nurse · IV & Drugs' },
+  { key: 'boy_compressor', name: 'พี่บอย', role: 'Compressor' },
+  { key: 'fon_defib', name: 'หมอฝน', role: 'Defib / Monitor' },
+  { key: 'att_dech', name: 'อ.เดช', role: 'Attending' },
+];
 const POSES = ['idle', 'talk', 'panic', 'stern', 'happy'];
 const TARGETS = ['YOU', 'CPR', 'AIRWAY', 'DEFIB', 'DRUG', 'MONITOR'];
 const LEVELS = ['basic', 'intermediate', 'megacode'];
@@ -35,7 +40,17 @@ export default async function handler(req, res) {
   const level = LEVELS.includes(body.level) ? body.level : 'basic';
   const brief = String(body.brief || '').trim().slice(0, 2000);
 
-  const prompt = buildPrompt({ course, level, brief });
+  // ตัวละคร custom ที่ client ส่งมา (จากตาราง code_blue_characters) — เพิ่มเข้ารายการที่ AI ใช้ได้
+  const customChars = Array.isArray(body.characters)
+    ? body.characters
+      .filter((c) => c && /^[a-z][a-z0-9_]{2,}$/.test(String(c.key)))
+      .slice(0, 30)
+      .map((c) => ({ key: String(c.key), name: String(c.name || c.key).slice(0, 60), role: String(c.role || '').slice(0, 60) }))
+    : [];
+  const characters = [...BUILTIN_CHARACTERS, ...customChars];
+  const charKeys = characters.map((c) => c.key);
+
+  const prompt = buildPrompt({ course, level, brief, characters });
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -65,7 +80,7 @@ export default async function handler(req, res) {
       console.error('generate-scenario: unparseable AI output:', text.slice(0, 500));
       return res.status(502).json({ error: 'AI สร้างโจทย์ไม่สำเร็จ กรุณาลองใหม่' });
     }
-    const { scenario: normalized, warnings } = normalizeScenario(raw, course, level);
+    const { scenario: normalized, warnings } = normalizeScenario(raw, course, level, charKeys);
     if (!normalized || !normalized.story.length) {
       return res.status(502).json({ error: 'AI สร้างโจทย์ไม่ครบ กรุณาลองใหม่' });
     }
@@ -76,7 +91,8 @@ export default async function handler(req, res) {
   }
 }
 
-function buildPrompt({ course, level, brief }) {
+function buildPrompt({ course, level, brief, characters }) {
+  const charList = characters.map((c) => `  - ${c.key}${c.name ? ` (${c.name}${c.role ? `, ${c.role}` : ''})` : ''}`).join('\n');
   const courseScope = course === 'bls'
     ? `ขอบเขต BLS เท่านั้น: ประเมิน → เรียกช่วย/โทร 1669 → CPR คุณภาพสูง → AED (shock advised/no shock) → ทำต่อจน EMS มา. ห้ามมียา ห้ามอ่าน rhythm เอง ห้ามเลือกพลังงาน defib manual (AED วิเคราะห์เอง).`
     : `ขอบเขต ACLS: อ่าน rhythm, defibrillation เลือกพลังงาน, ยา (Epi 1mg, Amiodarone 300mg ฯลฯ), H's & T's. ใช้ค่ามาตรฐาน ACLS จริงเท่านั้น.`;
@@ -98,7 +114,8 @@ ${courseScope}
 - {"end":true} — จบเคส (node สุดท้ายเสมอ)
 
 ค่าที่อนุญาต:
-- who (ตัวละคร): ${CHARACTERS.join(', ')}
+- who (ตัวละคร) ใช้ได้เฉพาะ key เหล่านี้:
+${charList}
 - pose (สีหน้า): ${POSES.join(', ')}
 - tgt (เป้าหมายคำสั่ง): ${TARGETS.join(', ')}
 - fx (ผลต่อผู้ป่วย ใส่เฉพาะเมื่อเกิดจริง): {"cpr":true} เริ่มกด, {"firstCPR":true} กดครั้งแรก, {"shock":true} ช็อต, {"epi":true} ให้ Epi, {"alarm":true} ยืนยัน arrest, {"rhythm":"vf"|"flat"|"nsr"}, {"rosc":true} ผู้ป่วยกลับมา
@@ -142,8 +159,9 @@ function extractScenario(text) {
 }
 
 // บังคับ shape + สร้าง warnings ให้แอดมินตรวจ (ไม่ทิ้งโจทย์ แค่เตือน)
-function normalizeScenario(raw, course, level) {
+function normalizeScenario(raw, course, level, charKeys = []) {
   const warnings = [];
+  const knownChars = new Set(charKeys);
   const clampStr = (s, n) => String(s || '').trim().slice(0, n);
 
   let choiceCount = 0;
@@ -158,7 +176,7 @@ function normalizeScenario(raw, course, level) {
       if (!n || typeof n !== 'object') return;
       const at = `${path}[${i}]`;
       if (n.say) {
-        if (!CHARACTERS.includes(n.say.who)) warnings.push(`${at}: ตัวละคร "${n.say.who}" ไม่รู้จัก`);
+        if (knownChars.size && !knownChars.has(n.say.who)) warnings.push(`${at}: ตัวละคร "${n.say.who}" ไม่รู้จัก`);
         if (n.say.pose && !POSES.includes(n.say.pose)) warnings.push(`${at}: สีหน้า "${n.say.pose}" ไม่รู้จัก`);
         if (n.say.fx?.rosc) hasRosc = true;
         out.push({ say: sanitizeSay(n.say), ...(n.t != null ? { t: Number(n.t) || 0 } : {}) });

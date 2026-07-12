@@ -7,6 +7,9 @@ import {
   listScenarios, createScenario, updateScenario, setScenarioStatus,
   deleteScenario, generateScenarioWithAI,
 } from '../services/codeBlueScenarioAdminService';
+import { listCharacters } from '../services/codeBlueCharacterAdminService';
+
+const BUILTIN_CHAR_KEYS = ['nurse_mint', 'boy_compressor', 'fon_defib', 'att_dech'];
 
 const STATUS_META = {
   draft:     { label: 'ร่าง', color: 'text-warning' },
@@ -39,6 +42,7 @@ export default function AdminCodeBlueScenarios() {
   const [aiLevel, setAiLevel] = useState('basic');
   const [aiBrief, setAiBrief] = useState('');
   const [genBusy, setGenBusy] = useState(false);
+  const [customChars, setCustomChars] = useState([]); // [{key,name,role}]
 
   const load = useCallback(async () => {
     setLoading(true); setLoadErr('');
@@ -49,6 +53,11 @@ export default function AdminCodeBlueScenarios() {
     } finally {
       setLoading(false);
     }
+    // ตัวละคร custom (ไม่บล็อกหน้าหลักถ้าพัง)
+    try {
+      const chars = await listCharacters();
+      setCustomChars(chars.map(c => ({ key: c.charKey, name: c.name, role: c.role })));
+    } catch { /* ไม่มีตารางก็ข้ามไป */ }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -56,7 +65,7 @@ export default function AdminCodeBlueScenarios() {
   const generate = async () => {
     setGenBusy(true);
     try {
-      const { scenario: s, warnings } = await generateScenarioWithAI({ course: aiCourse, level: aiLevel, brief: aiBrief });
+      const { scenario: s, warnings } = await generateScenarioWithAI({ course: aiCourse, level: aiLevel, brief: aiBrief, characters: customChars });
       setEditing({
         id: null, status: 'draft', source: 'ai',
         title: s.title, subtitle: s.subtitle, level: s.level, course: s.course,
@@ -70,7 +79,8 @@ export default function AdminCodeBlueScenarios() {
   };
 
   if (editing) {
-    return <ScenarioEditor item={editing} onClose={() => { setEditing(null); load(); }} navigate={navigate} />;
+    const allowedChars = [...BUILTIN_CHAR_KEYS, ...customChars.map(c => c.key)];
+    return <ScenarioEditor item={editing} allowedChars={allowedChars} onClose={() => { setEditing(null); load(); }} navigate={navigate} />;
   }
 
   return (
@@ -154,7 +164,7 @@ export default function AdminCodeBlueScenarios() {
   );
 }
 
-function ScenarioEditor({ item, onClose, navigate }) {
+function ScenarioEditor({ item, onClose, navigate, allowedChars = [] }) {
   const [title, setTitle] = useState(item.title || item.payload?.title || '');
   const [subtitle, setSubtitle] = useState(item.subtitle || item.payload?.subtitle || '');
   const [level, setLevel] = useState(item.level || item.payload?.level || 'basic');
@@ -265,7 +275,7 @@ function ScenarioEditor({ item, onClose, navigate }) {
           className="w-full px-3 py-2 border border-border rounded text-3xs font-mono" />
         {jsonErr && <div className="text-3xs text-danger">{jsonErr}</div>}
         <div className="text-3xs text-text-muted">
-          node: say / inter / skip / choice / end · ตัวละคร: nurse_mint, boy_compressor, fon_defib, att_dech · เป้าหมาย: YOU/CPR/AIRWAY/DEFIB/DRUG/MONITOR
+          node: say / inter / skip / choice / end · ตัวละคร: {allowedChars.join(', ')} · เป้าหมาย: YOU/CPR/AIRWAY/DEFIB/DRUG/MONITOR
         </div>
       </div>
 

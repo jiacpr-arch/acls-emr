@@ -5,6 +5,7 @@ import { getCharacter, characterImageUrl } from './characters';
 const imageCache = new Map(); // url -> true | false
 
 function probeImage(url) {
+  if (!url) return Promise.resolve(false); // ไม่มี URL (เช่น custom char ที่ยังไม่อัปรูปท่านี้)
   if (imageCache.has(url)) return Promise.resolve(imageCache.get(url));
   return new Promise((resolve) => {
     const img = new Image();

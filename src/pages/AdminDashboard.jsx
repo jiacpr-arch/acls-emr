@@ -85,6 +85,14 @@ const SECTIONS = [
     gradient: 'linear-gradient(135deg, #DC2626 0%, #991B1B 100%)',
     shadow: '0 8px 20px rgba(220, 38, 38, 0.22)',
   },
+  {
+    to: '/admin/code-blue-characters',
+    title: 'ตัวละคร Code Blue',
+    desc: 'เพิ่มตัวละคร + อัปโหลดรูป — ใช้ในโจทย์ได้ทันที',
+    icon: Users,
+    gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
+    shadow: '0 8px 20px rgba(124, 58, 237, 0.22)',
+  },
 ];
 
 export default function AdminDashboard() {

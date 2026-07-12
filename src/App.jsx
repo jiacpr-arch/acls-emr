@@ -65,6 +65,7 @@ const AdminClasses = lazy(() => import('./pages/AdminClasses'));
 const AdminVideoLessons = lazy(() => import('./pages/AdminVideoLessons'));
 const AdminRecorderCases = lazy(() => import('./pages/AdminRecorderCases'));
 const AdminCodeBlueScenarios = lazy(() => import('./pages/AdminCodeBlueScenarios'));
+const AdminCodeBlueCharacters = lazy(() => import('./pages/AdminCodeBlueCharacters'));
 
 const AdminFallback = () => (
   <div className="page-container py-12 text-center text-caption text-text-muted">
@@ -303,6 +304,16 @@ function App() {
             <Suspense fallback={<AdminFallback />}>
               <RequireAdmin>
                 <AdminCodeBlueScenarios />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
+        <Route
+          path="/admin/code-blue-characters"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminCodeBlueCharacters />
               </RequireAdmin>
             </Suspense>
           }
