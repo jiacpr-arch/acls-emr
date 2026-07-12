@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getLevelById, LEVELS, GAME_BUTTONS, ERROR_TYPES } from '../data/recorderGameLevels';
-import { getPackById, getCaseById, caseToLevel } from '../data/recorderCases';
+import { getPackById, getCaseById, caseToLevel, CATEGORY_ACTIONS } from '../data/recorderCases';
 import { computeStars } from '../utils/recorderGameScore';
 import { loadProgress, saveResult } from '../utils/recorderGameProgress';
 import { useLiveLevelEngine } from '../hooks/recordergame/useLiveLevelEngine';
 import LevelIntro from '../components/recordergame/LevelIntro';
 import ResultScreen from '../components/recordergame/ResultScreen';
-import GameStage from '../components/recordergame/GameStage';
-import ScoreHUD from '../components/recordergame/ScoreHUD';
 import GameCprDashboard from '../components/recordergame/GameCprDashboard';
-import GameActionPad from '../components/recordergame/GameActionPad';
+import RecorderStageAA from '../components/recordergame/RecorderStageAA';
 import GameQuickBar from '../components/recordergame/GameQuickBar';
 import DataEntryModal from '../components/recordergame/DataEntryModal';
 import AuditBoard from '../components/recordergame/AuditBoard';
@@ -81,21 +79,30 @@ export default function RecorderGamePlay() {
 }
 
 // ================= LIVE =================
+// ปุ่มบันทึกโหมด arrest (สไตล์ AA) — id ตรงกับ GAME_BUTTONS / handlePress เดิม
+const ARREST_BUTTONS = [
+  { id: 'check_rhythm', label: 'Check Rhythm', sub: 'ดูจังหวะ', tone: 'info' },
+  { id: 'shock', label: 'Shock', sub: 'ช็อกไฟฟ้า', tone: 'shock' },
+  { id: 'drug', label: 'Drug', sub: 'ให้ยา', tone: 'purple' },
+  { id: 'airway', label: 'Airway', sub: 'ทางเดินหายใจ', tone: 'info' },
+  { id: 'ht', label: 'H&T', sub: 'หาสาเหตุ', tone: 'info' },
+  { id: 'rosc', label: 'ROSC', sub: 'คืนชีพ', tone: 'success' },
+];
+
 // รองรับทั้งเคส arrest (GameCprDashboard + QuickBar) และ non-arrest (GameActionPad)
 // exported เพื่อให้หน้า Endless และ admin test-play ใช้ซ้ำได้
-export function LivePlay({ level, onFinish, hudLabel }) {
+export function LivePlay({ level, onFinish }) {
   const engine = useLiveLevelEngine(level, { onFinish });
   const [modal, setModal] = useState(null); // { kind, buttonId, options?, energyChoices?, title_th? }
-  const startedRef = useRef(false);
   const isArrest = (level.category || 'cardiac_arrest') === 'cardiac_arrest';
 
-  // เริ่มเกมหลัง mount (setTimeout เพื่อไม่ setState ตรงๆ ใน effect body)
+  // เริ่มเกมครั้งเดียวหลัง mount (setTimeout เพื่อไม่ setState ตรงๆ ใน effect body)
+  // deps ต้องเป็น [] — ถ้าใส่ [engine] cleanup จะ clearTimeout ทุก re-render ก่อน start() ทัน (นาฬิกาค้าง 00:00)
   useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
     const id = setTimeout(() => engine.start(), 0);
     return () => clearTimeout(id);
-  }, [engine]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ปุ่มบน dashboard/quickbar (arrest) — ใช้ metadata จาก GAME_BUTTONS
   const onPress = useCallback((buttonId) => {
@@ -120,30 +127,26 @@ export function LivePlay({ level, onFinish, hudLabel }) {
     setModal(null);
   };
 
-  const secs = Math.floor(engine.elapsed || 0);
-  const cycleLabel = hudLabel || `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
+  const buttons = isArrest ? ARREST_BUTTONS
+    : (CATEGORY_ACTIONS[level.category] || []).map(a => ({ id: a.id, label: a.label_th, tone: a.tone, action: a }));
+
+  const onRecord = (id, action) => { if (action) onPadPress(id, action); else onPress(id); };
 
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden relative bg-bg-primary">
-      <div className="shrink-0 px-3 pt-2">
-        <ScoreHUD score={engine.score} streak={engine.streak} elapsed={engine.elapsed}
-          popup={engine.popup} durationSec={level.durationSec || 120} />
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-3 py-2 pb-[calc(96px+env(safe-area-inset-bottom,0px))]">
-        <div className="w-full max-w-md mx-auto space-y-3">
-          <GameStage scene={engine.currentScene} narration={engine.narration} showTeam={isArrest} />
-          {isArrest ? (
-            <GameCprDashboard onPress={onPress} scene={engine.currentScene} cycleLabel={cycleLabel} />
-          ) : (
-            <GameActionPad category={level.category} onPress={onPadPress}
-              scene={engine.currentScene} cycleLabel={cycleLabel} />
-          )}
-        </div>
-      </div>
-
-      {isArrest && <GameQuickBar onPress={onPress} />}
-
+    <div className="relative" style={{ height: '100dvh' }}>
+      <RecorderStageAA
+        scene={engine.currentScene}
+        narration={engine.narration}
+        pendingEvent={engine.pendingEvent}
+        expectedButtonId={engine.expectedButtonId}
+        popup={engine.popup}
+        elapsed={engine.elapsed}
+        score={engine.score}
+        streak={engine.streak}
+        buttons={buttons}
+        onPress={onRecord}
+        showHint={!!level.showHint}
+      />
       {modal && <DataEntryModal kind={modal.kind} onSubmit={onSubmit} onClose={() => setModal(null)}
         options={modal.options} energyChoices={modal.energyChoices} title_th={modal.title_th} />}
     </div>
