@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, RefreshCw, Home, Volume2, VolumeX } from 'lucide-react';
-import { scenarios, LEVEL_META } from '../data/codeBlueScenarios';
+import { scenarios as builtInScenarios, LEVEL_META, loadPlayableScenarios } from '../data/codeBlueScenarios';
 import { getCharacter } from '../game/characters';
 import CharacterSprite from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
@@ -38,10 +38,20 @@ const readCleared = () => {
   catch { return new Set(); }
 };
 
+// โหมด preview (หน้า admin กด "ทดลองเล่น") — อ่านโจทย์ที่กำลังแก้จาก localStorage
+function readPreviewScenario() {
+  if (typeof window === 'undefined') return null;
+  if (new URLSearchParams(window.location.search).get('preview') !== '1') return null;
+  try {
+    const previewSc = JSON.parse(localStorage.getItem('code_blue_preview'));
+    return previewSc?.story?.length ? previewSc : null;
+  } catch { return null; }
+}
+
 // ปลดล็อกเคส: เคส basic เล่นได้เสมอ; เคสที่ยากกว่าต้องผ่าน basic อย่างน้อย 1 เคสก่อน
-function isUnlocked(sc, cleared) {
+function isUnlocked(sc, cleared, pool) {
   if ((LEVEL_META[sc.level]?.order || 0) === 0) return true;
-  return scenarios.some((s) => (LEVEL_META[s.level]?.order || 0) === 0 && cleared.has(s.id));
+  return pool.some((s) => (LEVEL_META[s.level]?.order || 0) === 0 && cleared.has(s.id));
 }
 
 export default function CodeBlueSim() {
@@ -61,10 +71,26 @@ export default function CodeBlueSim() {
   const S = useRef(createInitialState(DEFAULT_DIFFICULTY));
   const [view, setView] = useState(() => snapshot(createInitialState(DEFAULT_DIFFICULTY)));
 
+  const [preview] = useState(readPreviewScenario);
+  const initialPool = preview ? [preview] : builtInScenarios;
+  // คลังโจทย์ = built-in ก่อน แล้ว merge โจทย์ published จาก Supabase เมื่อโหลดเสร็จ
+  const [pool, setPool] = useState(initialPool);
   // เลือกเคส: ถ้ามีเคสเดียวข้ามหน้าเลือกไปหน้า title เลย
-  const [sc, setSc] = useState(scenarios[0]);
+  const [sc, setSc] = useState(initialPool[0]);
   const [cleared, setCleared] = useState(readCleared);
-  const [screen, setScreen] = useState(scenarios.length > 1 ? 'select' : 'title'); // select | title | game | debrief
+  const [screen, setScreen] = useState(initialPool.length > 1 ? 'select' : 'title'); // select | title | game | debrief
+
+  useEffect(() => {
+    if (preview) return undefined; // โหมดทดลองเล่น — ไม่โหลดคลังจาก DB
+    let alive = true;
+    loadPlayableScenarios().then((list) => {
+      if (!alive || !list || list.length <= builtInScenarios.length) return;
+      setPool(list);
+      // ถ้าเดิมมีเคสเดียว (อยู่หน้า title) แต่ตอนนี้มีหลายเคส → กลับไปหน้าเลือก
+      setScreen((cur) => (cur === 'title' && list.length > 1 ? 'select' : cur));
+    });
+    return () => { alive = false; };
+  }, [preview]);
   const [speaker, setSpeaker] = useState(null); // { who, pose, popN }
   const [plate, setPlate] = useState(null); // { name } override (time-skip)
   const [dlgHtml, setDlgHtml] = useState('');
@@ -425,7 +451,7 @@ export default function CodeBlueSim() {
   function backToSelect() {
     clearAllTimers();
     stopMetronome();
-    if (scenarios.length > 1) setScreen('select');
+    if (pool.length > 1) setScreen('select');
     else navigate('/');
   }
 
@@ -453,8 +479,8 @@ export default function CodeBlueSim() {
           <h1 className="cbs-select-title"><span className="cbs-gold-text">CODE BLUE</span> ภารกิจกู้ชีพ</h1>
           <p className="cbs-select-sub">เลือกสถานการณ์ที่จะฝึก — เคสที่ยากกว่าปลดล็อกเมื่อผ่านเคสพื้นฐาน</p>
           <div className="cbs-case-list">
-            {scenarios.map((c) => {
-              const unlocked = isUnlocked(c, cleared);
+            {pool.map((c) => {
+              const unlocked = isUnlocked(c, cleared, pool);
               const done = cleared.has(c.id);
               return (
                 <button
@@ -529,7 +555,7 @@ export default function CodeBlueSim() {
             รับเคส
           </button>
           <button type="button" className="cbs-btn-ghost" onClick={backToSelect}>
-            {scenarios.length > 1
+            {pool.length > 1
               ? <>← เลือกเคสอื่น</>
               : <><Home size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />กลับหน้าแรก</>}
           </button>
@@ -595,7 +621,7 @@ export default function CodeBlueSim() {
               <RefreshCw size={16} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 8 }} />
               เล่นเคสนี้อีกครั้ง
             </button>
-            {scenarios.length > 1 && (
+            {pool.length > 1 && (
               <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('select'); window.scrollTo(0, 0); }}>
                 ← เลือกเคสอื่น
               </button>

@@ -43,6 +43,18 @@ export function getScenarioById(id) {
   return scenarios.find((s) => s.id === id) || scenario;
 }
 
+// pool สำหรับเล่นจริง = built-in (ของโหมดนี้) + โจทย์ published จาก Supabase (ของโหมดนี้)
+// built-in เป็น fallback ที่มีเสมอ แม้ Supabase ล่ม
+export async function loadPlayableScenarios() {
+  try {
+    const { fetchPublishedScenarios } = await import('../services/codeBlueScenarioService');
+    const published = await fetchPublishedScenarios();
+    return [...scenarios, ...published];
+  } catch {
+    return scenarios;
+  }
+}
+
 export const LEVEL_META = {
   basic: { label: 'พื้นฐาน', order: 0 },
   intermediate: { label: 'ปานกลาง', order: 1 },
