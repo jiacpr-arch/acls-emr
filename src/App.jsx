@@ -92,7 +92,9 @@ function App() {
 
   // Recording page has its own nav (QuickBar + FloatingStatus)
   // Admin pages also hide the bottom tab bar
-  const isRecording = location.pathname === '/recording';
+  // /sim (Code Blue game) is full-screen — has its own กลับหน้าแรก button
+  const isRecording = location.pathname === '/recording'
+    || location.pathname === '/sim';
   const isAdmin = location.pathname.startsWith('/admin');
   // หน้าที่นักเรียน "กำลังเรียน/สอบจริง" (อ่านบทเรียน + ทำข้อสอบ pre/post) —
   // ไม่โชว์ปุ่ม LINE ลอย + footer โฆษณา เพื่อไม่รบกวนระหว่างเรียน
