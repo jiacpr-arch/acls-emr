@@ -147,6 +147,42 @@
 .cbs-choice-dim { opacity: .5; }
 .cbs-choice-hint { border-color: var(--cbs-gold); box-shadow: 0 5px 0 #0B1130, 0 0 16px rgba(242, 193, 78, .5); }
 
+/* ============ CASE SELECT ============ */
+.cbs-select {
+  min-height: 100dvh; display: flex; flex-direction: column;
+  padding: calc(24px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));
+  gap: 14px;
+  background:
+    radial-gradient(ellipse 130% 45% at 50% -8%, rgba(229, 72, 77, .22), transparent 62%),
+    linear-gradient(180deg, #0D1430 0%, #10182F 55%, #0A0F22 100%);
+}
+.cbs-select-title { font-size: clamp(26px, 8vw, 34px); font-weight: 900; line-height: 1.1; }
+.cbs-select-sub { font-size: 14px; color: var(--cbs-dim); line-height: 1.6; }
+.cbs-case-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.cbs-case {
+  appearance: none; cursor: pointer; font-family: inherit; text-align: left;
+  display: flex; flex-direction: column; gap: 5px;
+  border: 2.5px solid #33406E; border-radius: 10px;
+  background: linear-gradient(180deg, var(--cbs-box-hi), var(--cbs-box-lo));
+  color: var(--cbs-ink); padding: 13px 15px;
+  box-shadow: 0 4px 0 #0B1130; transition: transform .08s, border-color .15s;
+}
+.cbs-case:active { transform: translateY(3px); box-shadow: 0 1px 0 #0B1130; }
+.cbs-case:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
+.cbs-case-locked { opacity: .55; cursor: not-allowed; filter: grayscale(.4); }
+.cbs-case-top { display: flex; align-items: center; gap: 8px; }
+.cbs-case-level {
+  font-family: var(--cbs-mono); font-size: 9.5px; letter-spacing: .12em;
+  padding: 2px 8px; border-radius: 999px; font-weight: 700;
+}
+.cbs-lvl-basic { background: rgba(55, 200, 113, .18); color: var(--cbs-green); }
+.cbs-lvl-intermediate { background: rgba(242, 193, 78, .18); color: var(--cbs-gold); }
+.cbs-lvl-megacode { background: rgba(229, 72, 77, .18); color: var(--cbs-red); }
+.cbs-case-done { margin-left: auto; font-size: 11px; color: var(--cbs-green); font-weight: 700; }
+.cbs-case-lock { margin-left: auto; font-size: 11px; color: var(--cbs-dim); }
+.cbs-case-name { font-size: 17px; font-weight: 800; }
+.cbs-case-desc { font-size: 12.5px; color: var(--cbs-dim); line-height: 1.5; }
+
 /* EtCO2 sparkline (debrief) */
 .cbs-etco2 { display: flex; flex-direction: column; gap: 6px; }
 .cbs-spark {
