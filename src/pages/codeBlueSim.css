@@ -95,6 +95,70 @@
   color: #5E6B92; text-align: center;
 }
 
+/* Difficulty selector (title) */
+.cbs-diff-group { display: flex; flex-direction: column; gap: 8px; }
+.cbs-diff-label {
+  font-family: var(--cbs-mono); font-size: 10px; letter-spacing: .22em;
+  color: #8B99C4; text-transform: uppercase;
+}
+.cbs-diff-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cbs-diff-btn {
+  appearance: none; cursor: pointer; font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  border: 2.5px solid #33406E; border-radius: 8px;
+  background: rgba(10, 16, 36, .55); color: var(--cbs-dim);
+  padding: 10px 6px; transition: border-color .15s, background .15s, color .15s;
+}
+.cbs-diff-btn:active { transform: translateY(2px); }
+.cbs-diff-btn:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
+.cbs-diff-on {
+  border-color: var(--cbs-gold); color: var(--cbs-ink);
+  background: rgba(242, 193, 78, .12);
+  box-shadow: 0 0 0 1px rgba(242, 193, 78, .3) inset;
+}
+.cbs-diff-name { font-size: 15px; font-weight: 800; }
+.cbs-diff-meta { font-family: var(--cbs-mono); font-size: 10px; color: #8B99C4; }
+.cbs-diff-on .cbs-diff-meta { color: var(--cbs-gold); }
+
+.cbs-title-row { display: flex; align-items: center; gap: 10px; }
+.cbs-icon-btn {
+  appearance: none; cursor: pointer; margin-left: auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 8px;
+  border: 2px solid #33406E; background: rgba(10, 16, 36, .6); color: var(--cbs-dim);
+}
+.cbs-icon-btn:active { transform: translateY(2px); }
+.cbs-icon-btn:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
+
+.cbs-diff-badge {
+  align-self: center;
+  font-family: var(--cbs-mono); font-size: 11px; letter-spacing: .18em;
+  color: var(--cbs-gold); border: 1.5px solid rgba(242, 193, 78, .5);
+  border-radius: 999px; padding: 3px 14px;
+}
+
+/* Choice hint (easy mode) */
+.cbs-hint {
+  align-self: center; font-size: 12.5px; color: var(--cbs-ink);
+  background: rgba(242, 193, 78, .16); border: 1.5px solid var(--cbs-gold);
+  border-radius: 8px; padding: 5px 14px; margin-bottom: 2px;
+}
+.cbs-hint b { color: var(--cbs-gold); font-family: var(--cbs-mono); }
+.cbs-choice-dim { opacity: .5; }
+.cbs-choice-hint { border-color: var(--cbs-gold); box-shadow: 0 5px 0 #0B1130, 0 0 16px rgba(242, 193, 78, .5); }
+
+/* EtCO2 sparkline (debrief) */
+.cbs-etco2 { display: flex; flex-direction: column; gap: 6px; }
+.cbs-spark {
+  width: 100%; height: 60px; display: block;
+  border: 2px solid #2A365E; border-radius: 6px; background: rgba(4, 8, 18, .5);
+}
+.cbs-spark-line { fill: none; stroke: var(--cbs-cyan); stroke-width: 2; stroke-linejoin: round; }
+.cbs-spark-area { fill: rgba(88, 196, 220, .18); stroke: none; }
+.cbs-spark-target { stroke: rgba(242, 193, 78, .5); stroke-width: 1; }
+.cbs-spark-dot { fill: var(--cbs-green); }
+.cbs-etco2-cap { font-size: 11px; color: #8B99C4; }
+
 /* ============ GAME ============ */
 .cbs-game { display: flex; flex-direction: column; min-height: 100dvh; }
 .cbs-stage {

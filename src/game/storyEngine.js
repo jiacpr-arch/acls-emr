@@ -9,15 +9,31 @@
 // ตอบถูก → node ใน then ของตัวเลือกถูก run ก่อนแล้วไปข้อถัดไป
 // ตอบผิด → หัก stability, เล่นจุดตัดสินใจเดิมซ้ำ (สภาพแย่ลงแล้ว)
 
-export const DECISION_TIME = 20; // วินาทีจริงต่อการตัดสินใจ
-export const MAX_HP = 5;        // Patient Stability gauge
+// ระดับความยาก — คุมเวลาตัดสินใจ, จำนวน HP, การใบ้/เฉลย, และความเข้มของ grade
+export const DIFFICULTY = {
+  easy:   { id: 'easy',   label: 'ง่าย',  decisionTime: 30, hp: 7, hints: true,  showWhyOnWrong: true,  gradeStrict: false },
+  normal: { id: 'normal', label: 'ปกติ',  decisionTime: 20, hp: 5, hints: false, showWhyOnWrong: true,  gradeStrict: false },
+  hard:   { id: 'hard',   label: 'ยาก',   decisionTime: 12, hp: 3, hints: false, showWhyOnWrong: false, gradeStrict: true },
+};
+export const DEFAULT_DIFFICULTY = 'normal';
 
-export function createInitialState() {
+export function getDifficulty(id) {
+  return DIFFICULTY[id] || DIFFICULTY[DEFAULT_DIFFICULTY];
+}
+
+// ค่า default อ้างอิงโหมดปกติ (คงไว้เพื่อ backward-compat กับผู้เรียกเดิม)
+export const DECISION_TIME = DIFFICULTY.normal.decisionTime;
+export const MAX_HP = DIFFICULTY.normal.hp;
+
+export function createInitialState(difficultyId = DEFAULT_DIFFICULTY) {
+  const diff = getDifficulty(difficultyId);
   return {
+    difficulty: diff.id,
     ptr: 0,
     queue: [],
     simTime: 0,
-    hp: MAX_HP,
+    hp: diff.hp,
+    maxHp: diff.hp,
     rhythm: 'flat',
     cpr: false,
     alarm: false,
@@ -28,7 +44,20 @@ export function createInitialState() {
     firstShockAt: -1,
     rosc: false,
     timeline: [],
+    etco2Trace: [], // ค่าสะท้อนคุณภาพ CPR ตามเวลา สำหรับกราฟใน debrief
   };
+}
+
+// EtCO2 (mmHg) สะท้อนคุณภาพ CPR: 0 ก่อนเริ่มกด, ~15 ระหว่าง CPR (ตกเมื่อพลาด),
+// พุ่ง ~40 เมื่อ ROSC — ใช้ทำ sparkline สอนผู้เรียน
+export function currentEtco2(state) {
+  if (state.rosc) return 40;
+  if (!state.cpr) return 0;
+  return Math.max(6, 16 - state.wrong * 2);
+}
+
+export function pushEtco2(state) {
+  state.etco2Trace.push({ t: state.simTime, v: currentEtco2(state) });
 }
 
 // ผลของ node ต่อสถานะผู้ป่วย/เคส (mutate state ที่ถือใน ref ของหน้าเกม)
@@ -79,6 +108,13 @@ export function recordWrong(state, option) {
 
 export function gradeFor(state, won) {
   if (!won) return 'C';
+  const strict = getDifficulty(state.difficulty).gradeStrict;
+  if (strict) {
+    // โหมดยาก: เกณฑ์เข้มขึ้น (ผิดแม้ครั้งเดียวก็ตกจาก S)
+    if (state.wrong === 0) return 'S';
+    if (state.wrong === 1) return 'B';
+    return 'C';
+  }
   if (state.wrong === 0) return 'S';
   if (state.wrong === 1) return 'A';
   if (state.wrong <= 3) return 'B';

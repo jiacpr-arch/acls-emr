@@ -1,22 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home, Volume2, VolumeX } from 'lucide-react';
 import { scenario } from '../data/codeBlueScenarios';
 import { getCharacter } from '../game/characters';
 import CharacterSprite from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
 import {
   createInitialState, applyFx, nextNode, recordCorrect, recordWrong,
-  gradeFor, fmtTime, shuffled, DECISION_TIME, MAX_HP,
+  gradeFor, fmtTime, shuffled, getDifficulty, pushEtco2, DIFFICULTY, DEFAULT_DIFFICULTY,
 } from '../game/storyEngine';
+import {
+  initAudio, playShockSound, playROSCSound, playWarningBeep,
+  playMetronomeClick, playBeep,
+} from '../utils/sound';
 import { track } from '../services/analytics';
 import './codeBlueSim.css';
 
-const HISCORE_KEY = 'acls_codeblue_hiscore';
+const HISCORE_PREFIX = 'acls_codeblue_hiscore';
+const MUTE_KEY = 'acls_codeblue_muted';
+const DIFF_KEY = 'acls_codeblue_difficulty';
+const hiscoreKey = (diff) => `${HISCORE_PREFIX}_${diff}`;
 
 // สำเนาสถานะ engine สำหรับ render (render ห้ามอ่าน ref ตรงๆ)
 function snapshot(st) {
-  return { ...st, timeline: [...st.timeline] };
+  return { ...st, timeline: [...st.timeline], etco2Trace: [...st.etco2Trace] };
 }
 
 const RHYTHM_NAMES = {
@@ -31,40 +38,56 @@ export default function CodeBlueSim() {
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
 
+  const [difficulty, setDifficulty] = useState(
+    () => localStorage.getItem(DIFF_KEY) || DEFAULT_DIFFICULTY,
+  );
+  const [muted, setMuted] = useState(() => localStorage.getItem(MUTE_KEY) === '1');
+  const mutedRef = useRef(muted);
+  useEffect(() => { mutedRef.current = muted; }, [muted]);
+
   // ---- engine state: mutable ใน ref (logic) + snapshot state (render) ----
-  const S = useRef(createInitialState());
-  const [view, setView] = useState(() => snapshot(createInitialState()));
+  const S = useRef(createInitialState(DEFAULT_DIFFICULTY));
+  const [view, setView] = useState(() => snapshot(createInitialState(DEFAULT_DIFFICULTY)));
 
   const [screen, setScreen] = useState('title'); // title | game | debrief
   const [speaker, setSpeaker] = useState(null); // { who, pose, popN }
   const [plate, setPlate] = useState(null); // { name } override (time-skip)
   const [dlgHtml, setDlgHtml] = useState('');
   const [typing, setTyping] = useState(false);
-  const [choice, setChoice] = useState(null); // { q, options }
-  const [decisionLeft, setDecisionLeft] = useState(DECISION_TIME);
+  const [choice, setChoice] = useState(null); // { q, options, hintTgt }
+  const [decisionLeft, setDecisionLeft] = useState(getDifficulty(difficulty).decisionTime);
   const [drama, setDrama] = useState(null); // null | 'red' | 'white'
   const [inter, setInter] = useState(null); // { text, green }
   const [flashN, setFlashN] = useState(0);
   const [redN, setRedN] = useState(0);
   const [shaking, setShaking] = useState(false);
   const [result, setResult] = useState(null); // { won, grade, score, isHiscore }
-  const [hiscore, setHiscore] = useState(() => Number(localStorage.getItem(HISCORE_KEY) || 0));
+  const [hiscore, setHiscore] = useState(() => Number(localStorage.getItem(hiscoreKey(difficulty)) || 0));
 
-  const timers = useRef({ type: null, dec: null, misc: [] });
+  const timers = useRef({ type: null, dec: null, misc: [], metronome: null });
   const busyRef = useRef(false);
   const [awaitTap, setAwaitTap] = useState(false);
   const currentChoiceRef = useRef(null);
   const retryChoiceRef = useRef(null);
+  const hintUsedRef = useRef(false); // โหมดง่าย: ใบ้ target หลังตอบผิดครั้งแรกของแต่ละจุด
   const typeDoneRef = useRef(null);
   const fullHtmlRef = useRef('');
   const popCounter = useRef(0);
+
+  const stopMetronome = useCallback(() => {
+    if (timers.current.metronome) {
+      clearInterval(timers.current.metronome);
+      timers.current.metronome = null;
+    }
+  }, []);
 
   const clearAllTimers = useCallback(() => {
     const t = timers.current;
     if (t.type) clearTimeout(t.type);
     if (t.dec) clearInterval(t.dec);
+    if (t.metronome) clearInterval(t.metronome);
     t.misc.forEach(clearTimeout);
-    t.type = null; t.dec = null; t.misc = [];
+    t.type = null; t.dec = null; t.metronome = null; t.misc = [];
   }, []);
   useEffect(() => clearAllTimers, [clearAllTimers]);
 
@@ -81,6 +104,28 @@ export default function CodeBlueSim() {
 
   function vibrate(pattern) {
     if (navigator.vibrate) navigator.vibrate(pattern);
+  }
+
+  function sfx(fn) {
+    if (!mutedRef.current) fn();
+  }
+
+  // metronome ~110/นาที ระหว่าง CPR (หยุดเมื่อ shock/ROSC/ผิด/จบเคส)
+  function startMetronome() {
+    stopMetronome();
+    if (mutedRef.current) return;
+    timers.current.metronome = setInterval(() => {
+      if (!mutedRef.current) playMetronomeClick();
+    }, 545);
+  }
+
+  // ผูกเสียงกับ fx ที่ node ทำ (เรียกก่อน applyFx เพื่ออ่านสถานะ cpr เดิม)
+  function soundForFx(fx) {
+    if (!fx) return;
+    if (fx.shock) { sfx(playShockSound); stopMetronome(); }
+    if (fx.rosc) { sfx(playROSCSound); stopMetronome(); }
+    if (fx.alarm) sfx(playWarningBeep);
+    if (fx.cpr && !S.current.cpr) startMetronome();
   }
 
   function finishTyping() {
@@ -136,15 +181,17 @@ export default function CodeBlueSim() {
     const st = S.current;
     const grade = gradeFor(st, won);
     const score = won ? Math.max(10, 100 - st.wrong * 15) : 0;
+    const key = hiscoreKey(st.difficulty);
     let isHiscore = false;
-    if (score > Number(localStorage.getItem(HISCORE_KEY) || 0)) {
-      localStorage.setItem(HISCORE_KEY, String(score));
+    if (score > Number(localStorage.getItem(key) || 0)) {
+      localStorage.setItem(key, String(score));
       setHiscore(score);
       isHiscore = score > 0;
     }
     track('game_completed', {
       props: {
         scenario_id: scenario.id,
+        difficulty: st.difficulty,
         won,
         grade,
         wrong: st.wrong,
@@ -164,10 +211,15 @@ export default function CodeBlueSim() {
   function showChoice(c) {
     currentChoiceRef.current = c;
     setDrama('white');
-    setChoice({ q: c.q, options: shuffled(c.options) });
-    setDecisionLeft(DECISION_TIME);
+    const diff = getDifficulty(S.current.difficulty);
+    // โหมดง่าย: หลังพลาดจุดนี้ไปแล้วครั้งนึง ใบ้หมวด target ที่ถูก + dim ตัวที่ผิด
+    const hintTgt = diff.hints && hintUsedRef.current
+      ? (c.options.find((o) => o.ok)?.tgt || null)
+      : null;
+    setChoice({ q: c.q, options: shuffled(c.options), hintTgt });
+    setDecisionLeft(diff.decisionTime);
     if (timers.current.dec) clearInterval(timers.current.dec);
-    let left = DECISION_TIME;
+    let left = diff.decisionTime;
     timers.current.dec = setInterval(() => {
       left -= 0.25;
       setDecisionLeft(left);
@@ -191,7 +243,9 @@ export default function CodeBlueSim() {
 
     if (node.say) {
       const { who, pose, text, fx } = node.say;
+      soundForFx(fx);
       applyFx(st, fx);
+      pushEtco2(st);
       setDrama(pose === 'panic' ? 'red' : null);
       popCounter.current += 1;
       setSpeaker({ who, pose, popN: popCounter.current });
@@ -204,7 +258,9 @@ export default function CodeBlueSim() {
 
     if (node.inter) {
       busyRef.current = true;
+      soundForFx(node.fx);
       applyFx(st, node.fx);
+      pushEtco2(st);
       if (node.drama) setDrama(node.drama);
       syncView();
       doBigMoment();
@@ -260,17 +316,22 @@ export default function CodeBlueSim() {
     if (option.ok) {
       recordCorrect(st, option);
       currentChoiceRef.current = null;
+      hintUsedRef.current = false; // จุดถัดไปเริ่มใหม่ ไม่ใบ้
       syncView();
       advance();
       return;
     }
 
     recordWrong(st, option);
+    pushEtco2(st);
+    hintUsedRef.current = true; // จุดนี้เคยพลาด — โหมดง่ายจะใบ้ตอนเล่นซ้ำ
     vibrate([60, 40, 60]);
+    sfx(() => playBeep(160, 0.28, 0.35)); // เสียงผิดต่ำ
     if (!reducedMotion) {
       setRedN((n) => n + 1);
       doShake();
     }
+    stopMetronome();
     syncView();
 
     popCounter.current += 1;
@@ -278,9 +339,13 @@ export default function CodeBlueSim() {
     setPlate(null);
     setDrama('red');
 
+    // โหมดยาก: ไม่เฉลยเหตุผลตอนพลาด (เก็บไว้ debrief) — เพิ่มความกดดัน
+    const showWhy = getDifficulty(st.difficulty).showWhyOnWrong;
+    const whyText = showWhy ? ` ${option.why}` : '';
+
     if (st.hp <= 0) {
       setAwaitTap(false);
-      typeText(`<span class="cbs-em">ผู้ป่วยไปแล้ว…</span> ${option.why}`, () => {
+      typeText(`<span class="cbs-em">ผู้ป่วยไปแล้ว…</span>${whyText}`, () => {
         later(() => endCase(false), reducedMotion ? 400 : 1400);
       });
       return;
@@ -290,7 +355,7 @@ export default function CodeBlueSim() {
     retryChoiceRef.current = currentChoiceRef.current;
     setAwaitTap(true);
     typeText(
-      `<span class="cbs-em">ช้าก่อน!</span> ${option.why}${option.worsen ? ' — ผู้ป่วยแย่ลง สีผิวคล้ำขึ้น!' : ''}`,
+      `<span class="cbs-em">ช้าก่อน!</span>${whyText}${option.worsen ? ' — ผู้ป่วยแย่ลง สีผิวคล้ำขึ้น!' : ''}`,
     );
   }
 
@@ -310,12 +375,14 @@ export default function CodeBlueSim() {
 
   function startGame() {
     clearAllTimers();
-    S.current = createInitialState();
+    if (!mutedRef.current) initAudio(); // ปลดล็อก AudioContext ตอนผู้ใช้แตะปุ่ม
+    S.current = createInitialState(difficulty);
     syncView();
     busyRef.current = false;
     setAwaitTap(false);
     currentChoiceRef.current = null;
     retryChoiceRef.current = null;
+    hintUsedRef.current = false;
     setResult(null);
     setChoice(null);
     setInter(null);
@@ -324,8 +391,23 @@ export default function CodeBlueSim() {
     setPlate(null);
     setDlgHtml('');
     setScreen('game');
-    track('game_started', { props: { scenario_id: scenario.id } });
+    track('game_started', { props: { scenario_id: scenario.id, difficulty } });
     later(() => advance(), reducedMotion ? 100 : 400);
+  }
+
+  function chooseDifficulty(id) {
+    setDifficulty(id);
+    localStorage.setItem(DIFF_KEY, id);
+    setHiscore(Number(localStorage.getItem(hiscoreKey(id)) || 0));
+  }
+
+  function toggleMute() {
+    setMuted((m) => {
+      const next = !m;
+      localStorage.setItem(MUTE_KEY, next ? '1' : '0');
+      if (next) stopMetronome();
+      return next;
+    });
   }
 
   // ============ TITLE ============
@@ -340,7 +422,34 @@ export default function CodeBlueSim() {
             คุณคือ <b>Team Leader</b> — ทีมทั้งห้องรอฟังคำสั่งของคุณ<br />
             ตัดสินใจผิด ผู้ป่วยแย่ลงจริง เวลาไม่เคยรอใคร
           </p>
-          {hiscore > 0 && <div className="cbs-hiscore-chip">HI-SCORE {hiscore}</div>}
+          <div className="cbs-diff-group" role="group" aria-label="เลือกระดับความยาก">
+            <span className="cbs-diff-label">ระดับความยาก</span>
+            <div className="cbs-diff-btns">
+              {Object.values(DIFFICULTY).map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  className={`cbs-diff-btn ${difficulty === d.id ? 'cbs-diff-on' : ''}`}
+                  onClick={() => chooseDifficulty(d.id)}
+                  aria-pressed={difficulty === d.id}
+                >
+                  <span className="cbs-diff-name">{d.label}</span>
+                  <span className="cbs-diff-meta">{d.decisionTime}s · ♥{d.hp}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="cbs-title-row">
+            {hiscore > 0 && <div className="cbs-hiscore-chip">HI-SCORE {hiscore}</div>}
+            <button
+              type="button"
+              className="cbs-icon-btn"
+              onClick={toggleMute}
+              aria-label={muted ? 'เปิดเสียง' : 'ปิดเสียง'}
+            >
+              {muted ? <VolumeX size={16} strokeWidth={2.4} /> : <Volume2 size={16} strokeWidth={2.4} />}
+            </button>
+          </div>
           <button type="button" className="cbs-btn-main" onClick={startGame}>
             <AlertTriangle size={18} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-3px', marginRight: 8 }} />
             รับเคส
@@ -364,6 +473,7 @@ export default function CodeBlueSim() {
           <div className={`cbs-stamp ${result.won ? 'cbs-win' : 'cbs-lose'}`}>
             {result.won ? 'ROSC!' : 'CODE ENDED'}
           </div>
+          <div className="cbs-diff-badge">โหมด {getDifficulty(st.difficulty).label}</div>
           <p className="cbs-verdict-sub">
             {result.won
               ? 'ผู้ป่วยกลับมามีชีพจร — ส่งต่อ Cath lab เคสนี้เป็นของคุณ'
@@ -385,6 +495,13 @@ export default function CodeBlueSim() {
               <Metric label="เวลาทั้งเคส" value={fmtTime(st.simTime)} tone="" />
             </div>
           </div>
+          {st.etco2Trace.length > 1 && (
+            <div className="cbs-etco2">
+              <div className="cbs-tl-title">EtCO₂ — คุณภาพ CPR ตลอดเคส</div>
+              <Etco2Sparkline trace={st.etco2Trace} />
+              <div className="cbs-etco2-cap">ยิ่งสูง = เลือดไปเลี้ยงดีระหว่างกด · พุ่งเกิน 35 = สัญญาณ ROSC</div>
+            </div>
+          )}
           <div className="cbs-tl-title">TIMELINE การตัดสินใจของคุณ</div>
           <div className="cbs-timeline">
             {st.timeline.map((it, i) => (
@@ -417,7 +534,9 @@ export default function CodeBlueSim() {
   const char = speaker ? getCharacter(speaker.who) : null;
   const plateName = plate?.name || char?.name || ' ';
   const plateColors = plate ? null : char?.plate || null;
-  const timerPct = Math.max(0, (decisionLeft / DECISION_TIME) * 100);
+  const gameDiff = getDifficulty(st.difficulty);
+  const maxHp = st.maxHp || gameDiff.hp;
+  const timerPct = Math.max(0, (decisionLeft / gameDiff.decisionTime) * 100);
   const rhythmBad = st.rhythm === 'vf' || st.rhythm === 'flat';
 
   return (
@@ -435,7 +554,7 @@ export default function CodeBlueSim() {
               <div className="cbs-gauge">
                 <span className="cbs-gauge-label">PATIENT</span>
                 <div className="cbs-gauge-cells">
-                  {Array.from({ length: MAX_HP }).map((_, i) => (
+                  {Array.from({ length: maxHp }).map((_, i) => (
                     <span
                       key={i}
                       className={`cbs-cell ${i >= st.hp ? 'cbs-off' : (st.hp === 1 && i === 0 ? 'cbs-last' : '')}`}
@@ -456,12 +575,24 @@ export default function CodeBlueSim() {
           {choice && (
             <div className="cbs-choices">
               <div className="cbs-qbanner">⚖ {choice.q}</div>
-              {choice.options.map((o, i) => (
-                <button key={i} type="button" className="cbs-choice" onClick={() => pick(o)}>
-                  <span className="cbs-choice-tgt">▸ สั่ง {o.tgt}</span>
-                  {o.label}
-                </button>
-              ))}
+              {choice.hintTgt && (
+                <div className="cbs-hint">💡 ลองสั่งหมวด <b>{choice.hintTgt}</b> ดูสิ</div>
+              )}
+              {choice.options.map((o, i) => {
+                const dim = choice.hintTgt && o.tgt !== choice.hintTgt;
+                const glow = choice.hintTgt && o.tgt === choice.hintTgt;
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`cbs-choice ${dim ? 'cbs-choice-dim' : ''} ${glow ? 'cbs-choice-hint' : ''}`}
+                    onClick={() => pick(o)}
+                  >
+                    <span className="cbs-choice-tgt">▸ สั่ง {o.tgt}</span>
+                    {o.label}
+                  </button>
+                );
+              })}
               <div className="cbs-choice-timer">
                 <div
                   className={`cbs-choice-timer-fill ${timerPct < 30 ? 'cbs-low' : ''}`}
@@ -516,5 +647,28 @@ function Metric({ label, value, tone }) {
       <span className="cbs-metric-label">{label}</span>
       <span className={`cbs-metric-val ${tone ? `cbs-${tone}` : ''}`}>{value}</span>
     </div>
+  );
+}
+
+// กราฟ EtCO2 แบบ area sparkline — เน้นจุดปลาย (ROSC) และเส้นเป้า 35
+function Etco2Sparkline({ trace }) {
+  const W = 300;
+  const H = 60;
+  const maxV = 45;
+  const tMax = trace[trace.length - 1].t || 1;
+  const x = (t) => (t / tMax) * W;
+  const y = (v) => H - (Math.min(v, maxV) / maxV) * (H - 6) - 3;
+  const pts = trace.map((p) => `${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`);
+  const line = `M ${pts.join(' L ')}`;
+  const area = `${line} L ${W},${H} L 0,${H} Z`;
+  const last = trace[trace.length - 1];
+  const targetY = y(35);
+  return (
+    <svg className="cbs-spark" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="กราฟ EtCO2">
+      <line x1="0" y1={targetY} x2={W} y2={targetY} className="cbs-spark-target" strokeDasharray="4 4" />
+      <path d={area} className="cbs-spark-area" />
+      <path d={line} className="cbs-spark-line" />
+      <circle cx={x(last.t)} cy={y(last.v)} r="3.5" className="cbs-spark-dot" />
+    </svg>
   );
 }
