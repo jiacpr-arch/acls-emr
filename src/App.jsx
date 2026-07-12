@@ -96,7 +96,9 @@ function App() {
 
   // Recording page has its own nav (QuickBar + FloatingStatus)
   // Admin pages also hide the bottom tab bar
-  const isRecording = location.pathname === '/recording';
+  // /sim (Code Blue game) is full-screen — has its own กลับหน้าแรก button
+  const isRecording = location.pathname === '/recording'
+    || location.pathname === '/sim';
   const isAdmin = location.pathname.startsWith('/admin');
   // หน้าเล่นเกม Recorder ใช้ GameQuickBar (bottom-pill-bar) ตำแหน่งเดียวกับ BottomTabBar
   // จึงต้องซ่อน tab bar เฉพาะหน้าเล่นด่าน (ไม่ใช่หน้า hub)
