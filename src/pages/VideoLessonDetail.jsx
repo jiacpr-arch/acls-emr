@@ -1,21 +1,44 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, MapPin, FileText, CheckCircle2, BookOpen, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, FileText, CheckCircle2, BookOpen, Check, Lock, PlayCircle } from 'lucide-react';
 import { useVideoLessons } from '../hooks/useVideoLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
-import { markLessonRead, saveQuizAttempt, getLessonProgress, getBestAttempt } from '../db/database';
+import { useAuth } from '../hooks/useAuth';
+import {
+  markLessonRead, saveQuizAttempt, getLessonProgress, getAttemptsForStudent,
+} from '../db/database';
 import { videoLessonKey, VIDEO_TOPIC_MAP } from '../data/videoTopics';
+import { buildProgressSets, clipUnlocked } from '../utils/videoProgress';
 import { courseMeta } from '../config/courseMode';
 import { formatClipTime } from '../utils/youtube';
+import { track } from '../services/analytics';
 import YouTubeLessonPlayer from '../components/YouTubeLessonPlayer';
 import ReadBody from '../components/precourse/ReadBody';
 import QuizQuestion from '../components/precourse/QuizQuestion';
+
+const RETRY_COOLDOWN_SEC = 20; // หน่วงก่อนลองควิซใหม่ — กันการสุ่มตอบรัว ๆ
+
+// สลับลำดับตัวเลือกแบบ Fisher–Yates (correctId อิงจาก id ไม่อิงตำแหน่ง จึงสลับได้ปลอดภัย)
+function shuffle(arr) {
+  const a = [...(arr || [])];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function buildShuffled(quizArr) {
+  const map = {};
+  for (const q of quizArr || []) map[q.id] = shuffle(q.choices);
+  return map;
+}
 
 export default function VideoLessonDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { byTopic, loading } = useVideoLessons();
   const activeStudent = usePreCourseStore(s => s.activeStudent);
+  const { isAuthenticated: isAdmin } = useAuth();
   const playerRef = useRef(null);
 
   const clip = useMemo(() => {
@@ -31,36 +54,85 @@ export default function VideoLessonDetail() {
   const nextClip = clipIndex >= 0 ? topicClips[clipIndex + 1] : null;
   const topicMeta = clip ? VIDEO_TOPIC_MAP[clip.topic] : null;
 
+  const [progress, setProgress] = useState([]);
+  const [attempts, setAttempts] = useState([]);
   const [watched, setWatched] = useState(false);
   const [answers, setAnswers] = useState({});       // { [questionId]: choiceId }
+  const [shuffledChoices, setShuffledChoices] = useState({}); // { [questionId]: choices[] }
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizPassed, setQuizPassed] = useState(false);
+  const [quizScore, setQuizScore] = useState(0);
+  const [quizCorrect, setQuizCorrect] = useState(0);
+  const [retryCooldown, setRetryCooldown] = useState(0);
   const startedAtRef = useRef(new Date().toISOString());
+  const watchTrackedRef = useRef(false);
+  const lockTrackedRef = useRef(false);
 
-  // init watched/passed state จาก progress เดิม
+  // โหลด progress/attempts ทั้งชุดของนักเรียน เพื่อคำนวณ "ปลดล็อก" ตามลำดับคลิป
   useEffect(() => {
-    setWatched(false); setAnswers({}); setQuizSubmitted(false); setQuizPassed(false);
+    if (!activeStudent) { setProgress([]); setAttempts([]); return; }
+    Promise.all([
+      getLessonProgress(activeStudent.id),
+      getAttemptsForStudent(activeStudent.id),
+    ]).then(([p, a]) => { setProgress(p); setAttempts(a); });
+  }, [activeStudent?.id]);
+
+  const { progressLessonIds, passedLessonIds } = buildProgressSets(progress, attempts);
+  // บังคับลำดับเฉพาะนักเรียนที่ลงทะเบียน (มี activeStudent) — guest ยังเปิดชมได้อิสระ
+  // เพราะไม่มีที่บันทึก progress; แอดมินข้ามล็อกได้เสมอเพื่อพรีวิว
+  const unlocked = isAdmin || !activeStudent || !clip
+    || clipUnlocked(clip, topicClips, progressLessonIds, passedLessonIds);
+
+  // init/reset state ต่อคลิป (และเมื่อ progress/attempts โหลดเสร็จ)
+  useEffect(() => {
+    setAnswers({}); setQuizSubmitted(false); setQuizPassed(false);
+    setQuizScore(0); setQuizCorrect(0); setRetryCooldown(0);
     startedAtRef.current = new Date().toISOString();
-    if (!clip || !activeStudent) return;
+    watchTrackedRef.current = false;
+    lockTrackedRef.current = false;
+    if (!clip) return;
+    setShuffledChoices(buildShuffled(clip.quiz));
     const key = videoLessonKey(clip.id);
-    getLessonProgress(activeStudent.id).then(rows => {
-      if (rows.some(r => r.lessonId === key)) setWatched(true);
-    });
+    setWatched(progressLessonIds.has(key));
     if (clip.quiz?.length) {
-      getBestAttempt(activeStudent.id, key).then(best => {
-        if (best?.passed) { setQuizSubmitted(true); setQuizPassed(true); }
-      });
+      const forLesson = attempts.filter(a => a.lessonId === key);
+      const best = forLesson.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+      if (best?.passed) {
+        setQuizSubmitted(true); setQuizPassed(true);
+        setQuizScore(best.score ?? 0); setQuizCorrect(best.correctCount ?? 0);
+      }
     }
-  }, [clip?.id, activeStudent?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clip?.id, progress, attempts]);
+
+  // นับถอยหลัง cooldown สำหรับปุ่ม "ลองใหม่"
+  useEffect(() => {
+    if (retryCooldown <= 0) return;
+    const t = setTimeout(() => setRetryCooldown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [retryCooldown]);
+
+  // ยิง analytics เมื่อเปิดคลิปที่ยังล็อก (ครั้งเดียวต่อคลิป)
+  useEffect(() => {
+    if (clip && !unlocked && !lockTrackedRef.current) {
+      lockTrackedRef.current = true;
+      track('lesson_locked_view', { props: { clip_id: clip.id, topic: clip.topic } });
+    }
+  }, [clip, unlocked]);
 
   const handleWatched = () => {
     setWatched(true);
     if (activeStudent && clip) markLessonRead(activeStudent.id, videoLessonKey(clip.id));
+    if (clip && !watchTrackedRef.current) {
+      watchTrackedRef.current = true;
+      track('lesson_video_watched', { props: { clip_id: clip.id, topic: clip.topic, title: clip.title } });
+    }
   };
 
   const passingScore = courseMeta.passingScore.lesson;
   const quiz = clip?.quiz || [];
   const allAnswered = quiz.length > 0 && quiz.every(q => answers[q.id] != null);
+  const quizUnlocked = watched || isAdmin;
 
   const submitQuiz = () => {
     if (!allAnswered) return;
@@ -69,6 +141,9 @@ export default function VideoLessonDetail() {
     const passed = score >= passingScore;
     setQuizSubmitted(true);
     setQuizPassed(passed);
+    setQuizScore(score);
+    setQuizCorrect(correctCount);
+    if (!passed) setRetryCooldown(RETRY_COOLDOWN_SEC);
     if (activeStudent && clip) {
       saveQuizAttempt({
         studentId: activeStudent.id,
@@ -82,6 +157,19 @@ export default function VideoLessonDetail() {
         passed,
       });
     }
+    if (clip) {
+      track('lesson_quiz_submitted', {
+        props: { clip_id: clip.id, topic: clip.topic, score, passed, correct_count: correctCount, total: quiz.length },
+      });
+    }
+  };
+
+  const retryQuiz = () => {
+    if (retryCooldown > 0) return;
+    setQuizSubmitted(false);
+    setAnswers({});
+    setShuffledChoices(buildShuffled(quiz));
+    startedAtRef.current = new Date().toISOString();
   };
 
   if (loading) return <div className="page-container py-12 text-center text-caption text-text-muted">กำลังโหลด…</div>;
@@ -94,7 +182,41 @@ export default function VideoLessonDetail() {
     );
   }
 
+  // คลิปยังล็อก (และไม่ใช่แอดมิน) — กันการเข้าตรง URL
+  if (!unlocked) {
+    const prevRequired = topicClips.slice(0, clipIndex).filter(c => c.required);
+    const prevClip = prevRequired[prevRequired.length - 1];
+    return (
+      <div className="page-container space-y-4 pb-24">
+        <div className="flex items-center gap-2">
+          <button onClick={() => navigate('/video-lessons')} className="inline-flex items-center text-caption text-text-muted hover:text-text-primary">
+            <ChevronLeft size={18} strokeWidth={2.2} /> {topicMeta?.emoji} {topicMeta?.label}
+          </button>
+        </div>
+        <div className="dash-card text-center space-y-3 py-8">
+          <div className="w-14 h-14 mx-auto inline-flex items-center justify-center bg-bg-tertiary text-text-muted"
+            style={{ borderRadius: 'var(--radius-xl)' }}>
+            <Lock size={24} strokeWidth={2.2} />
+          </div>
+          <div className="text-headline text-text-primary">คลิปนี้ยังไม่ปลดล็อก</div>
+          <div className="text-caption text-text-muted">
+            ต้องเรียนคลิปก่อนหน้าให้จบ (ดูวิดีโอ + ทำควิซให้ผ่าน) ก่อนจึงจะเข้าคลิปนี้ได้
+          </div>
+          {prevClip && (
+            <button onClick={() => navigate(`/video-lessons/${prevClip.id}`)} className="btn btn-primary btn-sm">
+              ไปเรียนคลิปก่อนหน้า: {prevClip.title}
+            </button>
+          )}
+          <div>
+            <button onClick={() => navigate('/video-lessons')} className="btn btn-ghost btn-sm">กลับไปไลบรารีวิดีโอ</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const done = watched && (quiz.length === 0 || quizPassed);
+  const canAdvance = isAdmin || !activeStudent || done;
 
   return (
     <div className="page-container space-y-4 pb-24">
@@ -151,35 +273,65 @@ export default function VideoLessonDetail() {
       )}
 
       {/* C — เช็คความเข้าใจ (ควิซ) */}
-      {quiz.length > 0 && (
+      {quiz.length > 0 && !quizUnlocked && (
+        <div className="dash-card text-center space-y-2 py-6">
+          <div className="w-12 h-12 mx-auto inline-flex items-center justify-center bg-bg-tertiary text-text-muted"
+            style={{ borderRadius: 'var(--radius-lg)' }}>
+            <PlayCircle size={22} strokeWidth={2.2} />
+          </div>
+          <div className="text-caption font-bold text-text-secondary">ดูวิดีโอให้จบก่อนเพื่อปลดล็อกแบบทดสอบ</div>
+          <div className="text-2xs text-text-muted">แบบทดสอบ {quiz.length} ข้อ · ผ่าน ≥ {passingScore}%</div>
+        </div>
+      )}
+
+      {quiz.length > 0 && quizUnlocked && (
         <div className="dash-card space-y-4">
-          <div className="text-overline text-success inline-flex items-center gap-1.5"><CheckCircle2 size={12} strokeWidth={2.4} /> เช็คความเข้าใจ (ผ่าน ≥ {passingScore}%)</div>
-          {quiz.map((q, i) => (
-            <div key={q.id || i} className="space-y-2">
-              <QuizQuestion
-                question={q}
-                chosenId={answers[q.id]}
-                onChoose={(cid) => !quizSubmitted && setAnswers(a => ({ ...a, [q.id]: cid }))}
-                locked={quizSubmitted}
-                showCorrect={quizSubmitted}
-              />
-              {quizSubmitted && q.explanation && (
-                <div className="text-caption text-text-secondary bg-bg-tertiary/50 p-2.5" style={{ borderRadius: 'var(--radius-sm)' }}>
-                  {q.explanation}
-                </div>
-              )}
-            </div>
-          ))}
+          <div className="flex items-center justify-between">
+            <div className="text-overline text-success inline-flex items-center gap-1.5"><CheckCircle2 size={12} strokeWidth={2.4} /> เช็คความเข้าใจ (ผ่าน ≥ {passingScore}%)</div>
+            <span className="text-2xs text-text-muted">{quiz.length} ข้อ</span>
+          </div>
+          {quiz.map((q, i) => {
+            const correctChoice = q.choices.find(c => c.id === q.correctId);
+            return (
+              <div key={q.id || i} className="space-y-2">
+                <div className="text-2xs font-bold text-text-muted">ข้อ {i + 1}/{quiz.length}</div>
+                <QuizQuestion
+                  question={q}
+                  choices={shuffledChoices[q.id]}
+                  chosenId={answers[q.id]}
+                  onChoose={(cid) => !quizSubmitted && setAnswers(a => ({ ...a, [q.id]: cid }))}
+                  locked={quizSubmitted}
+                  showCorrect={quizSubmitted}
+                />
+                {quizSubmitted && (
+                  <div className="text-caption text-text-secondary bg-bg-tertiary/50 p-2.5 space-y-1" style={{ borderRadius: 'var(--radius-sm)' }}>
+                    {correctChoice && (
+                      <div><span className="font-bold text-success">เฉลย:</span> {correctChoice.text}</div>
+                    )}
+                    {q.explanation && <div>{q.explanation}</div>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
           {!quizSubmitted ? (
             <button onClick={submitQuiz} disabled={!allAnswered}
               className="btn btn-success btn-block disabled:opacity-40">
               ส่งคำตอบ
             </button>
           ) : (
-            <div className={`text-center text-caption font-bold ${quizPassed ? 'text-success' : 'text-warning'}`}>
-              {quizPassed ? '🎉 ผ่านควิซแล้ว!' : 'ยังไม่ผ่าน — ทบทวนคลิปแล้วลองใหม่'}
+            <div className="text-center space-y-2">
+              <div className="text-caption text-text-muted">
+                ได้ {quizCorrect}/{quiz.length} ข้อ ({quizScore}%)
+              </div>
+              <div className={`text-caption font-bold ${quizPassed ? 'text-success' : 'text-warning'}`}>
+                {quizPassed ? '🎉 ผ่านควิซแล้ว!' : 'ยังไม่ผ่าน — ทบทวนคลิปแล้วลองใหม่'}
+              </div>
               {!quizPassed && (
-                <button onClick={() => { setQuizSubmitted(false); setAnswers({}); }} className="block mx-auto mt-2 btn btn-ghost btn-sm">ลองใหม่</button>
+                <button onClick={retryQuiz} disabled={retryCooldown > 0}
+                  className="block mx-auto btn btn-ghost btn-sm disabled:opacity-40">
+                  {retryCooldown > 0 ? `ทบทวนวิดีโอแล้วลองใหม่ได้ใน ${retryCooldown} วิ` : 'ลองใหม่'}
+                </button>
               )}
             </div>
           )}
@@ -198,9 +350,20 @@ export default function VideoLessonDetail() {
 
       {/* next */}
       {nextClip && (
-        <button onClick={() => navigate(`/video-lessons/${nextClip.id}`)} className="btn btn-primary btn-block">
-          คลิปถัดไป: {nextClip.title} <ChevronRight size={16} strokeWidth={2.4} />
-        </button>
+        canAdvance ? (
+          <button onClick={() => navigate(`/video-lessons/${nextClip.id}`)} className="btn btn-primary btn-block">
+            คลิปถัดไป: {nextClip.title} <ChevronRight size={16} strokeWidth={2.4} />
+          </button>
+        ) : (
+          <div className="dash-card !p-3 text-center space-y-1">
+            <button disabled className="btn btn-primary btn-block opacity-40 cursor-not-allowed">
+              <Lock size={14} strokeWidth={2.4} /> คลิปถัดไป: {nextClip.title}
+            </button>
+            <div className="text-2xs text-text-muted">
+              {quiz.length > 0 && !quizPassed ? 'ทำควิซให้ผ่านก่อนเพื่อไปคลิปถัดไป' : 'ดูวิดีโอให้จบก่อนเพื่อไปคลิปถัดไป'}
+            </div>
+          </div>
+        )
       )}
       {!nextClip && done && (
         <div className="dash-card !p-3 text-center text-caption text-success font-bold inline-flex items-center justify-center gap-1.5 w-full">

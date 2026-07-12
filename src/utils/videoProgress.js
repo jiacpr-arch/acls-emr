@@ -18,6 +18,18 @@ export function clipDone(clip, progressLessonIds, passedLessonIds) {
   return clipWatched(clip, progressLessonIds) && clipQuizPassed(clip, passedLessonIds);
 }
 
+// ปลดล็อกคลิปตามลำดับ: คลิปแรกของหัวข้อปลดล็อกเสมอ; คลิปถัดไปปลดล็อกเมื่อ
+// "คลิปบังคับ (required) ทุกคลิปก่อนหน้าในหัวข้อเดียวกัน" ผ่านครบ (ดูจบ + ผ่านควิซ)
+// คลิปเสริม (optional) ไม่บล็อกลำดับ — ข้ามได้โดยไม่กันคลิปถัดไป
+//   topicClips : VideoLesson[] ของหัวข้อเดียวกัน เรียงตาม sort_order แล้ว
+export function clipUnlocked(clip, topicClips, progressLessonIds, passedLessonIds) {
+  const idx = (topicClips || []).findIndex(c => c.id === clip.id);
+  if (idx <= 0) return true;
+  return topicClips.slice(0, idx).every(
+    c => !c.required || clipDone(c, progressLessonIds, passedLessonIds)
+  );
+}
+
 // สร้าง Set จาก progress/attempts ของ Dexie (getLessonProgress / getAttemptsForStudent)
 export function buildProgressSets(progress, attempts) {
   const progressLessonIds = new Set((progress || []).map(p => p.lessonId));
