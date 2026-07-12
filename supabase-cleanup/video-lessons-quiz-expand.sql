@@ -1,11 +1,13 @@
 -- ============================================================================
--- video_lessons: QUIZ EXPANSION (DRAFT) — ขยายควิซเป็น 3 ข้อ/คลิป + คำอธิบายเฉลย
+-- video_lessons: QUIZ EXPANSION — ขยายควิซเป็น 3 ข้อ/คลิป + คำอธิบายเฉลย
 -- ----------------------------------------------------------------------------
--- ⚠️  ยังไม่ได้ APPLY และ "ต้องให้อาจารย์ตรวจ/แก้ก่อน" — เป็นเนื้อหาเวชปฏิบัติ
---     ร่างจาก key_points/chapters เดิมใน video-lessons-fill-content-v2.sql
---     เพื่อเป็นจุดตั้งต้น ให้แก้ถ้อยคำ/เพิ่มคำอธิบายให้ครบผ่าน:
---       (ก) หน้าแอดมิน /admin/video-lessons  (แก้ทีละคลิปในส่วน "✅ C · ควิซ")
---       (ข) หรือรัน SQL นี้เองหลังตรวจแล้ว
+-- STATUS: APPLIED to emr-ai-clinic (elyyijlcjfvhxbpzscnv) on 2026-07-12,
+-- per instructor request. Covers the same 17 clips as
+-- video-lessons-fill-content-v2.sql (the standalone "BLS 1" clip is untouched,
+-- same as v2). Kept here as documentation / re-run reference. Content can
+-- still be edited per-clip via /admin/video-lessons ("✅ C · ควิซ" section,
+-- including the "สร้างควิซด้วย AI" button) or by re-running an updated
+-- version of this file.
 --
 -- โครง quiz (jsonb array) — แต่ละข้อ:
 --   { "id": "<8-char>", "question": "...", "correctId": "a|b|c|d",
