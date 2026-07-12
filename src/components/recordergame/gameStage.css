@@ -1,0 +1,102 @@
+/* ==========================================
+   Recorder Hero — ฉากเกม (อนิเมะ + จอมอนิเตอร์)
+   ========================================== */
+.rg-stage { display: flex; flex-direction: column; gap: 10px; }
+
+/* ---------- Monitor bezel ---------- */
+.rg-monitor {
+  background: linear-gradient(180deg, #10151f 0%, #0a0e16 100%);
+  border: 2px solid #2b3548;
+  border-radius: 14px;
+  padding: 8px 10px 10px;
+  box-shadow: inset 0 0 0 2px #05070c, 0 6px 18px rgba(0,0,0,.35);
+}
+.rg-monitor-top {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: ui-monospace, monospace; font-size: 11px; font-weight: 800;
+  color: #37C871; margin-bottom: 5px; letter-spacing: .04em;
+}
+.rg-monitor-tag { color: #4a5a7a; }
+.rg-monitor-screen {
+  background: #040812; border-radius: 8px; overflow: hidden; line-height: 0;
+  box-shadow: inset 0 0 22px rgba(55,200,113,.10);
+}
+.rg-monitor-screen .cbs-ecg { width: 100%; height: auto; display: block; }
+
+.rg-vitals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+.rg-vital {
+  background: rgba(0,0,0,.55); border: 1px solid #222b3d; border-radius: 7px;
+  padding: 3px 4px; text-align: center;
+}
+.rg-vital-label { display: block; font-size: 9px; font-weight: 800; color: #7f8ba6; letter-spacing: .04em; }
+.rg-vital-value { font-family: ui-monospace, monospace; font-weight: 900; font-size: 17px; line-height: 1.1; }
+.rg-vital-value i { font-style: normal; font-size: 10px; margin-left: 1px; opacity: .85; }
+.rg-vital-value.t-green  { color: #37DD77; }
+.rg-vital-value.t-amber  { color: #FFCE4A; }
+.rg-vital-value.t-cyan   { color: #4FD8E8; }
+.rg-vital-value.t-orange { color: #FF9A52; }
+
+/* ---------- Resus scene ---------- */
+.rg-scene {
+  position: relative; border-radius: 16px; overflow: hidden;
+  padding: 12px 8px 4px;
+  background:
+    radial-gradient(ellipse 120% 62% at 50% 6%, rgba(88,196,220,.16), transparent 60%),
+    linear-gradient(180deg, #0C1226 0%, #17224A 64%, #1E2C5E 100%);
+  border: 2px solid #26304f;
+}
+.rg-team {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  align-items: end; gap: 4px;
+}
+.rg-actor { display: flex; flex-direction: column; align-items: center; gap: 2px; transition: transform .18s ease; }
+.rg-actor.is-active { transform: translateY(-4px) scale(1.05); }
+.rg-actor-sprite { width: min(26vw, 116px); position: relative; }
+.rg-actor-sprite .cbs-sprite-svg svg,
+.rg-actor-sprite .cbs-sprite-img {
+  width: 100%; height: auto; display: block;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,.5));
+}
+.rg-actor.is-active .rg-actor-sprite .cbs-sprite-svg svg,
+.rg-actor.is-active .rg-actor-sprite .cbs-sprite-img {
+  filter: drop-shadow(0 0 10px rgba(88,196,220,.75)) drop-shadow(0 8px 16px rgba(0,0,0,.5));
+}
+.rg-actor-name {
+  font-size: 10px; font-weight: 800; color: #cdd7ef;
+  background: rgba(0,0,0,.35); padding: 1px 7px; border-radius: 99px; white-space: nowrap;
+}
+.rg-actor.is-active .rg-actor-name { background: #2563eb; color: #fff; }
+.rg-actor-status {
+  font-size: 9px; font-weight: 900; font-family: ui-monospace, monospace;
+  color: #37DD77; background: rgba(55,221,119,.14); border: 1px solid rgba(55,221,119,.5);
+  padding: 0 5px; border-radius: 4px;
+}
+.rg-patient { margin-top: -6px; display: flex; justify-content: center; }
+.rg-patient svg { width: 78%; height: auto; filter: drop-shadow(0 6px 12px rgba(0,0,0,.4)); }
+
+/* ---------- Dialog box (VN) ---------- */
+.rg-dialog {
+  display: flex; align-items: flex-end; gap: 8px;
+  min-height: 74px;
+}
+.rg-speaker { width: 62px; flex: 0 0 62px; align-self: flex-end; }
+.rg-speaker .cbs-sprite-svg svg,
+.rg-speaker .cbs-sprite-img {
+  width: 100%; height: auto; display: block;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.4));
+}
+.rg-bubble {
+  flex: 1; position: relative;
+  background: var(--color-bg-secondary, #fff);
+  border: 2px solid var(--color-text-primary, #1A2332);
+  border-radius: 12px; padding: 8px 12px;
+}
+.rg-bubble::before {
+  content: ""; position: absolute; left: -9px; bottom: 16px;
+  width: 14px; height: 14px; transform: rotate(45deg);
+  background: var(--color-bg-secondary, #fff);
+  border-left: 2px solid var(--color-text-primary, #1A2332);
+  border-bottom: 2px solid var(--color-text-primary, #1A2332);
+}
+.rg-bubble-name { font-size: 11px; font-weight: 900; color: var(--color-info, #2563eb); margin-bottom: 1px; }
+.rg-bubble-text { font-size: 13px; line-height: 1.4; color: var(--color-text-primary, #1A2332); }

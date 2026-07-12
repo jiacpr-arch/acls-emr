@@ -1,51 +1,98 @@
-import EcgMonitor from '../sim/EcgMonitor';
-import TeamMember from '../sim/TeamMember';
+import CharacterSprite from '../../game/CharacterSprite';
+import EcgStrip from '../../game/EcgStrip';
 import Patient from '../sim/Patient';
-import Instructor from '../sim/Instructor';
+import { CHARACTERS } from '../../game/characters';
+import './gameStage.css';
 
 // ==========================================
-// Recorder Hero — ฉากเหตุการณ์ (Mode A)
-// EcgMonitor + Patient + ทีม + narration bubble — รับ scene/narration จาก engine
+// Recorder Hero — ฉากเหตุการณ์ (Mode A) สไตล์ "อนิเมะ + จอมอนิเตอร์"
+// - จอมอนิเตอร์: EcgStrip (sweep จริง) + vitals digits
+// - ทีมกู้ชีพ: CharacterSprite (รูปจริง .webp ถ้ามี / SVG อนิเมะ fallback)
+// - กล่องบทพูดสไตล์ VN + อ.เดช เป็นผู้บรรยาย
+// รับ scene/narration จาก engine — ไม่มี store ใดๆ
 // ==========================================
-export default function GameStage({ scene = {}, narration, showTeam = true }) {
+
+// map จังหวะเกม → คลื่นที่ EcgStrip วาดได้ (flat|vf|nsr)
+function ecgRhythm(r) {
+  if (!r) return 'flat';
+  if (['vf', 'pvt', 'vt', 'vt_pulse', 'torsades'].includes(r)) return 'vf';
+  if (['asystole', 'flat'].includes(r)) return 'flat';
+  return 'nsr'; // nsr, pea, svt, sinus_brady, stemi, rosc, ...
+}
+
+// ทีมกู้ชีพ 3 บทบาท → charId + เงื่อนไข active จาก scene
+const TEAM = [
+  { role: 'compressor', charId: 'boy_compressor', activeKey: 'compressorActive', onStatus: 'CPR' },
+  { role: 'defib', charId: 'fon_defib', activeKey: 'defibCharged', onStatus: '⚡ CHARGED' },
+  { role: 'drug', charId: 'nurse_mint', activeKey: 'ivAccess', onStatus: 'IV' },
+];
+
+function Vital({ label, value, unit, tone }) {
   return (
-    <div className="space-y-2">
-      <EcgMonitor
-        rhythm={scene.rhythm || 'flat'}
-        hr={scene.hr}
-        bp={scene.bp}
-        spo2={scene.spo2}
-        etco2={scene.etco2}
-      />
+    <div className="rg-vital">
+      <span className="rg-vital-label">{label}</span>
+      <span className={`rg-vital-value ${tone}`}>{value ?? '--'}<i>{unit}</i></span>
+    </div>
+  );
+}
 
-      {/* Resus scene — เฉพาะเคส arrest (มีทีมกู้ชีพ) */}
-      {showTeam && (
-      <div className="bg-gradient-to-b from-blue-50 to-bg-secondary border-2 border-text-primary p-2">
-        <div className="flex justify-center mb-1">
-          <TeamMember role="airway" active={!!scene.airwayActive} label="Airway"
-            status={scene.airwayActive ? 'BAGGING' : ''} />
+export default function GameStage({ scene = {}, narration, showTeam = true }) {
+  const rosc = scene.consciousness === 'rosc';
+  const teamPose = rosc ? 'happy' : 'stern';
+  const speakerPose = rosc ? 'happy' : (narration ? 'talk' : 'stern');
+  const speaker = CHARACTERS.att_dech;
+  const rhythm = scene.rhythm || 'flat';
+
+  return (
+    <div className="rg-stage">
+      {/* ===== Monitor ===== */}
+      <div className="rg-monitor">
+        <div className="rg-monitor-top">
+          <span className="rg-monitor-lead">◉ ECG · {String(rhythm).toUpperCase()}</span>
+          <span className="rg-monitor-tag">PT MONITOR</span>
         </div>
-        <div className="grid grid-cols-[auto_1fr_auto] gap-1 items-center">
-          <TeamMember role="drug" active={!!scene.ivAccess} label="Drug"
-            status={scene.ivAccess ? 'IV ready' : ''} />
-          <Patient state={scene} />
-          <TeamMember role="defib" active={!!scene.defibCharged} label="Defib"
-            status={scene.defibCharged ? '⚡ CHARGED' : ''} />
+        <div className="rg-monitor-screen">
+          <EcgStrip rhythm={ecgRhythm(rhythm)} cpr={!!scene.compressorActive} width={520} height={92} />
         </div>
-        <div className="flex justify-center gap-6 mt-1">
-          <TeamMember role="compressor" active={!!scene.compressorActive} label="Compressor"
-            status={scene.compressorActive ? 'CPR ON' : ''} />
-          <TeamMember role="leader" active={false} label="Leader" />
+        <div className="rg-vitals">
+          <Vital label="HR" value={scene.hr || 0} unit="" tone="t-green" />
+          <Vital label="BP" value={scene.bp || '--/--'} unit="" tone="t-amber" />
+          <Vital label="SpO₂" value={scene.spo2 || 0} unit="%" tone="t-cyan" />
+          <Vital label="EtCO₂" value={scene.etco2 || 0} unit="" tone="t-orange" />
         </div>
       </div>
+
+      {/* ===== Resus scene (เฉพาะเคส arrest) ===== */}
+      {showTeam && (
+        <div className="rg-scene">
+          <div className="rg-team">
+            {TEAM.map(m => {
+              const active = !!scene[m.activeKey];
+              return (
+                <div key={m.role} className={`rg-actor ${active ? 'is-active' : ''}`}>
+                  <div className="rg-actor-sprite">
+                    <CharacterSprite charId={m.charId} pose={active && !rosc ? 'panic' : teamPose} />
+                  </div>
+                  <div className="rg-actor-name">{CHARACTERS[m.charId].name}</div>
+                  {active && <div className="rg-actor-status">{m.onStatus}</div>}
+                </div>
+              );
+            })}
+          </div>
+          <div className="rg-patient">
+            <Patient state={scene} />
+          </div>
+        </div>
       )}
 
-      {/* Narration bubble */}
-      <div className="bg-bg-secondary border-2 border-text-primary p-2 flex items-start gap-2 min-h-[64px]">
-        <Instructor mood={narration ? 'idle' : 'happy'} />
-        <div className="flex-1">
-          <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-snug text-slate-900">
-            <span className="font-black text-info">หัวหน้าทีม: </span>
+      {/* ===== กล่องบทพูด (VN) ===== */}
+      <div className="rg-dialog">
+        <div className="rg-speaker">
+          <CharacterSprite charId="att_dech" pose={speakerPose} talking={!!narration} />
+        </div>
+        <div className="rg-bubble">
+          <div className="rg-bubble-name">{speaker.name}</div>
+          <div className="rg-bubble-text">
             {narration || 'เฝ้าดู monitor — พร้อมบันทึกเหตุการณ์ถัดไป'}
           </div>
         </div>
