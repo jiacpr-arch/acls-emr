@@ -55,20 +55,17 @@ src/game/
   - โจทย์ hyperK: shock กี่ครั้งก็ไม่ ROSC จนกว่าจะสั่ง Calcium gluconate
 - EtCO₂ เป็นตัวสะท้อนคุณภาพ CPR แบบ real-time (กดดี → 15–20, ROSC ใกล้ → พุ่ง >40)
 
-### 3.2 Order-based interface — เลิก multiple choice
+### 3.2 รูปแบบเกม: Decision Game (ทิศทางที่เลือก)
 
-แทนที่ 4 ตัวเลือกต่อข้อ ด้วย **แผงสั่งการ (order panel)** เปิดสั่งได้ตลอดเวลา จัดหมวด:
+> **อัปเดตตาม feedback:** เกมหลักเป็น **เกมตัดสินใจ (decision game)** — เลือกคำสั่ง ณ จุดตัดสินใจ
+> แต่ต่างจากเดิมตรงที่ทุกตัวเลือกมี**ผลจริงต่อผู้ป่วยและเนื้อเรื่อง** ไม่ใช่แค่บวก/ลบคะแนน
 
-| หมวด | ตัวอย่าง order |
-|---|---|
-| CPR | เริ่ม/หยุดกด, สลับคนกด, ปรับ rate/depth |
-| Airway | BVM, OPA, ETT, LMA, O₂, capnography |
-| Defib/Monitor | ติด pads, ดู rhythm, charge (เลือก J เอง), clear+shock, sync cardioversion, pacing |
-| Drugs | เลือกยา + ขนาด + route เอง (Epi 1mg IV, Amio 300mg, Ca gluconate, NaHCO₃, Mg …) |
-| Assess/Investigate | คลำ pulse, ประวัติจากญาติ, ดู jugular vein, ฟังปอด, POCT: DTX/K/gas, ultrasound |
-| Team | มอบหมายบทบาท, ขอ crash cart, ตาม consult, คุยญาติ |
+- ตัดสินใจผิด → ผู้ป่วยแย่ลงจริง (แถบ Patient Stability ลด, EtCO₂ ตก, เสียเวลาในเคส) และต้องตัดสินใจใหม่ในสภาพที่แย่ลงแล้ว
+- ผิดสะสมถึงจุดหนึ่ง → ผู้ป่วยเสียชีวิต จบเคสแบบ mortality review ไม่ใช่แค่ "คะแนนน้อย"
+- ตำแหน่งตัวเลือกสุ่มทุกครั้ง และมีเวลาตัดสินใจจำกัด — ความกดดันเหมือน code จริง
+- **Order panel แบบสั่งเองทั้งหมด** (ไม่มี choice) เก็บไว้เป็น "Expert Mode" ในเฟสท้าย ใช้ engine เดียวกัน
 
-ความ "ยาก" มาจากการที่**ไม่มีเฉลยโผล่มา** — ผู้เล่นต้องรู้เองว่าตอนนี้ควรสั่งอะไร โหมด Easy อาจ highlight หมวดที่เกี่ยวข้องเป็น hint ได้
+หมวดคำสั่งที่โจทย์อ้างอิงได้ (ใช้เป็น target ของแต่ละตัวเลือก): CPR / Airway / Defib-Monitor / Drugs / Assess-Investigate / Team
 
 ### 3.3 Team agents — ลูกทีมทำงานแบบมี delay จริง
 
@@ -169,13 +166,32 @@ src/game/
 - Claude แปลงเป็น scenario JSON ตาม schema → ผ่าน validator → เปิดใน editor ให้แก้ต่อ → กด publish
 - ทำให้สร้างคลังโจทย์เป็นสิบๆ ข้อได้ในเวลาอันสั้น โดยคุณคุมความถูกต้องทางการแพทย์ขั้นสุดท้ายเอง
 
-## 7. ความสมจริงด้านภาพ/เสียง (เลเยอร์ polish)
+## 7. Art direction: Visual novel สไตล์ Ace Attorney (ทิศทางที่เลือก)
 
-- **ECG แบบ canvas เดินต่อเนื่อง** ตาม rhythm จริง + compression artifact ระหว่างกด CPR, เข็มวิ่งแบบ monitor จริง
-- **เสียง**: beep ตาม HR, alarm เมื่อ arrest, metronome 110/min ระหว่าง CPR, เสียง charge หึ่งๆ ของ defib, เสียงทีมรายงาน (Web Speech API ภาษาไทย หรืออัดเสียงจริง)
-- **Defib panel เหมือนเครื่องจริง**: หมุนเลือก energy → CHARGE → ไฟกระพริบ → ตะโกน CLEAR (ปุ่มยืนยันทุกคนถอย) → SHOCK
-- **Haptics** บนมือถือ: สั่นตอน shock / ตอน alarm
-- ตัวละคร: อัปเกรดจาก SVG น่ารัก → สไตล์จริงจังขึ้นได้ภายหลัง แต่ engine ไม่ผูกกับสไตล์ภาพ (แยก layer แล้ว)
+> **อัปเดตตาม feedback:** ผู้ใช้อยากได้เกมดีไซน์แนว **Phoenix Wright: Ace Attorney** —
+> visual novel ดราม่า ตัวละครโพสท่า กล่องบทพูด และจังหวะตะโกนเต็มจอ
+> Mockup เล่นได้จริง: `docs/mockups/code-blue-decision-ui.html` (เปิดในเบราว์เซอร์ได้เลย)
+
+องค์ประกอบ UI แบบ Ace Attorney ที่แปลงเป็นบริบทห้องฉุกเฉิน:
+
+| ของ Ace Attorney | ในเกมเรา |
+|---|---|
+| ฉากศาล + speed lines ดราม่า | ห้อง ER กลางคืน + speed lines ตอนเข้าจุดตัดสินใจ/วิกฤต |
+| ตัวละครพยาน/อัยการ บุคลิกจัด | ทีมกู้ชีพมีชื่อ-นิสัย: พยาบาลมิ้นท์, พี่บอย (compressor), หมอฝน (defib), อ.เดช (attending คอยกดดัน) |
+| กล่องบทพูด + typewriter text | กล่องบทพูดล่างจอ พิมพ์ทีละตัวอักษร แตะเพื่อไปต่อ ปากตัวละครขยับตอนพูด |
+| "OBJECTION!!" ตะโกนเต็มจอ | "CODE BLUE!!" / "ไม่มีชีพจร!!" / "SHOCK!!" / "ROSC!!" — bubble หนามแหลม + flash + จอสั่น + สั่นเครื่อง |
+| Penalty gauge (โดนหักเมื่อตอบผิด) | **Patient Stability gauge** — ตัดสินใจผิด แถบลด หมดแถบ = ผู้ป่วยเสียชีวิต |
+| เลือกคำตอบ/present evidence | จุดตัดสินใจ: ตัวเลือกเด้งขึ้นกลางจอ + เวลาจำกัด + ตำแหน่งสุ่ม |
+| Verdict ท้ายคดี | ตราประทับ "ROSC!" / "CODE ENDED" + debrief timeline + grade S/A/B/C |
+
+เลเยอร์ความสมจริงทางการแพทย์ที่คงไว้บนสไตล์นี้:
+
+- **ECG มุมจอแบบ sweep จริง** ตาม rhythm (VF สั่น, CPR artifact, sinus หลัง ROSC) + ชื่อ rhythm กระพริบเมื่อ shockable
+- นาฬิกาเคสเดินจริง + time-skip แบบ cinematic ("— CPR ต่อเนื่อง 2 นาทีผ่านไป —")
+- metric ท้ายเกมอิง AHA: time to CPR, time to first shock, จำนวนการตัดสินใจพลาด
+- **เสียง** (เฟส polish): beep ตาม HR, alarm, metronome, เสียง charge, voice blip ตอนตัวละครพูดแบบ AA
+- **Haptics**: สั่นตอน shock / ตอบผิด / alarm
+- ตัวละครเป็น SVG flat-anime สลับสีหน้าได้ (idle/talk/panic/stern/happy) — โจทย์ที่เขียนเองระบุได้ว่าใครพูด สีหน้าไหน
 
 ## 8. แผนงานเป็นเฟส
 
