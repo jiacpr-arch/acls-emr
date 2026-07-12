@@ -55,6 +55,19 @@ export const GAME_BUTTONS = {
   end_case:     { label_th: 'End (จบเคส)', where: 'quickbar' },
   labs:         { label_th: 'Labs', where: 'quickbar' },
   vitals:       { label_th: 'Vitals', where: 'quickbar' },
+  // ---- peri-arrest / non-arrest actions (โหมดเคสหลายรูปแบบ) ----
+  assess:       { label_th: 'ประเมิน Stable/Unstable', where: 'action_pad' },
+  vagal:        { label_th: 'Vagal maneuver', where: 'action_pad' },
+  cardiovert:   { label_th: 'Synchronized Cardioversion', where: 'action_pad', needsData: 'energy' },
+  pacing:       { label_th: 'Transcutaneous Pacing', where: 'action_pad' },
+  drug_choice:  { label_th: 'ให้ยา', where: 'action_pad', needsData: 'choice' },
+  fast:         { label_th: 'FAST assessment', where: 'action_pad' },
+  ct_brain:     { label_th: 'CT Brain', where: 'action_pad' },
+  tpa:          { label_th: 'ให้ tPA', where: 'action_pad' },
+  mona:         { label_th: 'MONA / ASA+NTG', where: 'action_pad' },
+  twelve_lead:  { label_th: '12-Lead ECG', where: 'action_pad' },
+  cath:         { label_th: 'Activate Cath lab', where: 'action_pad' },
+  monitor:      { label_th: 'Monitor + หาสาเหตุ', where: 'action_pad' },
 };
 
 // พลังงาน default ต่อ shock (มิเรอร์ getShockEnergy: VF/pVT แรก 120J, ถัดไป 200J)

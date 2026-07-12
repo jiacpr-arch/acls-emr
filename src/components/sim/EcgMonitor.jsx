@@ -18,8 +18,37 @@ export default function EcgMonitor({ rhythm, hr, bp, spo2, etco2 }) {
       const x = i * 150;
       return `L${x + 20} 30 L${x + 25} 26 L${x + 30} 30 L${x + 60} 30 L${x + 65} 5 L${x + 70} 55 L${x + 75} 30 L${x + 110} 30 L${x + 120} 22 L${x + 130} 30 L${x + 150} 30`;
     }).join(' '),
+    // sparse/slow complexes → bradycardia & PEA
+    brady: 'M0 30 ' + Array.from({ length: 3 }).map((_, i) => {
+      const x = i * 200;
+      return `L${x + 40} 30 L${x + 90} 30 L${x + 95} 8 L${x + 100} 52 L${x + 105} 30 L${x + 200} 30`;
+    }).join(' '),
+    pea:  'M0 30 ' + Array.from({ length: 3 }).map((_, i) => {
+      const x = i * 200;
+      return `L${x + 60} 30 L${x + 90} 24 L${x + 120} 36 L${x + 150} 30 L${x + 200} 30`;
+    }).join(' '),
+    // dense narrow complexes → SVT (fast, regular)
+    svt:  'M0 30 ' + Array.from({ length: 10 }).map((_, i) => {
+      const x = i * 60;
+      return `L${x + 20} 30 L${x + 25} 10 L${x + 30} 50 L${x + 35} 30 L${x + 60} 30`;
+    }).join(' '),
+    // irregular baseline, no P → AF
+    af:   'M0 30 ' + Array.from({ length: 8 }).map((_, i) => {
+      const x = i * 75;
+      const j = (i * 5) % 7 - 3;
+      return `L${x + 30 + j} 30 L${x + 38} 12 L${x + 44} 48 L${x + 50} 30 L${x + 75} ${30 + ((i * 3) % 5 - 2)}`;
+    }).join(' '),
+    // NSR with ST elevation → STEMI
+    stemi: 'M0 30 ' + Array.from({ length: 4 }).map((_, i) => {
+      const x = i * 150;
+      return `L${x + 20} 30 L${x + 30} 30 L${x + 60} 30 L${x + 65} 6 L${x + 70} 40 L${x + 75} 22 L${x + 110} 22 L${x + 120} 22 L${x + 150} 30`;
+    }).join(' '),
   };
-  const color = rhythm === 'vf' || rhythm === 'vt' ? '#FF4444' : (rhythm === 'flat' ? '#8896A6' : '#22DD66');
+  paths.asystole = paths.flat;
+  paths.pvt = paths.vt;
+  const RED = ['vf', 'vt', 'pvt', 'torsades'];
+  const GRAY = ['flat', 'asystole'];
+  const color = RED.includes(rhythm) ? '#FF4444' : (GRAY.includes(rhythm) ? '#8896A6' : '#22DD66');
 
   return (
     <div className="bg-black border-2 border-text-primary p-2">
@@ -29,7 +58,7 @@ export default function EcgMonitor({ rhythm, hr, bp, spo2, etco2 }) {
       </div>
       <svg viewBox="0 0 600 60" className="w-full" style={{ height: 50, background: '#040810' }}>
         <path d={paths[rhythm] || paths.flat} fill="none" stroke={color} strokeWidth="1.8"
-              className={rhythm !== 'flat' ? 'animate-ecg-scroll' : ''}/>
+              className={GRAY.includes(rhythm) ? '' : 'animate-ecg-scroll'}/>
       </svg>
       <div className="grid grid-cols-4 gap-1 mt-2">
         <Vital label="HR" value={hr || '--'} unit="" color="text-green-400"/>

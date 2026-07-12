@@ -6,7 +6,8 @@ import { Zap, X } from 'lucide-react';
 // Recorder Hero — โคลน ShockModal + energy picker
 // ให้ผู้เล่นเลือกพลังงานเอง (ตอบผิดได้) — onDeliver(energy)
 // ==========================================
-export default function GameShockModal({ onDeliver, onClose }) {
+export default function GameShockModal({ onDeliver, onClose, energyChoices }) {
+  const choices = energyChoices && energyChoices.length ? energyChoices : ENERGY_CHOICES;
   const fire = (energy) => {
     playShockSound();
     onDeliver(energy);
@@ -25,7 +26,7 @@ export default function GameShockModal({ onDeliver, onClose }) {
         </div>
         <div className="text-2xs text-text-muted">Shock แรก 120J → ครั้งถัดไป 200J</div>
         <div className="grid grid-cols-3 gap-2">
-          {ENERGY_CHOICES.map(e => (
+          {choices.map(e => (
             <button key={e} onClick={() => fire(e)}
               className="btn-action btn-shock py-4 text-lg font-black">
               {e}J

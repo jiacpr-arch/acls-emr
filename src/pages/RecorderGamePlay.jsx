@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getLevelById, LEVELS, GAME_BUTTONS, ERROR_TYPES } from '../data/recorderGameLevels';
+import { getPackById, getCaseById, caseToLevel } from '../data/recorderCases';
 import { computeStars } from '../utils/recorderGameScore';
 import { loadProgress, saveResult } from '../utils/recorderGameProgress';
 import { useLiveLevelEngine } from '../hooks/recordergame/useLiveLevelEngine';
@@ -9,10 +10,11 @@ import ResultScreen from '../components/recordergame/ResultScreen';
 import GameStage from '../components/recordergame/GameStage';
 import ScoreHUD from '../components/recordergame/ScoreHUD';
 import GameCprDashboard from '../components/recordergame/GameCprDashboard';
+import GameActionPad from '../components/recordergame/GameActionPad';
 import GameQuickBar from '../components/recordergame/GameQuickBar';
 import DataEntryModal from '../components/recordergame/DataEntryModal';
 import AuditBoard from '../components/recordergame/AuditBoard';
-import { Target, Clock } from 'lucide-react';
+import { Target, Clock, ArrowLeft, RefreshCw, Home } from 'lucide-react';
 
 // ==========================================
 // Recorder Hero — หน้าเล่นด่าน (/recorder-game/:levelId)
@@ -22,14 +24,16 @@ export default function RecorderGamePlay() {
   const { levelId } = useParams();
   const navigate = useNavigate();
   const level = getLevelById(levelId);
+  const pack = level ? null : getPackById(levelId);
 
   const [phase, setPhase] = useState('intro');
   const [result, setResult] = useState(null);
 
   useEffect(() => {
-    if (!level) navigate('/recorder-game', { replace: true });
-  }, [level, navigate]);
+    if (!level && !pack) navigate('/recorder-game', { replace: true });
+  }, [level, pack, navigate]);
 
+  if (pack) return <PackPlay pack={pack} onExit={() => navigate('/recorder-game')} />;
   if (!level) return null;
 
   const hiscore = loadProgress()[level.id]?.hiscore || 0;
@@ -77,10 +81,13 @@ export default function RecorderGamePlay() {
 }
 
 // ================= LIVE =================
-function LivePlay({ level, onFinish }) {
+// รองรับทั้งเคส arrest (GameCprDashboard + QuickBar) และ non-arrest (GameActionPad)
+// exported เพื่อให้หน้า Endless และ admin test-play ใช้ซ้ำได้
+export function LivePlay({ level, onFinish, hudLabel }) {
   const engine = useLiveLevelEngine(level, { onFinish });
-  const [modal, setModal] = useState(null); // { kind, buttonId }
+  const [modal, setModal] = useState(null); // { kind, buttonId, options?, energyChoices?, title_th? }
   const startedRef = useRef(false);
+  const isArrest = (level.category || 'cardiac_arrest') === 'cardiac_arrest';
 
   // เริ่มเกมหลัง mount (setTimeout เพื่อไม่ setState ตรงๆ ใน effect body)
   useEffect(() => {
@@ -90,10 +97,22 @@ function LivePlay({ level, onFinish }) {
     return () => clearTimeout(id);
   }, [engine]);
 
+  // ปุ่มบน dashboard/quickbar (arrest) — ใช้ metadata จาก GAME_BUTTONS
   const onPress = useCallback((buttonId) => {
     const needs = GAME_BUTTONS[buttonId]?.needsData;
     if (needs) setModal({ kind: needs, buttonId });
     else engine.handlePress(buttonId);
+  }, [engine]);
+
+  // ปุ่มบน action pad (non-arrest) — action descriptor พก needsData/options มาเอง
+  const onPadPress = useCallback((buttonId, action) => {
+    if (action?.needsData === 'choice') {
+      setModal({ kind: 'choice', buttonId, options: action.options || [], title_th: action.label_th });
+    } else if (action?.needsData === 'energy') {
+      setModal({ kind: 'energy', buttonId, energyChoices: action.energyChoices });
+    } else {
+      engine.handlePress(buttonId);
+    }
   }, [engine]);
 
   const onSubmit = (data) => {
@@ -102,7 +121,7 @@ function LivePlay({ level, onFinish }) {
   };
 
   const secs = Math.floor(engine.elapsed || 0);
-  const cycleLabel = `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
+  const cycleLabel = hudLabel || `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden relative bg-bg-primary">
@@ -113,14 +132,20 @@ function LivePlay({ level, onFinish }) {
 
       <div className="flex-1 overflow-y-auto px-3 py-2 pb-[calc(96px+env(safe-area-inset-bottom,0px))]">
         <div className="w-full max-w-md mx-auto space-y-3">
-          <GameStage scene={engine.currentScene} narration={engine.narration} />
-          <GameCprDashboard onPress={onPress} scene={engine.currentScene} cycleLabel={cycleLabel} />
+          <GameStage scene={engine.currentScene} narration={engine.narration} showTeam={isArrest} />
+          {isArrest ? (
+            <GameCprDashboard onPress={onPress} scene={engine.currentScene} cycleLabel={cycleLabel} />
+          ) : (
+            <GameActionPad category={level.category} onPress={onPadPress}
+              scene={engine.currentScene} cycleLabel={cycleLabel} />
+          )}
         </div>
       </div>
 
-      <GameQuickBar onPress={onPress} />
+      {isArrest && <GameQuickBar onPress={onPress} />}
 
-      {modal && <DataEntryModal kind={modal.kind} onSubmit={onSubmit} onClose={() => setModal(null)} />}
+      {modal && <DataEntryModal kind={modal.kind} onSubmit={onSubmit} onClose={() => setModal(null)}
+        options={modal.options} energyChoices={modal.energyChoices} title_th={modal.title_th} />}
     </div>
   );
 }
@@ -240,5 +265,93 @@ function HuntRunner({ level, onFinish }) {
         highlightId={revealed ? task.buttonId : null}
         forceMoreOpen={task.screen === 'more_sheet' && revealed} />
     </div>
+  );
+}
+
+// ================= CASE PACK =================
+// 1 ชุด = หลายเคสต่อกัน คะแนนสะสม แล้วสรุปครั้งเดียว
+function PackPlay({ pack, onExit }) {
+  const cases = useMemo(
+    () => (pack.caseIds || []).map(getCaseById).filter(Boolean),
+    [pack]
+  );
+  const [phase, setPhase] = useState('intro'); // intro | playing | done
+  const [idx, setIdx] = useState(0);
+  const totalRef = useRef(0);
+  const missRef = useRef(0);
+  const [summary, setSummary] = useState(null);
+
+  const start = () => { totalRef.current = 0; missRef.current = 0; setIdx(0); setPhase('playing'); };
+
+  const handleFinish = useCallback((raw) => {
+    totalRef.current += raw.score || 0;
+    missRef.current += raw.missCount || 0;
+    if (idx + 1 >= cases.length) {
+      setSummary({ score: totalRef.current, misses: missRef.current, count: cases.length });
+      setPhase('done');
+    } else {
+      setIdx(i => i + 1);
+    }
+  }, [idx, cases.length]);
+
+  if (!cases.length) { onExit(); return null; }
+
+  if (phase === 'intro') {
+    return (
+      <div className="page-container space-y-3 pb-28">
+        <button onClick={onExit} className="btn btn-ghost btn-sm inline-flex items-center gap-1">
+          <ArrowLeft size={14} strokeWidth={2.4} /> กลับ
+        </button>
+        <div className="text-center pt-1">
+          <h1 className="text-title text-text-primary">{pack.title_th}</h1>
+          <p className="text-caption text-text-muted mt-1">{pack.subtitle_th} · {cases.length} เคสต่อกัน</p>
+        </div>
+        <div className="bg-bg-secondary border-2 border-text-primary p-3 space-y-1.5">
+          {cases.map((c, i) => (
+            <div key={c.id} className="flex items-center gap-2 text-caption">
+              <span className="w-6 h-6 inline-flex items-center justify-center bg-bg-tertiary font-black text-2xs" style={{ borderRadius: 'var(--radius-sm)' }}>{i + 1}</span>
+              <span className="text-text-secondary">{c.title_th}</span>
+            </div>
+          ))}
+        </div>
+        <button onClick={start} className="w-full btn btn-danger btn-lg btn-full font-black border-2">
+          เริ่มชุดเคส
+        </button>
+      </div>
+    );
+  }
+
+  if (phase === 'done' && summary) {
+    return (
+      <div className="page-container space-y-3 pb-28">
+        <div className="bg-bg-secondary border-2 border-text-primary p-5 flex flex-col items-center gap-3">
+          <div className="text-title font-black text-success">จบชุดเคส!</div>
+          <div className="grid grid-cols-2 gap-2 w-full">
+            <div className="stat-box border-2 border-text-primary">
+              <div className="stat-value text-info">{summary.score}</div>
+              <div className="stat-label">คะแนนรวม</div>
+            </div>
+            <div className="stat-box border-2 border-text-primary">
+              <div className="stat-value text-danger">{summary.misses}</div>
+              <div className="stat-label">พลาดรวม</div>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={start} className="btn btn-success btn-lg btn-block font-black border-2">
+            <RefreshCw size={16} strokeWidth={2.4} /> เล่นซ้ำ
+          </button>
+          <button onClick={onExit} className="btn btn-primary btn-lg btn-block font-bold border-2">
+            <Home size={16} strokeWidth={2.4} /> กลับ Hub
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const cur = cases[idx];
+  return (
+    <LivePlay key={cur.id} level={caseToLevel(cur)} onFinish={handleFinish}
+      hudLabel={`ชุด ${idx + 1}/${cases.length}`} />
   );
 }

@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3, Users, Video, School,
+  LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3, Users, Video, School, Target,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 
@@ -68,6 +68,14 @@ const SECTIONS = [
     icon: Inbox,
     gradient: 'linear-gradient(135deg, var(--color-success, #16a34a) 0%, var(--color-success-dark, #15803d) 100%)',
     shadow: '0 8px 20px rgba(22, 163, 74, 0.22)',
+  },
+  {
+    to: '/admin/recorder-cases',
+    title: 'เคสเกม Recorder',
+    desc: 'สร้าง/ให้ AI ร่างเคสฝึกบันทึก — ตรวจแล้วเผยแพร่',
+    icon: Target,
+    gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
+    shadow: '0 8px 20px rgba(124, 58, 237, 0.22)',
   },
 ];
 

@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { LEVELS } from '../data/recorderGameLevels';
+import { CASE_PACKS } from '../data/recorderCases';
 import { loadProgress, isUnlocked, getTotalStars } from '../utils/recorderGameProgress';
-import { Target, Star, Lock, ChevronRight } from 'lucide-react';
+import { Target, Star, Lock, ChevronRight, Shuffle, Layers } from 'lucide-react';
 
 // ==========================================
 // Recorder Hero — หน้าเลือกด่าน (hub)
@@ -50,7 +51,42 @@ export default function RecorderGameHub() {
         </div>
       </div>
 
-      {/* Levels */}
+      {/* โหมดเล่น */}
+      <div className="text-overline">โหมดเล่น</div>
+      <button onClick={() => navigate('/recorder-game/endless')}
+        className="w-full dash-card !p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors">
+        <div className="w-10 h-10 shrink-0 inline-flex items-center justify-center text-white"
+          style={{ background: 'linear-gradient(135deg, var(--color-shock) 0%, var(--color-danger) 100%)', borderRadius: 'var(--radius-md)' }}>
+          <Shuffle size={18} strokeWidth={2.4} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-caption font-black text-text-primary">Endless Shuffle</div>
+          <div className="text-3xs text-text-muted">สุ่มเคสหลายรูปแบบต่อเนื่อง เก็บคะแนนให้ได้มากที่สุด</div>
+        </div>
+        <ChevronRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
+      </button>
+
+      {/* Case Packs */}
+      <div className="text-overline">ชุดเคส (Case Packs)</div>
+      <div className="space-y-2">
+        {CASE_PACKS.map(pack => (
+          <button key={pack.id} onClick={() => navigate(`/recorder-game/${pack.id}`)}
+            className="w-full dash-card !p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors">
+            <div className="w-10 h-10 shrink-0 inline-flex items-center justify-center bg-bg-tertiary text-text-secondary"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <Layers size={18} strokeWidth={2.4} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className={`text-caption font-black ${pack.color}`}>{pack.title_th}</div>
+              <div className="text-3xs text-text-muted truncate">{pack.subtitle_th}</div>
+            </div>
+            <ChevronRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
+          </button>
+        ))}
+      </div>
+
+      {/* Campaign Levels */}
+      <div className="text-overline">แคมเปญ (ไล่ระดับ)</div>
       <div className="space-y-2">
         {levels.map(level => {
           const unlocked = isUnlocked(level, levels, progress);
