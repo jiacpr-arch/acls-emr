@@ -1,0 +1,1058 @@
+<title>Code Blue: The Resuscitation — Ace Attorney Style Mockup</title>
+<style>
+  :root {
+    --navy: #10182F;
+    --navy-2: #1B2A52;
+    --box-hi: #2B3D77;
+    --box-lo: #15204A;
+    --white: #FFFFFF;
+    --ink: #F2F5FF;
+    --gold: #F2C14E;
+    --red: #E5484D;
+    --green: #37C871;
+    --cyan: #58C4DC;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --thai: "Noto Sans Thai", "Sukhumvit Set", "Sarabun", -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--navy); }
+  body { font-family: var(--thai); color: var(--ink); min-height: 100dvh; }
+  .app { max-width: 460px; margin: 0 auto; min-height: 100dvh; position: relative; overflow: hidden; }
+
+  /* ============ TITLE SCREEN ============ */
+  .title-scr {
+    min-height: 100dvh; display: flex; flex-direction: column; justify-content: center;
+    padding: 30px 24px 44px; gap: 18px; position: relative; overflow: hidden;
+    background:
+      radial-gradient(ellipse 130% 55% at 50% -8%, rgba(229,72,77,.30), transparent 62%),
+      linear-gradient(180deg, #0D1430 0%, #10182F 55%, #0A0F22 100%);
+  }
+  .title-scr::before {
+    content: ""; position: absolute; inset: -40%;
+    background: repeating-conic-gradient(from 0deg at 50% 42%,
+      rgba(255,255,255,.05) 0deg 4deg, transparent 4deg 14deg);
+    animation: spin 60s linear infinite; pointer-events: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .t-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .4em;
+    color: var(--red); text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .t-eyebrow::before {
+    content: ""; width: 8px; height: 8px; background: var(--red); border-radius: 50%;
+    box-shadow: 0 0 10px var(--red); animation: blink 1s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: .15; } }
+  .title-scr h1 {
+    font-size: clamp(40px, 11vw, 54px); line-height: 1.05; font-weight: 900;
+    letter-spacing: -.015em; text-wrap: balance;
+    text-shadow: 0 4px 0 rgba(0,0,0,.4);
+    position: relative;
+  }
+  .title-scr h1 .stroke { color: var(--gold); }
+  .t-sub { font-size: 15px; line-height: 1.8; color: #A8B4D8; }
+  .t-sub b { color: var(--ink); }
+  .btn-main {
+    appearance: none; border: 3px solid var(--white); cursor: pointer;
+    background: linear-gradient(180deg, #E5484D, #B92E33);
+    color: #fff; font-family: inherit; font-size: 18px; font-weight: 900;
+    padding: 16px; letter-spacing: .04em; border-radius: 6px;
+    box-shadow: 0 6px 0 #7E1B1F, 0 14px 30px rgba(229,72,77,.35);
+    transition: transform .08s ease, box-shadow .08s ease;
+    position: relative;
+  }
+  .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 #7E1B1F; }
+  .t-note { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; color: #5E6B92; text-align: center; }
+
+  /* ============ GAME ============ */
+  .game { display: none; flex-direction: column; min-height: 100dvh; }
+
+  /* Stage */
+  .stage {
+    position: relative; flex: 1; min-height: 56dvh;
+    display: flex; align-items: flex-end; justify-content: center;
+    background:
+      radial-gradient(ellipse 120% 70% at 50% 108%, rgba(88,196,220,.14), transparent 55%),
+      linear-gradient(180deg, #0C1226 0%, #17224A 62%, #1E2C5E 100%);
+    overflow: hidden;
+  }
+  .stage::after { /* floor line */
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26%;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,.35));
+    pointer-events: none;
+  }
+  .stage.drama::before {
+    content: ""; position: absolute; inset: -45%;
+    background: repeating-conic-gradient(from 0deg at 50% 46%,
+      rgba(255,255,255,.14) 0deg 3deg, transparent 3deg 11deg);
+    animation: spin 22s linear infinite;
+    pointer-events: none;
+  }
+  .stage.drama-red::before {
+    content: ""; position: absolute; inset: -45%;
+    background: repeating-conic-gradient(from 0deg at 50% 46%,
+      rgba(229,72,77,.22) 0deg 3deg, transparent 3deg 11deg);
+    animation: spin 14s linear infinite;
+    pointer-events: none;
+  }
+
+  .sprite-wrap {
+    position: relative; z-index: 2;
+    width: min(64vw, 275px);
+    transition: transform .18s ease;
+  }
+  .sprite-wrap.pop { animation: pop .22s ease; }
+  @keyframes pop { 0% { transform: translateY(14px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+  .sprite-wrap svg { width: 100%; display: block; filter: drop-shadow(0 10px 24px rgba(0,0,0,.45)); }
+
+  /* HUD */
+  .hud {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 10px 12px; gap: 10px; pointer-events: none;
+  }
+  .hud-monitor {
+    background: rgba(4,8,18,.82); border: 2px solid #33406E; border-radius: 6px;
+    padding: 6px 9px 5px; min-width: 118px;
+  }
+  .hud-monitor .r-name {
+    font-family: var(--mono); font-size: 9px; letter-spacing: .14em;
+    color: var(--green); display: block; margin-bottom: 2px;
+  }
+  .hud-monitor .r-name.bad { color: var(--red); animation: blink 1s steps(2) infinite; }
+  canvas#ecg { width: 100%; height: 26px; display: block; }
+  .hud-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .gauge {
+    background: rgba(4,8,18,.82); border: 2px solid #33406E; border-radius: 6px;
+    padding: 6px 9px;
+  }
+  .gauge .lbl {
+    font-family: var(--mono); font-size: 9px; letter-spacing: .18em; color: #8B99C4;
+    display: block; margin-bottom: 4px; text-align: right;
+  }
+  .gauge .cells { display: flex; gap: 3px; }
+  .gauge .cell {
+    width: 17px; height: 10px; border-radius: 2px;
+    background: linear-gradient(180deg, #46E58A, #21A85C);
+    box-shadow: 0 0 6px rgba(70,229,138,.5);
+  }
+  .gauge .cell.off { background: #232D50; box-shadow: none; }
+  .gauge .cell.last { background: linear-gradient(180deg, #FF7A5C, #E5484D); box-shadow: 0 0 8px rgba(229,72,77,.6); }
+  .timechip {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 12px; font-weight: 700; color: var(--ink);
+    background: rgba(4,8,18,.82); border: 2px solid #33406E; border-radius: 6px;
+    padding: 4px 9px;
+  }
+
+  /* Dialogue box — AA style */
+  .dlg-area { position: relative; z-index: 6; padding: 0 10px 12px; background: linear-gradient(180deg, #1E2C5E, #0C1226 90%); }
+  .dlg {
+    position: relative;
+    border: 3px solid var(--white); border-radius: 10px;
+    background: linear-gradient(180deg, var(--box-hi), var(--box-lo));
+    box-shadow: 0 8px 22px rgba(0,0,0,.5), 0 0 0 3px rgba(0,0,0,.35);
+    min-height: 118px;
+    padding: 20px 16px 14px;
+    cursor: pointer;
+    margin-top: 14px;
+  }
+  .nameplate {
+    position: absolute; top: 0; left: 12px; transform: translateY(-58%);
+    border: 2.5px solid var(--white); border-radius: 6px;
+    padding: 4px 16px;
+    font-size: 14px; font-weight: 900; letter-spacing: .03em;
+    background: linear-gradient(180deg, #405089, #232F5E);
+    box-shadow: 0 3px 8px rgba(0,0,0,.45);
+    white-space: nowrap;
+  }
+  .nameplate.c-nurse   { background: linear-gradient(180deg, #2FA8A0, #17706B); }
+  .nameplate.c-comp    { background: linear-gradient(180deg, #3E9E52, #256936); }
+  .nameplate.c-defib   { background: linear-gradient(180deg, #D98A2B, #96570F); }
+  .nameplate.c-att     { background: linear-gradient(180deg, #8E4FC8, #5B2E86); }
+  .nameplate.c-sys     { background: linear-gradient(180deg, #52618F, #2C3760); }
+  .dlg-text { font-size: 16px; line-height: 1.75; min-height: 56px; }
+  .dlg-text .em { color: var(--gold); font-weight: 800; }
+  .adv {
+    position: absolute; right: 14px; bottom: 8px;
+    color: var(--gold); font-size: 13px;
+    animation: bob 1s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+  /* Choices — AA style */
+  .choices {
+    position: absolute; inset: 0; z-index: 8;
+    display: none; flex-direction: column; justify-content: center;
+    gap: 11px; padding: 22px 20px;
+    background: rgba(6,10,24,.72);
+    backdrop-filter: blur(2px);
+  }
+  .choices .q-banner {
+    align-self: center;
+    font-size: 13px; font-weight: 900; letter-spacing: .06em;
+    color: #10182F; background: var(--gold);
+    border: 2.5px solid var(--white); border-radius: 999px;
+    padding: 6px 20px; margin-bottom: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.5);
+  }
+  .choice {
+    appearance: none; cursor: pointer; font-family: inherit;
+    font-size: 15.5px; font-weight: 700; color: var(--ink); text-align: center;
+    border: 3px solid var(--white); border-radius: 8px;
+    background: linear-gradient(180deg, #33437F, #1B2650);
+    padding: 15px 14px; line-height: 1.5;
+    box-shadow: 0 5px 0 #0B1130, 0 10px 20px rgba(0,0,0,.4);
+    transition: transform .08s ease, box-shadow .08s ease, filter .15s ease;
+    animation: pop .2s ease both;
+  }
+  .choice:nth-child(3) { animation-delay: .05s; } .choice:nth-child(4) { animation-delay: .1s; }
+  .choice:active { transform: translateY(4px); box-shadow: 0 1px 0 #0B1130; }
+  .choice:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .choice .tgt {
+    display: block; font-family: var(--mono); font-size: 9.5px;
+    letter-spacing: .22em; color: var(--cyan); margin-bottom: 3px; font-weight: 400;
+  }
+  .choice-timer { align-self: center; width: min(70%, 260px); height: 5px; border: 1.5px solid rgba(255,255,255,.5); border-radius: 99px; overflow: hidden; margin-top: 4px; }
+  .choice-timer .fill { height: 100%; background: var(--gold); width: 100%; transition: width .25s linear; }
+  .choice-timer .fill.low { background: var(--red); }
+
+  /* Interjection — AA "OBJECTION!" bubble */
+  .inter {
+    position: fixed; inset: 0; z-index: 40; display: none;
+    align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .inter .burst {
+    position: absolute; inset: -30%;
+    background: repeating-conic-gradient(from 8deg at 50% 50%,
+      rgba(255,255,255,.9) 0deg 5deg, transparent 5deg 16deg);
+    animation: spin 9s linear infinite;
+  }
+  .inter .bubble {
+    position: relative;
+    background: var(--white);
+    padding: 26px 38px;
+    clip-path: polygon(3% 12%, 12% 4%, 30% 8%, 50% 0%, 68% 7%, 88% 2%, 97% 14%,
+      100% 38%, 95% 55%, 100% 76%, 90% 94%, 68% 90%, 49% 100%, 30% 92%, 10% 97%, 0% 80%, 5% 55%, 0% 32%);
+    animation: slam .28s cubic-bezier(.2,2.4,.4,1) both;
+  }
+  @keyframes slam { 0% { transform: scale(2.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .inter .bubble span {
+    font-size: clamp(34px, 10vw, 52px); font-weight: 900; letter-spacing: .01em;
+    color: var(--red);
+    -webkit-text-stroke: 2px #7E1B1F;
+    text-shadow: 3px 3px 0 rgba(126,27,31,.35);
+    white-space: nowrap;
+  }
+  .inter .bubble.blue span { color: #2B54C4; -webkit-text-stroke-color: #17306E; text-shadow: 3px 3px 0 rgba(23,48,110,.3); }
+  .inter .bubble.green span { color: #1F9E57; -webkit-text-stroke-color: #115C31; text-shadow: 3px 3px 0 rgba(17,92,49,.3); }
+
+  .flash { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 38; }
+  .flash.go { animation: flashout .45s ease-out; }
+  @keyframes flashout { 0% { opacity: 1; } 100% { opacity: 0; } }
+  .shake { animation: shake .4s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); } 40% { transform: translateX(7px); }
+    60% { transform: translateX(-5px); } 80% { transform: translateX(3px); }
+  }
+  .redflash { position: fixed; inset: 0; background: rgba(229,72,77,.4); opacity: 0; pointer-events: none; z-index: 38; }
+  .redflash.go { animation: flashout .5s ease-out; }
+  @media (prefers-reduced-motion: reduce) {
+    .shake, .flash.go, .redflash.go, .title-scr::before, .stage.drama::before,
+    .stage.drama-red::before, .inter .burst, .adv, .choice, .sprite-wrap.pop { animation: none !important; }
+  }
+
+  /* ============ VERDICT / DEBRIEF ============ */
+  .debrief { display: none; padding: 30px 20px 48px; gap: 18px; flex-direction: column; position: relative; overflow: hidden; }
+  .debrief.winbg {
+    background: radial-gradient(ellipse 130% 50% at 50% -5%, rgba(55,200,113,.22), transparent 60%);
+  }
+  .debrief.losebg {
+    background: radial-gradient(ellipse 130% 50% at 50% -5%, rgba(229,72,77,.22), transparent 60%);
+  }
+  .stamp {
+    align-self: center;
+    font-size: clamp(44px, 13vw, 64px); font-weight: 900; letter-spacing: .02em;
+    padding: 6px 30px;
+    border: 5px solid currentColor; border-radius: 10px;
+    transform: rotate(-7deg);
+    animation: slam .35s cubic-bezier(.2,2.2,.4,1) both;
+    margin: 10px 0 4px;
+  }
+  .stamp.win { color: var(--green); text-shadow: 0 0 24px rgba(55,200,113,.5); }
+  .stamp.lose { color: var(--red); text-shadow: 0 0 24px rgba(229,72,77,.5); }
+  .verdict-sub { text-align: center; font-size: 15px; color: #A8B4D8; text-wrap: balance; line-height: 1.7; }
+  .grade-row { display: flex; gap: 12px; align-items: stretch; margin-top: 8px; }
+  .grade-box {
+    width: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border: 3px solid var(--white); border-radius: 8px;
+    background: linear-gradient(180deg, var(--box-hi), var(--box-lo));
+    font-family: var(--mono); padding: 10px 0;
+  }
+  .grade-box .g { font-size: 46px; font-weight: 800; line-height: 1; }
+  .grade-box .g.s { color: var(--gold); } .grade-box .g.a { color: var(--cyan); }
+  .grade-box .g.b { color: var(--green); } .grade-box .g.c { color: var(--red); }
+  .grade-box .lbl { font-size: 9px; letter-spacing: .25em; color: #8B99C4; margin-top: 6px; }
+  .metric-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .metric { border: 2px solid #33406E; border-radius: 6px; background: rgba(10,16,36,.7); padding: 8px 11px; }
+  .metric .lbl { font-size: 10.5px; color: #8B99C4; display: block; margin-bottom: 2px; }
+  .metric .val { font-family: var(--mono); font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .metric .val.good { color: var(--green); } .metric .val.warn { color: var(--gold); } .metric .val.bad { color: var(--red); }
+  .tl-title { font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #8B99C4; margin-top: 6px; }
+  .timeline { display: flex; flex-direction: column; }
+  .tl-item { display: grid; grid-template-columns: 50px 14px 1fr; gap: 10px; padding: 9px 0; font-size: 13.5px; line-height: 1.55; }
+  .tl-item .t { font-family: var(--mono); font-size: 12px; color: #8B99C4; font-variant-numeric: tabular-nums; }
+  .tl-item .dot { position: relative; }
+  .tl-item .dot::before { content: ""; position: absolute; left: 50%; top: 7px; width: 8px; height: 8px; border-radius: 50%; transform: translateX(-50%); }
+  .tl-item .dot::after { content: ""; position: absolute; left: 50%; top: 17px; bottom: -9px; width: 1.5px; background: #2A365E; transform: translateX(-50%); }
+  .tl-item:last-child .dot::after { display: none; }
+  .tl-item.ok .dot::before { background: var(--green); box-shadow: 0 0 6px rgba(55,200,113,.6); }
+  .tl-item.err .dot::before { background: var(--red); box-shadow: 0 0 6px rgba(229,72,77,.6); }
+  .tl-item .note { color: #8B99C4; font-size: 12.5px; display: block; }
+  .debrief-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .btn-ghost {
+    appearance: none; border: 2.5px solid #33406E; border-radius: 6px; cursor: pointer;
+    background: rgba(10,16,36,.7); color: var(--ink);
+    font-family: inherit; font-size: 15px; font-weight: 700; padding: 14px;
+  }
+</style>
+
+<div class="app" id="app">
+
+  <!-- TITLE -->
+  <section class="title-scr" id="scr-title">
+    <div class="t-eyebrow">Code Blue &middot; ER Night Shift</div>
+    <h1>หมอเฮีย<br><span class="stroke">CODE BLUE</span><br>ภารกิจกู้ชีพ</h1>
+    <p class="t-sub">
+      ชายอายุ 58 ปี เจ็บหน้าอกมา 30 นาที <b>ล้มลงหมดสติต่อหน้าคุณ</b><br>
+      คุณคือ Team Leader — ทีมทั้งห้องรอฟังคำสั่งของคุณ<br>
+      ตัดสินใจผิด ผู้ป่วยแย่ลงจริง เวลาไม่เคยรอใคร
+    </p>
+    <button class="btn-main" id="btn-start">&#9889; รับเคส</button>
+    <div class="t-note">UI MOCKUP &middot; ACE-ATTORNEY-STYLE DECISION GAME</div>
+  </section>
+
+  <!-- GAME -->
+  <section class="game" id="scr-game">
+    <div class="stage" id="stage">
+      <div class="hud">
+        <div class="hud-monitor">
+          <span class="r-name" id="r-name">MONITOR — STANDBY</span>
+          <canvas id="ecg" width="240" height="52"></canvas>
+        </div>
+        <div class="hud-right">
+          <div class="gauge">
+            <span class="lbl">PATIENT</span>
+            <div class="cells" id="gauge-cells"></div>
+          </div>
+          <div class="timechip" id="timechip">00:00</div>
+        </div>
+      </div>
+      <div class="sprite-wrap" id="sprite-wrap"></div>
+      <div class="choices" id="choices"></div>
+    </div>
+    <div class="dlg-area">
+      <div class="dlg" id="dlg">
+        <div class="nameplate" id="nameplate">&nbsp;</div>
+        <div class="dlg-text" id="dlg-text"></div>
+        <div class="adv" id="adv" hidden>&#9660;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEBRIEF -->
+  <section class="debrief" id="scr-debrief">
+    <div class="stamp win" id="d-stamp">ROSC!</div>
+    <p class="verdict-sub" id="d-sub">ผู้ป่วยกลับมามีชีพจร — ทั้งห้องปรบมือ</p>
+    <div class="grade-row">
+      <div class="grade-box"><span class="g s" id="d-grade">S</span><span class="lbl">GRADE</span></div>
+      <div class="metric-grid">
+        <div class="metric"><span class="lbl">เริ่ม CPR ภายใน</span><span class="val" id="m-cpr">--</span></div>
+        <div class="metric"><span class="lbl">Shock แรกภายใน</span><span class="val" id="m-shock">--</span></div>
+        <div class="metric"><span class="lbl">ตัดสินใจพลาด</span><span class="val" id="m-wrong">0</span></div>
+        <div class="metric"><span class="lbl">เวลาทั้งเคส</span><span class="val" id="m-total">--</span></div>
+      </div>
+    </div>
+    <div class="tl-title">TIMELINE การตัดสินใจของคุณ</div>
+    <div class="timeline" id="d-timeline"></div>
+    <div class="debrief-actions">
+      <button class="btn-main" id="btn-retry">เล่นเคสนี้อีกครั้ง</button>
+      <button class="btn-ghost" id="btn-home">กลับหน้าแรก</button>
+    </div>
+  </section>
+
+  <div class="inter" id="inter"><div class="burst"></div><div class="bubble" id="inter-bubble"><span id="inter-text"></span></div></div>
+  <div class="flash" id="flash"></div>
+  <div class="redflash" id="redflash"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const vibrate = (p) => { if (navigator.vibrate) navigator.vibrate(p); };
+
+  // ================= SPRITES (flat anime bust, AA-inspired) =================
+  // mood: idle | talk | panic | stern | happy
+  const OUT = '#0E1322';
+  function eyes(mood, x1, x2, y, iris) {
+    if (mood === 'happy') {
+      return `<path d="M${x1-9},${y} Q${x1},${y-9} ${x1+9},${y}" stroke="${OUT}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+              <path d="M${x2-9},${y} Q${x2},${y-9} ${x2+9},${y}" stroke="${OUT}" stroke-width="3.4" fill="none" stroke-linecap="round"/>`;
+    }
+    const r = mood === 'panic' ? 8.5 : 7;
+    const pr = mood === 'panic' ? 2.6 : 3.4;
+    return `<ellipse cx="${x1}" cy="${y}" rx="${r}" ry="${r+1.5}" fill="#fff" stroke="${OUT}" stroke-width="2.6"/>
+            <circle cx="${x1}" cy="${y+1}" r="${pr}" fill="${iris}"/>
+            <circle cx="${x1+1.5}" cy="${y-1.5}" r="1.3" fill="#fff"/>
+            <ellipse cx="${x2}" cy="${y}" rx="${r}" ry="${r+1.5}" fill="#fff" stroke="${OUT}" stroke-width="2.6"/>
+            <circle cx="${x2}" cy="${y+1}" r="${pr}" fill="${iris}"/>
+            <circle cx="${x2+1.5}" cy="${y-1.5}" r="1.3" fill="#fff"/>`;
+  }
+  function brows(mood, x1, x2, y) {
+    if (mood === 'stern') {
+      return `<path d="M${x1-10},${y-6} L${x1+9},${y+1}" stroke="${OUT}" stroke-width="4" stroke-linecap="round"/>
+              <path d="M${x2+10},${y-6} L${x2-9},${y+1}" stroke="${OUT}" stroke-width="4" stroke-linecap="round"/>`;
+    }
+    if (mood === 'panic') {
+      return `<path d="M${x1-9},${y+1} Q${x1},${y-8} ${x1+9},${y-2}" stroke="${OUT}" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+              <path d="M${x2+9},${y+1} Q${x2},${y-8} ${x2-9},${y-2}" stroke="${OUT}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`;
+    }
+    return `<path d="M${x1-9},${y-2} Q${x1},${y-6} ${x1+9},${y-2}" stroke="${OUT}" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+            <path d="M${x2-9},${y-2} Q${x2},${y-6} ${x2+9},${y-2}" stroke="${OUT}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`;
+  }
+  function mouth(mood, cx, y) {
+    if (mood === 'panic') return `<ellipse cx="${cx}" cy="${y+3}" rx="9" ry="11" fill="#8C3A46" stroke="${OUT}" stroke-width="2.8"/>`;
+    if (mood === 'happy') return `<path d="M${cx-12},${y} Q${cx},${y+13} ${cx+12},${y}" fill="#8C3A46" stroke="${OUT}" stroke-width="2.8"/>`;
+    if (mood === 'stern') return `<path d="M${cx-10},${y+4} Q${cx},${y-2} ${cx+10},${y+4}" stroke="${OUT}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    // idle/talk — talk animates via JS swapping this
+    return `<path d="M${cx-8},${y+2} Q${cx},${y+6} ${cx+8},${y+2}" stroke="${OUT}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  }
+  function mouthTalk(cx, y) {
+    return `<ellipse cx="${cx}" cy="${y+2}" rx="7" ry="6" fill="#8C3A46" stroke="${OUT}" stroke-width="2.8"/>`;
+  }
+
+  // Each character returns full SVG. Face center x=100, eyes y=104, mouth y=132.
+  const CHARS = {
+    nurse: {
+      name: 'พยาบาลมิ้นท์', plate: 'c-nurse',
+      svg(mood) {
+        const skin = '#F6CDA8', scrub = '#2FA8A0', scrubD = '#1E7F79', hair = '#2A2233';
+        return `<svg viewBox="0 0 200 250">
+        <path d="M28,250 L28,206 Q28,172 100,170 Q172,172 172,206 L172,250 Z" fill="${scrub}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M76,176 L100,200 L124,176 L118,170 L100,186 L82,170 Z" fill="${scrubD}" stroke="${OUT}" stroke-width="3"/>
+        <rect x="88" y="150" width="24" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+        <path d="M52,100 Q52,42 100,40 Q148,42 148,100 Q148,140 128,152 Q114,161 100,161 Q86,161 72,152 Q52,140 52,100 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+        <circle cx="146" cy="58" r="17" fill="${hair}" stroke="${OUT}" stroke-width="3.4"/>
+        <path d="M48,106 Q42,44 100,34 Q158,44 152,106 Q150,80 138,72 Q120,88 100,66 Q80,88 62,72 Q50,80 48,106 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+        ${brows(mood, 80, 120, 92)}
+        ${eyes(mood, 80, 120, 104, '#4A3728')}
+        <g id="mouth-idle">${mouth(mood, 100, 132)}</g>
+        <g id="mouth-talk" style="display:none">${mouthTalk(100, 132)}</g>
+        <path d="M96,112 L104,112" stroke="#E3AC85" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>`;
+      },
+    },
+    comp: {
+      name: 'พี่บอย (Compressor)', plate: 'c-comp',
+      svg(mood) {
+        const skin = '#EEB98C', scrub = '#3E9E52', scrubD = '#2A6E39', hair = '#171A21';
+        return `<svg viewBox="0 0 200 250">
+        <path d="M22,250 L22,204 Q22,168 100,166 Q178,168 178,204 L178,250 Z" fill="${scrub}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M74,172 L100,198 L126,172 L119,166 L100,184 L81,166 Z" fill="${scrubD}" stroke="${OUT}" stroke-width="3"/>
+        <rect x="86" y="148" width="28" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+        <path d="M52,102 Q52,44 100,42 Q148,44 148,102 Q148,140 128,152 Q114,160 100,160 Q86,160 72,152 Q52,140 52,102 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M50,92 Q52,40 100,32 Q148,40 150,92 L142,90 L146,74 L132,84 L134,64 L118,78 L114,56 L100,74 L86,56 L82,78 L66,64 L68,84 L54,74 L58,90 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+        <rect x="54" y="84" width="92" height="10" rx="5" fill="#E5484D" stroke="${OUT}" stroke-width="3"/>
+        ${brows(mood, 80, 120, 96)}
+        ${eyes(mood, 80, 120, 107, '#33261B')}
+        <g id="mouth-idle">${mouth(mood, 100, 134)}</g>
+        <g id="mouth-talk" style="display:none">${mouthTalk(100, 134)}</g>
+        <path d="M60,120 Q58,126 62,130 M140,120 Q142,126 138,130" stroke="#D89B6C" stroke-width="2.4" fill="none"/>
+        </svg>`;
+      },
+    },
+    defib: {
+      name: 'หมอฝน (Defib)', plate: 'c-defib',
+      svg(mood) {
+        const skin = '#F6CDA8', scrub = '#D98A2B', scrubD = '#A5610E', hair = '#4A2E1E';
+        return `<svg viewBox="0 0 200 250">
+        <path d="M28,250 L28,206 Q28,172 100,170 Q172,172 172,206 L172,250 Z" fill="${scrub}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M76,176 L100,200 L124,176 L118,170 L100,186 L82,170 Z" fill="${scrubD}" stroke="${OUT}" stroke-width="3"/>
+        <rect x="88" y="150" width="24" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+        <path d="M40,120 Q30,180 44,214 L58,208 Q48,170 56,124 Z" fill="${hair}" stroke="${OUT}" stroke-width="3.6"/>
+        <path d="M160,120 Q170,180 156,214 L142,208 Q152,170 144,124 Z" fill="${hair}" stroke="${OUT}" stroke-width="3.6"/>
+        <path d="M52,100 Q52,42 100,40 Q148,42 148,100 Q148,140 128,152 Q114,161 100,161 Q86,161 72,152 Q52,140 52,100 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M46,110 Q40,42 100,32 Q160,42 154,110 Q152,78 136,68 Q118,84 100,62 Q82,84 64,68 Q48,78 46,110 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+        ${brows(mood, 80, 120, 92)}
+        ${eyes(mood, 80, 120, 104, '#5A3A22')}
+        <g id="mouth-idle">${mouth(mood, 100, 132)}</g>
+        <g id="mouth-talk" style="display:none">${mouthTalk(100, 132)}</g>
+        </svg>`;
+      },
+    },
+    att: {
+      name: 'อ.เดช (Attending)', plate: 'c-att',
+      svg(mood) {
+        const skin = '#EDBE96', coat = '#F4F6FB', coatD = '#C9D2E4', shirt = '#3C4C86', hair = '#3A3F4B';
+        return `<svg viewBox="0 0 200 250">
+        <path d="M20,250 L20,206 Q20,168 100,166 Q180,168 180,204 L180,250 Z" fill="${coat}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M84,168 L100,250 L116,168 Q108,176 100,176 Q92,176 84,168 Z" fill="${shirt}" stroke="${OUT}" stroke-width="3.4"/>
+        <path d="M100,180 L94,192 L100,236 L106,192 Z" fill="#E5484D" stroke="${OUT}" stroke-width="2.6"/>
+        <path d="M60,170 Q76,186 84,168 L74,250 L36,250 Q28,200 60,170 Z" fill="${coat}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M140,170 Q124,186 116,168 L126,250 L164,250 Q172,200 140,170 Z" fill="${coat}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M62,176 L74,250 M138,176 L126,250" stroke="${coatD}" stroke-width="3" fill="none"/>
+        <rect x="88" y="148" width="24" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+        <path d="M54,102 Q54,46 100,44 Q146,46 146,102 Q146,138 127,150 Q113,159 100,159 Q87,159 73,150 Q54,138 54,102 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M50,96 Q54,40 100,36 Q146,40 150,96 Q146,66 128,62 Q110,74 100,60 Q90,74 72,62 Q54,66 50,96 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+        <path d="M54,72 Q62,58 74,56 L70,66 Z" fill="#9BA3B5"/>
+        <rect x="64" y="96" width="30" height="22" rx="6" fill="none" stroke="${OUT}" stroke-width="3.4"/>
+        <rect x="106" y="96" width="30" height="22" rx="6" fill="none" stroke="${OUT}" stroke-width="3.4"/>
+        <path d="M94,102 L106,102" stroke="${OUT}" stroke-width="3.4"/>
+        ${eyes(mood, 79, 121, 107, '#3A3228')}
+        ${brows(mood, 79, 121, 90)}
+        <g id="mouth-idle">${mouth(mood, 100, 132)}</g>
+        <g id="mouth-talk" style="display:none">${mouthTalk(100, 132)}</g>
+        </svg>`;
+      },
+    },
+  };
+
+  // ================= STORY (data-driven — authoring tool produces this) =================
+  const STORY = [
+    { say: { who: 'nurse', mood: 'panic', text: 'อาจารย์!! คนไข้เตียง 2 ล้มลงค่ะ!! เมื่อกี้ยังนั่งคุยอยู่เลย!' }, t: 5 },
+    { inter: 'CODE BLUE!!', drama: 'red', t: 0 },
+    { say: { who: 'att', mood: 'stern', text: 'ทั้งห้องหันมาที่คุณ… <span class="em">คุณคือ Team Leader</span> — คำสั่งแรกของคุณจะกำหนดทุกอย่าง' }, t: 5 },
+    { choice: {
+      q: 'คำสั่งแรกของคุณ',
+      options: [
+        { tgt: 'YOU', label: 'ตรวจการตอบสนอง + เรียกทีม ขอ crash cart', ok: true,
+          then: [ { say: { who: 'nurse', mood: 'talk', text: 'เขย่าเรียก… <span class="em">ไม่ตอบสนองค่ะ!</span> Crash cart กำลังมา!' }, t: 10 } ] },
+        { tgt: 'CPR', label: 'กดหน้าอกทันที ไม่ต้องประเมิน', ok: false,
+          why: 'ยังไม่ยืนยันว่า arrest — ถ้าเป็นแค่เป็นลม การกดหน้าอกทำอันตรายได้' },
+        { tgt: 'DRUG', label: 'ฉีด Epinephrine ทันที', ok: false,
+          why: 'ยังไม่รู้ด้วยซ้ำว่าหัวใจหยุดเต้น — ประเมินก่อนเสมอ' },
+      ],
+    } },
+    { choice: {
+      q: 'ไม่ตอบสนอง หายใจเฮือก — ต่อเลย',
+      options: [
+        { tgt: 'YOU', label: 'คลำ carotid pulse ไม่เกิน 10 วินาที', ok: true,
+          then: [
+            { inter: 'ไม่มีชีพจร!!', drama: 'red', t: 8, fx: { alarm: true } },
+            { say: { who: 'att', mood: 'stern', text: 'Cardiac arrest ยืนยันแล้ว… นาฬิกาสมองของผู้ป่วยเริ่มนับถอยหลัง <span class="em">ทุกวินาทีที่ไม่กด สมองตายเพิ่ม</span>' }, t: 4 },
+          ] },
+        { tgt: 'AIRWAY', label: 'ฟังเสียงปอดละเอียดๆ สัก 1 นาที', ok: false,
+          why: 'นานเกินไป — ทุกนาทีที่ช้า โอกาสรอดหายไป ~10%' },
+        { tgt: 'MONITOR', label: 'ติด 12-lead ECG ก่อน', ok: false,
+          why: '12-lead รอได้ ชีพจรรอไม่ได้' },
+      ],
+    } },
+    { choice: {
+      q: 'ทีม 4 คนพร้อม — สั่งใครทำอะไร',
+      options: [
+        { tgt: 'CPR', label: 'พี่บอย! กดหน้าอกเลย ลึก 5-6 ซม. 100-120/นาที', ok: true,
+          then: [ { say: { who: 'comp', mood: 'talk', text: 'รับทราบครับ! <span class="em">เริ่มกด!</span> หนึ่ง-สอง-สาม-สี่…' , fx: { cpr: true, firstCPR: true } }, t: 10 } ] },
+        { tgt: 'DEFIB', label: 'รอเครื่อง defib มาก่อนค่อยเริ่ม', ok: false,
+          why: 'ห้ามรอเด็ดขาด — สมองขาดออกซิเจนทุกวินาที', worsen: true },
+        { tgt: 'AIRWAY', label: 'หยุดทุกอย่างเพื่อใส่ท่อช่วยหายใจ', ok: false,
+          why: 'CPR มาก่อน advanced airway เสมอในนาทีแรก' },
+      ],
+    } },
+    { say: { who: 'defib', mood: 'talk', text: 'Crash cart มาแล้วค่ะ! เครื่อง defib พร้อม!' }, t: 15 },
+    { choice: {
+      q: 'ใช้ crash cart ยังไง',
+      options: [
+        { tgt: 'MONITOR', label: 'แปะ pads ดู rhythm — หยุดกดให้สั้นที่สุด', ok: true,
+          then: [
+            { inter: 'VF — SHOCKABLE!!', drama: 'red', t: 8, fx: { rhythm: 'vf' } },
+            { say: { who: 'defib', mood: 'panic', text: 'จอขึ้น <span class="em">Ventricular Fibrillation!</span> หัวใจสั่นพลิ้ว ไม่บีบเลือดเลยค่ะ!' }, t: 4 },
+          ] },
+        { tgt: 'DRUG', label: 'เปิด IV ฉีด Epi ก่อนดูจอ', ok: false,
+          why: 'ต้องรู้ rhythm ก่อน — shockable หรือไม่ เปลี่ยนแผนทั้งหมด' },
+        { tgt: 'YOU', label: 'สั่งหยุดกดนานๆ เพื่อดูจอชัดๆ', ok: false,
+          why: 'หยุดกดให้สั้นที่สุด — hands-off time คือศัตรูตัวจริง', worsen: true },
+      ],
+    } },
+    { choice: {
+      q: 'VF — เครื่อง defib อยู่ในมือ',
+      options: [
+        { tgt: 'DEFIB', label: 'Charge 200 J — กดหน้าอกต่อระหว่างรอไฟ', ok: true,
+          then: [ { say: { who: 'defib', mood: 'talk', text: 'Charging… <span class="em">200 จูล พร้อมค่ะ!</span> เสียงหวีดของเครื่องดังขึ้นเรื่อยๆ', fx: { charged: true } }, t: 8 } ] },
+        { tgt: 'DEFIB', label: 'ลองพลังงานต่ำ 50 J ก่อน', ok: false,
+          why: 'ต่ำเกินไป — VF ผู้ใหญ่ใช้ 120-200 J (biphasic)' },
+        { tgt: 'DRUG', label: 'ให้ Amiodarone ก่อนค่อย shock', ok: false,
+          why: 'ไฟฟ้ามาก่อนยาเสมอใน shockable rhythm' },
+      ],
+    } },
+    { choice: {
+      q: 'CHARGED — วินาทีชี้ชะตา',
+      options: [
+        { tgt: 'DEFIB', label: '"CLEAR!!" กวาดตารอบเตียง — SHOCK!', ok: true,
+          then: [
+            { inter: 'SHOCK!!', drama: null, t: 5, fx: { shock: true } },
+            { say: { who: 'comp', mood: 'talk', text: 'ตัวผู้ป่วยกระตุกขึ้นจากเตียง… <span class="em">กดต่อเลยไหมครับ?!</span>', fx: {} }, t: 4 },
+          ] },
+        { tgt: 'DEFIB', label: 'Shock เลย ไม่เสียเวลา clear', ok: false,
+          why: 'ไฟ 200 J ลงคนที่ยังแตะเตียง = ทีมของคุณ arrest แทน', worsen: true },
+        { tgt: 'YOU', label: 'ถือไฟค้างไว้ รอดูจออีก 30 วิ', ok: false,
+          why: 'ไฟพร้อมต้องปล่อยทันที — VF ยิ่งค้างนานยิ่งดื้อไฟ' },
+      ],
+    } },
+    { choice: {
+      q: 'ทันทีหลัง shock',
+      options: [
+        { tgt: 'CPR', label: 'กดต่อทันที 2 นาที — ไม่เช็คชีพจร', ok: true,
+          then: [
+            { say: { who: 'nurse', mood: 'talk', text: 'IV ได้แล้วค่ะ! <span class="em">เส้นพร้อมให้ยา!</span>', fx: { cpr: true, iv: true } }, t: 6 },
+            { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
+            { say: { who: 'defib', mood: 'panic', text: 'Rhythm check… <span class="em">ยัง VF ค่ะ!</span> ดื้อไฟ!' }, t: 6 },
+          ] },
+        { tgt: 'YOU', label: 'หยุดคลำชีพจรเดี๋ยวนี้', ok: false,
+          why: 'หัวใจหลัง shock ยังอ่อนแรง — CPR ต่อทันที 2 นาทีก่อนเช็ค' },
+        { tgt: 'DRUG', label: 'หยุดรอดูผลของไฟก่อน', ok: false,
+          why: 'ไม่มีจังหวะไหนที่ "หยุดรอ" ใน cardiac arrest', worsen: true },
+      ],
+    } },
+    { choice: {
+      q: 'VF ดื้อไฟ — รอบนี้ต้องครบชุด',
+      options: [
+        { tgt: 'DEFIB', label: 'Shock 200 J + Epinephrine 1 mg IV ตามทันที', ok: true,
+          then: [
+            { inter: 'SHOCK!!', drama: null, t: 5, fx: { shock: true } },
+            { say: { who: 'nurse', mood: 'talk', text: '<span class="em">"Epi 1 mg in!"</span> เสียงขานยาดังทั่วห้อง — เข็มที่สองพร้อม', fx: { epi: true, cpr: true } }, t: 6 },
+            { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
+            { say: { who: 'defib', mood: 'stern', text: 'Rhythm check… ยัง VF! พี่บอยเหงื่อหยดลงพื้นแล้วค่ะ' }, t: 6 },
+          ] },
+        { tgt: 'DRUG', label: 'Atropine 1 mg', ok: false,
+          why: 'Atropine ไม่มีที่ใน VF — ใช้ใน bradycardia' },
+        { tgt: 'DRUG', label: 'Adenosine 6 mg push เร็วๆ', ok: false,
+          why: 'Adenosine ใช้ใน SVT ที่มีชีพจร — ไม่ใช่ที่นี่' },
+      ],
+    } },
+    { choice: {
+      q: 'ยาตัวถัดไปของคุณ',
+      options: [
+        { tgt: 'DRUG', label: 'Shock ครั้งที่ 3 + Amiodarone 300 mg IV bolus', ok: true,
+          then: [
+            { inter: 'SHOCK!!', drama: null, t: 5, fx: { shock: true } },
+            { say: { who: 'nurse', mood: 'talk', text: '"Amio 300 in!" — สลับคนกด <span class="em">คุณภาพการกดต้องไม่ตก</span>', fx: { cpr: true } }, t: 6 },
+            { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
+            { say: { who: 'defib', mood: 'panic', text: 'Rhythm check… เดี๋ยวนะ… จอเปลี่ยน… <span class="em">คลื่นเรียบสม่ำเสมอ… มีชีพจรค่ะ!!</span>' }, t: 6 },
+          ] },
+        { tgt: 'DRUG', label: 'Epinephrine 5 mg ให้แรงขึ้นไปเลย', ok: false,
+          why: 'ขนาดผิด — Epi ใน arrest คือ 1 mg เสมอ ทุก 3-5 นาที' },
+        { tgt: 'YOU', label: 'ประกาศยุติการกู้ชีพ', ok: false,
+          why: 'เร็วเกินไปมาก — VF ที่ยังสั่นคือหัวใจที่ยังสู้อยู่', worsen: true },
+      ],
+    } },
+    { choice: {
+      q: 'วินาทีสุดท้าย — คุณจะทำอะไร',
+      options: [
+        { tgt: 'YOU', label: 'ROSC! หยุด CPR — post-arrest care + 12-lead ด่วน', ok: true,
+          then: [
+            { inter: 'ROSC!!', drama: null, green: true, t: 5, fx: { rosc: true } },
+            { say: { who: 'att', mood: 'happy', text: 'BP 110/70 กลับมาแล้ว… ทั้งห้องถอนหายใจพร้อมกัน <span class="em">ส่งต่อ Cath lab — เคสนี้เป็นของคุณ</span>' }, t: 5 },
+          ] },
+        { tgt: 'CPR', label: 'กดต่ออีก 2 นาทีเผื่อไว้', ok: false,
+          why: 'มีชีพจรแล้ว — การกดต่อทำร้ายหัวใจที่เพิ่งกลับมา' },
+        { tgt: 'DEFIB', label: 'Shock ซ้ำอีกทีให้ชัวร์', ok: false,
+          why: 'Shock จังหวะปกติ = ทำให้ arrest ซ้ำ อันตรายที่สุด', worsen: true },
+      ],
+    } },
+    { end: true },
+  ];
+
+  const DECISION_TIME = 20;
+  const MAX_HP = 5;
+
+  // ================= STATE =================
+  const S = {
+    ptr: 0, queue: [], simTime: 0, hp: MAX_HP,
+    rhythm: 'none', cpr: false, alarm: false,
+    shocks: 0, epis: 0, wrong: 0,
+    firstCPRAt: -1, firstShockAt: -1, rosc: false,
+    timeline: [], typing: false, typeIv: null, talkIv: null,
+    decTicker: null, decisionLeft: DECISION_TIME,
+    currentChoice: null, busy: false,
+  };
+
+  const fmt = (s) => {
+    if (s < 0) return '--:--';
+    const m = Math.floor(s / 60), ss = Math.floor(s % 60);
+    return String(m).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+  };
+
+  // ================= RENDER =================
+  function renderGauge() {
+    const wrap = $('gauge-cells');
+    wrap.innerHTML = '';
+    for (let i = 0; i < MAX_HP; i++) {
+      const c = document.createElement('span');
+      c.className = 'cell' + (i >= S.hp ? ' off' : (S.hp === 1 && i === 0 ? ' last' : ''));
+      wrap.appendChild(c);
+    }
+  }
+  function renderHud() {
+    $('timechip').textContent = fmt(S.simTime);
+    const names = { none: 'MONITOR — STANDBY', flat: 'ASYSTOLE', vf: 'V-FIB &#9888;', nsr: 'SINUS — ROSC' };
+    const el = $('r-name');
+    el.innerHTML = names[S.rhythm] || '—';
+    el.className = 'r-name' + (S.rhythm === 'vf' || S.rhythm === 'flat' ? ' bad' : '');
+    renderGauge();
+  }
+
+  function setSprite(who, mood) {
+    const c = CHARS[who];
+    if (!c) return;
+    const w = $('sprite-wrap');
+    w.innerHTML = c.svg(mood);
+    w.classList.remove('pop'); void w.offsetWidth; w.classList.add('pop');
+    const np = $('nameplate');
+    np.textContent = c.name;
+    np.className = 'nameplate ' + c.plate;
+  }
+
+  function startTalk() {
+    stopTalk();
+    S.talkIv = setInterval(() => {
+      const i = document.querySelector('#sprite-wrap #mouth-idle');
+      const t = document.querySelector('#sprite-wrap #mouth-talk');
+      if (!i || !t) return;
+      const showTalk = t.style.display === 'none';
+      t.style.display = showTalk ? '' : 'none';
+      i.style.display = showTalk ? 'none' : '';
+    }, 130);
+  }
+  function stopTalk() {
+    if (S.talkIv) clearInterval(S.talkIv);
+    S.talkIv = null;
+    const i = document.querySelector('#sprite-wrap #mouth-idle');
+    const t = document.querySelector('#sprite-wrap #mouth-talk');
+    if (i && t) { t.style.display = 'none'; i.style.display = ''; }
+  }
+
+  function typeText(html, done) {
+    // typewriter over HTML: walk chars, keep tags intact
+    const box = $('dlg-text');
+    $('adv').hidden = true;
+    box.innerHTML = '';
+    S.typing = true;
+    startTalk();
+    let i = 0, out = '';
+    const step = () => {
+      if (i >= html.length) { finish(); return; }
+      let ch = html[i];
+      if (ch === '<') {
+        const close = html.indexOf('>', i);
+        out += html.slice(i, close + 1);
+        i = close + 1;
+      } else { out += ch; i += 1; }
+      box.innerHTML = out;
+      S.typeIv = setTimeout(step, reducedMotion ? 0 : 16);
+    };
+    const finish = () => {
+      clearTimeout(S.typeIv);
+      box.innerHTML = html;
+      S.typing = false;
+      stopTalk();
+      $('adv').hidden = false;
+      if (done) done();
+    };
+    S.skipType = finish;
+    step();
+  }
+
+  // ================= ECG =================
+  const cv = $('ecg'), ctx = cv.getContext('2d');
+  let sweepX = 0, lastY = null, tPhase = 0;
+  function ecgSample() {
+    tPhase += 0.05;
+    const t = tPhase;
+    if (S.rhythm === 'vf') return Math.sin(t * 19) * .45 + Math.sin(t * 12.3 + 1) * .3 + Math.sin(t * 31) * .15;
+    if (S.rhythm === 'nsr' || S.rosc) {
+      const b = (t * 1.1) % 1;
+      if (b < .05) return -.1;
+      if (b < .1) return .95;
+      if (b < .15) return -.3;
+      if (b > .32 && b < .44) return .15;
+      return 0;
+    }
+    let y = Math.sin(t * 40) * .02;
+    if (S.cpr) { const c = (t * 1.7) % 1; if (c < .3) y += Math.sin(c / .3 * Math.PI) * .5; }
+    return y;
+  }
+  function drawECG() {
+    const W = cv.width, H = cv.height, mid = H * .55, amp = H * .4;
+    const bad = S.rhythm === 'vf' || S.rhythm === 'flat';
+    const col = (S.rosc || S.rhythm === 'nsr') ? '#37C871' : bad ? '#E5484D' : '#37C871';
+    for (let i = 0; i < 2; i++) {
+      const y = mid - ecgSample() * amp;
+      ctx.fillStyle = '#040812';
+      ctx.fillRect(sweepX, 0, 14, H);
+      if (lastY !== null && sweepX > 0) {
+        ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(sweepX - 2.4, lastY); ctx.lineTo(sweepX, y); ctx.stroke();
+      }
+      lastY = y; sweepX += 2.4;
+      if (sweepX >= W) { sweepX = 0; lastY = null; }
+    }
+    requestAnimationFrame(drawECG);
+  }
+
+  // ================= FX =================
+  function applyFx(fx) {
+    if (!fx) return;
+    if (fx.alarm) S.alarm = true;
+    if (fx.cpr) S.cpr = true;
+    if (fx.rhythm) S.rhythm = fx.rhythm;
+    if (fx.charged) { /* charged visual = drama on stage */ }
+    if (fx.firstCPR && S.firstCPRAt < 0) S.firstCPRAt = S.simTime;
+    if (fx.epi) S.epis += 1;
+    if (fx.shock) {
+      S.shocks += 1; S.cpr = false;
+      if (S.firstShockAt < 0) S.firstShockAt = S.simTime;
+    }
+    if (fx.rosc) { S.rosc = true; S.rhythm = 'nsr'; S.cpr = false; }
+    renderHud();
+  }
+  function setDrama(mode) {
+    $('stage').className = 'stage' + (mode === 'red' ? ' drama-red' : mode === 'white' ? ' drama' : '');
+  }
+  function showInter(text, opts, cb) {
+    const inter = $('inter'), bubble = $('inter-bubble');
+    $('inter-text').textContent = text;
+    bubble.className = 'bubble' + (opts.green ? ' green' : opts.blue ? ' blue' : '');
+    inter.style.display = 'flex';
+    vibrate([90, 50, 160]);
+    if (!reducedMotion) {
+      $('flash').classList.remove('go'); void $('flash').offsetWidth; $('flash').classList.add('go');
+      $('app').classList.remove('shake'); void $('app').offsetWidth; $('app').classList.add('shake');
+    }
+    setTimeout(() => { inter.style.display = 'none'; cb(); }, reducedMotion ? 350 : 1050);
+  }
+
+  // ================= ENGINE =================
+  function next() {
+    if (S.busy) return;
+    // queued sub-nodes (from a choice's `then`) run first
+    const node = S.queue.length ? S.queue.shift() : STORY[S.ptr++];
+    if (!node) return endCase(true);
+    runNode(node);
+  }
+
+  function runNode(node) {
+    if (node.t) S.simTime += node.t;
+    renderHud();
+
+    if (node.say) {
+      const { who, mood, text, fx } = node.say;
+      applyFx(fx);
+      setDrama(mood === 'panic' ? 'red' : null);
+      setSprite(who, mood);
+      S.awaitTap = true;
+      typeText(text);
+      return;
+    }
+    if (node.inter) {
+      S.busy = true;
+      applyFx(node.fx);
+      if (node.drama) setDrama(node.drama);
+      showInter(node.inter, { green: node.green }, () => { S.busy = false; next(); });
+      return;
+    }
+    if (node.skip) {
+      S.busy = true;
+      setDrama(null);
+      setSprite('att', 'idle');
+      $('nameplate').textContent = '— เวลาเดินต่อ —';
+      $('nameplate').className = 'nameplate';
+      typeText('&#9193; ' + node.skip + '…', () => {
+        setTimeout(() => { S.busy = false; next(); }, reducedMotion ? 200 : 700);
+      });
+      S.awaitTap = false;
+      return;
+    }
+    if (node.choice) {
+      showChoice(node.choice);
+      return;
+    }
+    if (node.end) return endCase(true);
+    next();
+  }
+
+  function showChoice(choice) {
+    S.currentChoice = choice;
+    setDrama('white');
+    const wrap = $('choices');
+    wrap.innerHTML = '';
+    const q = document.createElement('div');
+    q.className = 'q-banner';
+    q.textContent = '⚖ ' + choice.q;
+    wrap.appendChild(q);
+    const order = choice.options.map((_, i) => i).sort(() => Math.random() - .5);
+    order.forEach((oi) => {
+      const o = choice.options[oi];
+      const b = document.createElement('button');
+      b.className = 'choice';
+      b.innerHTML = '<span class="tgt">▸ สั่ง ' + o.tgt + '</span>' + o.label;
+      b.addEventListener('click', (e) => { e.stopPropagation(); pick(o); });
+      wrap.appendChild(b);
+    });
+    const tr = document.createElement('div');
+    tr.className = 'choice-timer';
+    tr.innerHTML = '<div class="fill" id="c-timer-fill"></div>';
+    wrap.appendChild(tr);
+    wrap.style.display = 'flex';
+    startDecisionTimer();
+  }
+  function hideChoice() {
+    $('choices').style.display = 'none';
+    stopDecisionTimer();
+  }
+  function startDecisionTimer() {
+    S.decisionLeft = DECISION_TIME;
+    stopDecisionTimer();
+    S.decTicker = setInterval(() => {
+      S.decisionLeft -= .25;
+      const f = $('c-timer-fill');
+      if (f) {
+        const pct = Math.max(0, S.decisionLeft / DECISION_TIME * 100);
+        f.style.width = pct + '%';
+        f.classList.toggle('low', pct < 30);
+      }
+      if (S.decisionLeft <= 0) {
+        stopDecisionTimer();
+        pick({ ok: false, timeout: true, why: 'หมดเวลา — ใน arrest ความลังเลก็คือการตัดสินใจแบบหนึ่ง', worsen: true });
+      }
+    }, 250);
+  }
+  function stopDecisionTimer() { if (S.decTicker) clearInterval(S.decTicker); S.decTicker = null; }
+
+  function pick(o) {
+    hideChoice();
+    if (o.ok) {
+      S.timeline.push({ t: S.simTime, ok: true, text: o.label });
+      S.simTime += 8;
+      S.queue.push(...(o.then || []));
+      S.currentChoice = null;
+      next();
+    } else {
+      S.wrong += 1;
+      S.hp = Math.max(0, S.hp - 1);
+      S.simTime += 20;
+      S.timeline.push({ t: S.simTime, ok: false, text: o.timeout ? '(หมดเวลา — ไม่มีคำสั่ง)' : 'สั่งผิดจังหวะ', note: o.why });
+      vibrate([60, 40, 60]);
+      if (!reducedMotion) {
+        $('redflash').classList.remove('go'); void $('redflash').offsetWidth; $('redflash').classList.add('go');
+        $('app').classList.remove('shake'); void $('app').offsetWidth; $('app').classList.add('shake');
+      }
+      renderHud();
+      if (S.hp <= 0) {
+        setDrama('red');
+        setSprite('att', 'stern');
+        S.awaitTap = false;
+        typeText('<span class="em">ผู้ป่วยไปแล้ว…</span> ' + o.why, () => {
+          setTimeout(() => endCase(false), reducedMotion ? 400 : 1400);
+        });
+        return;
+      }
+      // อ.เดช ดุ — แล้วเล่นข้อเดิมซ้ำ (สภาพแย่ลงแล้ว)
+      setDrama('red');
+      setSprite('att', 'stern');
+      S.awaitTap = true;
+      S.retryChoice = S.currentChoice;
+      typeText('<span class="em">ช้าก่อน!</span> ' + o.why + (o.worsen ? ' — ผู้ป่วยแย่ลง สีผิวคล้ำขึ้น!' : ''));
+    }
+  }
+
+  // dialogue tap = advance
+  $('dlg').addEventListener('click', () => {
+    if (S.busy) return;
+    if (S.typing) { S.skipType && S.skipType(); return; }
+    if (!S.awaitTap) return;
+    S.awaitTap = false;
+    if (S.retryChoice) {
+      const c = S.retryChoice; S.retryChoice = null;
+      showChoice(c);
+      return;
+    }
+    next();
+  });
+
+  // ================= DEBRIEF =================
+  function endCase(won) {
+    stopDecisionTimer(); stopTalk();
+    $('scr-game').style.display = 'none';
+    const d = $('scr-debrief');
+    d.style.display = 'flex';
+    d.className = 'debrief ' + (won ? 'winbg' : 'losebg');
+    $('d-stamp').textContent = won ? 'ROSC!' : 'CODE ENDED';
+    $('d-stamp').className = 'stamp ' + (won ? 'win' : 'lose');
+    $('d-sub').textContent = won
+      ? 'ผู้ป่วยกลับมามีชีพจร — ส่งต่อ Cath lab เคสนี้เป็นของคุณ'
+      : 'ผู้ป่วยเสียชีวิต — อ่าน debrief ด้านล่าง แล้วกลับมาแก้มือ';
+
+    const mC = $('m-cpr'), mS = $('m-shock'), mW = $('m-wrong'), mT = $('m-total');
+    mC.textContent = S.firstCPRAt >= 0 ? fmt(S.firstCPRAt) : '—';
+    mC.className = 'val ' + (S.firstCPRAt >= 0 && S.firstCPRAt <= 90 ? 'good' : 'warn');
+    mS.textContent = S.firstShockAt >= 0 ? fmt(S.firstShockAt) : '—';
+    mS.className = 'val ' + (S.firstShockAt >= 0 && S.firstShockAt <= 300 ? 'good' : 'warn');
+    mW.textContent = String(S.wrong);
+    mW.className = 'val ' + (S.wrong === 0 ? 'good' : S.wrong <= 2 ? 'warn' : 'bad');
+    mT.textContent = fmt(S.simTime);
+    mT.className = 'val';
+
+    let g = 'C';
+    if (won) { g = S.wrong === 0 ? 'S' : S.wrong === 1 ? 'A' : S.wrong <= 3 ? 'B' : 'C'; }
+    $('d-grade').textContent = g;
+    $('d-grade').className = 'g ' + g.toLowerCase();
+
+    const tl = $('d-timeline');
+    tl.innerHTML = '';
+    S.timeline.forEach((it) => {
+      const row = document.createElement('div');
+      row.className = 'tl-item ' + (it.ok ? 'ok' : 'err');
+      row.innerHTML = '<span class="t">' + fmt(it.t) + '</span><span class="dot"></span>' +
+        '<span>' + it.text + (it.note ? '<span class="note">' + it.note + '</span>' : '') + '</span>';
+      tl.appendChild(row);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  // ================= FLOW =================
+  function reset() {
+    Object.assign(S, {
+      ptr: 0, queue: [], simTime: 0, hp: MAX_HP,
+      rhythm: 'flat', cpr: false, alarm: false,
+      shocks: 0, epis: 0, wrong: 0,
+      firstCPRAt: -1, firstShockAt: -1, rosc: false,
+      timeline: [], typing: false, currentChoice: null, retryChoice: null,
+      busy: false, awaitTap: false,
+    });
+  }
+  function startGame() {
+    reset();
+    $('scr-title').style.display = 'none';
+    $('scr-debrief').style.display = 'none';
+    $('scr-game').style.display = 'flex';
+    renderHud();
+    next();
+  }
+  $('btn-start').addEventListener('click', startGame);
+  $('btn-retry').addEventListener('click', startGame);
+  $('btn-home').addEventListener('click', () => {
+    $('scr-debrief').style.display = 'none';
+    $('scr-game').style.display = 'none';
+    $('scr-title').style.display = 'flex';
+  });
+
+  ctx.fillStyle = '#040812';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  drawECG();
+})();
+</script>
