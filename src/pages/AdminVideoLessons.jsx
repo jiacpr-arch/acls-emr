@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Shield, Plus, Trash2, Pencil, X, Video, ChevronUp, ChevronDown } from 'lucide-react';
+import { LogOut, Shield, Plus, Trash2, Pencil, X, Video, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
 import { signOut } from '../services/auth';
 import { VIDEO_TOPICS, VIDEO_TOPIC_MAP } from '../data/videoTopics';
 import { getYouTubeId, parseClipTime, formatClipTime } from '../utils/youtube';
 import {
   listVideoLessonsAdmin, createVideoLesson, updateVideoLesson, deleteVideoLesson, swapVideoLessonOrder,
+  generateQuizWithAI,
 } from '../services/videoLessonAdminService';
 
 const LETTERS = ['a', 'b', 'c', 'd', 'e'];
@@ -123,6 +124,7 @@ export default function AdminVideoLessons() {
           setForm={setEditing}
           onSave={save}
           onClose={() => setEditing(null)}
+          onReload={reload}
           saving={saving}
         />
       )}
@@ -155,7 +157,7 @@ function TimeInput({ value, onChange, className, style, placeholder }) {
   );
 }
 
-function VideoLessonEditor({ form, setForm, onSave, onClose, saving }) {
+function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving }) {
   const upd = (patch) => setForm(f => ({ ...f, ...patch }));
   const ytId = getYouTubeId(form.youtubeId) || (/^[\w-]{11}$/.test((form.youtubeId || '').trim()) ? form.youtubeId.trim() : '');
 
@@ -174,6 +176,35 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, saving }) {
     const q = form.quiz[qi];
     if (q.choices.length <= 2) return;
     setQuestion(qi, { choices: q.choices.filter((_, j) => j !== ci) });
+  };
+
+  // AI generate — สร้างควิซ 3 ข้อจาก title/keyPoints/chapters แล้วบันทึกลง Supabase ทันที
+  // (ถ้าเป็นคลิปที่มีอยู่แล้ว); คลิปใหม่ต้องกด "บันทึก" หลักให้มี id ก่อน
+  const [generatingQuiz, setGeneratingQuiz] = useState(false);
+  const [quizGenMsg, setQuizGenMsg] = useState(null); // { type: 'error'|'success', text }
+
+  const generateQuiz = async () => {
+    if (!form.title.trim()) return alert('กรุณาใส่ชื่อคลิปก่อนสร้างควิซ');
+    setGeneratingQuiz(true);
+    setQuizGenMsg(null);
+    try {
+      const topicLabel = VIDEO_TOPIC_MAP[form.topic]?.label || '';
+      const quiz = await generateQuizWithAI({
+        title: form.title, keyPoints: form.keyPoints, chapters: form.chapters, topicLabel,
+      });
+      upd({ quiz });
+      if (form.id) {
+        await updateVideoLesson(form.id, { ...form, quiz });
+        onReload?.();
+        setQuizGenMsg({ type: 'success', text: 'สร้างและบันทึกควิซแล้ว ✓' });
+      } else {
+        setQuizGenMsg({ type: 'success', text: 'สร้างควิซแล้ว — กด "บันทึก" ด้านล่างเพื่อสร้างคลิปนี้' });
+      }
+    } catch (err) {
+      setQuizGenMsg({ type: 'error', text: 'สร้างควิซไม่สำเร็จ: ' + (err?.message || err) });
+    } finally {
+      setGeneratingQuiz(false);
+    }
   };
 
   const inputCls = 'w-full bg-bg-secondary border border-border-strong px-3 py-2 text-body';
@@ -252,7 +283,18 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, saving }) {
 
         {/* C */}
         <div className="space-y-3">
-          <div className="text-caption font-bold text-success">✅ C · ควิซ</div>
+          <div className="flex items-center justify-between">
+            <div className="text-caption font-bold text-success">✅ C · ควิซ</div>
+            <button onClick={generateQuiz} disabled={generatingQuiz}
+              className="btn btn-ghost btn-sm text-purple disabled:opacity-50">
+              <Sparkles size={13} strokeWidth={2.2} /> {generatingQuiz ? 'กำลังสร้าง…' : 'สร้างควิซด้วย AI'}
+            </button>
+          </div>
+          {quizGenMsg && (
+            <div className={`text-2xs font-bold ${quizGenMsg.type === 'error' ? 'text-danger' : 'text-success'}`}>
+              {quizGenMsg.text}
+            </div>
+          )}
           {form.quiz.map((q, qi) => (
             <div key={q.id || qi} className="dash-card !p-3 space-y-2">
               <div className="flex items-center justify-between">

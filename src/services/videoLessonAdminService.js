@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { invalidateVideoLessonsCache, mapVideoLessonRow } from './videoLessonService';
+import { authedPost } from './adminApi';
 
 // CRUD วิดีโอบทเรียน สำหรับหน้าแอดมิน — เขียนผ่าน client ที่ล็อกอินแอดมินแล้ว (RLS คุมสิทธิ์)
 // รูปแบบเดียวกับ alsAdminService.js (insert/update/delete ตรงไปที่ตาราง)
@@ -77,4 +78,11 @@ export async function swapVideoLessonOrder(a, b) {
   const { error: e2 } = await supabase.from('video_lessons').update({ sort_order: a.sortOrder }).eq('id', b.id);
   if (e2) throw e2;
   invalidateVideoLessonsCache();
+}
+
+// ให้ AI (Claude ผ่าน /api/video-lessons/generate-quiz) ร่างควิซ 3 ข้อจาก title/keyPoints/chapters
+// ของคลิป — ไม่เขียน DB เอง ฝั่งเรียกใช้ (AdminVideoLessons.jsx) เป็นคนบันทึกต่อ
+export async function generateQuizWithAI({ title, keyPoints, chapters, topicLabel }) {
+  const { quiz } = await authedPost('/api/video-lessons/generate-quiz', { title, keyPoints, chapters, topicLabel });
+  return quiz;
 }
