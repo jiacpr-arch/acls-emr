@@ -1,6 +1,11 @@
 import { Check, X } from 'lucide-react';
 
-export default function QuizQuestion({ question, chosenId, onChoose, locked, showCorrect }) {
+const POS_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+// choices: ถ้าส่งมา (เช่นลำดับที่สลับแล้ว) จะใช้แทน question.choices
+// ป้ายหน้าตัวเลือกใช้ตำแหน่งที่แสดง (A/B/C…) ไม่ใช่ id เดิม เพื่อไม่ให้เฉลยจาก id รั่ว
+export default function QuizQuestion({ question, choices, chosenId, onChoose, locked, showCorrect }) {
+  const items = choices || question.choices;
   return (
     <div className="space-y-2.5">
       <div
@@ -10,7 +15,7 @@ export default function QuizQuestion({ question, chosenId, onChoose, locked, sho
         {question.question}
       </div>
       <div className="flex flex-col gap-1.5">
-        {question.choices.map((c) => {
+        {items.map((c, idx) => {
           const selected = chosenId === c.id;
           const isCorrect = showCorrect && c.id === question.correctId;
           const isWrong = showCorrect && selected && c.id !== question.correctId;
@@ -55,7 +60,7 @@ export default function QuizQuestion({ question, chosenId, onChoose, locked, sho
               >
                 {isCorrect ? <Check size={13} strokeWidth={2.6} />
                   : isWrong ? <X size={13} strokeWidth={2.6} />
-                  : c.id.toUpperCase()}
+                  : (POS_LETTERS[idx] || idx + 1)}
               </span>
               <span
                 className="text-text-primary flex-1 text-left"
