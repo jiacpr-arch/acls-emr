@@ -150,10 +150,49 @@ export const CHARACTERS = {
   },
 };
 
-export function getCharacter(charId) {
-  return CHARACTERS[charId] || null;
+// ตัวละคร custom ที่แอดมินสร้าง (โหลดจาก Supabase ตอนเข้าเกม) — merge ทับ/เพิ่มจาก built-in
+// entry แบบ custom มี images:{pose:url} ให้ CharacterSprite ใช้ก่อน ถ้าไม่มีก็ SVG generic
+let customCharacters = {};
+
+export function registerCustomCharacters(map) {
+  customCharacters = map || {};
 }
 
+// SVG placeholder กลาง สำหรับตัวละคร custom ที่ยังไม่มีรูปครบทุกท่า
+function genericPlaceholder(entry) {
+  const coat = entry?.plate?.[0] || '#405089';
+  const coatD = entry?.plate?.[1] || '#232F5E';
+  return (pose) => `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24,250 L24,206 Q24,170 100,168 Q176,170 176,206 L176,250 Z" fill="${coat}" stroke="${OUT}" stroke-width="4"/>
+    <path d="M76,174 L100,200 L124,174 L118,168 L100,186 L82,168 Z" fill="${coatD}" stroke="${OUT}" stroke-width="3"/>
+    <rect x="88" y="150" width="24" height="26" fill="#EDBE96" stroke="${OUT}" stroke-width="3.4"/>
+    <ellipse cx="100" cy="100" rx="46" ry="52" fill="#EDBE96" stroke="${OUT}" stroke-width="4"/>
+    <path d="M52,96 Q56,42 100,38 Q144,42 148,96 Q144,66 128,62 Q110,74 100,60 Q90,74 72,62 Q56,66 52,96 Z" fill="#3A3F4B" stroke="${OUT}" stroke-width="4"/>
+    ${brows(pose, 79, 121, 90)}
+    ${eyes(pose, 79, 121, 104, '#3A3228')}
+    ${mouthGroups(pose, 100, 132)}
+  </svg>`;
+}
+
+export function getCharacter(charId) {
+  if (customCharacters[charId]) {
+    const entry = customCharacters[charId];
+    // ให้มี placeholder เสมอ เผื่อบางท่ายังไม่มีรูป
+    return { ...entry, placeholder: entry.placeholder || genericPlaceholder(entry) };
+  }
+  if (CHARACTERS[charId]) return CHARACTERS[charId];
+  if (!charId) return null;
+  // ตัวละครที่ยังไม่รู้จัก (เช่น custom ที่ยังโหลดไม่เสร็จ) → silhouette กลาง กัน "หน้าหาย"
+  const fallback = { name: '—', role: '', plate: ['#405089', '#232F5E'], custom: true };
+  return { ...fallback, placeholder: genericPlaceholder(fallback) };
+}
+
+// URL รูปจริง: custom ใช้ URL จาก DB (entry.images), built-in ใช้ path local
 export function characterImageUrl(charId, pose, talking = false) {
+  const custom = customCharacters[charId];
+  if (custom) {
+    // custom ยังไม่รองรับเฟรมปากอ้างแยก — คืน URL ของ pose ตรงๆ (หรือ null ถ้าไม่มี)
+    return talking ? null : (custom.images?.[pose] || null);
+  }
   return `/images/characters/${charId}/${pose}${talking ? '_talk' : ''}.webp`;
 }

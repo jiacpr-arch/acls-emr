@@ -64,6 +64,8 @@ const AdminStudents = lazy(() => import('./pages/AdminStudents'));
 const AdminClasses = lazy(() => import('./pages/AdminClasses'));
 const AdminVideoLessons = lazy(() => import('./pages/AdminVideoLessons'));
 const AdminRecorderCases = lazy(() => import('./pages/AdminRecorderCases'));
+const AdminCodeBlueScenarios = lazy(() => import('./pages/AdminCodeBlueScenarios'));
+const AdminCodeBlueCharacters = lazy(() => import('./pages/AdminCodeBlueCharacters'));
 
 const AdminFallback = () => (
   <div className="page-container py-12 text-center text-caption text-text-muted">
@@ -295,6 +297,27 @@ function App() {
             }
           />
         )}
+        {/* จัดการโจทย์เกม Code Blue — เปิดทั้ง ACLS/BLS (โจทย์กรองตามโหมด) */}
+        <Route
+          path="/admin/code-blue-scenarios"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminCodeBlueScenarios />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
+        <Route
+          path="/admin/code-blue-characters"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminCodeBlueCharacters />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
 
         {IS_BLS && <Route path="/" element={<PreCourse />} />}
         {IS_BLS && <Route path="/new-case" element={<NewCase />} />}
