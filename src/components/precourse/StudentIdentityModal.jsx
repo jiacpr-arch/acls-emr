@@ -36,6 +36,14 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
         : 'กรุณากรอกชื่อ');
       return;
     }
+    // A common mix-up: typing the class join code (the one handed out to
+    // everyone) into the student-id field instead of one's own student id.
+    // The server also rejects this (join_class), but catching it here gives
+    // an immediate, specific message instead of a silent background sync failure.
+    if (sid && classCode && sid.toUpperCase() === classCode.toUpperCase()) {
+      setError('รหัสนี้เป็นรหัสเข้าคลาส ไม่ใช่รหัสนักเรียน — กรุณากรอกรหัสนักเรียนของคุณเอง');
+      return;
+    }
     if (tel && tel.replace(/\D/g, '').length < 9) {
       setError('เบอร์โทรไม่ถูกต้อง');
       return;
