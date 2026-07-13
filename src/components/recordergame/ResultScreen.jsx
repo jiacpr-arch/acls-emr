@@ -1,6 +1,6 @@
 import { ERROR_TYPES, ERROR_TYPE_META } from '../../data/recorderGameLevels';
 import { RATINGS, RATING_META } from '../../utils/recorderGameScore';
-import Instructor from '../sim/Instructor';
+import CharacterSprite from '../../game/CharacterSprite';
 import { Star, Trophy, RefreshCw, ChevronRight, Home } from 'lucide-react';
 
 // ==========================================
@@ -53,7 +53,7 @@ export default function ResultScreen({
     <div className="page-container space-y-3 pb-28">
       {/* Header */}
       <div className="bg-bg-secondary border-2 border-text-primary p-5 flex flex-col items-center gap-3">
-        <Instructor mood={stars >= 2 ? 'happy' : 'sad'} />
+        <div style={{ width: 76 }}><CharacterSprite charId="att_dech" pose={stars >= 2 ? 'happy' : 'stern'} /></div>
         <StarRow stars={stars} />
         <div className="text-center">
           <div className={`text-title font-black ${stars >= 2 ? 'text-success' : 'text-warning'}`}>

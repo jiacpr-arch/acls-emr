@@ -1,0 +1,69 @@
+/* ==========================================
+   Recorder Hero — โหมด Live สไตล์ Ace Attorney
+   reuse คลาส .cbs-* จาก codeBlueSim.css + เพิ่มของ recorder
+   ========================================== */
+@import '../../pages/codeBlueSim.css';
+
+/* เวทีของ recorder ปรับให้เตี้ยลง เพราะมีแถบปุ่มบันทึกด้านล่าง */
+.rgaa-app { display: flex; flex-direction: column; height: 100dvh; }
+.rgaa-stage { flex: 1 1 auto; min-height: 40dvh; }
+
+/* HUD ขวา: score chip + combo gauge + clock */
+.rgaa-scorechip {
+  font-family: var(--cbs-mono); font-weight: 800; font-size: 12px;
+  color: var(--cbs-gold);
+  background: rgba(4, 8, 18, .82); border: 2px solid #33406E; border-radius: 6px;
+  padding: 4px 9px;
+}
+
+/* กล่องบทพูด: recorder ไม่ให้แตะข้าม (นาฬิกาเดินต่อเนื่อง) แค่แสดงผล */
+.rgaa-dlg { cursor: default; min-height: 92px; }
+
+/* ===== แถบปุ่มบันทึก (persistent) ===== */
+.rgaa-bararea {
+  background: linear-gradient(180deg, #131C3D, #0C1226);
+  padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+  border-top: 2px solid #2A3768;
+}
+.rgaa-bar-label {
+  font-family: var(--cbs-mono); font-size: 9px; letter-spacing: .18em;
+  color: #8B99C4; margin-bottom: 6px; text-align: center;
+}
+.rgaa-bar {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px;
+}
+.rgaa-btn {
+  appearance: none; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 800; color: var(--cbs-ink); text-align: center;
+  border: 2.5px solid #fff; border-radius: 8px;
+  background: linear-gradient(180deg, #33437F, #1B2650);
+  padding: 11px 6px; line-height: 1.25;
+  box-shadow: 0 4px 0 #0B1130, 0 8px 14px rgba(0, 0, 0, .4);
+  transition: transform .07s ease, box-shadow .07s ease;
+}
+.rgaa-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #0B1130; }
+.rgaa-btn:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
+.rgaa-btn small {
+  display: block; font-family: var(--cbs-mono); font-size: 8.5px; font-weight: 400;
+  letter-spacing: .12em; color: var(--cbs-cyan); margin-bottom: 2px;
+}
+/* tone variants */
+.rgaa-btn.t-shock   { background: linear-gradient(180deg, #E67635, #B34710); border-color: #FFD9A6; }
+.rgaa-btn.t-purple  { background: linear-gradient(180deg, #7C4BC0, #4E2C86); }
+.rgaa-btn.t-success { background: linear-gradient(180deg, #2FA060, #1B6E3E); }
+.rgaa-btn.t-danger  { background: linear-gradient(180deg, #D8434A, #8E262B); }
+.rgaa-btn.t-warning { background: linear-gradient(180deg, #D79A2B, #9A6A12); color: #1a1305; }
+.rgaa-btn.t-info    { background: linear-gradient(180deg, #2E6FC0, #1B4788); }
+/* ปุ่มที่ควรกด (โหมดง่าย) */
+.rgaa-btn.is-hint { border-color: var(--cbs-gold); box-shadow: 0 4px 0 #0B1130, 0 0 16px rgba(242, 193, 78, .6); animation: cbs-blink 1s steps(2) infinite; }
+
+/* ===== popup คะแนน (ไม่บล็อกจอ ต่างจาก .cbs-inter) ===== */
+.rgaa-popup {
+  position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);
+  z-index: 30; pointer-events: none;
+  font-size: clamp(26px, 8vw, 40px); font-weight: 900; white-space: nowrap;
+  -webkit-text-stroke: 2px rgba(0, 0, 0, .35);
+  animation: cbs-slam .3s cubic-bezier(.2, 2.2, .4, 1) both;
+}
+.rgaa-popup.t-good { color: #37DD77; }
+.rgaa-popup.t-bad  { color: #FF5A5F; }

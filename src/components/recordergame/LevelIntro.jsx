@@ -1,4 +1,4 @@
-import Instructor from '../sim/Instructor';
+import CharacterSprite from '../../game/CharacterSprite';
 import { Play, Star, ArrowLeft } from 'lucide-react';
 
 // ==========================================
@@ -37,7 +37,7 @@ export default function LevelIntro({ level, hiscore = 0, onStart, onBack }) {
       </div>
 
       <div className="bg-bg-secondary border-2 border-text-primary p-4 flex items-start gap-3">
-        <Instructor mood="happy" />
+        <div style={{ width: 60 }}><CharacterSprite charId="att_dech" pose="happy" /></div>
         <div className="flex-1">
           <div className="bg-yellow-50 border-2 border-text-primary p-2 text-xs leading-relaxed text-slate-900">
             <div className="font-black text-info mb-1">หัวหน้าทีม:</div>
