@@ -15,6 +15,7 @@ import { useClassStore } from '../stores/classStore';
 import { useVoucherStore } from '../stores/voucherStore';
 import { validateVoucher } from '../config/vouchers';
 import { track } from '../services/analytics';
+import { getPendingCount, subscribeToSync, scheduleFlush } from '../services/syncEngine';
 import FeaturedVideo from '../components/precourse/FeaturedVideo';
 import BLSHero from '../components/precourse/BLSHero';
 import BLSProgressCard from '../components/precourse/BLSProgressCard';
@@ -63,6 +64,21 @@ export default function PreCourse() {
     return !s.classCode && !s.syncDisabled;
   });
   const gateInitialMode = joinParam && classCode !== joinParam ? 'join' : 'home';
+
+  // Surfaces unsynced local data to the student — without this, progress can
+  // sit unsynced (offline / flaky wifi) and silently vanish if they later
+  // open the site on a different device or browser, since restore only reads
+  // from the cloud copy.
+  const [pendingCount, setPendingCount] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    const refreshPending = () => {
+      getPendingCount().then(n => { if (!cancelled) setPendingCount(n); });
+    };
+    refreshPending();
+    const unsubscribe = subscribeToSync(refreshPending);
+    return () => { cancelled = true; unsubscribe(); };
+  }, []);
 
   // Voucher: unlocks the Post-test without requiring every lesson to be passed.
   const voucherActive = useVoucherStore(s => !!(s.voucher?.lineConfirmed && validateVoucher(s.voucher.code)));
@@ -160,9 +176,19 @@ export default function PreCourse() {
               คลาส: {className || '—'}
             </div>
             <div className="text-2xs text-text-muted font-mono">รหัสคลาส: {classCode}</div>
+            {pendingCount > 0 && (
+              <div className="text-2xs text-warning mt-0.5">
+                ⏳ รอบันทึกขึ้นคลาวด์ {pendingCount} รายการ — อย่าเพิ่งเปลี่ยนเครื่อง/เบราว์เซอร์
+              </div>
+            )}
           </div>
+          {pendingCount > 0 && (
+            <button onClick={scheduleFlush} className="btn btn-ghost btn-sm shrink-0">
+              ซิงค์ตอนนี้
+            </button>
+          )}
           <button onClick={() => { clearClass(); setShowClassGate(true); }}
-            className="btn btn-ghost btn-sm">
+            className="btn btn-ghost btn-sm shrink-0">
             เปลี่ยนคลาส
           </button>
         </>
