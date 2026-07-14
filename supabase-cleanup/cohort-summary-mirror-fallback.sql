@@ -42,7 +42,7 @@ declare
   v_class_id uuid;
   v_result jsonb;
 begin
-  v_class_id := _cohort_resolve_class(p_code);
+  v_class_id := _cohort_resolve_class_instructor(p_code);
 
   with students as (
     select id, student_id, name, phone, created_at
