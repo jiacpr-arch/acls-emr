@@ -42,7 +42,13 @@ export function scheduleFlush() {
 async function flush() {
   const ctx = getClassContext();
   if (!ctx.classCode || ctx.syncDisabled) return;
-  if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+  // Deliberately does not gate on navigator.onLine — that flag is unreliable
+  // (false negatives seen in practice: captive-portal WiFi, flaky mobile
+  // data, some in-app WebViews) and skipping the flush on a false positive
+  // means real lesson/quiz data silently never gets retried. Let each RPC
+  // call fail on its own if there's truly no connection — recordFailure()'s
+  // backoff already handles genuine offline gracefully, same as pre/post-test's
+  // direct-submit path (assessmentService.submitAttempt) already does.
 
   flushing = true;
   try {
