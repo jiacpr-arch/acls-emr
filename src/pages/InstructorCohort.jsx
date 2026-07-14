@@ -68,6 +68,7 @@ export default function InstructorCohort() {
   // New-style class + no instructor code on this device (e.g. a student
   // opened this page, or the instructor is on a fresh browser).
   const [needInstructorCode, setNeedInstructorCode] = useState(false);
+  const [syncError, setSyncError] = useState(null);
   const [qrDataUrl, setQrDataUrl] = useState(null);
 
   const classCode = useClassStore(s => s.classCode);
@@ -96,14 +97,23 @@ export default function InstructorCohort() {
           setSummary(data);
           setSource('cloud');
           setNeedInstructorCode(false);
+          setSyncError(null);
           setLoading(false);
           return;
         }
-        // New-style class: the student join code no longer unlocks the
-        // summary — this device needs the instructor code.
-        if (!cancelled && error && !instructorCode
-            && (error.message || '').includes('invalid_code')) {
-          setNeedInstructorCode(true);
+        if (!cancelled && error) {
+          // New-style class: the student join code no longer unlocks the
+          // summary — this device needs the instructor code.
+          if (!instructorCode && (error.message || '').includes('invalid_code')) {
+            setNeedInstructorCode(true);
+            setSyncError(null);
+          } else {
+            // Device already has an instructor code but the cloud call still
+            // failed (e.g. a broken RPC, a revoked code) — surface the real
+            // reason instead of silently falling back to the empty local
+            // cache, which reads as "students disappeared".
+            setSyncError(error.message || 'ไม่ทราบสาเหตุ');
+          }
         }
       }
       const local = await getCohortSummary(ids);
@@ -387,6 +397,11 @@ export default function InstructorCohort() {
         {source === 'cloud' ? (
           <div className="inline-flex items-center gap-1.5 text-caption text-info">
             <Cloud size={14} strokeWidth={2.2} /> ข้อมูลจาก cloud
+          </div>
+        ) : syncError ? (
+          <div className="inline-flex items-center gap-1.5 text-caption text-danger">
+            <CloudOff size={14} strokeWidth={2.2} />
+            เชื่อมต่อ cloud ไม่สำเร็จ ({syncError}) — กำลังแสดงข้อมูล cached ของเครื่องนี้แทน
           </div>
         ) : (
           <div className="inline-flex items-center gap-1.5 text-caption text-text-muted">
