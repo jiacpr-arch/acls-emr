@@ -49,6 +49,7 @@ export default function Certification() {
   const [studentPhone, setStudentPhone] = useState(certData.studentPhone || activeStudent?.phone || '');
   const [studentEmail, setStudentEmail] = useState(certData.studentEmail || activeStudent?.email || '');
   const [formError, setFormError] = useState('');
+  const [downloadError, setDownloadError] = useState('');
   // Soft gate: ปลดล็อกปุ่มดาวน์โหลดเมื่อกดเพิ่มเพื่อน LINE OA (หรือกดข้าม) — จำค่าไว้ข้าม refresh
   const [lineUnlocked, setLineUnlocked] = useState(!!certData.lineFollowed);
   const ekgTestDone = localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
@@ -101,15 +102,21 @@ export default function Certification() {
   // BLS: 2 knowledge requirements. ACLS: online theory certification — the four
   // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
   // skills are completed separately at a training center.
+  // Once a student has an attempt on record, tapping the requirement should
+  // show that result again rather than always forcing a retake — this is the
+  // only way back to a past pre-test/post-test result in the app.
+  const preTestTo = preTestBest ? `/pre-course/results/${preTestBest.autoId}` : '/pre-course/pre-test';
+  const postTestTo = postTestBest ? `/pre-course/results/${postTestBest.autoId}` : '/pre-course/post-test';
+
   const requirements = IS_BLS
     ? [
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: '/pre-course/post-test' },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
       ]
     : [
-        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: '/pre-course/pre-test' },
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: '/pre-course/post-test' },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
         { label: `ผ่าน EKG test ≥ ${EKG_TEST_PASS_PERCENT}%`, done: ekgTestDone, Icon: Activity, to: '/als?tab=ekg' },
         ...(videoGateActive
           ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
@@ -203,7 +210,13 @@ export default function Certification() {
     track('cert_download', {
       props: { source: 'cert_card', course: IS_BLS ? 'bls' : 'acls' },
     });
-    await exportCertificatePDF({ cert: certData, certConfig });
+    setDownloadError('');
+    try {
+      await exportCertificatePDF({ cert: certData, certConfig });
+    } catch (err) {
+      console.error('cert PDF export failed:', err);
+      setDownloadError('ดาวน์โหลดใบประกาศนียบัตรไม่สำเร็จ ลองใหม่อีกครั้ง หรือเปิดผ่านเบราว์เซอร์ปกติ (ไม่ใช่ในแอป LINE)');
+    }
   };
 
   const issuedDate = certData.completedAt ? new Date(certData.completedAt) : null;
@@ -451,9 +464,17 @@ export default function Certification() {
             </div>
           )}
           {lineUnlocked ? (
-            <button onClick={downloadPDF} className="btn btn-info btn-block mt-3">
-              <Download size={16} strokeWidth={2.4} /> Download PDF Certificate
-            </button>
+            <>
+              <button onClick={downloadPDF} className="btn btn-info btn-block mt-3">
+                <Download size={16} strokeWidth={2.4} /> Download PDF Certificate
+              </button>
+              {downloadError && (
+                <div className="bg-danger/8 border border-danger/30 p-2 text-caption text-danger inline-flex items-center gap-2 w-full"
+                  style={{ borderRadius: 'var(--radius-md)' }}>
+                  <AlertCircle size={14} strokeWidth={2.2} /> {downloadError}
+                </div>
+              )}
+            </>
           ) : (
             <div className="dash-card !p-4 mt-3 !bg-success/5 border border-success/30 space-y-3 text-left">
               <div className="flex items-start gap-2">
