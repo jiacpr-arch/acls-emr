@@ -36,7 +36,33 @@ async function loadImage(url) {
 // Renders a landscape A4 certificate using the embedded Sarabun font so Thai
 // student names (and any Thai config text) render correctly. The HTML view in
 // Certification.jsx is the on-screen version; this PDF is the printable artifact.
-export async function exportCertificatePDF({ cert, certConfig }) {
+// ตราทอง "MEGACODE MASTER" — วาดเป็น vector เพราะฟอนต์ฝังไม่มี emoji
+// วางมุมขวาเหนือลายเซ็น ขนาดเล็กพอไม่แย่งความเป็นทางการของใบ
+function drawMegacodeSeal(doc, cx, cy) {
+  const GOLD = [242, 193, 78];
+  const GOLD_DARK = [176, 127, 24];
+  const INK = [110, 70, 10];
+  doc.setFillColor(...GOLD);
+  doc.setDrawColor(...GOLD_DARK);
+  doc.setLineWidth(0.9);
+  doc.circle(cx, cy, 14, 'FD');
+  doc.setLineWidth(0.35);
+  doc.circle(cx, cy, 11.5, 'D');
+  doc.setTextColor(...INK);
+  doc.setFont(PDF_FONT, 'normal');
+  doc.setFontSize(4.6);
+  doc.text('CODE BLUE SIM', cx, cy - 5.2, { align: 'center' });
+  doc.setFont(PDF_FONT, 'bold');
+  doc.setFontSize(6.4);
+  doc.text('MEGACODE', cx, cy - 0.6, { align: 'center' });
+  doc.text('MASTER', cx, cy + 3.4, { align: 'center' });
+  doc.setFont(PDF_FONT, 'normal');
+  doc.setFontSize(4.6);
+  doc.text('ALL CASES CLEARED', cx, cy + 7.6, { align: 'center' });
+}
+
+// sim (optional): { clearedCount, gradeS, megacodeMaster } จาก simCertHighlights()
+export async function exportCertificatePDF({ cert, certConfig, sim }) {
   const doc = new jsPDF('l', 'mm', 'a4');
   doc.setFont(PDF_FONT, 'normal');
   const pw = doc.internal.pageSize.getWidth();   // 297
@@ -125,18 +151,35 @@ export async function exportCertificatePDF({ cert, certConfig }) {
   if (cert.preTestScore != null) scoreParts.push(`Pre-test ${cert.preTestScore}%`);
   if (cert.postTestScore != null) scoreParts.push(`Post-test ${cert.postTestScore}%`);
   if (cert.ekgPassed) scoreParts.push('EKG test passed');
+  // แถวข้อมูลใต้วันที่วางต่อกันลงมา (เดิม fix 152/159) — ใช้ cursor เพราะบรรทัด
+  // Code Blue Sim โผล่เฉพาะคนที่เคยผ่านเคส ใบของคนอื่นต้อง layout เดิมเป๊ะ
+  let infoY = 152;
   if (scoreParts.length) {
     doc.setFontSize(10);
     doc.setTextColor(40);
-    doc.text(scoreParts.join('     '), pw / 2, 152, { align: 'center' });
+    doc.text(scoreParts.join('     '), pw / 2, infoY, { align: 'center' });
+    infoY += 7;
+  }
+
+  // Code Blue Sim highlights — เฉพาะเมื่อมีผลงานจริง
+  if (sim?.clearedCount) {
+    const simParts = [`Code Blue Simulation: ${sim.clearedCount} case${sim.clearedCount > 1 ? 's' : ''} cleared`];
+    if (sim.gradeS > 0) simParts.push(`Grade S x${sim.gradeS}`);
+    doc.setFontSize(9);
+    doc.setTextColor(40);
+    doc.text(simParts.join('  ·  '), pw / 2, infoY, { align: 'center' });
+    infoY += 7;
   }
 
   // Practical-training recommendation (Thai) for online theory certificates.
   if (certConfig.theoryOnly && certConfig.practicalRecommendation) {
     doc.setFontSize(9);
     doc.setTextColor(120);
-    doc.text(S(certConfig.practicalRecommendation), pw / 2, 159, { align: 'center' });
+    doc.text(S(certConfig.practicalRecommendation), pw / 2, infoY, { align: 'center' });
   }
+
+  // ตรา Megacode Master มุมขวา (เหนือแนวลายเซ็น ไม่ทับ)
+  if (sim?.megacodeMaster) drawMegacodeSeal(doc, pw - 38, 150);
 
   // Signature lines
   const sigY = ph - 40;

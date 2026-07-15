@@ -104,6 +104,18 @@ export function computeStats(pool, clearedIds, grades) {
 }
 
 // ── เหรียญ sticky (เคยได้แล้วไม่หลุด) ─────────────────────────────────
+// สรุปผลงาน Code Blue Sim สำหรับแปะบนใบ certificate — คืน null เมื่อยังไม่เคยผ่าน
+// สักเคส (ใบ cert ของคนไม่เล่น sim ต้องหน้าตาเหมือนเดิมทุกประการ)
+// หมายเหตุ: key เดียวกับ CLEARED_KEY ใน CodeBlueSim.jsx
+export function simCertHighlights() {
+  let clearedCount = 0;
+  try { clearedCount = (JSON.parse(localStorage.getItem('acls_codeblue_cleared')) || []).length; }
+  catch { /* ignore */ }
+  if (!clearedCount) return null;
+  const gradeS = Object.values(readGrades()).filter((g) => g.grade === 'S').length;
+  return { clearedCount, gradeS, megacodeMaster: readAwards().has('megacode_all') };
+}
+
 export function readAwards() {
   try { return new Set(JSON.parse(localStorage.getItem(AWARDS_KEY)) || []); }
   catch { return new Set(); }

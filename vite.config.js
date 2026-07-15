@@ -50,7 +50,7 @@ export default defineConfig({
       manifest,
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}'],
-        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
     })
   ],
