@@ -356,6 +356,120 @@ export const scenarios = [
   },
 
   {
+    id: 'inter_stroke_01',
+    title: 'Hemorrhagic Stroke — Intermediate',
+    title_th: 'Stroke — เลือดออกในสมอง (Intermediate)',
+    level: 'inter',
+    category: 'stroke',
+    description_th: 'หญิง 72 ปี HT ไม่คุมยา ปวดหัวรุนแรงฉับพลัน แขนขาซ้ายอ่อนแรง',
+    steps: [
+      {
+        trigger: 'initial',
+        scenario_th: 'หญิง 72 ปี HT ไม่ได้กินยาสม่ำเสมอ\nปวดหัวรุนแรงฉับพลัน + อาเจียน + แขนขาซ้ายอ่อนแรง เมื่อ 45 นาทีก่อน\nBP 210/120 HR 92 GCS 13 (E3V4M6)',
+        vitals: { hr: 92, bp: '210/120', spo2: 96 },
+        correctActions: ['fast_assessment'],
+        hint_th: 'ปวดหัวรุนแรงฉับพลัน + BP สูงมาก → นึกถึง Hemorrhagic stroke ไว้ก่อน แต่ยังต้อง FAST assessment',
+      },
+      {
+        trigger: 'after_fast',
+        scenario_th: 'FAST: หน้าเบี้ยวซ้าย + แขนซ้ายตก + พูดอ้อแอ้\nOnset 45 นาที (within window)\nDTX 110 mg/dL (ไม่ใช่ hypoglycemia)',
+        correctActions: ['nihss', 'ct_brain'],
+        hint_th: 'DTX ปกติ → NIHSS + CT Brain ด่วน (BP สูงมากแบบนี้ต้องระวัง ICH)',
+      },
+      {
+        trigger: 'after_ct',
+        scenario_th: 'NIHSS = 18 (Severe)\nCT Brain: Intracerebral hemorrhage บริเวณ basal ganglia ขนาด 3 ซม. → Hemorrhagic stroke!',
+        correctActions: ['tpa_criteria'],
+        hint_th: 'ต้อง check tPA criteria เสมอ → พบ CT มีเลือดออก = absolute contraindication → ห้ามให้ tPA เด็ดขาด',
+      },
+      {
+        trigger: 'after_exclude_tpa',
+        scenario_th: 'ยืนยัน Hemorrhagic stroke → ไม่ให้ tPA/antiplatelet\nปรึกษา Neurosurgery ด่วน + เป้า BP <140-160 systolic (Nicardipine drip)',
+        correctActions: ['monitor'],
+        hint_th: 'Hemorrhagic stroke → Neurosurgery consult + ควบคุม BP อย่างระมัดระวัง + Monitor GCS ใกล้ชิด (ระวัง herniation)',
+      },
+    ],
+  },
+
+  {
+    id: 'inter_stroke_02',
+    title: 'Stroke Mimic — Hypoglycemia',
+    title_th: 'Stroke Mimic — ภาวะน้ำตาลต่ำ (Intermediate)',
+    level: 'inter',
+    category: 'stroke',
+    description_th: 'ชาย 58 ปี DM กินยาเบาหวาน อ่อนแรงซีกขวาเฉียบพลัน',
+    steps: [
+      {
+        trigger: 'initial',
+        scenario_th: 'ชาย 58 ปี DM type 2 กิน Glibenclamide\nลูกพบพูดไม่รู้เรื่อง + แขนขวาอ่อนแรง เมื่อ 20 นาทีก่อน หลังอดอาหารมื้อเช้า\nBP 130/80 HR 102 SpO₂ 98% เหงื่อแตกท่วมตัว',
+        vitals: { hr: 102, bp: '130/80', spo2: 98 },
+        correctActions: ['fast_assessment'],
+        hint_th: 'อาการคล้าย stroke แต่มีเหงื่อแตก + DM + อดอาหาร → ต้องคิดถึง stroke mimic ด้วย เริ่มจาก FAST',
+      },
+      {
+        trigger: 'after_fast',
+        scenario_th: 'FAST: พูดสับสน + แขนขวาอ่อนแรงเล็กน้อย\nก่อนส่ง CT → เช็ค DTX ทุกรายที่สงสัย stroke\nDTX = 42 mg/dL → Hypoglycemia!',
+        correctActions: ['nihss'],
+        hint_th: 'DTX ต่ำมาก (42) → นี่คือ Stroke mimic จาก Hypoglycemia ไม่ใช่ ischemic stroke จริง — ห้ามรีบส่ง CT/tPA ก่อนแก้ไข',
+      },
+      {
+        trigger: 'after_glucose_correct',
+        scenario_th: 'ให้ 50% Glucose 50 mL IV push\n10 นาทีต่อมา: DTX = 110 mg/dL อาการอ่อนแรงหายไปหมด พูดชัดเจนปกติ',
+        correctActions: ['ct_brain'],
+        hint_th: 'อาการหายสนิทหลังแก้ hypoglycemia = ยืนยัน stroke mimic แต่ยังควร CT Brain confirm ว่าไม่มี structural lesion ซ่อนอยู่',
+      },
+      {
+        trigger: 'after_ct_normal',
+        scenario_th: 'CT Brain: ปกติ ไม่มี infarct/hemorrhage\nสรุป: Hypoglycemia-induced focal neuro deficit (stroke mimic)\nวางแผนปรับยาเบาหวาน + ให้ความรู้ป้องกัน hypoglycemia',
+        correctActions: ['monitor'],
+        hint_th: 'Stroke mimic ยืนยันแล้ว → Monitor DTX ต่อเนื่อง + ทบทวนยา Glibenclamide + ไม่ต้องให้ tPA',
+      },
+    ],
+  },
+
+  {
+    id: 'mega_stroke_01',
+    title: 'Large Vessel Occlusion — Advanced',
+    title_th: 'Stroke — Large Vessel Occlusion (Advanced)',
+    level: 'mega',
+    category: 'stroke',
+    description_th: 'หญิง 70 ปี ตื่นมาพบอ่อนแรงครึ่งซีก ไม่ทราบเวลาที่เริ่มเป็น (Wake-up stroke)',
+    steps: [
+      {
+        trigger: 'initial',
+        scenario_th: 'หญิง 70 ปี AF on Warfarin (INR ไม่ทราบ)\nสามีตื่นมา 06:00 พบพูดไม่ได้ + แขนขาซ้ายอ่อนแรงสนิท เข้านอนปกติ 22:00 (last known well)\nBP 168/92 HR 96 irregular SpO₂ 95%',
+        vitals: { hr: 96, bp: '168/92', spo2: 95 },
+        correctActions: ['fast_assessment'],
+        hint_th: 'Wake-up stroke: last known well 22:00 → เกิน window 4.5hr แน่นอน แต่ยังต้อง FAST + ประเมินต่อ (อาจเข้าเกณฑ์ thrombectomy)',
+      },
+      {
+        trigger: 'after_fast',
+        scenario_th: 'FAST: หน้าเบี้ยวซ้าย + แขนขาซ้ายอ่อนแรงสนิท (0/5) + Gaze deviation ไปทางขวา + Neglect\nDTX 128 mg/dL\nอาการรุนแรงเข้าได้กับ large vessel involvement',
+        correctActions: ['nihss', 'ct_brain'],
+        hint_th: 'อาการรุนแรง + gaze deviation + neglect = สงสัย Large Vessel Occlusion (LVO) → NIHSS + CT Brain/CTA ด่วน',
+      },
+      {
+        trigger: 'after_ct',
+        scenario_th: 'NIHSS = 22 (Severe)\nCT Brain: ไม่มี hemorrhage, ไม่มี early infarct signs ชัดเจน (ASPECTS 9)\nCTA: M1 segment occlusion ฝั่งขวา → LVO ยืนยัน',
+        correctActions: ['tpa_criteria'],
+        hint_th: 'Onset ไม่ทราบแน่ชัด (>4.5hr จาก last known well) → tPA ไม่เข้าเกณฑ์ตาม time window มาตรฐาน แต่ LVO + ASPECTS ดี → พิจารณา Mechanical thrombectomy (เกณฑ์ขยายได้ถึง 24hr ถ้า imaging เข้าได้)',
+      },
+      {
+        trigger: 'after_ega',
+        scenario_th: 'On Warfarin + INR pending → ยิ่งเพิ่มความเสี่ยง หากให้ tPA (ต้องรอ INR ก่อนเสมอ)\nปรึกษา Interventional neuroradiology ด่วน → เตรียมส่ง Thrombectomy ทันที',
+        correctActions: ['activate_cath'],
+        hint_th: 'On anticoagulant + LVO นอก window มาตรฐาน → เส้นทางคือ Mechanical thrombectomy ไม่ใช่ tPA — Activate ทีม intervention ทันที (D2P เป้าหมาย <90 นาที)',
+      },
+      {
+        trigger: 'after_thrombectomy',
+        scenario_th: 'Thrombectomy สำเร็จ TICI 3 (complete reperfusion)\nหลังทำ: อาการอ่อนแรงดีขึ้นชัดเจน NIHSS ลดเหลือ 6',
+        correctActions: ['monitor'],
+        hint_th: 'Post-thrombectomy → Monitor BP เข้มงวด (เป้า <180/105) + Neuro check q15-30min + ICU admission ระวัง reperfusion hemorrhage',
+      },
+    ],
+  },
+
+  {
     id: 'basic_mi_01',
     title: 'STEMI — Basic',
     title_th: 'STEMI — พื้นฐาน',
