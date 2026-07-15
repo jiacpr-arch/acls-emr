@@ -8,7 +8,8 @@ import CharacterSprite from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
 import {
   createInitialState, applyFx, nextNode, recordCorrect, recordWrong,
-  gradeFor, fmtTime, shuffled, getDifficulty, pushEtco2, DIFFICULTY, DEFAULT_DIFFICULTY,
+  gradeFor, fmtTime, shuffled, getDifficulty, pushEtco2, wasArrest, correctCount,
+  DIFFICULTY, DEFAULT_DIFFICULTY,
 } from '../game/storyEngine';
 import {
   initAudio, playShockSound, playROSCSound, playWarningBeep,
@@ -54,10 +55,20 @@ function readPreviewScenario() {
   } catch { return null; }
 }
 
-// ปลดล็อกเคส: เคส basic เล่นได้เสมอ; เคสที่ยากกว่าต้องผ่าน basic อย่างน้อย 1 เคสก่อน
+// จำนวนเคส basic ที่ต้องผ่านก่อนปลดล็อกเคส tier ที่สูงกว่า (megacode)
+const BASIC_TO_UNLOCK = 3;
+
+const isBasic = (s) => (LEVEL_META[s.level]?.order || 0) === 0;
+
+// จำนวนเคส basic (ในคลังปัจจุบัน) ที่ผู้เล่นผ่านแล้ว
+function clearedBasicCount(cleared, pool) {
+  return pool.filter((s) => isBasic(s) && cleared.has(s.id)).length;
+}
+
+// ปลดล็อกเคส: basic เล่นได้เสมอ; tier ที่สูงกว่าต้องผ่าน basic ครบเกณฑ์ก่อน (ค่อยๆ ไต่ระดับ)
 function isUnlocked(sc, cleared, pool) {
-  if ((LEVEL_META[sc.level]?.order || 0) === 0) return true;
-  return pool.some((s) => (LEVEL_META[s.level]?.order || 0) === 0 && cleared.has(s.id));
+  if (isBasic(sc)) return true;
+  return clearedBasicCount(cleared, pool) >= BASIC_TO_UNLOCK;
 }
 
 export default function CodeBlueSim() {
@@ -85,6 +96,8 @@ export default function CodeBlueSim() {
   const [sc, setSc] = useState(initialPool[0]);
   const [cleared, setCleared] = useState(readCleared);
   const [screen, setScreen] = useState(initialPool.length > 1 ? 'select' : 'title'); // select | title | game | debrief
+  const [selectFilter, setSelectFilter] = useState('all'); // all | <level id>
+  const [quitMenu, setQuitMenu] = useState(false); // เมนูออก/เล่นใหม่ ระหว่างเล่น
 
   const [charsReady, setCharsReady] = useState(false);
   useEffect(() => {
@@ -438,6 +451,7 @@ export default function CodeBlueSim() {
 
   function startGame() {
     clearAllTimers();
+    setQuitMenu(false);
     if (!mutedRef.current) initAudio(); // ปลดล็อก AudioContext ตอนผู้ใช้แตะปุ่ม
     S.current = createInitialState(difficulty);
     syncView();
@@ -467,6 +481,7 @@ export default function CodeBlueSim() {
   function backToSelect() {
     clearAllTimers();
     stopMetronome();
+    setQuitMenu(false);
     if (pool.length > 1) setScreen('select');
     else navigate('/');
   }
@@ -488,32 +503,77 @@ export default function CodeBlueSim() {
 
   // ============ CASE SELECT ============
   if (screen === 'select') {
+    // จัดกลุ่มตาม level (เรียงตาม order) เพื่อไม่ให้ 20+ เคสเป็น list ยาวเส้นเดียว
+    const levelsInPool = [...new Set(pool.map((c) => c.level))]
+      .sort((a, b) => (LEVEL_META[a]?.order || 0) - (LEVEL_META[b]?.order || 0));
+    const shownLevels = selectFilter === 'all' ? levelsInPool : levelsInPool.filter((l) => l === selectFilter);
+    const basicNeeded = Math.max(0, BASIC_TO_UNLOCK - clearedBasicCount(cleared, pool));
+
+    const renderCase = (c) => {
+      const unlocked = isUnlocked(c, cleared, pool);
+      const done = cleared.has(c.id);
+      return (
+        <button
+          key={c.id}
+          type="button"
+          className={`cbs-case ${unlocked ? '' : 'cbs-case-locked'}`}
+          onClick={() => unlocked && pickScenario(c)}
+          disabled={!unlocked}
+        >
+          <div className="cbs-case-top">
+            <span className={`cbs-case-level cbs-lvl-${c.level}`}>{LEVEL_META[c.level]?.label || c.level}</span>
+            {done && <span className="cbs-case-done">✓ ผ่านแล้ว</span>}
+            {!unlocked && <span className="cbs-case-lock">🔒 ผ่านพื้นฐานอีก {basicNeeded} เคส</span>}
+          </div>
+          <div className="cbs-case-name">{c.title}</div>
+          <div className="cbs-case-desc">{c.subtitle}</div>
+        </button>
+      );
+    };
+
     return (
       <div className="cbs-app">
         <section className="cbs-select">
           <div className="cbs-eyebrow">Code Blue · เลือกเคส</div>
           <h1 className="cbs-select-title"><span className="cbs-gold-text">CODE BLUE</span> ภารกิจกู้ชีพ</h1>
           <p className="cbs-select-sub">เลือกสถานการณ์ที่จะฝึก — เคสที่ยากกว่าปลดล็อกเมื่อผ่านเคสพื้นฐาน</p>
-          <div className="cbs-case-list">
-            {pool.map((c) => {
-              const unlocked = isUnlocked(c, cleared, pool);
-              const done = cleared.has(c.id);
-              return (
+          {levelsInPool.length > 1 && (
+            <div className="cbs-select-tabs" role="group" aria-label="กรองตามระดับ">
+              <button
+                type="button"
+                className={`cbs-tab ${selectFilter === 'all' ? 'cbs-tab-on' : ''}`}
+                onClick={() => setSelectFilter('all')}
+                aria-pressed={selectFilter === 'all'}
+              >
+                ทั้งหมด
+              </button>
+              {levelsInPool.map((lv) => (
                 <button
-                  key={c.id}
+                  key={lv}
                   type="button"
-                  className={`cbs-case ${unlocked ? '' : 'cbs-case-locked'}`}
-                  onClick={() => unlocked && pickScenario(c)}
-                  disabled={!unlocked}
+                  className={`cbs-tab ${selectFilter === lv ? 'cbs-tab-on' : ''}`}
+                  onClick={() => setSelectFilter(lv)}
+                  aria-pressed={selectFilter === lv}
                 >
-                  <div className="cbs-case-top">
-                    <span className={`cbs-case-level cbs-lvl-${c.level}`}>{LEVEL_META[c.level]?.label || c.level}</span>
-                    {done && <span className="cbs-case-done">✓ ผ่านแล้ว</span>}
-                    {!unlocked && <span className="cbs-case-lock">🔒 ล็อก</span>}
-                  </div>
-                  <div className="cbs-case-name">{c.title}</div>
-                  <div className="cbs-case-desc">{c.subtitle}</div>
+                  {LEVEL_META[lv]?.label || lv}
                 </button>
+              ))}
+            </div>
+          )}
+          <div className="cbs-case-groups">
+            {shownLevels.map((lv) => {
+              const cases = pool.filter((c) => c.level === lv);
+              const doneCount = cases.filter((c) => cleared.has(c.id)).length;
+              return (
+                <div key={lv} className="cbs-case-group">
+                  <div className="cbs-group-head">
+                    <span className={`cbs-case-level cbs-lvl-${lv}`}>{LEVEL_META[lv]?.label || lv}</span>
+                    <span className="cbs-group-prog">ผ่าน {doneCount}/{cases.length}</span>
+                  </div>
+                  <div className="cbs-case-list">
+                    {cases.map(renderCase)}
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -584,17 +644,24 @@ export default function CodeBlueSim() {
   // ============ DEBRIEF ============
   if (screen === 'debrief' && result) {
     const st = view;
+    const arrest = wasArrest(st);
+    // ป้าย/ข้อความผลลัพธ์: เคส arrest → ROSC (เดิม), เคสไม่ arrest → พ้นวิกฤต
+    // scenario ตั้ง sc.outcome:{stamp,win} มา override ได้ (เช่น เคสส่งเวร/ACS)
+    const winStamp = result.won ? (sc.outcome?.stamp || (arrest ? 'ROSC!' : 'พ้นวิกฤต!')) : 'CODE ENDED';
+    const winSub = result.won
+      ? (sc.outcome?.win || (arrest
+        ? 'ผู้ป่วยกลับมามีชีพจร — เคสนี้เป็นของคุณ'
+        : 'ผู้ป่วยพ้นภาวะวิกฤต — อ่าน debrief ด้านล่างเพื่อฝึกให้แม่นขึ้น'))
+      : 'ผู้ป่วยเสียชีวิต — อ่าน debrief ด้านล่าง แล้วกลับมาแก้มือ';
     return (
       <div className="cbs-app">
         <section className={`cbs-debrief ${result.won ? 'cbs-winbg' : 'cbs-losebg'}`}>
           <div className={`cbs-stamp ${result.won ? 'cbs-win' : 'cbs-lose'}`}>
-            {result.won ? 'ROSC!' : 'CODE ENDED'}
+            {winStamp}
           </div>
           <div className="cbs-diff-badge">โหมด {getDifficulty(st.difficulty).label}</div>
           <p className="cbs-verdict-sub">
-            {result.won
-              ? 'ผู้ป่วยกลับมามีชีพจร — ส่งต่อ Cath lab เคสนี้เป็นของคุณ'
-              : 'ผู้ป่วยเสียชีวิต — อ่าน debrief ด้านล่าง แล้วกลับมาแก้มือ'}
+            {winSub}
             {result.isHiscore && <><br />🏆 New Hi-Score: {result.score}</>}
           </p>
           <div className="cbs-grade-row">
@@ -603,16 +670,22 @@ export default function CodeBlueSim() {
               <span className="cbs-grade-label">GRADE</span>
             </div>
             <div className="cbs-metric-grid">
-              <Metric label="เริ่ม CPR ภายใน" value={st.firstCPRAt >= 0 ? fmtTime(st.firstCPRAt) : '—'}
-                tone={st.firstCPRAt >= 0 && st.firstCPRAt <= 90 ? 'good' : 'warn'} />
-              <Metric label="Shock แรกภายใน" value={st.firstShockAt >= 0 ? fmtTime(st.firstShockAt) : '—'}
-                tone={st.firstShockAt >= 0 && st.firstShockAt <= 300 ? 'good' : 'warn'} />
+              <Metric label="ตัดสินใจถูก" value={String(correctCount(st))} tone="good" />
               <Metric label="ตัดสินใจพลาด" value={String(st.wrong)}
                 tone={st.wrong === 0 ? 'good' : st.wrong <= 2 ? 'warn' : 'badv'} />
+              {/* เมตริกเฉพาะเคส arrest — โชว์เฉพาะเมื่อเกิดจริง ไม่ขึ้น "—" ในเคสที่ไม่เกี่ยวข้อง */}
+              {st.firstCPRAt >= 0 && (
+                <Metric label="เริ่ม CPR ภายใน" value={fmtTime(st.firstCPRAt)}
+                  tone={st.firstCPRAt <= 90 ? 'good' : 'warn'} />
+              )}
+              {st.firstShockAt >= 0 && (
+                <Metric label="Shock แรกภายใน" value={fmtTime(st.firstShockAt)}
+                  tone={st.firstShockAt <= 300 ? 'good' : 'warn'} />
+              )}
               <Metric label="เวลาทั้งเคส" value={fmtTime(st.simTime)} tone="" />
             </div>
           </div>
-          {st.etco2Trace.length > 1 && (
+          {arrest && st.etco2Trace.length > 1 && (
             <div className="cbs-etco2">
               <div className="cbs-tl-title">EtCO₂ — คุณภาพ CPR ตลอดเคส</div>
               <Etco2Sparkline trace={st.etco2Trace} />
@@ -689,6 +762,18 @@ export default function CodeBlueSim() {
             </div>
           </div>
 
+          {/* ปุ่มเมนูระหว่างเล่น — ซ่อนตอนกำลังเลือก (choices overlay) กันกดพลาด */}
+          {!choice && (
+            <button
+              type="button"
+              className="cbs-menu-btn"
+              onClick={() => setQuitMenu(true)}
+              aria-label="เมนู"
+            >
+              ☰
+            </button>
+          )}
+
           {speaker && (
             <div className={`cbs-sprite ${reducedMotion ? '' : 'cbs-pop'}`} key={`sp-${speaker.popN}-${charsReady}`}>
               <CharacterSprite charId={speaker.who} pose={speaker.pose} talking={typing} />
@@ -749,6 +834,25 @@ export default function CodeBlueSim() {
           </div>
         </div>
       </section>
+
+      {quitMenu && (
+        <div className="cbs-quit" role="dialog" aria-label="เมนูระหว่างเล่น">
+          <div className="cbs-quit-card">
+            <div className="cbs-quit-title">หยุดพักเคสนี้</div>
+            <button type="button" className="cbs-btn-main cbs-quit-resume" onClick={() => setQuitMenu(false)}>
+              เล่นต่อ
+            </button>
+            <button type="button" className="cbs-btn-ghost" onClick={startGame}>
+              <RefreshCw size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
+              เริ่มเคสนี้ใหม่
+            </button>
+            <button type="button" className="cbs-btn-ghost" onClick={backToSelect}>
+              {pool.length > 1 ? 'ออกไปเลือกเคสอื่น' : 'ออกไปหน้าแรก'}
+            </button>
+            <div className="cbs-quit-note">ออกกลางเคส = เคสนี้ไม่ถูกบันทึกผล</div>
+          </div>
+        </div>
+      )}
 
       {inter && (
         <div className="cbs-inter">
