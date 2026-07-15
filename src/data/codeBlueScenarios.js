@@ -40,6 +40,10 @@ import { fbObstruction } from './scenarios/fbObstruction';
 import { alcoholHypo } from './scenarios/alcoholHypo';
 import { aaaRupture } from './scenarios/aaaRupture';
 import { preeclampsia } from './scenarios/preeclampsia';
+import { tensionPneumo } from './scenarios/tensionPneumo';
+import { tamponade } from './scenarios/tamponade';
+import { pulmonaryEmbolism } from './scenarios/pulmonaryEmbolism';
+import { hypothermiaVf } from './scenarios/hypothermiaVf';
 import { bradyOverdose } from './scenarios/bradyOverdose';
 import { completeHeartBlock } from './scenarios/completeHeartBlock';
 import { mobitz2Vf } from './scenarios/mobitz2Vf';
@@ -74,6 +78,11 @@ const allScenarios = [
   alcoholHypo,
   aaaRupture,
   preeclampsia,
+  // เติมเต็ม H's & T's ที่ยังขาด: tension pneumo / tamponade / PE / hypothermia
+  tensionPneumo,
+  tamponade,
+  pulmonaryEmbolism,
+  hypothermiaVf,
   // brady / tachy / peri-arrest
   bradyOverdose,
   completeHeartBlock,
