@@ -20,7 +20,7 @@ export const bradyOverdose = {
           {
             tgt: 'MONITOR', label: 'ติด monitor + วัดสัญญาณชีพ + คลำชีพจร ประเมินว่ายังมีชีพจรไหม', ok: true,
             then: [
-              { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้นแล้วค่ะ… <span class="cbs-em">Sinus bradycardia rate 24/min</span> แต่ยัง<span class="cbs-em">คลำชีพจรได้</span> BP 70/40 ซึมมาก' }, t: 8, fx: { rhythm: 'nsr' } },
+              { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้นแล้วค่ะ… <span class="cbs-em">Sinus bradycardia rate 24/min</span> แต่ยัง<span class="cbs-em">คลำชีพจรได้</span> BP 70/40 ซึมมาก' }, t: 8, fx: { rhythm: 'brady' } },
               { inter: 'UNSTABLE BRADYCARDIA!', drama: 'red', t: 4 },
             ],
           },
@@ -53,7 +53,7 @@ export const bradyOverdose = {
           {
             tgt: 'DEFIB', label: 'Transcutaneous pacing ทันที + ให้ยาระงับความเจ็บ/sedation', ok: true,
             then: [
-              { say: { who: 'fon_defib', pose: 'talk', text: 'แปะ pacing pads… <span class="cbs-em">capture ได้ที่ 70/min</span> ชีพจรเริ่มดีขึ้น ให้ sedation คุมความเจ็บแล้วค่ะ' }, t: 8 },
+              { say: { who: 'fon_defib', pose: 'talk', text: 'แปะ pacing pads… <span class="cbs-em">capture ได้ที่ 70/min</span> ชีพจรเริ่มดีขึ้น ให้ sedation คุมความเจ็บแล้วค่ะ' }, t: 8, fx: { rhythm: 'pacing' } },
               { say: { who: 'att_dech', pose: 'stern', text: 'pacing แค่ประคอง… <span class="cbs-em">อย่าลืมว่าต้นเหตุคือยาพิษ</span> ต้องแก้ที่ตัวยา' }, t: 4 },
             ],
           },

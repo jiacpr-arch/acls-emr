@@ -22,7 +22,7 @@ export const completeHeartBlock = {
             tgt: 'YOU', label: 'ประเมิน ABC + ติด monitor + เปิด IV + ให้ O₂ + 12-lead', ok: true,
             then: [
               { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้นแล้วค่ะ… <span class="cbs-em">P wave กับ QRS เดินคนละจังหวะ ไม่สัมพันธ์กันเลย</span>' }, t: 8 },
-              { inter: 'COMPLETE AV BLOCK!', drama: 'red', t: 4 },
+              { inter: 'COMPLETE AV BLOCK!', drama: 'red', t: 4, fx: { rhythm: 'brady' } },
               { say: { who: 'att_dech', pose: 'stern', text: '3rd degree AV block — HR 30, ความดันตก, หน้ามืด นี่คือ <span class="cbs-em">unstable bradycardia</span> ที่มีอาการ' }, t: 5 },
             ],
           },
@@ -70,7 +70,7 @@ export const completeHeartBlock = {
           {
             tgt: 'DEFIB', label: 'ค่อยๆ เพิ่ม output (mA) จนเห็น electrical capture แล้วคลำชีพจรยืนยัน mechanical capture', ok: true,
             then: [
-              { say: { who: 'fon_defib', pose: 'talk', text: 'เพิ่ม mA ขึ้นเรื่อยๆ… 80… 90… <span class="cbs-em">ที่ 100 mA! ทุก spike ตามด้วย QRS กว้าง และคลำชีพจรได้ตรงจังหวะ!</span>' }, t: 8 },
+              { say: { who: 'fon_defib', pose: 'talk', text: 'เพิ่ม mA ขึ้นเรื่อยๆ… 80… 90… <span class="cbs-em">ที่ 100 mA! ทุก spike ตามด้วย QRS กว้าง และคลำชีพจรได้ตรงจังหวะ!</span>' }, t: 8, fx: { rhythm: 'pacing' } },
               { say: { who: 'att_dech', pose: 'stern', text: 'นั่นคือ capture จริง — <span class="cbs-em">electrical + mechanical</span> ความดันเริ่มขึ้นแล้ว' }, t: 4 },
             ],
           },
@@ -95,7 +95,7 @@ export const completeHeartBlock = {
       },
     },
     { say: { who: 'fon_defib', pose: 'panic', text: 'อาจารย์! จอเปลี่ยนกะทันหัน! <span class="cbs-em">QRS กว้างเร็วสม่ำเสมอ HR 180</span> — ยังคลำชีพจรได้แต่ความดัน 50/30 ค่ะ!' }, t: 6 },
-    { inter: 'UNSTABLE VT — มีชีพจร!', drama: 'red', t: 4 },
+    { inter: 'UNSTABLE VT — มีชีพจร!', drama: 'red', t: 4, fx: { rhythm: 'tachy' } },
     { say: { who: 'att_dech', pose: 'stern', text: 'เปลี่ยนเกมแล้ว — คราวนี้ <span class="cbs-em">unstable tachycardia ที่ยังมีชีพจร</span> คนละอย่างกับตอนช้า อย่าสับสน' }, t: 5 },
     {
       choice: {
@@ -128,7 +128,7 @@ export const completeHeartBlock = {
         ],
       },
     },
-    { say: { who: 'fon_defib', pose: 'happy', text: 'จอกลับมาแล้วค่ะ! <span class="cbs-em">Normal sinus rhythm</span> — P นำ QRS สัมพันธ์กันดี HR 100 ความดัน 110/70!' }, t: 6 },
+    { say: { who: 'fon_defib', pose: 'happy', text: 'จอกลับมาแล้วค่ะ! <span class="cbs-em">Normal sinus rhythm</span> — P นำ QRS สัมพันธ์กันดี HR 100 ความดัน 110/70!' }, t: 6, fx: { rhythm: 'nsr' } },
     {
       choice: {
         q: 'จังหวะกลับมาปกติแล้ว — ทำอะไรต่อ',

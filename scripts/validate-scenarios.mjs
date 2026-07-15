@@ -5,7 +5,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 const VALID_WHO = new Set(['nurse_mint', 'boy_compressor', 'fon_defib', 'att_dech']);
 const VALID_POSE = new Set(['idle', 'talk', 'panic', 'stern', 'happy']);
 const VALID_TGT = new Set(['YOU', 'CPR', 'DRUG', 'DEFIB', 'AIRWAY', 'MONITOR']);
-const VALID_RHYTHM = new Set(['flat', 'vf', 'nsr']);
+const VALID_RHYTHM = new Set(['flat', 'vf', 'nsr', 'brady', 'pacing', 'tachy']);
 const VALID_FX = new Set(['alarm', 'cpr', 'rhythm', 'firstCPR', 'epi', 'shock', 'rosc']);
 
 const dir = new URL('../src/data/scenarios/', import.meta.url);

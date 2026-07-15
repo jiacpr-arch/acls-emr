@@ -83,7 +83,7 @@ export const pvtHandover = {
         ],
       },
     },
-    { inter: 'จังหวะเปลี่ยน — MONITOR!', drama: 'red', t: 4, fx: { rhythm: 'nsr' } },
+    { inter: 'จังหวะเปลี่ยน — MONITOR!', drama: 'red', t: 4, fx: { rhythm: 'brady' } },
     {
       choice: {
         q: 'จอเปลี่ยนเป็นจังหวะเป็นระเบียบ — ทำอะไรก่อน',
@@ -108,7 +108,7 @@ export const pvtHandover = {
           {
             tgt: 'DEFIB', label: 'เตรียม/เริ่ม transcutaneous pacing (ตั้ง rate 70-80, เพิ่ม output จน capture) + sedation', ok: true,
             then: [
-              { say: { who: 'fon_defib', pose: 'talk', text: 'ตั้ง pacer แล้วค่ะ เพิ่ม mA ขึ้นเรื่อยๆ… <span class="cbs-em">threshold 80 mA จับ capture ได้!</span>' }, t: 8 },
+              { say: { who: 'fon_defib', pose: 'talk', text: 'ตั้ง pacer แล้วค่ะ เพิ่ม mA ขึ้นเรื่อยๆ… <span class="cbs-em">threshold 80 mA จับ capture ได้!</span>' }, t: 8, fx: { rhythm: 'pacing' } },
               { say: { who: 'nurse_mint', pose: 'talk', text: 'ให้ยา sedation คุมความเจ็บจาก pacing แล้วค่ะ ผู้ป่วยนิ่งลง' }, t: 6 },
             ],
           },

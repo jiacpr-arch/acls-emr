@@ -31,7 +31,12 @@ const RHYTHM_NAMES = {
   flat: 'ASYSTOLE',
   vf: 'V-FIB ⚠',
   nsr: 'SINUS — ROSC',
+  brady: 'BRADYCARDIA ⚠',
+  pacing: 'PACED RHYTHM — CAPTURED',
+  tachy: 'UNSTABLE TACHY ⚠',
 };
+// rhythm ที่ "มีชีพจรแต่ไม่เสถียร" — เตือนสีทอง ไม่ blink (ต่างจาก shockable/arrest ที่ blink แดง)
+const WARN_RHYTHMS = new Set(['brady', 'pacing', 'tachy']);
 
 const CLEARED_KEY = 'acls_codeblue_cleared'; // เก็บ id เคสที่เคยผ่าน (ROSC)
 const readCleared = () => {
@@ -655,6 +660,7 @@ export default function CodeBlueSim() {
   const maxHp = st.maxHp || gameDiff.hp;
   const timerPct = Math.max(0, (decisionLeft / gameDiff.decisionTime) * 100);
   const rhythmBad = st.rhythm === 'vf' || st.rhythm === 'flat';
+  const rhythmWarn = WARN_RHYTHMS.has(st.rhythm);
 
   return (
     <div className={`cbs-app ${shaking ? 'cbs-shake' : ''}`}>
@@ -662,7 +668,7 @@ export default function CodeBlueSim() {
         <div className={`cbs-stage ${drama === 'red' ? 'cbs-drama-red' : drama === 'white' ? 'cbs-drama' : ''}`}>
           <div className="cbs-hud">
             <div className="cbs-hud-monitor">
-              <span className={`cbs-rhythm-name ${rhythmBad ? 'cbs-bad' : ''}`}>
+              <span className={`cbs-rhythm-name ${rhythmBad ? 'cbs-bad' : rhythmWarn ? 'cbs-warn' : ''}`}>
                 {st.alarm || st.rhythm !== 'flat' ? RHYTHM_NAMES[st.rhythm] : 'MONITOR — STANDBY'}
               </span>
               <EcgStrip rhythm={st.rhythm} cpr={st.cpr} />

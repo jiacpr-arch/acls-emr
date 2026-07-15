@@ -20,7 +20,7 @@ export const mobitz2Vf = {
           {
             tgt: 'MONITOR', label: 'ติด monitor + คลำชีพจร + วัดความดัน ประเมิน ABC', ok: true,
             then: [
-              { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้นแล้วค่ะ… <span class="cbs-em">P wave เยอะกว่า QRS ชัดเจน — high-grade AV block</span> อัตราหัวใจ 38 BP 70/40' }, t: 8 },
+              { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้นแล้วค่ะ… <span class="cbs-em">P wave เยอะกว่า QRS ชัดเจน — high-grade AV block</span> อัตราหัวใจ 38 BP 70/40' }, t: 8, fx: { rhythm: 'brady' } },
               { say: { who: 'att_dech', pose: 'stern', text: 'Bradycardia ที่มี<span class="cbs-em">อาการไม่คงที่</span> — ความดันตก ซึม แน่นหน้าอก นี่คือของจริง' }, t: 4 },
             ],
           },
@@ -122,7 +122,7 @@ export const mobitz2Vf = {
           {
             tgt: 'MONITOR', label: '2nd degree AV block Mobitz II — เตรียม transcutaneous pacing ไว้พร้อมทันที', ok: true,
             then: [
-              { say: { who: 'att_dech', pose: 'stern', text: 'ถูก! <span class="cbs-em">Mobitz II เสี่ยงทรุดเป็น complete block</span> ได้ทุกเมื่อ — แผ่น pacing ต้องแปะรอ ตั้ง standby ไว้เลย' }, t: 6 },
+              { say: { who: 'att_dech', pose: 'stern', text: 'ถูก! <span class="cbs-em">Mobitz II เสี่ยงทรุดเป็น complete block</span> ได้ทุกเมื่อ — แผ่น pacing ต้องแปะรอ ตั้ง standby ไว้เลย' }, t: 6, fx: { rhythm: 'brady' } },
               { say: { who: 'nurse_mint', pose: 'talk', text: 'แปะแผ่น pacing เชื่อมเครื่องพร้อม standby แล้วค่ะ' }, t: 5 },
             ],
           },

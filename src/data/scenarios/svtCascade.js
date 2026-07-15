@@ -20,7 +20,7 @@ export const svtCascade = {
           {
             tgt: 'YOU', label: 'ประเมิน ABC + คลำชีพจร + ติด monitor/12-lead + เปิด IV', ok: true,
             then: [
-              { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้น <span class="cbs-em">narrow-complex สม่ำเสมอ ~190/นาที</span> — คลำชีพจรได้ชัดค่ะ แต่เบาและเร็วมาก' }, t: 8 },
+              { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้น <span class="cbs-em">narrow-complex สม่ำเสมอ ~190/นาที</span> — คลำชีพจรได้ชัดค่ะ แต่เบาและเร็วมาก' }, t: 8, fx: { rhythm: 'tachy' } },
               { say: { who: 'nurse_mint', pose: 'panic', text: 'BP 84/50 เจ็บหน้าอกไม่หาย… <span class="cbs-em">unstable แล้วค่ะ!</span> แต่ 12-lead ไม่มี ischemic change' }, t: 6 },
             ],
           },

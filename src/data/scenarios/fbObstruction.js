@@ -97,7 +97,7 @@ export const fbObstruction = {
         ],
       },
     },
-    { inter: 'มีชีพจร — VT ไม่เสถียร!', drama: 'red', t: 4, fx: { rhythm: 'vf' } },
+    { inter: 'มีชีพจร — VT ไม่เสถียร!', drama: 'red', t: 4, fx: { rhythm: 'tachy' } },
     { say: { who: 'att_dech', pose: 'stern', text: 'ระวัง! <span class="cbs-em">ตอนนี้มีชีพจรแล้ว</span> — VT ที่มีชีพจรแต่ความดันตก ห้ามกดหน้าอก ห้าม defib ธรรมดา' }, t: 5 },
     {
       choice: {
@@ -107,7 +107,7 @@ export const fbObstruction = {
             tgt: 'DEFIB', label: 'Synchronized cardioversion 100 J (กด SYNC!)', ok: true,
             then: [
               { say: { who: 'fon_defib', pose: 'talk', text: 'กด SYNC แล้วค่ะ… เครื่องจับ R wave… <span class="cbs-em">Cardiovert 100 J — ปล่อย!</span>' }, t: 8 },
-              { say: { who: 'boy_compressor', pose: 'panic', text: 'จอกลับมาเป็นจังหวะแคบสม่ำเสมอ… <span class="cbs-em">ชีพจรชัดขึ้น ความดันขึ้นครับ!</span>' }, t: 5 },
+              { say: { who: 'boy_compressor', pose: 'panic', text: 'จอกลับมาเป็นจังหวะแคบสม่ำเสมอ… <span class="cbs-em">ชีพจรชัดขึ้น ความดันขึ้นครับ!</span>', fx: { rhythm: 'nsr' } }, t: 5 },
             ],
           },
           { tgt: 'DEFIB', label: 'Defibrillation 200 J แบบไม่ sync', ok: false, why: 'ผู้ป่วยมีชีพจร! ไฟที่ไม่ sync อาจตกช่วง T wave → เหนี่ยวนำให้กลายเป็น VF', worsen: true },
