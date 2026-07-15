@@ -13,6 +13,7 @@ import {
 } from '../data/activePostTest';
 import { IS_ACLS } from '../config/courseMode';
 import CohortTable from '../components/precourse/CohortTable';
+import CodeBlueCohortSummary from '../components/precourse/CodeBlueCohortSummary';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import { track } from '../services/analytics';
 import {
@@ -521,6 +522,10 @@ export default function InstructorCohort() {
           </button>
         </div>
       </div>
+
+      {/* Code Blue Simulator — สรุปแยกอิสระ (คนละรูปแบบข้อมูลจาก pre-course:
+          ต่อเคส ไม่ใช่ต่อบทเรียน) ดึงเองผ่าน RPC ของตัวเอง ไม่แตะ state ด้านบน */}
+      <CodeBlueCohortSummary classCode={classCode} />
 
       {summary.length > 0 && (
         <button

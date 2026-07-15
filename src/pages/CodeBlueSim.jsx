@@ -4,6 +4,8 @@ import { AlertTriangle, RefreshCw, Home, Volume2, VolumeX } from 'lucide-react';
 import { scenarios as builtInScenarios, LEVEL_META, loadPlayableScenarios } from '../data/codeBlueScenarios';
 import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
+import { usePreCourseStore } from '../stores/preCourseStore';
+import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
 import CharacterSprite from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
 import {
@@ -86,6 +88,10 @@ export default function CodeBlueSim() {
   const [muted, setMuted] = useState(() => localStorage.getItem(MUTE_KEY) === '1');
   const mutedRef = useRef(muted);
   useEffect(() => { mutedRef.current = muted; }, [muted]);
+
+  // นักเรียนที่อยู่ในคลาส (ถ้ามี) — ใช้บันทึกผลเกมขึ้น cloud ให้อาจารย์เห็น
+  // ไม่มีก็เล่นได้ปกติ แค่ไม่มีใครเห็นผลนอกจากตัวเอง (เหมือนเดิม)
+  const activeStudent = usePreCourseStore((s) => s.activeStudent);
 
   // ---- engine state: mutable ใน ref (logic) + snapshot state (render) ----
   const S = useRef(createInitialState(DEFAULT_DIFFICULTY));
@@ -276,6 +282,26 @@ export default function CodeBlueSim() {
       setAwardsTick((n) => n + 1);
     }
     setFreshAwards(fresh);
+    // บันทึกผลขึ้น cloud ให้อาจารย์เห็น — เฉพาะตอนอยู่ในคลาส (มี activeStudent)
+    // และไม่ใช่โหมด preview ของแอดมิน best-effort ล้วน: ไม่มีคลาส/ออฟไลน์/error
+    // ก็แค่ไม่ถูกบันทึก ไม่กระทบการเล่นเกม (เหมือน assessmentService mirror-write)
+    if (!preview && activeStudent?.id) {
+      rpcSubmitCodeBlueResult({
+        attemptUuid: crypto.randomUUID(),
+        studentPk: activeStudent.id,
+        scenarioId: sc.id,
+        payload: {
+          level: sc.level,
+          difficulty: st.difficulty,
+          won,
+          grade,
+          score,
+          wrongCount: st.wrong,
+          durationSeconds: Math.round(st.simTime),
+          finishedAt: new Date().toISOString(),
+        },
+      }).catch(() => {});
+    }
     track('game_completed', {
       props: {
         scenario_id: sc.id,
