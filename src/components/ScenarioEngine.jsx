@@ -58,6 +58,7 @@ export default function ScenarioEngine({ scenario, mode, onComplete, onStaffTake
       if (a === 'assess_symptomatic' && eventType.includes('symptomatic')) return true;
       if (a === 'assess_acs' && eventType.includes('acs')) return true;
       if (a === 'fast_assessment' && eventType.includes('fast')) return true;
+      if (a === 'check_dtx' && eventType.includes('dtx')) return true;
       if (a === 'nihss' && eventType.includes('nihss')) return true;
       if (a === 'ct_brain' && eventType.includes('ct')) return true;
       if (a === 'tpa_criteria' && eventType.includes('tpa')) return true;
