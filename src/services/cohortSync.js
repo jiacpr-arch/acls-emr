@@ -130,6 +130,31 @@ export async function rpcGetCohortSummary(lessonIds) {
   return error ? { error } : { data: data || [] };
 }
 
+// Code Blue Simulator results — same shape as quiz attempts, but best-effort:
+// a failed submit is just dropped (no offline queue) since a game result
+// never gates certification, unlike lesson progress / quiz attempts.
+export async function rpcSubmitCodeBlueResult({ attemptUuid, studentPk, scenarioId, payload }) {
+  const { classCode } = getClassContext();
+  if (!classCode) return { error: new Error('no_class') };
+  const { error } = await supabase.rpc('submit_codeblue_result', {
+    p_code: classCode,
+    p_attempt_uuid: attemptUuid,
+    p_student_pk: studentPk,
+    p_scenario_id: scenarioId,
+    p_payload: payload,
+  });
+  return error ? { error } : { data: true };
+}
+
+export async function rpcGetCohortCodeblueSummary() {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_cohort_codeblue_summary', {
+    p_code: code,
+  });
+  return error ? { error } : { data: data || [] };
+}
+
 export async function rpcDeleteCohortStudent(studentPk) {
   const code = instructorAccessCode();
   if (!code) return { error: new Error('no_class') };
