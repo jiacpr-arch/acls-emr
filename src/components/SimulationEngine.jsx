@@ -153,6 +153,7 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
       if (a.includes('cath') && eventType.includes('cath')) return true;
       if (a.includes('heparin') && eventType.includes('heparin')) return true;
       if (a.includes('antiplatelet') && (eventType.includes('clopidogrel') || eventType.includes('ticagrelor'))) return true;
+      if (a.includes('dtx') && eventType.includes('dtx')) return true;
       if (a.includes('nihss') && eventType.includes('nihss')) return true;
       if (a.includes('ct') && eventType.includes('ct')) return true;
       if (a.includes('tpa') && eventType.includes('tpa')) return true;
