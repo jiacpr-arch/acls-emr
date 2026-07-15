@@ -19,6 +19,16 @@ import { vfArrest } from './scenarios/vfArrest';
 import { peaHyperK } from './scenarios/peaHyperK';
 import { blsCollapse } from './scenarios/blsCollapse';
 import { blsChoking } from './scenarios/blsChoking';
+// ACLS basic pack — เคสเดี่ยว ทีละ algorithm/แขนงย่อย ให้ฝึกก่อนไป megacode
+import { peaAsystoleBasic } from './scenarios/peaAsystoleBasic';
+import { bradycardiaBasic } from './scenarios/bradycardiaBasic';
+import { bradycardiaStableBasic } from './scenarios/bradycardiaStableBasic';
+import { tachycardiaBasic } from './scenarios/tachycardiaBasic';
+import { tachyAfibBasic } from './scenarios/tachyAfibBasic';
+import { tachyWideVtBasic } from './scenarios/tachyWideVtBasic';
+import { tachyUnstableBasic } from './scenarios/tachyUnstableBasic';
+import { acsBasic } from './scenarios/acsBasic';
+import { acsNstemiBasic } from './scenarios/acsNstemiBasic';
 // ACLS megacode pack (ชุดโจทย์ megacode หลายสถานการณ์)
 import { traumaArrest } from './scenarios/traumaArrest';
 import { copdDope } from './scenarios/copdDope';
@@ -42,6 +52,16 @@ const allScenarios = [
   peaHyperK,
   blsCollapse,
   blsChoking,
+  // ── ACLS Basic pack ── เคสเดี่ยว ทีละ algorithm/แขนงย่อย
+  peaAsystoleBasic,
+  bradycardiaStableBasic,
+  bradycardiaBasic,
+  tachycardiaBasic,
+  tachyAfibBasic,
+  tachyWideVtBasic,
+  tachyUnstableBasic,
+  acsBasic,
+  acsNstemiBasic,
   // ── ACLS Megacode pack ──
   // arrest ที่เน้นการหาสาเหตุ (H's & T's)
   traumaArrest,
