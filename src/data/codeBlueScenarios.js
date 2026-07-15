@@ -19,6 +19,22 @@ import { vfArrest } from './scenarios/vfArrest';
 import { peaHyperK } from './scenarios/peaHyperK';
 import { blsCollapse } from './scenarios/blsCollapse';
 import { blsChoking } from './scenarios/blsChoking';
+// ACLS megacode pack (ชุดโจทย์ megacode หลายสถานการณ์)
+import { traumaArrest } from './scenarios/traumaArrest';
+import { copdDope } from './scenarios/copdDope';
+import { pregChoking } from './scenarios/pregChoking';
+import { hypoxiaVf } from './scenarios/hypoxiaVf';
+import { refractoryVfAcs } from './scenarios/refractoryVfAcs';
+import { vfPeaVfAcs } from './scenarios/vfPeaVfAcs';
+import { fbObstruction } from './scenarios/fbObstruction';
+import { alcoholHypo } from './scenarios/alcoholHypo';
+import { aaaRupture } from './scenarios/aaaRupture';
+import { preeclampsia } from './scenarios/preeclampsia';
+import { bradyOverdose } from './scenarios/bradyOverdose';
+import { completeHeartBlock } from './scenarios/completeHeartBlock';
+import { mobitz2Vf } from './scenarios/mobitz2Vf';
+import { svtCascade } from './scenarios/svtCascade';
+import { pvtHandover } from './scenarios/pvtHandover';
 
 // เคสทั้งหมดในระบบ (built-in) — เรียงจากง่ายไปยาก
 const allScenarios = [
@@ -26,6 +42,24 @@ const allScenarios = [
   peaHyperK,
   blsCollapse,
   blsChoking,
+  // ── ACLS Megacode pack ──
+  // arrest ที่เน้นการหาสาเหตุ (H's & T's)
+  traumaArrest,
+  copdDope,
+  pregChoking,
+  hypoxiaVf,
+  refractoryVfAcs,
+  vfPeaVfAcs,
+  fbObstruction,
+  alcoholHypo,
+  aaaRupture,
+  preeclampsia,
+  // brady / tachy / peri-arrest
+  bradyOverdose,
+  completeHeartBlock,
+  mobitz2Vf,
+  svtCascade,
+  pvtHandover,
 ];
 
 // เคสที่ไม่ระบุ course ถือว่าเป็น acls (ค่าเริ่มต้นเดิม)
