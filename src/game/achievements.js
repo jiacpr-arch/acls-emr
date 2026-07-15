@@ -1,7 +1,7 @@
 // Code Blue Simulator — ระบบรางวัล/เหรียญ (achievements) ฝั่ง client ล้วน
 //
 // เก็บบน localStorage เหมือน hiscore/cleared เดิม — ไม่มี backend
-//   acls_codeblue_grades : { [caseId]: { grade:'S'|'A'|'B'|'C', diff:'easy'|'normal'|'hard' } }
+//   acls_codeblue_grades : { [caseId]: { grade:'S'|'A'|'B'|'C', diff:'easy'|'normal'|'hard', fast?:boolean } }
 //   acls_codeblue_awards : ['first_save', ...]  รายการเหรียญที่เคยได้ (sticky — ไม่หลุดแม้คลังเปลี่ยน)
 //
 // เหรียญนิยามเป็น "ข้อมูล" ล้วน (check() รับ stats ที่คำนวณจาก pool/cleared/grades)
@@ -20,16 +20,20 @@ export function readGrades() {
 }
 
 // บันทึกเฉพาะตอนชนะ — เก็บเกรดที่ "ดีที่สุด" (เกรดสูงกว่า หรือเกรดเท่ากันแต่โหมดยากกว่า)
+// fast = เคลียร์เคสแบบไวจริง (sticky: ได้แล้วไม่หลุดแม้เล่นซ้ำแบบช้ากว่า)
 // คืน map เกรดล่าสุดเพื่อให้ผู้เรียกใช้ต่อได้ทันทีโดยไม่ต้องอ่านซ้ำ
-export function recordGrade(caseId, grade, diff) {
+export function recordGrade(caseId, grade, diff, fast = false) {
   const grades = readGrades();
   const prev = grades[caseId];
   const better = !prev
     || GRADE_RANK[grade] > GRADE_RANK[prev.grade]
     || (GRADE_RANK[grade] === GRADE_RANK[prev.grade]
         && (DIFF_RANK[diff] || 0) > (DIFF_RANK[prev.diff] || 0));
-  if (better) {
-    grades[caseId] = { grade, diff };
+  const stickyFast = !!(prev?.fast || fast);
+  // อัปเดตเมื่อเกรดดีขึ้น หรือเพิ่งได้ fast เป็นครั้งแรก (จะได้ไม่ทับเกรดที่ดีกว่าทิ้ง)
+  if (better || stickyFast !== !!prev?.fast) {
+    const base = better ? { grade, diff } : { grade: prev.grade, diff: prev.diff };
+    grades[caseId] = { ...base, fast: stickyFast };
     try { localStorage.setItem(GRADES_KEY, JSON.stringify(grades)); } catch { /* storage เต็ม — ข้าม */ }
   }
   return grades;
@@ -75,6 +79,12 @@ export const ACHIEVEMENTS = [
     check: (c) => c.hasHardS,
   },
   {
+    id: 'speed_demon', icon: '⚡',
+    title: 'สายฟ้า',
+    desc: 'ผ่านเคสแบบตัดสินใจไวทุกจังหวะ',
+    check: (c) => c.hasFastClear,
+  },
+  {
     id: 'all_cases', icon: '👑',
     title: 'พิชิตครบทุกเคส',
     desc: 'ผ่านทุกเคสในคลัง',
@@ -100,6 +110,7 @@ export function computeStats(pool, clearedIds, grades) {
     hntCleared: hnt.filter(done).length,
     hasGradeS: gradeVals.some((g) => g.grade === 'S'),
     hasHardS: gradeVals.some((g) => g.grade === 'S' && g.diff === 'hard'),
+    hasFastClear: gradeVals.some((g) => g.fast),
   };
 }
 

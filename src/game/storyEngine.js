@@ -17,6 +17,17 @@ export const DIFFICULTY = {
 };
 export const DEFAULT_DIFFICULTY = 'normal';
 
+// โบนัสความไว: ตอบถูกเร็ว (เหลือเวลามาก) ได้แต้มเพิ่ม สูงสุด +SPEED_BONUS_MAX
+// เมื่อเฉลี่ยแล้วตอบทุกจุดในจังหวะแรกๆ — ความแม่นยำยังมาก่อน (base 100), ไวเป็นของแถม
+export const SPEED_BONUS_MAX = 25;
+// ตอบถูกภายในครึ่งแรกของเวลา = "ไว" (ใช้เป็นเกณฑ์เหรียญสายฟ้า)
+export const FAST_FRACTION = 0.5;
+
+// คอมโบ: ตอบถูกติดกันไม่พลาด → ตัวคูณคะแนนรวมสูงขึ้น (สูงสุด ×1.5 ที่สตรีค 10)
+// ตัดสินใจผิด 1 ครั้ง คอมโบขาด (รีเซ็ตเป็น 0) — ให้รางวัลความสม่ำเสมอทั้งเคส
+export const COMBO_CAP = 10;
+export const COMBO_STEP = 0.05;
+
 export function getDifficulty(id) {
   return DIFFICULTY[id] || DIFFICULTY[DEFAULT_DIFFICULTY];
 }
@@ -45,6 +56,10 @@ export function createInitialState(difficultyId = DEFAULT_DIFFICULTY) {
     rosc: false,
     timeline: [],
     etco2Trace: [], // ค่าสะท้อนคุณภาพ CPR ตามเวลา สำหรับกราฟใน debrief
+    speedSum: 0,    // ผลรวม fraction เวลาที่เหลือของทุกจุดที่ตอบถูก (0..1 ต่อจุด)
+    speedCount: 0,  // จำนวนจุดตัดสินใจที่ตอบถูก (ใช้หารเป็นค่าเฉลี่ย)
+    combo: 0,       // สตรีคปัจจุบัน — ตอบถูกติดกันกี่ครั้ง (รีเซ็ตเมื่อผิด)
+    maxCombo: 0,    // สตรีคยาวสุดในเคส (ใช้คิดตัวคูณคะแนน + โชว์ debrief)
   };
 }
 
@@ -92,14 +107,45 @@ export function nextNode(state, story) {
   return null;
 }
 
-export function recordCorrect(state, option) {
+// speedFrac = สัดส่วนเวลาที่ยังเหลือตอนตอบถูก (0 = ตอบตอนหมดเวลาพอดี, 1 = ตอบทันที)
+// ตอบเร็ว → speedFrac สูง → โบนัสความไวมากขึ้น
+export function recordCorrect(state, option, speedFrac) {
   state.timeline.push({ t: state.simTime, ok: true, text: option.label });
   state.simTime += 8;
+  if (Number.isFinite(speedFrac)) {
+    state.speedSum += Math.max(0, Math.min(1, speedFrac));
+    state.speedCount += 1;
+  }
+  state.combo += 1;
+  if (state.combo > state.maxCombo) state.maxCombo = state.combo;
   state.queue.push(...(option.then || []));
+}
+
+// ความไวเฉลี่ยตลอดเคส (0..1) — สัดส่วนเวลาที่เหลือโดยเฉลี่ยเวลาตอบถูก
+export function avgSpeed(state) {
+  return state.speedCount ? state.speedSum / state.speedCount : 0;
+}
+
+// โบนัสความไว (แต้ม) — ให้เฉพาะตอนชนะ
+export function speedBonus(state, won) {
+  return won ? Math.round(avgSpeed(state) * SPEED_BONUS_MAX) : 0;
+}
+
+// ตัวคูณคอมโบ: สตรีคยาวสุดในเคส → ×1.0 ถึง ×1.5 (สตรีค 10 ขึ้นไป)
+export function comboMultiplier(state) {
+  return 1 + Math.min(state.maxCombo, COMBO_CAP) * COMBO_STEP;
+}
+
+// คะแนนรวม = (ความแม่นยำ 100 − ผิด×15 ขั้นต่ำ 10 + โบนัสความไว) × ตัวคูณคอมโบ
+export function scoreFor(state, won) {
+  if (!won) return 0;
+  const base = Math.max(10, 100 - state.wrong * 15) + speedBonus(state, won);
+  return Math.round(base * comboMultiplier(state));
 }
 
 export function recordWrong(state, option) {
   state.wrong += 1;
+  state.combo = 0; // คอมโบขาดทันทีที่ตัดสินใจผิด
   state.hp = Math.max(0, state.hp - 1);
   state.simTime += 20; // ความผิดพลาดกินเวลาเสมอ
   state.timeline.push({
