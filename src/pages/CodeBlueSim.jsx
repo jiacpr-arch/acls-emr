@@ -16,6 +16,9 @@ import {
   playMetronomeClick, playBeep,
 } from '../utils/sound';
 import { track } from '../services/analytics';
+import {
+  recordGrade, syncAwards, listWithEarned, readGrades, ACHIEVEMENTS,
+} from '../game/achievements';
 import './codeBlueSim.css';
 
 const HISCORE_PREFIX = 'acls_codeblue_hiscore';
@@ -98,6 +101,8 @@ export default function CodeBlueSim() {
   const [screen, setScreen] = useState(initialPool.length > 1 ? 'select' : 'title'); // select | title | game | debrief
   const [selectFilter, setSelectFilter] = useState('all'); // all | <level id>
   const [quitMenu, setQuitMenu] = useState(false); // เมนูออก/เล่นใหม่ ระหว่างเล่น
+  const [freshAwards, setFreshAwards] = useState([]); // เหรียญที่เพิ่งปลดล็อก (โชว์ใน debrief)
+  const [awardsTick, setAwardsTick] = useState(0); // บังคับ re-read เหรียญหลังจบเคส
 
   const [charsReady, setCharsReady] = useState(false);
   useEffect(() => {
@@ -258,12 +263,19 @@ export default function CodeBlueSim() {
       setHiscore(score);
       isHiscore = score > 0;
     }
+    let fresh = [];
     if (won) {
       const nextCleared = new Set(cleared);
       nextCleared.add(sc.id);
       setCleared(nextCleared);
       localStorage.setItem(CLEARED_KEY, JSON.stringify([...nextCleared]));
+      // บันทึกเกรด + ปลดล็อกเหรียญ (client-side ล้วน) — โชว์เหรียญใหม่ในหน้า debrief
+      const grades = recordGrade(sc.id, grade, st.difficulty);
+      const { fresh: freshIds } = syncAwards(pool, nextCleared, grades);
+      fresh = ACHIEVEMENTS.filter((a) => freshIds.includes(a.id));
+      setAwardsTick((n) => n + 1);
     }
+    setFreshAwards(fresh);
     track('game_completed', {
       props: {
         scenario_id: sc.id,
@@ -461,6 +473,7 @@ export default function CodeBlueSim() {
     retryChoiceRef.current = null;
     hintUsedRef.current = false;
     setResult(null);
+    setFreshAwards([]);
     setChoice(null);
     setInter(null);
     setDrama(null);
@@ -499,6 +512,35 @@ export default function CodeBlueSim() {
       if (next) stopMetronome();
       return next;
     });
+  }
+
+  // ============ AWARDS (รางวัล/เหรียญ) ============
+  if (screen === 'awards') {
+    // awardsTick อ้างในนี้เพื่อให้ re-read localStorage หลังจบเคส (ค่าเหรียญ sticky)
+    void awardsTick;
+    const badges = listWithEarned(pool, cleared, readGrades());
+    const earnedN = badges.filter((b) => b.earned).length;
+    return (
+      <div className="cbs-app">
+        <section className="cbs-select">
+          <div className="cbs-eyebrow">Code Blue · รางวัลของฉัน</div>
+          <h1 className="cbs-select-title"><span className="cbs-gold-text">เหรียญ</span> ที่ปลดล็อกได้</h1>
+          <p className="cbs-select-sub">ปลดล็อกแล้ว {earnedN}/{badges.length} — เก็บครบทุกเหรียญเพื่อพิสูจน์ฝีมือกู้ชีพ</p>
+          <div className="cbs-award-grid">
+            {badges.map((b) => (
+              <div key={b.id} className={`cbs-badge ${b.earned ? 'cbs-badge-on' : 'cbs-badge-off'}`}>
+                <span className="cbs-badge-icon">{b.earned ? b.icon : '🔒'}</span>
+                <span className="cbs-badge-title">{b.title}</span>
+                <span className="cbs-badge-desc">{b.desc}</span>
+              </div>
+            ))}
+          </div>
+          <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('select'); window.scrollTo(0, 0); }}>
+            ← กลับไปเลือกเคส
+          </button>
+        </section>
+      </div>
+    );
   }
 
   // ============ CASE SELECT ============
@@ -577,6 +619,9 @@ export default function CodeBlueSim() {
               );
             })}
           </div>
+          <button type="button" className="cbs-btn-ghost" onClick={() => { void awardsTick; setScreen('awards'); window.scrollTo(0, 0); }}>
+            🏅 รางวัลของฉัน ({listWithEarned(pool, cleared, readGrades()).filter((b) => b.earned).length}/{ACHIEVEMENTS.length})
+          </button>
           <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/')}>
             <Home size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
             กลับหน้าแรก
@@ -664,6 +709,19 @@ export default function CodeBlueSim() {
             {winSub}
             {result.isHiscore && <><br />🏆 New Hi-Score: {result.score}</>}
           </p>
+          {freshAwards.length > 0 && (
+            <div className="cbs-award-reveal">
+              <div className="cbs-award-reveal-head">🎖 ปลดล็อกรางวัลใหม่!</div>
+              <div className="cbs-award-reveal-row">
+                {freshAwards.map((a) => (
+                  <div key={a.id} className="cbs-badge cbs-badge-new">
+                    <span className="cbs-badge-icon">{a.icon}</span>
+                    <span className="cbs-badge-title">{a.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="cbs-grade-row">
             <div className="cbs-grade-box">
               <span className={`cbs-grade cbs-g-${result.grade.toLowerCase()}`}>{result.grade}</span>
