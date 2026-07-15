@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCaseStore } from '../stores/caseStore';
 import { getActiveSession, clearActiveSession } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
+import { t } from '../utils/i18n';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import ACLSSplash from '../components/newcase/ACLSSplash';
 import ACLSHero from '../components/newcase/ACLSHero';
@@ -25,6 +26,7 @@ export default function NewCase() {
   const createCase = useCaseStore(s => s.createCase);
   const restoreSession = useCaseStore(s => s.restoreSession);
   const mode = useSettingsStore(s => s.mode);
+  const lang = useSettingsStore(s => s.language) || 'en';
   const [loading, setLoading] = useState(false);
   const [activeSession, setActiveSession] = useState(null);
   const [showSplash, setShowSplash] = useState(!IS_BLS && !aclsSplashSeen);
@@ -162,6 +164,23 @@ export default function NewCase() {
 
         {/* Primary actions — full-width learn + blue stacked */}
         <div className="flex flex-col gap-4">
+          <button onClick={() => navigate('/sim')}
+            className="btn btn-xl btn-block text-white animate-fade-in"
+            style={{
+              height: 'auto',
+              paddingTop: 20,
+              paddingBottom: 20,
+              fontSize: 19,
+              background: 'linear-gradient(135deg, #EF4444 0%, #B91C1C 100%)',
+              boxShadow: '0 8px 20px rgba(185, 28, 28, 0.32)',
+            }}>
+            <span className="text-[24px] leading-none" aria-hidden="true">🚨</span>
+            <span className="flex flex-col items-center leading-tight">
+              <span>{t('code_sim', lang)}</span>
+              <span className="text-[13px] font-medium opacity-85 mt-1">{t('code_sim_desc', lang)}</span>
+            </span>
+          </button>
+
           <button onClick={() => navigate('/learn')}
             className="btn btn-xl btn-block text-white"
             style={{
