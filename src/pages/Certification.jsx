@@ -10,6 +10,7 @@ import { certConfig } from '../data/activeCert';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { exportCertificatePDF } from '../utils/exportCertificate';
+import { simCertHighlights } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
@@ -212,12 +213,16 @@ export default function Certification() {
     });
     setDownloadError('');
     try {
-      await exportCertificatePDF({ cert: certData, certConfig });
+      await exportCertificatePDF({ cert: certData, certConfig, sim: simHighlights });
     } catch (err) {
       console.error('cert PDF export failed:', err);
       setDownloadError('ดาวน์โหลดใบประกาศนียบัตรไม่สำเร็จ ลองใหม่อีกครั้ง หรือเปิดผ่านเบราว์เซอร์ปกติ (ไม่ใช่ในแอป LINE)');
     }
   };
+
+  // ผลงาน Code Blue Sim สำหรับใบ cert (ACLS เท่านั้น) — null = ไม่เคยผ่านเคส
+  // อ่านสดจาก localStorage ทุก render เพื่อให้เก็บเหรียญเพิ่มแล้วกลับมาหน้านี้เห็นทันที
+  const simHighlights = !IS_BLS ? simCertHighlights() : null;
 
   const issuedDate = certData.completedAt ? new Date(certData.completedAt) : null;
   const expiresDate = issuedDate ? new Date(issuedDate) : null;
@@ -444,6 +449,25 @@ export default function Certification() {
               Pre-test: {certData.preTestScore != null ? `${certData.preTestScore}%` : '—'}
               {' · '}Post-test: {certData.postTestScore != null ? `${certData.postTestScore}%` : '—'}
               {' · '}EKG: {certData.ekgPassed ? 'ผ่าน' : '—'}
+            </div>
+          )}
+          {simHighlights && (
+            <div className="text-caption text-text-muted">
+              Code Blue Sim: ผ่าน {simHighlights.clearedCount} เคส
+              {simHighlights.gradeS > 0 && ` · เกรด S ×${simHighlights.gradeS}`}
+            </div>
+          )}
+          {simHighlights?.megacodeMaster && (
+            <div
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-2xs font-extrabold"
+              style={{
+                borderRadius: 'var(--radius-full)',
+                color: '#7A5210',
+                background: 'linear-gradient(135deg, #F8DC90 0%, #F2C14E 100%)',
+                boxShadow: '0 2px 8px rgba(242, 193, 78, 0.4)',
+              }}
+            >
+              🏅 MEGACODE MASTER
             </div>
           )}
           {IS_BLS && certData.postTestScore != null && (
