@@ -6,6 +6,7 @@ export const aaaRupture = {
   title: 'PEA — ลุงเส้นเลือดใหญ่แตก',
   subtitle: 'ชายอายุ 70 ปี เบาหวาน ความดันสูง ปวดท้อง/หลังรุนแรง ความดันตกฮวบ แล้วหมดสติใน ER',
   level: 'megacode',
+  track: 'causes',
   course: 'acls',
   hiddenCause: 'hypovolemia',
   story: [

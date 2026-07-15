@@ -7,6 +7,7 @@ export const vfPeaVfAcs = {
   title: 'Megacode — เจ็บหน้าอกแล้ว arrest',
   subtitle: 'ชายอายุ 45 ปี เจ็บหน้าอกร้าวลงแขนซ้าย แล้วหมดสติล้มลงหน้าห้องฉุกเฉิน',
   level: 'megacode',
+  track: 'arrest',
   course: 'acls',
   hiddenCause: 'acs',
   story: [

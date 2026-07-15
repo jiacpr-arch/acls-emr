@@ -4,6 +4,7 @@ export const vfArrest = {
   title: 'VF Arrest — เจ็บหน้าอกแล้วล้ม',
   subtitle: 'ชายอายุ 58 ปี เจ็บหน้าอกร้าวลงแขนซ้าย 30 นาที ล้มลงหมดสติต่อหน้าคุณ',
   level: 'basic',
+  track: 'arrest',
   hiddenCause: null,
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์!! คนไข้เตียง 2 ล้มลงค่ะ!! เมื่อกี้ยังนั่งคุยอยู่เลย!' }, t: 5 },

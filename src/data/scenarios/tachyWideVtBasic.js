@@ -7,6 +7,7 @@ export const tachyWideVtBasic = {
   title: 'ใจสั่น หัวใจเต้นเร็วกว้าง — VT ที่ยังมีชีพจร',
   subtitle: 'ชายอายุ 62 ปี ใจสั่น เจ็บอกเล็กน้อยแต่ยังพูดคุยรู้เรื่อง Monitor เร็วมาก',
   level: 'basic',
+  track: 'tachy',
   course: 'acls',
   hiddenCause: null,
   story: [

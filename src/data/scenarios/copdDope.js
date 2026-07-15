@@ -8,6 +8,7 @@ export const copdDope = {
   title: 'ท่อมรณะ — COPD ที่เพิ่งใส่ท่อ',
   subtitle: 'ชายอายุ 50 ปี COPD เพิ่งใส่ ET tube หลังจับท่อขยับ มีหายใจลำบากแล้วหมดสติ',
   level: 'megacode',
+  track: 'causes',
   course: 'acls',
   hiddenCause: 'dope-tube',
   story: [

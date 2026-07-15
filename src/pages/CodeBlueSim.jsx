@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, RefreshCw, Home, Volume2, VolumeX } from 'lucide-react';
-import { scenarios as builtInScenarios, LEVEL_META, loadPlayableScenarios } from '../data/codeBlueScenarios';
+import {
+  scenarios as builtInScenarios, LEVEL_META, TRACK_META, trackOf, loadPlayableScenarios,
+} from '../data/codeBlueScenarios';
 import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
 import { usePreCourseStore } from '../stores/preCourseStore';
@@ -60,7 +62,10 @@ function readPreviewScenario() {
   } catch { return null; }
 }
 
-// จำนวนเคส basic ที่ต้องผ่านก่อนปลดล็อกเคส tier ที่สูงกว่า (megacode)
+// ปลดล็อกราย "หมวด" (track): เคสยากของหมวดปลดเมื่อผ่าน basic ของหมวดนั้นก่อน
+// — บังคับลำดับการเรียนให้ไต่ทีละ algorithm แทนปลดทั้งคลังพร้อมกัน
+const TRACK_BASIC_TO_UNLOCK = 2; // ต้องผ่าน basic ของหมวดอย่างน้อยเท่านี้ (หรือเท่าที่หมวดมี)
+// หมวดที่ไม่มีเคส basic เลย (เช่น สืบหาสาเหตุ) ใช้เกณฑ์รวม: ผ่าน basic หมวดไหนก็ได้
 const BASIC_TO_UNLOCK = 3;
 
 const isBasic = (s) => (LEVEL_META[s.level]?.order || 0) === 0;
@@ -70,11 +75,23 @@ function clearedBasicCount(cleared, pool) {
   return pool.filter((s) => isBasic(s) && cleared.has(s.id)).length;
 }
 
-// ปลดล็อกเคส: basic เล่นได้เสมอ; tier ที่สูงกว่าต้องผ่าน basic ครบเกณฑ์ก่อน (ค่อยๆ ไต่ระดับ)
-function isUnlocked(sc, cleared, pool) {
-  if (isBasic(sc)) return true;
-  return clearedBasicCount(cleared, pool) >= BASIC_TO_UNLOCK;
+// เคสนี้ล็อกอยู่ไหม: left = ต้องผ่าน basic อีกกี่เคส (0 = ปลดแล้ว),
+// inTrack = เกณฑ์นับเฉพาะ basic ของหมวดนี้ (ไว้เลือกข้อความบนป้ายล็อก)
+function lockInfo(sc, cleared, pool) {
+  if (isBasic(sc)) return { left: 0, inTrack: false };
+  const basics = pool.filter((s) => isBasic(s) && trackOf(s) === trackOf(sc));
+  if (basics.length > 0) {
+    const need = Math.min(TRACK_BASIC_TO_UNLOCK, basics.length);
+    const done = basics.filter((s) => cleared.has(s.id)).length;
+    return { left: Math.max(0, need - done), inTrack: true };
+  }
+  return { left: Math.max(0, BASIC_TO_UNLOCK - clearedBasicCount(cleared, pool)), inTrack: false };
 }
+
+const isUnlocked = (sc, cleared, pool) => lockInfo(sc, cleared, pool).left === 0;
+
+// สุ่มเคสให้ปุ่ม 🎲 — แยกไว้นอก component (react-hooks/purity ไม่ให้เรียก Math.random ใน render)
+const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
 
 export default function CodeBlueSim() {
   const navigate = useNavigate();
@@ -571,14 +588,29 @@ export default function CodeBlueSim() {
 
   // ============ CASE SELECT ============
   if (screen === 'select') {
-    // จัดกลุ่มตาม level (เรียงตาม order) เพื่อไม่ให้ 20+ เคสเป็น list ยาวเส้นเดียว
-    const levelsInPool = [...new Set(pool.map((c) => c.level))]
-      .sort((a, b) => (LEVEL_META[a]?.order || 0) - (LEVEL_META[b]?.order || 0));
-    const shownLevels = selectFilter === 'all' ? levelsInPool : levelsInPool.filter((l) => l === selectFilter);
-    const basicNeeded = Math.max(0, BASIC_TO_UNLOCK - clearedBasicCount(cleared, pool));
+    // จัดกลุ่มตาม "หมวด" (algorithm/ธีมแบบหลักสูตร ACLS) — level เหลือเป็นป้ายความยากบนการ์ด
+    const tracksInPool = [...new Set(pool.map(trackOf))]
+      .sort((a, b) => (TRACK_META[a]?.order ?? 9) - (TRACK_META[b]?.order ?? 9));
+    const shownTracks = selectFilter === 'all' ? tracksInPool : tracksInPool.filter((t) => t === selectFilter);
+    // เคสในหมวดเรียงง่าย→ยาก ให้แต่ละหมวดเป็นบันไดของตัวเอง
+    const casesInTrack = (tk) => pool
+      .filter((c) => trackOf(c) === tk)
+      .sort((a, b) => (LEVEL_META[a.level]?.order ?? 0) - (LEVEL_META[b.level]?.order ?? 0));
+    const orderedAll = tracksInPool.flatMap(casesInTrack);
+    // เคสแนะนำถัดไป: เคสแรก (ตามลำดับหมวด+ความยาก) ที่ปลดแล้วแต่ยังไม่ผ่าน — กดปุ่มเดียวเล่นต่อได้เลย
+    const nextCase = orderedAll.find((c) => !cleared.has(c.id) && isUnlocked(c, cleared, pool));
+
+    // สุ่มเคสจากที่ปลดล็อกแล้ว (เอาเคสที่ยังไม่ผ่านก่อน) — โหมดทบทวนไม่ต้องเลือกเอง
+    const randomCase = () => {
+      const unlockedAll = orderedAll.filter((c) => isUnlocked(c, cleared, pool));
+      const fresh = unlockedAll.filter((c) => !cleared.has(c.id));
+      const src = fresh.length ? fresh : unlockedAll;
+      if (src.length) pickScenario(pickRandom(src));
+    };
 
     const renderCase = (c) => {
-      const unlocked = isUnlocked(c, cleared, pool);
+      const { left, inTrack } = lockInfo(c, cleared, pool);
+      const unlocked = left === 0;
       const done = cleared.has(c.id);
       return (
         <button
@@ -591,7 +623,9 @@ export default function CodeBlueSim() {
           <div className="cbs-case-top">
             <span className={`cbs-case-level cbs-lvl-${c.level}`}>{LEVEL_META[c.level]?.label || c.level}</span>
             {done && <span className="cbs-case-done">✓ ผ่านแล้ว</span>}
-            {!unlocked && <span className="cbs-case-lock">🔒 ผ่านพื้นฐานอีก {basicNeeded} เคส</span>}
+            {!unlocked && (
+              <span className="cbs-case-lock">🔒 ผ่านพื้นฐาน{inTrack ? 'หมวดนี้' : ''}อีก {left} เคส</span>
+            )}
           </div>
           <div className="cbs-case-name">{c.title}</div>
           <div className="cbs-case-desc">{c.subtitle}</div>
@@ -604,9 +638,30 @@ export default function CodeBlueSim() {
         <section className="cbs-select">
           <div className="cbs-eyebrow">Code Blue · เลือกเคส</div>
           <h1 className="cbs-select-title"><span className="cbs-gold-text">CODE BLUE</span> ภารกิจกู้ชีพ</h1>
-          <p className="cbs-select-sub">เลือกสถานการณ์ที่จะฝึก — เคสที่ยากกว่าปลดล็อกเมื่อผ่านเคสพื้นฐาน</p>
-          {levelsInPool.length > 1 && (
-            <div className="cbs-select-tabs" role="group" aria-label="กรองตามระดับ">
+          <p className="cbs-select-sub">ฝึกทีละหมวดจนครบทุก algorithm — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น</p>
+          {(nextCase || pool.length > 1) && (
+            <div className="cbs-quick-row">
+              {nextCase && (
+                <button type="button" className="cbs-next" onClick={() => pickScenario(nextCase)}>
+                  <span className="cbs-next-eyebrow">▶ เคสแนะนำถัดไป</span>
+                  <span className="cbs-next-name">{nextCase.title}</span>
+                  <span className="cbs-next-meta">
+                    {TRACK_META[trackOf(nextCase)].icon} {TRACK_META[trackOf(nextCase)].label}
+                    {' · '}
+                    {LEVEL_META[nextCase.level]?.label || nextCase.level}
+                  </span>
+                </button>
+              )}
+              {pool.length > 1 && (
+                <button type="button" className="cbs-dice" onClick={randomCase} aria-label="สุ่มเคส">
+                  🎲
+                  <span className="cbs-dice-label">สุ่มเคส</span>
+                </button>
+              )}
+            </div>
+          )}
+          {tracksInPool.length > 1 && (
+            <div className="cbs-select-tabs" role="group" aria-label="กรองตามหมวด">
               <button
                 type="button"
                 className={`cbs-tab ${selectFilter === 'all' ? 'cbs-tab-on' : ''}`}
@@ -615,29 +670,31 @@ export default function CodeBlueSim() {
               >
                 ทั้งหมด
               </button>
-              {levelsInPool.map((lv) => (
+              {tracksInPool.map((tk) => (
                 <button
-                  key={lv}
+                  key={tk}
                   type="button"
-                  className={`cbs-tab ${selectFilter === lv ? 'cbs-tab-on' : ''}`}
-                  onClick={() => setSelectFilter(lv)}
-                  aria-pressed={selectFilter === lv}
+                  className={`cbs-tab ${selectFilter === tk ? 'cbs-tab-on' : ''}`}
+                  onClick={() => setSelectFilter(tk)}
+                  aria-pressed={selectFilter === tk}
                 >
-                  {LEVEL_META[lv]?.label || lv}
+                  {TRACK_META[tk]?.icon} {TRACK_META[tk]?.label || tk}
                 </button>
               ))}
             </div>
           )}
           <div className="cbs-case-groups">
-            {shownLevels.map((lv) => {
-              const cases = pool.filter((c) => c.level === lv);
+            {shownTracks.map((tk) => {
+              const cases = casesInTrack(tk);
               const doneCount = cases.filter((c) => cleared.has(c.id)).length;
+              const meta = TRACK_META[tk] || TRACK_META.other;
               return (
-                <div key={lv} className="cbs-case-group">
+                <div key={tk} className="cbs-case-group">
                   <div className="cbs-group-head">
-                    <span className={`cbs-case-level cbs-lvl-${lv}`}>{LEVEL_META[lv]?.label || lv}</span>
+                    <span className="cbs-track-name">{meta.icon} {meta.label}</span>
                     <span className="cbs-group-prog">ผ่าน {doneCount}/{cases.length}</span>
                   </div>
+                  {meta.desc && <div className="cbs-track-desc">{meta.desc}</div>}
                   <div className="cbs-case-list">
                     {cases.map(renderCase)}
                   </div>

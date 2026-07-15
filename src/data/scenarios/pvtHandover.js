@@ -8,6 +8,7 @@ export const pvtHandover = {
   title: 'Pulseless VT — เมื่อต้องรู้จักขอความช่วยเหลือ',
   subtitle: 'หญิงอายุ 75 ปี หมดสติกลางหอผู้ป่วย คลำชีพจรไม่ได้ จอขึ้นจังหวะเร็วผิดปกติ',
   level: 'megacode',
+  track: 'arrest',
   course: 'acls',
   hiddenCause: null,
   // เคสนี้เป็น arrest แต่จบด้วยการส่งเวรให้ staff อาวุโส ไม่ใช่ ROSC — override ป้าย/ข้อความผลลัพธ์

@@ -8,6 +8,7 @@ export const pregChoking = {
   title: 'สำลักจนหัวใจหยุด — คุณแม่ตั้งครรภ์ 32 สัปดาห์',
   subtitle: 'หญิงตั้งครรภ์ GA 32 สัปดาห์ กำลังกินข้าวแล้วสำลัก ไอไม่ออก เขียว แล้วหมดสติล้มลง',
   level: 'megacode',
+  track: 'special',
   course: 'acls',
   hiddenCause: 'foreign-body',
   story: [

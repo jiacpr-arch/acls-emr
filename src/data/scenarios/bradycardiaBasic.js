@@ -4,6 +4,7 @@ export const bradycardiaBasic = {
   title: 'Bradycardia — ใจเต้นช้าจนหน้ามืด',
   subtitle: 'หญิงอายุ 65 ปี อ่อนเพลีย มึนงง เดินซวนเซ ใจเต้นช้ามาก แต่ยังคลำชีพจรได้ตลอด',
   level: 'basic',
+  track: 'brady',
   course: 'acls',
   hiddenCause: null,
   story: [

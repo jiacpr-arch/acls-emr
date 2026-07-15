@@ -6,6 +6,7 @@ export const refractoryVfAcs = {
   title: 'VF → ROSC → STEMI — ลุงเจ็บหน้าอกที่หัวใจวูบ',
   subtitle: 'ชายอายุ 70 ปี admit ด้วยเจ็บหน้าอก อยู่ๆ หมดสติ จอ monitor ขึ้น VF',
   level: 'megacode',
+  track: 'arrest',
   course: 'acls',
   hiddenCause: 'acs',
   story: [

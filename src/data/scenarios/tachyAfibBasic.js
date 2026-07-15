@@ -8,6 +8,7 @@ export const tachyAfibBasic = {
   title: 'ใจสั่นจังหวะไม่สม่ำเสมอ — AFib with RVR (stable)',
   subtitle: 'หญิงอายุ 62 ปี ใจสั่น เหนื่อยเล็กน้อย ชีพจรเต้นไม่สม่ำเสมอ ยังรู้สึกตัวดี',
   level: 'basic',
+  track: 'tachy',
   course: 'acls',
   hiddenCause: null,
   story: [

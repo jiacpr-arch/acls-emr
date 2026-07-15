@@ -7,6 +7,7 @@ export const bradyOverdose = {
   title: 'Bradycardia — กินยาเกินขนาด',
   subtitle: 'หญิงอายุ 45 ปี กินยาลดความดันเกินขนาด (สงสัย beta-blocker/CCB) ซึมลง ชีพจรช้ามาก',
   level: 'megacode',
+  track: 'brady',
   course: 'acls',
   hiddenCause: 'overdose',
   story: [

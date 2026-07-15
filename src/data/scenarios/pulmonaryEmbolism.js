@@ -6,6 +6,7 @@ export const pulmonaryEmbolism = {
   title: 'PEA — คนไข้หลังผ่าตัดที่จู่ๆ ทรุด',
   subtitle: 'หญิงอายุ 48 ปี ผ่าตัดเปลี่ยนข้อสะโพก 3 วันก่อน ลุกเข้าห้องน้ำแล้วหน้ามืด เหนื่อยหอบ ก่อนหมดสติ',
   level: 'megacode',
+  track: 'causes',
   hiddenCause: 'pulmonary-embolism',
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! พี่เขาลุกจากห้องน้ำแล้วล้มฟุบเลยค่ะ! บ่นเหนื่อยหอบก่อนหน้านี้แป๊บเดียว!' }, t: 5 },

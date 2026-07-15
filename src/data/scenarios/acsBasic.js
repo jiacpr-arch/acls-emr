@@ -8,6 +8,7 @@ export const acsBasic = {
   title: 'ACS — เจ็บแน่นหน้าอกเฉียบพลัน',
   subtitle: 'ชายอายุ 55 ปี เจ็บแน่นหน้าอกร้าวไปแขนซ้าย เหงื่อแตก เดินมาโรงพยาบาลเอง รู้สึกตัวดีตลอด',
   level: 'basic',
+  track: 'acs',
   course: 'acls',
   hiddenCause: null,
   story: [
