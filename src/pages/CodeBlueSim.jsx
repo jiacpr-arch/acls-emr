@@ -7,6 +7,7 @@ import {
 import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
 import { usePreCourseStore } from '../stores/preCourseStore';
+import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
 import CharacterSprite from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
@@ -109,6 +110,8 @@ export default function CodeBlueSim() {
   // นักเรียนที่อยู่ในคลาส (ถ้ามี) — ใช้บันทึกผลเกมขึ้น cloud ให้อาจารย์เห็น
   // ไม่มีก็เล่นได้ปกติ แค่ไม่มีใครเห็นผลนอกจากตัวเอง (เหมือนเดิม)
   const activeStudent = usePreCourseStore((s) => s.activeStudent);
+  // อยู่ในคลาสไหม — ใช้โชว์ปุ่มอันดับเหรียญ (เข้า/ออกคลาสไม่เกิดกลางเกม อ่านครั้งเดียวพอ)
+  const [inClass] = useState(() => !!getClassContext().classCode);
 
   // ---- engine state: mutable ใน ref (logic) + snapshot state (render) ----
   const S = useRef(createInitialState(DEFAULT_DIFFICULTY));
@@ -705,6 +708,11 @@ export default function CodeBlueSim() {
           <button type="button" className="cbs-btn-ghost" onClick={() => { void awardsTick; setScreen('awards'); window.scrollTo(0, 0); }}>
             🏅 รางวัลของฉัน ({listWithEarned(pool, cleared, readGrades()).filter((b) => b.earned).length}/{ACHIEVEMENTS.length})
           </button>
+          {inClass && (
+            <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
+              🏆 อันดับเหรียญในคลาส
+            </button>
+          )}
           <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/')}>
             <Home size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
             กลับหน้าแรก
@@ -851,6 +859,11 @@ export default function CodeBlueSim() {
               <RefreshCw size={16} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 8 }} />
               เล่นเคสนี้อีกครั้ง
             </button>
+            {inClass && (
+              <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
+                🏆 ดูอันดับในคลาส
+              </button>
+            )}
             {pool.length > 1 && (
               <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('select'); window.scrollTo(0, 0); }}>
                 ← เลือกเคสอื่น

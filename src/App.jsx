@@ -22,6 +22,7 @@ import QAAclsDeep from './pages/QAAclsDeep';
 import QAAclsDeepCategory from './pages/QAAclsDeepCategory';
 import QAAclsDeepQuestion from './pages/QAAclsDeepQuestion';
 import CodeBlueSim from './pages/CodeBlueSim';
+import CodeBlueLeaderboard from './pages/CodeBlueLeaderboard';
 import RecorderGameHub from './pages/RecorderGameHub';
 import RecorderGamePlay from './pages/RecorderGamePlay';
 import RecorderEndless from './pages/RecorderEndless';
@@ -150,6 +151,7 @@ function App() {
         {IS_ACLS && <Route path="/qa-acls-deep/:chapterId/:qNum" element={<QAAclsDeepQuestion />} />}
         {/* เกม Code Blue เปิดทั้ง ACLS และ BLS/MorRoo — คลังโจทย์กรองตามโหมดเอง */}
         <Route path="/sim" element={<CodeBlueSim />} />
+        <Route path="/sim-board" element={<CodeBlueLeaderboard />} />
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
         {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}

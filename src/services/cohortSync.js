@@ -146,6 +146,17 @@ export async function rpcSubmitCodeBlueResult({ attemptUuid, studentPk, scenario
   return error ? { error } : { data: true };
 }
 
+// Leaderboard เหรียญ Code Blue ของทั้งคลาส — เปิดให้นักเรียนดูด้วยรหัสคลาส
+// (ไม่ต้องใช้รหัส instructor) server สรุปเหรียญจากผลที่ดีที่สุดต่อเคสให้แล้ว
+export async function rpcGetCodeBlueLeaderboard() {
+  const { classCode } = getClassContext();
+  if (!classCode) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_codeblue_leaderboard', {
+    p_code: classCode,
+  });
+  return error ? { error } : { data: data || [] };
+}
+
 export async function rpcGetCohortCodeblueSummary() {
   const code = instructorAccessCode();
   if (!code) return { error: new Error('no_class') };
