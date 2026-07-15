@@ -7,6 +7,7 @@ export const fbObstruction = {
   title: 'สำลัก — ลุงที่กลืนไม่ลง',
   subtitle: 'ชายอายุ 60 ปี กำลังกินข้าว จู่ๆ กุมคอ หายใจไม่ออก แล้วหมดสติล้มลงต่อหน้าคุณ',
   level: 'megacode',
+  track: 'special',
   course: 'acls',
   hiddenCause: 'foreign-body',
   story: [

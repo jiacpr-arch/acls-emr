@@ -7,6 +7,7 @@ export const tamponade = {
   title: 'PEA — คนไข้มะเร็งที่ความดันดิ่ง',
   subtitle: 'หญิงอายุ 55 ปี มะเร็งปอดระยะลุกลาม เหนื่อยมากขึ้น 2 วัน ความดันค่อยๆ ตก แล้วหมดสติใน ER',
   level: 'megacode',
+  track: 'causes',
   hiddenCause: 'tamponade',
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! พี่เขาความดันวัดแทบไม่ได้แล้วค่ะ เมื่อกี้ยังพูดอยู่เลย ตอนนี้เรียกไม่รู้สึกตัว!' }, t: 5 },

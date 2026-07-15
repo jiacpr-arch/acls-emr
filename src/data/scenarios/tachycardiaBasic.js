@@ -6,6 +6,7 @@ export const tachycardiaBasic = {
   title: 'ใจสั่นกะทันหัน — Tachycardia มีชีพจร',
   subtitle: 'หญิงอายุ 26 ปี ใจสั่นขึ้นมาทันที แน่นหน้าอกเล็กน้อย ยังรู้สึกตัวดี',
   level: 'basic',
+  track: 'tachy',
   course: 'acls',
   hiddenCause: null,
   story: [

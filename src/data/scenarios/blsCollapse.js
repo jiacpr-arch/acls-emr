@@ -6,6 +6,7 @@ export const blsCollapse = {
   title: 'ล้มหมดสติในห้าง',
   subtitle: 'ชายวัยกลางคนล้มลงกับพื้นในห้างสรรพสินค้า คุณเป็นคนแรกที่วิ่งเข้าไป',
   level: 'basic',
+  track: 'arrest',
   course: 'bls',
   hiddenCause: null,
   story: [

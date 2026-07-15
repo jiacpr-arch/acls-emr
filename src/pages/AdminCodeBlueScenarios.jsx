@@ -8,6 +8,7 @@ import {
   deleteScenario, generateScenarioWithAI,
 } from '../services/codeBlueScenarioAdminService';
 import { listCharacters } from '../services/codeBlueCharacterAdminService';
+import { TRACK_META } from '../data/codeBlueScenarios';
 
 const BUILTIN_CHAR_KEYS = ['nurse_mint', 'boy_compressor', 'fon_defib', 'att_dech'];
 
@@ -23,7 +24,7 @@ const blankScenario = () => ({
   id: null, status: 'draft', source: 'manual',
   title: '', subtitle: '', level: 'basic', course: 'acls',
   payload: {
-    title: '', subtitle: '', level: 'basic', course: 'acls', hiddenCause: null,
+    title: '', subtitle: '', level: 'basic', course: 'acls', track: 'other', hiddenCause: null,
     story: [
       { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! คนไข้หมดสติค่ะ!' }, t: 5 },
       { end: true },
@@ -169,6 +170,8 @@ function ScenarioEditor({ item, onClose, navigate, allowedChars = [] }) {
   const [subtitle, setSubtitle] = useState(item.subtitle || item.payload?.subtitle || '');
   const [level, setLevel] = useState(item.level || item.payload?.level || 'basic');
   const [course, setCourse] = useState(item.course || item.payload?.course || 'acls');
+  // หมวดในหน้าเลือกเคส — อยู่ใน payload (ตาราง DB ไม่มีคอลัมน์แยก) ไม่ระบุ = 'other'
+  const [track, setTrack] = useState(item.payload?.track || 'other');
   const [storyText, setStoryText] = useState(
     JSON.stringify(item.payload?.story ?? [], null, 2),
   );
@@ -190,7 +193,7 @@ function ScenarioEditor({ item, onClose, navigate, allowedChars = [] }) {
 
   function buildPayload(story) {
     return {
-      title: title.trim(), subtitle: subtitle.trim(), level, course,
+      title: title.trim(), subtitle: subtitle.trim(), level, course, track,
       hiddenCause: item.payload?.hiddenCause ?? null,
       story,
     };
@@ -265,6 +268,11 @@ function ScenarioEditor({ item, onClose, navigate, allowedChars = [] }) {
             <option value="basic">พื้นฐาน</option>
             <option value="intermediate">ปานกลาง</option>
             <option value="megacode">Megacode</option>
+          </select>
+          <select value={track} onChange={e => setTrack(e.target.value)} className="col-span-2 px-2 py-2 border border-border rounded text-sm">
+            {Object.entries(TRACK_META).map(([key, t]) => (
+              <option key={key} value={key}>หมวด: {t.icon} {t.label}</option>
+            ))}
           </select>
         </div>
       </div>

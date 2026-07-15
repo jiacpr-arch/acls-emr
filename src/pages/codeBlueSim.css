@@ -183,7 +183,40 @@
 .cbs-case-name { font-size: 17px; font-weight: 800; }
 .cbs-case-desc { font-size: 12.5px; color: var(--cbs-dim); line-height: 1.5; }
 
-/* Case-select: filter tabs + grouping by level */
+/* Case-select: การ์ด "เคสแนะนำถัดไป" + ปุ่มสุ่มเคส */
+.cbs-quick-row { display: flex; gap: 10px; align-items: stretch; }
+.cbs-next {
+  appearance: none; cursor: pointer; font-family: inherit; text-align: left;
+  flex: 1; display: flex; flex-direction: column; gap: 4px;
+  border: 2.5px solid var(--cbs-gold); border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(242, 193, 78, .14), rgba(242, 193, 78, .04)),
+    linear-gradient(180deg, var(--cbs-box-hi), var(--cbs-box-lo));
+  color: var(--cbs-ink); padding: 12px 15px;
+  box-shadow: 0 4px 0 #0B1130; transition: transform .08s;
+}
+.cbs-next:active { transform: translateY(3px); box-shadow: 0 1px 0 #0B1130; }
+.cbs-next:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
+.cbs-next-eyebrow {
+  font-family: var(--cbs-mono); font-size: 10px; letter-spacing: .14em;
+  color: var(--cbs-gold); font-weight: 700;
+}
+.cbs-next-name { font-size: 16px; font-weight: 800; }
+.cbs-next-meta { font-size: 11.5px; color: var(--cbs-dim); }
+.cbs-dice {
+  appearance: none; cursor: pointer; font-family: inherit;
+  width: 64px; flex-shrink: 0; font-size: 22px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border: 2.5px solid #33406E; border-radius: 10px;
+  background: linear-gradient(180deg, var(--cbs-box-hi), var(--cbs-box-lo));
+  color: var(--cbs-ink);
+  box-shadow: 0 4px 0 #0B1130; transition: transform .08s;
+}
+.cbs-dice:active { transform: translateY(3px); box-shadow: 0 1px 0 #0B1130; }
+.cbs-dice:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
+.cbs-dice-label { font-size: 9.5px; color: var(--cbs-dim); font-weight: 700; }
+
+/* Case-select: filter tabs + grouping by track (หมวด algorithm) */
 .cbs-select-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
 .cbs-tab {
   appearance: none; cursor: pointer; font-family: inherit;
@@ -205,6 +238,8 @@
   margin-left: auto; font-family: var(--cbs-mono); font-size: 11px;
   letter-spacing: .08em; color: #8B99C4;
 }
+.cbs-track-name { font-size: 15.5px; font-weight: 800; }
+.cbs-track-desc { font-size: 11.5px; color: #8B99C4; line-height: 1.5; margin-top: -5px; }
 
 /* EtCO2 sparkline (debrief) */
 .cbs-etco2 { display: flex; flex-direction: column; gap: 6px; }

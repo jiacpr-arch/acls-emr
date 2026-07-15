@@ -6,6 +6,7 @@ export const alcoholHypo = {
   title: 'PEA — ลุงเบาหวานที่ดื่มหนัก',
   subtitle: 'ชายอายุ 50 ปี เบาหวาน ดื่มสุราหนักมาหลายวัน ญาติพามาด้วยซึมลง แล้วหมดสติใน ER',
   level: 'megacode',
+  track: 'causes',
   course: 'acls',
   hiddenCause: 'hypoglycemia',
   story: [

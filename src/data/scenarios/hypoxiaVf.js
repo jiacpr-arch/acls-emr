@@ -7,6 +7,7 @@ export const hypoxiaVf = {
   title: 'Refractory VF — ยิงไฟเท่าไรก็ไม่กลับ',
   subtitle: 'หญิงอายุ 30 ปี VF cardiac arrest ที่ยิงไฟหลายรอบก็ยังดื้อ ระหว่าง CPR มีอาการชักเกร็ง',
   level: 'megacode',
+  track: 'arrest',
   course: 'acls',
   hiddenCause: 'hypoxia',
   story: [

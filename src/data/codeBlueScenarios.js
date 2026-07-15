@@ -6,6 +6,7 @@
 //
 // แต่ละเคสมี field:
 //   id, title, subtitle, level ('basic'|'intermediate'|'megacode'),
+//   track (หมวดในหน้าเลือกเคส — key ของ TRACK_META, ไม่ระบุ = 'other'),
 //   course ('acls'|'bls' — ไม่ระบุ = ตามได้ทั้งสองโหมด), hiddenCause, story[]
 //
 // คลังกรองตาม COURSE_MODE: acls.morroo.com เห็นเคส ACLS,
@@ -50,45 +51,48 @@ import { mobitz2Vf } from './scenarios/mobitz2Vf';
 import { svtCascade } from './scenarios/svtCascade';
 import { pvtHandover } from './scenarios/pvtHandover';
 
-// เคสทั้งหมดในระบบ (built-in) — เรียงจากง่ายไปยาก
+// เคสทั้งหมดในระบบ (built-in) — จัดเรียงตามหมวด (track) และในหมวดเรียงง่าย→ยาก
+// ลำดับในนี้คือ "บันได" ของแต่ละหมวดบนหน้าเลือกเคส + ลำดับเคสแนะนำถัดไป
 const allScenarios = [
+  // ── 🫀 Cardiac Arrest หลัก ── วนลูป CPR-Shock-ยา ให้เป็นอัตโนมัติ
   vfArrest,
-  peaHyperK,
-  blsCollapse,
-  blsChoking,
-  // ── ACLS Basic pack ── เคสเดี่ยว ทีละ algorithm/แขนงย่อย
   peaAsystoleBasic,
+  vfPeaVfAcs,
+  refractoryVfAcs,
+  pvtHandover,
+  hypoxiaVf,
+  // ── 🐢 Bradycardia ──
   bradycardiaStableBasic,
   bradycardiaBasic,
+  mobitz2Vf,
+  completeHeartBlock,
+  bradyOverdose,
+  // ── ⚡ Tachycardia ──
   tachycardiaBasic,
   tachyAfibBasic,
   tachyWideVtBasic,
   tachyUnstableBasic,
+  svtCascade,
+  // ── 💔 ACS ──
   acsBasic,
   acsNstemiBasic,
-  // ── ACLS Megacode pack ──
-  // arrest ที่เน้นการหาสาเหตุ (H's & T's)
-  traumaArrest,
-  copdDope,
-  pregChoking,
-  hypoxiaVf,
-  refractoryVfAcs,
-  vfPeaVfAcs,
-  fbObstruction,
+  // ── 🔍 สืบหาสาเหตุ (H's & T's) ── arrest ที่ต้องแก้สาเหตุถึงจะรอด
+  peaHyperK,
   alcoholHypo,
-  aaaRupture,
-  preeclampsia,
-  // เติมเต็ม H's & T's ที่ยังขาด: tension pneumo / tamponade / PE / hypothermia
+  copdDope,
   tensionPneumo,
   tamponade,
   pulmonaryEmbolism,
   hypothermiaVf,
-  // brady / tachy / peri-arrest
-  bradyOverdose,
-  completeHeartBlock,
-  mobitz2Vf,
-  svtCascade,
-  pvtHandover,
+  aaaRupture,
+  // ── 🚨 สถานการณ์พิเศษ ── ตั้งครรภ์ / trauma / สำลัก
+  fbObstruction,
+  pregChoking,
+  preeclampsia,
+  traumaArrest,
+  // ── BLS (MorRoo) ──
+  blsCollapse,
+  blsChoking,
 ];
 
 // เคสที่ไม่ระบุ course ถือว่าเป็น acls (ค่าเริ่มต้นเดิม)
@@ -123,3 +127,38 @@ export const LEVEL_META = {
   intermediate: { label: 'ปานกลาง', order: 1 },
   megacode: { label: 'Megacode', order: 2 },
 };
+
+// หมวดของเคส (track) — จัดตาม algorithm/ธีมการเรียนแบบหลักสูตร ACLS
+// หน้าเลือกเคสจัดกลุ่มตามนี้ แทนการกองรวมตาม level ที่ยาวเป็นเส้นเดียว
+export const TRACK_META = {
+  arrest: {
+    label: 'Cardiac Arrest หลัก', icon: '🫀', order: 0,
+    desc: 'VF/pVT · PEA/Asystole — วนลูป CPR-Shock-ยา ให้เป็นอัตโนมัติ',
+  },
+  brady: {
+    label: 'Bradycardia', icon: '🐢', order: 1,
+    desc: 'หัวใจเต้นช้า — ประเมิน stable/unstable, atropine, pacing',
+  },
+  tachy: {
+    label: 'Tachycardia', icon: '⚡', order: 2,
+    desc: 'หัวใจเต้นเร็ว — แคบ/กว้าง สม่ำเสมอ/ไม่สม่ำเสมอ, cardioversion',
+  },
+  acs: {
+    label: 'ACS', icon: '💔', order: 3,
+    desc: 'เจ็บแน่นหน้าอก — STEMI/NSTEMI, ECG 12 lead, เปิดทาง PCI',
+  },
+  causes: {
+    label: "สืบหาสาเหตุ (H's & T's)", icon: '🔍', order: 4,
+    desc: 'arrest ที่ CPR อย่างเดียวไม่พอ — หาสาเหตุที่แก้ได้ให้เจอ',
+  },
+  special: {
+    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 5,
+    desc: 'ตั้งครรภ์ · trauma · สำลัก — สถานการณ์ที่ algorithm ต้องปรับ',
+  },
+  other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
+};
+
+// เคสที่ไม่ระบุ track (เช่น โจทย์เก่าจาก Supabase) ตกหมวด 'other'
+export function trackOf(s) {
+  return TRACK_META[s.track] ? s.track : 'other';
+}

@@ -7,6 +7,7 @@ export const hypothermiaVf = {
   title: 'VF — คนแช่น้ำเย็นที่ตัวเย็นเฉียบ',
   subtitle: 'ชายอายุ 40 ปี ตกลงไปในอ่างเก็บน้ำหน้าหนาว กู้ภัยนำส่ง ตัวเย็นจัด ซึม แล้วหมดชีพจร',
   level: 'megacode',
+  track: 'causes',
   hiddenCause: 'hypothermia',
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! คนไข้ตัวเย็นเฉียบเลยค่ะ ริมฝีปากเขียว วัดอุณหภูมิแกนได้แค่ 27 องศา!' }, t: 5 },

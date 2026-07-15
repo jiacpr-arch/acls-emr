@@ -8,6 +8,7 @@ export const bradycardiaStableBasic = {
   title: 'หัวใจเต้นช้า — แต่คนไข้ยังสบายดี',
   subtitle: 'ชายอายุ 62 ปี มาตรวจตามนัด วัด HR ได้ ~45 โดยบังเอิญ รู้สึกตัวดี ไม่มีอาการ',
   level: 'basic',
+  track: 'brady',
   course: 'acls',
   hiddenCause: null,
   story: [

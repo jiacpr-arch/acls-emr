@@ -7,6 +7,7 @@ export const svtCascade = {
   title: 'ใจสั่นจนหัวใจล้ม — SVT ที่ลามเป็น arrest',
   subtitle: 'ชายอายุ 30 ปี ใจสั่น เจ็บหน้าอก อัตราหัวใจเร็วมาก ECG ไม่มี ischemic change',
   level: 'megacode',
+  track: 'tachy',
   course: 'acls',
   hiddenCause: null,
   story: [

@@ -11,6 +11,7 @@ export const acsNstemiBasic = {
   title: 'เจ็บหน้าอก — แต่จอ ECG ไม่มี ST ยก',
   subtitle: 'หญิงอายุ 64 ปี เจ็บแน่นหน้าอกร้าวลงแขนซ้าย ~40 นาที รู้สึกตัวดี ชีพจรเต้นชัดตลอด',
   level: 'basic',
+  track: 'acs',
   course: 'acls',
   hiddenCause: null,
   story: [

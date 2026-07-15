@@ -8,6 +8,7 @@ export const completeHeartBlock = {
   title: 'หัวใจบล็อกสมบูรณ์ — ชีพจรช้าจนวูบ',
   subtitle: 'หญิงอายุ 30 ปี ใจสั่น หน้ามืด เกือบเป็นลม ชีพจรเต้นช้ามากแต่ยังคลำได้',
   level: 'megacode',
+  track: 'brady',
   course: 'acls',
   hiddenCause: null,
   story: [

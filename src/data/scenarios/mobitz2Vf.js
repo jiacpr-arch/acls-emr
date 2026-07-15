@@ -7,6 +7,7 @@ export const mobitz2Vf = {
   title: 'AV Block ที่ทรุดเป็น VF — ลุงหลัง CABG',
   subtitle: 'ชายอายุ 60 ปี เบาหวาน เคยผ่าตัด CABG มาด้วยเจ็บแน่นหน้าอก หน้ามืด ชีพจรช้า',
   level: 'megacode',
+  track: 'brady',
   course: 'acls',
   hiddenCause: 'acs',
   story: [

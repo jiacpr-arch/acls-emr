@@ -7,6 +7,7 @@ export const traumaArrest = {
   title: 'Trauma Arrest — รถชนความดันตก',
   subtitle: 'ชายอายุ 30 ปี อุบัติเหตุรถชน หมดสติ ความดันตก มาถึง ER แล้วหัวใจหยุดเต้น',
   level: 'megacode',
+  track: 'special',
   course: 'acls',
   hiddenCause: 'tension-pneumothorax',
   story: [

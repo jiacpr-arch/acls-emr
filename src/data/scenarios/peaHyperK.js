@@ -6,6 +6,7 @@ export const peaHyperK = {
   title: 'PEA — ป้าที่ขาดล้างไต',
   subtitle: 'หญิงอายุ 70 ปี CKD ระยะสุดท้าย ญาติพามาด้วยอ่อนเพลีย ซึมลง แล้วหมดสติใน ER',
   level: 'megacode',
+  track: 'causes',
   hiddenCause: 'hyperkalemia',
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! ป้าเตียง 5 เรียกไม่รู้สึกตัวแล้วค่ะ! เมื่อกี้ยังบ่นเหนื่อยอยู่เลย!' }, t: 5 },

@@ -7,6 +7,7 @@ export const tensionPneumo = {
   title: 'PEA — ลุง COPD ที่จู่ๆ ดิ้นแล้วนิ่ง',
   subtitle: 'ชายอายุ 65 ปี COPD กำเริบ ใส่ท่อช่วยหายใจอยู่ จู่ๆ ความดันตก ออกซิเจนวูบ แล้วหมดชีพจร',
   level: 'megacode',
+  track: 'causes',
   hiddenCause: 'tension-pneumothorax',
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! ลุงเตียง 3 ความดันตกฮวบ SpO₂ เหลือ 60 แล้วค่ะ! เครื่องช่วยหายใจ alarm ดังลั่น!' }, t: 5 },

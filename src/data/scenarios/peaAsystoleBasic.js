@@ -6,6 +6,7 @@ export const peaAsystoleBasic = {
   title: 'PEA/Asystole — หมดสติในหอผู้ป่วย',
   subtitle: 'ชายอายุ 54 ปี หมดสติกะทันหันในหอผู้ป่วย ไม่ทราบสาเหตุชัดเจน',
   level: 'basic',
+  track: 'arrest',
   course: 'acls',
   hiddenCause: null,
   story: [

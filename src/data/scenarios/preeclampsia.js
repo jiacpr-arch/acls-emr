@@ -8,6 +8,7 @@ export const preeclampsia = {
   title: 'Maternal Arrest — คุณแม่ครรภ์เป็นพิษ',
   subtitle: 'หญิงอายุ 28 ปี G2P1A0 GA 36 สัปดาห์ severe preeclampsia BP 180/100 urine protein +++ แล้วหมดสติหัวใจหยุดเต้น',
   level: 'megacode',
+  track: 'special',
   course: 'acls',
   hiddenCause: 'eclampsia',
   story: [

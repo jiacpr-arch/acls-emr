@@ -7,6 +7,7 @@ export const tachyUnstableBasic = {
   title: 'ใจสั่นจนความดันตก — Unstable Tachycardia',
   subtitle: 'หญิงอายุ 62 ปี ใจสั่นรุนแรง หน้ามืด เหงื่อแตก อัตราหัวใจเร็วมาก ยังพอมีสติ',
   level: 'basic',
+  track: 'tachy',
   course: 'acls',
   hiddenCause: null,
   story: [
