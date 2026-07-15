@@ -521,3 +521,48 @@
     animation: none !important;
   }
 }
+
+/* ============ AWARDS / เหรียญรางวัล ============ */
+.cbs-award-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  width: 100%; margin: 6px 0 18px;
+}
+.cbs-badge {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 4px; padding: 14px 10px; border-radius: 12px;
+  border: 2px solid #33406E; background: rgba(10, 16, 36, .55);
+}
+.cbs-badge-on {
+  border-color: var(--cbs-gold);
+  background: linear-gradient(180deg, rgba(242, 193, 78, .16), rgba(10, 16, 36, .55));
+  box-shadow: 0 0 14px rgba(242, 193, 78, .22);
+}
+.cbs-badge-off { opacity: .58; filter: grayscale(.5); }
+.cbs-badge-icon { font-size: 30px; line-height: 1; }
+.cbs-badge-title { font-size: 12.5px; font-weight: 800; color: var(--cbs-ink); }
+.cbs-badge-off .cbs-badge-title { color: var(--cbs-dim); }
+.cbs-badge-desc { font-size: 10.5px; line-height: 1.4; color: var(--cbs-dim); }
+
+/* เผยรางวัลใหม่ในหน้า debrief */
+.cbs-award-reveal {
+  width: 100%; margin: 4px 0 14px; padding: 12px;
+  border: 2px solid var(--cbs-gold); border-radius: 12px;
+  background: linear-gradient(180deg, rgba(242, 193, 78, .18), rgba(10, 16, 36, .5));
+}
+.cbs-award-reveal-head {
+  font-family: var(--cbs-mono); font-size: 11px; letter-spacing: .16em;
+  color: var(--cbs-gold); text-transform: uppercase; margin-bottom: 8px;
+}
+.cbs-award-reveal-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.cbs-badge-new {
+  flex-direction: row; gap: 7px; padding: 8px 12px;
+  border-color: var(--cbs-gold);
+  background: rgba(242, 193, 78, .14);
+  animation: cbs-slam .4s cubic-bezier(.2, 1.3, .5, 1) both;
+}
+.cbs-badge-new .cbs-badge-icon { font-size: 20px; }
+.cbs-badge-new .cbs-badge-title { font-size: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cbs-badge-new { animation: none !important; }
+}
