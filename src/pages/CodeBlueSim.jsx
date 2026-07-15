@@ -14,7 +14,7 @@ import EcgStrip from '../game/EcgStrip';
 import {
   createInitialState, applyFx, nextNode, recordCorrect, recordWrong,
   gradeFor, fmtTime, shuffled, getDifficulty, pushEtco2, wasArrest, correctCount,
-  scoreFor, speedBonus, avgSpeed, FAST_FRACTION,
+  scoreFor, speedBonus, avgSpeed, FAST_FRACTION, comboMultiplier,
   DIFFICULTY, DEFAULT_DIFFICULTY,
 } from '../game/storyEngine';
 import {
@@ -163,6 +163,7 @@ export default function CodeBlueSim() {
   const [flashN, setFlashN] = useState(0);
   const [redN, setRedN] = useState(0);
   const [shaking, setShaking] = useState(false);
+  const [comboBreak, setComboBreak] = useState(null); // { n, k } โชว์ตอนคอมโบขาด
   const [result, setResult] = useState(null); // { won, grade, score, isHiscore }
   const [hiscore, setHiscore] = useState(() => Number(localStorage.getItem(hiscoreKey(difficulty)) || 0));
 
@@ -172,6 +173,7 @@ export default function CodeBlueSim() {
   const currentChoiceRef = useRef(null);
   const retryChoiceRef = useRef(null);
   const decisionLeftRef = useRef(0); // เวลาที่เหลือ ณ วินาทีที่กดเลือก (คำนวณโบนัสความไว)
+  const comboBreakN = useRef(0);     // key ให้อนิเมชัน COMBO BREAK เล่นซ้ำได้
   const hintUsedRef = useRef(false); // โหมดง่าย: ใบ้ target หลังตอบผิดครั้งแรกของแต่ละจุด
   const typeDoneRef = useRef(null);
   const fullHtmlRef = useRef('');
@@ -462,11 +464,18 @@ export default function CodeBlueSim() {
       recordCorrect(st, option, speedFrac);
       currentChoiceRef.current = null;
       hintUsedRef.current = false; // จุดถัดไปเริ่มใหม่ ไม่ใบ้
+      // เสียงคอมโบ — ยิ่งสตรีคยาว เสียงยิ่งสูงขึ้น (juice)
+      if (st.combo >= 2) sfx(() => playBeep(360 + Math.min(st.combo, 8) * 70, 0.1, 0.22));
       syncView();
       advance();
       return;
     }
 
+    // คอมโบขาด — ถ้าสตรีคเคยยาวพอ โชว์ "BREAK" ให้รู้สึกถึงการเสีย streak
+    if (st.combo >= 3) {
+      setComboBreak({ n: st.combo, k: comboBreakN.current++ });
+      later(() => setComboBreak(null), reducedMotion ? 300 : 900);
+    }
     recordWrong(st, option);
     pushEtco2(st);
     hintUsedRef.current = true; // จุดนี้เคยพลาด — โหมดง่ายจะใบ้ตอนเล่นซ้ำ
@@ -531,6 +540,7 @@ export default function CodeBlueSim() {
     hintUsedRef.current = false;
     setResult(null);
     setFreshAwards([]);
+    setComboBreak(null);
     setChoice(null);
     setInter(null);
     setDrama(null);
@@ -813,6 +823,9 @@ export default function CodeBlueSim() {
             {result.won && result.bonus > 0 && (
               <><br />⚡ โบนัสความไว +{result.bonus} คะแนน (ตอบถูกเร็ว)</>
             )}
+            {result.won && comboMultiplier(st) > 1 && (
+              <><br />🔥 สตรีคสูงสุด ×{st.maxCombo} — ตัวคูณคะแนน ×{comboMultiplier(st).toFixed(2)}</>
+            )}
             {result.isHiscore && <><br />🏆 New Hi-Score: {result.score}</>}
           </p>
           {freshAwards.length > 0 && (
@@ -840,6 +853,9 @@ export default function CodeBlueSim() {
               {result.won && st.speedCount > 0 && (
                 <Metric label="ความไวเฉลี่ย" value={`${Math.round(result.speed * 100)}%`}
                   tone={result.speed >= FAST_FRACTION ? 'good' : 'warn'} />
+              )}
+              {result.won && st.maxCombo >= 2 && (
+                <Metric label="สตรีคสูงสุด" value={`×${st.maxCombo}`} tone="good" />
               )}
               {/* เมตริกเฉพาะเคส arrest — โชว์เฉพาะเมื่อเกิดจริง ไม่ขึ้น "—" ในเคสที่ไม่เกี่ยวข้อง */}
               {st.firstCPRAt >= 0 && (
@@ -934,6 +950,19 @@ export default function CodeBlueSim() {
               <div className="cbs-timechip">{fmtTime(st.simTime)}</div>
             </div>
           </div>
+
+          {/* คอมโบสด — ยิ่งสตรีคยาว ป้ายยิ่งใหญ่/ร้อน (juice), รีปั๊มทุกครั้งที่เพิ่ม */}
+          {st.combo >= 2 && (
+            <div className={`cbs-combo cbs-combo-t${Math.min(st.combo, 6)}`} key={`combo-${st.combo}`}>
+              <span className="cbs-combo-label">COMBO</span>
+              <span className="cbs-combo-n">×{st.combo}</span>
+            </div>
+          )}
+          {comboBreak && (
+            <div className="cbs-combo-break" key={`brk-${comboBreak.k}`}>
+              COMBO ×{comboBreak.n} BREAK!
+            </div>
+          )}
 
           {/* ปุ่มเมนูระหว่างเล่น — ซ่อนตอนกำลังเลือก (choices overlay) กันกดพลาด */}
           {!choice && (

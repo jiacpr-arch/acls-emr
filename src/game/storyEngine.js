@@ -23,6 +23,11 @@ export const SPEED_BONUS_MAX = 25;
 // ตอบถูกภายในครึ่งแรกของเวลา = "ไว" (ใช้เป็นเกณฑ์เหรียญสายฟ้า)
 export const FAST_FRACTION = 0.5;
 
+// คอมโบ: ตอบถูกติดกันไม่พลาด → ตัวคูณคะแนนรวมสูงขึ้น (สูงสุด ×1.5 ที่สตรีค 10)
+// ตัดสินใจผิด 1 ครั้ง คอมโบขาด (รีเซ็ตเป็น 0) — ให้รางวัลความสม่ำเสมอทั้งเคส
+export const COMBO_CAP = 10;
+export const COMBO_STEP = 0.05;
+
 export function getDifficulty(id) {
   return DIFFICULTY[id] || DIFFICULTY[DEFAULT_DIFFICULTY];
 }
@@ -53,6 +58,8 @@ export function createInitialState(difficultyId = DEFAULT_DIFFICULTY) {
     etco2Trace: [], // ค่าสะท้อนคุณภาพ CPR ตามเวลา สำหรับกราฟใน debrief
     speedSum: 0,    // ผลรวม fraction เวลาที่เหลือของทุกจุดที่ตอบถูก (0..1 ต่อจุด)
     speedCount: 0,  // จำนวนจุดตัดสินใจที่ตอบถูก (ใช้หารเป็นค่าเฉลี่ย)
+    combo: 0,       // สตรีคปัจจุบัน — ตอบถูกติดกันกี่ครั้ง (รีเซ็ตเมื่อผิด)
+    maxCombo: 0,    // สตรีคยาวสุดในเคส (ใช้คิดตัวคูณคะแนน + โชว์ debrief)
   };
 }
 
@@ -109,6 +116,8 @@ export function recordCorrect(state, option, speedFrac) {
     state.speedSum += Math.max(0, Math.min(1, speedFrac));
     state.speedCount += 1;
   }
+  state.combo += 1;
+  if (state.combo > state.maxCombo) state.maxCombo = state.combo;
   state.queue.push(...(option.then || []));
 }
 
@@ -122,14 +131,21 @@ export function speedBonus(state, won) {
   return won ? Math.round(avgSpeed(state) * SPEED_BONUS_MAX) : 0;
 }
 
-// คะแนนรวม = ความแม่นยำ (100 − ผิด×15, ขั้นต่ำ 10) + โบนัสความไว
+// ตัวคูณคอมโบ: สตรีคยาวสุดในเคส → ×1.0 ถึง ×1.5 (สตรีค 10 ขึ้นไป)
+export function comboMultiplier(state) {
+  return 1 + Math.min(state.maxCombo, COMBO_CAP) * COMBO_STEP;
+}
+
+// คะแนนรวม = (ความแม่นยำ 100 − ผิด×15 ขั้นต่ำ 10 + โบนัสความไว) × ตัวคูณคอมโบ
 export function scoreFor(state, won) {
   if (!won) return 0;
-  return Math.max(10, 100 - state.wrong * 15) + speedBonus(state, won);
+  const base = Math.max(10, 100 - state.wrong * 15) + speedBonus(state, won);
+  return Math.round(base * comboMultiplier(state));
 }
 
 export function recordWrong(state, option) {
   state.wrong += 1;
+  state.combo = 0; // คอมโบขาดทันทีที่ตัดสินใจผิด
   state.hp = Math.max(0, state.hp - 1);
   state.simTime += 20; // ความผิดพลาดกินเวลาเสมอ
   state.timeline.push({
