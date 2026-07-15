@@ -17,6 +17,12 @@ export const DIFFICULTY = {
 };
 export const DEFAULT_DIFFICULTY = 'normal';
 
+// โบนัสความไว: ตอบถูกเร็ว (เหลือเวลามาก) ได้แต้มเพิ่ม สูงสุด +SPEED_BONUS_MAX
+// เมื่อเฉลี่ยแล้วตอบทุกจุดในจังหวะแรกๆ — ความแม่นยำยังมาก่อน (base 100), ไวเป็นของแถม
+export const SPEED_BONUS_MAX = 25;
+// ตอบถูกภายในครึ่งแรกของเวลา = "ไว" (ใช้เป็นเกณฑ์เหรียญสายฟ้า)
+export const FAST_FRACTION = 0.5;
+
 export function getDifficulty(id) {
   return DIFFICULTY[id] || DIFFICULTY[DEFAULT_DIFFICULTY];
 }
@@ -45,6 +51,8 @@ export function createInitialState(difficultyId = DEFAULT_DIFFICULTY) {
     rosc: false,
     timeline: [],
     etco2Trace: [], // ค่าสะท้อนคุณภาพ CPR ตามเวลา สำหรับกราฟใน debrief
+    speedSum: 0,    // ผลรวม fraction เวลาที่เหลือของทุกจุดที่ตอบถูก (0..1 ต่อจุด)
+    speedCount: 0,  // จำนวนจุดตัดสินใจที่ตอบถูก (ใช้หารเป็นค่าเฉลี่ย)
   };
 }
 
@@ -92,10 +100,32 @@ export function nextNode(state, story) {
   return null;
 }
 
-export function recordCorrect(state, option) {
+// speedFrac = สัดส่วนเวลาที่ยังเหลือตอนตอบถูก (0 = ตอบตอนหมดเวลาพอดี, 1 = ตอบทันที)
+// ตอบเร็ว → speedFrac สูง → โบนัสความไวมากขึ้น
+export function recordCorrect(state, option, speedFrac) {
   state.timeline.push({ t: state.simTime, ok: true, text: option.label });
   state.simTime += 8;
+  if (Number.isFinite(speedFrac)) {
+    state.speedSum += Math.max(0, Math.min(1, speedFrac));
+    state.speedCount += 1;
+  }
   state.queue.push(...(option.then || []));
+}
+
+// ความไวเฉลี่ยตลอดเคส (0..1) — สัดส่วนเวลาที่เหลือโดยเฉลี่ยเวลาตอบถูก
+export function avgSpeed(state) {
+  return state.speedCount ? state.speedSum / state.speedCount : 0;
+}
+
+// โบนัสความไว (แต้ม) — ให้เฉพาะตอนชนะ
+export function speedBonus(state, won) {
+  return won ? Math.round(avgSpeed(state) * SPEED_BONUS_MAX) : 0;
+}
+
+// คะแนนรวม = ความแม่นยำ (100 − ผิด×15, ขั้นต่ำ 10) + โบนัสความไว
+export function scoreFor(state, won) {
+  if (!won) return 0;
+  return Math.max(10, 100 - state.wrong * 15) + speedBonus(state, won);
 }
 
 export function recordWrong(state, option) {

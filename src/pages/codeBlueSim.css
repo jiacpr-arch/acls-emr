@@ -119,6 +119,7 @@
 .cbs-diff-name { font-size: 15px; font-weight: 800; }
 .cbs-diff-meta { font-family: var(--cbs-mono); font-size: 10px; color: #8B99C4; }
 .cbs-diff-on .cbs-diff-meta { color: var(--cbs-gold); }
+.cbs-diff-hint { font-size: 11px; color: var(--cbs-gold); text-align: center; opacity: .85; }
 
 .cbs-title-row { display: flex; align-items: center; gap: 10px; }
 .cbs-icon-btn {

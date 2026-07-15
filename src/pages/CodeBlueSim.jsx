@@ -14,6 +14,7 @@ import EcgStrip from '../game/EcgStrip';
 import {
   createInitialState, applyFx, nextNode, recordCorrect, recordWrong,
   gradeFor, fmtTime, shuffled, getDifficulty, pushEtco2, wasArrest, correctCount,
+  scoreFor, speedBonus, avgSpeed, FAST_FRACTION,
   DIFFICULTY, DEFAULT_DIFFICULTY,
 } from '../game/storyEngine';
 import {
@@ -170,6 +171,7 @@ export default function CodeBlueSim() {
   const [awaitTap, setAwaitTap] = useState(false);
   const currentChoiceRef = useRef(null);
   const retryChoiceRef = useRef(null);
+  const decisionLeftRef = useRef(0); // เวลาที่เหลือ ณ วินาทีที่กดเลือก (คำนวณโบนัสความไว)
   const hintUsedRef = useRef(false); // โหมดง่าย: ใบ้ target หลังตอบผิดครั้งแรกของแต่ละจุด
   const typeDoneRef = useRef(null);
   const fullHtmlRef = useRef('');
@@ -281,7 +283,11 @@ export default function CodeBlueSim() {
     clearAllTimers();
     const st = S.current;
     const grade = gradeFor(st, won);
-    const score = won ? Math.max(10, 100 - st.wrong * 15) : 0;
+    const score = scoreFor(st, won);
+    const bonus = speedBonus(st, won);
+    const speed = avgSpeed(st);
+    // เคลียร์แบบ "ไว": ชนะ ไม่ผิดเลย และเฉลี่ยตอบถูกในครึ่งแรกของเวลา → เหรียญสายฟ้า
+    const fastClear = won && st.wrong === 0 && speed >= FAST_FRACTION;
     const key = hiscoreKey(st.difficulty);
     let isHiscore = false;
     if (score > Number(localStorage.getItem(key) || 0)) {
@@ -296,7 +302,7 @@ export default function CodeBlueSim() {
       setCleared(nextCleared);
       localStorage.setItem(CLEARED_KEY, JSON.stringify([...nextCleared]));
       // บันทึกเกรด + ปลดล็อกเหรียญ (client-side ล้วน) — โชว์เหรียญใหม่ในหน้า debrief
-      const grades = recordGrade(sc.id, grade, st.difficulty);
+      const grades = recordGrade(sc.id, grade, st.difficulty, fastClear);
       const { fresh: freshIds } = syncAwards(pool, nextCleared, grades);
       fresh = ACHIEVEMENTS.filter((a) => freshIds.includes(a.id));
       setAwardsTick((n) => n + 1);
@@ -335,7 +341,7 @@ export default function CodeBlueSim() {
       },
     });
     syncView();
-    setResult({ won, grade, score, isHiscore });
+    setResult({ won, grade, score, isHiscore, bonus, speed });
     setChoice(null);
     setInter(null);
     setScreen('debrief');
@@ -352,10 +358,12 @@ export default function CodeBlueSim() {
       : null;
     setChoice({ q: c.q, options: shuffled(c.options), hintTgt });
     setDecisionLeft(diff.decisionTime);
+    decisionLeftRef.current = diff.decisionTime;
     if (timers.current.dec) clearInterval(timers.current.dec);
     let left = diff.decisionTime;
     timers.current.dec = setInterval(() => {
       left -= 0.25;
+      decisionLeftRef.current = left;
       setDecisionLeft(left);
       if (left <= 0) {
         clearInterval(timers.current.dec);
@@ -448,7 +456,10 @@ export default function CodeBlueSim() {
     const st = S.current;
 
     if (option.ok) {
-      recordCorrect(st, option);
+      // สัดส่วนเวลาที่เหลือ = ความไว (ตอบทันที ≈ 1, ตอบตอนจวนหมดเวลา ≈ 0)
+      const dt = getDifficulty(st.difficulty).decisionTime;
+      const speedFrac = dt > 0 ? decisionLeftRef.current / dt : 0;
+      recordCorrect(st, option, speedFrac);
       currentChoiceRef.current = null;
       hintUsedRef.current = false; // จุดถัดไปเริ่มใหม่ ไม่ใบ้
       syncView();
@@ -750,6 +761,7 @@ export default function CodeBlueSim() {
                 </button>
               ))}
             </div>
+            <div className="cbs-diff-hint">⚡ ตอบถูกเร็ว = ได้โบนัสคะแนน</div>
           </div>
           <div className="cbs-title-row">
             {hiscore > 0 && <div className="cbs-hiscore-chip">HI-SCORE {hiscore}</div>}
@@ -798,6 +810,9 @@ export default function CodeBlueSim() {
           <div className="cbs-diff-badge">โหมด {getDifficulty(st.difficulty).label}</div>
           <p className="cbs-verdict-sub">
             {winSub}
+            {result.won && result.bonus > 0 && (
+              <><br />⚡ โบนัสความไว +{result.bonus} คะแนน (ตอบถูกเร็ว)</>
+            )}
             {result.isHiscore && <><br />🏆 New Hi-Score: {result.score}</>}
           </p>
           {freshAwards.length > 0 && (
@@ -822,6 +837,10 @@ export default function CodeBlueSim() {
               <Metric label="ตัดสินใจถูก" value={String(correctCount(st))} tone="good" />
               <Metric label="ตัดสินใจพลาด" value={String(st.wrong)}
                 tone={st.wrong === 0 ? 'good' : st.wrong <= 2 ? 'warn' : 'badv'} />
+              {result.won && st.speedCount > 0 && (
+                <Metric label="ความไวเฉลี่ย" value={`${Math.round(result.speed * 100)}%`}
+                  tone={result.speed >= FAST_FRACTION ? 'good' : 'warn'} />
+              )}
               {/* เมตริกเฉพาะเคส arrest — โชว์เฉพาะเมื่อเกิดจริง ไม่ขึ้น "—" ในเคสที่ไม่เกี่ยวข้อง */}
               {st.firstCPRAt >= 0 && (
                 <Metric label="เริ่ม CPR ภายใน" value={fmtTime(st.firstCPRAt)}
