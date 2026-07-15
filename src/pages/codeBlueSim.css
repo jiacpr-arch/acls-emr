@@ -183,6 +183,29 @@
 .cbs-case-name { font-size: 17px; font-weight: 800; }
 .cbs-case-desc { font-size: 12.5px; color: var(--cbs-dim); line-height: 1.5; }
 
+/* Case-select: filter tabs + grouping by level */
+.cbs-select-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.cbs-tab {
+  appearance: none; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 700; color: var(--cbs-dim);
+  border: 2px solid #33406E; border-radius: 999px;
+  background: rgba(10, 16, 36, .55); padding: 7px 16px;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.cbs-tab:active { transform: translateY(1px); }
+.cbs-tab:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
+.cbs-tab-on {
+  border-color: var(--cbs-gold); color: var(--cbs-ink);
+  background: rgba(242, 193, 78, .12);
+}
+.cbs-case-groups { display: flex; flex-direction: column; gap: 18px; flex: 1; }
+.cbs-case-group { display: flex; flex-direction: column; gap: 10px; }
+.cbs-group-head { display: flex; align-items: center; gap: 10px; }
+.cbs-group-prog {
+  margin-left: auto; font-family: var(--cbs-mono); font-size: 11px;
+  letter-spacing: .08em; color: #8B99C4;
+}
+
 /* EtCO2 sparkline (debrief) */
 .cbs-etco2 { display: flex; flex-direction: column; gap: 6px; }
 .cbs-spark {
@@ -277,6 +300,39 @@
   font-size: 12px; font-weight: 700; color: var(--cbs-ink);
   background: rgba(4, 8, 18, .82); border: 2px solid #33406E; border-radius: 6px;
   padding: 4px 9px;
+}
+
+/* ปุ่มเมนูระหว่างเล่น (มุมล่างซ้ายของ stage) */
+.cbs-menu-btn {
+  position: absolute; left: 12px; bottom: 12px; z-index: 7;
+  appearance: none; cursor: pointer;
+  width: 38px; height: 38px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; line-height: 1; color: var(--cbs-dim);
+  border: 2px solid #33406E; background: rgba(4, 8, 18, .82);
+}
+.cbs-menu-btn:active { transform: translateY(2px); }
+.cbs-menu-btn:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
+
+/* เมนูออก/เล่นใหม่ (overlay) */
+.cbs-quit {
+  position: fixed; inset: 0; z-index: 42;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; background: rgba(6, 10, 24, .78); backdrop-filter: blur(3px);
+}
+.cbs-quit-card {
+  width: 100%; max-width: 340px;
+  display: flex; flex-direction: column; gap: 10px;
+  border: 3px solid #fff; border-radius: 12px;
+  background: linear-gradient(180deg, var(--cbs-box-hi), var(--cbs-box-lo));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .6);
+  padding: 20px 18px;
+}
+.cbs-quit-title { font-size: 18px; font-weight: 900; text-align: center; margin-bottom: 4px; }
+.cbs-quit-resume { font-size: 16px; padding: 13px; }
+.cbs-quit-note {
+  font-family: var(--cbs-mono); font-size: 10.5px; letter-spacing: .06em;
+  color: #8B99C4; text-align: center; margin-top: 2px;
 }
 
 /* Dialogue box */

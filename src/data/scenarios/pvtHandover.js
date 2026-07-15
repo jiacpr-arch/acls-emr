@@ -10,6 +10,11 @@ export const pvtHandover = {
   level: 'megacode',
   course: 'acls',
   hiddenCause: null,
+  // เคสนี้เป็น arrest แต่จบด้วยการส่งเวรให้ staff อาวุโส ไม่ใช่ ROSC — override ป้าย/ข้อความผลลัพธ์
+  outcome: {
+    stamp: 'ส่งเวรแล้ว',
+    win: 'คุณนำทีมผ่านช่วงวิกฤตและส่งต่อ staff อาวุโสได้ทันเวลา — การรู้ขอบเขตตัวเองคือทักษะของผู้นำ',
+  },
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! คุณป้าเตียง 8 เรียกไม่รู้สึกตัวแล้วค่ะ! เมื่อกี้ยังกดออดเรียกอยู่เลย!' }, t: 5 },
     { inter: 'CODE BLUE!!', drama: 'red', t: 0 },

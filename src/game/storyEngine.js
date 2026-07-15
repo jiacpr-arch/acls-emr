@@ -132,6 +132,17 @@ export function fmtTime(s) {
   return `${String(m).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
 }
 
+// เคสนี้เป็น cardiac arrest จริงไหม (เคยเริ่ม CPR) — ใช้ปรับ debrief ให้เข้ากับเคส
+// ที่ผู้ป่วยไม่ได้ arrest (bradycardia/tachycardia/ACS) ไม่ให้ขึ้น ROSC/CPR/shock ที่ไม่เกี่ยวข้อง
+export function wasArrest(state) {
+  return state.firstCPRAt >= 0;
+}
+
+// จำนวนการตัดสินใจที่ถูก (จาก timeline) — เมตริกที่มีความหมายกับทุกเคส ไม่ใช่แค่ arrest
+export function correctCount(state) {
+  return state.timeline.filter((it) => it.ok).length;
+}
+
 export function shuffled(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
