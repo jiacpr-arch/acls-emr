@@ -470,6 +470,120 @@ export const scenarios = [
   },
 
   {
+    id: 'inter_tia_01',
+    title: 'TIA — Intermediate',
+    title_th: 'TIA — อาการหายก่อนถึง รพ. (Intermediate)',
+    level: 'inter',
+    category: 'stroke',
+    description_th: 'ชาย 68 ปี แขนซ้ายอ่อนแรง + พูดไม่ชัด 20 นาที แล้วหายเอง',
+    steps: [
+      {
+        trigger: 'initial',
+        scenario_th: 'ชาย 68 ปี HT + DM + สูบบุหรี่\nญาติเล่า: 1 ชม.ก่อน แขนซ้ายอ่อนแรง + พูดไม่ชัด นาน ~20 นาที แล้วหายเอง\nมาถึง ER: อาการปกติทุกอย่าง BP 158/90 HR 84 SpO₂ 98%',
+        vitals: { hr: 84, bp: '158/90', spo2: 98 },
+        correctActions: ['fast_assessment'],
+        hint_th: 'อาการหายแล้วก็ห้ามชะล่าใจ! TIA = warning stroke → ทำ FAST + workup เต็มรูปแบบเหมือน stroke',
+      },
+      {
+        trigger: 'after_fast',
+        scenario_th: 'FAST: ปกติทั้งหมด (อาการหายสนิทแล้ว)\nแต่ประวัติชัดเจนว่ามี focal deficit ชั่วคราว → ต้อง workup ต่อ',
+        correctActions: ['check_dtx'],
+        hint_th: 'เช็ค DTX เสมอ — hypoglycemia ทำ transient deficit ได้เหมือนกัน (จะพบ DTX = 118 ปกติ)',
+      },
+      {
+        trigger: 'after_dtx',
+        scenario_th: 'DTX = 118 mg/dL (ปกติ) → ไม่ใช่ hypoglycemia\nประเมินความรุนแรงเชิง objective เพื่อเทียบ baseline',
+        correctActions: ['nihss'],
+        hint_th: 'NIHSS = 0 (ปกติ) → บันทึกไว้เป็น baseline เผื่ออาการกลับมา',
+      },
+      {
+        trigger: 'after_nihss',
+        scenario_th: 'NIHSS = 0\nTIA วินิจฉัยได้ต่อเมื่อ imaging ไม่พบ infarct → ต้อง CT Brain',
+        correctActions: ['ct_brain'],
+        hint_th: 'CT Brain: ปกติ ไม่มี infarct/hemorrhage → เข้าได้กับ TIA',
+      },
+      {
+        trigger: 'after_ct',
+        scenario_th: 'CT ปกติ → TIA\nABCD² score = 6 (Age≥60, BP≥140/90, Unilateral weakness, ≥10min, DM) → High risk!\nความเสี่ยง stroke ใน 48 ชม.สูง → Admit + workup หา AF/carotid stenosis + เริ่ม antiplatelet',
+        correctActions: ['monitor'],
+        hint_th: 'อาการหายแล้วไม่ให้ tPA (Not Eligible → Medical Rx) → Admit + Continuous monitoring + EKG หา AF',
+      },
+    ],
+  },
+
+  {
+    id: 'mega_stroke_02',
+    title: 'Basilar Stroke — Advanced',
+    title_th: 'Stroke — Posterior Circulation (Advanced)',
+    level: 'mega',
+    category: 'stroke',
+    description_th: 'หญิง 62 ปี เวียนหัวรุนแรง เห็นภาพซ้อน เดินเซ — FAST อาจหลอกตา',
+    steps: [
+      {
+        trigger: 'initial',
+        scenario_th: 'หญิง 62 ปี HT + AF ไม่กินยา\nเวียนหัวรุนแรงฉับพลัน 1.5 ชม.ก่อน + เห็นภาพซ้อน + พูดอ้อแอ้ + เดินเซล้ม\nBP 172/94 HR 88 irregular SpO₂ 96% — แขนขาแรงปกติทั้งสองข้าง!',
+        vitals: { hr: 88, bp: '172/94', spo2: 96 },
+        correctActions: ['fast_assessment'],
+        hint_th: 'ระวัง! Posterior stroke อาจ FAST negative (แขนไม่อ่อนแรง) — Dizziness + Diplopia + Dysarthria + Ataxia = สงสัย basilar/posterior circulation',
+      },
+      {
+        trigger: 'after_fast',
+        scenario_th: 'FAST: Face ปกติ Arms ปกติ Speech อ้อแอ้ (dysarthria)\nแต่มี vertigo + diplopia + ataxia ชัดเจน → Posterior circulation stroke จนกว่าจะพิสูจน์ได้ว่าไม่ใช่\nDTX 142 mg/dL (ปกติ)',
+        correctActions: ['nihss', 'ct_brain'],
+        hint_th: 'อย่าวินิจฉัยว่าเป็นแค่ vertigo/เมาบ้านหมุน! → NIHSS + CT Brain ด่วน (onset 1.5hr ยังอยู่ใน window)',
+      },
+      {
+        trigger: 'after_ct',
+        scenario_th: 'NIHSS = 8\nCT Brain: ไม่มี hemorrhage (posterior fossa มัก CT ปกติช่วงแรก)\nOnset 1.5 ชม. → ยังอยู่ใน tPA window + ไม่มี contraindication',
+        correctActions: ['tpa_criteria', 'give_tpa'],
+        hint_th: 'Ischemic + within 4.5hr + ไม่มี contraindication → ให้ tPA (Alteplase 0.9mg/kg) — basilar occlusion ถ้าไม่ rx อัตราตายสูงมาก',
+      },
+      {
+        trigger: 'after_tpa',
+        scenario_th: 'tPA given (D2N 52 นาที)\nส่ง MRA/CTA ต่อ: Basilar artery stenosis with partial occlusion\nอาการเริ่มดีขึ้น dysarthria ลดลง',
+        correctActions: ['monitor'],
+        hint_th: 'Monitor BP q15min + Neuro check ใกล้ชิด — basilar stroke อาจแย่ลงเร็ว (locked-in) ถ้าแย่ลงพิจารณา thrombectomy',
+      },
+    ],
+  },
+
+  {
+    id: 'mega_stroke_03',
+    title: 'Post-tPA Hemorrhage — Advanced',
+    title_th: 'Stroke — เลือดออกหลังให้ tPA (Advanced)',
+    level: 'mega',
+    category: 'stroke',
+    description_th: 'ชาย 74 ปี ได้ tPA แล้วแย่ลงระหว่าง drip — ภาวะแทรกซ้อนที่ต้องรับมือให้ทัน',
+    steps: [
+      {
+        trigger: 'initial',
+        scenario_th: 'ชาย 74 ปี แขนขวาอ่อนแรง + พูดไม่ได้ 1 ชม.ก่อน\nBP 178/98 HR 76 SpO₂ 97%',
+        vitals: { hr: 76, bp: '178/98', spo2: 97 },
+        correctActions: ['fast_assessment'],
+        hint_th: 'FAST assessment + บันทึกเวลา onset ให้ชัด',
+      },
+      {
+        trigger: 'after_fast',
+        scenario_th: 'FAST positive: หน้าเบี้ยว + แขนขวาตก + aphasia\nDTX 126 mg/dL (ปกติ)\nOnset 1 ชม. → within window',
+        correctActions: ['nihss', 'ct_brain'],
+        hint_th: 'NIHSS + CT Brain ด่วน (เป้า Door-to-CT <25 นาที)',
+      },
+      {
+        trigger: 'after_ct',
+        scenario_th: 'NIHSS = 14 (Moderate)\nCT: ไม่มี hemorrhage → Ischemic stroke\nBP 178/98 (<185/110 OK) + ไม่มี contraindication → tPA eligible',
+        correctActions: ['tpa_criteria', 'give_tpa'],
+        hint_th: 'เช็คเกณฑ์ครบ → Give tPA (Alteplase 0.9mg/kg — 10% bolus + 90% drip 60 นาที)',
+      },
+      {
+        trigger: 'after_tpa',
+        scenario_th: '⚠️ นาทีที่ 40 ของ drip: ผู้ป่วยปวดหัวรุนแรงเฉียบพลัน + อาเจียน + ซึมลง GCS 15→11 + BP พุ่ง 210/115\nสงสัย Symptomatic ICH จาก tPA!\n→ หยุด drip ทันที + CT ซ้ำ: พบ hemorrhagic transformation\n→ ส่ง Labs (PT/aPTT/fibrinogen) + ให้ Cryoprecipitate 10 units + ปรึกษา Neurosurgery',
+        correctActions: ['monitor'],
+        hint_th: 'หยุด tPA + reverse (cryoprecipitate ± TXA) + control BP + Neurosurgery → จากนั้น Monitor GCS/neuro ใกล้ชิดทุก 15 นาที (ระวัง herniation)',
+      },
+    ],
+  },
+
+  {
     id: 'basic_mi_01',
     title: 'STEMI — Basic',
     title_th: 'STEMI — พื้นฐาน',
