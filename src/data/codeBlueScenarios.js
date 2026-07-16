@@ -30,6 +30,13 @@ import { tachyWideVtBasic } from './scenarios/tachyWideVtBasic';
 import { tachyUnstableBasic } from './scenarios/tachyUnstableBasic';
 import { acsBasic } from './scenarios/acsBasic';
 import { acsNstemiBasic } from './scenarios/acsNstemiBasic';
+import { strokeIschemicBasic } from './scenarios/strokeIschemicBasic';
+import { strokeMimicHypo } from './scenarios/strokeMimicHypo';
+import { strokeHemorrhagic } from './scenarios/strokeHemorrhagic';
+import { strokeTia } from './scenarios/strokeTia';
+import { strokeLvoWakeup } from './scenarios/strokeLvoWakeup';
+import { strokeBasilar } from './scenarios/strokeBasilar';
+import { strokePostTpaIch } from './scenarios/strokePostTpaIch';
 // ACLS megacode pack (ชุดโจทย์ megacode หลายสถานการณ์)
 import { traumaArrest } from './scenarios/traumaArrest';
 import { copdDope } from './scenarios/copdDope';
@@ -76,6 +83,14 @@ const allScenarios = [
   // ── 💔 ACS ──
   acsBasic,
   acsNstemiBasic,
+  // ── 🧠 Stroke ── FAST · DTX · CT · tPA window — แข่งกับเวลา
+  strokeIschemicBasic,
+  strokeMimicHypo,
+  strokeHemorrhagic,
+  strokeTia,
+  strokeLvoWakeup,
+  strokeBasilar,
+  strokePostTpaIch,
   // ── 🔍 สืบหาสาเหตุ (H's & T's) ── arrest ที่ต้องแก้สาเหตุถึงจะรอด
   peaHyperK,
   alcoholHypo,
@@ -147,12 +162,16 @@ export const TRACK_META = {
     label: 'ACS', icon: '💔', order: 3,
     desc: 'เจ็บแน่นหน้าอก — STEMI/NSTEMI, ECG 12 lead, เปิดทาง PCI',
   },
+  stroke: {
+    label: 'Stroke', icon: '🧠', order: 4,
+    desc: 'FAST · DTX · CT · tPA window — แข่งกับเวลา ทุกนาทีคือเนื้อสมอง',
+  },
   causes: {
-    label: "สืบหาสาเหตุ (H's & T's)", icon: '🔍', order: 4,
+    label: "สืบหาสาเหตุ (H's & T's)", icon: '🔍', order: 5,
     desc: 'arrest ที่ CPR อย่างเดียวไม่พอ — หาสาเหตุที่แก้ได้ให้เจอ',
   },
   special: {
-    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 5,
+    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 6,
     desc: 'ตั้งครรภ์ · trauma · สำลัก — สถานการณ์ที่ algorithm ต้องปรับ',
   },
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
