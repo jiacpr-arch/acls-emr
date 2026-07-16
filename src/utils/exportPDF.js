@@ -364,3 +364,163 @@ export function exportCasePDF(caseData) {
   doc.save(filename);
   return filename;
 }
+
+// PDF Export — Megacode/Case evaluation checklist (e.g. Tachycardia).
+// checklist: data shape from src/data/megacodeChecklists/*.js
+// formState: { studentName, department, evaluatorName, date, attempt, retakeNumber, notes, statusMap, result }
+export function exportMegacodeChecklistPDF(checklist, formState) {
+  const doc = new jsPDF('p', 'mm', 'a4');
+  doc.setFont(PDF_FONT, 'normal');
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const headerColor = [37, 99, 235];
+  const statusMap = formState.statusMap || {};
+  const result = formState.result;
+
+  const tbl = (options) => {
+    const withFont = (s = {}) => ({ font: PDF_FONT, ...s });
+    autoTable(doc, {
+      ...options,
+      styles: withFont(options.styles),
+      headStyles: withFont(options.headStyles),
+      bodyStyles: withFont(options.bodyStyles),
+    });
+    return doc.lastAutoTable.finalY;
+  };
+
+  const sectionBar = (title, y) => {
+    if (y > 265) { doc.addPage(); y = 15; }
+    doc.setFillColor(...headerColor);
+    doc.rect(10, y - 3.5, pw - 20, 6, 'F');
+    doc.setFontSize(8);
+    doc.setFont(PDF_FONT, 'bold');
+    doc.setTextColor(255);
+    doc.text(S(title), 14, y);
+    doc.setTextColor(0);
+    return y + 5;
+  };
+
+  let y = 10;
+
+  // Title bar
+  doc.setFillColor(...headerColor);
+  doc.rect(0, 0, pw, 16, 'F');
+  doc.setFontSize(11);
+  doc.setFont(PDF_FONT, 'bold');
+  doc.setTextColor(255);
+  doc.text(S(checklist.title), pw / 2, 7, { align: 'center' });
+  doc.setFontSize(6.5);
+  doc.setFont(PDF_FONT, 'normal');
+  doc.text(S(checklist.subtitle), pw / 2, 12.5, { align: 'center', maxWidth: pw - 16 });
+  y = 20;
+  doc.setTextColor(0);
+
+  // Student / evaluator header
+  const attemptLabel = formState.attempt === 'retake'
+    ? `สอบซ่อมครั้งที่ ${formState.retakeNumber || '-'}`
+    : 'ครั้งแรก';
+  y = tbl({
+    startY: y,
+    body: [
+      ['ชื่อผู้เข้ารับการประเมิน (Team Leader)', S(formState.studentName) || '-'],
+      ['หน่วยงาน', S(formState.department) || '-'],
+      ['วันที่ประเมิน', formState.date ? new Date(formState.date).toLocaleDateString('en-US') : '-'],
+      ['ผู้ประเมิน', S(formState.evaluatorName) || '-'],
+      ['การประเมิน', S(attemptLabel)],
+    ],
+    theme: 'grid',
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60 } },
+    styles: { fontSize: 7.5, cellPadding: 1.5 },
+    margin: { left: 10, right: 10 },
+  }) + 3;
+
+  if (checklist.scenario) {
+    doc.setFontSize(7);
+    doc.setFont(PDF_FONT, 'normal');
+    const lines = doc.splitTextToSize(S(checklist.scenario), pw - 20);
+    doc.text(lines, 10, y);
+    y += lines.length * 3.2 + 3;
+  }
+
+  // Checklist sections
+  checklist.sections.forEach(section => {
+    y = sectionBar(section.title, y);
+    let idx = checklist.sections.slice(0, checklist.sections.indexOf(section))
+      .reduce((n, s) => n + s.items.length, 0);
+    const body = section.items.map(item => {
+      idx += 1;
+      const status = statusMap[item.id];
+      const resultLabel = status === true ? 'ปฏิบัติได้' : status === false ? 'ไม่ได้ปฏิบัติ' : '-';
+      return [String(idx), item.critical ? '*' : '', S(item.text), resultLabel];
+    });
+    y = tbl({
+      startY: y,
+      head: [['#', '', 'ขั้นตอน / เกณฑ์การปฏิบัติ', 'ผล']],
+      body,
+      theme: 'grid',
+      headStyles: { fillColor: [100, 100, 100], fontSize: 7, halign: 'center' },
+      styles: { fontSize: 7, cellPadding: 1.5, overflow: 'linebreak' },
+      columnStyles: {
+        0: { cellWidth: 7, halign: 'center' },
+        1: { cellWidth: 6, halign: 'center', textColor: [217, 119, 6], fontStyle: 'bold' },
+        2: { cellWidth: 'auto' },
+        3: { cellWidth: 24, halign: 'center', fontStyle: 'bold' },
+      },
+      margin: { left: 10, right: 10 },
+    }) + 4;
+  });
+
+  doc.setFontSize(6.5);
+  doc.setFont(PDF_FONT, 'normal');
+  doc.text('* ข้อวิกฤต (Critical steps) — ต้อง "ปฏิบัติได้" ครบทุกข้อจึงถือว่าผ่านการประเมิน', 10, y);
+  y += 5;
+
+  // Result box
+  if (y > 255) { doc.addPage(); y = 15; }
+  const passed = !!result?.passed;
+  doc.setFillColor(...(passed ? [5, 150, 105] : [220, 38, 38]));
+  doc.roundedRect(10, y, pw - 20, 14, 1.5, 1.5, 'F');
+  doc.setFontSize(9);
+  doc.setFont(PDF_FONT, 'bold');
+  doc.setTextColor(255);
+  const resultText = result
+    ? `ผลการประเมิน: ${passed ? 'ผ่าน' : 'ไม่ผ่าน'}  (ปฏิบัติได้ ${result.passedCount}/${result.totalItems} ข้อ, ข้อวิกฤต: ${result.criticalPassed ? 'ผ่านครบ' : 'ไม่ครบ'})`
+    : 'ผลการประเมิน: ยังประเมินไม่ครบ';
+  doc.text(S(resultText), pw / 2, y + 8.5, { align: 'center' });
+  doc.setTextColor(0);
+  y += 20;
+
+  // Notes
+  if (formState.notes) {
+    doc.setFontSize(7.5);
+    doc.setFont(PDF_FONT, 'bold');
+    doc.text('ข้อเสนอแนะของผู้ประเมิน:', 10, y);
+    y += 4;
+    doc.setFont(PDF_FONT, 'normal');
+    const noteLines = doc.splitTextToSize(S(formState.notes), pw - 20);
+    doc.text(noteLines, 10, y);
+    y += noteLines.length * 3.5 + 4;
+  }
+
+  // Signature lines
+  if (y > 275) { doc.addPage(); y = 15; }
+  y += 8;
+  doc.setFontSize(8);
+  doc.setFont(PDF_FONT, 'normal');
+  doc.text('ลงชื่อผู้ประเมิน .....................................................', 14, y);
+  doc.text('ลงชื่อผู้เข้ารับการประเมิน .....................................................', pw / 2 + 4, y);
+
+  // Footer on all pages
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(6.5);
+    doc.setTextColor(150);
+    doc.setFont(PDF_FONT, 'normal');
+    doc.text(`ACLS EMR by JIA Trainer Center | Generated ${new Date().toLocaleString('en-US')} | Page ${i}/${pageCount}`, pw / 2, ph - 6, { align: 'center' });
+  }
+
+  const filename = `Megacode_${checklist.id}_${(formState.studentName || 'form').replace(/\s+/g, '_')}.pdf`;
+  doc.save(filename);
+  return filename;
+}

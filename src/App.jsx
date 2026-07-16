@@ -10,6 +10,8 @@ import Recording from './pages/Recording';
 import Algorithm from './pages/Algorithm';
 import Settings from './pages/Settings';
 import ScenarioSelect from './pages/ScenarioSelect';
+import MegacodeSelect from './pages/MegacodeSelect';
+import MegacodeChecklist from './pages/MegacodeChecklist';
 import DrugCalc from './pages/DrugCalc';
 import Statistics from './pages/Statistics';
 import DrillTimer from './pages/DrillTimer';
@@ -141,6 +143,8 @@ function App() {
         {IS_ACLS && <Route path="/history" element={<Dashboard />} />}
         {IS_ACLS && <Route path="/algorithm" element={<Algorithm />} />}
         {IS_ACLS && <Route path="/scenarios" element={<ScenarioSelect />} />}
+        {IS_ACLS && <Route path="/megacode" element={<MegacodeSelect />} />}
+        {IS_ACLS && <Route path="/megacode/:caseId" element={<MegacodeChecklist />} />}
         {IS_ACLS && <Route path="/drug-calc" element={<DrugCalc />} />}
         {IS_ACLS && <Route path="/statistics" element={<Statistics />} />}
         {IS_ACLS && <Route path="/drill" element={<DrillTimer />} />}
