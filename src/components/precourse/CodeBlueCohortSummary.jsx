@@ -14,7 +14,8 @@ const bestGrade = (results) => {
 
 // สรุปผล Code Blue Simulator รายคลาส — ดึงข้อมูลของตัวเอง (RPC แยก, ข้อมูลคนละ
 // รูปแบบจากตาราง pre-course: ต่อเคส ไม่ใช่ต่อบทเรียน) ไม่แตะ state/logic ของ
-// InstructorCohort.jsx เดิมเลย เกมฝึกเสริม — ผลไม่ผูกกับใบประกาศหลักสูตร
+// InstructorCohort.jsx เดิมเลย เกมฝึกเสริมไม่บังคับ — ผลงานแสดงเป็นโบนัสบนใบประกาศ
+// (ไม่ใช่เงื่อนไขการออกใบ)
 export default function CodeBlueCohortSummary({ classCode }) {
   const [summary, setSummary] = useState(null); // null = ยังไม่โหลด
   const [titles, setTitles] = useState({});     // scenarioId -> title
@@ -77,7 +78,7 @@ export default function CodeBlueCohortSummary({ classCode }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-body-strong text-text-primary">Code Blue Simulator</div>
-          <div className="text-2xs text-text-muted">ใครฝึกเคสไหนไปแล้วบ้าง — เกมฝึกเสริม ไม่ผูกกับใบประกาศ</div>
+          <div className="text-2xs text-text-muted">ใครฝึกเคสไหนไปแล้วบ้าง — เกมฝึกเสริม (ไม่บังคับ) ผลงานแสดงเป็นโบนัสบนใบประกาศ</div>
         </div>
         <button onClick={() => setReloadKey((k) => k + 1)} className="btn btn-ghost btn-sm shrink-0">
           <RefreshCw size={13} strokeWidth={2.2} />

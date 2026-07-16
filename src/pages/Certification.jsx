@@ -372,6 +372,45 @@ export default function Certification() {
         </div>
       )}
 
+      {/* Code Blue Sim bonus teaser (ACLS เท่านั้น) — ชวนเล่นแบบไม่บังคับ ก่อนออกใบ
+          หรือหลังออกใบแต่ยังไม่เคยเล่น (การ์ด cert ด้านล่างโชว์ผลงานจริงอยู่แล้วถ้าเคยเล่น) */}
+      {!IS_BLS && !(certData.certId && simHighlights) && (
+        <div className="dash-card !p-3 bg-warning/10 border border-warning/30 flex items-start gap-2">
+          <Sparkles size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
+          <div className="text-caption text-text-secondary flex-1">
+            <span className="font-bold text-warning">โบนัสพิเศษบนใบประกาศ (ไม่บังคับ)</span>
+            <div className="mt-0.5">
+              เล่น Code Blue Sim แล้วเคสที่ผ่าน + เกรด S จะโชว์บนใบประกาศ —
+              ผ่านเคส megacode ครบทุกเคส รับตราทอง MEGACODE MASTER บนใบด้วย
+              ไม่เล่นก็รับใบประกาศได้ตามปกติ
+            </div>
+            {simHighlights && (
+              <div className="mt-1 font-semibold text-text-primary">
+                ตอนนี้: ผ่าน {simHighlights.clearedCount} เคส
+                {simHighlights.gradeS > 0 && ` · เกรด S ×${simHighlights.gradeS}`}
+              </div>
+            )}
+            {simHighlights?.megacodeMaster ? (
+              <div
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 text-2xs font-extrabold"
+                style={{
+                  borderRadius: 'var(--radius-full)',
+                  color: '#7A5210',
+                  background: 'linear-gradient(135deg, #F8DC90 0%, #F2C14E 100%)',
+                  boxShadow: '0 2px 8px rgba(242, 193, 78, 0.4)',
+                }}
+              >
+                🏅 MEGACODE MASTER — จะแสดงบนใบประกาศ
+              </div>
+            ) : (
+              <Link to="/sim" className="inline-flex items-center gap-1 mt-1.5 text-caption font-bold text-warning">
+                🚨 ไปเล่น Code Blue Sim <ChevronRight size={14} strokeWidth={2.4} />
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Student details + Generate — full contact set required at this step */}
       {allDone && !certData.certId && (
         <div className="dash-card space-y-3">
