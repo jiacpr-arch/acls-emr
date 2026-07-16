@@ -26,6 +26,7 @@ import CodeBlueLeaderboard from './pages/CodeBlueLeaderboard';
 import RecorderGameHub from './pages/RecorderGameHub';
 import RecorderGamePlay from './pages/RecorderGamePlay';
 import RecorderEndless from './pages/RecorderEndless';
+import GamesHub from './pages/GamesHub';
 import PreCourse from './pages/PreCourse';
 import Learn from './pages/Learn';
 import VideoLessons from './pages/VideoLessons';
@@ -152,6 +153,7 @@ function App() {
         {/* เกม Code Blue เปิดทั้ง ACLS และ BLS/MorRoo — คลังโจทย์กรองตามโหมดเอง */}
         <Route path="/sim" element={<CodeBlueSim />} />
         <Route path="/sim-board" element={<CodeBlueLeaderboard />} />
+        {IS_ACLS && <Route path="/games" element={<GamesHub />} />}
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
         {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
