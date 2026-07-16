@@ -7,7 +7,7 @@ import {
   HeartPulse, FileText, Pill, Menu,
   BarChart3, GraduationCap, Users,
   MessageSquare, Settings, X, Award, Bell,
-  GitBranch, Zap, Wind, Brain,
+  GitBranch, Zap, Wind, Brain, Gamepad2,
 } from './ui/Icon';
 
 export default function BottomTabBar() {
@@ -28,7 +28,7 @@ export default function BottomTabBar() {
         { path: '/', Icon: HeartPulse, label: 'Home' },
         { path: '/history', Icon: FileText, label: t('history', lang) },
         { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
-        { path: '/drug-calc', Icon: Pill, label: t('drugs', lang) },
+        { path: '/games', Icon: Gamepad2, label: t('games', lang) },
         { key: 'more', Icon: Menu, label: 'More' },
       ];
 
@@ -45,6 +45,7 @@ export default function BottomTabBar() {
         { path: '/settings', Icon: Settings, label: t('settings', lang) },
       ]
     : [
+        { path: '/drug-calc', Icon: Pill, label: 'คำนวณยา' },
         { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
         { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
         { path: '/compare', Icon: BarChart3, label: 'Compare' },
