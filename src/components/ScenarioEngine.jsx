@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
+import { saveScenarioGrade } from '../utils/scenarioProgress';
 import {
   GraduationCap, Edit, Activity, Lightbulb, Check, X, Trophy,
   Hospital, RefreshCw, ChevronRight, ChevronLeft, PartyPopper,
@@ -273,6 +274,11 @@ export function ScenarioComplete({ scenario, score, mode, onRetry, onNext, onDas
   const pct = total > 0 ? Math.round((score.correct / total) * 100) : 0;
   const grade = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
   const gradeColor = { A: 'text-success', B: 'text-info', C: 'text-warning', D: 'text-danger', F: 'text-danger' };
+
+  // บันทึกเกรดที่ดีที่สุดไว้โชว์ในหน้าเลือก scenario
+  useEffect(() => {
+    saveScenarioGrade(scenario.id, { grade, pct, mode });
+  }, []);
 
   const isCelebrate = grade === 'A' || grade === 'B';
   return (
