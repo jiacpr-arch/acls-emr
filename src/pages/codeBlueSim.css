@@ -579,6 +579,15 @@
 .cbs-badge-off .cbs-badge-title { color: var(--cbs-dim); }
 .cbs-badge-desc { font-size: 10.5px; line-height: 1.4; color: var(--cbs-dim); }
 
+/* โน้ตบอกว่าเหรียญ/เคสที่ผ่านโชว์เป็นโบนัสบนใบประกาศ (ACLS เท่านั้น) */
+.cbs-cert-note {
+  width: 100%; padding: 10px 14px;
+  font-size: 12.5px; line-height: 1.7; text-align: center;
+  color: var(--cbs-gold);
+  border: 1.5px dashed rgba(242, 193, 78, .55); border-radius: 10px;
+  background: rgba(242, 193, 78, .08);
+}
+
 /* เผยรางวัลใหม่ในหน้า debrief */
 .cbs-award-reveal {
   width: 100%; margin: 4px 0 14px; padding: 12px;

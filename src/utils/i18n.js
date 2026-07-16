@@ -107,7 +107,7 @@ const translations = {
   'algorithms_desc': { en: 'Treatment flowcharts', th: 'Flow ขั้นตอนการรักษา' },
   'guide_desc': { en: 'Quick field guide', th: 'คู่มือใช้งานหน้างาน' },
   'scenarios_desc': { en: 'Practice cases', th: 'ฝึกแก้สถานการณ์' },
-  'code_sim_desc': { en: 'Live event simulation', th: 'จำลองเหตุการณ์สด' },
+  'code_sim_desc': { en: 'Live event sim — bonus on your certificate', th: 'จำลองเหตุการณ์สด — ผลงานโชว์บนใบประกาศ' },
   'recorder_game': { en: 'Recorder Game', th: 'เกมฝึกผู้บันทึก' },
   'recorder_game_desc': { en: 'Master the Recording UI', th: 'ฝึกกดบันทึกให้ถูก ให้ทัน' },
   'drill_desc': { en: 'Role-based skill drill', th: 'ฝึกทักษะรายบทบาท' },

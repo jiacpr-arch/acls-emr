@@ -7,6 +7,7 @@ import {
 import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
 import { usePreCourseStore } from '../stores/preCourseStore';
+import { IS_BLS } from '../config/courseMode';
 import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
 import CharacterSprite from '../game/CharacterSprite';
@@ -726,6 +727,12 @@ export default function CodeBlueSim() {
               );
             })}
           </div>
+          {!IS_BLS && (
+            <div className="cbs-cert-note">
+              🏅 โบนัสพิเศษ: เคสที่ผ่านและเหรียญจะโชว์บนใบประกาศ ACLS ของคุณ —
+              ผ่านเคส megacode ครบทุกเคส รับตราทอง MEGACODE MASTER (ไม่บังคับ ไม่มีผลต่อการออกใบ)
+            </div>
+          )}
           <button type="button" className="cbs-btn-ghost" onClick={() => { void awardsTick; setScreen('awards'); window.scrollTo(0, 0); }}>
             🏅 รางวัลของฉัน ({listWithEarned(pool, cleared, readGrades()).filter((b) => b.earned).length}/{ACHIEVEMENTS.length})
           </button>
@@ -827,6 +834,9 @@ export default function CodeBlueSim() {
               <><br />🔥 สตรีคสูงสุด ×{st.maxCombo} — ตัวคูณคะแนน ×{comboMultiplier(st).toFixed(2)}</>
             )}
             {result.isHiscore && <><br />🏆 New Hi-Score: {result.score}</>}
+            {result.won && !IS_BLS && (
+              <><br /><span style={{ opacity: 0.7 }}>🏅 ผลงานสะสมแสดงเป็นโบนัสบนใบประกาศ ACLS</span></>
+            )}
           </p>
           {freshAwards.length > 0 && (
             <div className="cbs-award-reveal">
@@ -839,6 +849,11 @@ export default function CodeBlueSim() {
                   </div>
                 ))}
               </div>
+              {!IS_BLS && freshAwards.some((a) => a.id === 'megacode_all') && (
+                <div className="cbs-cert-note" style={{ marginTop: 10 }}>
+                  🏅 ตราทอง MEGACODE MASTER จะปรากฏบนใบประกาศ ACLS ของคุณ!
+                </div>
+              )}
             </div>
           )}
           <div className="cbs-grade-row">
