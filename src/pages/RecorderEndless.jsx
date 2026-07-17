@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CASE_CATEGORY_META, CASES, pickRandomCase, caseToLevel,
@@ -6,6 +6,10 @@ import {
 import { loadPlayablePool } from '../services/recorderCaseService';
 import { LivePlay } from './RecorderGamePlay';
 import Instructor from '../components/sim/Instructor';
+import { usePreCourseStore } from '../stores/preCourseStore';
+import { getClassContext } from '../stores/classStore';
+import { rpcSubmitRecorderResult } from '../services/cohortSync';
+import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import { Shuffle, Heart, Star, ArrowLeft, Play, Trophy, RefreshCw, Home } from 'lucide-react';
 
 // ==========================================
@@ -40,6 +44,12 @@ export default function RecorderEndless() {
   // pool เริ่มจาก built-in (มีเสมอ) แล้วผนวกเคสที่เผยแพร่จาก DB เมื่อโหลดเสร็จ
   const [fullPool, setFullPool] = useState(CASES);
 
+  // ในคลาส: ก่อนเริ่มรอบครั้งแรกต้องรู้ว่าใครเล่น — pattern เดียวกับ RecorderGamePlay/CodeBlueSim
+  const activeStudent = usePreCourseStore((s) => s.activeStudent);
+  const [inClass] = useState(() => !!getClassContext().classCode);
+  const [showIdentity, setShowIdentity] = useState(false);
+  const startAfterIdentityRef = useRef(false);
+
   useEffect(() => {
     let alive = true;
     loadPlayablePool().then(p => { if (alive && p?.length) setFullPool(p); }).catch(() => {});
@@ -59,6 +69,23 @@ export default function RecorderEndless() {
     setPhase('playing');
   };
 
+  const requestStart = () => {
+    if (inClass && !activeStudent?.id) {
+      startAfterIdentityRef.current = true;
+      setShowIdentity(true);
+      return;
+    }
+    start();
+  };
+
+  const handleIdentityConfirm = () => {
+    setShowIdentity(false);
+    if (startAfterIdentityRef.current) {
+      startAfterIdentityRef.current = false;
+      start();
+    }
+  };
+
   const handleCaseFinish = useCallback((raw) => {
     const newTotal = totalScore + (raw.score || 0);
     const newMisses = misses + (raw.missCount || 0);
@@ -69,6 +96,17 @@ export default function RecorderEndless() {
 
     if (newMisses >= MAX_MISSES) {
       saveHiscore(category, newTotal);
+      if (activeStudent?.id) {
+        rpcSubmitRecorderResult({
+          attemptUuid: crypto.randomUUID(),
+          studentPk: activeStudent.id,
+          levelId: `endless:${category}`,
+          payload: {
+            mode: 'endless', score: newTotal, maxScore: null, stars: null, missCount: newMisses,
+            finishedAt: new Date().toISOString(),
+          },
+        }).catch(() => {});
+      }
       setPhase('done');
       return;
     }
@@ -79,7 +117,7 @@ export default function RecorderEndless() {
       setCurrent(nxt);
       setPhase('playing');
     }, 1400);
-  }, [totalScore, misses, cleared, category, current, nextCase]);
+  }, [totalScore, misses, cleared, category, current, nextCase, activeStudent]);
 
   // ---------- SELECT ----------
   if (phase === 'select') {
@@ -117,9 +155,15 @@ export default function RecorderEndless() {
           })}
         </div>
 
-        <button onClick={start} className="w-full btn btn-danger btn-lg btn-full font-black border-2">
+        <button onClick={requestStart} className="w-full btn btn-danger btn-lg btn-full font-black border-2">
           <Play size={18} strokeWidth={2.4} /> เริ่ม Endless
         </button>
+
+        <StudentIdentityModal
+          open={showIdentity}
+          onClose={() => { setShowIdentity(false); startAfterIdentityRef.current = false; }}
+          onConfirm={handleIdentityConfirm}
+        />
       </div>
     );
   }

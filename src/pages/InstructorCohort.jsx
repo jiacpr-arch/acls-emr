@@ -14,6 +14,7 @@ import {
 import { IS_ACLS } from '../config/courseMode';
 import CohortTable from '../components/precourse/CohortTable';
 import CodeBlueCohortSummary from '../components/precourse/CodeBlueCohortSummary';
+import RecorderCohortSummary from '../components/precourse/RecorderCohortSummary';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import { track } from '../services/analytics';
 import {
@@ -526,6 +527,9 @@ export default function InstructorCohort() {
       {/* Code Blue Simulator — สรุปแยกอิสระ (คนละรูปแบบข้อมูลจาก pre-course:
           ต่อเคส ไม่ใช่ต่อบทเรียน) ดึงเองผ่าน RPC ของตัวเอง ไม่แตะ state ด้านบน */}
       <CodeBlueCohortSummary classCode={classCode} />
+
+      {/* Recorder Hero — ACLS เท่านั้น (route กันไว้ด้วย IS_ACLS ใน App.jsx แล้ว) */}
+      {IS_ACLS && <RecorderCohortSummary classCode={classCode} />}
 
       {summary.length > 0 && (
         <button

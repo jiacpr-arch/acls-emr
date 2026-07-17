@@ -166,6 +166,31 @@ export async function rpcGetCohortCodeblueSummary() {
   return error ? { error } : { data: data || [] };
 }
 
+// Recorder Hero results — same architecture/trade-offs as rpcSubmitCodeBlueResult:
+// best-effort, no offline queue (a game result never gates certification).
+// levelId is a campaign level id, a case-pack id, or "endless:<category>".
+export async function rpcSubmitRecorderResult({ attemptUuid, studentPk, levelId, payload }) {
+  const { classCode } = getClassContext();
+  if (!classCode) return { error: new Error('no_class') };
+  const { error } = await supabase.rpc('submit_recorder_result', {
+    p_code: classCode,
+    p_attempt_uuid: attemptUuid,
+    p_student_pk: studentPk,
+    p_level_id: levelId,
+    p_payload: payload,
+  });
+  return error ? { error } : { data: true };
+}
+
+export async function rpcGetCohortRecorderSummary() {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_cohort_recorder_summary', {
+    p_code: code,
+  });
+  return error ? { error } : { data: data || [] };
+}
+
 export async function rpcDeleteCohortStudent(studentPk) {
   const code = instructorAccessCode();
   if (!code) return { error: new Error('no_class') };
