@@ -158,6 +158,19 @@ export async function loadPlayableScenarios() {
   }
 }
 
+// สถานะผ่านเกม sim สำหรับเงื่อนไขใบประกาศนียบัตร BLS — นับเฉพาะเคส built-in
+// ของโหมดปัจจุบัน (โจทย์ published จาก Supabase ไม่นับ ไม่งั้น admin เพิ่มโจทย์ใหม่
+// แล้วใบประกาศของคนที่ผ่านครบไปแล้วจะถูกล็อกย้อนหลัง)
+// หมายเหตุ: key เดียวกับ CLEARED_KEY ใน CodeBlueSim.jsx
+export function simGameStatus() {
+  let clearedIds = [];
+  try { clearedIds = JSON.parse(localStorage.getItem('acls_codeblue_cleared')) || []; }
+  catch { /* ignore */ }
+  const cleared = new Set(clearedIds);
+  const done = scenarios.filter((s) => cleared.has(s.id)).length;
+  return { done, total: scenarios.length, allPassed: scenarios.length > 0 && done === scenarios.length };
+}
+
 // ระดับความยากของเคส — โหมด BLS ไม่มีคำว่า megacode ใช้ป้าย "ทีมกู้ชีพ" แทน (key เดิม)
 export const LEVEL_META = {
   basic: { label: 'พื้นฐาน', order: 0 },

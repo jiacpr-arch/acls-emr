@@ -1,10 +1,13 @@
 import { useNavigate } from 'react-router-dom';
-import { Gamepad2, ChevronRight } from 'lucide-react';
+import { Gamepad2, ChevronRight, Check } from 'lucide-react';
+import { simGameStatus } from '../../data/codeBlueScenarios';
 
 // Entry card on the BLS landing for the BLS Rescue decision game (/sim) —
-// same engine as the ACLS Code Blue Sim, BLS scenario pack.
+// same engine as the ACLS Code Blue Sim, BLS scenario pack. Passing every
+// built-in case is a certificate requirement, so the card shows progress.
 export default function BLSSimGameCard() {
   const navigate = useNavigate();
+  const sim = simGameStatus();
   return (
     <button
       onClick={() => navigate('/sim')}
@@ -21,9 +24,22 @@ export default function BLSSimGameCard() {
           เกม BLS Rescue — ภารกิจกู้ชีพ 🚨
         </div>
         <div className="text-2xs text-text-muted">
-          เกมตัดสินใจช่วยชีวิต 10 เคส: CPR ผู้ใหญ่ · AED · เด็กและทารก · สำลัก
+          เกมตัดสินใจช่วยชีวิต {sim.total} เคส: CPR ผู้ใหญ่ · AED · เด็กและทารก · สำลัก
+          — ต้องผ่านครบเพื่อรับใบประกาศนียบัตร
         </div>
       </div>
+      {sim.allPassed ? (
+        <span
+          className="shrink-0 inline-flex items-center justify-center w-6 h-6 text-white shadow-sm"
+          style={{ borderRadius: '50%', background: 'var(--color-success)' }}
+        >
+          <Check size={14} strokeWidth={3} />
+        </span>
+      ) : (
+        <span className="shrink-0 text-2xs font-extrabold text-danger tabular-nums">
+          {sim.done}/{sim.total}
+        </span>
+      )}
       <ChevronRight size={16} strokeWidth={2.4} className="text-text-muted shrink-0" />
     </button>
   );

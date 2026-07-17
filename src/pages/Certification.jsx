@@ -7,6 +7,7 @@ import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostT
 import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
 import { EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
 import { getScenarioGameStatus } from '../data/blsScenarios';
+import { simGameStatus } from '../data/codeBlueScenarios';
 import { certConfig } from '../data/activeCert';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
@@ -105,9 +106,12 @@ export default function Certification() {
   // ที่ฝังอยู่ในหน้า skill-practice — อ่านสดจาก localStorage ทุก render
   // เหมือน EKG test ของ ACLS
   const scenarioGame = IS_BLS ? getScenarioGameStatus() : null;
+  // BLS: เกม BLS Rescue (/sim) ก็เป็นเงื่อนไขบังคับ — ต้องผ่านครบทุกเคส built-in
+  // (ฝั่ง ACLS เกม sim ยังเป็นโบนัสไม่บังคับเหมือนเดิม)
+  const simGame = IS_BLS ? simGameStatus() : null;
 
-  // BLS: 3 requirements mirroring the landing journey (บทเรียน → ฝึก CPR →
-  // Post-test). ACLS: online theory certification — the four
+  // BLS: 4 requirements mirroring the landing journey (บทเรียน → ฝึก CPR →
+  // Post-test → เกม BLS Rescue). ACLS: online theory certification — the four
   // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
   // skills are completed separately at a training center.
   // Once a student has an attempt on record, tapping the requirement should
@@ -121,6 +125,7 @@ export default function Certification() {
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
         { label: `ผ่านฝึก CPR — เกมลำดับขั้น 8 ด่าน + ข้อสอบรวม (${scenarioGame.done}/${scenarioGame.total})`, done: scenarioGame.allPassed, Icon: Activity, to: '/skill-practice' },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+        { label: `ผ่านเกม BLS Rescue ครบทุกเคส (${simGame.done}/${simGame.total})`, done: simGame.allPassed, Icon: Sparkles, to: '/sim' },
       ]
     : [
         { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
@@ -364,7 +369,7 @@ export default function Certification() {
 
       {/* BLS stat — post-test best */}
       {IS_BLS && postTestBest && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <div className="stat-box">
             <div className="stat-value text-lg text-text-primary">
               {preCourseStatus.filter(s => s.passed).length}/{preCourseStatus.length}
@@ -382,6 +387,12 @@ export default function Certification() {
               {postTestBest.score}%
             </div>
             <div className="stat-label">Post-test best</div>
+          </div>
+          <div className="stat-box">
+            <div className={`stat-value text-lg ${simGame.allPassed ? 'text-success' : 'text-warning'}`}>
+              {simGame.done}/{simGame.total}
+            </div>
+            <div className="stat-label">BLS Rescue</div>
           </div>
         </div>
       )}
