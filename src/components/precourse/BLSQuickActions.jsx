@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { getScenarioGameStatus } from '../../data/blsScenarios';
+import { simGameStatus } from '../../data/codeBlueScenarios';
 
 // Numbered study journey for the BLS landing. Full-width step cards (1 → 4)
 // that mirror the Learn hub's card style, so the Pre-course page is the single
@@ -25,8 +26,9 @@ export default function BLSQuickActions({
   // ขั้นที่ 2 (ฝึก CPR) วัดผลจากเกมลำดับขั้น 8 ด่าน + ข้อสอบรวม — อ่านสดจาก
   // localStorage ทุก render ให้ตรงกับเงื่อนไขบนหน้าใบประกาศนียบัตร
   const scenarioGame = getScenarioGameStatus();
-  // ใบประกาศนียบัตรต้องผ่านทุกขั้น 1–3 ไม่ใช่แค่ Post-test
-  const allStepsDone = lessonsComplete && scenarioGame.allPassed && postTestPassed;
+  // ใบประกาศนียบัตรต้องผ่านทุกขั้น 1–3 + เกม BLS Rescue ไม่ใช่แค่ Post-test
+  const simGame = simGameStatus();
+  const allStepsDone = lessonsComplete && scenarioGame.allPassed && postTestPassed && simGame.allPassed;
 
   const tiles = [
     {
@@ -67,7 +69,7 @@ export default function BLSQuickActions({
       emoji: '🏅',
       label: 'ใบประกาศนียบัตร',
       subtitle: 'My Records',
-      desc: allStepsDone ? 'พร้อมดาวน์โหลด' : 'ผ่านขั้น 1–3 ให้ครบก่อน',
+      desc: allStepsDone ? 'พร้อมดาวน์โหลด' : 'ผ่านขั้น 1–3 + เกม BLS Rescue ก่อน',
       tone: 'warning',
       onClick: () => navigate('/certification'),
       complete: allStepsDone,
