@@ -39,6 +39,7 @@ export default function BottomTabBar() {
         { path: '/bls/choking', Icon: Wind, label: 'สำลัก' },
         { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR Metronome' },
         { path: '/bls/scenario', Icon: Brain, label: 'เกมลำดับขั้น' },
+        { path: '/sim', Icon: Gamepad2, label: 'เกมกู้ชีพ' },
         { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
         { path: '/news', Icon: Bell, label: 'ข่าว' },
         { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },

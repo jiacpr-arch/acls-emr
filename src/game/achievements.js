@@ -7,6 +7,8 @@
 // เหรียญนิยามเป็น "ข้อมูล" ล้วน (check() รับ stats ที่คำนวณจาก pool/cleared/grades)
 // engine เกมไม่ผูกกับตัวเลขในนี้ — เพิ่ม/แก้เหรียญได้โดยไม่แตะ logic เกม
 
+import { IS_BLS } from '../config/courseMode';
+
 const GRADES_KEY = 'acls_codeblue_grades';
 const AWARDS_KEY = 'acls_codeblue_awards';
 
@@ -62,8 +64,9 @@ export const ACHIEVEMENTS = [
   },
   {
     id: 'megacode_all', icon: '🏅',
-    title: 'Megacode Master',
-    desc: 'ผ่านเคสระดับ megacode ครบทุกเคส',
+    // โหมด BLS ไม่มีคำว่า megacode — level key เดิมแต่ป้ายเป็น "ทีมกู้ชีพ"
+    title: IS_BLS ? 'สุดยอดทีมกู้ชีพ' : 'Megacode Master',
+    desc: IS_BLS ? 'ผ่านเคสระดับทีมกู้ชีพครบทุกเคส' : 'ผ่านเคสระดับ megacode ครบทุกเคส',
     check: (c) => c.megaTotal > 0 && c.megaCleared >= c.megaTotal,
   },
   {
@@ -143,9 +146,19 @@ export function syncAwards(pool, clearedIds, grades) {
   return { fresh, earned: new Set(union) };
 }
 
+// เหรียญที่ "มีทางปลดในคลังปัจจุบัน" — เช่นคลัง BLS ไม่มีเคสสาเหตุซ่อน (H's & T's)
+// ก็ไม่ต้องโชว์เหรียญนักสืบค้างเป็น 🔒 ตลอดกาล (แต่ถ้าเคยได้แบบ sticky แล้ว ยังโชว์)
+function isApplicable(a, stats) {
+  if (a.id === 'hnt_hunter') return stats.hntTotal > 0;
+  if (a.id === 'megacode_all') return stats.megaTotal > 0;
+  return true;
+}
+
 // รายการเหรียญพร้อมสถานะปลดล็อก (live check หรือเคยได้ sticky) — ใช้ในหน้ารางวัล
 export function listWithEarned(pool, clearedIds, grades) {
   const stats = computeStats(pool, clearedIds, grades);
   const sticky = readAwards();
-  return ACHIEVEMENTS.map((a) => ({ ...a, earned: a.check(stats) || sticky.has(a.id) }));
+  return ACHIEVEMENTS
+    .filter((a) => isApplicable(a, stats) || sticky.has(a.id))
+    .map((a) => ({ ...a, earned: a.check(stats) || sticky.has(a.id) }));
 }
