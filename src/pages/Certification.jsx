@@ -6,6 +6,7 @@ import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
 import { EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
+import { getScenarioGameStatus } from '../data/blsScenarios';
 import { certConfig } from '../data/activeCert';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
@@ -100,7 +101,13 @@ export default function Certification() {
   const videoComp = computeVideoCompletion(videoLessons, preCourseProgress, preCourseAttempts);
   const videoGateActive = !IS_BLS && videoComp.total > 0;
 
-  // BLS: 2 knowledge requirements. ACLS: online theory certification — the four
+  // BLS ขั้นที่ 2 (ฝึก CPR): วัดผลจากเกมลำดับขั้นตัดสินใจ 8 ด่าน + ข้อสอบรวม
+  // ที่ฝังอยู่ในหน้า skill-practice — อ่านสดจาก localStorage ทุก render
+  // เหมือน EKG test ของ ACLS
+  const scenarioGame = IS_BLS ? getScenarioGameStatus() : null;
+
+  // BLS: 3 requirements mirroring the landing journey (บทเรียน → ฝึก CPR →
+  // Post-test). ACLS: online theory certification — the four
   // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
   // skills are completed separately at a training center.
   // Once a student has an attempt on record, tapping the requirement should
@@ -112,6 +119,7 @@ export default function Certification() {
   const requirements = IS_BLS
     ? [
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
+        { label: `ผ่านฝึก CPR — เกมลำดับขั้น 8 ด่าน + ข้อสอบรวม (${scenarioGame.done}/${scenarioGame.total})`, done: scenarioGame.allPassed, Icon: Activity, to: '/skill-practice' },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
       ]
     : [
@@ -356,12 +364,18 @@ export default function Certification() {
 
       {/* BLS stat — post-test best */}
       {IS_BLS && postTestBest && (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <div className="stat-box">
             <div className="stat-value text-lg text-text-primary">
               {preCourseStatus.filter(s => s.passed).length}/{preCourseStatus.length}
             </div>
             <div className="stat-label">Lessons passed</div>
+          </div>
+          <div className="stat-box">
+            <div className={`stat-value text-lg ${scenarioGame.allPassed ? 'text-success' : 'text-warning'}`}>
+              {scenarioGame.done}/{scenarioGame.total}
+            </div>
+            <div className="stat-label">ฝึก CPR (เกม)</div>
           </div>
           <div className="stat-box">
             <div className={`stat-value text-lg ${postTestBest.score >= POST_TEST_PASS_PERCENT ? 'text-success' : 'text-warning'}`}>

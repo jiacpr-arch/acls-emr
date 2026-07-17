@@ -651,3 +651,16 @@ export function saveStageProgress(stageId, { pct, points, passed }) {
 export function isFinalExamUnlocked() {
   return blsScenarios.every((s) => getStageProgress(s.id)?.passed);
 }
+
+// Aggregate status across the whole decision game (8 stages + final exam) —
+// the BLS certificate requires all of it, so the cert page and the landing
+// journey cards read from one source of truth.
+export function getScenarioGameStatus() {
+  const stagesPassed = blsScenarios.filter((s) => getStageProgress(s.id)?.passed).length;
+  const finalPassed = !!getStageProgress(FINAL_EXAM_ID)?.passed;
+  return {
+    done: stagesPassed + (finalPassed ? 1 : 0),
+    total: blsScenarios.length + 1,
+    allPassed: stagesPassed === blsScenarios.length && finalPassed,
+  };
+}
