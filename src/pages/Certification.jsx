@@ -11,12 +11,12 @@ import { certConfig } from '../data/activeCert';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { exportCertificatePDF } from '../utils/exportCertificate';
-import { simCertHighlights } from '../game/achievements';
+import { simCertHighlights, getSimGameStatus } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
 import {
-  Trophy, BookOpen, Sparkles, Activity, Video,
+  Trophy, BookOpen, Sparkles, Activity, Video, Gamepad2,
   Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield, MessageCircle, AlertCircle,
 } from 'lucide-react';
 import { useVideoLessons } from '../hooks/useVideoLessons';
@@ -105,9 +105,11 @@ export default function Certification() {
   // ที่ฝังอยู่ในหน้า skill-practice — อ่านสดจาก localStorage ทุก render
   // เหมือน EKG test ของ ACLS
   const scenarioGame = IS_BLS ? getScenarioGameStatus() : null;
+  // BLS ขั้นที่ 3 (เกม BLS Rescue): ผ่านเคสตัดสินใจระดับพื้นฐานให้ครบทุกเคส
+  const simGame = IS_BLS ? getSimGameStatus() : null;
 
-  // BLS: 3 requirements mirroring the landing journey (บทเรียน → ฝึก CPR →
-  // Post-test). ACLS: online theory certification — the four
+  // BLS: 4 requirements mirroring the landing journey (บทเรียน → ฝึก CPR →
+  // BLS Rescue → Post-test). ACLS: online theory certification — the four
   // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
   // skills are completed separately at a training center.
   // Once a student has an attempt on record, tapping the requirement should
@@ -120,6 +122,7 @@ export default function Certification() {
     ? [
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
         { label: `ผ่านฝึก CPR — เกมลำดับขั้น 8 ด่าน + ข้อสอบรวม (${scenarioGame.done}/${scenarioGame.total})`, done: scenarioGame.allPassed, Icon: Activity, to: '/skill-practice' },
+        { label: `ผ่านเกม BLS Rescue — เคสพื้นฐานครบ (${simGame.done}/${simGame.total})`, done: simGame.allPassed, Icon: Gamepad2, to: '/sim' },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
       ]
     : [
@@ -364,7 +367,7 @@ export default function Certification() {
 
       {/* BLS stat — post-test best */}
       {IS_BLS && postTestBest && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <div className="stat-box">
             <div className="stat-value text-lg text-text-primary">
               {preCourseStatus.filter(s => s.passed).length}/{preCourseStatus.length}
@@ -376,6 +379,12 @@ export default function Certification() {
               {scenarioGame.done}/{scenarioGame.total}
             </div>
             <div className="stat-label">ฝึก CPR (เกม)</div>
+          </div>
+          <div className="stat-box">
+            <div className={`stat-value text-lg ${simGame.allPassed ? 'text-success' : 'text-warning'}`}>
+              {simGame.done}/{simGame.total}
+            </div>
+            <div className="stat-label">เกม BLS Rescue</div>
           </div>
           <div className="stat-box">
             <div className={`stat-value text-lg ${postTestBest.score >= POST_TEST_PASS_PERCENT ? 'text-success' : 'text-warning'}`}>

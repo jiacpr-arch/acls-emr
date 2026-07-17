@@ -19,7 +19,6 @@ import FeaturedVideo from '../components/precourse/FeaturedVideo';
 import BLSHero from '../components/precourse/BLSHero';
 import BLSProgressCard from '../components/precourse/BLSProgressCard';
 import BLSQuickActions from '../components/precourse/BLSQuickActions';
-import BLSSimGameCard from '../components/precourse/BLSSimGameCard';
 import BLSSplash from '../components/precourse/BLSSplash';
 import ACLSProgressCard from '../components/precourse/ACLSProgressCard';
 import NewsCard from '../components/NewsCard';
@@ -217,8 +216,6 @@ export default function PreCourse() {
           postTestUnlocked={postTestUnlocked}
           onScrollToLessons={scrollToLessons}
         />
-
-        <BLSSimGameCard />
 
         {courseMeta.featuredVideo && <FeaturedVideo video={courseMeta.featuredVideo} />}
 

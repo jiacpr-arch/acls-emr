@@ -8,9 +8,12 @@
 // engine เกมไม่ผูกกับตัวเลขในนี้ — เพิ่ม/แก้เหรียญได้โดยไม่แตะ logic เกม
 
 import { IS_BLS } from '../config/courseMode';
+import { scenarios } from '../data/codeBlueScenarios';
 
 const GRADES_KEY = 'acls_codeblue_grades';
 const AWARDS_KEY = 'acls_codeblue_awards';
+// ต้องตรงกับ CLEARED_KEY ใน CodeBlueSim.jsx เป๊ะ
+const CLEARED_KEY = 'acls_codeblue_cleared';
 
 const GRADE_RANK = { S: 4, A: 3, B: 2, C: 1 };
 const DIFF_RANK = { easy: 1, normal: 2, hard: 3 };
@@ -123,11 +126,23 @@ export function computeStats(pool, clearedIds, grades) {
 // หมายเหตุ: key เดียวกับ CLEARED_KEY ใน CodeBlueSim.jsx
 export function simCertHighlights() {
   let clearedCount = 0;
-  try { clearedCount = (JSON.parse(localStorage.getItem('acls_codeblue_cleared')) || []).length; }
+  try { clearedCount = (JSON.parse(localStorage.getItem(CLEARED_KEY)) || []).length; }
   catch { /* ignore */ }
   if (!clearedCount) return null;
   const gradeS = Object.values(readGrades()).filter((g) => g.grade === 'S').length;
   return { clearedCount, gradeS, megacodeMaster: readAwards().has('megacode_all') };
+}
+
+// ── สถานะเกมสำหรับ step บนหน้าแรก + requirement ก่อนรับใบประกาศ (โหมด BLS) ──
+// เกณฑ์ "ผ่าน": เคลียร์เคสระดับพื้นฐานให้ครบทุกเคสในคลังปัจจุบัน (ตรงกับเหรียญ
+// 'basic_all' ข้างบน) — mirror รูปแบบ getScenarioGameStatus() ใน blsScenarios.js
+export function getSimGameStatus() {
+  let cleared = new Set();
+  try { cleared = new Set(JSON.parse(localStorage.getItem(CLEARED_KEY)) || []); }
+  catch { /* ignore */ }
+  const basics = scenarios.filter((s) => s.level === 'basic');
+  const done = basics.filter((s) => cleared.has(s.id)).length;
+  return { done, total: basics.length, allPassed: basics.length > 0 && done >= basics.length };
 }
 
 export function readAwards() {
