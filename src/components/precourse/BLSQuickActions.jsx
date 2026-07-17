@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
+import { getScenarioGameStatus } from '../../data/blsScenarios';
 
 // Numbered study journey for the BLS landing. Full-width step cards (1 → 4)
 // that mirror the Learn hub's card style, so the Pre-course page is the single
@@ -21,6 +22,11 @@ export default function BLSQuickActions({
   const navigate = useNavigate();
 
   const lessonsComplete = totalLessons > 0 && lessonsPassed === totalLessons;
+  // ขั้นที่ 2 (ฝึก CPR) วัดผลจากเกมลำดับขั้น 8 ด่าน + ข้อสอบรวม — อ่านสดจาก
+  // localStorage ทุก render ให้ตรงกับเงื่อนไขบนหน้าใบประกาศนียบัตร
+  const scenarioGame = getScenarioGameStatus();
+  // ใบประกาศนียบัตรต้องผ่านทุกขั้น 1–3 ไม่ใช่แค่ Post-test
+  const allStepsDone = lessonsComplete && scenarioGame.allPassed && postTestPassed;
 
   const tiles = [
     {
@@ -38,10 +44,12 @@ export default function BLSQuickActions({
       step: 2,
       emoji: '💗',
       label: 'ฝึก CPR',
-      subtitle: 'Metronome',
-      desc: 'จังหวะ 110/นาที',
+      subtitle: 'Metronome + เกมลำดับขั้น',
+      desc: scenarioGame.allPassed ? 'ผ่านครบทุกด่านแล้ว' : 'จังหวะ 110/นาที · ผ่านเกมให้ครบทุกด่าน',
       tone: 'danger',
       onClick: () => navigate('/skill-practice'),
+      count: { done: scenarioGame.done, total: scenarioGame.total },
+      complete: scenarioGame.allPassed,
     },
     {
       step: 3,
@@ -59,10 +67,10 @@ export default function BLSQuickActions({
       emoji: '🏅',
       label: 'ใบประกาศนียบัตร',
       subtitle: 'My Records',
-      desc: postTestPassed ? 'พร้อมดาวน์โหลด' : 'ผ่าน Post-test ก่อน',
+      desc: allStepsDone ? 'พร้อมดาวน์โหลด' : 'ผ่านขั้น 1–3 ให้ครบก่อน',
       tone: 'warning',
       onClick: () => navigate('/certification'),
-      complete: postTestPassed,
+      complete: allStepsDone,
     },
   ];
 
