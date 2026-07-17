@@ -111,7 +111,7 @@ export default function Certification() {
   const simGame = IS_BLS ? simGameStatus() : null;
 
   // BLS: 4 requirements mirroring the landing journey (บทเรียน → ฝึก CPR →
-  // Post-test → เกม BLS Rescue). ACLS: online theory certification — the four
+  // เกม BLS Rescue → Post-test). ACLS: online theory certification — the four
   // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
   // skills are completed separately at a training center.
   // Once a student has an attempt on record, tapping the requirement should
@@ -124,8 +124,8 @@ export default function Certification() {
     ? [
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
         { label: `ผ่านฝึก CPR — เกมลำดับขั้น 8 ด่าน + ข้อสอบรวม (${scenarioGame.done}/${scenarioGame.total})`, done: scenarioGame.allPassed, Icon: Activity, to: '/skill-practice' },
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
         { label: `ผ่านเกม BLS Rescue ครบทุกเคส (${simGame.done}/${simGame.total})`, done: simGame.allPassed, Icon: Sparkles, to: '/sim' },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
       ]
     : [
         { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
