@@ -86,9 +86,19 @@ function PatientMonitor({ vitals, className = '' }) {
   );
 }
 
-// เทียบ event จริงจาก Recording กับ correctActions ของ step
-function matchesCorrectAction(step, eventType, eventCategory) {
-  return step.correctActions?.some(action => {
+// รอบ CPR จริง (2 นาที ตาม timerStore.cycleDuration) ที่ต้องครบก่อนจะ "shock ซ้ำ/check
+// rhythm ซ้ำ/ให้ epi ซ้ำ" ถือว่าถูก — กันนักเรียนกดข้ามเร็วกว่าสถานการณ์จริง (เฉพาะเคส
+// cardiac_arrest, ให้ grace 10 วิสำหรับ lag การกดปุ่มจริง)
+const CYCLE_GATE_SECONDS = 110;
+// token พวกนี้แทน "รอบถัดไป" เท่านั้น (ไม่ใช่ shock/epi ครั้งแรกซึ่งไม่ต้องรอ)
+function isCycleGatedToken(token) {
+  return token === 'defib' || token === 'check_pulse' || token === 'epi_repeat';
+}
+
+// เทียบ event จริงจาก Recording กับ correctActions ของ step — คืน action token ที่ตรง
+// (ไม่ใช่แค่ boolean) เพื่อให้รู้ว่าต้องเช็ค cycle-gate จาก token ไหน
+function matchedCorrectAction(step, eventType, eventCategory) {
+  return step.correctActions?.find(action => {
     const a = action.toLowerCase();
     if (a.includes('scene_safety') && eventType.includes('scene safe')) return true;
     if (a.includes('check_response') && (eventType.includes('unresponsive') || eventType.includes('responsive'))) return true;
@@ -117,7 +127,7 @@ function matchesCorrectAction(step, eventType, eventCategory) {
     if (a.includes('post_rosc') && eventType.includes('post-rosc')) return true;
     if (a.includes('switch_compressor') && eventType.includes('switch')) return true;
     return false;
-  });
+  }) || null;
 }
 
 // เทียบ event กับ wrongActions (key สั้นๆ ใน scenarios.js เช่น 'defib', 'epi')
@@ -215,7 +225,43 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
     const eventType = lastEvent.type?.toLowerCase() || '';
     const eventCategory = lastEvent.category || '';
 
-    if (matchesCorrectAction(currentStep, eventType, eventCategory)) {
+    const matchedAction = matchedCorrectAction(currentStep, eventType, eventCategory);
+
+    // ต้องรอรอบ CPR จริงให้ครบก่อน (เฉพาะ cardiac_arrest) — กดเร็วกว่านี้ = ขัดจังหวะ CPR จริง
+    // ใช้เวลาจริง (Date.now()) นับตั้งแต่ step ปัจจุบันเริ่ม (คือจังหวะที่รอบ CPR รอบนี้เริ่ม
+    // จริงๆ — ไม่ว่ารอบนี้จะเกิดจาก shock, epi, หรือ resume CPR ก็ตาม) ไม่ผูกกับ timerStore's
+    // cycleElapsed โดยตรง เพราะค่านั้น reset เฉพาะตอน shock (resetCycle ใน ShockControls/AEDPanel)
+    // จึงไม่ครอบคลุมรอบ non-shockable (asystole/PEA) — stepStartTime ครอบคลุมทุกกรณีสม่ำเสมอกว่า
+    if (matchedAction && scenario.category === 'cardiac_arrest' && isCycleGatedToken(matchedAction)) {
+      const elapsedSinceCycle = (Date.now() - stepStartTime) / 1000;
+      if (elapsedSinceCycle < CYCLE_GATE_SECONDS) {
+        const remain = Math.max(1, Math.ceil(CYCLE_GATE_SECONDS - elapsedSinceCycle));
+        const newWrong = wrongCount + 1;
+        setWrongCount(newWrong);
+        setScore(prev => ({
+          ...prev,
+          wrong: prev.wrong + 1,
+          total: prev.total + 1,
+          steps: [...prev.steps, { idx: currentStepIdx, correct: false, action: lastEvent.type }],
+        }));
+
+        if (soundEnabled) playBeep(200, 0.3, 0.3);
+        const earlyMsg = isLearning
+          ? `ยังไม่ครบรอบ CPR 2 นาที (เหลืออีก ${remain} วิ) — ห้ามขัดจังหวะการกดหน้าอกก่อนเวลา`
+          : 'ทีมขัดจังหวะ CPR ก่อนครบรอบ — ทบทวนจังหวะ CPR ก่อนบันทึกครั้งถัดไป';
+        showReaction({ kind: 'wrong', message: earlyMsg, at: Date.now() }, 2600);
+
+        if (isLearning) {
+          setFeedback({ correct: false, message: earlyMsg });
+          setTimeout(() => setFeedback(null), 3000);
+        }
+
+        if (newWrong >= maxWrong) onStaffTakeover(score);
+        return; // ยังไม่เลื่อน step — ให้กด CPR ต่อจนครบรอบแล้วค่อยลองใหม่
+      }
+    }
+
+    if (matchedAction) {
       const reactionTime = (Date.now() - stepStartTime) / 1000;
       const isShock = eventCategory === 'shock';
 
