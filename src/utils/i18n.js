@@ -77,7 +77,9 @@ const translations = {
 
   // ===== Navigation =====
   'history': { en: 'History', th: 'ประวัติ' },
-  'scenarios': { en: 'Scenarios', th: 'โจทย์' },
+  // เส้นทางฝึกผู้บันทึก 2 ขั้น: Recorder Hero (ปุ่มจำลอง) → Scenarios (หน้า Recording จริง)
+  // ตั้งชื่อให้บอกลำดับขั้น เพราะเนื้อหาเคสสองเกมแทบชุดเดียวกัน ต่างกันที่ระดับความจริง
+  'scenarios': { en: 'Real-Case Exam', th: 'สอบสนามจริง' },
   'statistics': { en: 'Statistics', th: 'สถิติ' },
   'drill': { en: 'Drill', th: 'ฝึก' },
   'drugs': { en: 'Drugs', th: 'ยา' },
@@ -110,10 +112,12 @@ const translations = {
   'qa_deep_desc': { en: 'In-depth Q&A bank', th: 'คลังคำถาม-คำตอบเชิงลึก' },
   'algorithms_desc': { en: 'Treatment flowcharts', th: 'Flow ขั้นตอนการรักษา' },
   'guide_desc': { en: 'Quick field guide', th: 'คู่มือใช้งานหน้างาน' },
-  'scenarios_desc': { en: 'Practice cases', th: 'ฝึกแก้สถานการณ์' },
+  'scenarios_desc': { en: 'Step 2 · Cases on the real Recording UI', th: 'ขั้น 2 · ทำโจทย์บนหน้า Recording จริง' },
   'code_sim_desc': { en: 'Live event sim — bonus on your certificate', th: 'จำลองเหตุการณ์สด — ผลงานโชว์บนใบประกาศ' },
-  'recorder_game': { en: 'Recorder Game', th: 'เกมฝึกผู้บันทึก' },
-  'recorder_game_desc': { en: 'Master the Recording UI', th: 'ฝึกกดบันทึกให้ถูก ให้ทัน' },
+  'recorder_game': { en: 'Recorder Warm-up', th: 'ซ้อมมือ Recorder' },
+  'recorder_game_desc': { en: 'Step 1 · Mini game on mock buttons', th: 'ขั้น 1 · มินิเกมปุ่มจำลอง — กดให้ถูก ให้ทัน' },
+  'recorder_path': { en: 'Recorder Training Path', th: 'เส้นทางฝึกผู้บันทึก' },
+  'recorder_path_desc': { en: 'Warm up on mock buttons, then run real cases', th: 'ซ้อมมือกับปุ่มจำลองก่อน แล้วไปสอบบนหน้าบันทึกจริง' },
   'drill_desc': { en: 'Role-based skill drill', th: 'ฝึกทักษะรายบทบาท' },
   'cert_desc': { en: 'My learning records', th: 'ผลการเรียนของฉัน' },
   'cpr_drill': { en: 'CPR Drill', th: 'ฝึก CPR' },

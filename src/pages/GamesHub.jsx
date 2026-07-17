@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';
 import { t } from '../utils/i18n';
-import { Gamepad2, User } from '../components/ui/Icon';
+import { Gamepad2, User, ChevronRight } from '../components/ui/Icon';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 
 // รวมเกม/แบบฝึกทั้งหมดไว้จุดเดียว — เข้าจากแท็บ "เกมส์" บนแถบเมนูล่าง
@@ -17,10 +17,15 @@ export default function GamesHub() {
 
   const games = [
     { path: '/sim',           emoji: '🚨', label: t('code_sim', lang),      subtitle: 'Code Blue Sim', desc: t('code_sim_desc', lang),      tone: 'danger', badge: '🏅', featured: true },
-    { path: '/recorder-game', emoji: '🎯', label: t('recorder_game', lang), subtitle: 'Recorder Hero', desc: t('recorder_game_desc', lang), tone: 'purple' },
-    { path: '/scenarios',     emoji: '🎮', label: t('scenarios', lang),     subtitle: 'Scenarios',     desc: t('scenarios_desc', lang),     tone: 'warning' },
     { path: '/drill',         emoji: '⚡', label: t('drill', lang),         subtitle: 'Skill Drill',   desc: t('drill_desc', lang),         tone: 'shock' },
     { path: '/sim-board',     emoji: '🏆', label: t('leaderboard', lang),   subtitle: 'Leaderboard',   desc: t('leaderboard_desc', lang),   tone: 'success' },
+  ];
+
+  // เกมผู้บันทึกสองตัวใช้เคสชุดเดียวกัน ต่างแค่ระดับความจริง (ปุ่มจำลอง vs หน้า
+  // Recording จริง) — จัดเป็นการ์ดเส้นทางเดียว 2 ขั้น แทนสองการ์ดที่ดูเป็นเกมซ้ำกัน
+  const recorderSteps = [
+    { path: '/recorder-game', emoji: '🎯', step: 1, label: t('recorder_game', lang), subtitle: 'Recorder Hero',      desc: t('recorder_game_desc', lang) },
+    { path: '/scenarios',     emoji: '🏥', step: 2, label: t('scenarios', lang),     subtitle: 'Training Scenarios', desc: t('scenarios_desc', lang) },
   ];
 
   const toneColor = {
@@ -69,9 +74,9 @@ export default function GamesHub() {
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        {games.map(item => {
+        {games.map((item, i) => {
           const color = toneColor[item.tone] || toneColor.info;
-          return (
+          const card = (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
@@ -102,6 +107,44 @@ export default function GamesHub() {
                 {item.desc}
               </span>
             </button>
+          );
+          if (i !== 0) return card;
+          // การ์ดเส้นทางผู้บันทึกแทรกต่อจาก Code Blue Sim — เต็มแถวเหมือนการ์ด featured
+          return (
+            <Fragment key="lead">
+              {card}
+              <div className="learn-card tone-purple !cursor-default px-3 pt-4 pb-3 space-y-3"
+                style={{ gridColumn: '1 / -1' }}>
+                <div className="text-center">
+                  <div className="text-sm font-bold" style={{ color: toneColor.purple }}>
+                    🧑‍⚕️ {t('recorder_path', lang)}
+                  </div>
+                  <div className="text-xs text-text-muted leading-snug mt-0.5">
+                    {t('recorder_path_desc', lang)}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {recorderSteps.map(s => (
+                    <button key={s.path} onClick={() => navigate(s.path)}
+                      className="w-full bg-bg-secondary border border-border p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors"
+                      style={{ borderRadius: 'var(--radius-md)' }}>
+                      <span className="shrink-0 inline-flex flex-col items-center justify-center w-11 h-11 bg-purple/12"
+                        style={{ borderRadius: 'var(--radius-md)' }}>
+                        <span className="text-lg leading-none" aria-hidden="true">{s.emoji}</span>
+                        <span className="text-3xs font-black" style={{ color: toneColor.purple }}>ขั้น {s.step}</span>
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-sm font-bold text-text-primary leading-tight">
+                          {s.label} <span className="font-semibold text-text-muted">· {s.subtitle}</span>
+                        </span>
+                        <span className="block text-xs text-text-muted leading-snug mt-0.5">{s.desc}</span>
+                      </span>
+                      <ChevronRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Fragment>
           );
         })}
       </div>
