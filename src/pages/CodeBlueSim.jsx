@@ -10,6 +10,7 @@ import { usePreCourseStore } from '../stores/preCourseStore';
 import { IS_BLS } from '../config/courseMode';
 import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
+import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import CharacterSprite from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
 import {
@@ -114,6 +115,11 @@ export default function CodeBlueSim() {
   const activeStudent = usePreCourseStore((s) => s.activeStudent);
   // อยู่ในคลาสไหม — ใช้โชว์ปุ่มอันดับเหรียญ (เข้า/ออกคลาสไม่เกิดกลางเกม อ่านครั้งเดียวพอ)
   const [inClass] = useState(() => !!getClassContext().classCode);
+  // ในคลาส: ก่อนรับเคสครั้งแรกต้องรู้ว่าใครเล่น ไม่งั้นผลจะไม่ถูกบันทึกให้ครูเห็น
+  // (rpcSubmitCodeBlueResult ต้องมี studentPk เสมอ) — startAfterIdentityRef จำไว้ว่า
+  // เปิด modal มาเพื่อ "รับเคส" ต่อ ไม่ใช่แค่แก้ชื่อจากชิปสถานะ
+  const [showIdentity, setShowIdentity] = useState(false);
+  const startAfterIdentityRef = useRef(false);
 
   // ---- engine state: mutable ใน ref (logic) + snapshot state (render) ----
   const S = useRef(createInitialState(DEFAULT_DIFFICULTY));
@@ -553,6 +559,25 @@ export default function CodeBlueSim() {
     later(() => advance(), reducedMotion ? 100 : 400);
   }
 
+  // ปุ่ม "รับเคส" เรียกอันนี้แทน startGame ตรงๆ: ในคลาสแต่ยังไม่รู้ว่าใครเล่น
+  // ให้ขอชื่อก่อน แล้วค่อยเริ่มเกมต่อให้อัตโนมัติหลังยืนยัน
+  function requestStart() {
+    if (inClass && !activeStudent?.id) {
+      startAfterIdentityRef.current = true;
+      setShowIdentity(true);
+      return;
+    }
+    startGame();
+  }
+
+  function handleIdentityConfirm() {
+    setShowIdentity(false);
+    if (startAfterIdentityRef.current) {
+      startAfterIdentityRef.current = false;
+      startGame();
+    }
+  }
+
   function pickScenario(chosen) {
     setSc(chosen);
     setScreen('title');
@@ -664,6 +689,23 @@ export default function CodeBlueSim() {
           <div className="cbs-eyebrow">Code Blue · เลือกเคส</div>
           <h1 className="cbs-select-title"><span className="cbs-gold-text">CODE BLUE</span> ภารกิจกู้ชีพ</h1>
           <p className="cbs-select-sub">ฝึกทีละหมวดจนครบทุก algorithm — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น</p>
+          {inClass && (
+            activeStudent?.id ? (
+              <div className="cbs-identity-chip cbs-identity-chip-ok">
+                <span>👤 บันทึกผลในชื่อ <b>{activeStudent.name}</b></span>
+                <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowIdentity(true)}>
+                  เปลี่ยน
+                </button>
+              </div>
+            ) : (
+              <div className="cbs-identity-chip cbs-identity-chip-warn">
+                <span>⚠ ยังไม่ได้ลงทะเบียน — ผลจะไม่ถูกบันทึกให้ครูเห็น</span>
+                <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowIdentity(true)}>
+                  ลงทะเบียน
+                </button>
+              </div>
+            )
+          )}
           {(nextCase || pool.length > 1) && (
             <div className="cbs-quick-row">
               {nextCase && (
@@ -746,6 +788,11 @@ export default function CodeBlueSim() {
             กลับหน้าแรก
           </button>
         </section>
+        <StudentIdentityModal
+          open={showIdentity}
+          onClose={() => { setShowIdentity(false); startAfterIdentityRef.current = false; }}
+          onConfirm={handleIdentityConfirm}
+        />
       </div>
     );
   }
@@ -791,7 +838,7 @@ export default function CodeBlueSim() {
               {muted ? <VolumeX size={16} strokeWidth={2.4} /> : <Volume2 size={16} strokeWidth={2.4} />}
             </button>
           </div>
-          <button type="button" className="cbs-btn-main" onClick={startGame}>
+          <button type="button" className="cbs-btn-main" onClick={requestStart}>
             <AlertTriangle size={18} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-3px', marginRight: 8 }} />
             รับเคส
           </button>
@@ -802,6 +849,11 @@ export default function CodeBlueSim() {
           </button>
           <div className="cbs-note">DECISION GAME · MORROO</div>
         </section>
+        <StudentIdentityModal
+          open={showIdentity}
+          onClose={() => { setShowIdentity(false); startAfterIdentityRef.current = false; }}
+          onConfirm={handleIdentityConfirm}
+        />
       </div>
     );
   }
