@@ -29,6 +29,10 @@ import {
 } from '../game/achievements';
 import './codeBlueSim.css';
 
+// ป้ายชื่อเกมตามโหมด — engine เดียวกัน แต่ bls.morroo.com เห็นแบรนด์/คำโปรยแบบ BLS
+const GAME_NAME = IS_BLS ? 'BLS RESCUE' : 'CODE BLUE';
+const GAME_EYEBROW = IS_BLS ? 'BLS Rescue' : 'Code Blue';
+
 const HISCORE_PREFIX = 'acls_codeblue_hiscore';
 const MUTE_KEY = 'acls_codeblue_muted';
 const DIFF_KEY = 'acls_codeblue_difficulty';
@@ -616,7 +620,7 @@ export default function CodeBlueSim() {
     return (
       <div className="cbs-app">
         <section className="cbs-select">
-          <div className="cbs-eyebrow">Code Blue · รางวัลของฉัน</div>
+          <div className="cbs-eyebrow">{GAME_EYEBROW} · รางวัลของฉัน</div>
           <h1 className="cbs-select-title"><span className="cbs-gold-text">เหรียญ</span> ที่ปลดล็อกได้</h1>
           <p className="cbs-select-sub">ปลดล็อกแล้ว {earnedN}/{badges.length} — เก็บครบทุกเหรียญเพื่อพิสูจน์ฝีมือกู้ชีพ</p>
           <div className="cbs-award-grid">
@@ -638,6 +642,9 @@ export default function CodeBlueSim() {
 
   // ============ CASE SELECT ============
   if (screen === 'select') {
+    // awardsTick บังคับให้คำนวณเหรียญใหม่หลังจบเคส (ค่าอยู่ใน localStorage)
+    void awardsTick;
+    const badgeList = listWithEarned(pool, cleared, readGrades());
     // จัดกลุ่มตาม "หมวด" (algorithm/ธีมแบบหลักสูตร ACLS) — level เหลือเป็นป้ายความยากบนการ์ด
     const tracksInPool = [...new Set(pool.map(trackOf))]
       .sort((a, b) => (TRACK_META[a]?.order ?? 9) - (TRACK_META[b]?.order ?? 9));
@@ -686,9 +693,13 @@ export default function CodeBlueSim() {
     return (
       <div className="cbs-app">
         <section className="cbs-select">
-          <div className="cbs-eyebrow">Code Blue · เลือกเคส</div>
-          <h1 className="cbs-select-title"><span className="cbs-gold-text">CODE BLUE</span> ภารกิจกู้ชีพ</h1>
-          <p className="cbs-select-sub">ฝึกทีละหมวดจนครบทุก algorithm — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น</p>
+          <div className="cbs-eyebrow">{GAME_EYEBROW} · เลือกเคส</div>
+          <h1 className="cbs-select-title"><span className="cbs-gold-text">{GAME_NAME}</span> ภารกิจกู้ชีพ</h1>
+          <p className="cbs-select-sub">
+            {IS_BLS
+              ? 'ฝึกช่วยชีวิตขั้นพื้นฐานทีละสถานการณ์ — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น'
+              : 'ฝึกทีละหมวดจนครบทุก algorithm — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น'}
+          </p>
           {inClass && (
             activeStudent?.id ? (
               <div className="cbs-identity-chip cbs-identity-chip-ok">
@@ -775,8 +786,8 @@ export default function CodeBlueSim() {
               ผ่านเคส megacode ครบทุกเคส รับตราทอง MEGACODE MASTER (ไม่บังคับ ไม่มีผลต่อการออกใบ)
             </div>
           )}
-          <button type="button" className="cbs-btn-ghost" onClick={() => { void awardsTick; setScreen('awards'); window.scrollTo(0, 0); }}>
-            🏅 รางวัลของฉัน ({listWithEarned(pool, cleared, readGrades()).filter((b) => b.earned).length}/{ACHIEVEMENTS.length})
+          <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('awards'); window.scrollTo(0, 0); }}>
+            🏅 รางวัลของฉัน ({badgeList.filter((b) => b.earned).length}/{badgeList.length})
           </button>
           {inClass && (
             <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
@@ -802,11 +813,13 @@ export default function CodeBlueSim() {
     return (
       <div className="cbs-app">
         <section className="cbs-title">
-          <div className="cbs-eyebrow">Code Blue · {LEVEL_META[sc.level]?.label || 'เคส'}</div>
+          <div className="cbs-eyebrow">{GAME_EYEBROW} · {LEVEL_META[sc.level]?.label || 'เคส'}</div>
           <h1><span className="cbs-gold-text">{sc.title}</span></h1>
           <p className="cbs-title-sub">
             {sc.subtitle}<br />
-            คุณคือ <b>Team Leader</b> — ทีมทั้งห้องรอฟังคำสั่งของคุณ<br />
+            {IS_BLS
+              ? <>คุณคือ <b>ผู้ช่วยเหลือคนแรก</b> — ทุกคนรอบตัวรอการตัดสินใจของคุณ</>
+              : <>คุณคือ <b>Team Leader</b> — ทีมทั้งห้องรอฟังคำสั่งของคุณ</>}<br />
             ตัดสินใจผิด ผู้ป่วยแย่ลงจริง เวลาไม่เคยรอใคร
           </p>
           <div className="cbs-diff-group" role="group" aria-label="เลือกระดับความยาก">

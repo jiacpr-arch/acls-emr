@@ -20,6 +20,15 @@ import { vfArrest } from './scenarios/vfArrest';
 import { peaHyperK } from './scenarios/peaHyperK';
 import { blsCollapse } from './scenarios/blsCollapse';
 import { blsChoking } from './scenarios/blsChoking';
+// BLS pack (MorRoo) — เคสสำหรับ bls.morroo.com จัดหมวดแบบ BLS (ผู้ใหญ่/เด็ก/สำลัก/พิเศษ)
+import { blsHandsOnly } from './scenarios/blsHandsOnly';
+import { blsAedWet } from './scenarios/blsAedWet';
+import { blsTeamWard } from './scenarios/blsTeamWard';
+import { blsChildDrowning } from './scenarios/blsChildDrowning';
+import { blsInfantCpr } from './scenarios/blsInfantCpr';
+import { blsInfantChoking } from './scenarios/blsInfantChoking';
+import { blsPregnantChoking } from './scenarios/blsPregnantChoking';
+import { blsOpioid } from './scenarios/blsOpioid';
 // ACLS basic pack — เคสเดี่ยว ทีละ algorithm/แขนงย่อย ให้ฝึกก่อนไป megacode
 import { peaAsystoleBasic } from './scenarios/peaAsystoleBasic';
 import { bradycardiaBasic } from './scenarios/bradycardiaBasic';
@@ -105,9 +114,21 @@ const allScenarios = [
   pregChoking,
   preeclampsia,
   traumaArrest,
-  // ── BLS (MorRoo) ──
+  // ── BLS (MorRoo) ── จัดเรียงตามหมวด BLS และในหมวดเรียงง่าย→ยาก
+  // 🫀 ผู้ใหญ่: CPR + AED
   blsCollapse,
+  blsHandsOnly,
+  blsAedWet,
+  blsTeamWard,
+  // 👶 เด็กและทารก
+  blsChildDrowning,
+  blsInfantCpr,
+  // 🌬 สำลัก
   blsChoking,
+  blsInfantChoking,
+  blsPregnantChoking,
+  // 🚨 สถานการณ์พิเศษ
+  blsOpioid,
 ];
 
 // เคสที่ไม่ระบุ course ถือว่าเป็น acls (ค่าเริ่มต้นเดิม)
@@ -137,15 +158,16 @@ export async function loadPlayableScenarios() {
   }
 }
 
+// ระดับความยากของเคส — โหมด BLS ไม่มีคำว่า megacode ใช้ป้าย "ทีมกู้ชีพ" แทน (key เดิม)
 export const LEVEL_META = {
   basic: { label: 'พื้นฐาน', order: 0 },
   intermediate: { label: 'ปานกลาง', order: 1 },
-  megacode: { label: 'Megacode', order: 2 },
+  megacode: { label: COURSE_MODE === 'bls' ? 'ทีมกู้ชีพ' : 'Megacode', order: 2 },
 };
 
-// หมวดของเคส (track) — จัดตาม algorithm/ธีมการเรียนแบบหลักสูตร ACLS
+// หมวดของเคส (track) — ACLS จัดตาม algorithm, BLS จัดตามกลุ่มผู้ป่วย/สถานการณ์
 // หน้าเลือกเคสจัดกลุ่มตามนี้ แทนการกองรวมตาม level ที่ยาวเป็นเส้นเดียว
-export const TRACK_META = {
+const ACLS_TRACK_META = {
   arrest: {
     label: 'Cardiac Arrest หลัก', icon: '🫀', order: 0,
     desc: 'VF/pVT · PEA/Asystole — วนลูป CPR-Shock-ยา ให้เป็นอัตโนมัติ',
@@ -176,6 +198,28 @@ export const TRACK_META = {
   },
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
 };
+
+const BLS_TRACK_META = {
+  adult: {
+    label: 'ผู้ใหญ่: CPR + AED', icon: '🫀', order: 0,
+    desc: 'ห่วงโซ่การรอดชีวิต — เรียกช่วย · กดหน้าอกคุณภาพสูง · ใช้ AED ให้ไว',
+  },
+  child: {
+    label: 'เด็กและทารก', icon: '👶', order: 1,
+    desc: 'เทคนิคเฉพาะวัย — ความลึก 1/3 อก, ชีพจร brachial, 15:2 เมื่อช่วยสองคน',
+  },
+  choking: {
+    label: 'สำลัก', icon: '🌬', order: 2,
+    desc: 'ผู้ใหญ่ thrust ท้อง · คนท้องกระแทกอก · ทารกตบหลัง 5 สลับกระแทกอก 5',
+  },
+  special: {
+    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 3,
+    desc: 'จมน้ำ · opioid เกินขนาด — สถานการณ์ที่ขั้นตอนพื้นฐานต้องปรับ',
+  },
+  other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
+};
+
+export const TRACK_META = COURSE_MODE === 'bls' ? BLS_TRACK_META : ACLS_TRACK_META;
 
 // เคสที่ไม่ระบุ track (เช่น โจทย์เก่าจาก Supabase) ตกหมวด 'other'
 export function trackOf(s) {

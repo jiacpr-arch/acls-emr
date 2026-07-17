@@ -5,7 +5,7 @@ export const blsChoking = {
   title: 'สำลักในร้านอาหาร',
   subtitle: 'หญิงวัย 45 ปี กำลังกินข้าวอยู่ดี ๆ ก็ลุกขึ้นเอามือกุมคอ พูดไม่ออก หน้าเริ่มเขียว',
   level: 'basic',
-  track: 'special',
+  track: 'choking',
   course: 'bls',
   hiddenCause: null,
   story: [
