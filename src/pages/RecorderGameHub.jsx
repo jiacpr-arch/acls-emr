@@ -72,8 +72,9 @@ export default function RecorderGameHub() {
           }}>
           <Target size={26} strokeWidth={2.4} className="text-white" />
         </div>
-        <h1 className="text-title text-text-primary">Recorder Hero</h1>
-        <p className="text-caption text-text-muted">ฝึกกดบันทึก Code Blue ให้ถูก ให้ทัน ลดข้อผิดพลาด</p>
+        <div className="text-overline text-purple">เส้นทางฝึกผู้บันทึก · ขั้น 1/2</div>
+        <h1 className="text-title text-text-primary">ซ้อมมือ Recorder</h1>
+        <p className="text-caption text-text-muted">Recorder Hero — มินิเกมปุ่มจำลอง ฝึกกดให้ถูก ให้ทัน ก่อนไปสอบสนามจริง</p>
         <div className="inline-flex items-center gap-1.5 text-warning font-black">
           <Star size={16} strokeWidth={2.4} fill="currentColor" /> {totalStars} / {levels.length * 3} ดาว
         </div>
@@ -147,6 +148,17 @@ export default function RecorderGameHub() {
           );
         })}
       </div>
+
+      {/* ขั้น 2 ของเส้นทาง: โจทย์บนหน้า Recording จริง */}
+      <button onClick={() => navigate('/scenarios')}
+        className="w-full dash-card !p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors">
+        <span className="text-2xl shrink-0">🏥</span>
+        <div className="flex-1 min-w-0">
+          <div className="text-caption font-black text-text-primary">ขั้น 2 · สอบสนามจริง</div>
+          <div className="text-3xs text-text-muted">ซ้อมมือคล่องแล้ว? ไปทำโจทย์บนหน้า Recording จริง</div>
+        </div>
+        <ChevronRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
+      </button>
 
       <div className="text-3xs text-text-muted text-center px-4 leading-relaxed">
         ปุ่มในเกมจำลองจากหน้า Recording จริง — เล่นเกมนี้ไม่สร้างเคสจริงในระบบ

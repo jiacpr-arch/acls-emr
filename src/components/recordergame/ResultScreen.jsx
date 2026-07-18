@@ -149,14 +149,14 @@ export default function ResultScreen({
         </button>
       )}
 
-      {/* ด่านต่อไปของเส้นทาง recorder: ฝึกบันทึกจริงบนหน้า Recording ใน Training Scenarios */}
+      {/* ขั้น 2 ของเส้นทางผู้บันทึก: โจทย์บนหน้า Recording จริง */}
       {stars >= 2 && (
         <button onClick={() => navigate('/scenarios')}
           className="w-full dash-card !p-3 text-left hover:bg-bg-tertiary transition-colors flex items-center gap-3">
           <span className="text-2xl shrink-0">🏥</span>
           <div className="flex-1 min-w-0">
-            <div className="text-body-strong text-text-primary">พร้อมของจริงแล้ว!</div>
-            <div className="text-caption text-text-muted">ไปฝึกบันทึกด้วยหน้า Recording จริงกับเคสจำลองที่ Training Scenarios</div>
+            <div className="text-body-strong text-text-primary">พร้อมของจริงแล้ว → ขั้น 2 · สอบสนามจริง</div>
+            <div className="text-caption text-text-muted">ทำโจทย์เคสเดียวกันนี้บนหน้า Recording จริง — มีเกรดให้ทุกเคส</div>
           </div>
           <ChevronRight size={16} strokeWidth={2} className="text-text-muted shrink-0" />
         </button>
