@@ -113,6 +113,10 @@ function App() {
   // ไม่รวมหน้า landing (/pre-course, /), หน้าผลสอบ (/results), หน้าอาจารย์ (/cohort)
   const isStudying = /^\/pre-course\/[^/]+(\/quiz)?$/.test(location.pathname)
     && location.pathname !== '/pre-course/cohort';
+  // หน้าฝึก CPR + เกมสถานการณ์ตัดสินใจ — เป็นเครื่องมือฝึกจริง ไม่ใช่หน้าขายคอร์ส
+  // ปุ่ม LINE ลอยจะไปบังคำอธิบาย/ปุ่มควบคุมพอดี จึงซ่อนไว้เฉพาะหน้านี้
+  const isPractice = location.pathname === '/skill-practice'
+    || /^\/bls\/scenario\/.+/.test(location.pathname);
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -343,7 +347,7 @@ function App() {
       {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin + recorder-game play */}
       {!isRecording && !isAdmin && !isRecorderGamePlay && <BottomTabBar />}
-      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && <LineFloatButton />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isPractice && <LineFloatButton />}
       <Analytics />
       <MetaPixel />
     </div>
