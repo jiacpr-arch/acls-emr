@@ -470,15 +470,15 @@ export default function InstructorCheckin() {
         </>
       )}
 
-      {/* ป๊อปอัพยืนยันโหมด express — แตะเพื่อปิด หรือหายเอง (สแกนคนต่อไปทับได้เลย) */}
+      {/* ป๊อปอัพยืนยันโหมด express — กดโอเค/แตะนอกกรอบปิดทันที หรือหายเอง
+          (สแกนคนต่อไปทับได้เลย) */}
       {flash && (
-        <button
-          type="button"
+        <div
           onClick={() => setFlash(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in"
-          aria-label="ปิดป๊อปอัพ">
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
           <div
-            className="bg-bg-secondary px-6 py-7 text-center space-y-2.5 mx-8 w-full max-w-xs animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-bg-secondary px-6 py-7 text-center space-y-3 mx-8 w-full max-w-xs animate-slide-up"
             style={{ borderRadius: 'var(--radius-2xl)', boxShadow: 'var(--shadow-pop)' }}>
             <div className={`w-16 h-16 mx-auto inline-flex items-center justify-center ${
               flash.warn ? 'bg-warning/15 text-warning' : 'bg-success/15 text-success'
@@ -501,9 +501,17 @@ export default function InstructorCheckin() {
               </div>
             )}
             <div className="text-caption text-text-muted">{flash.station}</div>
-            <div className="text-2xs text-text-muted">หายเองอัตโนมัติ — สแกนคนต่อไปได้เลย</div>
+            <button
+              type="button"
+              onClick={() => setFlash(null)}
+              className="btn btn-primary btn-block">
+              โอเค — สแกนคนต่อไป
+            </button>
+            <div className="text-2xs text-text-muted">
+              หรือแตะนอกกรอบเพื่อปิด (ไม่กดก็หายเองใน 2-3 วิ)
+            </div>
           </div>
-        </button>
+        </div>
       )}
 
       <StationPickerSheet
