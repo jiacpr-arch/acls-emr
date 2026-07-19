@@ -14,7 +14,7 @@ import ClassGateModal from '../components/precourse/ClassGateModal';
 import { track } from '../services/analytics';
 import {
   ChevronLeft, ScanLine, Settings2, KeyRound, Award,
-  ClipboardCheck, Camera, List, Check, AlertTriangle,
+  ClipboardCheck, Camera, List, Check, AlertTriangle, FileText,
 } from 'lucide-react';
 
 const timeStr = (iso) => (iso ? new Date(iso).toLocaleTimeString('th-TH', {
@@ -195,6 +195,12 @@ export default function InstructorCheckin() {
             {station && ` · ${station.name}: มาแล้ว ${presentCount}/${totalCount}`}
           </p>
         </div>
+        <a
+          href={`${import.meta.env.BASE_URL}checkin-guide.pdf`}
+          target="_blank" rel="noopener noreferrer" download
+          className="btn btn-ghost btn-sm shrink-0">
+          <FileText size={14} strokeWidth={2.2} /> คู่มือ (PDF)
+        </a>
       </div>
 
       {!classCode ? (
