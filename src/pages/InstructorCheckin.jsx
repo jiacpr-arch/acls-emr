@@ -60,6 +60,14 @@ export default function InstructorCheckin() {
     setScanModeState(m);
     try { localStorage.setItem('acls-checkin-scan-mode', m); } catch { /* private mode */ }
   };
+  // ป๊อปอัพยืนยันกลางจอหลังสแกนในโหมด express — เด้งใหญ่ให้เห็นชัดว่าสแกนติด
+  // แล้ว (การ์ดผลอยู่ใต้กล้อง มักหลุดจอมือถือ) หายเองในไม่กี่วินาที
+  const [flash, setFlash] = useState(null); // {name, studentId, station, duplicate?, warn?}
+  useEffect(() => {
+    if (!flash) return undefined;
+    const t = setTimeout(() => setFlash(null), flash.warn ? 5000 : 2500);
+    return () => clearTimeout(t);
+  }, [flash]);
 
   const trackedView = useRef(false);
   useEffect(() => {
@@ -151,10 +159,22 @@ export default function InstructorCheckin() {
           data,
           message: 'เช็คชื่อแล้ว แต่บันทึก "ผ่าน" ไม่สำเร็จ — กดปุ่ม ผ่าน ในการ์ดนี้ซ้ำอีกครั้ง',
         });
+        setFlash({
+          name: data.student.name,
+          studentId: data.student.studentId,
+          station: target.name,
+          warn: 'เช็คชื่อแล้ว แต่บันทึก "ผ่าน" ไม่สำเร็จ — เลื่อนลงไปกดปุ่ม ผ่าน ในการ์ดผลซ้ำ',
+        });
       } else {
         setResult({
           status: data.duplicate ? 'duplicate' : 'ok',
           data: { ...data, examPassed: true },
+        });
+        setFlash({
+          name: data.student.name,
+          studentId: data.student.studentId,
+          station: target.name,
+          duplicate: data.duplicate,
         });
       }
       navigator.vibrate?.(80);
@@ -448,6 +468,42 @@ export default function InstructorCheckin() {
             </>
           )}
         </>
+      )}
+
+      {/* ป๊อปอัพยืนยันโหมด express — แตะเพื่อปิด หรือหายเอง (สแกนคนต่อไปทับได้เลย) */}
+      {flash && (
+        <button
+          type="button"
+          onClick={() => setFlash(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in"
+          aria-label="ปิดป๊อปอัพ">
+          <div
+            className="bg-bg-secondary px-6 py-7 text-center space-y-2.5 mx-8 w-full max-w-xs animate-slide-up"
+            style={{ borderRadius: 'var(--radius-2xl)', boxShadow: 'var(--shadow-pop)' }}>
+            <div className={`w-16 h-16 mx-auto inline-flex items-center justify-center ${
+              flash.warn ? 'bg-warning/15 text-warning' : 'bg-success/15 text-success'
+            }`} style={{ borderRadius: 'var(--radius-full)' }}>
+              {flash.warn
+                ? <AlertTriangle size={32} strokeWidth={2.4} />
+                : <Check size={36} strokeWidth={3} />}
+            </div>
+            <div>
+              <div className="text-title text-text-primary">{flash.name}</div>
+              {flash.studentId && (
+                <div className="font-mono text-caption text-text-secondary">({flash.studentId})</div>
+              )}
+            </div>
+            {flash.warn ? (
+              <div className="text-caption text-warning font-bold">{flash.warn}</div>
+            ) : (
+              <div className="text-body-strong text-success">
+                เช็คชื่อ + ผ่านแล้ว ✓{flash.duplicate ? ' (สแกนซ้ำ)' : ''}
+              </div>
+            )}
+            <div className="text-caption text-text-muted">{flash.station}</div>
+            <div className="text-2xs text-text-muted">หายเองอัตโนมัติ — สแกนคนต่อไปได้เลย</div>
+          </div>
+        </button>
       )}
 
       <StationPickerSheet
