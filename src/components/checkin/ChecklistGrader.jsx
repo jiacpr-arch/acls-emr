@@ -3,7 +3,38 @@ import { STATION_CHECKLISTS } from '../../data/checklists/stationChecklists';
 import { MEGACODE_CASES } from '../../data/checklists/megacodeCases';
 import { resolveChecklistForStation } from '../../data/checkinStations';
 import { tallyChecklist, suggestPass } from '../../utils/checklistScoring';
-import { X, Shuffle, Check, AlertTriangle } from 'lucide-react';
+import { X, Shuffle, Check, AlertTriangle, ListChecks, Eraser } from 'lucide-react';
+
+// แถวเช็คลิสต์แบบปุ่มเต็มบรรทัด — แตะตรงไหนก็ติ๊กได้ เปลี่ยนสีเมื่อติ๊ก
+// (checkbox เดิมเล็กเกินไป กดยากบนมือถือ)
+function ChecklistRow({ text, critical, checkedOn, disabled, onToggle }) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onToggle}
+      className={`w-full flex items-start gap-3 text-left px-3 py-2.5 border transition-colors ${
+        checkedOn
+          ? 'border-success bg-success/12'
+          : 'border-border bg-bg-tertiary'
+      } ${disabled ? 'cursor-default' : ''}`}
+      style={{ borderRadius: 'var(--radius-md)' }}
+    >
+      <span
+        className={`mt-0.5 w-5 h-5 shrink-0 inline-flex items-center justify-center border-2 ${
+          checkedOn ? 'border-success bg-success text-white' : 'border-border bg-bg-secondary'
+        }`}
+        style={{ borderRadius: 'var(--radius-sm)' }}
+      >
+        {checkedOn && <Check size={13} strokeWidth={3} />}
+      </span>
+      <span className={`text-caption ${checkedOn ? 'text-text-primary font-medium' : 'text-text-primary'}`}>
+        {text}
+        {critical && <span className="text-warning font-bold"> ★</span>}
+      </span>
+    </button>
+  );
+}
 
 const CHECKLIST_OPTIONS = Object.values(STATION_CHECKLISTS).map((c) => ({ id: c.id, title: c.title }));
 
@@ -61,6 +92,10 @@ export default function ChecklistGrader({ open, onClose, station, onSave, readOn
   if (!open) return null;
 
   const toggle = (no) => setChecked((c) => ({ ...c, [no]: !c[no] }));
+
+  const allChecked = total > 0 && checkedCount === total;
+  const checkAll = () => setChecked(Object.fromEntries(flatItems.map((it) => [it.no, true])));
+  const clearAll = () => setChecked({});
 
   const reroll = () => {
     setCaseData((prev) => pickRandomCase(prev?.id));
@@ -126,14 +161,25 @@ export default function ChecklistGrader({ open, onClose, station, onSave, readOn
             </div>
           )}
 
-          <div className="flex items-center justify-between text-caption sticky top-0 bg-bg-secondary py-1">
-            <span className="font-bold text-text-primary">ปฏิบัติได้ {checkedCount} / {total} ข้อ</span>
-            {template && (
-              <span className={`inline-flex items-center gap-1 font-bold ${criticalDone ? 'text-success' : 'text-warning'}`}>
-                {criticalDone
-                  ? <><Check size={12} strokeWidth={2.6} /> ข้อวิกฤตครบ</>
-                  : <><AlertTriangle size={12} strokeWidth={2.4} /> ข้อวิกฤตยังไม่ครบ</>}
-              </span>
+          <div className="sticky top-0 bg-bg-secondary py-1 space-y-1.5">
+            <div className="flex items-center justify-between text-caption">
+              <span className="font-bold text-text-primary">ปฏิบัติได้ {checkedCount} / {total} ข้อ</span>
+              {template && (
+                <span className={`inline-flex items-center gap-1 font-bold ${criticalDone ? 'text-success' : 'text-warning'}`}>
+                  {criticalDone
+                    ? <><Check size={12} strokeWidth={2.6} /> ข้อวิกฤตครบ</>
+                    : <><AlertTriangle size={12} strokeWidth={2.4} /> ข้อวิกฤตยังไม่ครบ</>}
+                </span>
+              )}
+            </div>
+            {!readOnly && total > 0 && (
+              <button
+                onClick={allChecked ? clearAll : checkAll}
+                className="btn btn-ghost btn-sm btn-block">
+                {allChecked
+                  ? <><Eraser size={13} strokeWidth={2.2} /> ล้างทั้งหมด</>
+                  : <><ListChecks size={13} strokeWidth={2.2} /> ติ๊กถูกทั้งหมด</>}
+              </button>
             )}
           </div>
 
@@ -142,35 +188,27 @@ export default function ChecklistGrader({ open, onClose, station, onSave, readOn
               <div key={sec.title} className="space-y-1.5">
                 <div className="text-overline text-text-muted">{sec.title}</div>
                 {sec.items.map((it) => (
-                  <label key={it.no} className="flex items-start gap-2 text-caption py-0.5">
-                    <input
-                      type="checkbox"
-                      disabled={readOnly}
-                      checked={!!checked[it.no]}
-                      onChange={() => toggle(it.no)}
-                      className="mt-0.5 shrink-0"
-                    />
-                    <span className="text-text-primary">
-                      {it.text}
-                      {it.critical && <span className="text-warning font-bold"> ★</span>}
-                    </span>
-                  </label>
+                  <ChecklistRow
+                    key={it.no}
+                    text={it.text}
+                    critical={it.critical}
+                    checkedOn={!!checked[it.no]}
+                    disabled={readOnly}
+                    onToggle={() => toggle(it.no)}
+                  />
                 ))}
               </div>
             ))
           ) : caseData ? (
             <div className="space-y-1.5">
               {caseData.items.map((it, i) => (
-                <label key={i} className="flex items-start gap-2 text-caption py-0.5">
-                  <input
-                    type="checkbox"
-                    disabled={readOnly}
-                    checked={!!checked[i + 1]}
-                    onChange={() => toggle(i + 1)}
-                    className="mt-0.5 shrink-0"
-                  />
-                  <span className="text-text-primary">{it.text}</span>
-                </label>
+                <ChecklistRow
+                  key={i}
+                  text={it.text}
+                  checkedOn={!!checked[i + 1]}
+                  disabled={readOnly}
+                  onToggle={() => toggle(i + 1)}
+                />
               ))}
             </div>
           ) : null}

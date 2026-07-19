@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+  ต้นฉบับ infographic คู่มืออาจารย์ — เช็คชื่อเข้าฐานด้วย QR
+  regenerate: chromium --headless --no-sandbox --screenshot=checkin-guide-instructor-infographic.png \
+    --window-size=1080,1520 --force-device-scale-factor=2 --hide-scrollbars <ไฟล์นี้>
+-->
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --blue:#2563EB; --blue-d:#1D4ED8; --blue-bg:#EFF6FF;
+    --green:#059669; --green-bg:#ECFDF5;
+    --amber:#B45309; --amber-bg:#FFFBEB; --amber-line:#FDE68A; --amber-c:#F59E0B;
+    --red:#DC2626; --red-bg:#FEF2F2;
+    --ink:#1F2937; --muted:#6B7280; --line:#E5E7EB;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1080px; height:1520px; font-family:'Loma',sans-serif; color:var(--ink);
+    background:#F8FAFC; padding:40px 46px; display:flex; flex-direction:column; gap:18px; overflow:hidden; }
+  .head { background:linear-gradient(135deg,#1D4ED8 0%,#1E3A8A 100%); color:#fff;
+    border-radius:26px; padding:30px 38px; display:flex; align-items:center; gap:24px;
+    box-shadow:0 10px 26px rgba(29,78,216,.28); }
+  .head .ic { width:84px; height:84px; background:rgba(255,255,255,.18); border-radius:22px;
+    display:flex; align-items:center; justify-content:center; font-size:46px; flex-shrink:0; }
+  .head h1 { font-size:39px; font-weight:700; line-height:1.15; }
+  .head p { font-size:22px; opacity:.92; margin-top:5px; }
+  .band { display:flex; align-items:center; gap:14px; margin-top:6px; }
+  .band .lbl { font-size:24px; font-weight:800; padding:7px 20px; border-radius:12px; }
+  .band .a { background:var(--blue-bg); color:var(--blue-d); }
+  .band .b { background:var(--green-bg); color:var(--green); }
+  .band .rule { flex:1; height:2px; background:var(--line); }
+  .step { background:#fff; border:2px solid var(--line); border-radius:20px; padding:22px 28px;
+    display:flex; gap:22px; align-items:flex-start; box-shadow:0 3px 9px rgba(0,0,0,.04); }
+  .num { width:58px; height:58px; border-radius:50%; color:#fff;
+    font-size:31px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .step.blue .num { background:var(--blue); }
+  .step.green .num { background:var(--green); }
+  .step .body { flex:1; }
+  .step h3 { font-size:28px; font-weight:700; margin-bottom:5px; }
+  .step p { font-size:22px; color:#374151; line-height:1.45; }
+  .step b { color:var(--blue-d); }
+  .step.green b { color:var(--green); }
+  .chip { display:inline-block; color:#fff; font-weight:700; font-size:19px; padding:2px 14px; border-radius:8px; }
+  .chip.bl { background:var(--blue); } .chip.gr { background:var(--green); }
+  .legend { display:flex; gap:14px; }
+  .lg { flex:1; border-radius:16px; padding:16px 18px; text-align:center; border:2px solid; }
+  .lg.g { background:var(--green-bg); border-color:#A7F3D0; }
+  .lg.y { background:var(--amber-bg); border-color:var(--amber-line); }
+  .lg.r { background:var(--red-bg); border-color:#FECACA; }
+  .lg .dot { font-size:30px; }
+  .lg .t { font-size:23px; font-weight:800; margin:2px 0; }
+  .lg.g .t { color:var(--green); } .lg.y .t { color:var(--amber-c); } .lg.r .t { color:var(--red); }
+  .lg .d { font-size:19px; color:#4B5563; line-height:1.35; }
+  .foot { text-align:center; font-size:21px; color:var(--muted); margin-top:auto; }
+  .foot b { color:var(--blue-d); }
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="ic">👩‍🏫</div>
+    <div>
+      <h1>สำหรับอาจารย์ — เช็คชื่อเข้าฐานด้วย QR</h1>
+      <p>ตั้งค่าครั้งเดียว แล้ววันงานแค่สแกน · ต้องมี “รหัสอาจารย์”</p>
+    </div>
+  </div>
+
+  <div class="band"><span class="lbl a">🛠️ ตั้งค่าครั้งเดียว</span><span class="rule"></span></div>
+
+  <div class="step blue">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>สร้างคลาส → ได้ 2 รหัส</h3>
+      <p>เมนู <b>More → “สำหรับอาจารย์”</b> → <span class="chip bl">สร้างคลาสใหม่</span>
+      → ได้ <b>รหัสเข้าคลาส</b> (แจกนักเรียน) + <b>รหัสอาจารย์</b> (เก็บไว้เอง ใช้เช็คชื่อ)</p>
+    </div>
+  </div>
+
+  <div class="step blue">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>ตั้งฐาน (ครั้งเดียว ใช้ได้ทั้งวัน)</h3>
+      <p>ที่การ์ด <b>“เช็คชื่อเข้าฐาน”</b> → <span class="chip bl">สแกนเช็คชื่อ</span>
+      → กด <span class="chip bl">เพิ่มชุดฐานมาตรฐาน</span> ได้ครบ <b>7 ฐาน</b>ทันที</p>
+    </div>
+  </div>
+
+  <div class="band"><span class="lbl b">📸 วันงานจริง</span><span class="rule"></span></div>
+
+  <div class="step green">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>เลือกฐานที่ตัวเองประจำ</h3>
+      <p>แตะปุ่มฐานแถวบนสุด — <b>ฐานสอบ</b>จะเป็น<b>ปุ่มสีเหลือง 🏅</b></p>
+    </div>
+  </div>
+
+  <div class="step green">
+    <div class="num">4</div>
+    <div class="body">
+      <h3>สแกน QR นักเรียน</h3>
+      <p>แท็บ <span class="chip gr">สแกน QR</span> → กล้องเปิด → ส่องบัตร QR ของนักเรียน
+      → <b>ชื่อขึ้นทันที</b> (ลืมมือถือ? ใช้แท็บ “รายชื่อ” แทน)</p>
+    </div>
+  </div>
+
+  <div class="step green">
+    <div class="num">5</div>
+    <div class="body">
+      <h3>ฐานสอบ — บันทึกผล</h3>
+      <p>หลังสแกน กด <b>ผ่าน / ไม่ผ่าน</b> หรือ <span class="chip gr">เปิดเช็คลิสต์</span>
+      ติ๊กทีละข้อ ระบบคิดคะแนน + เกณฑ์ผ่านให้</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="lg g"><div class="dot">🟢</div><div class="t">เขียว</div><div class="d">เช็คชื่อสำเร็จ<br>(มือถือสั่น 1 ครั้ง)</div></div>
+    <div class="lg y"><div class="dot">🟡</div><div class="t">เหลือง</div><div class="d">เช็คไปแล้ว<br>(บอกเวลาเดิม)</div></div>
+    <div class="lg r"><div class="dot">🔴</div><div class="t">แดง</div><div class="d">QR ผิด /<br>คนละคลาส</div></div>
+  </div>
+
+  <div class="foot">📄 คู่มือเต็ม <b>acls.morroo.com/checkin-guide.pdf</b> · จัดทำโดย JIA Trainer Center</div>
+</body>
+</html>
