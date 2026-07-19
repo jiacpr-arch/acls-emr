@@ -113,6 +113,9 @@ export default function InstructorCheckin() {
       duplicate: data.duplicate,
     }, ...r].slice(0, 8));
     navigator.vibrate?.(data.duplicate ? [40, 40, 40] : 80);
+    // ฐานสอบ: สแกนเสร็จเด้งหน้าประเมินขึ้นเลย ไม่ต้องให้อาจารย์กดหา
+    // (ฐานเช็คชื่อเฉยๆ ไม่เด้ง — ยังกดปุ่ม "เปิดเช็คลิสต์" เองได้)
+    if (station?.kind === 'exam') setShowChecklist(true);
     refreshBoard();
   };
 
