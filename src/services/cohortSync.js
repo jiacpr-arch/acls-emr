@@ -191,6 +191,85 @@ export async function rpcGetCohortRecorderSummary() {
   return error ? { error } : { data: data || [] };
 }
 
+// ===== Practical check-in (เช็คชื่อฐาน + สอบปฏิบัติ) =====
+// Instructor-level เท่านั้น — การเช็คชื่อ/ให้ผลสอบต้องมาจากเครื่องอาจารย์
+// (นักเรียนถือแค่รหัสเข้าคลาส เรียกไม่ผ่าน) Online-only: เช็คชื่อเกิดสดหน้าฐาน
+// พลาดก็สแกนซ้ำได้ทันที จึงไม่ต้องมี offline queue
+
+export async function rpcUpsertStation({ stationId = null, name, kind, sortOrder = 0 }) {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('upsert_station', {
+    p_code: code,
+    p_station_id: stationId,
+    p_name: name,
+    p_kind: kind,
+    p_sort_order: sortOrder,
+  });
+  return error ? { error } : { data };
+}
+
+export async function rpcDeleteStation(stationId) {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { error } = await supabase.rpc('delete_station', {
+    p_code: code,
+    p_station_id: stationId,
+  });
+  return error ? { error } : { data: true };
+}
+
+export async function rpcCheckinStudent({ studentPk, stationId, note = null }) {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('checkin_student', {
+    p_code: code,
+    p_student_pk: studentPk,
+    p_station_id: stationId,
+    p_note: note,
+  });
+  return error ? { error } : { data };
+}
+
+export async function rpcUndoCheckin({ studentPk, stationId }) {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { error } = await supabase.rpc('undo_checkin', {
+    p_code: code,
+    p_student_pk: studentPk,
+    p_station_id: stationId,
+  });
+  return error ? { error } : { data: true };
+}
+
+export async function rpcSetExamResult({
+  studentPk, stationId, passed, score = null, note = null,
+  checklistId = null, checklistItems = null,
+}) {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { error } = await supabase.rpc('set_exam_result', {
+    p_code: code,
+    p_student_pk: studentPk,
+    p_station_id: stationId,
+    p_passed: passed,
+    p_score: score,
+    p_note: note,
+    p_checklist_id: checklistId,
+    p_checklist_items: checklistItems,
+  });
+  return error ? { error } : { data: true };
+}
+
+export async function rpcGetCheckinBoard() {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_checkin_board', {
+    p_code: code,
+  });
+  return error ? { error } : { data: data || { stations: [], rows: [] } };
+}
+
 export async function rpcDeleteCohortStudent(studentPk) {
   const code = instructorAccessCode();
   if (!code) return { error: new Error('no_class') };
