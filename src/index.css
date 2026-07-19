@@ -417,6 +417,59 @@ button, [role="button"] {
   color: #fff;
 }
 
+/* ===== CHECKLIST GRADER ROW (เช็คลิสต์ให้คะแนนหน้าฐาน) =====
+   เป็น class เดี่ยวแทน Tailwind utilities เพราะ rule `button { text-align:center }`
+   ด้านบนเป็น unlayered ซึ่งชนะ utility ใน layer — class นี้ specificity สูงกว่า
+   element selector จึงคุม text-align/สีได้แน่นอน ทั้ง light และ dark */
+.cl-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 13px 14px;
+  min-height: 56px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: 15px;
+  line-height: 1.45;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.08s ease;
+}
+.cl-row:active:not(:disabled) { transform: scale(0.99); }
+.cl-row.is-checked {
+  border-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 13%, var(--color-bg-secondary));
+}
+.cl-box {
+  margin-top: 1px;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  color: #fff;
+}
+.cl-row.is-checked .cl-box {
+  border-color: var(--color-success);
+  background: var(--color-success);
+}
+.dark .cl-row {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-strong);
+}
+.dark .cl-row.is-checked {
+  border-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 24%, var(--color-bg-tertiary));
+}
+.dark .cl-box { background: var(--color-bg-primary); }
+.dark .cl-row.is-checked .cl-box { background: var(--color-success); }
+
 /* ===== INSTRUCTION LIST ===== */
 .instruction-list {
   background: var(--color-bg-secondary);

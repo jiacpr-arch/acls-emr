@@ -5,30 +5,24 @@ import { resolveChecklistForStation } from '../../data/checkinStations';
 import { tallyChecklist, suggestPass } from '../../utils/checklistScoring';
 import { X, Shuffle, Check, AlertTriangle, ListChecks, Eraser } from 'lucide-react';
 
-// แถวเช็คลิสต์แบบปุ่มเต็มบรรทัด — แตะตรงไหนก็ติ๊กได้ เปลี่ยนสีเมื่อติ๊ก
-// (checkbox เดิมเล็กเกินไป กดยากบนมือถือ)
-function ChecklistRow({ text, critical, checkedOn, disabled, onToggle }) {
+// แถวเช็คลิสต์แบบการ์ดใหญ่เต็มบรรทัด — แตะตรงไหนก็ติ๊กได้ เปลี่ยนเป็นเขียวเมื่อติ๊ก
+// สไตล์อยู่ที่ .cl-row ใน index.css (class เดี่ยว ไม่ใช่ Tailwind utility เพราะ
+// rule `button { text-align:center }` แบบ unlayered ทับ utility ใน layer จนข้อความ
+// ลอยกลางและขอบมองไม่เห็นใน dark mode — บั๊กจากรอบก่อน)
+function ChecklistRow({ no, text, critical, checkedOn, disabled, onToggle }) {
   return (
     <button
       type="button"
       disabled={disabled}
       onClick={onToggle}
-      className={`w-full flex items-start gap-3 text-left px-3 py-2.5 border transition-colors ${
-        checkedOn
-          ? 'border-success bg-success/12'
-          : 'border-border bg-bg-tertiary'
-      } ${disabled ? 'cursor-default' : ''}`}
-      style={{ borderRadius: 'var(--radius-md)' }}
+      className={`cl-row ${checkedOn ? 'is-checked' : ''}`}
     >
-      <span
-        className={`mt-0.5 w-5 h-5 shrink-0 inline-flex items-center justify-center border-2 ${
-          checkedOn ? 'border-success bg-success text-white' : 'border-border bg-bg-secondary'
-        }`}
-        style={{ borderRadius: 'var(--radius-sm)' }}
-      >
-        {checkedOn && <Check size={13} strokeWidth={3} />}
+      <span className="cl-box">
+        {checkedOn
+          ? <Check size={17} strokeWidth={3.2} />
+          : <span className="text-2xs font-bold text-text-muted">{no}</span>}
       </span>
-      <span className={`text-caption ${checkedOn ? 'text-text-primary font-medium' : 'text-text-primary'}`}>
+      <span>
         {text}
         {critical && <span className="text-warning font-bold"> ★</span>}
       </span>
@@ -52,7 +46,7 @@ function pickRandomCase(excludeId) {
 //    ผ่าน/ไม่ผ่าน แต่อาจารย์ยืนยัน/ปรับเองได้เสมอ
 //  - MEGACODE_CASES (สุ่มจาก pool): ไม่มี passRule → โชว์ทัลลี่อ้างอิงเฉยๆ
 //    ผ่าน/ไม่ผ่านเป็นดุลยพินิจอาจารย์ล้วนๆ
-export default function ChecklistGrader({ open, onClose, station, onSave, readOnly = false, saving = false }) {
+export default function ChecklistGrader({ open, onClose, station, student = null, onSave, readOnly = false, saving = false }) {
   const suggestion = station ? resolveChecklistForStation(station.name) : null;
 
   const [checklistId, setChecklistId] = useState(null);
@@ -116,16 +110,33 @@ export default function ChecklistGrader({ open, onClose, station, onSave, readOn
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
       <div className="w-full sm:max-w-lg max-h-[90vh] bg-bg-secondary animate-slide-up flex flex-col"
         style={{ borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0', boxShadow: 'var(--shadow-pop)' }}>
-        <div className="flex items-center gap-2 p-4 border-b border-border shrink-0">
-          <div className="flex-1 min-w-0">
-            <div className="text-body-strong text-text-primary">
-              {readOnly ? 'ดูเช็คลิสต์' : 'เช็คลิสต์ให้คะแนน'}
+        <div className="p-4 border-b border-border shrink-0 space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="text-body-strong text-text-primary">
+                {readOnly ? 'ดูเช็คลิสต์' : 'เช็คลิสต์ให้คะแนน'}
+              </div>
+              {station && <div className="text-2xs text-text-muted truncate">{station.name}</div>}
             </div>
-            {station && <div className="text-2xs text-text-muted truncate">{station.name}</div>}
+            <button onClick={onClose} className="btn btn-ghost btn-sm" aria-label="ปิด">
+              <X size={16} strokeWidth={2.2} />
+            </button>
           </div>
-          <button onClick={onClose} className="btn btn-ghost btn-sm" aria-label="ปิด">
-            <X size={16} strokeWidth={2.2} />
-          </button>
+          {/* แถบชื่อนักเรียนเด่นๆ — อาจารย์สแกนต่อเนื่องหลายคน ต้องเห็นชัดว่า
+              กำลังประเมินใครอยู่ (ไม่มี student = โหมดดูอ้างอิงจากหน้าจัดการฐาน) */}
+          {student && (
+            <div className="bg-success/12 border border-success/40 px-3 py-2 flex items-center gap-2"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <Check size={15} strokeWidth={2.6} className="text-success shrink-0" />
+              <div className="min-w-0">
+                <span className="text-caption text-text-secondary">กำลังประเมิน: </span>
+                <span className="text-body-strong text-text-primary">
+                  {student.name}
+                </span>
+                <span className="font-mono text-caption text-text-secondary"> ({student.studentId})</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="overflow-y-auto p-4 space-y-3 flex-1">
@@ -190,6 +201,7 @@ export default function ChecklistGrader({ open, onClose, station, onSave, readOn
                 {sec.items.map((it) => (
                   <ChecklistRow
                     key={it.no}
+                    no={it.no}
                     text={it.text}
                     critical={it.critical}
                     checkedOn={!!checked[it.no]}
@@ -204,6 +216,7 @@ export default function ChecklistGrader({ open, onClose, station, onSave, readOn
               {caseData.items.map((it, i) => (
                 <ChecklistRow
                   key={i}
+                  no={i + 1}
                   text={it.text}
                   checkedOn={!!checked[i + 1]}
                   disabled={readOnly}
