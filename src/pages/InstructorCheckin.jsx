@@ -11,6 +11,7 @@ import ScanResultCard from '../components/checkin/ScanResultCard';
 import StationManager from '../components/checkin/StationManager';
 import ManualCheckinList from '../components/checkin/ManualCheckinList';
 import ChecklistGrader from '../components/checkin/ChecklistGrader';
+import StationPickerSheet from '../components/checkin/StationPickerSheet';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import { track } from '../services/analytics';
 import {
@@ -46,6 +47,8 @@ export default function InstructorCheckin() {
   const [busy, setBusy] = useState(false);
   const [examBusy, setExamBusy] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
+  // scan-first: สแกนแล้วเปิด sheet ให้เลือกฐานก่อนเช็คชื่อ
+  const [pendingScan, setPendingScan] = useState(null); // { studentPk, name, studentId } | null
 
   const trackedView = useRef(false);
   useEffect(() => {
@@ -85,10 +88,20 @@ export default function InstructorCheckin() {
     : (stations[0]?.id ?? null);
   const station = stations.find(s => s.id === activeStationId) || null;
 
-  const doCheckin = async (studentPk) => {
-    if (!activeStationId || busy) return;
+  // มีเช็คลิสต์ผูกกับฐานนี้จริงไหม (resolve คืน object เสมอถ้าชื่อฐานตรง default
+  // — ต้องเช็คว่ามี field ใด field หนึ่งไม่ว่างด้วย เช่นฐาน BLS ไม่มีเช็คลิสต์)
+  const stationHasChecklist = (st) => {
+    const sug = st ? resolveChecklistForStation(st.name) : null;
+    return !!(sug && (sug.checklistId || sug.checklistOptions?.length || sug.checklistPool));
+  };
+
+  // stationIdArg มาจาก StationPickerSheet (scan-first) หรือ activeStationId
+  // (แท็บรายชื่อที่ยังผูกกับฐาน active เหมือนเดิม)
+  const doCheckin = async (studentPk, stationIdArg = activeStationId) => {
+    const target = stations.find(s => s.id === stationIdArg) || null;
+    if (!target || busy) return;
     setBusy(true);
-    const { data, error } = await rpcCheckinStudent({ studentPk, stationId: activeStationId });
+    const { data, error } = await rpcCheckinStudent({ studentPk, stationId: target.id });
     setBusy(false);
     if (error) {
       const msg = error.message || '';
@@ -114,15 +127,17 @@ export default function InstructorCheckin() {
       duplicate: data.duplicate,
     }, ...r].slice(0, 8));
     navigator.vibrate?.(data.duplicate ? [40, 40, 40] : 80);
-    // สแกนเสร็จเด้งหน้าประเมินขึ้นเลย ไม่ต้องให้อาจารย์กดหา — ทุกฐานที่มี
-    // เช็คลิสต์ผูกไว้ (ครบทั้ง 7 ฐานมาตรฐาน ไม่ใช่แค่ฐานสอบ — จาก feedback
-    // หน้างาน: อาจารย์ฐานฝึกก็ประเมินทุกคนที่สแกนเหมือนกัน) ฐาน custom ที่
-    // ไม่มีเช็คลิสต์ = เช็คชื่ออย่างเดียว ไม่เด้ง
-    if (station && resolveChecklistForStation(station.name)) setShowChecklist(true);
+    // จำฐานที่เพิ่งใช้เป็นฐาน active (ตัวนับ/แท็บรายชื่อ/ป้าย "ล่าสุด" ใน picker ตาม)
+    setStationId(target.id);
+    // เช็คชื่อเสร็จเด้งใบประเมินต่อทันที — ทุกฐานที่มีเช็คลิสต์ผูก ไม่ต้องกดหา
+    if (stationHasChecklist(target)) setShowChecklist(true);
     refreshBoard();
   };
 
+  // scan-first: สแกนเสร็จไม่เช็คชื่อทันที — เปิด sheet ถามก่อนว่าเข้าฐานไหน
+  // ชื่อนักเรียนหาได้จาก board ที่โหลดไว้แล้ว (ไม่ต้องยิง RPC เพิ่ม)
   const handleDecode = (text) => {
+    if (pendingScan || showChecklist) return; // มี sheet เปิดอยู่ — ไม่รับสแกนซ้อน
     const parsed = parseStudentQrPayload(text);
     if (!parsed) {
       setResult({ status: 'error', message: 'QR นี้ไม่ใช่บัตรนักเรียนของระบบ — ให้นักเรียนเปิดหน้า "บัตร QR ของฉัน"' });
@@ -133,7 +148,21 @@ export default function InstructorCheckin() {
       navigator.vibrate?.([60, 60, 60]);
       return;
     }
-    doCheckin(parsed.studentPk);
+    const row = (board?.rows || []).find(r => r.student.id === parsed.studentPk);
+    if (!row) refreshBoard(); // นักเรียนเพิ่งเข้าคลาสหลังโหลดหน้า — รีเฟรชเบื้องหลัง
+    navigator.vibrate?.(40);
+    setResult(null);
+    setPendingScan({
+      studentPk: parsed.studentPk,
+      name: row?.student?.name ?? 'นักเรียน',
+      studentId: row?.student?.studentId ?? '',
+    });
+  };
+
+  const handlePickStation = (st) => {
+    const scan = pendingScan;
+    setPendingScan(null);
+    if (scan) doCheckin(scan.studentPk, st.id);
   };
 
   const handleSetExam = async (passed, score) => {
@@ -239,7 +268,9 @@ export default function InstructorCheckin() {
         <>
           {/* แถบเลือกฐาน */}
           <div className="space-y-2">
-            <div className="text-overline text-text-muted px-1">เลือกฐาน</div>
+            <div className="text-overline text-text-muted px-1">
+              ฐานที่ใช้งาน (สแกนไม่ต้องเลือกก่อน — แท็บรายชื่อ/ตัวนับใช้ฐานนี้)
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {stations.map(s => (
                 <button key={s.id}
@@ -284,7 +315,15 @@ export default function InstructorCheckin() {
               </div>
 
               {tab === 'scan' && (
-                <QrScannerView enabled={!!activeStationId} onDecode={handleDecode} />
+                <>
+                  <QrScannerView
+                    enabled={!pendingScan && !showChecklist}
+                    onDecode={handleDecode}
+                  />
+                  <p className="text-2xs text-text-muted text-center">
+                    สแกนบัตร QR นักเรียน — ระบบจะถามต่อว่าเข้าฐานไหน ไม่ต้องเลือกฐานก่อน
+                  </p>
+                </>
               )}
 
               {tab === 'list' && (
@@ -323,6 +362,19 @@ export default function InstructorCheckin() {
           )}
         </>
       )}
+
+      <StationPickerSheet
+        open={!!pendingScan}
+        student={pendingScan}
+        stations={stations}
+        checkins={pendingScan
+          ? ((board?.rows || []).find(r => r.student.id === pendingScan.studentPk)?.checkins || {})
+          : {}}
+        lastStationId={activeStationId}
+        onPick={handlePickStation}
+        onClose={() => setPendingScan(null)}
+        busy={busy}
+      />
 
       <ChecklistGrader
         open={showChecklist}

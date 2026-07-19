@@ -140,7 +140,28 @@ export default function ChecklistGrader({ open, onClose, station, student = null
         </div>
 
         <div className="overflow-y-auto p-4 space-y-3 flex-1">
-          {!suggestion?.checklistPool && (
+          {suggestion?.checklistOptions?.length > 1 ? (
+            /* ฐานที่มีหลายบทให้เลือก (เช่น จุด B: Brady/Tachy) — ปุ่มใหญ่เลือกชัดๆ
+               แทน dropdown ตัวเล็ก ตาม feedback หน้างาน */
+            <div className="space-y-1.5">
+              <div className="text-overline text-text-muted">เลือกบทที่ประเมิน</div>
+              {suggestion.checklistOptions.map((id) => {
+                const c = STATION_CHECKLISTS[id];
+                const active = checklistId === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => { setChecklistId(id); setChecked({}); }}
+                    className={`cl-row ${active ? 'is-checked' : ''}`}
+                  >
+                    <span className="cl-box">{active && <Check size={17} strokeWidth={3.2} />}</span>
+                    <span className="font-bold">{c?.title || id}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : !suggestion?.checklistPool && (
             <select
               value={checklistId ?? ''}
               onChange={(e) => { setChecklistId(e.target.value); setChecked({}); }}
