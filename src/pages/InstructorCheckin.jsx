@@ -49,6 +49,17 @@ export default function InstructorCheckin() {
   const [showChecklist, setShowChecklist] = useState(false);
   // scan-first: สแกนแล้วเปิด sheet ให้เลือกฐานก่อนเช็คชื่อ
   const [pendingScan, setPendingScan] = useState(null); // { studentPk, name, studentId } | null
+  // โหมดสแกน: 'ask' = ถามฐานทุกสแกน (default) / 'express' = ครูประจำฐาน —
+  // ล็อกฐานไว้ สแกนปุ๊บเช็คชื่อ + บันทึก "ผ่าน" ทันที ไม่มีหน้าคั่น
+  // จำข้ามรีเฟรชด้วย localStorage (ใช้ทั้งวันงานไม่ต้องตั้งใหม่)
+  const [scanMode, setScanModeState] = useState(() => {
+    try { return localStorage.getItem('acls-checkin-scan-mode') === 'express' ? 'express' : 'ask'; }
+    catch { return 'ask'; }
+  });
+  const setScanMode = (m) => {
+    setScanModeState(m);
+    try { localStorage.setItem('acls-checkin-scan-mode', m); } catch { /* private mode */ }
+  };
 
   const trackedView = useRef(false);
   useEffect(() => {
@@ -95,9 +106,10 @@ export default function InstructorCheckin() {
     return !!(sug && (sug.checklistId || sug.checklistOptions?.length || sug.checklistPool));
   };
 
-  // stationIdArg มาจาก StationPickerSheet (scan-first) หรือ activeStationId
-  // (แท็บรายชื่อที่ยังผูกกับฐาน active เหมือนเดิม)
-  const doCheckin = async (studentPk, stationIdArg = activeStationId) => {
+  // stationIdArg มาจาก StationPickerSheet (scan-first), activeStationId
+  // (แท็บรายชื่อ) หรือฐานที่ล็อกไว้ในโหมด express
+  // autoPass (โหมด express): เช็คชื่อเสร็จบันทึก "ผ่าน" ต่อทันที ไม่เปิดใบประเมิน
+  const doCheckin = async (studentPk, stationIdArg = activeStationId, { autoPass = false } = {}) => {
     const target = stations.find(s => s.id === stationIdArg) || null;
     if (!target || busy) return;
     setBusy(true);
@@ -119,16 +131,38 @@ export default function InstructorCheckin() {
       navigator.vibrate?.([60, 60, 60]);
       return;
     }
-    setResult({ status: data.duplicate ? 'duplicate' : 'ok', data });
     setRecent(r => [{
       name: data.student.name,
       studentId: data.student.studentId,
       at: data.checkedInAt,
       duplicate: data.duplicate,
     }, ...r].slice(0, 8));
-    navigator.vibrate?.(data.duplicate ? [40, 40, 40] : 80);
     // จำฐานที่เพิ่งใช้เป็นฐาน active (ตัวนับ/แท็บรายชื่อ/ป้าย "ล่าสุด" ใน picker ตาม)
     setStationId(target.id);
+    if (autoPass) {
+      // โหมด express: บันทึก "ผ่าน" ต่อทันที (สแกนซ้ำก็ upsert ผ่านซ้ำได้ —
+      // idempotent ตรงเจตนา "มาถึงก็ผ่าน") และไม่เปิดใบประเมิน
+      const { error: passErr } = await rpcSetExamResult({
+        studentPk: data.student.id, stationId: target.id, passed: true,
+      });
+      if (passErr) {
+        setResult({
+          status: data.duplicate ? 'duplicate' : 'ok',
+          data,
+          message: 'เช็คชื่อแล้ว แต่บันทึก "ผ่าน" ไม่สำเร็จ — กดปุ่ม ผ่าน ในการ์ดนี้ซ้ำอีกครั้ง',
+        });
+      } else {
+        setResult({
+          status: data.duplicate ? 'duplicate' : 'ok',
+          data: { ...data, examPassed: true },
+        });
+      }
+      navigator.vibrate?.(80);
+      refreshBoard();
+      return;
+    }
+    setResult({ status: data.duplicate ? 'duplicate' : 'ok', data });
+    navigator.vibrate?.(data.duplicate ? [40, 40, 40] : 80);
     // เช็คชื่อเสร็จเด้งใบประเมินต่อทันที — ทุกฐานที่มีเช็คลิสต์ผูก ไม่ต้องกดหา
     if (stationHasChecklist(target)) setShowChecklist(true);
     refreshBoard();
@@ -146,6 +180,14 @@ export default function InstructorCheckin() {
     if (classId && parsed.classId !== classId) {
       setResult({ status: 'error', message: 'นักเรียนคนนี้อยู่คนละคลาสกับคลาสที่เชื่อมต่ออยู่' });
       navigator.vibrate?.([60, 60, 60]);
+      return;
+    }
+    // โหมด express (ครูประจำฐาน): ข้ามหน้าถามฐาน — เช็คชื่อ + บันทึกผ่านที่ฐาน
+    // ที่ล็อกไว้ทันที
+    if (scanMode === 'express' && activeStationId) {
+      navigator.vibrate?.(40);
+      setResult(null);
+      doCheckin(parsed.studentPk, activeStationId, { autoPass: true });
       return;
     }
     const row = (board?.rows || []).find(r => r.student.id === parsed.studentPk);
@@ -269,7 +311,9 @@ export default function InstructorCheckin() {
           {/* แถบเลือกฐาน */}
           <div className="space-y-2">
             <div className="text-overline text-text-muted px-1">
-              ฐานที่ใช้งาน (สแกนไม่ต้องเลือกก่อน — แท็บรายชื่อ/ตัวนับใช้ฐานนี้)
+              {scanMode === 'express'
+                ? 'ฐานที่ล็อกไว้ (โหมดประจำฐาน — สแกนแล้วผ่านที่ฐานนี้เลย)'
+                : 'ฐานที่ใช้งาน (สแกนไม่ต้องเลือกก่อน — แท็บรายชื่อ/ตัวนับใช้ฐานนี้)'}
             </div>
             <div className="flex flex-wrap gap-1.5">
               {stations.map(s => (
@@ -316,12 +360,55 @@ export default function InstructorCheckin() {
 
               {tab === 'scan' && (
                 <>
+                  {/* โหมดสแกน: ถามฐานทุกสแกน (default) หรือครูประจำฐานสแกนแล้วผ่านเลย */}
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => setScanMode('ask')}
+                      className={`cl-row ${scanMode === 'ask' ? 'is-checked' : ''}`}>
+                      <span className="cl-box">
+                        {scanMode === 'ask' && <Check size={17} strokeWidth={3.2} />}
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="font-bold">🙋 ถามฐานทุกสแกน</span>
+                        <span className="block text-caption text-text-secondary">
+                          สแกนแล้วเลือกฐาน + เปิดใบประเมิน — เหมาะกับอาจารย์ที่ดูหลายฐาน
+                        </span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setScanMode('express')}
+                      className={`cl-row ${scanMode === 'express' ? 'is-checked' : ''}`}>
+                      <span className="cl-box">
+                        {scanMode === 'express' && <Check size={17} strokeWidth={3.2} />}
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="font-bold">⚡ ประจำฐาน: สแกนแล้วผ่านเลย</span>
+                        <span className="block text-caption text-text-secondary">
+                          ล็อกฐานไว้ นักเรียนมาสแกนปุ๊บ = เช็คชื่อ + บันทึก "ผ่าน" ทันที
+                        </span>
+                      </span>
+                    </button>
+                    {scanMode === 'express' && station && (
+                      <div className="bg-warning/12 border border-warning/40 px-3 py-2 flex items-start gap-2"
+                        style={{ borderRadius: 'var(--radius-md)' }}>
+                        <AlertTriangle size={14} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
+                        <div className="text-caption text-text-primary">
+                          สแกนปุ๊บ = เช็คชื่อ + บันทึก <b className="text-success">ผ่าน</b> ทันที
+                          ที่ <b>{station.name}</b> — เปลี่ยนฐานได้จากตัวเลือกฐานด้านบน
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <QrScannerView
                     enabled={!pendingScan && !showChecklist}
                     onDecode={handleDecode}
                   />
                   <p className="text-2xs text-text-muted text-center">
-                    สแกนบัตร QR นักเรียน — ระบบจะถามต่อว่าเข้าฐานไหน ไม่ต้องเลือกฐานก่อน
+                    {scanMode === 'express'
+                      ? 'สแกนบัตร QR นักเรียน — เช็คชื่อ + ผ่านทันทีที่ฐานที่ล็อกไว้ ไม่มีหน้าคั่น'
+                      : 'สแกนบัตร QR นักเรียน — ระบบจะถามต่อว่าเข้าฐานไหน ไม่ต้องเลือกฐานก่อน'}
                   </p>
                 </>
               )}

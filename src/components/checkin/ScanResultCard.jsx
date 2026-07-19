@@ -54,6 +54,12 @@ export default function ScanResultCard({ result, onSetExam, examBusy, onOpenChec
       </div>
 
       <div className="space-y-2 pt-1 border-t border-border">
+        {message && (
+          <div className="text-caption text-warning font-bold flex items-start gap-1.5">
+            <AlertTriangle size={13} strokeWidth={2.4} className="shrink-0 mt-0.5" />
+            <span>{message}</span>
+          </div>
+        )}
         {(isExam || judged) && (
           <div className="text-overline text-text-muted inline-flex items-center gap-1">
             <Award size={11} strokeWidth={2.4} /> ผลสอบฐานนี้
@@ -65,7 +71,7 @@ export default function ScanResultCard({ result, onSetExam, examBusy, onOpenChec
             )}
           </div>
         )}
-        {isExam && (
+        {(isExam || message) && (
           <div className="flex gap-2">
             <input
               type="number"
