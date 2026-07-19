@@ -13,6 +13,7 @@ import {
 } from '../data/activePostTest';
 import { IS_ACLS } from '../config/courseMode';
 import CohortTable from '../components/precourse/CohortTable';
+import CheckinCohortSummary from '../components/precourse/CheckinCohortSummary';
 import CodeBlueCohortSummary from '../components/precourse/CodeBlueCohortSummary';
 import RecorderCohortSummary from '../components/precourse/RecorderCohortSummary';
 import ClassGateModal from '../components/precourse/ClassGateModal';
@@ -523,6 +524,10 @@ export default function InstructorCohort() {
           </button>
         </div>
       </div>
+
+      {/* เช็คชื่อเข้าฐาน + ผลสอบปฏิบัติ (วันเรียนจริง) — self-contained เหมือน
+          summary ตัวอื่น: ดึง board ผ่าน RPC ของตัวเอง ไม่แตะ state ด้านบน */}
+      <CheckinCohortSummary classCode={classCode} />
 
       {/* Code Blue Simulator — สรุปแยกอิสระ (คนละรูปแบบข้อมูลจาก pre-course:
           ต่อเคส ไม่ใช่ต่อบทเรียน) ดึงเองผ่าน RPC ของตัวเอง ไม่แตะ state ด้านบน */}

@@ -28,7 +28,7 @@ import { PRE_TEST_LESSON_ID } from '../data/assessment';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import {
   GraduationCap, Users, FileText,
-  Cloud, CloudOff, ChevronDown,
+  Cloud, CloudOff, ChevronDown, QrCode,
 } from 'lucide-react';
 
 // Module-level flag — splash shows once per full page load, not on every
@@ -161,6 +161,14 @@ export default function PreCourse() {
             </div>
             <div className="text-2xs text-text-muted font-mono">รหัสคลาส: {classCode}</div>
           </div>
+          {/* บัตร QR เช็คชื่อเข้าฐาน — โชว์เมื่อลงชื่อนักเรียนแล้วเท่านั้น
+              (QR ต้องผูกกับ student_pk ของคนที่ลงชื่อ) */}
+          {activeStudent && (
+            <button onClick={() => navigate('/pre-course/my-qr')}
+              className="btn btn-ghost btn-sm">
+              <QrCode size={14} strokeWidth={2.2} /> บัตร QR
+            </button>
+          )}
           <button onClick={() => { clearClass(); setShowClassGate(true); }}
             className="btn btn-ghost btn-sm">
             เปลี่ยนคลาส

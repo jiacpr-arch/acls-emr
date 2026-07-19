@@ -34,6 +34,8 @@ import VideoLessonDetail from './pages/VideoLessonDetail';
 import LessonReader from './pages/LessonReader';
 import QuizResults from './pages/QuizResults';
 import InstructorCohort from './pages/InstructorCohort';
+import InstructorCheckin from './pages/InstructorCheckin';
+import StudentQrCard from './pages/StudentQrCard';
 import PostTestExam from './pages/PostTestExam';
 import PreTestExam from './pages/PreTestExam';
 import BLSSkillPractice from './pages/BLSSkillPractice';
@@ -135,6 +137,8 @@ function App() {
         {/* pre-course flow — ทั้งสอง mode ใช้ (lesson content เปลี่ยนตาม mode ผ่าน activeLessons shim) */}
         <Route path="/pre-course" element={<PreCourse />} />
         <Route path="/pre-course/cohort" element={<InstructorCohort />} />
+        <Route path="/pre-course/checkin" element={<InstructorCheckin />} />
+        <Route path="/pre-course/my-qr" element={<StudentQrCard />} />
         <Route path="/pre-course/pre-test" element={<PreTestExam />} />
         <Route path="/pre-course/post-test" element={<PostTestExam />} />
         <Route path="/pre-course/results/:attemptId" element={<QuizResults />} />
