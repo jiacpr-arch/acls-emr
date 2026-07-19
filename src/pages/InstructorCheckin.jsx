@@ -5,6 +5,7 @@ import {
   rpcGetCheckinBoard, rpcCheckinStudent, rpcSetExamResult,
 } from '../services/cohortSync';
 import { parseStudentQrPayload } from '../utils/qrPayload';
+import { resolveChecklistForStation } from '../data/checkinStations';
 import QrScannerView from '../components/checkin/QrScannerView';
 import ScanResultCard from '../components/checkin/ScanResultCard';
 import StationManager from '../components/checkin/StationManager';
@@ -113,9 +114,11 @@ export default function InstructorCheckin() {
       duplicate: data.duplicate,
     }, ...r].slice(0, 8));
     navigator.vibrate?.(data.duplicate ? [40, 40, 40] : 80);
-    // ฐานสอบ: สแกนเสร็จเด้งหน้าประเมินขึ้นเลย ไม่ต้องให้อาจารย์กดหา
-    // (ฐานเช็คชื่อเฉยๆ ไม่เด้ง — ยังกดปุ่ม "เปิดเช็คลิสต์" เองได้)
-    if (station?.kind === 'exam') setShowChecklist(true);
+    // สแกนเสร็จเด้งหน้าประเมินขึ้นเลย ไม่ต้องให้อาจารย์กดหา — ทุกฐานที่มี
+    // เช็คลิสต์ผูกไว้ (ครบทั้ง 7 ฐานมาตรฐาน ไม่ใช่แค่ฐานสอบ — จาก feedback
+    // หน้างาน: อาจารย์ฐานฝึกก็ประเมินทุกคนที่สแกนเหมือนกัน) ฐาน custom ที่
+    // ไม่มีเช็คลิสต์ = เช็คชื่ออย่างเดียว ไม่เด้ง
+    if (station && resolveChecklistForStation(station.name)) setShowChecklist(true);
     refreshBoard();
   };
 
@@ -324,6 +327,7 @@ export default function InstructorCheckin() {
       <ChecklistGrader
         open={showChecklist}
         station={station}
+        student={result?.data?.student ?? null}
         onSave={handleSaveChecklist}
         onClose={() => setShowChecklist(false)}
         saving={examBusy}
