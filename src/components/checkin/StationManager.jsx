@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { rpcUpsertStation, rpcDeleteStation } from '../../services/cohortSync';
-import { DEFAULT_STATIONS, STATION_KIND_META } from '../../data/checkinStations';
-import { Plus, Trash, Award, ClipboardCheck, Sparkles } from 'lucide-react';
+import { DEFAULT_STATIONS, STATION_KIND_META, resolveChecklistForStation } from '../../data/checkinStations';
+import ChecklistGrader from './ChecklistGrader';
+import { Plus, Trash, Award, ClipboardCheck, ClipboardList, Sparkles } from 'lucide-react';
 
 // จัดการรายชื่อฐานของคลาส — เพิ่ม/เปลี่ยนประเภท/ลบ + ปุ่มเพิ่มชุดฐานมาตรฐาน
 // เรียก RPC ตรงๆ แล้วให้หน้าแม่ reload board (onChanged)
@@ -10,6 +11,7 @@ export default function StationManager({ stations, courseMode, onChanged }) {
   const [newKind, setNewKind] = useState('practice');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [previewStation, setPreviewStation] = useState(null);
 
   const run = async (fn) => {
     setBusy(true);
@@ -74,27 +76,37 @@ export default function StationManager({ stations, courseMode, onChanged }) {
         </p>
       )}
 
-      {stations.map((s) => (
-        <div key={s.id} className="flex items-center gap-2 bg-bg-tertiary p-2.5"
-          style={{ borderRadius: 'var(--radius-md)' }}>
-          <div className="flex-1 min-w-0 text-caption text-text-primary truncate">{s.name}</div>
-          <button
-            disabled={busy}
-            onClick={() => toggleKind(s)}
-            className={`btn btn-sm shrink-0 font-bold ${
-              s.kind === 'exam' ? 'bg-warning/15 text-warning' : 'bg-info/12 text-info'
-            }`}
-            title="สลับประเภทฐาน: เช็คชื่อ ↔ สอบ">
-            {s.kind === 'exam'
-              ? <><Award size={12} strokeWidth={2.4} /> {STATION_KIND_META.exam.label}</>
-              : <><ClipboardCheck size={12} strokeWidth={2.4} /> {STATION_KIND_META.practice.label}</>}
-          </button>
-          <button disabled={busy} onClick={() => remove(s)}
-            className="btn btn-ghost btn-sm text-danger shrink-0" aria-label={`ลบ ${s.name}`}>
-            <Trash size={13} strokeWidth={2.2} />
-          </button>
-        </div>
-      ))}
+      {stations.map((s) => {
+        const hasChecklist = !!resolveChecklistForStation(s.name);
+        return (
+          <div key={s.id} className="flex items-center gap-2 bg-bg-tertiary p-2.5"
+            style={{ borderRadius: 'var(--radius-md)' }}>
+            <div className="flex-1 min-w-0 text-caption text-text-primary truncate">{s.name}</div>
+            {hasChecklist && (
+              <button disabled={busy} onClick={() => setPreviewStation(s)}
+                className="btn btn-ghost btn-sm shrink-0" aria-label={`ดูเช็คลิสต์ ${s.name}`}
+                title="ดูเช็คลิสต์อ้างอิง">
+                <ClipboardList size={13} strokeWidth={2.2} />
+              </button>
+            )}
+            <button
+              disabled={busy}
+              onClick={() => toggleKind(s)}
+              className={`btn btn-sm shrink-0 font-bold ${
+                s.kind === 'exam' ? 'bg-warning/15 text-warning' : 'bg-info/12 text-info'
+              }`}
+              title="สลับประเภทฐาน: เช็คชื่อ ↔ สอบ">
+              {s.kind === 'exam'
+                ? <><Award size={12} strokeWidth={2.4} /> {STATION_KIND_META.exam.label}</>
+                : <><ClipboardCheck size={12} strokeWidth={2.4} /> {STATION_KIND_META.practice.label}</>}
+            </button>
+            <button disabled={busy} onClick={() => remove(s)}
+              className="btn btn-ghost btn-sm text-danger shrink-0" aria-label={`ลบ ${s.name}`}>
+              <Trash size={13} strokeWidth={2.2} />
+            </button>
+          </div>
+        );
+      })}
 
       <div className="flex gap-2">
         <input
@@ -120,6 +132,13 @@ export default function StationManager({ stations, courseMode, onChanged }) {
       </button>
 
       {error && <div className="text-caption text-danger">{error}</div>}
+
+      <ChecklistGrader
+        open={!!previewStation}
+        station={previewStation}
+        readOnly
+        onClose={() => setPreviewStation(null)}
+      />
     </div>
   );
 }

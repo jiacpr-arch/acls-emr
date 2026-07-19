@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, AlertTriangle, X, Award } from 'lucide-react';
+import { Check, AlertTriangle, X, Award, ClipboardList } from 'lucide-react';
 
 const timeStr = (iso) => (iso ? new Date(iso).toLocaleTimeString('th-TH', {
   hour: '2-digit', minute: '2-digit',
@@ -7,8 +7,11 @@ const timeStr = (iso) => (iso ? new Date(iso).toLocaleTimeString('th-TH', {
 
 // การ์ดผลการสแกนล่าสุด — เขียว: เช็คชื่อสำเร็จ / เหลือง: สแกนซ้ำ /
 // แดง: QR ไม่ถูกต้อง-คนละคลาส-นักเรียนไม่อยู่ในคลาส
-// ฐานสอบ: มีปุ่ม ผ่าน/ไม่ผ่าน + คะแนน ต่อท้ายให้กดได้ทันทีหลังสแกน
-export default function ScanResultCard({ result, onSetExam, examBusy }) {
+// ฐานสอบ: มีปุ่ม ผ่าน/ไม่ผ่าน + คะแนน ต่อท้ายให้กดได้ทันทีหลังสแกน (แบบเร็ว
+// ไม่ผ่านเช็คลิสต์) ทุกฐาน (ไม่ว่า kind ไหน) มีปุ่ม "เปิดเช็คลิสต์" ให้ให้คะแนน
+// ละเอียดผ่าน ChecklistGrader ได้เสมอ — ตามที่อาจารย์ยืนยันว่าอยากใช้กับฐาน
+// practice ด้วย ไม่ใช่แค่ฐานสอบ
+export default function ScanResultCard({ result, onSetExam, examBusy, onOpenChecklist }) {
   const [score, setScore] = useState('');
 
   if (!result) return null;
@@ -50,8 +53,8 @@ export default function ScanResultCard({ result, onSetExam, examBusy }) {
         </div>
       </div>
 
-      {isExam && (
-        <div className="space-y-2 pt-1 border-t border-border">
+      <div className="space-y-2 pt-1 border-t border-border">
+        {(isExam || judged) && (
           <div className="text-overline text-text-muted inline-flex items-center gap-1">
             <Award size={11} strokeWidth={2.4} /> ผลสอบฐานนี้
             {judged && (
@@ -61,6 +64,8 @@ export default function ScanResultCard({ result, onSetExam, examBusy }) {
               </span>
             )}
           </div>
+        )}
+        {isExam && (
           <div className="flex gap-2">
             <input
               type="number"
@@ -83,8 +88,13 @@ export default function ScanResultCard({ result, onSetExam, examBusy }) {
               ไม่ผ่าน
             </button>
           </div>
-        </div>
-      )}
+        )}
+        {onOpenChecklist && (
+          <button onClick={onOpenChecklist} className="btn btn-ghost btn-sm btn-block">
+            <ClipboardList size={13} strokeWidth={2.2} /> เปิดเช็คลิสต์ให้คะแนนละเอียด
+          </button>
+        )}
+      </div>
     </div>
   );
 }

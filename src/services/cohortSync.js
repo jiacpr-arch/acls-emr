@@ -242,7 +242,10 @@ export async function rpcUndoCheckin({ studentPk, stationId }) {
   return error ? { error } : { data: true };
 }
 
-export async function rpcSetExamResult({ studentPk, stationId, passed, score = null, note = null }) {
+export async function rpcSetExamResult({
+  studentPk, stationId, passed, score = null, note = null,
+  checklistId = null, checklistItems = null,
+}) {
   const code = instructorAccessCode();
   if (!code) return { error: new Error('no_class') };
   const { error } = await supabase.rpc('set_exam_result', {
@@ -252,6 +255,8 @@ export async function rpcSetExamResult({ studentPk, stationId, passed, score = n
     p_passed: passed,
     p_score: score,
     p_note: note,
+    p_checklist_id: checklistId,
+    p_checklist_items: checklistItems,
   });
   return error ? { error } : { data: true };
 }

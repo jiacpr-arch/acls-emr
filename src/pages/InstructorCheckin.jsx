@@ -9,6 +9,7 @@ import QrScannerView from '../components/checkin/QrScannerView';
 import ScanResultCard from '../components/checkin/ScanResultCard';
 import StationManager from '../components/checkin/StationManager';
 import ManualCheckinList from '../components/checkin/ManualCheckinList';
+import ChecklistGrader from '../components/checkin/ChecklistGrader';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import { track } from '../services/analytics';
 import {
@@ -43,6 +44,7 @@ export default function InstructorCheckin() {
   const [recent, setRecent] = useState([]);   // [{name, studentId, at, duplicate}]
   const [busy, setBusy] = useState(false);
   const [examBusy, setExamBusy] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
 
   const trackedView = useRef(false);
   useEffect(() => {
@@ -146,6 +148,27 @@ export default function InstructorCheckin() {
       ...r,
       data: { ...r.data, examPassed: passed, examScore: score },
     } : r));
+    refreshBoard();
+  };
+
+  const handleSaveChecklist = async ({ passed, score, note, checklistId, checklistItems }) => {
+    if (!result?.data || !activeStationId) return;
+    setExamBusy(true);
+    const { error } = await rpcSetExamResult({
+      studentPk: result.data.student.id,
+      stationId: activeStationId,
+      passed, score, note, checklistId, checklistItems,
+    });
+    setExamBusy(false);
+    if (error) {
+      setResult({ status: 'error', message: 'บันทึกผลสอบไม่สำเร็จ — ลองใหม่อีกครั้ง' });
+      return;
+    }
+    setResult(r => (r?.data ? {
+      ...r,
+      data: { ...r.data, examPassed: passed, examScore: score },
+    } : r));
+    setShowChecklist(false);
     refreshBoard();
   };
 
@@ -261,7 +284,12 @@ export default function InstructorCheckin() {
                 />
               )}
 
-              <ScanResultCard result={result} onSetExam={handleSetExam} examBusy={examBusy} />
+              <ScanResultCard
+                result={result}
+                onSetExam={handleSetExam}
+                examBusy={examBusy}
+                onOpenChecklist={result?.data ? () => setShowChecklist(true) : null}
+              />
 
               {recent.length > 0 && (
                 <div className="dash-card space-y-1.5">
@@ -283,6 +311,14 @@ export default function InstructorCheckin() {
           )}
         </>
       )}
+
+      <ChecklistGrader
+        open={showChecklist}
+        station={station}
+        onSave={handleSaveChecklist}
+        onClose={() => setShowChecklist(false)}
+        saving={examBusy}
+      />
 
       <ClassGateModal
         open={gateMode !== null}
