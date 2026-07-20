@@ -20,4 +20,8 @@ export const certConfig = {
   theoryStatement: 'ผ่านการอบรมภาคทฤษฎี ACLS (ออนไลน์)',
   practicalRecommendation:
     'แนะนำให้เข้ารับการฝึกภาคปฏิบัติที่ศูนย์ฝึกใกล้บ้าน เพื่อรับใบประกาศนียบัตรฉบับสมบูรณ์',
+  // ฉบับสมบูรณ์ — ใช้เมื่อระบบเช็คชื่อยืนยันว่านักเรียนเข้าครบทุกฐาน + สอบ
+  // ภาคปฏิบัติ (Megacode) ผ่านครบในวันเรียนจริง (ดู get_my_practical_status)
+  fullTitle: 'ACLS Provider Certification',
+  fullStatement: 'ผ่านการอบรมภาคทฤษฎี (ออนไลน์) และภาคปฏิบัติ (สอบ Megacode) ครบถ้วน',
 };

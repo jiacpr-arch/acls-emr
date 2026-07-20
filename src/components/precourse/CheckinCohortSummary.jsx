@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ScanLine, RefreshCw, Check, Undo2, X, Printer } from 'lucide-react';
+import { ScanLine, RefreshCw, Check, Undo2, X, Printer, FileSpreadsheet, Award } from 'lucide-react';
 import {
   rpcGetCheckinBoard, rpcUndoCheckin, rpcSetExamResult,
 } from '../../services/cohortSync';
 import { useClassStore } from '../../stores/classStore';
 import StudentReportSheet from '../checkin/StudentReportSheet';
+import { computeCheckinStats, exportCheckinCSV } from '../../utils/exportCheckin';
 
 const timeStr = (iso) => (iso ? new Date(iso).toLocaleTimeString('th-TH', {
   hour: '2-digit', minute: '2-digit',
@@ -44,6 +45,8 @@ export default function CheckinCohortSummary({ classCode }) {
 
   const stations = board?.stations || [];
   const rows = board?.rows || [];
+  const stats = computeCheckinStats(board);
+  const examStats = stats.stationStats.filter(s => s.kind === 'exam');
   const refresh = () => setReloadKey(k => k + 1);
 
   const runEdit = async (fn) => {
@@ -70,6 +73,14 @@ export default function CheckinCohortSummary({ classCode }) {
         <button onClick={refresh} className="btn btn-ghost btn-sm shrink-0">
           <RefreshCw size={13} strokeWidth={2.2} />
         </button>
+        {rows.length > 0 && (
+          <button
+            onClick={() => exportCheckinCSV({ board, classCode })}
+            className="btn btn-ghost btn-sm shrink-0"
+            title="ดาวน์โหลด Excel (CSV) ทั้งคลาส">
+            <FileSpreadsheet size={13} strokeWidth={2.2} /> Excel
+          </button>
+        )}
         <button onClick={() => navigate('/pre-course/checkin')}
           className="btn btn-primary btn-sm shrink-0">
           <ScanLine size={13} strokeWidth={2.2} /> สแกนเช็คชื่อ
@@ -193,6 +204,46 @@ export default function CheckinCohortSummary({ classCode }) {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* สถิติสอบ + การใช้เคส Megacode — คำนวณจาก board เดียวกัน ไม่ยิง RPC เพิ่ม */}
+      {!loading && rows.length > 0 && examStats.length > 0 && (
+        <div className="pt-2 border-t border-border space-y-2">
+          <div className="text-overline text-text-muted inline-flex items-center gap-1">
+            <Award size={11} strokeWidth={2.4} /> สถิติสอบปฏิบัติ
+          </div>
+          {examStats.map(s => (
+            <div key={s.id} className="flex items-center gap-2 text-caption">
+              <span className="flex-1 min-w-0 truncate text-text-secondary">{s.name}</span>
+              <span className="text-success font-bold">ผ่าน {s.passed}</span>
+              <span className="text-danger font-bold">ไม่ผ่าน {s.failed}</span>
+              <span className="text-text-muted">ยังไม่สอบ {s.total - s.passed - s.failed}</span>
+              {s.passRate != null && (
+                <span className="text-2xs font-bold px-1.5 py-0.5 bg-bg-tertiary text-text-primary"
+                  style={{ borderRadius: 'var(--radius-full)' }}>
+                  {s.passRate}%
+                </span>
+              )}
+            </div>
+          ))}
+          {stats.caseUsage.length > 0 && (
+            <>
+              <div className="text-2xs text-text-muted pt-1">
+                เคส Megacode ที่ถูกใช้แล้ว (เหลือยังไม่ใช้ {stats.unusedCaseCount} เคส) —
+                กด "สุ่มใหม่" เลี่ยงเคสที่ใช้บ่อยได้
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {stats.caseUsage.map(cs => (
+                  <span key={cs.id} title={cs.title}
+                    className="text-2xs font-bold px-2 py-0.5 bg-warning/12 text-warning border border-warning/30"
+                    style={{ borderRadius: 'var(--radius-full)' }}>
+                    Case {cs.no} ×{cs.count}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
 

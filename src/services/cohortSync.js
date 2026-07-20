@@ -130,6 +130,19 @@ export async function rpcGetCohortSummary(lessonIds) {
   return error ? { error } : { data: data || [] };
 }
 
+// สถานะภาคปฏิบัติ "ของตัวเอง" ฝั่งนักเรียน (รหัสเข้าคลาส ไม่ใช่รหัสอาจารย์) —
+// ใช้ในหน้าใบประกาศนียบัตรเพื่ออัปเกรดใบทฤษฎีเป็นฉบับสมบูรณ์เมื่อเข้าครบทุกฐาน
+// + สอบปฏิบัติผ่านครบ server คืนเฉพาะแถวของนักเรียนคนนี้เท่านั้น
+export async function rpcGetMyPracticalStatus({ studentPk }) {
+  const { classCode } = getClassContext();
+  if (!classCode || !studentPk) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_my_practical_status', {
+    p_code: classCode,
+    p_student_pk: studentPk,
+  });
+  return error ? { error } : { data };
+}
+
 // Code Blue Simulator results — same shape as quiz attempts, but best-effort:
 // a failed submit is just dropped (no offline queue) since a game result
 // never gates certification, unlike lesson progress / quiz attempts.
