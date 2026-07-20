@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ScanLine, RefreshCw, Check, Undo2, X } from 'lucide-react';
+import { ScanLine, RefreshCw, Check, Undo2, X, Printer } from 'lucide-react';
 import {
   rpcGetCheckinBoard, rpcUndoCheckin, rpcSetExamResult,
 } from '../../services/cohortSync';
+import { useClassStore } from '../../stores/classStore';
+import StudentReportSheet from '../checkin/StudentReportSheet';
 
 const timeStr = (iso) => (iso ? new Date(iso).toLocaleTimeString('th-TH', {
   hour: '2-digit', minute: '2-digit',
@@ -19,6 +21,10 @@ export default function CheckinCohortSummary({ classCode }) {
   const [reloadKey, setReloadKey] = useState(0);
   const [editCell, setEditCell] = useState(null); // { studentPk, stationId }
   const [busy, setBusy] = useState(false);
+  // ใบสรุปผลรายคน (พิมพ์/บันทึก PDF) — เก็บ row ที่เลือกไว้ทั้งก้อน
+  const [reportRow, setReportRow] = useState(null); // { student, checkins } | null
+  const className = useClassStore(s => s.className);
+  const courseMode = useClassStore(s => s.courseMode);
 
   useEffect(() => {
     if (!classCode) return undefined;
@@ -103,8 +109,19 @@ export default function CheckinCohortSummary({ classCode }) {
               ) : rows.map(({ student, checkins }) => (
                 <tr key={student.id} className="border-t border-border">
                   <td className="px-2 py-1.5 text-text-primary whitespace-nowrap">
-                    {student.name}
-                    <span className="font-mono text-2xs text-text-muted"> {student.studentId}</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <button
+                        onClick={() => setReportRow({ student, checkins })}
+                        className="text-text-muted hover:text-info shrink-0"
+                        title="ใบสรุปผลรายคน (พิมพ์/PDF)"
+                        aria-label={`ใบสรุปผลของ ${student.name}`}>
+                        <Printer size={13} strokeWidth={2.2} />
+                      </button>
+                      <span>
+                        {student.name}
+                        <span className="font-mono text-2xs text-text-muted"> {student.studentId}</span>
+                      </span>
+                    </span>
                   </td>
                   {stations.map(st => {
                     const c = checkins?.[st.id];
@@ -178,6 +195,16 @@ export default function CheckinCohortSummary({ classCode }) {
           </table>
         </div>
       )}
+
+      <StudentReportSheet
+        open={!!reportRow}
+        student={reportRow?.student ?? null}
+        stations={stations}
+        checkins={reportRow?.checkins ?? {}}
+        className={className}
+        courseMode={courseMode}
+        onClose={() => setReportRow(null)}
+      />
     </div>
   );
 }
