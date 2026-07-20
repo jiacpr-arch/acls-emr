@@ -62,7 +62,11 @@ function drawMegacodeSeal(doc, cx, cy) {
 }
 
 // sim (optional): { clearedCount, gradeS, megacodeMaster } จาก simCertHighlights()
-export async function exportCertificatePDF({ cert, certConfig, sim }) {
+// practical (optional): { complete, className } — เมื่อ complete=true ใบเปลี่ยนเป็น
+// "ฉบับสมบูรณ์": ใช้ fullTitle/fullStatement จาก certConfig, ตัดข้อความ theory-only
+// และคำแนะนำให้ไปฝึกภาคปฏิบัติออก (เพราะผ่านแล้ว)
+export async function exportCertificatePDF({ cert, certConfig, sim, practical }) {
+  const isFull = !!practical?.complete;
   const doc = new jsPDF('l', 'mm', 'a4');
   doc.setFont(PDF_FONT, 'normal');
   const pw = doc.internal.pageSize.getWidth();   // 297
@@ -92,7 +96,7 @@ export async function exportCertificatePDF({ cert, certConfig, sim }) {
   doc.setTextColor(...brand);
   doc.setFont(PDF_FONT, 'bold');
   doc.setFontSize(22);
-  doc.text(certConfig.title, pw / 2, 66, { align: 'center' });
+  doc.text((isFull && certConfig.fullTitle) || certConfig.title, pw / 2, 66, { align: 'center' });
   doc.setFont(PDF_FONT, 'normal');
   doc.setFontSize(11);
   doc.setTextColor(110);
@@ -119,19 +123,25 @@ export async function exportCertificatePDF({ cert, certConfig, sim }) {
   doc.setFont(PDF_FONT, 'normal');
   doc.setFontSize(11);
   doc.setTextColor(60);
-  const body1 = certConfig.theoryOnly
-    ? `has successfully completed the online theoretical portion of the ${certConfig.subtitle} course`
-    : `has successfully completed the ${certConfig.subtitle} course`;
+  const body1 = isFull
+    ? `has successfully completed the ${certConfig.subtitle} course (theory and hands-on practical)`
+    : certConfig.theoryOnly
+      ? `has successfully completed the online theoretical portion of the ${certConfig.subtitle} course`
+      : `has successfully completed the ${certConfig.subtitle} course`;
   const body2 = `in accordance with the ${certConfig.issuingBody} curriculum.`;
   doc.text(body1, pw / 2, 119, { align: 'center' });
   doc.text(body2, pw / 2, 126, { align: 'center' });
 
-  // Theory statement (Thai) — rendered with the embedded Sarabun font.
-  if (certConfig.theoryOnly && certConfig.theoryStatement) {
+  // Statement (Thai) — rendered with the embedded Sarabun font.
+  // ฉบับสมบูรณ์ใช้ fullStatement แทน theoryStatement
+  const statement = isFull
+    ? certConfig.fullStatement
+    : (certConfig.theoryOnly ? certConfig.theoryStatement : null);
+  if (statement) {
     doc.setFont(PDF_FONT, 'bold');
     doc.setFontSize(11);
     doc.setTextColor(...brand);
-    doc.text(S(certConfig.theoryStatement), pw / 2, 134, { align: 'center' });
+    doc.text(S(statement), pw / 2, 134, { align: 'center' });
     doc.setFont(PDF_FONT, 'normal');
   }
 
@@ -151,6 +161,7 @@ export async function exportCertificatePDF({ cert, certConfig, sim }) {
   if (cert.preTestScore != null) scoreParts.push(`Pre-test ${cert.preTestScore}%`);
   if (cert.postTestScore != null) scoreParts.push(`Post-test ${cert.postTestScore}%`);
   if (cert.ekgPassed) scoreParts.push('EKG test passed');
+  if (isFull) scoreParts.push('Practical exam passed');
   // แถวข้อมูลใต้วันที่วางต่อกันลงมา (เดิม fix 152/159) — ใช้ cursor เพราะบรรทัด
   // Code Blue Sim โผล่เฉพาะคนที่เคยผ่านเคส ใบของคนอื่นต้อง layout เดิมเป๊ะ
   let infoY = 152;
@@ -172,7 +183,8 @@ export async function exportCertificatePDF({ cert, certConfig, sim }) {
   }
 
   // Practical-training recommendation (Thai) for online theory certificates.
-  if (certConfig.theoryOnly && certConfig.practicalRecommendation) {
+  // ฉบับสมบูรณ์ไม่ต้องแนะนำให้ไปฝึกภาคปฏิบัติแล้ว
+  if (!isFull && certConfig.theoryOnly && certConfig.practicalRecommendation) {
     doc.setFontSize(9);
     doc.setTextColor(120);
     doc.text(S(certConfig.practicalRecommendation), pw / 2, infoY, { align: 'center' });
