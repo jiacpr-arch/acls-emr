@@ -1042,3 +1042,25 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
   background: var(--color-bg-tertiary);
   border-color: var(--color-border-strong);
 }
+
+/* ใบสรุปผลรายคน (StudentReportSheet) — โหมดพิมพ์: โชว์เฉพาะตัวแผ่นฟอร์ม
+   ซ่อนส่วนอื่นของแอปทั้งหมด และปลด fixed/overflow ของ overlay ไม่ให้ตัดเหลือ
+   หน้าเดียวตอนพิมพ์หลายหน้า */
+@media print {
+  body * { visibility: hidden; }
+  .print-sheet, .print-sheet * { visibility: visible; }
+  .print-overlay {
+    position: static !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: #fff !important;
+    backdrop-filter: none !important;
+  }
+  .print-sheet {
+    position: absolute; left: 0; top: 0; width: 100%;
+    max-width: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .print-hide { display: none !important; }
+}
