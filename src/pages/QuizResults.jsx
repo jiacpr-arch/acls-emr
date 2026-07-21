@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAttemptById, db } from '../db/database';
 import { findLessonById, preCourseLessons } from '../data/activeLessons';
-import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
+import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/activePreTest';
 import {
   POST_TEST_LESSON_ID,
   POST_TEST_PASS_PERCENT,

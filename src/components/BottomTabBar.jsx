@@ -34,6 +34,7 @@ export default function BottomTabBar() {
 
   const moreItems = IS_BLS
     ? [
+        { path: '/bls/knowledge', Icon: GraduationCap, label: 'คลังความรู้ BLS' },
         { path: '/bls/algorithm', Icon: GitBranch, label: 'Algorithm' },
         { path: '/bls/aed', Icon: Zap, label: 'การใช้ AED' },
         { path: '/bls/choking', Icon: Wind, label: 'สำลัก' },

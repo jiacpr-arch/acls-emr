@@ -24,7 +24,7 @@ import ACLSProgressCard from '../components/precourse/ACLSProgressCard';
 import NewsCard from '../components/NewsCard';
 import StreakBadge from '../components/StreakBadge';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
-import { PRE_TEST_LESSON_ID } from '../data/assessment';
+import { PRE_TEST_LESSON_ID } from '../data/activePreTest';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import {
   GraduationCap, Users, FileText,
@@ -192,6 +192,12 @@ export default function PreCourse() {
     </div>
   );
 
+  // Pre-test / post-test best scores (ใช้ทั้งสองโหมด — BLS ใช้ชุดข้อสอบในไฟล์)
+  const preTestAttempts = attempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
+  const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+  const preTestPassed = preTestBest?.passed ?? false;
+  const preTestAttempted = preTestAttempts.length > 0;
+
   if (IS_BLS) {
     return (
       <div className="page-container flex flex-col gap-2">
@@ -226,6 +232,16 @@ export default function PreCourse() {
         />
 
         {courseMeta.featuredVideo && <FeaturedVideo video={courseMeta.featuredVideo} />}
+
+        {/* Pre-test — แบบวัดพื้นฐานก่อนเริ่มอ่านบทเรียน (ไม่ใช่เงื่อนไขใบประกาศ) */}
+        <div className="space-y-2">
+          <div className="text-overline text-text-muted px-1">ข้อสอบก่อนเรียน</div>
+          <PreTestCard
+            bestScore={preTestBest?.score ?? null}
+            passed={preTestPassed}
+            attemptCount={preTestAttempts.length}
+          />
+        </div>
 
         {/* Collapsible lessons section */}
         <div ref={lessonsRef}>
@@ -295,12 +311,6 @@ export default function PreCourse() {
       </div>
     );
   }
-
-  // ACLS pre-test / post-test best scores
-  const preTestAttempts = attempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
-  const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-  const preTestPassed = preTestBest?.passed ?? false;
-  const preTestAttempted = preTestAttempts.length > 0;
 
   return (
     <div className="page-container space-y-5">

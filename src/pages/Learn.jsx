@@ -89,6 +89,7 @@ export default function Learn() {
         {
           title: t('learn_prepare', lang),
           items: [
+            { path: '/pre-course/pre-test', emoji: '📝', label: 'Pre-test', subtitle: 'Knowledge Check', desc: 'วัดพื้นฐานก่อนเริ่มเรียน', tone: 'purple' },
             { path: '/pre-course', emoji: '🎓', label: t('pre_course', lang), subtitle: 'Pre-course', desc: t('pre_course_desc', lang), tone: 'info', progressKey: 'lessons' },
           ],
         },
@@ -101,6 +102,7 @@ export default function Learn() {
         {
           title: t('learn_reference', lang),
           items: [
+            { path: '/bls/knowledge', emoji: '📚', label: 'คลังความรู้ BLS', subtitle: 'BLS Book', desc: 'หนังสือ + Q&A เชิงลึก + AI Tips', tone: 'info' },
             { path: '/guide', emoji: '📖', label: t('guide', lang), subtitle: 'Field Guide', desc: t('guide_desc', lang), tone: 'success' },
           ],
         },

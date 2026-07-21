@@ -44,6 +44,7 @@ import BLSScenarioHub from './pages/BLSScenarioHub';
 import BLSAlgorithm from './pages/BLSAlgorithm';
 import BLSAedGuide from './pages/BLSAedGuide';
 import BLSChokingRelief from './pages/BLSChokingRelief';
+import BLSKnowledge from './pages/BLSKnowledge';
 import NewsPage from './pages/NewsPage';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
@@ -341,6 +342,7 @@ function App() {
         {IS_BLS && <Route path="/bls/algorithm" element={<BLSAlgorithm />} />}
         {IS_BLS && <Route path="/bls/aed" element={<BLSAedGuide />} />}
         {IS_BLS && <Route path="/bls/choking" element={<BLSChokingRelief />} />}
+        {IS_BLS && <Route path="/bls/knowledge" element={<BLSKnowledge />} />}
 
         {/* unknown paths (including the other course mode's routes) go home
             instead of rendering an empty page */}
