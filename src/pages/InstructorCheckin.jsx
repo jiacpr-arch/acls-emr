@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClassStore } from '../stores/classStore';
 import {
-  rpcGetCheckinBoard, rpcCheckinStudent, rpcSetExamResult,
+  rpcGetCheckinBoard, rpcCheckinStudent, rpcSetExamResult, rpcAssignExamCase,
 } from '../services/cohortSync';
 import { parseStudentQrPayload } from '../utils/qrPayload';
 import { resolveChecklistForStation } from '../data/checkinStations';
@@ -246,6 +246,22 @@ export default function InstructorCheckin() {
       data: { ...r.data, examPassed: passed, examScore: score },
     } : r));
     refreshBoard();
+  };
+
+  // ฐานสอบแบบสุ่มข้อสอบ: ล็อกเคสที่สุ่มได้กับนักเรียนบน server (เคสแรกชนะ —
+  // force ใช้กับปุ่ม "สุ่มใหม่") คืน case id ที่ติดจริงให้ ChecklistGrader ใช้ต่อ
+  const handleAssignCase = async (caseId, { force = false } = {}) => {
+    if (!result?.data || !activeStationId) return null;
+    const { data, error } = await rpcAssignExamCase({
+      studentPk: result.data.student.id,
+      stationId: activeStationId,
+      caseId,
+      force,
+    });
+    if (error || !data) return null;
+    // จำไว้ในการ์ดผล — เปิดใบประเมินซ้ำในสแกนเดียวกันได้เคสเดิมโดยไม่ยิง RPC เพิ่ม
+    setResult(r => (r?.data ? { ...r, data: { ...r.data, examCaseId: data } } : r));
+    return data;
   };
 
   const handleSaveChecklist = async ({ passed, score, note, checklistId, checklistItems }) => {
@@ -531,6 +547,8 @@ export default function InstructorCheckin() {
         open={showChecklist}
         station={station}
         student={result?.data?.student ?? null}
+        assignedCaseId={result?.data?.examCaseId ?? null}
+        onAssignCase={handleAssignCase}
         onSave={handleSaveChecklist}
         onClose={() => setShowChecklist(false)}
         saving={examBusy}

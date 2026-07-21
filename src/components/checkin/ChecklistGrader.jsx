@@ -46,18 +46,59 @@ function pickRandomCase(excludeId) {
 //    ผ่าน/ไม่ผ่าน แต่อาจารย์ยืนยัน/ปรับเองได้เสมอ
 //  - MEGACODE_CASES (สุ่มจาก pool): ไม่มี passRule → โชว์ทัลลี่อ้างอิงเฉยๆ
 //    ผ่าน/ไม่ผ่านเป็นดุลยพินิจอาจารย์ล้วนๆ
-export default function ChecklistGrader({ open, onClose, station, student = null, onSave, readOnly = false, saving = false }) {
+//
+// ฐานสอบแบบสุ่มข้อสอบ (poolAssign 'fixed'): เคสที่สุ่มได้ถูก "ล็อก" กับนักเรียน
+// ผ่าน onAssignCase → server (กติกาเคสแรกชนะ) แล้วใช้เคสที่ server ยืนยันกลับมา
+// เป็นตัวจริง — assignedCaseId คือเคสที่เคยล็อกไว้แล้ว (จาก checkin_student)
+// ปุ่ม "สุ่มใหม่" ยังใช้ได้ (ส่ง force ไปทับเคสเดิม)
+export default function ChecklistGrader({
+  open, onClose, station, student = null, onSave, readOnly = false, saving = false,
+  assignedCaseId = null, onAssignCase = null,
+}) {
   const suggestion = station ? resolveChecklistForStation(station.name) : null;
+  const poolFixed = !!(suggestion?.checklistPool && suggestion?.poolAssign === 'fixed'
+    && student && !readOnly && onAssignCase);
 
   const [checklistId, setChecklistId] = useState(null);
-  const [caseData, setCaseData] = useState(null); // สำหรับ pool: เคสที่สุ่มได้
+  const [caseData, setCaseData] = useState(null); // สำหรับ pool: เคสที่สุ่ม/ล็อกไว้
   const [checked, setChecked] = useState({}); // { [itemKey]: boolean }
+  const [assignState, setAssignState] = useState(null); // null | 'saving' | 'saved' | 'error'
+
+  // ล็อกเคสกับนักเรียนบน server แล้วยึดเคสที่ server คืนมาเป็นตัวจริง (อาจไม่ใช่
+  // เคสที่เพิ่งสุ่ม ถ้าอาจารย์อีกเครื่องล็อกไปก่อนแล้ว)
+  const persistAssign = async (caseId, force) => {
+    setAssignState('saving');
+    const finalId = await onAssignCase(caseId, { force });
+    if (!finalId) {
+      setAssignState('error');
+      return;
+    }
+    if (finalId !== caseId) {
+      const c = MEGACODE_CASES.find((x) => x.id === finalId);
+      if (c) {
+        setCaseData(c);
+        setChecked({});
+      }
+    }
+    setAssignState('saved');
+  };
 
   useEffect(() => {
     if (!open) return;
+    setAssignState(null);
     if (suggestion?.checklistPool) {
-      const c = pickRandomCase();
-      setCaseData(c);
+      const existing = poolFixed && assignedCaseId
+        ? MEGACODE_CASES.find((c) => c.id === assignedCaseId)
+        : null;
+      if (existing) {
+        // นักเรียนคนนี้ถูกล็อกเคสไว้แล้ว (สแกนซ้ำ/เปิดใบประเมินใหม่) — ใช้เคสเดิม
+        setCaseData(existing);
+        setAssignState('saved');
+      } else {
+        const c = pickRandomCase();
+        setCaseData(c);
+        if (poolFixed) persistAssign(c.id, false);
+      }
       setChecklistId(null);
     } else if (suggestion?.checklistId) {
       setChecklistId(suggestion.checklistId);
@@ -92,8 +133,11 @@ export default function ChecklistGrader({ open, onClose, station, student = null
   const clearAll = () => setChecked({});
 
   const reroll = () => {
-    setCaseData((prev) => pickRandomCase(prev?.id));
+    const next = pickRandomCase(caseData?.id);
+    setCaseData(next);
     setChecked({});
+    // ฐานสอบแบบล็อกเคส: สุ่มใหม่ = ทับเคสเดิมบน server ด้วย (force)
+    if (poolFixed) persistAssign(next.id, true);
   };
 
   const handleSave = (passed) => {
@@ -180,10 +224,24 @@ export default function ChecklistGrader({ open, onClose, station, student = null
                 <div className="text-2xs text-text-muted">Algorithm: {caseData.algorithm}</div>
               </div>
               {!readOnly && (
-                <button onClick={reroll} className="btn btn-ghost btn-sm shrink-0">
+                <button onClick={reroll} disabled={assignState === 'saving'}
+                  className="btn btn-ghost btn-sm shrink-0 disabled:opacity-40">
                   <Shuffle size={13} strokeWidth={2.2} /> สุ่มใหม่
                 </button>
               )}
+            </div>
+          )}
+
+          {/* สถานะการล็อกเคสกับนักเรียน — เฉพาะฐานสอบแบบสุ่มข้อสอบ ให้อาจารย์
+              มั่นใจว่าโจทย์ติดตัวนักเรียนแล้ว สแกนซ้ำก็ได้ข้อเดิม */}
+          {poolFixed && assignState && (
+            <div className={`text-2xs font-bold ${
+              assignState === 'saved' ? 'text-success'
+                : assignState === 'error' ? 'text-danger' : 'text-text-muted'
+            }`}>
+              {assignState === 'saving' && 'กำลังล็อกโจทย์กับนักเรียนคนนี้…'}
+              {assignState === 'saved' && '🔒 ล็อกโจทย์นี้กับนักเรียนแล้ว — สแกนซ้ำ/เปิดใหม่ก็ได้โจทย์เดิม'}
+              {assignState === 'error' && 'ล็อกโจทย์ไม่สำเร็จ — ตรวจอินเทอร์เน็ตแล้วกด "สุ่มใหม่" อีกครั้ง'}
             </div>
           )}
 
