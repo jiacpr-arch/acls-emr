@@ -1,4 +1,5 @@
 import { setA } from './setA';
+import { setB } from './setB';
 
 export const PRE_TEST_LESSON_ID = 'bls-pre-test';
 export const PRE_TEST_BANK_ID = 'bls-pretest';
@@ -6,7 +7,7 @@ export const PRE_TEST_BANK_ID = 'bls-pretest';
 export const PRE_TEST_PASS_PERCENT = 70;
 export const PRE_TEST_QUESTION_COUNT = 20;
 
-export const preTestSets = [setA];
+export const preTestSets = [setA, setB];
 
 export function getPreTestSetById(setId) {
   return preTestSets.find(s => s.id === setId) || null;
