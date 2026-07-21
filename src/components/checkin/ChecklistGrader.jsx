@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { STATION_CHECKLISTS } from '../../data/checklists/stationChecklists';
 import { MEGACODE_CASES } from '../../data/checklists/megacodeCases';
+import { CODE_BLUE_EXAM_CASES } from '../../data/checklists/codeBlueExamCases';
 import { resolveChecklistForStation } from '../../data/checkinStations';
 import { tallyChecklist, suggestPass } from '../../utils/checklistScoring';
 import { X, Shuffle, Check, AlertTriangle, ListChecks, Eraser } from 'lucide-react';
@@ -32,9 +33,21 @@ function ChecklistRow({ no, text, critical, checkedOn, disabled, onToggle }) {
 
 const CHECKLIST_OPTIONS = Object.values(STATION_CHECKLISTS).map((c) => ({ id: c.id, title: c.title }));
 
-function pickRandomCase(excludeId) {
-  const pool = excludeId ? MEGACODE_CASES.filter((c) => c.id !== excludeId) : MEGACODE_CASES;
-  const list = pool.length ? pool : MEGACODE_CASES;
+// ธนาคารข้อสอบต่อ checklistPool (จาก resolveChecklistForStation) —
+// megacodeCases: 15 เคสจากใบสอบ docx (จุด A/B), codeBlueGame: เคสจากเกม
+// Code Blue Sim ตัด ACS/Stroke (ฐานสอบสุ่มข้อสอบ)
+const CASE_POOLS = {
+  megacodeCases: MEGACODE_CASES,
+  codeBlueGame: CODE_BLUE_EXAM_CASES,
+};
+// lookup ข้ามทุก pool — เคสที่ล็อกไว้กับนักเรียน (exam_case_id) ต้องเปิดดูได้
+// เสมอแม้ฐานจะเปลี่ยนไปใช้ pool อื่นภายหลัง
+const ALL_POOL_CASES = [...MEGACODE_CASES, ...CODE_BLUE_EXAM_CASES];
+const findCaseById = (id) => (id ? ALL_POOL_CASES.find((c) => c.id === id) ?? null : null);
+
+function pickRandomCase(cases, excludeId) {
+  const pool = excludeId ? cases.filter((c) => c.id !== excludeId) : cases;
+  const list = pool.length ? pool : cases;
   return list[Math.floor(Math.random() * list.length)];
 }
 
@@ -56,6 +69,7 @@ export default function ChecklistGrader({
   assignedCaseId = null, onAssignCase = null,
 }) {
   const suggestion = station ? resolveChecklistForStation(station.name) : null;
+  const poolCases = CASE_POOLS[suggestion?.checklistPool] || MEGACODE_CASES;
   const poolFixed = !!(suggestion?.checklistPool && suggestion?.poolAssign === 'fixed'
     && student && !readOnly && onAssignCase);
 
@@ -74,7 +88,7 @@ export default function ChecklistGrader({
       return;
     }
     if (finalId !== caseId) {
-      const c = MEGACODE_CASES.find((x) => x.id === finalId);
+      const c = findCaseById(finalId);
       if (c) {
         setCaseData(c);
         setChecked({});
@@ -87,15 +101,14 @@ export default function ChecklistGrader({
     if (!open) return;
     setAssignState(null);
     if (suggestion?.checklistPool) {
-      const existing = poolFixed && assignedCaseId
-        ? MEGACODE_CASES.find((c) => c.id === assignedCaseId)
-        : null;
+      const existing = poolFixed ? findCaseById(assignedCaseId) : null;
       if (existing) {
         // นักเรียนคนนี้ถูกล็อกเคสไว้แล้ว (สแกนซ้ำ/เปิดใบประเมินใหม่) — ใช้เคสเดิม
+        // (หาแบบข้าม pool เผื่อเคสถูกล็อกไว้ก่อนฐานเปลี่ยนธนาคารข้อสอบ)
         setCaseData(existing);
         setAssignState('saved');
       } else {
-        const c = pickRandomCase();
+        const c = pickRandomCase(poolCases);
         setCaseData(c);
         if (poolFixed) persistAssign(c.id, false);
       }
@@ -133,7 +146,7 @@ export default function ChecklistGrader({
   const clearAll = () => setChecked({});
 
   const reroll = () => {
-    const next = pickRandomCase(caseData?.id);
+    const next = pickRandomCase(poolCases, caseData?.id);
     setCaseData(next);
     setChecked({});
     // ฐานสอบแบบล็อกเคส: สุ่มใหม่ = ทับเคสเดิมบน server ด้วย (force)
