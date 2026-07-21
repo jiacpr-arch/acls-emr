@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { STATION_CHECKLISTS } from '../../data/checklists/stationChecklists';
-import { MEGACODE_CASES } from '../../data/checklists/megacodeCases';
+import { MEGACODE_CASES, MEGACODE_LEVEL_META } from '../../data/checklists/megacodeCases';
 import { CODE_BLUE_EXAM_CASES } from '../../data/checklists/codeBlueExamCases';
 import { resolveChecklistForStation } from '../../data/checkinStations';
 import { tallyChecklist, suggestPass } from '../../utils/checklistScoring';
@@ -77,6 +77,13 @@ export default function ChecklistGrader({
   const [caseData, setCaseData] = useState(null); // สำหรับ pool: เคสที่สุ่ม/ล็อกไว้
   const [checked, setChecked] = useState({}); // { [itemKey]: boolean }
   const [assignState, setAssignState] = useState(null); // null | 'saving' | 'saved' | 'error'
+  // ตัวกรองระดับความยาก — โชว์เฉพาะ pool ที่เคสติดป้าย level (ธนาคาร 15 เคส
+  // ของจุด A/B) 'all' = สุ่มจากทุกระดับ
+  const [levelFilter, setLevelFilter] = useState('all');
+  const hasLevels = poolCases.some((c) => c.level);
+  const levelPool = hasLevels && levelFilter !== 'all'
+    ? poolCases.filter((c) => c.level === levelFilter)
+    : poolCases;
 
   // ล็อกเคสกับนักเรียนบน server แล้วยึดเคสที่ server คืนมาเป็นตัวจริง (อาจไม่ใช่
   // เคสที่เพิ่งสุ่ม ถ้าอาจารย์อีกเครื่องล็อกไปก่อนแล้ว)
@@ -100,6 +107,7 @@ export default function ChecklistGrader({
   useEffect(() => {
     if (!open) return;
     setAssignState(null);
+    setLevelFilter('all');
     if (suggestion?.checklistPool) {
       const existing = poolFixed ? findCaseById(assignedCaseId) : null;
       if (existing) {
@@ -146,10 +154,23 @@ export default function ChecklistGrader({
   const clearAll = () => setChecked({});
 
   const reroll = () => {
-    const next = pickRandomCase(poolCases, caseData?.id);
+    const next = pickRandomCase(levelPool, caseData?.id);
     setCaseData(next);
     setChecked({});
     // ฐานสอบแบบล็อกเคส: สุ่มใหม่ = ทับเคสเดิมบน server ด้วย (force)
+    if (poolFixed) persistAssign(next.id, true);
+  };
+
+  // เปลี่ยนระดับความยาก — ถ้าเคสปัจจุบันไม่อยู่ในระดับที่เลือก สุ่มเคสใหม่ใน
+  // ระดับนั้นให้ทันที (อยู่แล้วก็คงเคสเดิม ไม่รีเซ็ตที่ติ๊กไว้)
+  const selectLevel = (lv) => {
+    setLevelFilter(lv);
+    if (lv === 'all' || caseData?.level === lv) return;
+    const pool = poolCases.filter((c) => c.level === lv);
+    if (!pool.length) return;
+    const next = pickRandomCase(pool, caseData?.id);
+    setCaseData(next);
+    setChecked({});
     if (poolFixed) persistAssign(next.id, true);
   };
 
@@ -228,13 +249,38 @@ export default function ChecklistGrader({
             </select>
           )}
 
+          {/* ตัวเลือกระดับความยาก — เฉพาะ pool ที่เคสติดป้าย level (15 เคสจุด A/B)
+              อาจารย์อยากได้โจทย์ง่ายๆ ก็แตะ "ง่าย" แล้วระบบสุ่มเฉพาะระดับนั้น */}
+          {suggestion?.checklistPool && hasLevels && !readOnly && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-overline text-text-muted">ระดับโจทย์</span>
+              <button type="button" onClick={() => selectLevel('all')}
+                className={`cohort-chip ${levelFilter === 'all' ? 'is-active-info' : ''}`}>
+                ทั้งหมด ({poolCases.length})
+              </button>
+              {Object.entries(MEGACODE_LEVEL_META)
+                .sort(([, a], [, b]) => a.order - b.order)
+                .map(([lv, meta]) => (
+                  <button key={lv} type="button" onClick={() => selectLevel(lv)}
+                    className={`cohort-chip ${levelFilter === lv ? 'is-active-info' : ''}`}>
+                    {meta.label} ({poolCases.filter((c) => c.level === lv).length})
+                  </button>
+                ))}
+            </div>
+          )}
+
           {suggestion?.checklistPool && caseData && (
             <div className="flex items-start gap-2">
               <div className="flex-1 min-w-0 bg-bg-tertiary p-2.5" style={{ borderRadius: 'var(--radius-md)' }}>
                 <div className="text-caption font-bold text-text-primary">
                   Case {caseData.no}: {caseData.title}
                 </div>
-                <div className="text-2xs text-text-muted">Algorithm: {caseData.algorithm}</div>
+                <div className="text-2xs text-text-muted">
+                  Algorithm: {caseData.algorithm}
+                  {caseData.level && MEGACODE_LEVEL_META[caseData.level] && (
+                    <> · ระดับ{MEGACODE_LEVEL_META[caseData.level].label}</>
+                  )}
+                </div>
               </div>
               {!readOnly && (
                 <button onClick={reroll} disabled={assignState === 'saving'}

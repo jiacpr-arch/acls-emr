@@ -3,6 +3,19 @@
 // ไม่มีเกณฑ์ตัวเลขตายตัว (ต่างจาก stationChecklists.js): ผ่าน/ไม่ผ่านเป็น
 // ดุลยพินิจของอาจารย์ผู้คุมสอบล้วนๆ คะแนน X/Y ที่ระบบคำนวณให้เป็นข้อมูลอ้างอิง
 // เท่านั้น ห้ามแก้เนื้อหาโดยไม่เทียบกับต้นฉบับ เพราะใช้ตัดสินผลสอบนักเรียนจริง
+//
+// field `level` เป็น metadata ที่เพิ่มทีหลัง (ไม่ได้มาจาก docx และไม่แตะเนื้อหา
+// เคส): ระดับความยากไว้ให้อาจารย์เลือกสุ่มเฉพาะระดับใน ChecklistGrader —
+// จัดตามความซับซ้อน: จำนวนจังหวะหัวใจที่เปลี่ยน + หัตถการพิเศษที่ต้องทำ
+//   easy   = จังหวะน้อย ไม่มีหัตถการพิเศษ (เคส 5, 11, 12)
+//   medium = มีเปลี่ยนจังหวะหลายรอบ/ต้องแก้สาเหตุตรงไปตรงมา (เคส 4, 6, 8, 9, 13, 14)
+//   hard   = หลายหัตถการซ้อน/ประชากรพิเศษ/การตัดสินใจยาก (เคส 1, 2, 3, 7, 10, 15)
+
+export const MEGACODE_LEVEL_META = {
+  easy: { label: 'ง่าย', order: 0 },
+  medium: { label: 'ปานกลาง', order: 1 },
+  hard: { label: 'ยาก', order: 2 },
+};
 
 function items(list) {
   return list.map((text) => ({ text }));
@@ -12,6 +25,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-01',
     no: 1,
+    level: 'hard',
     title: 'Trauma (Lt pneumothorax, fracture pelvis, fracture femur)',
     algorithm: 'PEA → VF → ROSC',
     scenario: 'ชาย 30 ปี อุบัติเหตุจราจร นอนหมดสติ ทำ CPR มานาน 10 นาที ก่อนถึง รพ. มีรอยช้ำที่หน้าอก ขาสองข้างผิดรูป',
@@ -34,6 +48,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-02',
     no: 2,
+    level: 'hard',
     title: 'Lt pneumothorax และ esophageal intubation',
     algorithm: 'Asystole → VF → ROSC',
     scenario: 'ชาย 50 ปี COPD เหนื่อย มา รพ. ได้รับการรักษาโดยใส่ ET tube แล้ว (ใส่ผิดตำแหน่งในหลอดอาหาร) แรกรับหมดสติ',
@@ -52,6 +67,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-03',
     no: 3,
+    level: 'hard',
     title: 'Pregnancy with FB aspiration',
     algorithm: 'PEA → VF → ROSC',
     scenario: 'หญิงตั้งครรภ์ GA 32 week กินอาหารแล้วเอามือกุมคอ (choking sign) หมดสติ',
@@ -69,6 +85,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-04',
     no: 4,
+    level: 'medium',
     title: 'จมน้ำ (Hypoxia)',
     algorithm: 'Refractory VF → ROSC',
     scenario: 'ชาย 30 ปี เล่นน้ำในสระ ตะคริว จมน้ำ ทำ CPR มาแล้ว 5 นาทีก่อนถึงห้องฉุกเฉิน อุณหภูมิร่างกาย 34°C',
@@ -84,6 +101,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-05',
     no: 5,
+    level: 'easy',
     title: 'ACS',
     algorithm: 'Refractory VF → ROSC',
     scenario: 'ชาย 70 ปี admit อยู่ที่หอผู้ป่วย มีอาการเจ็บหน้าอกแล้วหมดสติ',
@@ -97,6 +115,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-06',
     no: 6,
+    level: 'medium',
     title: 'Unstable Bradycardia',
     algorithm: '3rd degree AV block → Pulseless VT → ROSC',
     scenario: 'หญิง 30 ปี มีอาการหน้ามืด',
@@ -112,6 +131,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-07',
     no: 7,
+    level: 'hard',
     title: 'ACS (Bradycardia, VF)',
     algorithm: '3rd degree AV block → VF → 2nd degree AV block type II',
     scenario: 'ชาย 60 ปี DM ผ่าตัด laparoscopic cholecystectomy มา 2 วัน ยัง admit อยู่ ตื่นขึ้นมามีอาการแน่นหน้าอก',
@@ -127,6 +147,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-08',
     no: 8,
+    level: 'medium',
     title: 'Seizure with Bradycardia',
     algorithm: 'Sinus Bradycardia → Asystole → VF → ROSC',
     scenario: 'ชาย 45 ปี พบหมดสติข้างรถจักรยานยนต์ มีอาการชักกระตุกก่อนมาถึงห้องฉุกเฉิน 1 นาที',
@@ -143,6 +164,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-09',
     no: 9,
+    level: 'medium',
     title: 'Unstable SVT',
     algorithm: 'SVT → VF → PEA → ROSC',
     scenario: 'ชาย 30 ปี วิ่งออกกำลังกายแล้วรู้สึกใจสั่น พักแล้วไม่ดีขึ้น แน่นหน้าอก หน้ามืด',
@@ -158,6 +180,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-10',
     no: 10,
+    level: 'hard',
     title: 'ACS (Bradycardia) — Termination of CPR',
     algorithm: 'Pulseless VT → 2nd degree AV block type II → Asystole',
     scenario: 'หญิง 75 ปี มาตรวจตามนัดที่ OPD หมดสติขณะวัดความดันโลหิต',
@@ -173,6 +196,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-11',
     no: 11,
+    level: 'easy',
     title: 'Foreign Body Airway Obstruction',
     algorithm: 'PEA → Pulseless VT → ROSC',
     scenario: 'ชาย 60 ปี หมดสติในโรงอาหารของโรงพยาบาล ขณะกินอาหารกลางวัน',
@@ -188,6 +212,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-12',
     no: 12,
+    level: 'easy',
     title: 'ACS (In-hospital cardiac arrest after AED)',
     algorithm: 'VF → PEA → VF → ROSC',
     scenario: 'ชาย 45 ปี หมดสติขณะออกกำลังกายในฟิตเนส เทรนเนอร์เริ่ม CPR และติด AED ให้แล้ว (CPR ไป 2 cycles และ AED ให้ shock ไป 1 ครั้ง)',
@@ -203,6 +228,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-13',
     no: 13,
+    level: 'medium',
     title: 'One-lung Intubation, Hypoglycemia',
     algorithm: 'PEA → ROSC',
     scenario: 'ชาย 50 ปี DM ดื่มสุราหนักทุกวัน ไม่ได้กินอาหารมา 1 วัน ใส่ ET tube มาจาก รพ.ชุมชนแล้ว refer มา (ใส่ลึก 25 cm)',
@@ -219,6 +245,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-14',
     no: 14,
+    level: 'medium',
     title: 'Ruptured Abdominal Aortic Aneurysm',
     algorithm: 'PEA → ROSC',
     scenario: 'ชาย 70 ปี DM, HTN มา admit เพื่อผ่าตัด AAA วันนี้ปวดท้องมาก ตอนนี้ซึมลง',
@@ -234,6 +261,7 @@ export const MEGACODE_CASES = [
   {
     id: 'case-15',
     no: 15,
+    level: 'hard',
     title: 'Pregnancy with Severe Preeclampsia',
     algorithm: 'Asystole → PEA → ROSC',
     scenario: 'หญิง 28 ปี G2P1A0 GA 36 week ตาพร่ามัว จุกแน่นลิ้นปี่ BP 180/100 mmHg, urine protein positive วินิจฉัย severe preeclampsia ได้รับ MgSO4 1 g/h นาน 6 ชั่วโมง หลังจากนั้นซึมลง ตัวเขียว',
