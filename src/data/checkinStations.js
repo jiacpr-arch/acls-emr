@@ -14,6 +14,10 @@ export const DEFAULT_STATIONS = {
     { name: 'จุด B: Bradycardia + Tachycardia', kind: 'practice', checklistOptions: ['megacodeBradycardia', 'megacodeTachycardia'] },
     { name: 'Megacode จุด A (สอบ)', kind: 'exam', checklistPool: 'megacodeCases' },
     { name: 'Megacode จุด B (สอบ)', kind: 'exam', checklistPool: 'megacodeCases' },
+    // ฐานสอบแบบสุ่มข้อสอบ: สแกน QR ปุ๊บระบบสุ่มเคส 1 ใน 15 แล้ว "ล็อก" เคสนั้น
+    // กับนักเรียน (บันทึกลง cloud — สแกนซ้ำ/เปิดใหม่/เครื่องอาจารย์อื่นได้โจทย์เดิม)
+    // ต่างจากจุด A/B ที่สุ่มใหม่ทุกครั้งที่เปิดใบประเมิน ยังมีปุ่ม "สุ่มใหม่" เผื่อไว้
+    { name: 'สอบ Megacode (สุ่มข้อสอบ)', kind: 'exam', checklistPool: 'megacodeCases', poolAssign: 'fixed' },
   ],
   bls: [
     { name: 'ฐาน CPR ผู้ใหญ่', kind: 'practice' },
@@ -39,5 +43,8 @@ export function resolveChecklistForStation(stationName) {
     checklistId: match.checklistId ?? null,
     checklistOptions: match.checklistOptions ?? null,
     checklistPool: match.checklistPool ?? null,
+    // 'fixed' = เคสที่สุ่มได้ถูกล็อกกับนักเรียน (ดู assign_exam_case) —
+    // null = สุ่มใหม่ทุกครั้งที่เปิดใบประเมินแบบเดิม
+    poolAssign: match.poolAssign ?? null,
   };
 }
