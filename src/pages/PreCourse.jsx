@@ -16,6 +16,7 @@ import { useVoucherStore } from '../stores/voucherStore';
 import { validateVoucher } from '../config/vouchers';
 import { track } from '../services/analytics';
 import FeaturedVideo from '../components/precourse/FeaturedVideo';
+import MyScoreCard from '../components/precourse/MyScoreCard';
 import BLSHero from '../components/precourse/BLSHero';
 import BLSProgressCard from '../components/precourse/BLSProgressCard';
 import BLSQuickActions from '../components/precourse/BLSQuickActions';
@@ -223,6 +224,9 @@ export default function PreCourse() {
 
         <VoucherCard onOpen={() => setShowVoucher(true)} />
 
+        {/* คะแนนของฉัน — นักเรียนเห็นผลตัวเองครบในที่เดียว (แสดงเมื่อลงชื่อแล้ว) */}
+        {activeStudent && <MyScoreCard student={activeStudent} />}
+
         <BLSQuickActions
           lessonsPassed={lessonsPassed}
           totalLessons={totalLessons}
@@ -346,6 +350,9 @@ export default function PreCourse() {
       {classBanner}
 
       <VoucherCard onOpen={() => setShowVoucher(true)} />
+
+      {/* คะแนนของฉัน — นักเรียนเห็นผลตัวเองครบในที่เดียว (แสดงเมื่อลงชื่อแล้ว) */}
+      {activeStudent && <MyScoreCard student={activeStudent} />}
 
       {/* Step 1 — Pre-test */}
       {activeStudent && (
