@@ -20,6 +20,9 @@ export const DEFAULT_STATIONS = {
     // ธนาคารข้อสอบ = เคสจากเกม Code Blue Sim ตัด ACS/Stroke (ตามคำสั่งอาจารย์
     // "โจทย์สอบเหมือนตอนเล่นเกม") — ดู codeBlueExamCases.js
     { name: 'สอบ Megacode (สุ่มข้อสอบ)', kind: 'exam', checklistPool: 'codeBlueGame', poolAssign: 'fixed' },
+    // จุดฝึกเสริม: ธนาคารเคสฝึก 10 เคส (แต่งเพิ่มตาม ACLS 2020 — แยกจากธนาคาร
+    // สอบ ไม่ปนเข้าการสุ่มข้อสอบ) สุ่มใหม่ทุกครั้งที่เปิดใบประเมิน ใช้สอน/ซ้อม
+    { name: 'จุดฝึก Megacode (เคสฝึกเสริม)', kind: 'practice', checklistPool: 'practiceCases' },
   ],
   bls: [
     { name: 'ฐาน CPR ผู้ใหญ่', kind: 'practice' },
