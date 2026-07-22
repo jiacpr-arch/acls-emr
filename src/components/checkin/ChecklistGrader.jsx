@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { STATION_CHECKLISTS } from '../../data/checklists/stationChecklists';
-import { MEGACODE_CASES, MEGACODE_LEVEL_META } from '../../data/checklists/megacodeCases';
+import { MEGACODE_CASES, MEGACODE_LEVEL_META, MEGACODE_CORE_ITEMS } from '../../data/checklists/megacodeCases';
 import { CODE_BLUE_EXAM_CASES } from '../../data/checklists/codeBlueExamCases';
 import { resolveChecklistForStation } from '../../data/checkinStations';
 import { tallyChecklist, suggestPass } from '../../utils/checklistScoring';
@@ -138,7 +138,11 @@ export default function ChecklistGrader({
   const template = checklistId ? STATION_CHECKLISTS[checklistId] : null;
   const flatItems = useMemo(() => {
     if (template) return template.sections.flatMap((s) => s.items.map((it) => ({ ...it, section: s.title })));
-    if (caseData) return caseData.items.map((it, i) => ({ ...it, no: i + 1, section: null }));
+    // เคส Megacode = ข้อแกนกลาง (มาตรฐานเดียวกันทุกเคส no C1-C9) + ข้อเฉพาะเคส
+    if (caseData) return [
+      ...MEGACODE_CORE_ITEMS.map((it) => ({ ...it, section: 'core' })),
+      ...caseData.items.map((it, i) => ({ ...it, no: i + 1, section: null })),
+    ];
     return [];
   }, [template, caseData]);
 
@@ -350,18 +354,37 @@ export default function ChecklistGrader({
               </div>
             ))
           ) : caseData ? (
-            <div className="space-y-1.5">
-              {caseData.items.map((it, i) => (
-                <ChecklistRow
-                  key={i}
-                  no={i + 1}
-                  text={it.text}
-                  checkedOn={!!checked[i + 1]}
-                  disabled={readOnly}
-                  onToggle={() => toggle(i + 1)}
-                />
-              ))}
-            </div>
+            <>
+              {/* ข้อแกนกลาง — เหมือนกันทุกเคส ให้นักเรียนทุกคนถูกวัดมาตรฐานเดียวกัน */}
+              <div className="space-y-1.5">
+                <div className="text-overline text-text-muted">
+                  ข้อประเมินแกนกลาง (ทุกเคส — มาตรฐานเดียวกัน)
+                </div>
+                {MEGACODE_CORE_ITEMS.map((it) => (
+                  <ChecklistRow
+                    key={it.no}
+                    no={it.no}
+                    text={it.text}
+                    checkedOn={!!checked[it.no]}
+                    disabled={readOnly}
+                    onToggle={() => toggle(it.no)}
+                  />
+                ))}
+              </div>
+              <div className="space-y-1.5">
+                <div className="text-overline text-text-muted">เช็คลิสต์เฉพาะเคส</div>
+                {caseData.items.map((it, i) => (
+                  <ChecklistRow
+                    key={i}
+                    no={i + 1}
+                    text={it.text}
+                    checkedOn={!!checked[i + 1]}
+                    disabled={readOnly}
+                    onToggle={() => toggle(i + 1)}
+                  />
+                ))}
+              </div>
+            </>
           ) : null}
         </div>
 

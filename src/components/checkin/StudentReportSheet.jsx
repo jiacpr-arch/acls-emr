@@ -1,6 +1,6 @@
 import { Printer, X, Check } from 'lucide-react';
 import { STATION_CHECKLISTS } from '../../data/checklists/stationChecklists';
-import { MEGACODE_CASES } from '../../data/checklists/megacodeCases';
+import { MEGACODE_CASES, MEGACODE_CORE_ITEMS } from '../../data/checklists/megacodeCases';
 
 // ใบสรุปผลการฝึกอบรมภาคปฏิบัติรายคน — รวมข้อมูลที่เก็บจากระบบเช็คชื่อ QR ทั้งหมด
 // (เวลาเข้าฐาน ผลสอบ คะแนน เช็คลิสต์ที่ติ๊กรายข้อ) จัดเป็นแบบฟอร์มพร้อมพิมพ์/
@@ -85,7 +85,25 @@ function ChecklistDetail({ station, checkin }) {
             {sec.items.map((it) => itemRow(it.no, it.text, it.critical))}
           </div>
         ))
-        : resolved.data.items.map((it, i) => itemRow(i + 1, it.text, false))}
+        : (
+          <>
+            {/* ข้อแกนกลาง (C1-C9) — โชว์เมื่อผลที่บันทึกมีข้อชุดนี้ (ผลเก่าก่อน
+                เพิ่มมาตรฐานกลางจะไม่มี — ข้ามไปเลย) */}
+            {MEGACODE_CORE_ITEMS.some((it) => saved.has(it.no)) && (
+              <div style={{ marginTop: 4 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#333' }}>
+                  ข้อประเมินแกนกลาง (ทุกเคส)
+                </div>
+                {MEGACODE_CORE_ITEMS.filter((it) => saved.has(it.no))
+                  .map((it) => itemRow(it.no, it.text, false))}
+              </div>
+            )}
+            <div style={{ marginTop: 4 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#333' }}>เช็คลิสต์เฉพาะเคส</div>
+              {resolved.data.items.map((it, i) => itemRow(i + 1, it.text, false))}
+            </div>
+          </>
+        )}
     </div>
   );
 }
