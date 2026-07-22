@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { STATION_CHECKLISTS } from '../../data/checklists/stationChecklists';
 import { MEGACODE_CASES, MEGACODE_LEVEL_META, MEGACODE_CORE_ITEMS } from '../../data/checklists/megacodeCases';
 import { CODE_BLUE_EXAM_CASES } from '../../data/checklists/codeBlueExamCases';
+import { PRACTICE_CASES } from '../../data/checklists/practiceCases';
 import { resolveChecklistForStation } from '../../data/checkinStations';
 import { tallyChecklist, suggestPass } from '../../utils/checklistScoring';
 import { X, Shuffle, Check, AlertTriangle, ListChecks, Eraser } from 'lucide-react';
@@ -39,10 +40,11 @@ const CHECKLIST_OPTIONS = Object.values(STATION_CHECKLISTS).map((c) => ({ id: c.
 const CASE_POOLS = {
   megacodeCases: MEGACODE_CASES,
   codeBlueGame: CODE_BLUE_EXAM_CASES,
+  practiceCases: PRACTICE_CASES,
 };
 // lookup ข้ามทุก pool — เคสที่ล็อกไว้กับนักเรียน (exam_case_id) ต้องเปิดดูได้
 // เสมอแม้ฐานจะเปลี่ยนไปใช้ pool อื่นภายหลัง
-const ALL_POOL_CASES = [...MEGACODE_CASES, ...CODE_BLUE_EXAM_CASES];
+const ALL_POOL_CASES = [...MEGACODE_CASES, ...CODE_BLUE_EXAM_CASES, ...PRACTICE_CASES];
 const findCaseById = (id) => (id ? ALL_POOL_CASES.find((c) => c.id === id) ?? null : null);
 
 function pickRandomCase(cases, excludeId) {
