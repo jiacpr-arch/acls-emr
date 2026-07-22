@@ -1,8 +1,17 @@
 // ธนาคารข้อสอบ Megacode 15 เคส — JIA TRAINER CENTER, ACLS Megacode Examination
-// คัดลอกตรงจาก "ACLS_Megacode_Checklist.docx" ทุกเคส ทุกข้อ — ไม่มีข้อวิกฤต ★ /
-// ไม่มีเกณฑ์ตัวเลขตายตัว (ต่างจาก stationChecklists.js): ผ่าน/ไม่ผ่านเป็น
-// ดุลยพินิจของอาจารย์ผู้คุมสอบล้วนๆ คะแนน X/Y ที่ระบบคำนวณให้เป็นข้อมูลอ้างอิง
-// เท่านั้น ห้ามแก้เนื้อหาโดยไม่เทียบกับต้นฉบับ เพราะใช้ตัดสินผลสอบนักเรียนจริง
+// คัดลอกจาก "ACLS_Megacode_Checklist.docx" — ไม่มีข้อวิกฤต ★ / ไม่มีเกณฑ์ตัวเลข
+// ตายตัว (ต่างจาก stationChecklists.js): ผ่าน/ไม่ผ่านเป็นดุลยพินิจของอาจารย์
+// ผู้คุมสอบล้วนๆ คะแนน X/Y ที่ระบบคำนวณให้เป็นข้อมูลอ้างอิงเท่านั้น
+// ห้ามแก้เนื้อหาโดยไม่เทียบกับต้นฉบับ/แนวทาง ACLS เพราะใช้ตัดสินผลสอบจริง
+//
+// การแก้จากต้นฉบับ (ตรวจทานทางคลินิกตาม ACLS 2020, ก.ค. 2026 — ดู PR):
+// - เคส 6, 11: "Pulseless VT (BP xx/xx)" ขัดแย้งในตัวเอง (มี BP = มีชีพจร) และ
+//   การรักษาที่ถูกในข้อถัดไปคือ synchronized cardioversion ซึ่งใช้กับ VT ที่มี
+//   ชีพจร → แก้ป้ายกำกับเป็น unstable VT (มีชีพจร) ตามเจตนาของหัตถการ
+// - เคส 4: amiodarone ระบุ 150 mg เดี่ยวๆ ทั้งที่ยังไม่เคยได้ 300 mg → ระบุ
+//   ลำดับขนาดให้ครบ (300 → 150)
+// - เคส 3, 15 (arrest ในหญิงตั้งครรภ์ GA ≥20 สัปดาห์): เพิ่มข้อ perimortem
+//   cesarean delivery ภายใน 4-5 นาทีตามแนวทาง ACLS (ต้นฉบับไม่มี)
 //
 // field `level` เป็น metadata ที่เพิ่มทีหลัง (ไม่ได้มาจาก docx และไม่แตะเนื้อหา
 // เคส): ระดับความยากไว้ให้อาจารย์เลือกสุ่มเฉพาะระดับใน ChecklistGrader —
@@ -20,6 +29,22 @@ export const MEGACODE_LEVEL_META = {
 function items(list) {
   return list.map((text) => ({ text }));
 }
+
+// ข้อประเมินแกนกลาง — ประเมิน "ทุกเคส" เพิ่มจากเช็คลิสต์เฉพาะเคส เพื่อให้นักเรียน
+// ทุกคนถูกวัดด้วยมาตรฐานเดียวกันไม่ว่าจะสุ่มได้เคสไหน (เคสเฉพาะมี 4-13 ข้อ
+// ต่างกันมาก) — เนื้อหาเป็นทักษะสากลตาม ACLS 2020 เพิ่มโดยระบบ ไม่ได้มาจาก
+// docx ต้นฉบับ; ผ่าน/ไม่ผ่านยังเป็นดุลยพินิจอาจารย์เหมือนเดิม
+export const MEGACODE_CORE_ITEMS = [
+  { no: 'C1', text: 'ประเมินความปลอดภัย/BSI เรียกทีมช่วยเหลือ และเริ่ม CPR ทันทีเมื่อยืนยันว่าไม่มีชีพจร' },
+  { no: 'C2', text: 'กดหน้าอกคุณภาพสูง: 100-120 ครั้ง/นาที ลึก 5-6 ซม. ปล่อยหน้าอกคืนสุด หยุดกดน้อยที่สุด เปลี่ยนคนกดทุก 2 นาที' },
+  { no: 'C3', text: 'ประเมินจังหวะทุก 2 นาที และแยก shockable / non-shockable ได้ถูกต้องตลอดเคส' },
+  { no: 'C4', text: 'ช็อกไฟฟ้าอย่างปลอดภัย (เคลียร์ทีมก่อนช็อก) และกลับมากดหน้าอกต่อทันทีหลังช็อก' },
+  { no: 'C5', text: 'ให้ epinephrine 1 mg IV ทุก 3-5 นาที ถูกจังหวะตาม algorithm' },
+  { no: 'C6', text: 'ช่วยหายใจเหมาะสม (30:2 หรือ 1 ครั้ง/6 วินาทีเมื่อมี advanced airway) และใช้ capnography ยืนยัน/ติดตาม' },
+  { no: 'C7', text: "ค้นหาสาเหตุที่แก้ไขได้ (H's & T's) ที่เข้ากับเคส และสั่งการแก้ไข" },
+  { no: 'C8', text: 'ทำหน้าที่ team leader: สั่งการชัดเจน มอบหมายบทบาท ใช้ closed-loop communication' },
+  { no: 'C9', text: 'เริ่มการดูแล post-cardiac arrest หลัง ROSC (ABC, 12-lead ECG, หาสาเหตุ, วางแผนดูแลต่อ)' },
+];
 
 export const MEGACODE_CASES = [
   {
@@ -77,6 +102,7 @@ export const MEGACODE_CASES = [
       'ตรวจช่องปาก/คอ และทำ FB removal',
       'ใส่ ET tube หลังนำสิ่งแปลกปลอมออก',
       'คำนึงถึง CPR in pregnancy (เอียงตัวมารดา/uterine displacement, ตำแหน่งมือกดหน้าอกสูงขึ้น)',
+      'พิจารณา/เตรียม perimortem cesarean delivery หากไม่ ROSC ภายใน 4-5 นาที (GA ≥ 20 สัปดาห์) พร้อมตามทีมสูติ-กุมารแพทย์',
       'จดจำจังหวะเปลี่ยนเป็น VF ได้ถูกต้อง และให้ defibrillation',
       'ให้ amiodarone 300 mg IV เมื่อ VF ดื้อต่อการช็อก',
       'จดจำ ROSC ได้ถูกต้อง และประเมิน vital signs หลัง ROSC',
@@ -93,7 +119,7 @@ export const MEGACODE_CASES = [
       'พิจารณาลำดับการช่วยชีวิตแบบ A → B → C sequence สำหรับภาวะจมน้ำ (hypoxic arrest)',
       'จัดการทางเดินหายใจ (definite airway management) และ ET tube suction สิ่งแปลกปลอม/น้ำ',
       'จดจำจังหวะ VF ที่ดื้อต่อการรักษา (refractory VF) และให้ defibrillation ซ้ำตามข้อบ่งชี้',
-      'ให้ amiodarone 150 mg IV ตามขนาดที่ถูกต้องสำหรับ refractory VF',
+      'ให้ amiodarone ตามลำดับขนาดที่ถูกต้องสำหรับ refractory VF (300 mg ครั้งแรก, ซ้ำ 150 mg เมื่อยังดื้อ)',
       'ดูแลรักษาภาวะอุณหภูมิกายต่ำ (keep warm / active rewarming)',
       'จดจำ ROSC ได้ถูกต้อง และประเมิน vital signs หลัง ROSC',
     ]),
@@ -117,13 +143,13 @@ export const MEGACODE_CASES = [
     no: 6,
     level: 'medium',
     title: 'Unstable Bradycardia',
-    algorithm: '3rd degree AV block → Pulseless VT → ROSC',
+    algorithm: '3rd degree AV block → Unstable VT → ROSC',
     scenario: 'หญิง 30 ปี มีอาการหน้ามืด',
     items: items([
       'จดจำ 3rd degree AV block (HR 30/min, BP 70/40 mmHg) และระบุเป็น unstable bradycardia',
       'ให้ atropine ตามขนาดจนถึง maximum dose อย่างถูกต้อง',
       'เตรียมและให้ transcutaneous pacing เมื่อ atropine ไม่ได้ผล พร้อมปรับหา threshold ที่เหมาะสม',
-      'จดจำการเปลี่ยนเป็น Pulseless VT (BP 50/30 mmHg) ได้ถูกต้อง และระบุเป็น unstable tachycardia',
+      'จดจำการเปลี่ยนเป็น VT ที่ยังมีชีพจรแต่ไม่คงที่ (unstable VT, BP 50/30 mmHg) ได้ถูกต้อง และระบุเป็น unstable tachycardia',
       'ทำ synchronized cardioversion 100 J พร้อมพิจารณาให้ sedation ก่อนทำหัตถการ',
       'จดจำ ROSC ได้ถูกต้อง และประเมิน vital signs / ECG หลัง ROSC (normal sinus rhythm)',
     ]),
@@ -198,13 +224,13 @@ export const MEGACODE_CASES = [
     no: 11,
     level: 'easy',
     title: 'Foreign Body Airway Obstruction',
-    algorithm: 'PEA → Pulseless VT → ROSC',
+    algorithm: 'PEA → Unstable VT → ROSC',
     scenario: 'ชาย 60 ปี หมดสติในโรงอาหารของโรงพยาบาล ขณะกินอาหารกลางวัน',
     items: items([
       'จดจำจังหวะแรกเป็น PEA ได้ถูกต้อง และเริ่ม CPR',
       'ให้ epinephrine dose ที่ 2 ตามขนาด/เวลาที่ถูกต้อง',
       'ตรวจช่องปาก/คอ และทำ FB removal ในผู้ป่วย cardiac arrest',
-      'จดจำการเปลี่ยนเป็น Pulseless VT (BP 80/40 mmHg) ได้ถูกต้อง',
+      'จดจำการเปลี่ยนเป็น VT ที่ยังมีชีพจรแต่ไม่คงที่ (unstable VT, BP 80/40 mmHg) ได้ถูกต้อง',
       'ทำ synchronized cardioversion 100 J',
       'จดจำ ROSC ได้ถูกต้อง และประเมิน vital signs หลัง ROSC',
     ]),
@@ -272,6 +298,7 @@ export const MEGACODE_CASES = [
       'ให้ epinephrine dose ที่ 2 ตามขนาด/เวลาที่ถูกต้อง',
       'จดจำการเปลี่ยนเป็น PEA (sinus bradycardia rate 40/min) และให้ epinephrine dose ถัดไป',
       'คำนึงถึง CPR in pregnancy: ทำ left uterine displacement ตลอดการช่วยชีวิต',
+      'พิจารณา/เตรียม perimortem cesarean delivery หากไม่ ROSC ภายใน 4-5 นาที พร้อมตามทีมสูติ-กุมารแพทย์',
       "พิจารณาสาเหตุอื่นที่เกี่ยวข้องกับการตั้งครรภ์ (H's & T's เฉพาะในหญิงตั้งครรภ์)",
       'จดจำ ROSC ได้ถูกต้อง และประเมิน vital signs หลัง ROSC',
     ]),
