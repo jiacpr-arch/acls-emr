@@ -1,6 +1,8 @@
 import { Printer, X, Check } from 'lucide-react';
 import { STATION_CHECKLISTS } from '../../data/checklists/stationChecklists';
 import { MEGACODE_CASES, MEGACODE_CORE_ITEMS } from '../../data/checklists/megacodeCases';
+import { CODE_BLUE_EXAM_CASES } from '../../data/checklists/codeBlueExamCases';
+import { PRACTICE_CASES } from '../../data/checklists/practiceCases';
 
 // ใบสรุปผลการฝึกอบรมภาคปฏิบัติรายคน — รวมข้อมูลที่เก็บจากระบบเช็คชื่อ QR ทั้งหมด
 // (เวลาเข้าฐาน ผลสอบ คะแนน เช็คลิสต์ที่ติ๊กรายข้อ) จัดเป็นแบบฟอร์มพร้อมพิมพ์/
@@ -15,11 +17,15 @@ const dtStr = (iso) => (iso ? new Date(iso).toLocaleString('th-TH', {
 
 // checklist_id ที่บันทึกไว้เป็นได้ 2 แบบ: id ของใบประเมินทักษะ/อัลกอริทึม หรือ
 // id ของเคส Megacode (case-01..case-15)
+// ค้นทุกธนาคารเคส (สอบ 15 เคส / เคสจากเกม / เคสฝึก P1-P10) — ใบสรุปต้องแสดง
+// รายละเอียดได้ไม่ว่าผลนั้นมาจาก pool ไหน
+const ALL_CASES = [...MEGACODE_CASES, ...CODE_BLUE_EXAM_CASES, ...PRACTICE_CASES];
+
 function resolveChecklist(checklistId) {
   if (!checklistId) return null;
   const t = STATION_CHECKLISTS[checklistId];
   if (t) return { kind: 'station', data: t };
-  const c = MEGACODE_CASES.find((x) => x.id === checklistId);
+  const c = ALL_CASES.find((x) => x.id === checklistId);
   if (c) return { kind: 'case', data: c };
   return null;
 }
