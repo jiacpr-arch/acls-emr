@@ -21,7 +21,10 @@ import {
 } from '../game/storyEngine';
 import {
   initAudio, playShockSound, playROSCSound, playWarningBeep,
-  playMetronomeClick, playBeep,
+  playMetronomeClick, playBeep, playTapSound, playTypeBlip,
+  playChoiceAppear, playTickSound, playCorrectSound, playComboBreakSound,
+  playWinJingle, playLoseSound, playAchievementSound, playImpactSound,
+  playHeartbeatThump,
 } from '../utils/sound';
 import { track } from '../services/analytics';
 import {
@@ -207,6 +210,21 @@ export default function CodeBlueSim() {
   }, []);
   useEffect(() => clearAllTimers, [clearAllTimers]);
 
+  // เลเยอร์ความกดดัน: เสียงหัวใจเต้น "ตุบ-ตุบ" พื้นหลังระหว่างเล่น
+  // — HP ยิ่งน้อยยิ่งเต้นเร็ว/ดังขึ้น, ROSC แล้วช้าลงเบาลงเป็นโทนสงบ
+  // — หยุดระหว่าง CPR ให้ metronome นำจังหวะปั๊มแทน (จังหวะ 110/นาทีคือสาระของบทเรียน)
+  useEffect(() => {
+    if (screen !== 'game' || muted) return undefined;
+    if (view.cpr && !view.rosc) return undefined;
+    if (view.hp <= 0) return undefined;
+    const maxHp = view.maxHp || getDifficulty(view.difficulty).hp;
+    const frac = Math.max(0, Math.min(1, view.hp / maxHp));
+    const bpm = view.rosc ? 64 : 60 + (1 - frac) * 60; // ปกติ ~60 → วิกฤต ~120
+    const vol = view.rosc ? 0.06 : 0.08 + (1 - frac) * 0.12;
+    const id = setInterval(() => playHeartbeatThump(vol), Math.round(60000 / bpm));
+    return () => clearInterval(id);
+  }, [screen, muted, view.cpr, view.rosc, view.hp, view.maxHp, view.difficulty]);
+
   // ---- flow ทั้งหมดเป็น plain functions: เรียกไขว้/เรียกซ้ำกันได้อิสระ
   //      ปลอดภัยจาก stale closure เพราะแตะเฉพาะ ref + state setter (stable) ----
 
@@ -262,6 +280,7 @@ export default function CodeBlueSim() {
     setDlgHtml('');
     let i = 0;
     let out = '';
+    let blipN = 0;
     const step = () => {
       if (i >= html.length) { finishTyping(); return; }
       const ch = html[i];
@@ -272,6 +291,8 @@ export default function CodeBlueSim() {
       } else {
         out += ch;
         i += 1;
+        // เสียงพิมพ์ทีละตัว (สไตล์ visual novel) — เว้นทุก 3 ตัวอักษรกันถี่เกิน
+        if (!reducedMotion && ch !== ' ' && blipN++ % 3 === 0) sfx(playTypeBlip);
       }
       setDlgHtml(out);
       timers.current.type = setTimeout(step, reducedMotion ? 0 : 16);
@@ -359,6 +380,9 @@ export default function CodeBlueSim() {
     setInter(null);
     setScreen('debrief');
     window.scrollTo(0, 0);
+    // เสียงปิดเคส: ชนะ = แตรสั้น, แพ้ = โน้ตลง — ถ้ามีเหรียญใหม่ตามด้วยเสียงประกาย
+    sfx(won ? playWinJingle : playLoseSound);
+    if (fresh.length > 0) later(() => sfx(playAchievementSound), 1100);
   }
 
   function showChoice(c) {
@@ -370,6 +394,7 @@ export default function CodeBlueSim() {
       ? (c.options.find((o) => o.ok)?.tgt || null)
       : null;
     setChoice({ q: c.q, options: shuffled(c.options), hintTgt });
+    sfx(playChoiceAppear); // มีคำถามเด้งขึ้น — เรียกสมาธิ
     setDecisionLeft(diff.decisionTime);
     decisionLeftRef.current = diff.decisionTime;
     if (timers.current.dec) clearInterval(timers.current.dec);
@@ -378,6 +403,10 @@ export default function CodeBlueSim() {
       left -= 0.25;
       decisionLeftRef.current = left;
       setDecisionLeft(left);
+      // 5 วิสุดท้ายติ๊กเตือนรายวินาที (2 วิสุดท้ายโทนสูงขึ้น) — เร่งจังหวะหัวใจ
+      if (left > 0 && left <= 5 && Number.isInteger(left)) {
+        sfx(() => playTickSound(left <= 2));
+      }
       if (left <= 0) {
         clearInterval(timers.current.dec);
         timers.current.dec = null;
@@ -419,6 +448,8 @@ export default function CodeBlueSim() {
       if (node.drama) setDrama(node.drama);
       syncView();
       doBigMoment();
+      // ป้ายเด้ง: เหตุดี = โน้ตชื่นชม, เหตุวิกฤต = เสียงตุบกระแทก
+      sfx(node.green ? playCorrectSound : playImpactSound);
       setInter({ text: node.inter, green: !!node.green });
       later(() => {
         setInter(null);
@@ -475,15 +506,17 @@ export default function CodeBlueSim() {
       recordCorrect(st, option, speedFrac);
       currentChoiceRef.current = null;
       hintUsedRef.current = false; // จุดถัดไปเริ่มใหม่ ไม่ใบ้
-      // เสียงคอมโบ — ยิ่งสตรีคยาว เสียงยิ่งสูงขึ้น (juice)
+      // เสียงตอบถูก — คอมโบยิ่งยาวโทนยิ่งสูงขึ้น (juice), ตอบถูกธรรมดาก็มีเสียงชม
       if (st.combo >= 2) sfx(() => playBeep(360 + Math.min(st.combo, 8) * 70, 0.1, 0.22));
+      else sfx(playCorrectSound);
       syncView();
       advance();
       return;
     }
 
     // คอมโบขาด — ถ้าสตรีคเคยยาวพอ โชว์ "BREAK" ให้รู้สึกถึงการเสีย streak
-    if (st.combo >= 3) {
+    const broke = st.combo >= 3;
+    if (broke) {
       setComboBreak({ n: st.combo, k: comboBreakN.current++ });
       later(() => setComboBreak(null), reducedMotion ? 300 : 900);
     }
@@ -491,7 +524,8 @@ export default function CodeBlueSim() {
     pushEtco2(st);
     hintUsedRef.current = true; // จุดนี้เคยพลาด — โหมดง่ายจะใบ้ตอนเล่นซ้ำ
     vibrate([60, 40, 60]);
-    sfx(() => playBeep(160, 0.28, 0.35)); // เสียงผิดต่ำ
+    // เสียงผิดต่ำ / ถ้าสตรีคขาดใช้เสียงไล่โน้ตลงแทน ให้เจ็บกว่า
+    sfx(broke ? playComboBreakSound : () => playBeep(160, 0.28, 0.35));
     if (!reducedMotion) {
       setRedN((n) => n + 1);
       doShake();
@@ -526,8 +560,9 @@ export default function CodeBlueSim() {
 
   function onDialogTap() {
     if (busyRef.current) return;
-    if (timers.current.type) { finishTyping(); return; }
+    if (timers.current.type) { sfx(playTapSound); finishTyping(); return; }
     if (!awaitTap) return;
+    sfx(playTapSound);
     setAwaitTap(false);
     if (retryChoiceRef.current) {
       const c = retryChoiceRef.current;
@@ -606,7 +641,14 @@ export default function CodeBlueSim() {
     setMuted((m) => {
       const next = !m;
       localStorage.setItem(MUTE_KEY, next ? '1' : '0');
-      if (next) stopMetronome();
+      mutedRef.current = next; // อัพเดตทันที ไม่รอ effect — ให้ startMetronome ด้านล่างไม่โดนเบรก
+      if (next) {
+        stopMetronome();
+      } else {
+        initAudio();
+        // เปิดเสียงกลางเคสที่กำลังปั๊มหัวใจอยู่ — จังหวะ metronome ต้องกลับมาเอง
+        if (S.current.cpr && !S.current.rosc) startMetronome();
+      }
       return next;
     });
   }
@@ -1127,6 +1169,11 @@ export default function CodeBlueSim() {
             <button type="button" className="cbs-btn-ghost" onClick={startGame}>
               <RefreshCw size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
               เริ่มเคสนี้ใหม่
+            </button>
+            <button type="button" className="cbs-btn-ghost" onClick={toggleMute}>
+              {muted
+                ? <><VolumeX size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />เปิดเสียง</>
+                : <><Volume2 size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />ปิดเสียง</>}
             </button>
             <button type="button" className="cbs-btn-ghost" onClick={backToSelect}>
               {pool.length > 1 ? 'ออกไปเลือกเคสอื่น' : 'ออกไปหน้าแรก'}
