@@ -196,11 +196,11 @@ export default function CodeBlueLeaderboard() {
         <div className="dash-card !p-3 flex items-center gap-3">
           <span className="text-[26px] leading-none shrink-0" aria-hidden="true">🎁</span>
           <div className="flex-1 min-w-0 text-caption text-text-muted">
-            มีประกาศผู้ชนะรางวัลเป็นประจำ — เพิ่มเบอร์โทรหรือ LINE ID ไว้
-            เผื่อคุณติดอันดับ ทีมงานจะได้ติดต่อกลับถูก
+            มีประกาศผู้ชนะรางวัลเป็นประจำ — เพิ่มเบอร์โทรไว้ให้ทีมงานติดต่อกลับ
+            <b> ผู้ชนะที่ไม่มีเบอร์ติดต่อถือว่าสละสิทธิ์</b>
           </div>
           <button className="btn btn-sm btn-primary shrink-0" onClick={() => setShowIdentity(true)}>
-            เพิ่มเบอร์/LINE
+            เพิ่มเบอร์
           </button>
         </div>
       )}

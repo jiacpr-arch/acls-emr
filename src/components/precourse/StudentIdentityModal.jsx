@@ -67,11 +67,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
       setError('รหัสนี้เป็นรหัสเข้าคลาส ไม่ใช่รหัสนักเรียน — กรุณากรอกรหัสนักเรียนของคุณเอง');
       return;
     }
-    // ช่องติดต่อรับทั้งเบอร์โทรและ LINE ID (คนไทยกล้ากรอก LINE มากกว่า) —
-    // ถ้าหน้าตาเป็นตัวเลขล้วนถือว่าตั้งใจกรอกเบอร์ ตรวจความยาวเหมือนเดิม
-    // นอกนั้นถือเป็น LINE ID ปล่อยผ่าน (เก็บในช่อง phone เดิม แสดงผลอย่างเดียว)
-    const looksLikePhone = /^[\d\s\-+().]+$/.test(tel);
-    if (tel && looksLikePhone && tel.replace(/\D/g, '').length < 9) {
+    if (tel && tel.replace(/\D/g, '').length < 9) {
       setError('เบอร์โทรไม่ถูกต้อง');
       return;
     }
@@ -194,17 +190,17 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
           )}
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">
-              เบอร์โทร หรือ LINE ID
+              เบอร์โทร
               <span className="font-normal text-text-muted">
                 {openLeague
-                  ? ' (ถ้ามี — ไว้ให้ทีมงานติดต่อตอนได้รางวัล)'
+                  ? ' (ไว้ให้ทีมงานติดต่อตอนได้รางวัล — ไม่กรอกถือว่าสละสิทธิ์รับรางวัล)'
                   : ' (ถ้ามี — ไว้ส่งผล/ใบประกาศ)'}
               </span>
             </span>
             <input
-              type="text" autoComplete="tel" value={phone}
+              type="tel" inputMode="tel" autoComplete="tel" value={phone}
               onChange={e => setPhone(e.target.value)}
-              placeholder="เช่น 081-234-5678 หรือ LINE: somchai.d"
+              placeholder="เช่น 081-234-5678"
               className="w-full text-body tabular mt-1" />
           </label>
           {error && (
