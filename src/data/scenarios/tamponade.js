@@ -38,7 +38,7 @@ export const tamponade = {
             then: [
               { say: { who: 'boy_compressor', pose: 'talk', text: 'เริ่มกดครับ! <span class="cbs-em">หนึ่ง-สอง-สาม…</span>', fx: { cpr: true, firstCPR: true } }, t: 8 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้น… <span class="cbs-em">QRS แคบ อัตราเร็ว เป็นจังหวะ แต่คลำชีพจรไม่ได้</span>' }, t: 6 },
-              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'flat' } },
+              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'pea' } },
             ],
           },
           { tgt: 'AIRWAY', label: 'ใส่ ET tube ก่อนเป็นอันดับแรก', ok: false, why: 'CPR มาก่อน advanced airway เสมอ', worsen: true },

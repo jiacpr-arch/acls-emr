@@ -83,7 +83,7 @@ export const vfPeaVfAcs = {
         ],
       },
     },
-    { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'flat' } },
+    { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'pea' } },
     { say: { who: 'att_dech', pose: 'stern', text: 'ระวัง! <span class="cbs-em">มีไฟฟ้าแต่คลำชีพจรไม่ได้ = PEA</span> — เปลี่ยนเป็น non-shockable แล้ว อย่าเผลอ shock' }, t: 5 },
     {
       choice: {

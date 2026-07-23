@@ -38,7 +38,7 @@ export const tensionPneumo = {
             then: [
               { say: { who: 'boy_compressor', pose: 'talk', text: 'เริ่มกดครับ! <span class="cbs-em">หนึ่ง-สอง-สาม…</span>', fx: { cpr: true, firstCPR: true } }, t: 8 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้น… <span class="cbs-em">QRS แคบ เป็นจังหวะ แต่คลำชีพจรไม่ได้</span>' }, t: 6 },
-              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'flat' } },
+              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'pea' } },
             ],
           },
           { tgt: 'AIRWAY', label: 'ถอดท่อออกแล้วใส่ใหม่ก่อนเลย', ok: false, why: 'ยังไม่ถึงเวลา — CPR มาก่อน แล้วค่อยหาว่าทำไม PEA', worsen: true },

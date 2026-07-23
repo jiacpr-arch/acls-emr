@@ -48,6 +48,7 @@ function snapshot(st) {
 
 const RHYTHM_NAMES = {
   flat: 'ASYSTOLE',
+  pea: 'PEA ⚠',
   vf: 'V-FIB ⚠',
   nsr: 'SINUS — ROSC',
   brady: 'BRADYCARDIA ⚠',
@@ -56,6 +57,15 @@ const RHYTHM_NAMES = {
 };
 // rhythm ที่ "มีชีพจรแต่ไม่เสถียร" — เตือนสีทอง ไม่ blink (ต่างจาก shockable/arrest ที่ blink แดง)
 const WARN_RHYTHMS = new Set(['brady', 'pacing', 'tachy']);
+// rhythm ของ cardiac arrest (ไม่มีชีพจร) — blink แดง: shockable (vf), asystole (flat), PEA (pea)
+const ARREST_RHYTHMS = new Set(['vf', 'flat', 'pea']);
+
+// ป้ายชื่อจังหวะบนจอ — nsr แยกตามบริบท: หลัง arrest = ROSC, ไม่งั้น = sinus ปกติ
+// (เคส stroke/ACS/หลัง cardiovert ไม่เคย arrest ป้าย "ROSC" จะไม่ตรงสถานการณ์)
+function rhythmLabel(st) {
+  if (st.rhythm === 'nsr') return st.rosc ? 'SINUS — ROSC' : 'SINUS RHYTHM';
+  return RHYTHM_NAMES[st.rhythm];
+}
 
 const CLEARED_KEY = 'acls_codeblue_cleared'; // เก็บ id เคสที่เคยผ่าน (ROSC)
 const readCleared = () => {
@@ -1066,7 +1076,7 @@ export default function CodeBlueSim() {
   const gameDiff = getDifficulty(st.difficulty);
   const maxHp = st.maxHp || gameDiff.hp;
   const timerPct = Math.max(0, (decisionLeft / gameDiff.decisionTime) * 100);
-  const rhythmBad = st.rhythm === 'vf' || st.rhythm === 'flat';
+  const rhythmBad = ARREST_RHYTHMS.has(st.rhythm);
   const rhythmWarn = WARN_RHYTHMS.has(st.rhythm);
 
   return (
@@ -1076,7 +1086,7 @@ export default function CodeBlueSim() {
           <div className="cbs-hud">
             <div className="cbs-hud-monitor">
               <span className={`cbs-rhythm-name ${rhythmBad ? 'cbs-bad' : rhythmWarn ? 'cbs-warn' : ''}`}>
-                {st.alarm || st.rhythm !== 'flat' ? RHYTHM_NAMES[st.rhythm] : 'MONITOR — STANDBY'}
+                {st.alarm || st.rhythm !== 'flat' ? rhythmLabel(st) : 'MONITOR — STANDBY'}
               </span>
               <EcgStrip rhythm={st.rhythm} cpr={st.cpr} />
             </div>

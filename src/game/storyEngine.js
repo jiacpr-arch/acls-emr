@@ -76,9 +76,11 @@ export function pushEtco2(state) {
 }
 
 // ผลของ node ต่อสถานะผู้ป่วย/เคส (mutate state ที่ถือใน ref ของหน้าเกม)
-// fx.rhythm รับค่า: 'flat' (asystole/PEA) · 'vf' (VF/pulseless VT — shockable) ·
-//   'nsr' (sinus/stable) · 'brady' (unstable bradycardia/Mobitz มีชีพจร) ·
-//   'pacing' (transcutaneous pacing capture) · 'tachy' (unstable tachycardia มีชีพจร เช่น SVT/pulse VT)
+// fx.rhythm รับค่า: 'flat' (asystole — เส้นเรียบ ไม่มีคลื่นไฟฟ้า) ·
+//   'pea' (PEA — มีคลื่นไฟฟ้าเป็นจังหวะ organized แต่ไม่มีชีพจร ห้ามใช้ 'flat' แทน) ·
+//   'vf' (VF/pulseless VT — shockable) · 'nsr' (sinus/stable/ROSC) ·
+//   'brady' (unstable bradycardia/Mobitz มีชีพจร) · 'pacing' (transcutaneous pacing capture) ·
+//   'tachy' (unstable tachycardia มีชีพจร เช่น SVT/pulse VT)
 // UI (RHYTHM_NAMES ใน CodeBlueSim.jsx + EcgStrip.jsx) ต้องรู้จักทุกค่าที่ใช้
 export function applyFx(state, fx) {
   if (!fx) return;

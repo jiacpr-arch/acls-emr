@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 
 // ECG แบบ sweep (เหมือนจอ monitor จริง): เส้นวาดทับของเก่า มีแถบดำกวาดนำหน้า
-// rhythm: 'flat' | 'vf' | 'nsr' | 'brady' | 'pacing' | 'tachy' — cpr=true เพิ่ม compression artifact บน rhythm ที่ไม่ perfuse
+// rhythm: 'flat' | 'pea' | 'vf' | 'nsr' | 'brady' | 'pacing' | 'tachy' — cpr=true เพิ่ม compression artifact บน rhythm ที่ไม่ perfuse
+// 'flat' = asystole เส้นเรียบไม่มีคลื่นไฟฟ้า · 'pea' = มีคลื่นไฟฟ้าเป็นจังหวะ (organized) แต่ไม่บีบเลือด/ไม่มีชีพจร
 const RHYTHM_COLOR = {
-  nsr: '#37C871', flat: '#E5484D', vf: '#E5484D', brady: '#F2C14E', pacing: '#F2C14E', tachy: '#F2C14E',
+  nsr: '#37C871', flat: '#E5484D', pea: '#E5484D', vf: '#E5484D', brady: '#F2C14E', pacing: '#F2C14E', tachy: '#F2C14E',
 };
 
 export default function EcgStrip({ rhythm = 'flat', cpr = false, width = 240, height = 52 }) {
@@ -62,6 +63,16 @@ export default function EcgStrip({ rhythm = 'flat', cpr = false, width = 240, he
         if (b < 0.06) return -0.15;
         if (b < 0.13) return 0.85;
         if (b < 0.2) return -0.35;
+        return 0;
+      }
+      if (r === 'pea') {
+        // PEA — มีคลื่นไฟฟ้าเป็นจังหวะ (organized complexes) แต่ไม่มีชีพจร/ไม่บีบเลือด
+        // วาด QRS กว้างเป็นจังหวะช้าๆ (idioventricular-like) ให้ต่างจาก asystole เส้นเรียบชัดเจน
+        const b = (t * 0.55) % 1;
+        if (b < 0.05) return -0.12;
+        if (b < 0.13) return 0.7;
+        if (b < 0.22) return -0.4;
+        if (b < 0.3) return 0.12;
         return 0;
       }
       let y = Math.sin(t * 40) * 0.02;
