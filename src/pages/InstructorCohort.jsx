@@ -166,6 +166,17 @@ export default function InstructorCohort() {
   const selected = allEntries.find(l => l.id === selectedId);
   const isAssessmentView = assessmentEntries.some(e => e.id === selectedId);
 
+  // ลิงก์ตรงเข้ารายการที่เลือก — นักเรียนกดแล้วเข้าหน้าบทเรียน/ข้อสอบทันที
+  // ไม่ต้องผ่านหน้าแรก และถ้ามีคลาสอยู่ ?join= จะพาเข้าคลาสให้อัตโนมัติ
+  const directUrl = (() => {
+    if (!selected) return null;
+    const path = selected.kind === 'pretest' ? 'pre-test'
+      : selected.kind === 'posttest' ? 'post-test'
+      : selected.id;
+    const join = classCode ? `join=${classCode}&` : '';
+    return `${window.location.origin}/pre-course/${path}?${join}openExternalBrowser=1`;
+  })();
+
   const rows = summary.map(({ student, lessons }) => {
     const ls = lessons[selectedId] || {};
     return {
@@ -500,6 +511,26 @@ export default function InstructorCohort() {
             );
           })}
         </div>
+        {selected && directUrl && (
+          <div className="bg-bg-tertiary p-3 flex items-center gap-3"
+            style={{ borderRadius: 'var(--radius-md)' }}>
+            <div className="flex-1 min-w-0">
+              <div className="text-caption font-semibold text-text-primary">
+                ลิงก์ตรงเข้า "{selected.title}"
+              </div>
+              <div className="text-2xs text-text-muted">
+                ส่งให้นักเรียน — กดแล้วเข้าหน้านี้ทันที ไม่ต้องผ่านหน้าแรก
+                {classCode ? ' และเข้าคลาสให้อัตโนมัติ' : ''}
+              </div>
+            </div>
+            <button onClick={() => copy('direct', directUrl)}
+              className="btn btn-ghost btn-sm shrink-0">
+              {copied === 'direct'
+                ? <><Check size={13} strokeWidth={2.4} /> คัดลอกแล้ว</>
+                : <><LinkIcon size={13} strokeWidth={2.2} /> คัดลอกลิงก์</>}
+            </button>
+          </div>
+        )}
       </div>
 
       {loading ? (

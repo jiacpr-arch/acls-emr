@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { findLessonById } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
+import { useJoinClassFromLink } from '../hooks/useJoinClassFromLink';
 import {
   markLessonRead,
   saveQuizAttempt,
@@ -36,6 +37,9 @@ export default function LessonReader() {
   const [submitError, setSubmitError] = useState(null);
   const [imagesByStep, setImagesByStep] = useState({});
   const [videosByStep, setVideosByStep] = useState({});
+
+  // ลิงก์ตรงจากอาจารย์ (/pre-course/<lessonId>?join=CODE) — เข้าคลาสให้เงียบ ๆ
+  useJoinClassFromLink();
 
   // โหลดสื่อประกอบของบทเรียน (รูป + วิดีโอ จาก Supabase, แคชไว้) ครั้งเดียวตอนเข้า
   useEffect(() => {

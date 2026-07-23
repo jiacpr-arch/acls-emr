@@ -8,6 +8,7 @@ import {
   loadActivePreTestExam,
 } from '../data/activePreTest';
 import { usePreCourseStore } from '../stores/preCourseStore';
+import { useJoinClassFromLink } from '../hooks/useJoinClassFromLink';
 import { getAttemptCount, saveQuizAttempt } from '../db/database';
 import { scheduleFlush } from '../services/syncEngine';
 import { track } from '../services/analytics';
@@ -38,6 +39,9 @@ export default function PreTestExam() {
   const [exam, setExam] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
+
+  // ลิงก์ตรงจากอาจารย์ (/pre-course/pre-test?join=CODE) — เข้าคลาสให้เงียบ ๆ
+  useJoinClassFromLink();
 
   useEffect(() => {
     if (!activeStudent) return;
