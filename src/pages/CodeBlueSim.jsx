@@ -678,6 +678,8 @@ export default function CodeBlueSim() {
     setMuted((m) => {
       const next = !m;
       localStorage.setItem(MUTE_KEY, next ? '1' : '0');
+      // เก็บสถิติว่าคนเปิด/ปิดเสียงจากหน้าไหน — ใช้ตัดสินใจเรื่อง backing track/จูนความดัง
+      track('game_mute_toggle', { props: { muted: next, screen } });
       mutedRef.current = next; // อัพเดตทันที ไม่รอ effect — ให้ startMetronome ด้านล่างไม่โดนเบรก
       if (next) {
         stopMetronome();
