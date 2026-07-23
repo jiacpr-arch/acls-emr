@@ -579,14 +579,14 @@
 .cbs-badge-off .cbs-badge-title { color: var(--cbs-dim); }
 .cbs-badge-desc { font-size: 10.5px; line-height: 1.4; color: var(--cbs-dim); }
 
-/* ชิปสถานะ "ใครกำลังเล่น" — โชว์เฉพาะในคลาส เพราะผลนอกคลาสไม่ถูกส่งขึ้น cloud อยู่แล้ว */
+/* ชิปสถานะ "ใครกำลังเล่น" — โชว์เสมอ: นอกคลาสชวนเข้าคลาส, ในคลาสชวนลงทะเบียน/โชว์ชื่อ */
 .cbs-identity-chip {
   width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 10px 14px; font-size: 12.5px; line-height: 1.5;
+  padding: 10px 14px; font-size: 12.5px; line-height: 1.5; text-align: left;
   border-radius: 10px; border: 1.5px solid #33406E; background: rgba(10, 16, 36, .55);
   color: var(--cbs-dim);
 }
-.cbs-identity-chip-ok b { color: var(--cbs-ink); }
+.cbs-identity-chip b { color: var(--cbs-ink); }
 .cbs-identity-chip-warn {
   border: 1.5px dashed rgba(242, 193, 78, .55);
   background: rgba(242, 193, 78, .08);
