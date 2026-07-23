@@ -15,6 +15,13 @@ function probeImage(url) {
   });
 }
 
+// เรียกล่วงหน้าตอนโหลดเคส (ก่อนบทพูดจริงจะขึ้นจอ) เพื่ออุ่น imageCache —
+// กัน SVG placeholder โผล่วาบตอนรอ probe รูปจริงรอบแรกของแต่ละ (charId, pose)
+export function preloadCharacterImages(charId, pose) {
+  probeImage(characterImageUrl(charId, pose));
+  probeImage(characterImageUrl(charId, pose, true));
+}
+
 /**
  * ตัวละครบนเวที — image-first + SVG placeholder fallback
  *

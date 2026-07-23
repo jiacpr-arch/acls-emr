@@ -10,7 +10,7 @@ import { usePreCourseStore } from '../stores/preCourseStore';
 import { IS_BLS } from '../config/courseMode';
 import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
-import CharacterSprite from '../game/CharacterSprite';
+import CharacterSprite, { preloadCharacterImages } from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
 import {
   createInitialState, applyFx, nextNode, recordCorrect, recordWrong,
@@ -141,6 +141,26 @@ export default function CodeBlueSim() {
       .finally(() => { if (alive) setCharsReady(true); });
     return () => { alive = false; };
   }, []);
+
+  useEffect(() => {
+    // อุ่นรูปตัวละครทุก (who, pose) ที่เคสนี้ใช้ ก่อนผู้เล่นกดเริ่มจริง —
+    // กัน SVG placeholder โผล่วาบตอน probe รูปจริงรอบแรกระหว่างเล่น
+    if (!sc?.story) return;
+    const seen = new Set();
+    const walk = (beats) => {
+      (beats || []).forEach((beat) => {
+        if (beat?.say?.who) {
+          const key = `${beat.say.who}/${beat.say.pose || 'idle'}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            preloadCharacterImages(beat.say.who, beat.say.pose || 'idle');
+          }
+        }
+        (beat?.choice?.options || []).forEach((opt) => walk(opt.then));
+      });
+    };
+    walk(sc.story);
+  }, [sc]);
 
   useEffect(() => {
     if (preview) return undefined; // โหมดทดลองเล่น — ไม่โหลดคลังจาก DB
