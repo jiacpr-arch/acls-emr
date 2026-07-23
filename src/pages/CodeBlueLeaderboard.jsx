@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { RefreshCw } from 'lucide-react';
 import { useClassStore } from '../stores/classStore';
 import { usePreCourseStore } from '../stores/preCourseStore';
+import { isOpenLeague } from '../config/openLeague';
 import { rpcGetCodeBlueLeaderboard } from '../services/cohortSync';
 
 // อันดับเหรียญ Code Blue Sim ของทั้งคลาส — ทุกคนในคลาสเห็นชื่อ+อันดับกันหมด
 // เหรียญคำนวณฝั่ง server จากผลที่ดีที่สุดต่อเคส (เล่นซ้ำอัปเกรดได้ ฟาร์มไม่ได้):
 // 🥇 ผ่านแบบไม่พลาดเลย · 🥈 พลาด ≤ 2 · 🥉 ผ่าน — แต้ม 3/2/1
+// แต้มเท่ากันตัดสินด้วย "คะแนนรวม" (ผลรวมคะแนนดีสุดต่อเคส) — ใช้ชี้ขาด
+// ผู้ชนะเวลาจัดแคมเปญแจกรางวัลในลีกออนไลน์
 
 const RANK_TONE = ['#F2C14E', '#C0C7D1', '#CD8A54']; // ทอง เงิน ทองแดง สำหรับ top 3
 
@@ -18,20 +21,25 @@ export default function CodeBlueLeaderboard() {
   const activeStudent = usePreCourseStore(s => s.activeStudent);
   const [rows, setRows] = useState(null); // null = กำลังโหลด
   const [error, setError] = useState(null);
+  const [tick, setTick] = useState(0); // ปุ่ม "ลองใหม่" bump เพื่อ re-fetch
 
+  // ปุ่ม retry: ล้างสถานะ (ทำใน event handler ได้) แล้วให้ effect ยิงซ้ำผ่าน tick
   const load = () => {
     setError(null);
     setRows(null);
-    rpcGetCodeBlueLeaderboard().then(({ data, error: err }) => {
-      if (err) setError(err);
-      else setRows(data);
-    });
+    setTick((t) => t + 1);
   };
 
   useEffect(() => {
-    if (classCode) load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [classCode]);
+    if (!classCode) return undefined;
+    let alive = true;
+    rpcGetCodeBlueLeaderboard().then(({ data, error: err }) => {
+      if (!alive) return;
+      if (err) setError(err);
+      else setRows(data);
+    });
+    return () => { alive = false; };
+  }, [classCode, tick]);
 
   // ระบุแถวของตัวเอง — pk ตรงกับที่ endCase ใช้ส่งผล (activeStudent.id)
   // เผื่อ pk ฝั่ง server ถูก remap ให้ fallback เทียบด้วยรหัสนักเรียน
@@ -39,6 +47,11 @@ export default function CodeBlueLeaderboard() {
     r.studentPk === activeStudent.id
     || (!!activeStudent.studentId && r.studentId === activeStudent.studentId)
   );
+
+  const openLeague = isOpenLeague(classCode);
+  const boardTitle = openLeague ? 'อันดับลีกออนไลน์' : 'อันดับเหรียญในคลาส';
+  const myIndex = rows ? rows.findIndex(isMe) : -1;
+  const myRow = myIndex >= 0 ? rows[myIndex] : null;
 
   if (!classCode) {
     return (
@@ -65,12 +78,40 @@ export default function CodeBlueLeaderboard() {
     <div className="page-container space-y-4 pb-24">
       <div className="text-center space-y-1 pt-2">
         <div className="text-[44px] leading-none" aria-hidden="true">🏆</div>
-        <h1 className="text-title text-text-primary">อันดับเหรียญในคลาส</h1>
+        <h1 className="text-title text-text-primary">{boardTitle}</h1>
         <p className="text-caption text-text-muted">{className || classCode}</p>
         <p className="text-2xs text-text-muted">
           🥇 ผ่านแบบไม่พลาดเลย · 🥈 พลาด ≤ 2 · 🥉 ผ่าน — แต้ม 3/2/1 นับผลที่ดีที่สุดต่อเคส
+          {' '}· แต้มเท่ากันตัดสินด้วยคะแนนรวม
         </p>
       </div>
+
+      {/* การ์ดอันดับของฉัน — เห็นสถานะตัวเองทันทีไม่ต้องไล่หาในลิสต์ยาวๆ */}
+      {!error && rows !== null && activeStudent && (
+        myRow ? (
+          <div className="dash-card !p-3 flex items-center gap-3"
+            style={{ boxShadow: '0 0 0 2px var(--color-info) inset' }}>
+            <span className="w-10 h-10 shrink-0 inline-flex flex-col items-center justify-center font-extrabold"
+              style={{ borderRadius: '50%', background: 'var(--color-info)', color: '#fff' }}>
+              <span className="text-sm leading-none">#{myIndex + 1}</span>
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="text-body font-bold text-text-primary truncate">อันดับของฉัน — {myRow.name}</div>
+              <div className="text-2xs text-text-muted">
+                🥇 {myRow.gold} · 🥈 {myRow.silver} · 🥉 {myRow.bronze} · ผ่าน {myRow.cleared} เคส
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-headline font-extrabold text-text-primary">{myRow.points} แต้ม</div>
+              <div className="text-3xs text-text-muted">คะแนนรวม {myRow.totalScore ?? 0}</div>
+            </div>
+          </div>
+        ) : (
+          <div className="dash-card !p-3 text-center text-caption text-text-muted">
+            คุณยังไม่มีอันดับ — ผ่านเคสแรกให้ได้ แล้วชื่อ <b>{activeStudent.name}</b> จะขึ้นบอร์ดทันที
+          </div>
+        )
+      )}
 
       {error && (
         <div className="dash-card text-center space-y-2">
@@ -122,7 +163,7 @@ export default function CodeBlueLeaderboard() {
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-headline font-extrabold text-text-primary">{r.points}</div>
-                  <div className="text-3xs text-text-muted">แต้ม</div>
+                  <div className="text-3xs text-text-muted">แต้ม · คะแนนรวม {r.totalScore ?? 0}</div>
                 </div>
               </div>
             );

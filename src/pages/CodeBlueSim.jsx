@@ -914,7 +914,7 @@ export default function CodeBlueSim() {
           </button>
           {inClass && (
             <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
-              🏆 อันดับเหรียญในคลาส
+              {isOpenLeague(getClassContext().classCode) ? '🏆 อันดับลีกออนไลน์' : '🏆 อันดับเหรียญในคลาส'}
             </button>
           )}
           <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/')}>
@@ -1102,7 +1102,7 @@ export default function CodeBlueSim() {
             </button>
             {inClass && (
               <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
-                🏆 ดูอันดับในคลาส
+                {isOpenLeague(getClassContext().classCode) ? '🏆 ดูอันดับลีกออนไลน์' : '🏆 ดูอันดับในคลาส'}
               </button>
             )}
             {pool.length > 1 && (
