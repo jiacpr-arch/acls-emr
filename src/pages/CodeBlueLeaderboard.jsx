@@ -4,6 +4,7 @@ import { RefreshCw } from 'lucide-react';
 import { useClassStore } from '../stores/classStore';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { isOpenLeague } from '../config/openLeague';
+import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import {
   rpcGetCodeBlueLeaderboard, rpcGetCodeBlueGlobalLeaderboard,
 } from '../services/cohortSync';
@@ -149,6 +150,13 @@ export default function CodeBlueLeaderboard() {
   const myIndex = rows ? rows.findIndex(isMe) : -1;
   const myRow = myIndex >= 0 ? rows[myIndex] : null;
 
+  // แคมเปญรางวัล: ผู้ชนะต้องมีช่องทางติดต่อกลับ แต่เบอร์เป็นช่องไม่บังคับตอน
+  // ลงทะเบียน (บังคับแล้ว drop-off สูง) — เลยชวนเพิ่มตรงหน้าบอร์ดแทน ซึ่งเป็น
+  // จุดที่ผู้เล่นเห็นอันดับตัวเองและอยากได้รางวัลพอดี ฟอร์มเดิม prefill
+  // ชื่อ/รหัสให้แล้ว เหลือกรอกเบอร์อย่างเดียว บันทึกแล้ว sync ขึ้น server
+  const [showIdentity, setShowIdentity] = useState(false);
+  const needContact = !!classCode && !!activeStudent && !activeStudent.phone;
+
   return (
     <div className="page-container space-y-4 pb-24">
       <div className="text-center space-y-1 pt-2">
@@ -183,6 +191,19 @@ export default function CodeBlueLeaderboard() {
           🏫 {openLeague ? 'ลีกออนไลน์' : 'คลาสของฉัน'}
         </button>
       </div>
+
+      {needContact && (
+        <div className="dash-card !p-3 flex items-center gap-3">
+          <span className="text-[26px] leading-none shrink-0" aria-hidden="true">🎁</span>
+          <div className="flex-1 min-w-0 text-caption text-text-muted">
+            มีประกาศผู้ชนะรางวัลเป็นประจำ — เพิ่มเบอร์ติดต่อไว้
+            เผื่อคุณติดอันดับ ทีมงานจะได้ติดต่อกลับถูก
+          </div>
+          <button className="btn btn-sm btn-primary shrink-0" onClick={() => setShowIdentity(true)}>
+            เพิ่มเบอร์
+          </button>
+        </div>
+      )}
 
       {/* ================= ทั้งเว็บ ================= */}
       {tab === 'global' && (
@@ -295,6 +316,12 @@ export default function CodeBlueLeaderboard() {
           🚨 เก็บเหรียญเพิ่ม — เล่น Code Blue Sim
         </button>
       </div>
+
+      <StudentIdentityModal
+        open={showIdentity}
+        onClose={() => setShowIdentity(false)}
+        onConfirm={() => setShowIdentity(false)}
+      />
     </div>
   );
 }

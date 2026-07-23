@@ -191,7 +191,11 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">
               เบอร์โทร
-              <span className="font-normal text-text-muted"> (ถ้ามี — ไว้ส่งผล/ใบประกาศ)</span>
+              <span className="font-normal text-text-muted">
+                {openLeague
+                  ? ' (ถ้ามี — ไว้ให้ทีมงานติดต่อตอนได้รางวัล)'
+                  : ' (ถ้ามี — ไว้ส่งผล/ใบประกาศ)'}
+              </span>
             </span>
             <input
               type="tel" inputMode="tel" autoComplete="tel" value={phone}
