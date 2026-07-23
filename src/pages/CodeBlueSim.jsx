@@ -8,9 +8,11 @@ import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { IS_BLS } from '../config/courseMode';
+import { isOpenLeague } from '../config/openLeague';
 import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import ClassGateModal from '../components/precourse/ClassGateModal';
 import CharacterSprite from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
 import {
@@ -131,12 +133,16 @@ export default function CodeBlueSim() {
   // นักเรียนที่อยู่ในคลาส (ถ้ามี) — ใช้บันทึกผลเกมขึ้น cloud ให้อาจารย์เห็น
   // ไม่มีก็เล่นได้ปกติ แค่ไม่มีใครเห็นผลนอกจากตัวเอง (เหมือนเดิม)
   const activeStudent = usePreCourseStore((s) => s.activeStudent);
-  // อยู่ในคลาสไหม — ใช้โชว์ปุ่มอันดับเหรียญ (เข้า/ออกคลาสไม่เกิดกลางเกม อ่านครั้งเดียวพอ)
-  const [inClass] = useState(() => !!getClassContext().classCode);
+  // อยู่ในคลาสไหม — ใช้โชว์ปุ่มอันดับเหรียญ + ชิปลงทะเบียน
+  // (เป็น state เพราะตอนนี้เข้าคลาสได้จากในเกมเอง ผ่าน ClassGateModal ด้านล่าง)
+  const [inClass, setInClass] = useState(() => !!getClassContext().classCode);
   // ในคลาส: ก่อนรับเคสครั้งแรกต้องรู้ว่าใครเล่น ไม่งั้นผลจะไม่ถูกบันทึกให้ครูเห็น
   // (rpcSubmitCodeBlueResult ต้องมี studentPk เสมอ) — startAfterIdentityRef จำไว้ว่า
   // เปิด modal มาเพื่อ "รับเคส" ต่อ ไม่ใช่แค่แก้ชื่อจากชิปสถานะ
   const [showIdentity, setShowIdentity] = useState(false);
+  // ยังไม่มีคลาส: ให้เข้าคลาสจากหน้าเกมได้เลย (เดิมต้องอ้อมไป /pre-course ก่อน
+  // นักเรียนเลยไม่รู้ว่าจะกรอกชื่อ/รหัสจากตรงไหน)
+  const [showClassGate, setShowClassGate] = useState(false);
   const startAfterIdentityRef = useRef(false);
 
   // ---- engine state: mutable ใน ref (logic) + snapshot state (render) ----
@@ -393,6 +399,7 @@ export default function CodeBlueSim() {
           wrongCount: st.wrong,
           durationSeconds: Math.round(st.simTime),
           finishedAt: new Date().toISOString(),
+          fastClear, // ให้ restore ข้ามเครื่องกู้เหรียญ "สายฟ้า" ได้ด้วย
         },
       }).catch(() => {});
     }
@@ -646,12 +653,79 @@ export default function CodeBlueSim() {
     startGame();
   }
 
+  // ลงทะเบียนเสร็จ modal อาจเพิ่งกู้ความคืบหน้าจาก cloud ลง localStorage
+  // (restoreCodeBlueProgress) — อ่านกลับมาอัพเดต state เกม: เคสที่ปลดแล้ว,
+  // hi-score และคำนวณเหรียญใหม่จากคลังปัจจุบัน
+  function refreshLocalProgress() {
+    const nextCleared = readCleared();
+    setCleared(nextCleared);
+    setHiscore(Number(localStorage.getItem(hiscoreKey(difficulty)) || 0));
+    syncAwards(pool, nextCleared, readGrades());
+    setAwardsTick((n) => n + 1);
+  }
+
   function handleIdentityConfirm() {
     setShowIdentity(false);
+    refreshLocalProgress();
     if (startAfterIdentityRef.current) {
       startAfterIdentityRef.current = false;
       startGame();
     }
+  }
+
+  // ปิดหน้ากรอกรหัสคลาส: ถ้าเพิ่งเข้าคลาสสำเร็จและยังไม่รู้ว่าใครเล่น
+  // เปิดฟอร์มชื่อ+รหัสนักเรียนต่อทันที — จบใน flow เดียว ไม่ต้องหาปุ่มอีกรอบ
+  function handleClassGateClose() {
+    setShowClassGate(false);
+    const joined = !!getClassContext().classCode;
+    setInClass(joined);
+    if (joined && !activeStudent?.id) setShowIdentity(true);
+  }
+
+  // ชิปลงทะเบียน (หน้าเลือกเคส + หน้าเริ่มเคส) — โชว์เสมอ ไม่ใช่เฉพาะในคลาส
+  // เพื่อให้นักเรียนเห็นตั้งแต่แรกว่ากรอกชื่อ/รหัสได้จากตรงไหน และได้อะไรกลับมา
+  function renderIdentityChip() {
+    if (!inClass) {
+      return (
+        <div className="cbs-identity-chip">
+          <span>
+            👥 <b>บันทึกผล · ขึ้นอันดับเหรียญ · เล่นต่อเครื่องอื่นได้</b> —
+            เข้าคลาสด้วยรหัสจากอาจารย์ หรือเข้าลีกออนไลน์ (บุคคลทั่วไป)
+          </span>
+          <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowClassGate(true)}>
+            เข้าร่วม
+          </button>
+        </div>
+      );
+    }
+    const openLeague = isOpenLeague(getClassContext().classCode);
+    if (!activeStudent?.id) {
+      return (
+        <div className="cbs-identity-chip cbs-identity-chip-warn">
+          <span>
+            {openLeague
+              ? '⚠ ยังไม่ได้ลงชื่อ — ลงชื่อเพื่อรับรหัสผู้เล่น ใช้บันทึกผล ขึ้นอันดับเหรียญ และเล่นต่อเครื่องอื่น'
+              : '⚠ ยังไม่ได้ลงทะเบียน — กรอกชื่อ + รหัสนักเรียน เพื่อให้ผลบันทึกถึงอาจารย์ และมีชื่อบนอันดับเหรียญของคลาส'}
+          </span>
+          <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowIdentity(true)}>
+            {openLeague ? 'ลงชื่อ' : 'กรอกชื่อ+รหัส'}
+          </button>
+        </div>
+      );
+    }
+    return (
+      <div className="cbs-identity-chip cbs-identity-chip-ok">
+        <span>
+          👤 บันทึกผลในชื่อ <b>{activeStudent.name}</b>
+          {openLeague && activeStudent.studentId && (
+            <> · รหัสผู้เล่น <b className="cbs-player-code">{activeStudent.studentId}</b> — จดไว้ใช้เล่นต่อบนเครื่องอื่น</>
+          )}
+        </span>
+        <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowIdentity(true)}>
+          เปลี่ยน
+        </button>
+      </div>
+    );
   }
 
   function pickScenario(chosen) {
@@ -781,23 +855,7 @@ export default function CodeBlueSim() {
               ? 'ฝึกช่วยชีวิตขั้นพื้นฐานทีละสถานการณ์ — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น'
               : 'ฝึกทีละหมวดจนครบทุก algorithm — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น'}
           </p>
-          {inClass && (
-            activeStudent?.id ? (
-              <div className="cbs-identity-chip cbs-identity-chip-ok">
-                <span>👤 บันทึกผลในชื่อ <b>{activeStudent.name}</b></span>
-                <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowIdentity(true)}>
-                  เปลี่ยน
-                </button>
-              </div>
-            ) : (
-              <div className="cbs-identity-chip cbs-identity-chip-warn">
-                <span>⚠ ยังไม่ได้ลงทะเบียน — ผลจะไม่ถูกบันทึกให้ครูเห็น</span>
-                <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowIdentity(true)}>
-                  ลงทะเบียน
-                </button>
-              </div>
-            )
-          )}
+          {renderIdentityChip()}
           {(nextCase || pool.length > 1) && (
             <div className="cbs-quick-row">
               {nextCase && (
@@ -870,11 +928,12 @@ export default function CodeBlueSim() {
           <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('awards'); window.scrollTo(0, 0); }}>
             🏅 รางวัลของฉัน ({badgeList.filter((b) => b.earned).length}/{badgeList.length})
           </button>
-          {inClass && (
-            <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
-              🏆 อันดับเหรียญในคลาส
-            </button>
-          )}
+          {/* บอร์ดรวมทั้งเว็บเปิดดูได้แม้ไม่มีคลาส — ป้ายเปลี่ยนตามบริบท */}
+          <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
+            {!inClass
+              ? '🏆 อันดับรวมทั้งเว็บ'
+              : isOpenLeague(getClassContext().classCode) ? '🏆 อันดับลีกออนไลน์' : '🏆 อันดับเหรียญในคลาส'}
+          </button>
           <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/')}>
             <Home size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
             กลับหน้าแรก
@@ -885,6 +944,7 @@ export default function CodeBlueSim() {
           onClose={() => { setShowIdentity(false); startAfterIdentityRef.current = false; }}
           onConfirm={handleIdentityConfirm}
         />
+        <ClassGateModal open={showClassGate} onClose={handleClassGateClose} initialMode="join" openLeague />
       </div>
     );
   }
@@ -932,6 +992,7 @@ export default function CodeBlueSim() {
               {muted ? <VolumeX size={16} strokeWidth={2.4} /> : <Volume2 size={16} strokeWidth={2.4} />}
             </button>
           </div>
+          {renderIdentityChip()}
           <button type="button" className="cbs-btn-main" onClick={requestStart}>
             <AlertTriangle size={18} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-3px', marginRight: 8 }} />
             รับเคส
@@ -948,6 +1009,7 @@ export default function CodeBlueSim() {
           onClose={() => { setShowIdentity(false); startAfterIdentityRef.current = false; }}
           onConfirm={handleIdentityConfirm}
         />
+        <ClassGateModal open={showClassGate} onClose={handleClassGateClose} initialMode="join" openLeague />
       </div>
     );
   }
@@ -1055,11 +1117,11 @@ export default function CodeBlueSim() {
               <RefreshCw size={16} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 8 }} />
               เล่นเคสนี้อีกครั้ง
             </button>
-            {inClass && (
-              <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
-                🏆 ดูอันดับในคลาส
-              </button>
-            )}
+            <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
+              {!inClass
+                ? '🏆 ดูอันดับรวมทั้งเว็บ'
+                : isOpenLeague(getClassContext().classCode) ? '🏆 ดูอันดับลีกออนไลน์' : '🏆 ดูอันดับในคลาส'}
+            </button>
             {pool.length > 1 && (
               <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('select'); window.scrollTo(0, 0); }}>
                 ← เลือกเคสอื่น
@@ -1214,6 +1276,15 @@ export default function CodeBlueSim() {
                 ? <><VolumeX size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />เปิดเสียง</>
                 : <><Volume2 size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />ปิดเสียง</>}
             </button>
+            {inClass && !activeStudent?.id && (
+              <button
+                type="button"
+                className="cbs-btn-ghost"
+                onClick={() => { setQuitMenu(false); setShowIdentity(true); }}
+              >
+                👤 กรอกชื่อ+รหัสนักเรียน — ให้ผลบันทึกถึงอาจารย์
+              </button>
+            )}
             <button type="button" className="cbs-btn-ghost" onClick={backToSelect}>
               {pool.length > 1 ? 'ออกไปเลือกเคสอื่น' : 'ออกไปหน้าแรก'}
             </button>
@@ -1232,6 +1303,12 @@ export default function CodeBlueSim() {
       )}
       {flashN > 0 && <div key={`fl-${flashN}`} className="cbs-flash cbs-go" />}
       {redN > 0 && <div key={`rf-${redN}`} className="cbs-redflash cbs-go" />}
+      {/* ลงทะเบียนกลางเกมได้จากเมนู ☰ — เคสที่จบหลังจากนี้จะถูกบันทึกถึงอาจารย์ */}
+      <StudentIdentityModal
+        open={showIdentity}
+        onClose={() => setShowIdentity(false)}
+        onConfirm={() => { setShowIdentity(false); refreshLocalProgress(); }}
+      />
     </div>
   );
 }
