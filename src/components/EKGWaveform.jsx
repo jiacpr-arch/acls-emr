@@ -557,7 +557,38 @@ function MonitorGrid() {
   );
 }
 
-export default function EKGWaveform({ rhythmId, variant = 'paper', color, className = '' }) {
+// Monitor-style sweep: the full (repeating) strip stays on screen while an
+// erase bar + pen cursor travel left→right, exactly like a bedside monitor
+// redrawing over the previous pass. One sweep = strip duration in real time
+// (150 mm at 25 mm/s → 6 s), so rates read true on screen.
+const SWEEP_S = STRIP_MM_W / 25;
+const SWEEP_GAP = 12 * MM; // blank gap ahead of the pen (px)
+
+function SweepBar({ bg, penColor }) {
+  return (
+    <g className="ekg-sweep">
+      {/* second copy offset by -W so the gap wraps seamlessly at the loop point */}
+      {[0, -W].map((off) => (
+        <g key={off} transform={`translate(${off} 0)`}>
+          <rect x={0} y={-2} width={SWEEP_GAP} height={H + 4} fill={bg} />
+          <line x1={0.5} y1={0} x2={0.5} y2={H} stroke={penColor} strokeWidth={2} opacity={0.9} />
+        </g>
+      ))}
+      <style>{`
+        .ekg-sweep { animation: ekg-sweep ${SWEEP_S}s linear infinite; }
+        @keyframes ekg-sweep {
+          from { transform: translateX(0); }
+          to { transform: translateX(${W}px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ekg-sweep { display: none; }
+        }
+      `}</style>
+    </g>
+  );
+}
+
+export default function EKGWaveform({ rhythmId, variant = 'paper', color, animate = false, className = '' }) {
   const d = buildPath(rhythmId);
   const isPaper = variant === 'paper';
   const bg = isPaper ? '#fff7f0' : '#0b0f14';
@@ -574,6 +605,7 @@ export default function EKGWaveform({ rhythmId, variant = 'paper', color, classN
       <rect x="0" y="0" width={W} height={H} fill={bg} />
       {isPaper ? <PaperGrid /> : <MonitorGrid />}
       <path d={d} fill="none" stroke={traceColor} strokeWidth={traceWidth} strokeLinejoin="round" strokeLinecap="round" />
+      {animate && <SweepBar bg={bg} penColor={traceColor} />}
     </svg>
   );
 }

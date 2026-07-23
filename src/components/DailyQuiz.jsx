@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import EKGWaveform from './EKGWaveform';
 import { ekgQuestions, rhythmLabels } from '../data/ekgQuiz';
-import { Sparkles, Check, X } from './ui/Icon';
+import { Sparkles, Check, X, Play, Pause } from './ui/Icon';
 
 function todayKey() {
   const d = new Date();
@@ -29,6 +29,8 @@ export default function DailyQuiz() {
   }, [dateStr]);
 
   const [answered, setAnswered] = useState(null);
+  // true = คลื่นวิ่งแบบจอมอนิเตอร์, false = หยุดนิ่งแบบกระดาษ EKG
+  const [live, setLive] = useState(true);
 
   useEffect(() => {
     try {
@@ -69,7 +71,23 @@ export default function DailyQuiz() {
         {question.imageUrl ? (
           <img src={question.imageUrl} alt="EKG" className="w-full" />
         ) : (
-          <EKGWaveform rhythmId={question.rhythmId} variant="paper" />
+          <>
+            <EKGWaveform
+              rhythmId={question.rhythmId}
+              variant={live ? 'monitor' : 'paper'}
+              animate={live}
+            />
+            <button
+              onClick={() => setLive(v => !v)}
+              className="btn btn-ghost btn-sm w-full mt-1"
+            >
+              {live ? (
+                <><Pause size={13} strokeWidth={2.2} /> หยุดคลื่น — ดูแบบกระดาษ</>
+              ) : (
+                <><Play size={13} strokeWidth={2.2} /> ให้คลื่นวิ่งแบบจอมอนิเตอร์</>
+              )}
+            </button>
+          </>
         )}
       </div>
 
