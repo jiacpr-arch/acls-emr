@@ -73,7 +73,7 @@ export const preeclampsia = {
           {
             tgt: 'CPR', label: 'นี่คือ PEA — CPR ต่อ + LUD ต่อ + Epinephrine โดสที่สองตาม cycle', ok: true,
             then: [
-              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'flat' } },
+              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'pea' } },
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi dose 2 in!"</span> กดต่อเนื่องไม่หยุดค่ะ', fx: { epi: true, cpr: true } }, t: 6 },
             ],
           },

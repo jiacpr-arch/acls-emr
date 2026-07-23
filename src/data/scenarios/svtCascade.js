@@ -124,7 +124,7 @@ export const svtCascade = {
               { say: { who: 'nurse_mint', pose: 'talk', text: 'กดต่อทันทีค่ะ! เปิด IV พร้อมให้ยา', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… <span class="cbs-em">VF หายไป มี QRS เป็นจังหวะ แต่คลำชีพจรไม่ได้ค่ะ</span>' }, t: 6 },
-              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'flat' } },
+              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'pea' } },
             ],
           },
           { tgt: 'DEFIB', label: 'Synchronized cardioversion 100 J', ok: false, why: 'VF ต้อง defibrillation (unsync) — sync จะจับ R wave ไม่ได้และหน่วงการช็อก', worsen: true },
