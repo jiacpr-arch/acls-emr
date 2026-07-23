@@ -159,6 +159,19 @@ export async function rpcSubmitCodeBlueResult({ attemptUuid, studentPk, scenario
   return error ? { error } : { data: true };
 }
 
+// ความคืบหน้าเกม Code Blue "ของตัวเอง" — server สรุปจากผลที่เคยส่งขึ้นไป:
+// เคสที่เคยผ่าน, เกรดดีสุดต่อเคส, hi-score ต่อระดับความยาก ใช้ hydrate กลับลง
+// localStorage ตอนลงทะเบียนบนเครื่องใหม่ (bearer เดิม: รหัสคลาส + student_pk)
+export async function rpcGetMyCodeBlueProgress({ studentPk }) {
+  const { classCode } = getClassContext();
+  if (!classCode || !studentPk) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_my_codeblue_progress', {
+    p_code: classCode,
+    p_student_pk: studentPk,
+  });
+  return error ? { error } : { data };
+}
+
 // Leaderboard เหรียญ Code Blue ของทั้งคลาส — เปิดให้นักเรียนดูด้วยรหัสคลาส
 // (ไม่ต้องใช้รหัส instructor) server สรุปเหรียญจากผลที่ดีที่สุดต่อเคสให้แล้ว
 export async function rpcGetCodeBlueLeaderboard() {

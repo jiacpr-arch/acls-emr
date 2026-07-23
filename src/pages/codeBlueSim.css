@@ -587,6 +587,8 @@
   color: var(--cbs-dim);
 }
 .cbs-identity-chip b { color: var(--cbs-ink); }
+/* รหัสผู้เล่นลีกออนไลน์ — mono ให้จด/พิมพ์ตามง่าย ไม่สับสนตัวอักษร */
+.cbs-player-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; }
 .cbs-identity-chip-warn {
   border: 1.5px dashed rgba(242, 193, 78, .55);
   background: rgba(242, 193, 78, .08);

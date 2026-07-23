@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useClassStore } from '../../stores/classStore';
 import { COURSE_MODE } from '../../config/courseMode';
+import { OPEN_LEAGUE_CODE } from '../../config/openLeague';
 import {
   rpcCreateClass, rpcVerifyClassCode, rpcVerifyInstructorCode,
 } from '../../services/cohortSync';
@@ -21,8 +22,12 @@ import { BookOpen, KeyRound, AlertCircle, Check, Copy, Play, ChevronLeft, Shield
 // instructor=true switches join mode to instructor-code verification (the
 // code that unlocks the cohort summary; legacy class codes still work).
 // initialCode prefills the join input — used by /pre-course?join=CODE links.
+// openLeague=true adds a "no code? join the online league" path in join mode:
+// self-learners join the well-known open class (OPEN_LEAGUE_CODE) in one tap —
+// same sync/leaderboard pipeline as a normal class, no instructor needed.
 export default function ClassGateModal({
   open, onClose, initialMode = 'home', instructor = false, initialCode = '',
+  openLeague = false,
 }) {
   const setClass = useClassStore(s => s.setClass);
   const disableSync = useClassStore(s => s.disableSync);
@@ -120,6 +125,32 @@ export default function ClassGateModal({
       props: { via: initialCode && normalized === initialCode.toUpperCase() ? 'link' : 'manual' },
     });
     // Push any rows that were created while offline / before class was set
+    scheduleFlush();
+    onClose?.();
+  };
+
+  // เข้าลีกออนไลน์ (คลาสกลางของเว็บ) — ผ่าน verify เดิมเพื่อให้ได้ classId/ชื่อจริง
+  // จาก server (และกันเคสคลาสถูกลบ/ผิดโหมด) แทนการ hardcode ฝั่ง client ทั้งก้อน
+  const joinOpenLeague = async () => {
+    if (busy) return;
+    setBusy(true); setError('');
+    const { data, error: rpcErr } = await rpcVerifyClassCode(OPEN_LEAGUE_CODE);
+    setBusy(false);
+    if (rpcErr) {
+      setError('เชื่อมต่อไม่สำเร็จ: ' + (rpcErr.message || ''));
+      return;
+    }
+    if (data.courseMode !== COURSE_MODE) {
+      setError('ลีกออนไลน์ยังไม่พร้อมใช้งาน — ลองใหม่ภายหลัง');
+      return;
+    }
+    setClass({
+      classId: data.classId,
+      classCode: OPEN_LEAGUE_CODE,
+      className: data.className,
+      courseMode: data.courseMode,
+    });
+    track('class_joined', { props: { via: 'open_league' } });
     scheduleFlush();
     onClose?.();
   };
@@ -296,6 +327,27 @@ export default function ClassGateModal({
                 {busy ? 'กำลังเชื่อมต่อ…' : 'เข้าคลาส'}
               </button>
             </form>
+
+            {openLeague && !instructor && (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-2xs text-text-muted">ไม่มีรหัส?</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                <div>
+                  <button type="button" onClick={joinOpenLeague} disabled={busy}
+                    className="w-full text-caption font-bold px-3 py-2.5 border border-border bg-bg-tertiary text-text-secondary inline-flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    style={{ borderRadius: 'var(--radius-md)' }}>
+                    🌐 เข้าลีกออนไลน์ (บุคคลทั่วไป)
+                  </button>
+                  <p className="text-2xs text-text-muted text-center mt-1.5">
+                    สำหรับผู้เรียนด้วยตนเอง — ระบบจะออก "รหัสผู้เล่น" ให้
+                    ใช้บันทึกผล ขึ้นอันดับเหรียญ และเล่นต่อบนเครื่องอื่นได้
+                  </p>
+                </div>
+              </>
+            )}
           </>
         )}
 
