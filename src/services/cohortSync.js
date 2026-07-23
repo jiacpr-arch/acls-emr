@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { getClassContext } from '../stores/classStore';
+import { COURSE_MODE } from '../config/courseMode';
 
 // Thin wrappers around the Postgres RPCs. All return { data, error } —
 // callers handle errors so the sync engine can retry / record failures.
@@ -181,6 +182,18 @@ export async function rpcGetCodeBlueLeaderboard() {
     p_code: classCode,
   });
   return error ? { error } : { data: data || [] };
+}
+
+// อันดับรวม "ทั้งเว็บ" ของ course mode นี้ (ทุกคลาส + ลีกออนไลน์) — public
+// ไม่ต้องมีรหัสคลาส server คืน top 50 + จำนวนผู้เล่นทั้งหมด และถ้าส่ง
+// studentPk มาด้วยจะได้แถว "ของฉัน" พร้อมอันดับจริงแม้อยู่นอก top 50
+// (คืนเฉพาะชื่อ+ชื่อคลาส ไม่มี student id/รหัสผู้เล่น/เบอร์)
+export async function rpcGetCodeBlueGlobalLeaderboard({ studentPk = null } = {}) {
+  const { data, error } = await supabase.rpc('get_codeblue_global_leaderboard', {
+    p_course_mode: COURSE_MODE,
+    p_student_pk: studentPk,
+  });
+  return error ? { error } : { data: data || { top: [], me: null, totalPlayers: 0 } };
 }
 
 export async function rpcGetCohortCodeblueSummary() {

@@ -912,11 +912,12 @@ export default function CodeBlueSim() {
           <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('awards'); window.scrollTo(0, 0); }}>
             🏅 รางวัลของฉัน ({badgeList.filter((b) => b.earned).length}/{badgeList.length})
           </button>
-          {inClass && (
-            <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
-              {isOpenLeague(getClassContext().classCode) ? '🏆 อันดับลีกออนไลน์' : '🏆 อันดับเหรียญในคลาส'}
-            </button>
-          )}
+          {/* บอร์ดรวมทั้งเว็บเปิดดูได้แม้ไม่มีคลาส — ป้ายเปลี่ยนตามบริบท */}
+          <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
+            {!inClass
+              ? '🏆 อันดับรวมทั้งเว็บ'
+              : isOpenLeague(getClassContext().classCode) ? '🏆 อันดับลีกออนไลน์' : '🏆 อันดับเหรียญในคลาส'}
+          </button>
           <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/')}>
             <Home size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
             กลับหน้าแรก
@@ -1100,11 +1101,11 @@ export default function CodeBlueSim() {
               <RefreshCw size={16} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 8 }} />
               เล่นเคสนี้อีกครั้ง
             </button>
-            {inClass && (
-              <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
-                {isOpenLeague(getClassContext().classCode) ? '🏆 ดูอันดับลีกออนไลน์' : '🏆 ดูอันดับในคลาส'}
-              </button>
-            )}
+            <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
+              {!inClass
+                ? '🏆 ดูอันดับรวมทั้งเว็บ'
+                : isOpenLeague(getClassContext().classCode) ? '🏆 ดูอันดับลีกออนไลน์' : '🏆 ดูอันดับในคลาส'}
+            </button>
             {pool.length > 1 && (
               <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('select'); window.scrollTo(0, 0); }}>
                 ← เลือกเคสอื่น
