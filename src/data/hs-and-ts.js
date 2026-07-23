@@ -146,7 +146,7 @@ export const reversibleCauses = {
     {
       name: "Tension Pneumothorax",
       signs: "Absent breath sounds, tracheal deviation, JVD",
-      treatment: "Needle decompression 2nd ICS → chest tube",
+      treatment: "Needle decompression 5th ICS AAL → chest tube",
       whenToSuspect: [
         "Trauma (blunt/penetrating chest)",
         "Post-central line placement (subclavian/IJ)",
@@ -157,8 +157,8 @@ export const reversibleCauses = {
       ],
       protocol: [
         "Needle decompression: 14G needle + syringe",
-        "Site: 2nd ICS, midclavicular line (affected side)",
-        "Alternative: 5th ICS, anterior axillary line",
+        "Site: 5th ICS, anterior axillary line (affected side) — long needle ≥8cm",
+        "Alternative: 2nd ICS, midclavicular line (safer for left-sided — cardiac risk)",
         "Insert perpendicular — expect rush of air",
         "Follow with chest tube (28-32 Fr)",
         "Chest tube: 5th ICS, anterior axillary line",
