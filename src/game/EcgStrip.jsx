@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 
 // ECG แบบ sweep (เหมือนจอ monitor จริง): เส้นวาดทับของเก่า มีแถบดำกวาดนำหน้า
-// rhythm: 'flat' | 'pea' | 'vf' | 'nsr' | 'brady' | 'pacing' | 'tachy' — cpr=true เพิ่ม compression artifact บน rhythm ที่ไม่ perfuse
+// rhythm: 'flat' | 'pea' | 'vf' | 'nsr' | 'afib' | 'brady' | 'pacing' | 'tachy' — cpr=true เพิ่ม compression artifact บน rhythm ที่ไม่ perfuse
 // 'flat' = asystole เส้นเรียบไม่มีคลื่นไฟฟ้า · 'pea' = มีคลื่นไฟฟ้าเป็นจังหวะ (organized) แต่ไม่บีบเลือด/ไม่มีชีพจร
+// 'afib' = atrial fibrillation มีชีพจร (perfuse ได้) — QRS แคบ ไม่มี P wave จังหวะ R-R ไม่สม่ำเสมอ
 const RHYTHM_COLOR = {
-  nsr: '#37C871', flat: '#E5484D', pea: '#E5484D', vf: '#E5484D', brady: '#F2C14E', pacing: '#F2C14E', tachy: '#F2C14E',
+  nsr: '#37C871', afib: '#37C871', flat: '#E5484D', pea: '#E5484D', vf: '#E5484D', brady: '#F2C14E', pacing: '#F2C14E', tachy: '#F2C14E',
 };
 
 export default function EcgStrip({ rhythm = 'flat', cpr = false, width = 240, height = 52 }) {
@@ -39,6 +40,18 @@ export default function EcgStrip({ rhythm = 'flat', cpr = false, width = 240, he
         if (b < 0.15) return -0.3;
         if (b > 0.32 && b < 0.44) return 0.15;
         return 0;
+      }
+      if (r === 'afib') {
+        // Atrial fibrillation (มีชีพจร) — QRS แคบ ไม่มี P wave, R-R ไม่สม่ำเสมอ (irregularly irregular)
+        // warp เวลาเพื่อให้ช่องห่างบีตไม่เท่ากันแบบคงที่ (deterministic — ไม่ใช้ random ไม่กระตุกรายเฟรม)
+        const warped = t * 1.2 + Math.sin(t * 0.9) * 0.35 + Math.sin(t * 2.3) * 0.18;
+        const b = warped % 1;
+        const fib = Math.sin(t * 17) * 0.04 + Math.sin(t * 26) * 0.03; // fibrillatory baseline แทน P wave
+        if (b < 0.04) return -0.1 + fib;
+        if (b < 0.09) return 0.9 + fib;
+        if (b < 0.14) return -0.28 + fib;
+        if (b > 0.3 && b < 0.42) return 0.13 + fib; // T wave
+        return fib;
       }
       if (r === 'brady') {
         // sinus แต่ช้ากว่า nsr มาก (~unstable bradycardia) — คาบยาวขึ้น ~2.5x

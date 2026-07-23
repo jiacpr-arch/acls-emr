@@ -11,7 +11,7 @@ export const strokeLvoWakeup = {
   course: 'acls',
   hiddenCause: null,
   story: [
-    { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! หญิง 70 ปี AF กิน Warfarin — สามีตื่นมา 06:00 พบ<span class="cbs-em">พูดไม่ได้ + แขนขาซ้ายอ่อนแรงสนิท</span>! BP 168/92 HR 96 ไม่สม่ำเสมอ SpO₂ 95%' }, t: 6, fx: { rhythm: 'nsr' } },
+    { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! หญิง 70 ปี AF กิน Warfarin — สามีตื่นมา 06:00 พบ<span class="cbs-em">พูดไม่ได้ + แขนขาซ้ายอ่อนแรงสนิท</span>! BP 168/92 HR 96 ไม่สม่ำเสมอ SpO₂ 95%', fx: { rhythm: 'afib' } }, t: 6 },
     { inter: 'STROKE ALERT!!', drama: 'red', t: 0 },
     { say: { who: 'att_dech', pose: 'stern', text: 'Wake-up stroke — เจอตอนตื่น… คำถามแรกที่ชี้ชะตาทั้งเคส: <span class="cbs-em">"เวลา onset" ของผู้ป่วยรายนี้คือกี่โมง?</span>' }, t: 5 },
     {

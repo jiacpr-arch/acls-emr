@@ -11,7 +11,7 @@ export const strokeBasilar = {
   course: 'acls',
   hiddenCause: null,
   story: [
-    { say: { who: 'nurse_mint', pose: 'talk', text: 'อาจารย์คะ หญิง 62 ปี <span class="cbs-em">เวียนหัวรุนแรงฉับพลัน + เห็นภาพซ้อน + พูดอ้อแอ้ + เดินเซล้ม</span> 1.5 ชั่วโมงก่อน — BP 172/94 HR 88 ไม่สม่ำเสมอ SpO₂ 96% แต่<span class="cbs-em">แขนขาแรงปกติทั้งสองข้าง</span>ค่ะ' }, t: 7, fx: { rhythm: 'nsr' } },
+    { say: { who: 'nurse_mint', pose: 'talk', text: 'อาจารย์คะ หญิง 62 ปี <span class="cbs-em">เวียนหัวรุนแรงฉับพลัน + เห็นภาพซ้อน + พูดอ้อแอ้ + เดินเซล้ม</span> 1.5 ชั่วโมงก่อน — BP 172/94 HR 88 ไม่สม่ำเสมอ SpO₂ 96% แต่<span class="cbs-em">แขนขาแรงปกติทั้งสองข้าง</span>ค่ะ', fx: { rhythm: 'afib' } }, t: 7 },
     { say: { who: 'boy_compressor', pose: 'talk', text: 'เวรก่อนหน้าเกือบจ่ายยาแก้เวียนหัวแล้วให้กลับบ้านครับ — บอกว่า "น่าจะน้ำในหูไม่เท่ากัน"' }, t: 5 },
     { say: { who: 'att_dech', pose: 'stern', text: 'หยุดตรงนั้นก่อน — ประวัติ HT + AF ไม่กินยา แล้วอาการมา<span class="cbs-em">ฉับพลันเป็นชุด</span>แบบนี้… คุณคิดยังไง Leader' }, t: 5 },
     {

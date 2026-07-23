@@ -10,7 +10,7 @@ export const strokeIschemicBasic = {
   course: 'acls',
   hiddenCause: null,
   story: [
-    { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! ชาย 65 ปี ญาติพามา — <span class="cbs-em">พูดไม่ชัด แขนขวาอ่อนแรง</span> เป็นมาประมาณ 1 ชั่วโมงค่ะ! BP 175/95 HR 88 จังหวะไม่สม่ำเสมอ SpO₂ 97%' }, t: 6, fx: { rhythm: 'nsr' } },
+    { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! ชาย 65 ปี ญาติพามา — <span class="cbs-em">พูดไม่ชัด แขนขวาอ่อนแรง</span> เป็นมาประมาณ 1 ชั่วโมงค่ะ! BP 175/95 HR 88 จังหวะไม่สม่ำเสมอ SpO₂ 97%', fx: { rhythm: 'afib' } }, t: 6 },
     { inter: 'STROKE ALERT!!', drama: 'red', t: 0 },
     { say: { who: 'att_dech', pose: 'stern', text: 'ผู้ป่วยรู้ตัว มีชีพจร — แต่<span class="cbs-em">สมองกำลังขาดเลือดอยู่ตอนนี้</span> คุณคือ Leader… นาฬิกาเดินแล้ว' }, t: 5 },
     {

@@ -51,6 +51,7 @@ const RHYTHM_NAMES = {
   pea: 'PEA ⚠',
   vf: 'V-FIB ⚠',
   nsr: 'SINUS — ROSC',
+  afib: 'ATRIAL FIB',
   brady: 'BRADYCARDIA ⚠',
   pacing: 'PACED RHYTHM — CAPTURED',
   tachy: 'UNSTABLE TACHY ⚠',
@@ -459,7 +460,10 @@ export default function CodeBlueSim() {
     syncView();
 
     if (node.say) {
-      const { who, pose, text, fx } = node.say;
+      const { who, pose, text } = node.say;
+      // fx รองรับทั้งใน say ({say:{fx}}) และระดับ node ({say:{}, fx}) — บางเคสวางไว้ระดับ node
+      // ถ้าไม่รวม node.fx จังหวะที่ตั้งบน say node แบบนั้นจะถูกมองข้าม จอค้าง STANDBY ไม่ตรงบท
+      const fx = node.say.fx || node.fx;
       soundForFx(fx);
       applyFx(st, fx);
       pushEtco2(st);
