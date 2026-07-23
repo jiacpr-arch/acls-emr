@@ -21,6 +21,14 @@ const RANK_TONE = ['#F2C14E', '#C0C7D1', '#CD8A54']; // ทอง เงิน �
 
 const rankTone = (rank, points) => (rank <= 3 && points > 0 ? RANK_TONE[rank - 1] : null);
 
+// ช่วงเวลา "เดือนนี้" สำหรับบอร์ดประจำเดือน (ตัดคะแนนตามเดือนปฏิทิน) —
+// until เปิดไว้ถึงปัจจุบัน server กรองจาก finished_at ของผลเกม
+const monthSince = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+};
+const monthLabel = () => new Date().toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+
 function MedalLine({ r }) {
   return (
     <div className="text-2xs text-text-muted">
@@ -91,6 +99,8 @@ export default function CodeBlueLeaderboard() {
   const activeStudent = usePreCourseStore(s => s.activeStudent);
   // ไม่มีคลาสก็ยังดู "ทั้งเว็บ" ได้ — เปิดแท็บ global ให้เลย
   const [tab, setTab] = useState(classCode ? 'class' : 'global');
+  // รอบรางวัลเป็นรายเดือน → เริ่มที่ "เดือนนี้" (สนามแข่งจริงของแคมเปญ)
+  const [period, setPeriod] = useState('month'); // 'month' | 'all'
 
   // ---- บอร์ดคลาสของฉัน ----
   const [rows, setRows] = useState(null); // null = กำลังโหลด
@@ -106,13 +116,14 @@ export default function CodeBlueLeaderboard() {
   useEffect(() => {
     if (!classCode) return undefined;
     let alive = true;
-    rpcGetCodeBlueLeaderboard().then(({ data, error: err }) => {
+    const since = period === 'month' ? monthSince() : null;
+    rpcGetCodeBlueLeaderboard({ since }).then(({ data, error: err }) => {
       if (!alive) return;
       if (err) setError(err);
       else setRows(data);
     });
     return () => { alive = false; };
-  }, [classCode, tick]);
+  }, [classCode, tick, period]);
 
   // ---- บอร์ดรวมทั้งเว็บ ----
   const [gData, setGData] = useState(null);
@@ -129,13 +140,22 @@ export default function CodeBlueLeaderboard() {
   useEffect(() => {
     if (tab !== 'global') return undefined;
     let alive = true;
-    rpcGetCodeBlueGlobalLeaderboard({ studentPk }).then(({ data, error: err }) => {
+    const since = period === 'month' ? monthSince() : null;
+    rpcGetCodeBlueGlobalLeaderboard({ studentPk, since }).then(({ data, error: err }) => {
       if (!alive) return;
       if (err) setGError(err);
       else setGData(data);
     });
     return () => { alive = false; };
-  }, [tab, gTick, studentPk]);
+  }, [tab, gTick, studentPk, period]);
+
+  // สลับช่วงเวลา: ล้างข้อมูลก่อนให้ขึ้นสถานะกำลังโหลด ไม่โชว์บอร์ดเก่าค้าง
+  const changePeriod = (p) => {
+    if (p === period) return;
+    setPeriod(p);
+    setRows(null);
+    setGData(null);
+  };
 
   // ระบุแถวของตัวเอง — pk ตรงกับที่ endCase ใช้ส่งผล (activeStudent.id)
   // เผื่อ pk ฝั่ง server ถูก remap ให้ fallback เทียบด้วยรหัสนักเรียน
@@ -165,6 +185,7 @@ export default function CodeBlueLeaderboard() {
           {tab === 'global' ? 'อันดับรวมทั้งเว็บ' : classTitle}
         </h1>
         <p className="text-caption text-text-muted">
+          {period === 'month' && <>ประจำเดือน{monthLabel()} · </>}
           {tab === 'global'
             ? `ทุกคลาส + ลีกออนไลน์${gData ? ` · ผู้เล่นทั้งหมด ${gData.totalPlayers} คน` : ''}`
             : (className || classCode)}
@@ -173,6 +194,15 @@ export default function CodeBlueLeaderboard() {
           🥇 ผ่านแบบไม่พลาดเลย · 🥈 พลาด ≤ 2 · 🥉 ผ่าน — แต้ม 3/2/1 นับผลที่ดีที่สุดต่อเคส
           {' '}· แต้มเท่ากันตัดสินด้วยคะแนนรวม
         </p>
+      </div>
+
+      {/* กติการางวัลรายเดือน — 2 รางวัล: แชมป์ทั้งเว็บ + แชมป์ลีกออนไลน์ */}
+      <div className="dash-card !p-3 text-caption text-text-muted text-center">
+        🏆 รางวัลประจำเดือน 2 รางวัล — <b>แชมป์ทั้งเว็บ</b> และ <b>แชมป์ลีกออนไลน์</b>
+        <br />
+        <span className="text-2xs">
+          ตัดคะแนนสิ้นเดือน (ดูจากบอร์ด "เดือนนี้") · ผู้ชนะที่ไม่มีเบอร์ติดต่อถือว่าสละสิทธิ์
+        </span>
       </div>
 
       <div className="flex gap-2 justify-center">
@@ -189,6 +219,23 @@ export default function CodeBlueLeaderboard() {
           aria-pressed={tab === 'class'}
         >
           🏫 {openLeague ? 'ลีกออนไลน์' : 'คลาสของฉัน'}
+        </button>
+      </div>
+
+      <div className="flex gap-2 justify-center">
+        <button
+          className={`btn btn-sm ${period === 'month' ? 'btn-primary' : 'btn-ghost'}`}
+          onClick={() => changePeriod('month')}
+          aria-pressed={period === 'month'}
+        >
+          📅 เดือนนี้
+        </button>
+        <button
+          className={`btn btn-sm ${period === 'all' ? 'btn-primary' : 'btn-ghost'}`}
+          onClick={() => changePeriod('all')}
+          aria-pressed={period === 'all'}
+        >
+          ตลอดกาล
         </button>
       </div>
 
@@ -227,7 +274,9 @@ export default function CodeBlueLeaderboard() {
                 <MyRankCard rank={gData.me.rank} row={gData.me} totalPlayers={gData.totalPlayers} />
               ) : activeStudent ? (
                 <div className="dash-card !p-3 text-center text-caption text-text-muted">
-                  คุณยังไม่มีอันดับ — ผ่านเคสแรกให้ได้ แล้วชื่อ <b>{activeStudent.name}</b> จะขึ้นบอร์ดทันที
+                  {period === 'month'
+                    ? <>เดือนนี้คุณยังไม่มีอันดับ — เล่นสักเคส แล้วชื่อ <b>{activeStudent.name}</b> จะขึ้นบอร์ดทันที</>
+                    : <>คุณยังไม่มีอันดับ — ผ่านเคสแรกให้ได้ แล้วชื่อ <b>{activeStudent.name}</b> จะขึ้นบอร์ดทันที</>}
                 </div>
               ) : (
                 <div className="dash-card !p-3 text-center text-caption text-text-muted">
@@ -290,7 +339,9 @@ export default function CodeBlueLeaderboard() {
               <MyRankCard rank={myIndex + 1} row={myRow} totalPlayers={rows.length} />
             ) : (
               <div className="dash-card !p-3 text-center text-caption text-text-muted">
-                คุณยังไม่มีอันดับ — ผ่านเคสแรกให้ได้ แล้วชื่อ <b>{activeStudent.name}</b> จะขึ้นบอร์ดทันที
+                {period === 'month'
+                  ? <>เดือนนี้คุณยังไม่มีอันดับ — เล่นสักเคส แล้วชื่อ <b>{activeStudent.name}</b> จะขึ้นบอร์ดทันที</>
+                  : <>คุณยังไม่มีอันดับ — ผ่านเคสแรกให้ได้ แล้วชื่อ <b>{activeStudent.name}</b> จะขึ้นบอร์ดทันที</>}
               </div>
             )
           )}

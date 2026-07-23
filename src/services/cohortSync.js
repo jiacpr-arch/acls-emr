@@ -175,11 +175,15 @@ export async function rpcGetMyCodeBlueProgress({ studentPk }) {
 
 // Leaderboard เหรียญ Code Blue ของทั้งคลาส — เปิดให้นักเรียนดูด้วยรหัสคลาส
 // (ไม่ต้องใช้รหัส instructor) server สรุปเหรียญจากผลที่ดีที่สุดต่อเคสให้แล้ว
-export async function rpcGetCodeBlueLeaderboard() {
+// since/until (ISO string, optional) จำกัดช่วงเวลา — ใช้ทำบอร์ด "ประจำเดือน"
+// สำหรับแคมเปญรางวัล ไม่ส่ง = ตลอดกาลแบบเดิม
+export async function rpcGetCodeBlueLeaderboard({ since = null, until = null } = {}) {
   const { classCode } = getClassContext();
   if (!classCode) return { error: new Error('no_class') };
   const { data, error } = await supabase.rpc('get_codeblue_leaderboard', {
     p_code: classCode,
+    p_since: since,
+    p_until: until,
   });
   return error ? { error } : { data: data || [] };
 }
@@ -188,10 +192,12 @@ export async function rpcGetCodeBlueLeaderboard() {
 // ไม่ต้องมีรหัสคลาส server คืน top 50 + จำนวนผู้เล่นทั้งหมด และถ้าส่ง
 // studentPk มาด้วยจะได้แถว "ของฉัน" พร้อมอันดับจริงแม้อยู่นอก top 50
 // (คืนเฉพาะชื่อ+ชื่อคลาส ไม่มี student id/รหัสผู้เล่น/เบอร์)
-export async function rpcGetCodeBlueGlobalLeaderboard({ studentPk = null } = {}) {
+export async function rpcGetCodeBlueGlobalLeaderboard({ studentPk = null, since = null, until = null } = {}) {
   const { data, error } = await supabase.rpc('get_codeblue_global_leaderboard', {
     p_course_mode: COURSE_MODE,
     p_student_pk: studentPk,
+    p_since: since,
+    p_until: until,
   });
   return error ? { error } : { data: data || { top: [], me: null, totalPlayers: 0 } };
 }
