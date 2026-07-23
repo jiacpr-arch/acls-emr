@@ -107,7 +107,7 @@ export default function CheatSheet({ onClose }) {
             <HTRow cause="Hypothermia" treatment="Warm fluid + blanket" />
 
             <div className="text-overline mt-3 mb-2" style={{ color: 'var(--color-danger)' }}>T's</div>
-            <HTRow cause="Tension Pneumothorax" treatment="Needle decompression 2nd ICS MCL" />
+            <HTRow cause="Tension Pneumothorax" treatment="Needle decompression 5th ICS AAL" />
             <HTRow cause="Tamponade" treatment="Pericardiocentesis / Echo" />
             <HTRow cause="Toxins/OD" treatment="Naloxone / NaHCO₃ / Lipid / Antidote" />
             <HTRow cause="Thrombosis (PE)" treatment="Anticoag / tPA / Thrombectomy" />

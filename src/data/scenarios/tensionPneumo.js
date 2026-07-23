@@ -84,7 +84,7 @@ export const tensionPneumo = {
         q: 'ปอดขวาเงียบ + หลอดลมเบี้ยว — สิ่งที่ช่วยชีวิตตอนนี้',
         options: [
           {
-            tgt: 'AIRWAY', label: 'Needle decompression ทันที เข็มใหญ่ ช่องซี่โครงที่ 2 แนวกลางไหปลาร้าขวา', ok: true,
+            tgt: 'AIRWAY', label: 'Needle decompression ทันที เข็มยาว ช่องซี่โครงที่ 5 แนวรักแร้ด้านหน้าขวา', ok: true,
             then: [
               { inter: 'HISSSS — ลมพุ่งออก!', drama: 'red', t: 6 },
               { say: { who: 'fon_defib', pose: 'talk', text: 'ลมพุ่งออกมาเลยค่ะ! ตามด้วยใส่ ICD… <span class="cbs-em">bagging คล่องขึ้นทันที</span>', fx: { cpr: true } }, t: 8 },

@@ -250,7 +250,7 @@ function getCorrectionActions(causeName) {
       { label: 'Active Core Rewarming', detail: 'Warm lavage / ECMO if severe' },
     ],
     'Tension Pneumothorax': [
-      { label: 'Needle Decompression', detail: '14G needle, 2nd ICS midclavicular line' },
+      { label: 'Needle Decompression', detail: '14G ≥8cm, 5th ICS anterior axillary line' },
       { label: 'Chest Tube (after needle)', detail: '28-32 Fr, 5th ICS anterior axillary line' },
     ],
     'Tamponade (Cardiac)': [
