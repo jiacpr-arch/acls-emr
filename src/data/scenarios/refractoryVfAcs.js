@@ -108,7 +108,7 @@ export const refractoryVfAcs = {
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'nurse_mint', pose: 'talk', text: '"Amio 300 in!" — สลับคนกด <span class="cbs-em">คุณภาพการกดต้องไม่ตก</span>', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
-              { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… เดี๋ยวนะ… จอเปลี่ยน… <span class="cbs-em">คลื่นเรียบสม่ำเสมอ… คลำชีพจรได้ค่ะ!!</span>' }, t: 6 },
+              { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… เดี๋ยวนะ… จอเปลี่ยน… <span class="cbs-em">คลื่นเป็นระเบียบสม่ำเสมอ — organized rhythm… คลำชีพจรได้ค่ะ!!</span>' }, t: 6 },
             ],
           },
           { tgt: 'DRUG', label: 'Calcium gluconate IV', ok: false, why: 'ไม่มีข้อบ่งชี้ hyperK/hypoCa ในเคสนี้ — VF ดื้อไฟใช้ Amiodarone' },
