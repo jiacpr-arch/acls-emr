@@ -187,12 +187,12 @@ export const setD = {
     { id: 'bls-pred-19', topic: 'choking',
       question: 'เด็กอายุ 6 ปีสำลักลูกอม พูดไม่ได้ ไอไม่ออก ควรช่วยอย่างไร?',
       choices: [
-        { id: 'a', text: 'ทำ abdominal thrust แบบผู้ใหญ่ (ปรับแรงตามขนาดตัว) จนหลุดหรือหมดสติ' },
+        { id: 'a', text: 'ตบหลัง 5 ครั้ง สลับ abdominal thrust 5 ครั้ง เหมือนผู้ใหญ่ จนหลุดหรือหมดสติ' },
         { id: 'b', text: 'ตบหลังสลับกดอกแบบทารก' },
         { id: 'c', text: 'ล้วงคอทันที' },
         { id: 'd', text: 'ให้กินน้ำตาม' },
       ],
-      correctId: 'a', explanation: 'เด็ก > 1 ปี ใช้ abdominal thrust ได้เหมือนผู้ใหญ่ — back blows/chest thrusts สงวนไว้สำหรับทารก < 1 ปี' },
+      correctId: 'a', explanation: 'เด็ก ≥ 1 ปี ใช้เทคนิคเหมือนผู้ใหญ่ (ILCOR 2025): back blows 5 ครั้ง สลับ abdominal thrust 5 ครั้ง — ส่วน back blows สลับ chest thrusts (ตัวเลือก b) สงวนไว้สำหรับทารก < 1 ปี' },
     { id: 'bls-pred-20', topic: 'choking',
       question: 'ช่วยผู้สำลักด้วย abdominal thrust จนสิ่งแปลกปลอมหลุดและหายใจได้แล้ว ควรแนะนำอะไรต่อ?',
       choices: [

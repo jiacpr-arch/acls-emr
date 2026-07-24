@@ -178,11 +178,11 @@ export const setA = {
       question: 'ผู้ใหญ่สำลักอาหาร พูดไม่ได้ ไอไม่ออก มือกุมคอ ควรทำอย่างไร?',
       choices: [
         { id: 'a', text: 'ให้ดื่มน้ำ' },
-        { id: 'b', text: 'ทำ abdominal thrust (Heimlich) จนสิ่งแปลกปลอมหลุดหรือหมดสติ' },
+        { id: 'b', text: 'ตบหลัง 5 ครั้ง สลับ abdominal thrust (Heimlich) 5 ครั้ง จนสิ่งแปลกปลอมหลุดหรือหมดสติ' },
         { id: 'c', text: 'ล้วงคอทันที' },
         { id: 'd', text: 'รอดูอาการก่อน' },
       ],
-      correctId: 'b', explanation: 'อุดกั้นรุนแรง (พูด/ไอไม่ได้): abdominal thrust ซ้ำ ๆ — ถ้าหมดสติให้เริ่ม CPR และโทรแจ้ง 1669' },
+      correctId: 'b', explanation: 'อุดกั้นรุนแรง (พูด/ไอไม่ได้) ILCOR 2025: back blows 5 ครั้ง สลับ abdominal thrust 5 ครั้ง ซ้ำ ๆ — ถ้าหมดสติให้เริ่ม CPR และโทรแจ้ง 1669' },
     { id: 'bls-pre-20', topic: 'choking',
       question: 'ทารกสำลักสิ่งแปลกปลอม ยังรู้สึกตัวแต่ไอไม่ออก วิธีช่วยที่ถูกต้องคือ?',
       choices: [
