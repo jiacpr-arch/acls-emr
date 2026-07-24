@@ -1144,8 +1144,10 @@ export default function CodeBlueSim() {
   const gameDiff = getDifficulty(st.difficulty);
   const maxHp = st.maxHp || gameDiff.hp;
   const timerPct = Math.max(0, (decisionLeft / gameDiff.decisionTime) * 100);
-  const rhythmBad = ARREST_RHYTHMS.has(st.rhythm);
-  const rhythmWarn = WARN_RHYTHMS.has(st.rhythm);
+  // ก่อนทีมติดเครื่อง monitor/defib (fx.rhythm แรก) จอต้องว่าง — ห้ามโชว์ rhythm ใดๆ
+  const monitorOn = st.monitorOn;
+  const rhythmBad = monitorOn && ARREST_RHYTHMS.has(st.rhythm);
+  const rhythmWarn = monitorOn && WARN_RHYTHMS.has(st.rhythm);
 
   return (
     <div className={`cbs-app ${shaking ? 'cbs-shake' : ''}`}>
@@ -1153,10 +1155,10 @@ export default function CodeBlueSim() {
         <div className={`cbs-stage ${drama === 'red' ? 'cbs-drama-red' : drama === 'white' ? 'cbs-drama' : ''}`}>
           <div className="cbs-hud">
             <div className="cbs-hud-monitor">
-              <span className={`cbs-rhythm-name ${rhythmBad ? 'cbs-bad' : rhythmWarn ? 'cbs-warn' : ''}`}>
-                {st.alarm || st.rhythm !== 'flat' ? rhythmLabel(st) : 'MONITOR — STANDBY'}
+              <span className={`cbs-rhythm-name ${rhythmBad ? 'cbs-bad' : rhythmWarn ? 'cbs-warn' : !monitorOn ? 'cbs-dim' : ''}`}>
+                {monitorOn ? rhythmLabel(st) : 'ยังไม่ติดเครื่อง monitor'}
               </span>
-              <EcgStrip rhythm={st.rhythm} cpr={st.cpr} />
+              <EcgStrip rhythm={st.rhythm} cpr={st.cpr} on={monitorOn} />
             </div>
             <div className="cbs-hud-right">
               <div className="cbs-gauge">

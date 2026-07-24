@@ -313,6 +313,7 @@
 }
 .cbs-rhythm-name.cbs-bad { color: var(--cbs-red); animation: cbs-blink 1s steps(2) infinite; }
 .cbs-rhythm-name.cbs-warn { color: var(--cbs-gold); }
+.cbs-rhythm-name.cbs-dim { color: #8896A6; }
 .cbs-ecg { width: 100%; height: 26px; display: block; }
 .cbs-hud-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .cbs-gauge {
