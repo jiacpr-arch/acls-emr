@@ -8,12 +8,13 @@ const RHYTHM_COLOR = {
   nsr: '#37C871', afib: '#37C871', flat: '#E5484D', pea: '#E5484D', vf: '#E5484D', brady: '#F2C14E', pacing: '#F2C14E', tachy: '#F2C14E',
 };
 
-export default function EcgStrip({ rhythm = 'flat', cpr = false, width = 240, height = 52 }) {
+// on=false = ยังไม่ติดเครื่อง monitor — จอมืดว่าง ไม่มีสัญญาณ (ไม่ใช่เส้นเรียบ asystole)
+export default function EcgStrip({ rhythm = 'flat', cpr = false, on = true, width = 240, height = 52 }) {
   const canvasRef = useRef(null);
-  const stateRef = useRef({ rhythm, cpr });
+  const stateRef = useRef({ rhythm, cpr, on });
   useEffect(() => {
-    stateRef.current = { rhythm, cpr };
-  }, [rhythm, cpr]);
+    stateRef.current = { rhythm, cpr, on };
+  }, [rhythm, cpr, on]);
 
   useEffect(() => {
     const cv = canvasRef.current;
@@ -98,7 +99,15 @@ export default function EcgStrip({ rhythm = 'flat', cpr = false, width = 240, he
 
     const draw = () => {
       const W = cv.width, H = cv.height, mid = H * 0.55, amp = H * 0.4;
-      const { rhythm: r } = stateRef.current;
+      const { rhythm: r, on: isOn } = stateRef.current;
+      if (!isOn) {
+        ctx.fillStyle = '#040812';
+        ctx.fillRect(0, 0, W, H);
+        sweepX = 0;
+        lastY = null;
+        raf = requestAnimationFrame(draw);
+        return;
+      }
       const col = RHYTHM_COLOR[r] || '#37C871';
       for (let i = 0; i < 2; i++) {
         const y = mid - sample() * amp;

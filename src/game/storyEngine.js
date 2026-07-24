@@ -46,6 +46,7 @@ export function createInitialState(difficultyId = DEFAULT_DIFFICULTY) {
     hp: diff.hp,
     maxHp: diff.hp,
     rhythm: 'flat',
+    monitorOn: false, // ยังไม่ติดเครื่อง monitor/defib — จอ EKG ต้องว่าง จนกว่า fx.rhythm แรกจะมา
     cpr: false,
     alarm: false,
     shocks: 0,
@@ -87,7 +88,12 @@ export function applyFx(state, fx) {
   if (!fx) return;
   if (fx.alarm) state.alarm = true;
   if (fx.cpr) state.cpr = true;
-  if (fx.rhythm) state.rhythm = fx.rhythm;
+  // fx.rhythm ครั้งแรก = จังหวะที่ทีมติดเครื่อง monitor/แปะ pads แล้วเห็นจอ
+  // ก่อนหน้านั้นจอ EKG ต้องขึ้น "ยังไม่ติดเครื่อง" ไม่ใช่เส้น asystole
+  if (fx.rhythm) {
+    state.rhythm = fx.rhythm;
+    state.monitorOn = true;
+  }
   if (fx.firstCPR && state.firstCPRAt < 0) state.firstCPRAt = state.simTime;
   if (fx.epi) state.epis += 1;
   if (fx.shock) {
@@ -98,6 +104,7 @@ export function applyFx(state, fx) {
   if (fx.rosc) {
     state.rosc = true;
     state.rhythm = 'nsr';
+    state.monitorOn = true;
     state.cpr = false;
     state.alarm = false;
   }
