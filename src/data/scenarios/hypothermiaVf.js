@@ -90,7 +90,7 @@ export const hypothermiaVf = {
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg + Amio 300 in!"</span> คราวนี้ตัวอุ่นพอ ยาน่าจะออกฤทธิ์แล้วค่ะ', fx: { epi: true, cpr: true } }, t: 8 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
-              { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… จอเปลี่ยนแล้ว… <span class="cbs-em">คลื่นเรียบ มีชีพจรค่ะ!!</span>' }, t: 6 },
+              { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… จอเปลี่ยนแล้ว… <span class="cbs-em">คลื่นเป็นระเบียบ (organized rhythm) มีชีพจรค่ะ!!</span>' }, t: 6 },
             ],
           },
           { tgt: 'YOU', label: 'ยังรอให้อุ่นกว่านี้ก่อนค่อยทำอะไร', ok: false, why: 'core > 30°C แล้ว — หัวใจตอบไฟ/ยาได้ ควรเดินหน้า ACLS เต็มรูปแบบ ไม่รอเฉยๆ', worsen: true },

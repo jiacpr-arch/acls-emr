@@ -128,7 +128,7 @@ export const hypoxiaVf = {
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Amio 150 in!"</span> โดสซ้ำ 150 มิลลิกรัมค่ะ', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
-              { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… จอเปลี่ยน! <span class="cbs-em">คลื่นเรียบสม่ำเสมอ… คลำชีพจรได้แล้วค่ะ!!</span>' }, t: 6 },
+              { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… จอเปลี่ยน! <span class="cbs-em">คลื่นเป็นระเบียบสม่ำเสมอ — organized rhythm… คลำชีพจรได้แล้วค่ะ!!</span>' }, t: 6 },
             ],
           },
           { tgt: 'DRUG', label: 'Amiodarone 300 mg ซ้ำอีกโดส', ok: false, why: 'ผิด — โดสซ้ำของ amiodarone คือ 150 mg (โดสแรก 300 mg ให้ไปแล้ว)' },

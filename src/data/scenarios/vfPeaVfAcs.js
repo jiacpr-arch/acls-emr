@@ -114,7 +114,7 @@ export const vfPeaVfAcs = {
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'boy_compressor', pose: 'talk', text: 'กดต่อครับ! <span class="cbs-em">คุณภาพการกดต้องไม่ตก!</span>', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
-              { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">คลื่นเรียบเป็นจังหวะ… คลำชีพจรได้แล้วค่ะ!!</span>' }, t: 6 },
+              { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">คลื่นเป็นจังหวะสม่ำเสมอ — organized rhythm… คลำชีพจรได้แล้วค่ะ!!</span>' }, t: 6 },
             ],
           },
           { tgt: 'DRUG', label: 'ให้ Epi ก่อนแล้วค่อย shock', ok: false, why: 'จังหวะกลับเป็น shockable แล้ว — ไฟฟ้ามาก่อนยา' },
