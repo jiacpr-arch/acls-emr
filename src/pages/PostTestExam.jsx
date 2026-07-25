@@ -9,6 +9,7 @@ import {
 import { POST_TEST_BANK_ID } from '../data/assessment';
 import { preCourseLessons } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
+import { useJoinClassFromLink } from '../hooks/useJoinClassFromLink';
 import { useVoucherStore } from '../stores/voucherStore';
 import { validateVoucher } from '../config/vouchers';
 import {
@@ -50,6 +51,9 @@ export default function PostTestExam() {
   const [exam, setExam] = useState(null); // { bank, set, questions }
   const [loadError, setLoadError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
+
+  // ลิงก์ตรงจากอาจารย์ (/pre-course/post-test?join=CODE) — เข้าคลาสให้เงียบ ๆ
+  useJoinClassFromLink();
 
   // --- Gate: all pre-course lessons passed ---
   useEffect(() => {
