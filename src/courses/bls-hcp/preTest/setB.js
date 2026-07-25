@@ -164,11 +164,11 @@ export const setB = {
       question: 'การกดหน้าอกทารกเมื่ออยู่ "คนเดียว" ใช้เทคนิคใด?',
       choices: [
         { id: 'a', text: '2 นิ้ว (นิ้วชี้-กลาง) กึ่งกลางอกใต้แนวหัวนม' },
-        { id: 'b', text: 'ส้นมือข้างเดียวเต็มแรง' },
+        { id: 'b', text: 'ส้นมือข้างเดียว (heel of 1 hand) หรือ 2-thumb encircling' },
         { id: 'c', text: 'สองมือประสานเหมือนผู้ใหญ่' },
         { id: 'd', text: 'บีบทรวงอกจากด้านข้าง' },
       ],
-      correctId: 'a', explanation: 'คนเดียว: 2 นิ้วกึ่งกลางอกใต้ intermammary line (2 คนใช้ two thumb–encircling hands)' },
+      correctId: 'b', explanation: 'แนวทาง 2025 เลิกใช้ 2-finger (มักกดได้ไม่ลึกพอ) — คนเดียวใช้ heel-of-1-hand หรือ 2-thumb encircling; 2 คน (HCP) ใช้ 2-thumb encircling' },
     { id: 'bls-preb-18', topic: 'infant',
       question: 'ทารกมีชีพจร 80/นาที หายใจเองไม่ได้ ควรทำอย่างไร?',
       choices: [
