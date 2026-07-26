@@ -358,6 +358,7 @@
 }
 .cbs-dlg {
   position: relative;
+  display: flex; flex-direction: column; justify-content: center;
   border: 3px solid #fff; border-radius: 10px;
   background: linear-gradient(180deg, var(--cbs-box-hi), var(--cbs-box-lo));
   box-shadow: 0 8px 22px rgba(0, 0, 0, .5), 0 0 0 3px rgba(0, 0, 0, .35);
@@ -375,7 +376,7 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, .45);
   white-space: nowrap;
 }
-.cbs-dlg-text { font-size: 16px; line-height: 1.75; min-height: 56px; }
+.cbs-dlg-text { font-size: 16px; line-height: 1.75; }
 .cbs-dlg-text .cbs-em { color: var(--cbs-gold); font-weight: 800; }
 .cbs-adv {
   position: absolute; right: 14px; bottom: 8px;
