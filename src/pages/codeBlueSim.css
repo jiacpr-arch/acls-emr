@@ -266,7 +266,7 @@
 }
 .cbs-sprite {
   position: relative; z-index: 2;
-  width: min(64vw, 275px);
+  width: min(84vw, 360px);
 }
 .cbs-sprite.cbs-pop { animation: cbs-pop .22s ease; }
 .cbs-sprite svg, .cbs-sprite-img {
