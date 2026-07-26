@@ -26,7 +26,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-@keyframes cbs-spin { to { transform: rotate(360deg); } }
 @keyframes cbs-blink { 50% { opacity: .15; } }
 @keyframes cbs-pop { 0% { transform: translateY(14px); opacity: 0; } 100% { transform: none; opacity: 1; } }
 @keyframes cbs-slam { 0% { transform: scale(2.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -53,7 +52,7 @@
   content: ""; position: absolute; inset: -40%;
   background: repeating-conic-gradient(from 0deg at 50% 42%,
     rgba(255, 255, 255, .05) 0deg 4deg, transparent 4deg 14deg);
-  animation: cbs-spin 60s linear infinite; pointer-events: none;
+  pointer-events: none;
 }
 .cbs-eyebrow {
   font-family: var(--cbs-mono); font-size: 11px; letter-spacing: .4em;
@@ -281,12 +280,10 @@
 .cbs-stage.cbs-drama::before {
   background: repeating-conic-gradient(from 0deg at 50% 46%,
     rgba(255, 255, 255, .14) 0deg 3deg, transparent 3deg 11deg);
-  animation: cbs-spin 22s linear infinite;
 }
 .cbs-stage.cbs-drama-red::before {
   background: repeating-conic-gradient(from 0deg at 50% 46%,
     rgba(229, 72, 77, .22) 0deg 3deg, transparent 3deg 11deg);
-  animation: cbs-spin 14s linear infinite;
 }
 
 .cbs-sprite {
@@ -462,7 +459,6 @@
   position: absolute; inset: -30%;
   background: repeating-conic-gradient(from 8deg at 50% 50%,
     rgba(255, 255, 255, .9) 0deg 5deg, transparent 5deg 16deg);
-  animation: cbs-spin 9s linear infinite;
 }
 .cbs-inter-bubble {
   position: relative;
