@@ -426,7 +426,6 @@
 }
 .cbs-choice {
   appearance: none; cursor: pointer; font-family: inherit;
-  display: flex; flex-direction: column; align-items: center;
   font-size: 15.5px; font-weight: 700; color: var(--cbs-ink); text-align: center;
   border: 3px solid #fff; border-radius: 8px;
   background: linear-gradient(180deg, #33437F, #1B2650);
@@ -440,10 +439,7 @@
 .cbs-choice:active { transform: translateY(4px); box-shadow: 0 1px 0 #0B1130; }
 .cbs-choice:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
 .cbs-choice-tgt {
-  display: inline-block; font-family: var(--cbs-mono); font-size: 11px;
-  letter-spacing: .1em; color: var(--cbs-navy); font-weight: 800;
-  background: var(--cbs-cyan); border-radius: 5px; padding: 2px 8px;
-  margin-bottom: 7px;
+  font-family: var(--cbs-mono); color: var(--cbs-cyan); font-weight: 800;
 }
 .cbs-choice-timer {
   align-self: center; width: min(70%, 260px); height: 5px;

@@ -1033,8 +1033,7 @@ export default function CodeBlueSim() {
                     className={`cbs-choice ${dim ? 'cbs-choice-dim' : ''} ${glow ? 'cbs-choice-hint' : ''}`}
                     onClick={() => pick(o)}
                   >
-                    <span className="cbs-choice-tgt">▸ สั่ง {o.tgt}</span>
-                    {o.label}
+                    <span className="cbs-choice-tgt">[สั่ง {o.tgt}]</span> {o.label}
                   </button>
                 );
               })}
