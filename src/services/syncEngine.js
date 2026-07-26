@@ -42,7 +42,11 @@ export function scheduleFlush() {
 async function flush() {
   const ctx = getClassContext();
   if (!ctx.classCode || ctx.syncDisabled) return;
-  if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+  // หมายเหตุ: ห้ามใส่ gate navigator.onLine ตรงนี้ — ค่านี้เชื่อถือไม่ได้
+  // (false ทั้งที่เน็ตใช้ได้จริง บน captive-portal WiFi / บาง in-app WebView)
+  // เคยทำข้อมูลบทเรียน/ควิซของนักเรียนหายเงียบๆ ทั้ง session (นักเรียนสอบผ่าน
+  // แต่รายงานขึ้น 0/13) ออฟไลน์จริงปล่อยให้ RPC fail แล้วเข้า backoff รายแถว
+  // (loadFailureGate/recordFailure) ซึ่งจัดการอยู่แล้ว — ดู PR #248/#299
 
   flushing = true;
   try {
