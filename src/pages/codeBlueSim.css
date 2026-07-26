@@ -48,12 +48,6 @@
     radial-gradient(ellipse 130% 55% at 50% -8%, rgba(229, 72, 77, .30), transparent 62%),
     linear-gradient(180deg, #0D1430 0%, #10182F 55%, #0A0F22 100%);
 }
-.cbs-title::before {
-  content: ""; position: absolute; inset: -40%;
-  background: repeating-conic-gradient(from 0deg at 50% 42%,
-    rgba(255, 255, 255, .05) 0deg 4deg, transparent 4deg 14deg);
-  pointer-events: none;
-}
 .cbs-eyebrow {
   font-family: var(--cbs-mono); font-size: 11px; letter-spacing: .4em;
   color: var(--cbs-red); text-transform: uppercase;
@@ -263,6 +257,7 @@
   position: relative; flex: 1; min-height: 54dvh;
   display: flex; align-items: flex-end; justify-content: center;
   background:
+    url('/images/backgrounds/er_bay.webp') top center / 100% auto no-repeat,
     radial-gradient(ellipse 120% 70% at 50% 108%, rgba(88, 196, 220, .14), transparent 55%),
     linear-gradient(180deg, #0C1226 0%, #17224A 62%, #1E2C5E 100%);
   overflow: hidden;
@@ -272,20 +267,6 @@
   background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .35));
   pointer-events: none;
 }
-.cbs-stage.cbs-drama::before,
-.cbs-stage.cbs-drama-red::before {
-  content: ""; position: absolute; inset: -45%;
-  pointer-events: none;
-}
-.cbs-stage.cbs-drama::before {
-  background: repeating-conic-gradient(from 0deg at 50% 46%,
-    rgba(255, 255, 255, .14) 0deg 3deg, transparent 3deg 11deg);
-}
-.cbs-stage.cbs-drama-red::before {
-  background: repeating-conic-gradient(from 0deg at 50% 46%,
-    rgba(229, 72, 77, .22) 0deg 3deg, transparent 3deg 11deg);
-}
-
 .cbs-sprite {
   position: relative; z-index: 2;
   width: min(64vw, 275px);
@@ -454,11 +435,6 @@
   position: fixed; inset: 0; z-index: 40;
   display: flex; align-items: center; justify-content: center;
   pointer-events: none;
-}
-.cbs-inter-burst {
-  position: absolute; inset: -30%;
-  background: repeating-conic-gradient(from 8deg at 50% 50%,
-    rgba(255, 255, 255, .9) 0deg 5deg, transparent 5deg 16deg);
 }
 .cbs-inter-bubble {
   position: relative;
