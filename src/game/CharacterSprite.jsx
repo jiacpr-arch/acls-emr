@@ -25,13 +25,19 @@ export function preloadCharacterImages(charId, pose) {
 /**
  * ตัวละครบนเวที — image-first + SVG placeholder fallback
  *
- * ลำดับการหา asset ต่อ (charId, pose):
- *   1. /images/characters/{charId}/{pose}.webp        → ใช้รูปจริง
+ * ตัวละคร built-in (char.custom ไม่ true) รู้แน่ล่วงหน้าว่ามีรูปจริงครบทุก pose
+ * แล้ว (commit เข้า repo พร้อมกันทีเดียว) — เรนเดอร์ <img> ตรงๆ ไม่ต้อง probe
+ * เลย กัน SVG โผล่วาบได้เด็ดขาดแม้เน็ตช้า/จังหวะบีบสุดขั้ว
+ *
+ * ตัวละคร custom ที่แอดมินสร้างผ่าน Supabase อาจยังอัปรูปไม่ครบทุก pose —
+ * ต้อง probe ก่อนเสมอ ไม่งั้นจะพังถ้ารูปยังไม่มี:
+ *   1. probe /images/characters/{charId}/{pose}.webp (หรือ URL จาก DB)
  *      + ถ้ามี {pose}_talk.webp จะสลับ 2 เฟรมตอน talking
  *   2. ไม่มีรูป → SVG placeholder จาก registry (ปากขยับด้วย data-mouth groups)
  */
 export default function CharacterSprite({ charId, pose = 'idle', talking = false }) {
   const char = getCharacter(charId);
+  const isCustom = !!char?.custom;
   const probeKey = `${charId}/${pose}`;
   // เก็บผล probe คู่กับ key — key ไม่ตรง = ยัง probing (แทนการ reset ด้วย setState ใน effect)
   const [probe, setProbe] = useState({ key: null, result: null });
@@ -39,7 +45,7 @@ export default function CharacterSprite({ charId, pose = 'idle', talking = false
   const svgRef = useRef(null);
 
   useEffect(() => {
-    if (!char) return undefined;
+    if (!char || !isCustom) return undefined; // built-in ไม่ต้อง probe เลย
     let alive = true;
     const baseUrl = characterImageUrl(charId, pose);
     const talkUrl = characterImageUrl(charId, pose, true);
@@ -51,7 +57,7 @@ export default function CharacterSprite({ charId, pose = 'idle', talking = false
       });
     });
     return () => { alive = false; };
-  }, [charId, pose, char]);
+  }, [charId, pose, char, isCustom]);
 
   const imgState = probe.key === probeKey ? probe.result : null; // null=probing | {base,talk} | false
 
@@ -74,6 +80,18 @@ export default function CharacterSprite({ charId, pose = 'idle', talking = false
   });
 
   if (!char) return null;
+
+  // built-in — รูปจริงมีครบเสมอ ไม่มีสถานะ "กำลัง probe" ให้ race เลย
+  if (!isCustom) {
+    return (
+      <img
+        src={characterImageUrl(charId, pose)}
+        alt={char.name}
+        className="cbs-sprite-img"
+        draggable="false"
+      />
+    );
+  }
 
   if (imgState && imgState !== false) {
     const src = talking && frame === 1 && imgState.talk ? imgState.talk : imgState.base;
