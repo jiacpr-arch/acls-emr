@@ -145,6 +145,10 @@ export default function CodeBlueSim() {
   useEffect(() => {
     // อุ่นรูปตัวละครทุก (who, pose) ที่เคสนี้ใช้ ก่อนผู้เล่นกดเริ่มจริง —
     // กัน SVG placeholder โผล่วาบตอน probe รูปจริงรอบแรกระหว่างเล่น
+    // รวมท่าที่ engine เรียกเองแบบ hardcode (ไม่ได้มาจาก story ของเคส) ด้วย:
+    //   att_dech/idle ตอน time-skip, att_dech/stern ตอนตอบผิดโหมดยาก
+    preloadCharacterImages('att_dech', 'idle');
+    preloadCharacterImages('att_dech', 'stern');
     if (!sc?.story) return;
     const seen = new Set();
     const walk = (beats) => {
