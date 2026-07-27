@@ -302,6 +302,8 @@
   font-family: var(--cbs-mono); font-size: 9px; letter-spacing: .18em; color: #8B99C4;
   display: block; margin-bottom: 4px; text-align: right;
 }
+/* ตัวหนังสือไทยมีสระ/วรรณยุกต์ซ้อนบน-ล่าง — letter-spacing กับฟอนต์ mono ทำให้เพี้ยน ใช้ฟอนต์ตัวอ่านปกติแทน */
+.cbs-gauge-label-th { font-family: var(--cbs-body); font-size: 10px; letter-spacing: 0; }
 .cbs-gauge-cells { display: flex; gap: 3px; }
 .cbs-cell {
   width: 17px; height: 10px; border-radius: 2px;
@@ -610,23 +612,32 @@
 
 /* ============ COMBO / สตรีค ============ */
 .cbs-combo {
-  position: absolute; top: 68px; right: 12px; z-index: 6;
-  display: flex; flex-direction: column; align-items: flex-end; line-height: 1;
+  position: absolute; top: calc(100px + env(safe-area-inset-top)); right: 12px; z-index: 6;
+  display: flex; align-items: center; gap: 6px; line-height: 1;
   font-family: var(--cbs-mono); pointer-events: none;
+  background: rgba(4, 8, 18, .82); border: 2px solid var(--cbs-gold); border-radius: 6px;
+  padding: 5px 10px; box-shadow: 0 0 14px rgba(242, 193, 78, .35);
   animation: cbs-combo-pop .28s cubic-bezier(.2, 1.5, .5, 1) both;
 }
-.cbs-combo-label { font-size: 9px; letter-spacing: .22em; color: var(--cbs-dim); }
+.cbs-combo-label { font-size: 9px; letter-spacing: .18em; color: var(--cbs-dim); }
 .cbs-combo-n {
-  font-size: 26px; font-weight: 900; color: var(--cbs-gold);
-  text-shadow: 0 0 12px rgba(242, 193, 78, .55);
+  font-size: 20px; font-weight: 900; color: var(--cbs-gold);
+  text-shadow: 0 0 10px rgba(242, 193, 78, .55);
 }
 /* ยิ่งสตรีคสูง ยิ่งใหญ่ + ร้อนขึ้น */
-.cbs-combo-t3 .cbs-combo-n { font-size: 30px; color: #FFD25E; }
-.cbs-combo-t4 .cbs-combo-n { font-size: 34px; color: #FF9F45; text-shadow: 0 0 14px rgba(255, 159, 69, .6); }
-.cbs-combo-t5 .cbs-combo-n { font-size: 38px; color: #FF6B45; text-shadow: 0 0 16px rgba(255, 107, 69, .65); }
+.cbs-combo-t3 { border-color: #FFD25E; }
+.cbs-combo-t3 .cbs-combo-n { font-size: 22px; color: #FFD25E; }
+.cbs-combo-t4 { border-color: #FF9F45; box-shadow: 0 0 16px rgba(255, 159, 69, .4); }
+.cbs-combo-t4 .cbs-combo-n { font-size: 24px; color: #FF9F45; text-shadow: 0 0 14px rgba(255, 159, 69, .6); }
+.cbs-combo-t5 { border-color: #FF6B45; box-shadow: 0 0 18px rgba(255, 107, 69, .45); }
+.cbs-combo-t5 .cbs-combo-n { font-size: 26px; color: #FF6B45; text-shadow: 0 0 16px rgba(255, 107, 69, .65); }
+.cbs-combo-t6 {
+  border-color: var(--cbs-red); box-shadow: 0 0 20px rgba(229, 72, 77, .5);
+  animation: cbs-combo-pop .28s cubic-bezier(.2, 1.5, .5, 1) both, cbs-combo-fire .5s ease-in-out infinite alternate;
+}
 .cbs-combo-t6 .cbs-combo-n {
-  font-size: 42px; color: var(--cbs-red);
-  text-shadow: 0 0 20px rgba(229, 72, 77, .75); animation: cbs-combo-fire .5s ease-in-out infinite alternate;
+  font-size: 28px; color: var(--cbs-red);
+  text-shadow: 0 0 20px rgba(229, 72, 77, .75);
 }
 @keyframes cbs-combo-pop { 0% { transform: scale(1.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes cbs-combo-fire { from { filter: brightness(1); } to { filter: brightness(1.35); } }

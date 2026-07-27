@@ -976,7 +976,7 @@ export default function CodeBlueSim() {
             </div>
             <div className="cbs-hud-right">
               <div className="cbs-gauge">
-                <span className="cbs-gauge-label">PATIENT</span>
+                <span className="cbs-gauge-label cbs-gauge-label-th">คนไข้</span>
                 <div className="cbs-gauge-cells">
                   {Array.from({ length: maxHp }).map((_, i) => (
                     <span
