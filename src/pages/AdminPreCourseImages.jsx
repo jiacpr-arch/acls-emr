@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { signOut } from '../services/auth';
 import { preCourseLessons } from '../data/activeLessons';
-import { fetchPreCourseMedia } from '../services/precourseImageService';
+import { fetchPreCourseMedia, addPreCourseVideo } from '../services/precourseImageService';
 import ImageManager from '../components/admin/ImageManager';
 import VideoManager from '../components/admin/VideoManager';
 import ReadBody from '../components/precourse/ReadBody';
@@ -178,8 +178,8 @@ export default function AdminPreCourseImages() {
                 />
                 <div className="h-px bg-border" />
                 <VideoManager
-                  stepId={step.id}
                   videos={videosByStep[step.id] || []}
+                  onAdd={(url, opts) => addPreCourseVideo(step.id, url, opts)}
                   onChange={reload}
                 />
               </section>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { blsChapters } from '../data/blsKnowledgeContent';
 import QASection from '../components/QASection';
+import LessonVideos from '../components/precourse/LessonVideos';
 import {
   GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock,
@@ -199,8 +200,13 @@ export default function BLSKnowledge() {
                             ))}
                           </div>
                         )}
-                        {s.qa?.length > 0 && (
+                        {s.videos?.length > 0 && (
                           <div className={s.heading || s.body || s.images?.length ? 'mt-3' : ''}>
+                            <LessonVideos videos={s.videos} title="วิดีโอประกอบหัวข้อนี้" />
+                          </div>
+                        )}
+                        {s.qa?.length > 0 && (
+                          <div className={s.heading || s.body || s.images?.length || s.videos?.length ? 'mt-3' : ''}>
                             <QASection qa={s.qa} accent={theme.accent} />
                           </div>
                         )}

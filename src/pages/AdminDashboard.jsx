@@ -3,6 +3,7 @@ import {
   LogOut, Shield, BookOpen, MessageCircleQuestion, Inbox, ChevronRight, Images, BarChart3, Users, Video, School, Target, Heart,
 } from 'lucide-react';
 import { signOut } from '../services/auth';
+import { IS_ACLS, IS_BLS } from '../config/courseMode';
 
 const SECTIONS = [
   {
@@ -10,6 +11,7 @@ const SECTIONS = [
     title: 'สถิติผู้เรียน',
     desc: 'ดูจำนวนนักเรียน คลาส และใบประกาศนียบัตร รวมทุกคลาส',
     icon: BarChart3,
+    mode: 'acls',
     gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
     shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
   },
@@ -18,6 +20,7 @@ const SECTIONS = [
     title: 'รายชื่อนักเรียน',
     desc: 'รายชื่อ + เบอร์โทร ทุกคลาส · ค้นหา/Export CSV',
     icon: Users,
+    mode: 'acls',
     gradient: 'linear-gradient(135deg, var(--color-success, #16a34a) 0%, var(--color-success-dark, #15803d) 100%)',
     shadow: '0 8px 20px rgba(22, 163, 74, 0.22)',
   },
@@ -26,6 +29,7 @@ const SECTIONS = [
     title: 'คลาสทั้งหมด',
     desc: 'รหัสเข้าคลาส + รหัสอาจารย์ทุกคลาส · กู้รหัส · ปิดคลาสที่จบแล้ว',
     icon: School,
+    mode: 'acls',
     gradient: 'linear-gradient(135deg, var(--color-warning, #d97706) 0%, #b45309 100%)',
     shadow: '0 8px 20px rgba(217, 119, 6, 0.22)',
   },
@@ -34,6 +38,7 @@ const SECTIONS = [
     title: 'คลังความรู้ ALS',
     desc: 'แก้ไขบท หัวข้อ และเนื้อหา',
     icon: BookOpen,
+    mode: 'acls',
     gradient: 'linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%)',
     shadow: '0 8px 20px rgba(220, 38, 38, 0.22)',
   },
@@ -42,6 +47,7 @@ const SECTIONS = [
     title: 'Q&A ACLS เชิงลึก',
     desc: 'เพิ่ม/แก้ไขคำถาม-คำตอบ จัดหมวดและรูป',
     icon: MessageCircleQuestion,
+    mode: 'acls',
     gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
     shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
   },
@@ -50,6 +56,16 @@ const SECTIONS = [
     title: 'สื่อประกอบบทเรียน',
     desc: 'เดินทีละหัวข้อเหมือนแอป — จัดการรูป + วิดีโอของแต่ละหัวข้อ',
     icon: Images,
+    mode: 'acls',
+    gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
+    shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
+  },
+  {
+    to: '/admin/bls-guide-media',
+    title: 'สื่อประกอบหน้า Guide BLS',
+    desc: 'AED / Algorithm / Choking — จัดการรูป + วิดีโอทีละขั้นตอน',
+    icon: Images,
+    mode: 'bls',
     gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
     shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
   },
@@ -58,6 +74,7 @@ const SECTIONS = [
     title: 'วิดีโอบทเรียน',
     desc: 'เพิ่ม/แก้คลิป YouTube + สรุป + สารบัญ + ควิซ (เป็นเงื่อนไขใบประกาศนียบัตร)',
     icon: Video,
+    mode: 'acls',
     gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
     shadow: '0 8px 20px rgba(124, 58, 237, 0.22)',
   },
@@ -66,6 +83,7 @@ const SECTIONS = [
     title: 'คำถามจากนักเรียน',
     desc: 'ตรวจสอบและเผยแพร่คำถามที่ส่งเข้ามา',
     icon: Inbox,
+    mode: 'acls',
     gradient: 'linear-gradient(135deg, var(--color-success, #16a34a) 0%, var(--color-success-dark, #15803d) 100%)',
     shadow: '0 8px 20px rgba(22, 163, 74, 0.22)',
   },
@@ -74,6 +92,7 @@ const SECTIONS = [
     title: 'เคสเกม Recorder',
     desc: 'สร้าง/ให้ AI ร่างเคสฝึกบันทึก — ตรวจแล้วเผยแพร่',
     icon: Target,
+    mode: 'acls',
     gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
     shadow: '0 8px 20px rgba(124, 58, 237, 0.22)',
   },
@@ -82,6 +101,7 @@ const SECTIONS = [
     title: 'โจทย์เกม Code Blue',
     desc: 'พิมพ์ไทย → AI ร่างโจทย์กู้ชีพ — ทดลองเล่นแล้วเผยแพร่',
     icon: Heart,
+    mode: 'both',
     gradient: 'linear-gradient(135deg, #DC2626 0%, #991B1B 100%)',
     shadow: '0 8px 20px rgba(220, 38, 38, 0.22)',
   },
@@ -90,10 +110,15 @@ const SECTIONS = [
     title: 'ตัวละคร Code Blue',
     desc: 'เพิ่มตัวละคร + อัปโหลดรูป — ใช้ในโจทย์ได้ทันที',
     icon: Users,
+    mode: 'both',
     gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
     shadow: '0 8px 20px rgba(124, 58, 237, 0.22)',
   },
 ];
+
+const VISIBLE_SECTIONS = SECTIONS.filter(s =>
+  s.mode === 'both' || (s.mode === 'acls' && IS_ACLS) || (s.mode === 'bls' && IS_BLS)
+);
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -127,7 +152,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {SECTIONS.map(({ to, title, desc, icon: Icon, gradient, shadow }) => (
+        {VISIBLE_SECTIONS.map(({ to, title, desc, icon: Icon, gradient, shadow }) => (
           <Link
             key={to}
             to={to}

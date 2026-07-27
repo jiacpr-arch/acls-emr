@@ -20,6 +20,11 @@ export const preCourseVideos = [
 
 // Per-lesson videos — แต่ละบทมีวีดีโอเฉพาะของตัวเอง
 // TODO: แทนที่ url ด้วยลิงก์วีดีโอ specific ของแต่ละบทเมื่อพร้อม
+//
+// นอกจากวิดีโอระดับบทด้านล่างนี้ read step แต่ละอันก็ใส่สื่อเฉพาะขั้นได้เช่นกัน:
+//   { type: 'read', heading: '...', body: '...',
+//     images: [ { src: '/images/bls/lessons/bls-1/r0-1.webp', alt: '', caption: '' } ],
+//     videos: [ { platform: 'youtube', label: '...', url: '' } ] }
 const lessonVideos = {
   'bls-1': [
     { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/7RrA-X0vhq0' },
@@ -755,15 +760,21 @@ const lessonDefs = [
 ];
 
 function deriveLesson(l) {
-  const sections = l.steps.filter(s => s.type === 'read').map(s => ({ heading: s.heading, body: s.body }));
-  const quiz = l.steps.filter(s => s.type === 'quiz').map(s => ({
+  // ใส่ id ให้ read step ที่ยังไม่มี (pattern pcNN-rN เดียวกับ preCourseContent.js ฝั่ง ACLS)
+  // จำเป็นสำหรับผูกรูป/วิดีโอรายขั้น (imagesByStep/videosByStep คีย์ด้วย step.id)
+  let readIdx = 0;
+  const steps = l.steps.map(s =>
+    s.type === 'read' ? { ...s, id: s.id ?? `${l.id}-r${readIdx++}` } : s
+  );
+  const sections = steps.filter(s => s.type === 'read').map(s => ({ id: s.id, heading: s.heading, body: s.body }));
+  const quiz = steps.filter(s => s.type === 'quiz').map(s => ({
     id: s.id,
     question: s.question,
     choices: s.choices,
     correctId: s.correctId,
     explanation: s.explanation,
   }));
-  return { ...l, sections, quiz, videos: lessonVideos[l.id] ?? [] };
+  return { ...l, steps, sections, quiz, videos: lessonVideos[l.id] ?? [] };
 }
 
 export const preCourseLessons = lessonDefs.map(deriveLesson);
