@@ -354,7 +354,9 @@
 
 /* Dialogue box */
 .cbs-dlg-area {
-  position: relative; z-index: 6;
+  /* z-index ต้องสูงกว่า .cbs-choices (8) — ป้ายชื่อโผล่ขึ้นไปทับเขต .cbs-stage
+     ด้วย transform ถ้า z ต่ำกว่า choices จะโดนฉากมืดของ choices ทับแทน */
+  position: relative; z-index: 9;
   padding: 0 0 env(safe-area-inset-bottom);
 }
 .cbs-dlg {
@@ -410,7 +412,7 @@
 
 /* Choices overlay */
 .cbs-choices {
-  position: absolute; inset: 0 0 20px 0; z-index: 8;
+  position: absolute; inset: 0; z-index: 8;
   display: flex; flex-direction: column; justify-content: center;
   gap: 11px; padding: 22px 20px;
   background: rgba(6, 10, 24, .72);
