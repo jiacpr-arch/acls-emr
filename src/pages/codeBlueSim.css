@@ -353,35 +353,57 @@
 /* Dialogue box */
 .cbs-dlg-area {
   position: relative; z-index: 6;
-  padding: 0 10px calc(12px + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, #1E2C5E, #0C1226 90%);
+  padding: 0 0 env(safe-area-inset-bottom);
 }
 .cbs-dlg {
   position: relative;
   display: flex; flex-direction: column; justify-content: center;
-  border: 3px solid #fff; border-radius: 10px;
-  background: var(--cbs-box-lo);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, .5), 0 0 0 3px rgba(0, 0, 0, .35);
+  border: 3px solid #2E6DA6; border-radius: 0;
+  background: linear-gradient(180deg, #FFFFFF, #EAF4FC);
+  box-shadow: 0 2px 10px rgba(10, 40, 80, .35);
   min-height: 118px;
-  padding: 20px 16px 14px;
+  padding: 20px 30px 14px 16px;
   cursor: pointer;
-  margin-top: 14px;
+  margin-top: 0;
+}
+/* เส้น HUD บนขอบกล่อง — ต่อจากป้ายชื่อไปจนสุดขอบขวา */
+.cbs-dlg::before {
+  content: "";
+  position: absolute; top: 0; left: 128px; right: 34px; height: 2px;
+  background: linear-gradient(90deg, #4F93D0, rgba(79, 147, 208, .15) 80%, transparent);
+}
+.cbs-dlg::after {
+  content: "• • •";
+  position: absolute; top: -6px; right: 12px;
+  color: #4F93D0; font-size: 8px; letter-spacing: 1px; opacity: .8;
 }
 .cbs-nameplate {
-  position: absolute; top: 0; left: 12px; transform: translateY(-58%);
-  border: 2.5px solid #fff; border-radius: 6px;
-  padding: 4px 16px;
+  position: absolute; top: 0; left: 0; transform: translateY(-58%);
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 2.5px solid #fff; border-radius: 0 6px 6px 0;
+  padding: 4px 20px 4px 6px;
   font-size: 14px; font-weight: 900; letter-spacing: .03em;
-  background: #2A3868;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, .45);
-  white-space: nowrap;
+  background: linear-gradient(90deg, #2E5FA3, #6FB6E8);
+  box-shadow: 0 3px 8px rgba(10, 40, 80, .35);
+  white-space: nowrap; color: #fff;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
 }
-.cbs-dlg-text { font-size: 16px; line-height: 1.75; }
-.cbs-dlg-text .cbs-em { color: var(--cbs-gold); font-weight: 800; }
+.cbs-nameplate::before {
+  content: "+";
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+  background: #fff; color: #2E5FA3; font-size: 12px; font-weight: 900; line-height: 1;
+}
+.cbs-dlg-text { font-size: 16px; line-height: 1.75; color: #1B2A44; }
+.cbs-dlg-text .cbs-em { color: #B8460E; font-weight: 800; }
 .cbs-adv {
-  position: absolute; right: 14px; bottom: 8px;
-  color: var(--cbs-gold); font-size: 13px;
-  animation: cbs-bob 1s ease-in-out infinite;
+  position: absolute; right: -1px; bottom: -1px;
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 24px;
+  border-top: 2px solid #fff; border-left: 2px solid #fff;
+  background: linear-gradient(180deg, #2E5FA3, #6FB6E8);
+  color: #fff; font-size: 13px; font-weight: 900;
+  clip-path: polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px);
 }
 
 /* Choices overlay */

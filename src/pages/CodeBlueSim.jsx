@@ -1070,7 +1070,7 @@ export default function CodeBlueSim() {
             </div>
             {/* บทพูดมาจาก scenario data ในโค้ดเรา (จำกัด <span class="cbs-em"> เท่านั้น) */}
             <div className="cbs-dlg-text" dangerouslySetInnerHTML={{ __html: dlgHtml }} />
-            {!typing && awaitTap && <div className="cbs-adv">▼</div>}
+            {!typing && awaitTap && <div className="cbs-adv">»</div>}
           </div>
         </div>
       </section>
