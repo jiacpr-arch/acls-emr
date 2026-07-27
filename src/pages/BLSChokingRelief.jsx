@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Wind, Users, Baby, AlertTriangle, Construction } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
 import LessonImages from '../components/precourse/LessonImages';
 import StepVideoBox from '../components/StepVideoBox';
 import { useStepMediaUnlock } from '../hooks/useStepMediaUnlock';
-import { chokingMedia, guideHasAnyMedia } from '../data/blsGuideMedia';
+import { chokingMedia } from '../data/blsGuideMedia';
+import { fetchBlsGuideMedia, guideMediaKey } from '../services/blsGuideMediaService';
 
 const sections = [
   {
@@ -59,10 +61,33 @@ const bulletClass = {
 };
 
 export default function BLSChokingRelief() {
-  const hasAnyMedia = guideHasAnyMedia(chokingMedia);
-  const unlockSteps = sections.map(s => ({
-    key: s.id,
-    hasVideo: (chokingMedia[s.id]?.videos ?? []).some(v => v.url),
+  const [imagesByKey, setImagesByKey] = useState({});
+  const [videosByKey, setVideosByKey] = useState({});
+
+  useEffect(() => {
+    let alive = true;
+    fetchBlsGuideMedia()
+      .then(({ imagesByKey, videosByKey }) => {
+        if (!alive) return;
+        setImagesByKey(imagesByKey);
+        setVideosByKey(videosByKey);
+      })
+      .catch(() => { /* ออฟไลน์/โหลดไม่ได้ — ไม่แสดงสื่อเพิ่ม ไม่ถือเป็น error */ });
+    return () => { alive = false; };
+  }, []);
+
+  const sectionMedia = sections.map(s => {
+    const key = guideMediaKey('choking', s.id);
+    return {
+      id: s.id,
+      images: [...(chokingMedia[s.id]?.images ?? []), ...(imagesByKey[key] ?? [])],
+      videos: [...(chokingMedia[s.id]?.videos ?? []), ...(videosByKey[key] ?? [])],
+    };
+  });
+  const hasAnyMedia = sectionMedia.some(m => m.images.length > 0 || m.videos.some(v => v.url));
+  const unlockSteps = sectionMedia.map(m => ({
+    key: m.id,
+    hasVideo: m.videos.some(v => v.url),
   }));
   const { isUnlocked, markOpened } = useStepMediaUnlock('bls-choking', unlockSteps);
 
@@ -93,7 +118,7 @@ export default function BLSChokingRelief() {
       <div className="space-y-3">
         {sections.map((s, idx) => {
           const SIcon = s.Icon;
-          const media = chokingMedia[s.id] ?? {};
+          const media = sectionMedia[idx];
           return (
             <div key={s.id} className="dash-card space-y-2">
               <div className="flex items-center gap-3">

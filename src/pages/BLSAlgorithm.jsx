@@ -1,10 +1,12 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GitBranch, HeartPulse, Baby, Users, ChevronRight, Construction } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
 import LessonImages from '../components/precourse/LessonImages';
 import StepVideoBox from '../components/StepVideoBox';
 import { useStepMediaUnlock } from '../hooks/useStepMediaUnlock';
-import { algorithmMedia, guideHasAnyMedia } from '../data/blsGuideMedia';
+import { algorithmMedia } from '../data/blsGuideMedia';
+import { fetchBlsGuideMedia, guideMediaKey } from '../services/blsGuideMediaService';
 
 const variants = [
   {
@@ -48,10 +50,33 @@ const variants = [
 ];
 
 export default function BLSAlgorithm() {
-  const hasAnyMedia = guideHasAnyMedia(algorithmMedia);
-  const unlockSteps = variants.map(v => ({
-    key: v.id,
-    hasVideo: (algorithmMedia[v.id]?.videos ?? []).some(vd => vd.url),
+  const [imagesByKey, setImagesByKey] = useState({});
+  const [videosByKey, setVideosByKey] = useState({});
+
+  useEffect(() => {
+    let alive = true;
+    fetchBlsGuideMedia()
+      .then(({ imagesByKey, videosByKey }) => {
+        if (!alive) return;
+        setImagesByKey(imagesByKey);
+        setVideosByKey(videosByKey);
+      })
+      .catch(() => { /* ออฟไลน์/โหลดไม่ได้ — ไม่แสดงสื่อเพิ่ม ไม่ถือเป็น error */ });
+    return () => { alive = false; };
+  }, []);
+
+  const variantMedia = variants.map(v => {
+    const key = guideMediaKey('algorithm', v.id);
+    return {
+      id: v.id,
+      images: [...(algorithmMedia[v.id]?.images ?? []), ...(imagesByKey[key] ?? [])],
+      videos: [...(algorithmMedia[v.id]?.videos ?? []), ...(videosByKey[key] ?? [])],
+    };
+  });
+  const hasAnyMedia = variantMedia.some(m => m.images.length > 0 || m.videos.some(v => v.url));
+  const unlockSteps = variantMedia.map(m => ({
+    key: m.id,
+    hasVideo: m.videos.some(v => v.url),
   }));
   const { isUnlocked, markOpened } = useStepMediaUnlock('bls-algorithm', unlockSteps);
 
@@ -82,7 +107,7 @@ export default function BLSAlgorithm() {
       <div className="space-y-3">
         {variants.map((v, idx) => {
           const VIcon = v.Icon;
-          const media = algorithmMedia[v.id] ?? {};
+          const media = variantMedia[idx];
           return (
             <div key={v.id} className="dash-card space-y-2">
               <div className="flex items-center gap-3">

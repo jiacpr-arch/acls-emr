@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Plus, Trash2, Video, Play } from 'lucide-react';
-import { addPreCourseVideo } from '../../services/precourseImageService';
 import { updateImage, deleteImage } from '../../services/alsAdminService';
 import { getYouTubeId } from '../../utils/youtube';
 
-// แผงจัดการวิดีโอประกอบของ read step (วางลิงก์ YouTube — เก็บใน acls_images parent_type='precourse-video')
-export default function VideoManager({ stepId, videos, onChange }) {
+// แผงจัดการวิดีโอประกอบ (วางลิงก์ YouTube) — เก็บผ่าน onAdd ที่ caller ส่งมา
+// เพื่อให้ใช้ร่วมกันได้ทั้ง precourse-video, bls-guide-video ฯลฯ โดยไม่ผูกกับ parent_type ใดตายตัว
+export default function VideoManager({ videos, onAdd, onChange }) {
   const [url, setUrl] = useState('');
   const [orientation, setOrientation] = useState('portrait');
   const [label, setLabel] = useState('');
@@ -22,7 +22,7 @@ export default function VideoManager({ stepId, videos, onChange }) {
     }
     setAdding(true);
     try {
-      await addPreCourseVideo(stepId, trimmed, { orientation, label: label.trim() || 'ดูคลิป' });
+      await onAdd(trimmed, { orientation, label: label.trim() || 'ดูคลิป' });
       setUrl('');
       setLabel('');
       setOrientation('portrait');

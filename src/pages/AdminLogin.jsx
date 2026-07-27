@@ -43,7 +43,7 @@ export default function AdminLogin() {
           <Lock size={28} strokeWidth={2.2} className="text-white" />
         </div>
         <h1 className="text-title text-text-primary">Admin Login</h1>
-        <p className="text-caption text-text-muted">เข้าสู่ระบบจัดการเนื้อหา ALS</p>
+        <p className="text-caption text-text-muted">เข้าสู่ระบบจัดการเนื้อหา</p>
       </div>
 
       <form onSubmit={handleSubmit} className="dash-card space-y-3">

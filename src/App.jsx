@@ -61,6 +61,7 @@ const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminChapters = lazy(() => import('./pages/AdminChapters'));
 const AdminPreCourseImages = lazy(() => import('./pages/AdminPreCourseImages'));
+const AdminBlsGuideMedia = lazy(() => import('./pages/AdminBlsGuideMedia'));
 const AdminQADeep = lazy(() => import('./pages/AdminQADeep'));
 const AdminQADeepPosted = lazy(() => import('./pages/AdminQADeepPosted'));
 const AdminStudentQuestions = lazy(() => import('./pages/AdminStudentQuestions'));
@@ -168,28 +169,25 @@ function App() {
         {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
         {IS_ACLS && <Route path="/video-lessons" element={<VideoLessons />} />}
         {IS_ACLS && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
-        {IS_ACLS && (
-          <Route
-            path="/admin/login"
-            element={
-              <Suspense fallback={<AdminFallback />}>
-                <AdminLogin />
-              </Suspense>
-            }
-          />
-        )}
-        {IS_ACLS && (
-          <Route
-            path="/admin"
-            element={
-              <Suspense fallback={<AdminFallback />}>
-                <RequireAdmin>
-                  <AdminDashboard />
-                </RequireAdmin>
-              </Suspense>
-            }
-          />
-        )}
+        {/* เข้าถึงได้ทั้ง ACLS/BLS — เมนูใน AdminDashboard กรองตามโหมดเอง */}
+        <Route
+          path="/admin/login"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <AdminLogin />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminDashboard />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
         {IS_ACLS && (
           <Route
             path="/admin/chapters"
@@ -327,6 +325,17 @@ function App() {
             <Suspense fallback={<AdminFallback />}>
               <RequireAdmin>
                 <AdminCodeBlueCharacters />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
+        {/* สื่อประกอบหน้า Guide BLS — เปิดทั้ง ACLS/BLS (ใช้จริงเฉพาะ build BLS) */}
+        <Route
+          path="/admin/bls-guide-media"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminBlsGuideMedia />
               </RequireAdmin>
             </Suspense>
           }

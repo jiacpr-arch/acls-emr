@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Zap, Power, Shield, Construction } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
 import LessonImages from '../components/precourse/LessonImages';
 import StepVideoBox from '../components/StepVideoBox';
 import { useStepMediaUnlock } from '../hooks/useStepMediaUnlock';
-import { aedStepMedia, guideHasAnyMedia } from '../data/blsGuideMedia';
+import { aedStepMedia } from '../data/blsGuideMedia';
+import { fetchBlsGuideMedia, guideMediaKey } from '../services/blsGuideMediaService';
 
 const steps = [
   {
@@ -34,10 +36,33 @@ const steps = [
 ];
 
 export default function BLSAedGuide() {
-  const hasAnyMedia = guideHasAnyMedia(aedStepMedia);
-  const unlockSteps = steps.map(s => ({
-    key: s.n,
-    hasVideo: (aedStepMedia[s.n]?.videos ?? []).some(v => v.url),
+  const [imagesByKey, setImagesByKey] = useState({});
+  const [videosByKey, setVideosByKey] = useState({});
+
+  useEffect(() => {
+    let alive = true;
+    fetchBlsGuideMedia()
+      .then(({ imagesByKey, videosByKey }) => {
+        if (!alive) return;
+        setImagesByKey(imagesByKey);
+        setVideosByKey(videosByKey);
+      })
+      .catch(() => { /* ออฟไลน์/โหลดไม่ได้ — ไม่แสดงสื่อเพิ่ม ไม่ถือเป็น error */ });
+    return () => { alive = false; };
+  }, []);
+
+  const stepMedia = steps.map(s => {
+    const key = guideMediaKey('aed', s.n);
+    return {
+      n: s.n,
+      images: [...(aedStepMedia[s.n]?.images ?? []), ...(imagesByKey[key] ?? [])],
+      videos: [...(aedStepMedia[s.n]?.videos ?? []), ...(videosByKey[key] ?? [])],
+    };
+  });
+  const hasAnyMedia = stepMedia.some(m => m.images.length > 0 || m.videos.some(v => v.url));
+  const unlockSteps = stepMedia.map(m => ({
+    key: m.n,
+    hasVideo: m.videos.some(v => v.url),
   }));
   const { isUnlocked, markOpened } = useStepMediaUnlock('bls-aed', unlockSteps);
 
@@ -67,7 +92,7 @@ export default function BLSAedGuide() {
 
       <div className="space-y-3">
         {steps.map((s, idx) => {
-          const media = aedStepMedia[s.n] ?? {};
+          const media = stepMedia[idx];
           return (
             <div key={s.n} className="dash-card !p-3 space-y-2.5">
               <div className="flex items-start gap-3">
