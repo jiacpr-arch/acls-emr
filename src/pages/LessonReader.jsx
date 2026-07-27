@@ -224,20 +224,24 @@ export default function LessonReader() {
       </div>
 
       {/* Current step */}
-      {!isOnSummary && step?.type === 'read' && (
-        <section className="dash-card space-y-3 !p-5">
-          <div className="text-headline text-info">{step.heading}</div>
-          <ReadBody body={step.body} />
-          {imagesByStep[step.id]?.length > 0 && (
-            <LessonImages images={imagesByStep[step.id]} fallbackAlt={step.heading} />
-          )}
-          {videosByStep[step.id]?.length > 0 && (
-            <div className="pt-1">
-              <LessonVideos videos={videosByStep[step.id]} />
-            </div>
-          )}
-        </section>
-      )}
+      {!isOnSummary && step?.type === 'read' && (() => {
+        const stepImages = [...(step.images ?? []), ...(imagesByStep[step.id] ?? [])];
+        const stepVideos = [...(step.videos ?? []), ...(videosByStep[step.id] ?? [])];
+        return (
+          <section className="dash-card space-y-3 !p-5">
+            <div className="text-headline text-info">{step.heading}</div>
+            <ReadBody body={step.body} />
+            {stepImages.length > 0 && (
+              <LessonImages images={stepImages} fallbackAlt={step.heading} />
+            )}
+            {stepVideos.length > 0 && (
+              <div className="pt-1">
+                <LessonVideos videos={stepVideos} title="วิดีโอสาธิตขั้นนี้" />
+              </div>
+            )}
+          </section>
+        );
+      })()}
 
       {!isOnSummary && step?.type === 'quiz' && (
         <QuizStep

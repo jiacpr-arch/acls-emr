@@ -1,7 +1,9 @@
 // คลังความรู้ BLS — เนื้อหาอ้างอิงเชิงลึกสำหรับหน้า /bls/knowledge
 // Schema เดียวกับ alsContent.js:
-//   chapter = { id, title, icon, sections: [{ heading?, body?, images?, qa? }] }
+//   chapter = { id, title, icon, sections: [{ heading?, body?, images?, videos?, qa? }] }
 //   QAItem  = { q, a (Markdown), images? }
+//   image   = { src: '/images/bls/knowledge/<ch>/<name>.webp', alt?, caption? }
+//   video   = { url: 'https://youtu.be/...', label, orientation?: 'portrait'|'landscape' }
 //
 // เนื้อหาเรียบเรียงตามแนวทาง ILCOR 2025 + TRC (paraphrase — ไม่คัดลอกต้นฉบับ)
 // ต้องผ่าน medical review โดยแพทย์ EM/ICU ก่อนปล่อย production

@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
 import { GitBranch, HeartPulse, Baby, Users, ChevronRight, Construction } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
+import LessonImages from '../components/precourse/LessonImages';
+import StepVideoBox from '../components/StepVideoBox';
+import { useStepMediaUnlock } from '../hooks/useStepMediaUnlock';
+import { algorithmMedia, guideHasAnyMedia } from '../data/blsGuideMedia';
 
 const variants = [
   {
@@ -44,6 +48,13 @@ const variants = [
 ];
 
 export default function BLSAlgorithm() {
+  const hasAnyMedia = guideHasAnyMedia(algorithmMedia);
+  const unlockSteps = variants.map(v => ({
+    key: v.id,
+    hasVideo: (algorithmMedia[v.id]?.videos ?? []).some(vd => vd.url),
+  }));
+  const { isUnlocked, markOpened } = useStepMediaUnlock('bls-algorithm', unlockSteps);
+
   return (
     <div className="page-container space-y-5">
       <div className="flex items-center gap-3">
@@ -59,16 +70,19 @@ export default function BLSAlgorithm() {
 
       <MorrooAdCard />
 
-      <div className="dash-card !p-3 flex items-start gap-2 bg-warning/10 border border-warning/30">
-        <Construction size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
-        <span className="text-caption text-text-secondary">
-          หน้านี้กำลังพัฒนา — เนื้อหา algorithm แบบเต็ม (รูป flowchart + รายละเอียดแต่ละขั้น) จะเพิ่มในเร็วๆ นี้
-        </span>
-      </div>
+      {!hasAnyMedia && (
+        <div className="dash-card !p-3 flex items-start gap-2 bg-warning/10 border border-warning/30">
+          <Construction size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
+          <span className="text-caption text-text-secondary">
+            หน้านี้กำลังพัฒนา — เนื้อหา algorithm แบบเต็ม (รูป flowchart + รายละเอียดแต่ละขั้น) จะเพิ่มในเร็วๆ นี้
+          </span>
+        </div>
+      )}
 
       <div className="space-y-3">
-        {variants.map(v => {
+        {variants.map((v, idx) => {
           const VIcon = v.Icon;
+          const media = algorithmMedia[v.id] ?? {};
           return (
             <div key={v.id} className="dash-card space-y-2">
               <div className="flex items-center gap-3">
@@ -89,6 +103,12 @@ export default function BLSAlgorithm() {
                   </li>
                 ))}
               </ul>
+              {media.images?.length > 0 && <LessonImages images={media.images} fallbackAlt={v.title} />}
+              <StepVideoBox
+                videos={media.videos}
+                locked={!isUnlocked(idx)}
+                onOpened={() => markOpened(v.id)}
+              />
             </div>
           );
         })}

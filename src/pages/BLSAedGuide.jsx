@@ -1,5 +1,9 @@
 import { Zap, Power, Shield, Construction } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
+import LessonImages from '../components/precourse/LessonImages';
+import StepVideoBox from '../components/StepVideoBox';
+import { useStepMediaUnlock } from '../hooks/useStepMediaUnlock';
+import { aedStepMedia, guideHasAnyMedia } from '../data/blsGuideMedia';
 
 const steps = [
   {
@@ -30,6 +34,13 @@ const steps = [
 ];
 
 export default function BLSAedGuide() {
+  const hasAnyMedia = guideHasAnyMedia(aedStepMedia);
+  const unlockSteps = steps.map(s => ({
+    key: s.n,
+    hasVideo: (aedStepMedia[s.n]?.videos ?? []).some(v => v.url),
+  }));
+  const { isUnlocked, markOpened } = useStepMediaUnlock('bls-aed', unlockSteps);
+
   return (
     <div className="page-container space-y-5">
       <div className="flex items-center gap-3">
@@ -45,26 +56,39 @@ export default function BLSAedGuide() {
 
       <MorrooAdCard />
 
-      <div className="dash-card !p-3 flex items-start gap-2 bg-warning/10 border border-warning/30">
-        <Construction size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
-        <span className="text-caption text-text-secondary">
-          เนื้อหาหลักครบแล้ว — กำลังเพิ่มรูปประกอบ + วิดีโอสาธิตในเร็วๆ นี้
-        </span>
-      </div>
+      {!hasAnyMedia && (
+        <div className="dash-card !p-3 flex items-start gap-2 bg-warning/10 border border-warning/30">
+          <Construction size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
+          <span className="text-caption text-text-secondary">
+            เนื้อหาหลักครบแล้ว — กำลังเพิ่มรูปประกอบ + วิดีโอสาธิตในเร็วๆ นี้
+          </span>
+        </div>
+      )}
 
       <div className="space-y-3">
-        {steps.map(s => (
-          <div key={s.n} className="dash-card !p-3 flex items-start gap-3">
-            <div className="w-9 h-9 inline-flex items-center justify-center bg-warning/15 text-warning shrink-0 text-numeric"
-              style={{ borderRadius: 'var(--radius-full)' }}>
-              {s.n}
+        {steps.map((s, idx) => {
+          const media = aedStepMedia[s.n] ?? {};
+          return (
+            <div key={s.n} className="dash-card !p-3 space-y-2.5">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 inline-flex items-center justify-center bg-warning/15 text-warning shrink-0 text-numeric"
+                  style={{ borderRadius: 'var(--radius-full)' }}>
+                  {s.n}
+                </div>
+                <div className="flex-1">
+                  <div className="text-caption font-semibold text-text-primary">{s.title}</div>
+                  <div className="text-xs text-text-secondary mt-0.5">{s.detail}</div>
+                </div>
+              </div>
+              {media.images?.length > 0 && <LessonImages images={media.images} fallbackAlt={s.title} />}
+              <StepVideoBox
+                videos={media.videos}
+                locked={!isUnlocked(idx)}
+                onOpened={() => markOpened(s.n)}
+              />
             </div>
-            <div className="flex-1">
-              <div className="text-caption font-semibold text-text-primary">{s.title}</div>
-              <div className="text-xs text-text-secondary mt-0.5">{s.detail}</div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="dash-card !p-4 bg-info/10 border border-info/30 space-y-2">

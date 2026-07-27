@@ -36,7 +36,7 @@ function VideoCard({ videoId, label, orientation, onPlay }) {
   );
 }
 
-export default function LessonVideos({ videos }) {
+export default function LessonVideos({ videos, title = 'วิดีโอประกอบบทนี้', onPlay }) {
   const items = (videos || []).filter(v => v.url);
   const [active, setActive] = useState(null);
   if (!items.length) return null;
@@ -45,7 +45,7 @@ export default function LessonVideos({ videos }) {
     <div className="space-y-2">
       <div className="flex items-center gap-2 px-1">
         <Play size={14} strokeWidth={2.4} className="text-info" />
-        <span className="text-overline text-text-muted">วิดีโอประกอบบทนี้</span>
+        <span className="text-overline text-text-muted">{title}</span>
       </div>
       <div className="flex flex-wrap gap-3">
         {items.map((v, i) => {
@@ -57,7 +57,7 @@ export default function LessonVideos({ videos }) {
                 videoId={id}
                 label={v.label}
                 orientation={v.orientation}
-                onPlay={() => setActive({ id, label: v.label, orientation: v.orientation })}
+                onPlay={() => { setActive({ id, label: v.label, orientation: v.orientation }); onPlay?.(v, i); }}
               />
             );
           }
