@@ -252,7 +252,7 @@
 .cbs-etco2-cap { font-size: 11px; color: #8B99C4; }
 
 /* ============ GAME ============ */
-.cbs-game { display: flex; flex-direction: column; min-height: 100dvh; }
+.cbs-game { display: flex; flex-direction: column; min-height: 100dvh; cursor: pointer; }
 .cbs-stage {
   position: relative; flex: 1; min-height: 54dvh;
   display: flex; align-items: flex-end; justify-content: center;

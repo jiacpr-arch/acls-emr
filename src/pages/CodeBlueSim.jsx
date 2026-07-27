@@ -965,7 +965,7 @@ export default function CodeBlueSim() {
 
   return (
     <div className={`cbs-app ${shaking ? 'cbs-shake' : ''}`}>
-      <section className="cbs-game">
+      <section className="cbs-game" onClick={onDialogTap}>
         <div className={`cbs-stage ${drama === 'red' ? 'cbs-drama-red' : drama === 'white' ? 'cbs-drama' : ''}`}>
           <div className="cbs-hud">
             <div className="cbs-hud-monitor">
@@ -1008,7 +1008,7 @@ export default function CodeBlueSim() {
             <button
               type="button"
               className="cbs-menu-btn"
-              onClick={() => setQuitMenu(true)}
+              onClick={(e) => { e.stopPropagation(); setQuitMenu(true); }}
               aria-label="เมนู"
             >
               ☰
@@ -1035,7 +1035,7 @@ export default function CodeBlueSim() {
                     key={i}
                     type="button"
                     className={`cbs-choice ${dim ? 'cbs-choice-dim' : ''} ${glow ? 'cbs-choice-hint' : ''}`}
-                    onClick={() => pick(o)}
+                    onClick={(e) => { e.stopPropagation(); pick(o); }}
                   >
                     <span className="cbs-choice-tgt">[สั่ง {o.tgt}]</span> {o.label}
                   </button>
@@ -1055,7 +1055,6 @@ export default function CodeBlueSim() {
           {/* กล่องบทพูดแบบ AA: แตะเพื่อข้าม/ไปต่อ */}
           <div
             className="cbs-dlg"
-            onClick={onDialogTap}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
