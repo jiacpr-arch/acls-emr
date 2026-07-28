@@ -80,16 +80,21 @@ export async function swapVideoLessonOrder(a, b) {
   invalidateVideoLessonsCache();
 }
 
-// ให้ AI (Claude ผ่าน /api/video-lessons/generate-quiz) ร่างควิซ 3 ข้อจาก title/keyPoints/chapters
-// ของคลิป — ไม่เขียน DB เอง ฝั่งเรียกใช้ (AdminVideoLessons.jsx) เป็นคนบันทึกต่อ
-export async function generateQuizWithAI({ title, keyPoints, chapters, topicLabel }) {
-  const { quiz } = await authedPost('/api/video-lessons/generate-quiz', { title, keyPoints, chapters, topicLabel });
-  return quiz;
+// ให้ AI (Claude ผ่าน /api/video-lessons/generate-quiz) ร่างควิซ 3 ข้อ — ส่ง youtubeId/startSec/endSec
+// ไปด้วยเพื่อให้ server ดึงคำบรรยายในคลิป (transcript) มาออกข้อสอบจากเนื้อหาจริง
+// ไม่เขียน DB เอง ฝั่งเรียกใช้ (AdminVideoLessons.jsx) เป็นคนบันทึกต่อ
+// คืน { quiz, source: 'transcript'|'metadata' }
+export async function generateQuizWithAI({ title, keyPoints, chapters, topicLabel, youtubeId, startSec, endSec }) {
+  return authedPost('/api/video-lessons/generate-quiz', {
+    title, keyPoints, chapters, topicLabel, youtubeId, startSec, endSec,
+  });
 }
 
-// ให้ AI ร่าง "สรุปประเด็น" (markdown bullets) จาก title/topic/chapters — ส่งสรุปเดิม (ถ้ามี)
-// ไปให้ปรับปรุงต่อ; ไม่เขียน DB เอง ฝั่งเรียกใช้เป็นคนบันทึกต่อเช่นเดียวกับควิซ
-export async function generateKeyPointsWithAI({ title, topicLabel, chapters, keyPoints }) {
-  const res = await authedPost('/api/video-lessons/generate-key-points', { title, topicLabel, chapters, keyPoints });
-  return res.keyPoints;
+// ให้ AI ร่าง "สรุปประเด็น" (markdown bullets) — เช่นเดียวกับควิซ ถ้าเป็นคลิป YouTube ที่มี
+// คำบรรยาย server จะดึง transcript มาสรุปจากเนื้อหาที่พูดจริงในคลิป; ไม่มีก็ร่างจาก metadata
+// คืน { keyPoints, source: 'transcript'|'metadata' }
+export async function generateKeyPointsWithAI({ title, topicLabel, chapters, keyPoints, youtubeId, startSec, endSec }) {
+  return authedPost('/api/video-lessons/generate-key-points', {
+    title, topicLabel, chapters, keyPoints, youtubeId, startSec, endSec,
+  });
 }

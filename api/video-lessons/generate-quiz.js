@@ -1,18 +1,25 @@
 import { requireAdmin } from '../_lib/requireAdmin.js';
+import { fetchYouTubeTranscript } from '../_lib/youtubeTranscript.js';
 
 export const config = { maxDuration: 60 };
 
 const MODEL = 'claude-sonnet-4-6';
 const QUESTION_COUNT = 3;
 const CHOICE_IDS = ['a', 'b', 'c', 'd'];
+const TRANSCRIPT_CHAR_CAP = 30000;
 
 /**
  * Generate a quiz for one video-lesson clip using Claude, grounded strictly in
- * the clip's own title/key_points/chapters — admin-only, does not write to the DB
- * (the client persists the result via updateVideoLesson).
+ * the clip's own content — admin-only, does not write to the DB (the client
+ * persists the result via updateVideoLesson).
  *
- * Body: { title, keyPoints, chapters, topicLabel }
- *   → { quiz: [{ id, question, choices:[{id,text}], correctId, explanation }, ...] }  (3 ข้อ)
+ * For YouTube clips we also fetch the clip's captions (transcript) so questions
+ * can be grounded in what is actually said in the video; otherwise we fall back
+ * to title/key_points/chapters only.
+ *
+ * Body: { title, keyPoints, chapters, topicLabel, youtubeId, startSec, endSec }
+ *   → { quiz: [{ id, question, choices:[{id,text}], correctId, explanation }, ...],  (3 ข้อ)
+ *       source: 'transcript'|'metadata' }
  */
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -37,7 +44,16 @@ export default async function handler(req, res) {
   const chapters = Array.isArray(body.chapters) ? body.chapters : [];
   const topicLabel = String(body.topicLabel || '').trim();
 
-  const prompt = buildPrompt({ title, keyPoints, chapters, topicLabel });
+  // "เข้าไปดูคลิปจริง": คลิป YouTube ดึงคำบรรยายมาให้ AI อ่าน (Drive/ไม่มีคำบรรยาย → null)
+  const youtubeId = String(body.youtubeId || '').trim();
+  const startSec = body.startSec === '' || body.startSec == null ? null : Number(body.startSec);
+  const endSec = body.endSec === '' || body.endSec == null ? null : Number(body.endSec);
+  const transcriptResult = /^[\w-]{11}$/.test(youtubeId)
+    ? await fetchYouTubeTranscript(youtubeId, { startSec, endSec })
+    : null;
+  const transcript = transcriptResult?.text?.slice(0, TRANSCRIPT_CHAR_CAP) || '';
+
+  const prompt = buildPrompt({ title, keyPoints, chapters, topicLabel, transcript });
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -69,14 +85,14 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'AI สร้างควิซไม่สำเร็จ กรุณาลองใหม่' });
     }
 
-    return res.status(200).json({ quiz });
+    return res.status(200).json({ quiz, source: transcript ? 'transcript' : 'metadata' });
   } catch (err) {
     console.error('generate-quiz failed:', err);
     return res.status(500).json({ error: 'Failed to generate quiz — please try again later' });
   }
 }
 
-function buildPrompt({ title, keyPoints, chapters, topicLabel }) {
+function buildPrompt({ title, keyPoints, chapters, topicLabel, transcript }) {
   const chapterLines = chapters
     .map(c => `- ${c.label || ''}`.trim())
     .filter(l => l !== '-')
@@ -92,9 +108,9 @@ function buildPrompt({ title, keyPoints, chapters, topicLabel }) {
 ${keyPoints || '(ไม่มี)'}
 สารบัญช่วงเวลาในคลิป:
 ${chapterLines || '(ไม่มี)'}
-
+${transcript ? `\nคำบรรยายจากในคลิป (ถอดจาก caption ของ YouTube — นี่คือเนื้อหาที่พูดจริงในคลิป อาจถอดเสียงผิดเพี้ยนบ้าง ให้ตีความตามบริบท):\n<transcript>\n${transcript}\n</transcript>\n` : ''}
 กติกาการออกข้อสอบ (สำคัญมาก):
-1. ใช้เนื้อหาเฉพาะจากสรุปประเด็นสำคัญและสารบัญที่ให้มาเท่านั้น ห้ามแต่งข้อมูลเวชปฏิบัติ (เช่น ขนาดยา ค่าตัวเลข ขั้นตอน) ที่ไม่ได้อยู่ในเนื้อหาที่ให้มา
+1. ใช้เนื้อหาเฉพาะจาก${transcript ? 'คำบรรยายในคลิป สรุปประเด็นสำคัญ' : 'สรุปประเด็นสำคัญ'}และสารบัญที่ให้มาเท่านั้น ห้ามแต่งข้อมูลเวชปฏิบัติ (เช่น ขนาดยา ค่าตัวเลข ขั้นตอน) ที่ไม่ได้อยู่ในเนื้อหาที่ให้มา
 2. แต่ละข้อต้องเป็นคำถามเชิงประยุกต์/สถานการณ์ (ไม่ใช่ลอกประโยคจากสรุปมาถามตรง ๆ)
 3. แต่ละข้อมี 4 ตัวเลือก (a, b, c, d) — 1 ข้อถูก ที่เหลือเป็นตัวลวงที่สมเหตุสมผลในบริบทเวชปฏิบัติฉุกเฉิน ห้ามมีตัวเลือกที่ถูกมากกว่าหนึ่งข้อหรือกำกวม
 4. ใส่ explanation อธิบายสั้น ๆ (1 ประโยค) ว่าทำไมตัวเลือกนั้นถูก

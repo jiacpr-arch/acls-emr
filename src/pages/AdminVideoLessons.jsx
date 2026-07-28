@@ -195,11 +195,18 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
     setKeyPointsGenMsg(null);
     try {
       const topicLabel = VIDEO_TOPIC_MAP[form.topic]?.label || '';
-      const keyPoints = await generateKeyPointsWithAI({
+      const { keyPoints, source } = await generateKeyPointsWithAI({
         title: form.title, topicLabel, chapters: form.chapters, keyPoints: form.keyPoints,
+        youtubeId: sourceType === 'youtube' ? storedId : '',
+        startSec: form.startSec, endSec: form.endSec,
       });
       upd({ keyPoints });
-      setKeyPointsGenMsg({ type: 'success', text: 'ร่างสรุปแล้ว — ตรวจความถูกต้องแล้วกด "บันทึก" ด้านล่าง' });
+      setKeyPointsGenMsg({
+        type: 'success',
+        text: source === 'transcript'
+          ? 'ร่างจากคำบรรยายในคลิปจริง ✓ — ตรวจความถูกต้องแล้วกด "บันทึก" ด้านล่าง'
+          : 'คลิปนี้ไม่มีคำบรรยายให้อ่าน — ร่างจากชื่อ/หัวข้อ/สารบัญแทน ตรวจความถูกต้องแล้วกด "บันทึก"',
+      });
     } catch (err) {
       setKeyPointsGenMsg({ type: 'error', text: 'ร่างสรุปไม่สำเร็จ: ' + (err?.message || err) });
     } finally {
@@ -213,16 +220,19 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
     setQuizGenMsg(null);
     try {
       const topicLabel = VIDEO_TOPIC_MAP[form.topic]?.label || '';
-      const quiz = await generateQuizWithAI({
+      const { quiz, source } = await generateQuizWithAI({
         title: form.title, keyPoints: form.keyPoints, chapters: form.chapters, topicLabel,
+        youtubeId: sourceType === 'youtube' ? storedId : '',
+        startSec: form.startSec, endSec: form.endSec,
       });
       upd({ quiz });
+      const fromNote = source === 'transcript' ? ' (ออกข้อสอบจากคำบรรยายในคลิปจริง)' : '';
       if (form.id) {
         await updateVideoLesson(form.id, { ...form, quiz });
         onReload?.();
-        setQuizGenMsg({ type: 'success', text: 'สร้างและบันทึกควิซแล้ว ✓' });
+        setQuizGenMsg({ type: 'success', text: `สร้างและบันทึกควิซแล้ว ✓${fromNote}` });
       } else {
-        setQuizGenMsg({ type: 'success', text: 'สร้างควิซแล้ว — กด "บันทึก" ด้านล่างเพื่อสร้างคลิปนี้' });
+        setQuizGenMsg({ type: 'success', text: `สร้างควิซแล้ว${fromNote} — กด "บันทึก" ด้านล่างเพื่อสร้างคลิปนี้` });
       }
     } catch (err) {
       setQuizGenMsg({ type: 'error', text: 'สร้างควิซไม่สำเร็จ: ' + (err?.message || err) });
@@ -309,7 +319,7 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
           )}
           <textarea value={form.keyPoints} onChange={e => upd({ keyPoints: e.target.value })} rows={5} className={inputCls} style={inputStyle} placeholder={'- ประเด็นที่ 1\n- ประเด็นที่ 2'} />
           <div className="text-2xs text-text-muted">
-            AI ร่างจากชื่อคลิป หัวข้อ และสารบัญ (ไม่ได้ดูวิดีโอ) — โปรดตรวจความถูกต้องก่อนบันทึก
+            คลิป YouTube: AI อ่านคำบรรยายในคลิปจริง (ต้องมี caption) · คลิป Drive/ไม่มีคำบรรยาย: ร่างจากชื่อ/หัวข้อ/สารบัญ — โปรดตรวจความถูกต้องก่อนบันทึก
           </div>
         </div>
 
