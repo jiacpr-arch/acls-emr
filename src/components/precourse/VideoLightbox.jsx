@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-// Modal เล่นวิดีโอ YouTube — รองรับทั้งแนวตั้ง (9:16 / Shorts) และแนวนอน (16:9)
+// Modal เล่นวิดีโอ embed (YouTube / Google Drive) — รองรับทั้งแนวตั้ง (9:16 / Shorts) และแนวนอน (16:9)
 // pattern เดียวกับ StudentIdentityModal / ClassGateModal (props open/onClose, fixed inset-0 z-50)
-export default function VideoLightbox({ open, onClose, videoId, orientation = 'landscape', label }) {
+export default function VideoLightbox({ open, onClose, embedUrl, orientation = 'landscape', label }) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -11,10 +11,9 @@ export default function VideoLightbox({ open, onClose, videoId, orientation = 'l
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  if (!open || !videoId) return null;
+  if (!open || !embedUrl) return null;
 
   const isPortrait = orientation === 'portrait';
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
   const frameStyle = isPortrait
     ? { height: 'min(85vh, 760px)', aspectRatio: '9 / 16' }
     : { width: 'min(92vw, 900px)', aspectRatio: '16 / 9' };
