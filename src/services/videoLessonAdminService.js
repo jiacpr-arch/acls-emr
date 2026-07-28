@@ -86,3 +86,10 @@ export async function generateQuizWithAI({ title, keyPoints, chapters, topicLabe
   const { quiz } = await authedPost('/api/video-lessons/generate-quiz', { title, keyPoints, chapters, topicLabel });
   return quiz;
 }
+
+// ให้ AI ร่าง "สรุปประเด็น" (markdown bullets) จาก title/topic/chapters — ส่งสรุปเดิม (ถ้ามี)
+// ไปให้ปรับปรุงต่อ; ไม่เขียน DB เอง ฝั่งเรียกใช้เป็นคนบันทึกต่อเช่นเดียวกับควิซ
+export async function generateKeyPointsWithAI({ title, topicLabel, chapters, keyPoints }) {
+  const res = await authedPost('/api/video-lessons/generate-key-points', { title, topicLabel, chapters, keyPoints });
+  return res.keyPoints;
+}
