@@ -7,7 +7,7 @@ import { parseClipTime, formatClipTime } from '../utils/youtube';
 import { toStoredVideoId, parseStoredVideoId } from '../utils/videoSource';
 import {
   listVideoLessonsAdmin, createVideoLesson, updateVideoLesson, deleteVideoLesson, swapVideoLessonOrder,
-  generateQuizWithAI,
+  generateQuizWithAI, generateKeyPointsWithAI,
 } from '../services/videoLessonAdminService';
 
 const LETTERS = ['a', 'b', 'c', 'd', 'e'];
@@ -185,6 +185,28 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
   const [generatingQuiz, setGeneratingQuiz] = useState(false);
   const [quizGenMsg, setQuizGenMsg] = useState(null); // { type: 'error'|'success', text }
 
+  // AI generate — ร่างสรุปประเด็นจาก title/topic/chapters (เติมลงช่องให้แอดมินตรวจแก้ ไม่บันทึกเอง)
+  const [generatingKeyPoints, setGeneratingKeyPoints] = useState(false);
+  const [keyPointsGenMsg, setKeyPointsGenMsg] = useState(null); // { type: 'error'|'success', text }
+
+  const generateKeyPoints = async () => {
+    if (!form.title.trim()) return alert('กรุณาใส่ชื่อคลิปก่อนร่างสรุป');
+    setGeneratingKeyPoints(true);
+    setKeyPointsGenMsg(null);
+    try {
+      const topicLabel = VIDEO_TOPIC_MAP[form.topic]?.label || '';
+      const keyPoints = await generateKeyPointsWithAI({
+        title: form.title, topicLabel, chapters: form.chapters, keyPoints: form.keyPoints,
+      });
+      upd({ keyPoints });
+      setKeyPointsGenMsg({ type: 'success', text: 'ร่างสรุปแล้ว — ตรวจความถูกต้องแล้วกด "บันทึก" ด้านล่าง' });
+    } catch (err) {
+      setKeyPointsGenMsg({ type: 'error', text: 'ร่างสรุปไม่สำเร็จ: ' + (err?.message || err) });
+    } finally {
+      setGeneratingKeyPoints(false);
+    }
+  };
+
   const generateQuiz = async () => {
     if (!form.title.trim()) return alert('กรุณาใส่ชื่อคลิปก่อนสร้างควิซ');
     setGeneratingQuiz(true);
@@ -272,10 +294,24 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
         </label>
 
         {/* B */}
-        <label className="block">
-          <span className="text-caption font-bold text-purple">📝 B · สรุปประเด็น (markdown bullet)</span>
-          <textarea value={form.keyPoints} onChange={e => upd({ keyPoints: e.target.value })} rows={3} className={inputCls} style={inputStyle} placeholder={'- ประเด็นที่ 1\n- ประเด็นที่ 2'} />
-        </label>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-caption font-bold text-purple">📝 B · สรุปประเด็น (markdown bullet)</span>
+            <button onClick={generateKeyPoints} disabled={generatingKeyPoints}
+              className="btn btn-ghost btn-sm text-purple disabled:opacity-50">
+              <Sparkles size={13} strokeWidth={2.2} /> {generatingKeyPoints ? 'กำลังร่าง…' : 'ร่างสรุปด้วย AI'}
+            </button>
+          </div>
+          {keyPointsGenMsg && (
+            <div className={`text-2xs font-bold ${keyPointsGenMsg.type === 'error' ? 'text-danger' : 'text-success'}`}>
+              {keyPointsGenMsg.text}
+            </div>
+          )}
+          <textarea value={form.keyPoints} onChange={e => upd({ keyPoints: e.target.value })} rows={5} className={inputCls} style={inputStyle} placeholder={'- ประเด็นที่ 1\n- ประเด็นที่ 2'} />
+          <div className="text-2xs text-text-muted">
+            AI ร่างจากชื่อคลิป หัวข้อ และสารบัญ (ไม่ได้ดูวิดีโอ) — โปรดตรวจความถูกต้องก่อนบันทึก
+          </div>
+        </div>
 
         {/* A */}
         <div className="space-y-2">
