@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut, Shield, Plus, Trash2, Pencil, X, Video, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
 import { signOut } from '../services/auth';
 import { VIDEO_TOPICS, VIDEO_TOPIC_MAP } from '../data/videoTopics';
-import { getYouTubeId, parseClipTime, formatClipTime } from '../utils/youtube';
+import { parseClipTime, formatClipTime } from '../utils/youtube';
+import { toStoredVideoId, parseStoredVideoId } from '../utils/videoSource';
 import {
   listVideoLessonsAdmin, createVideoLesson, updateVideoLesson, deleteVideoLesson, swapVideoLessonOrder,
   generateQuizWithAI,
@@ -49,12 +50,12 @@ export default function AdminVideoLessons() {
 
   const save = async () => {
     const f = editing;
-    const ytId = getYouTubeId(f.youtubeId) || (/^[\w-]{11}$/.test(f.youtubeId.trim()) ? f.youtubeId.trim() : '');
+    const storedId = toStoredVideoId(f.youtubeId);
     if (!f.title.trim()) return alert('กรุณาใส่ชื่อคลิป');
-    if (!ytId) return alert('ลิงก์ YouTube ไม่ถูกต้อง (ต้องเป็นลิงก์ youtu.be / youtube.com หรือ video id 11 ตัว)');
+    if (!storedId) return alert('ลิงก์ไม่ถูกต้อง — รองรับ YouTube (ลิงก์ youtu.be / youtube.com หรือ id 11 ตัว) และ Google Drive (drive.google.com/file/d/…)');
     setSaving(true);
     try {
-      const payload = { ...f, youtubeId: ytId, chapters: f.chapters.map(c => ({ ...c, t: Number(c.t) || 0 })) };
+      const payload = { ...f, youtubeId: storedId, chapters: f.chapters.map(c => ({ ...c, t: Number(c.t) || 0 })) };
       if (f.id) await updateVideoLesson(f.id, payload);
       else await createVideoLesson(payload);
       setEditing(null);
@@ -159,7 +160,8 @@ function TimeInput({ value, onChange, className, style, placeholder }) {
 
 function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving }) {
   const upd = (patch) => setForm(f => ({ ...f, ...patch }));
-  const ytId = getYouTubeId(form.youtubeId) || (/^[\w-]{11}$/.test((form.youtubeId || '').trim()) ? form.youtubeId.trim() : '');
+  const storedId = toStoredVideoId(form.youtubeId);
+  const sourceType = parseStoredVideoId(storedId)?.type;
 
   // chapters
   const addChapter = () => upd({ chapters: [...form.chapters, { t: '', label: '' }] });
@@ -232,10 +234,17 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
         </label>
 
         <label className="block">
-          <span className="text-caption font-bold text-text-secondary">🔗 ลิงก์ YouTube (วางลิงก์ ไม่ต้องอัปไฟล์)</span>
-          <input value={form.youtubeId} onChange={e => upd({ youtubeId: e.target.value })} className={inputCls} style={inputStyle} placeholder="https://youtu.be/xxxxxxxxxxx" />
+          <span className="text-caption font-bold text-text-secondary">🔗 ลิงก์ YouTube หรือ Google Drive (วางลิงก์ ไม่ต้องอัปไฟล์)</span>
+          <input value={form.youtubeId} onChange={e => upd({ youtubeId: e.target.value })} className={inputCls} style={inputStyle} placeholder="https://youtu.be/… หรือ https://drive.google.com/file/d/…" />
           {form.youtubeId && (
-            <span className={`text-2xs ${ytId ? 'text-success' : 'text-danger'}`}>{ytId ? `id: ${ytId}` : 'ลิงก์ไม่ถูกต้อง'}</span>
+            <span className={`text-2xs ${storedId ? 'text-success' : 'text-danger'}`}>
+              {storedId ? `${sourceType === 'drive' ? 'Google Drive' : 'YouTube'} · id: ${storedId}` : 'ลิงก์ไม่ถูกต้อง'}
+            </span>
+          )}
+          {sourceType === 'drive' && (
+            <span className="block text-2xs text-warning">
+              Drive: ต้องแชร์ไฟล์เป็น "ทุกคนที่มีลิงก์" · ไม่รองรับ เริ่ม/จบ และสารบัญกดข้ามเวลาไม่ได้ · ผู้เรียนกดปุ่มยืนยันเองเมื่อดูจบ
+            </span>
           )}
         </label>
 

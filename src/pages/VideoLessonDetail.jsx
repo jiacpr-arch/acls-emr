@@ -13,6 +13,8 @@ import { courseMeta } from '../config/courseMode';
 import { formatClipTime } from '../utils/youtube';
 import { track } from '../services/analytics';
 import YouTubeLessonPlayer from '../components/YouTubeLessonPlayer';
+import DriveLessonPlayer from '../components/DriveLessonPlayer';
+import { parseStoredVideoId } from '../utils/videoSource';
 import ReadBody from '../components/precourse/ReadBody';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 
@@ -53,6 +55,10 @@ export default function VideoLessonDetail() {
   const clipIndex = clip ? topicClips.findIndex(c => c.id === clip.id) : -1;
   const nextClip = clipIndex >= 0 ? topicClips[clipIndex + 1] : null;
   const topicMeta = clip ? VIDEO_TOPIC_MAP[clip.topic] : null;
+  // youtube_id เก็บได้ทั้ง id YouTube 11 ตัว และ "drive:<file_id>" — Drive เล่นผ่าน iframe /preview
+  // ซึ่งไม่มี API จับความคืบหน้า/seek จึงใช้ปุ่มยืนยันดูจบแทน และสารบัญกดกระโดดเวลาไม่ได้
+  const videoSource = clip ? parseStoredVideoId(clip.youtubeId) : null;
+  const canSeek = videoSource?.type !== 'drive';
 
   const [progress, setProgress] = useState([]);
   const [attempts, setAttempts] = useState([]);
@@ -226,14 +232,24 @@ export default function VideoLessonDetail() {
         </button>
       </div>
 
-      <YouTubeLessonPlayer
-        ref={playerRef}
-        videoId={clip.youtubeId}
-        startSec={clip.startSec}
-        endSec={clip.endSec}
-        orientation={clip.orientation}
-        onWatched={handleWatched}
-      />
+      {videoSource?.type === 'drive' ? (
+        <DriveLessonPlayer
+          fileId={videoSource.id}
+          orientation={clip.orientation}
+          watched={watched}
+          onWatched={handleWatched}
+          label={clip.title}
+        />
+      ) : (
+        <YouTubeLessonPlayer
+          ref={playerRef}
+          videoId={clip.youtubeId}
+          startSec={clip.startSec}
+          endSec={clip.endSec}
+          orientation={clip.orientation}
+          onWatched={handleWatched}
+        />
+      )}
 
       <div>
         <div className="flex items-start justify-between gap-2">
@@ -242,7 +258,7 @@ export default function VideoLessonDetail() {
         </div>
         <div className="text-caption text-text-muted mt-0.5">
           คลิป {clipIndex + 1}/{topicClips.length}
-          {watched ? ' · ดูจบแล้ว ✓' : ' · ดูจนเกือบจบเพื่อนับว่า "ดูครบ"'}
+          {watched ? ' · ดูจบแล้ว ✓' : canSeek ? ' · ดูจนเกือบจบเพื่อนับว่า "ดูครบ"' : ' · ดูจบแล้วกดปุ่มยืนยันใต้วิดีโอ'}
         </div>
       </div>
 
@@ -252,8 +268,9 @@ export default function VideoLessonDetail() {
           <div className="text-overline text-purple mb-2 inline-flex items-center gap-1.5"><MapPin size={12} strokeWidth={2.4} /> สารบัญช่วงเวลา</div>
           <div className="space-y-1">
             {clip.chapters.map((ch, i) => (
-              <button key={i} onClick={() => playerRef.current?.seekTo(ch.t)}
-                className="w-full flex items-center gap-2.5 py-1.5 text-left rounded-md px-1 -mx-1 transition-colors hover:bg-bg-tertiary">
+              <button key={i} onClick={() => canSeek && playerRef.current?.seekTo(ch.t)}
+                disabled={!canSeek}
+                className={`w-full flex items-center gap-2.5 py-1.5 text-left rounded-md px-1 -mx-1 transition-colors ${canSeek ? 'hover:bg-bg-tertiary' : 'cursor-default'}`}>
                 <span className="text-xs font-bold text-purple bg-purple/10 px-2 py-0.5 shrink-0" style={{ borderRadius: 7, fontVariantNumeric: 'tabular-nums' }}>
                   {formatClipTime(ch.t)}
                 </span>
