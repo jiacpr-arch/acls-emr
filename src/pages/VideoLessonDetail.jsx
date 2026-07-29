@@ -270,6 +270,9 @@ export default function VideoLessonDetail() {
   const progressPct = Math.round(((safeStep + 1) / stepKeys.length) * 100);
 
   const goNext = () => {
+    // คลิป Drive จับความคืบหน้าไม่ได้ ต้องให้ผู้เรียนรับรองเอง — ให้ปุ่ม "ถัดไป"
+    // นับเป็นการรับรองไปในตัว จะได้ไม่ต้องกดสองที แล้วไปตันที่การ์ดแบบทดสอบที่ล็อก
+    if (currentStep === 'video' && !canSeek && !watched) handleWatched();
     if (onQuizStep) {
       if (!isLastQuestion) { setQIndex(safeQIndex + 1); return; }
       if (!allAnswered) return;
@@ -333,8 +336,6 @@ export default function VideoLessonDetail() {
             <DriveLessonPlayer
               fileId={videoSource.id}
               orientation={clip.orientation}
-              watched={watched}
-              onWatched={handleWatched}
               label={clip.title}
             />
           ) : (
@@ -355,7 +356,7 @@ export default function VideoLessonDetail() {
             </div>
             <div className="text-caption text-text-muted mt-0.5">
               คลิป {clipIndex + 1}/{topicClips.length}
-              {watched ? ' · ดูจบแล้ว ✓' : canSeek ? ' · ดูจนเกือบจบเพื่อนับว่า "ดูครบ"' : ' · ดูจบแล้วกดปุ่มยืนยันใต้วิดีโอ'}
+              {watched ? ' · ดูจบแล้ว ✓' : canSeek ? ' · ดูจนเกือบจบเพื่อนับว่า "ดูครบ"' : ' · ดูจบแล้วกด "ถัดไป"'}
             </div>
           </div>
 
@@ -396,6 +397,11 @@ export default function VideoLessonDetail() {
           </div>
           <div className="text-caption font-bold text-text-secondary">ดูวิดีโอให้จบก่อนเพื่อปลดล็อกแบบทดสอบ</div>
           <div className="text-2xs text-text-muted">แบบทดสอบ {quiz.length} ข้อ · ผ่าน ≥ {passingScore}%</div>
+          {/* ทางออกจากหน้านี้ต้องอยู่บนหน้านี้ — ไม่งั้นผู้เรียนตันเพราะปุ่มปลดล็อกอยู่สเต็ปก่อนหน้า */}
+          <button onClick={() => setStepIdx(stepKeys.indexOf('video'))}
+            className="btn btn-primary btn-sm !mt-3">
+            <PlayCircle size={14} strokeWidth={2.4} /> กลับไปดูวิดีโอ
+          </button>
         </div>
       )}
 
