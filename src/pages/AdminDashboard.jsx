@@ -70,6 +70,15 @@ const SECTIONS = [
     shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
   },
   {
+    to: '/admin/bls-knowledge-media',
+    title: 'สื่อประกอบคลังความรู้ BLS',
+    desc: '9 บท 33 หัวข้อ — จัดการรูป + วิดีโอทีละหัวข้อ',
+    icon: Images,
+    mode: 'bls',
+    gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
+    shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
+  },
+  {
     to: '/admin/video-lessons',
     title: 'วิดีโอบทเรียน',
     desc: 'เพิ่ม/แก้คลิป YouTube + สรุป + สารบัญ + ควิซ (เป็นเงื่อนไขใบประกาศนียบัตร)',

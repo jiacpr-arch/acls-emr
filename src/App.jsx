@@ -62,6 +62,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminChapters = lazy(() => import('./pages/AdminChapters'));
 const AdminPreCourseImages = lazy(() => import('./pages/AdminPreCourseImages'));
 const AdminBlsGuideMedia = lazy(() => import('./pages/AdminBlsGuideMedia'));
+const AdminBlsKnowledgeMedia = lazy(() => import('./pages/AdminBlsKnowledgeMedia'));
 const AdminQADeep = lazy(() => import('./pages/AdminQADeep'));
 const AdminQADeepPosted = lazy(() => import('./pages/AdminQADeepPosted'));
 const AdminStudentQuestions = lazy(() => import('./pages/AdminStudentQuestions'));
@@ -335,6 +336,17 @@ function App() {
             <Suspense fallback={<AdminFallback />}>
               <RequireAdmin>
                 <AdminBlsGuideMedia />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
+        {/* สื่อประกอบคลังความรู้ BLS — เปิดทั้ง ACLS/BLS (ใช้จริงเฉพาะ build BLS) */}
+        <Route
+          path="/admin/bls-knowledge-media"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminBlsKnowledgeMedia />
               </RequireAdmin>
             </Suspense>
           }
