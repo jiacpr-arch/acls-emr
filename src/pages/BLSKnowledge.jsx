@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { blsChapters } from '../data/blsKnowledgeContent';
 import QASection from '../components/QASection';
 import LessonVideos from '../components/precourse/LessonVideos';
+import { fetchBlsKnowledgeMedia, knowledgeMediaKey } from '../services/blsKnowledgeMediaService';
 import {
   GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock,
@@ -64,8 +65,22 @@ export default function BLSKnowledge() {
   const [tipLoading, setTipLoading] = useState(false);
   const [tipError, setTipError] = useState('');
   const [history, setHistory] = useState([]);
+  const [imagesByKey, setImagesByKey] = useState({});
+  const [videosByKey, setVideosByKey] = useState({});
 
   useEffect(() => { setHistory(getHistory()); }, [tip]);
+
+  useEffect(() => {
+    let alive = true;
+    fetchBlsKnowledgeMedia()
+      .then(({ imagesByKey, videosByKey }) => {
+        if (!alive) return;
+        setImagesByKey(imagesByKey);
+        setVideosByKey(videosByKey);
+      })
+      .catch(() => { /* ออฟไลน์/โหลดไม่ได้ — ไม่แสดงสื่อเพิ่ม ไม่ถือเป็น error */ });
+    return () => { alive = false; };
+  }, []);
 
   const fetchTip = async (topic) => {
     const cached = getTodayCache(topic);
@@ -169,7 +184,11 @@ export default function BLSKnowledge() {
                 </button>
                 {isOpen && (
                   <div className="px-3 pb-4 pt-3 space-y-3 animate-slide-up bg-bg-tertiary/30 border-t border-border">
-                    {ch.sections.map((s, i) => (
+                    {ch.sections.map((s, i) => {
+                      const key = knowledgeMediaKey(ch.id, i);
+                      const sectionImages = [...(s.images ?? []), ...(imagesByKey[key] ?? [])];
+                      const sectionVideos = [...(s.videos ?? []), ...(videosByKey[key] ?? [])];
+                      return (
                       <article key={i} className="als-section-card">
                         {s.heading && (
                           <h3 className="als-section-heading">
@@ -180,9 +199,9 @@ export default function BLSKnowledge() {
                         {s.body && (
                           <p className="als-section-body">{s.body}</p>
                         )}
-                        {s.images?.length > 0 && (
+                        {sectionImages.length > 0 && (
                           <div className={`space-y-3 ${s.heading || s.body ? 'mt-3' : ''}`}>
-                            {s.images.map((img, j) => (
+                            {sectionImages.map((img, j) => (
                               <figure key={j} className="m-0">
                                 <img
                                   src={img.src}
@@ -200,18 +219,19 @@ export default function BLSKnowledge() {
                             ))}
                           </div>
                         )}
-                        {s.videos?.length > 0 && (
-                          <div className={s.heading || s.body || s.images?.length ? 'mt-3' : ''}>
-                            <LessonVideos videos={s.videos} title="วิดีโอประกอบหัวข้อนี้" />
+                        {sectionVideos.length > 0 && (
+                          <div className={s.heading || s.body || sectionImages.length ? 'mt-3' : ''}>
+                            <LessonVideos videos={sectionVideos} title="วิดีโอประกอบหัวข้อนี้" />
                           </div>
                         )}
                         {s.qa?.length > 0 && (
-                          <div className={s.heading || s.body || s.images?.length || s.videos?.length ? 'mt-3' : ''}>
+                          <div className={s.heading || s.body || sectionImages.length || sectionVideos.length ? 'mt-3' : ''}>
                             <QASection qa={s.qa} accent={theme.accent} />
                           </div>
                         )}
                       </article>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

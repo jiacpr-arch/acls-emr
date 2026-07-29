@@ -91,6 +91,7 @@ export default function Learn() {
           items: [
             { path: '/pre-course/pre-test', emoji: '📝', label: 'Pre-test', subtitle: 'Knowledge Check', desc: 'วัดพื้นฐานก่อนเริ่มเรียน', tone: 'purple' },
             { path: '/pre-course', emoji: '🎓', label: t('pre_course', lang), subtitle: 'Pre-course', desc: t('pre_course_desc', lang), tone: 'info', progressKey: 'lessons' },
+            { path: '/video-lessons', emoji: '📹', label: 'วิดีโอบทเรียน', subtitle: 'Video Lessons', desc: 'คลิปสั้น + สรุป + ควิซ', tone: 'purple', progressKey: 'video' },
           ],
         },
         {

@@ -62,6 +62,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminChapters = lazy(() => import('./pages/AdminChapters'));
 const AdminPreCourseImages = lazy(() => import('./pages/AdminPreCourseImages'));
 const AdminBlsGuideMedia = lazy(() => import('./pages/AdminBlsGuideMedia'));
+const AdminBlsKnowledgeMedia = lazy(() => import('./pages/AdminBlsKnowledgeMedia'));
 const AdminQADeep = lazy(() => import('./pages/AdminQADeep'));
 const AdminQADeepPosted = lazy(() => import('./pages/AdminQADeepPosted'));
 const AdminStudentQuestions = lazy(() => import('./pages/AdminStudentQuestions'));
@@ -167,8 +168,8 @@ function App() {
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
         {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
-        {IS_ACLS && <Route path="/video-lessons" element={<VideoLessons />} />}
-        {IS_ACLS && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
+        {(IS_ACLS || IS_BLS) && <Route path="/video-lessons" element={<VideoLessons />} />}
+        {(IS_ACLS || IS_BLS) && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
         {/* เข้าถึงได้ทั้ง ACLS/BLS — เมนูใน AdminDashboard กรองตามโหมดเอง */}
         <Route
           path="/admin/login"
@@ -200,18 +201,17 @@ function App() {
             }
           />
         )}
-        {IS_ACLS && (
-          <Route
-            path="/admin/precourse-images"
-            element={
-              <Suspense fallback={<AdminFallback />}>
-                <RequireAdmin>
-                  <AdminPreCourseImages />
-                </RequireAdmin>
-              </Suspense>
-            }
-          />
-        )}
+        {/* เข้าถึงได้ทั้ง ACLS/BLS — preCourseLessons ใน activeLessons.js สลับตามโหมดเอง */}
+        <Route
+          path="/admin/precourse-images"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminPreCourseImages />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
         {IS_ACLS && (
           <Route
             path="/admin/qa-deep"
@@ -284,7 +284,7 @@ function App() {
             }
           />
         )}
-        {IS_ACLS && (
+        {(IS_ACLS || IS_BLS) && (
           <Route
             path="/admin/video-lessons"
             element={
@@ -336,6 +336,17 @@ function App() {
             <Suspense fallback={<AdminFallback />}>
               <RequireAdmin>
                 <AdminBlsGuideMedia />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
+        {/* สื่อประกอบคลังความรู้ BLS — เปิดทั้ง ACLS/BLS (ใช้จริงเฉพาะ build BLS) */}
+        <Route
+          path="/admin/bls-knowledge-media"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminBlsKnowledgeMedia />
               </RequireAdmin>
             </Suspense>
           }
