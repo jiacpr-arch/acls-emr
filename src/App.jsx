@@ -168,8 +168,8 @@ function App() {
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
         {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
-        {IS_ACLS && <Route path="/video-lessons" element={<VideoLessons />} />}
-        {IS_ACLS && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
+        {(IS_ACLS || IS_BLS) && <Route path="/video-lessons" element={<VideoLessons />} />}
+        {(IS_ACLS || IS_BLS) && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
         {/* เข้าถึงได้ทั้ง ACLS/BLS — เมนูใน AdminDashboard กรองตามโหมดเอง */}
         <Route
           path="/admin/login"
@@ -284,7 +284,7 @@ function App() {
             }
           />
         )}
-        {IS_ACLS && (
+        {(IS_ACLS || IS_BLS) && (
           <Route
             path="/admin/video-lessons"
             element={

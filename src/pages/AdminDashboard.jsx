@@ -83,7 +83,7 @@ const SECTIONS = [
     title: 'วิดีโอบทเรียน',
     desc: 'เพิ่ม/แก้คลิป YouTube + สรุป + สารบัญ + ควิซ (เป็นเงื่อนไขใบประกาศนียบัตร)',
     icon: Video,
-    mode: 'acls',
+    mode: 'both',
     gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
     shadow: '0 8px 20px rgba(124, 58, 237, 0.22)',
   },

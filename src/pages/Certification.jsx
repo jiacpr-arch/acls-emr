@@ -132,11 +132,11 @@ export default function Certification() {
   const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
   const preTestDone = !!preTestBest?.passed;
 
-  // เงื่อนไขบทเรียนวิดีโอ — ดูครบ + ผ่านควิซ ทุกหัวข้อ required (ACLS เท่านั้น)
+  // เงื่อนไขบทเรียนวิดีโอ — ดูครบ + ผ่านควิซ ทุกหัวข้อ required (ทั้ง ACLS/BLS แยกชุดกันด้วย course_mode)
   // ถ้ายังไม่มีวิดีโอ (total = 0) จะไม่เพิ่มเป็นเงื่อนไข เพื่อไม่บล็อกใบประกาศนียบัตรช่วงเปลี่ยนผ่าน
   const { lessons: videoLessons, loading: videoLoading, error: videoError } = useVideoLessons();
   const videoComp = computeVideoCompletion(videoLessons, preCourseProgress, preCourseAttempts);
-  const videoGateActive = !IS_BLS && videoComp.total > 0;
+  const videoGateActive = videoComp.total > 0;
 
   // BLS ขั้นที่ 2 (ฝึก CPR): วัดผลจากเกมลำดับขั้นตัดสินใจ 8 ด่าน + ข้อสอบรวม
   // ที่ฝังอยู่ในหน้า skill-practice — อ่านสดจาก localStorage ทุก render
@@ -159,6 +159,9 @@ export default function Certification() {
   const requirements = IS_BLS
     ? [
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
+        ...(videoGateActive
+          ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
+          : []),
         { label: `ผ่านฝึก CPR — เกมลำดับขั้น 8 ด่าน + ข้อสอบรวม (${scenarioGame.done}/${scenarioGame.total})`, done: scenarioGame.allPassed, Icon: Activity, to: '/skill-practice' },
         { label: `ผ่านเกม BLS Rescue ครบทุกเคส (${simGame.done}/${simGame.total})`, done: simGame.allPassed, Icon: Sparkles, to: '/sim' },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
@@ -173,12 +176,12 @@ export default function Certification() {
           : []),
       ];
 
-  // While the video list (ACLS) or the local progress records are still
-  // loading, the requirements list is incomplete — computing allDone from it
-  // would briefly drop the video gate and expose the generate-cert form.
+  // While the video list or the local progress records are still loading, the
+  // requirements list is incomplete — computing allDone from it would briefly
+  // drop the video gate and expose the generate-cert form.
   // On a load error, keep the gate locked (fail closed).
-  const requirementsLoading = progressLoading || (!IS_BLS && videoLoading);
-  const requirementsError = progressError || (!IS_BLS ? videoError : null);
+  const requirementsLoading = progressLoading || videoLoading;
+  const requirementsError = progressError || videoError;
   const allDone = !requirementsLoading && !requirementsError && requirements.every(r => r.done);
   const progress = Math.round((requirements.filter(r => r.done).length / requirements.length) * 100);
 

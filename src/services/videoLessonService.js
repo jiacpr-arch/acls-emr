@@ -1,7 +1,10 @@
 import { supabase } from './supabase';
+import { IS_BLS } from '../config/courseMode';
 
 // อ่าน "วิดีโอบทเรียน" จาก Supabase (public read) + cache 6 ชม. เลียนแบบ precourseImageService
-const CACHE_KEY = 'video_lessons_cache_v1';
+// video_lessons เก็บ ACLS/BLS ร่วมตารางเดียวกัน แยกด้วย course_mode — ต้องกรองทุก query
+const COURSE_MODE = IS_BLS ? 'bls' : 'acls';
+const CACHE_KEY = `video_lessons_cache_v1:${COURSE_MODE}`;
 const TTL_MS = 6 * 60 * 60 * 1000;
 
 export function invalidateVideoLessonsCache() {
@@ -52,6 +55,7 @@ export async function fetchVideoLessons({ force = false } = {}) {
   const { data, error } = await supabase
     .from('video_lessons')
     .select('*')
+    .eq('course_mode', COURSE_MODE)
     .order('topic', { ascending: true })
     .order('sort_order', { ascending: true });
   if (error) throw error;
