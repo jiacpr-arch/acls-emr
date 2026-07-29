@@ -20,7 +20,7 @@ import {
 } from '../game/storyEngine';
 import {
   initAudio, playShockSound, playROSCSound, playWarningBeep,
-  playMetronomeClick, playBeep,
+  playMetronomeClick, playBeep, setSfxVolume,
 } from '../utils/sound';
 import { track } from '../services/analytics';
 import {
@@ -30,6 +30,7 @@ import './codeBlueSim.css';
 
 const HISCORE_PREFIX = 'acls_codeblue_hiscore';
 const MUTE_KEY = 'acls_codeblue_muted';
+const SFX_VOLUME_KEY = 'acls_codeblue_sfx_volume';
 const DIFF_KEY = 'acls_codeblue_difficulty';
 const hiscoreKey = (diff) => `${HISCORE_PREFIX}_${diff}`;
 
@@ -108,6 +109,12 @@ export default function CodeBlueSim() {
   const [muted, setMuted] = useState(() => localStorage.getItem(MUTE_KEY) === '1');
   const mutedRef = useRef(muted);
   useEffect(() => { mutedRef.current = muted; }, [muted]);
+
+  const [sfxVolume, setSfxVolumeState] = useState(() => {
+    const saved = localStorage.getItem(SFX_VOLUME_KEY);
+    return saved !== null ? Number(saved) : 1;
+  });
+  useEffect(() => { setSfxVolume(muted ? 0 : sfxVolume); }, [muted, sfxVolume]);
 
   // นักเรียนที่อยู่ในคลาส (ถ้ามี) — ใช้บันทึกผลเกมขึ้น cloud ให้อาจารย์เห็น
   // ไม่มีก็เล่นได้ปกติ แค่ไม่มีใครเห็นผลนอกจากตัวเอง (เหมือนเดิม)
@@ -606,6 +613,12 @@ export default function CodeBlueSim() {
     });
   }
 
+  function changeSfxVolume(v) {
+    setSfxVolumeState(v);
+    localStorage.setItem(SFX_VOLUME_KEY, String(v));
+    if (v > 0 && muted) toggleMute();
+  }
+
   // ============ AWARDS (รางวัล/เหรียญ) ============
   if (screen === 'awards') {
     // awardsTick อ้างในนี้เพื่อให้ re-read localStorage หลังจบเคส (ค่าเหรียญ sticky)
@@ -806,14 +819,28 @@ export default function CodeBlueSim() {
           </div>
           <div className="cbs-title-row">
             {hiscore > 0 && <div className="cbs-hiscore-chip">HI-SCORE {hiscore}</div>}
-            <button
-              type="button"
-              className="cbs-icon-btn"
-              onClick={toggleMute}
-              aria-label={muted ? 'เปิดเสียง' : 'ปิดเสียง'}
-            >
-              {muted ? <VolumeX size={16} strokeWidth={2.4} /> : <Volume2 size={16} strokeWidth={2.4} />}
-            </button>
+            <div className="cbs-vol-group">
+              <button
+                type="button"
+                className="cbs-icon-btn"
+                onClick={toggleMute}
+                aria-label={muted ? 'เปิดเสียง' : 'ปิดเสียง'}
+              >
+                {muted || sfxVolume === 0
+                  ? <VolumeX size={16} strokeWidth={2.4} />
+                  : <Volume2 size={16} strokeWidth={2.4} />}
+              </button>
+              <input
+                type="range"
+                className="cbs-vol-slider"
+                min={0}
+                max={1}
+                step={0.05}
+                value={muted ? 0 : sfxVolume}
+                onChange={(e) => changeSfxVolume(Number(e.target.value))}
+                aria-label="ระดับเสียงเอฟเฟกต์"
+              />
+            </div>
           </div>
           <button type="button" className="cbs-btn-main" onClick={startGame}>
             <AlertTriangle size={18} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-3px', marginRight: 8 }} />
