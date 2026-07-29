@@ -39,7 +39,7 @@ export const traumaArrest = {
             then: [
               { say: { who: 'boy_compressor', pose: 'talk', text: 'เริ่มกดครับ! <span class="cbs-em">หนึ่ง-สอง-สาม…</span>', fx: { cpr: true, firstCPR: true } }, t: 8 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้นแล้วค่ะ… <span class="cbs-em">Sinus tachycardia rate 140 แต่คลำชีพจรไม่ได้</span>' }, t: 6 },
-              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'flat' } },
+              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'pea' } },
             ],
           },
           { tgt: 'AIRWAY', label: 'หยุดทุกอย่างเพื่อใส่ท่อช่วยหายใจก่อน', ok: false, why: 'CPR มาก่อน advanced airway เสมอ — ใส่ท่อก่อนกดทำให้ perfusion หายไป', worsen: true },

@@ -174,11 +174,11 @@ export const setB = {
       question: 'ใน 1-rescuer ทารก ใช้เทคนิคใดกดหน้าอก?',
       choices: [
         { id: 'a', text: '2-finger technique' },
-        { id: 'b', text: '2-thumb encircling' },
-        { id: 'c', text: 'Heel of hand' },
-        { id: 'd', text: '1 hand' },
+        { id: 'b', text: 'Heel of 1 hand หรือ 2-thumb encircling' },
+        { id: 'c', text: 'สองมือประสานเหมือนผู้ใหญ่' },
+        { id: 'd', text: 'บีบด้านข้างทรวงอก' },
       ],
-      correctId: 'a', explanation: '1-rescuer: 2-finger; 2-rescuer (HCP): 2-thumb encircling' },
+      correctId: 'b', explanation: 'แนวทาง 2025 เลิกใช้ 2-finger — 1-rescuer ใช้ heel-of-1-hand หรือ 2-thumb encircling; 2-rescuer (HCP) ใช้ 2-thumb encircling' },
     { id: 'bls-b-19', topic: 'infant',
       question: 'AED ในทารก < 1 ปี ที่ไม่มี manual defib + ไม่มี peds attenuator ใช้อะไร?',
       choices: [

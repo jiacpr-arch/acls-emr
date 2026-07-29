@@ -29,16 +29,17 @@ export default function BLSSkillPractice() {
   const elapsedTimerRef = useRef(null);
   const metronomeTimerRef = useRef(null);
 
-  // Metronome — pause ทุก 30 ครั้ง 5 วินาทีเมื่อโหมด 30:2 เปิดอยู่
+  // Metronome — เดินตลอดเมื่อกำลังฝึก แม้ปิดเสียง (metronomeOn คุมแค่เสียงคลิก)
+  // เพื่อให้โหมด 30:2 นับจังหวะและเตือนช่วยหายใจได้ถูกต้องเสมอ
   useEffect(() => {
-    if (!running || !metronomeOn) {
+    if (!running) {
       clearInterval(metronomeTimerRef.current);
       return;
     }
     const intervalMs = 60000 / rate;
     metronomeTimerRef.current = setInterval(() => {
       if (breathPauseRef.current) return;
-      playMetronomeClick();
+      if (metronomeOn) playMetronomeClick();
       if (ratio302) {
         beatCountRef.current += 1;
         if (beatCountRef.current >= 30) {
@@ -46,7 +47,7 @@ export default function BLSSkillPractice() {
           breathPauseRef.current = true;
           setBreathAlert(true);
           setBreathPauseStartedAt(Date.now());
-          playBeep(523, 0.3, 0.3);
+          if (metronomeOn) playBeep(523, 0.3, 0.3);
         }
       }
     }, intervalMs);
@@ -88,6 +89,13 @@ export default function BLSSkillPractice() {
     return () => clearInterval(elapsedTimerRef.current);
   }, [running]);
 
+  // Cue a chime right when a 2-minute cycle completes, so "เปลี่ยนคนกด" isn't a silent banner
+  useEffect(() => {
+    if (elapsed > 0 && elapsed % CYCLE_TARGET_SEC === 0 && metronomeOn) {
+      playBeep(392, 0.25, 0.25);
+    }
+  }, [elapsed, metronomeOn]);
+
   const handleTap = () => {
     if (!running) return;
     const now = performance.now();
@@ -117,8 +125,11 @@ export default function BLSSkillPractice() {
   };
 
   const bpmInZone = actualBpm != null && actualBpm >= RATE_LOW && actualBpm <= RATE_HIGH;
-  const cycleProgress = Math.min((elapsed / CYCLE_TARGET_SEC) * 100, 100);
-  const cycleDue = elapsed > 0 && elapsed % CYCLE_TARGET_SEC === 0;
+  const cycleNumber = Math.floor(elapsed / CYCLE_TARGET_SEC) + 1;
+  const cycleElapsed = elapsed % CYCLE_TARGET_SEC;
+  const cycleProgress = (cycleElapsed / CYCLE_TARGET_SEC) * 100;
+  // ค้างเตือน 10 วินาทีแรกของรอบใหม่ ไม่ใช่แค่วินาทีเดียวที่ครบพอดี
+  const cycleDue = elapsed >= CYCLE_TARGET_SEC && cycleElapsed < 10;
 
   return (
     <div
@@ -148,15 +159,6 @@ export default function BLSSkillPractice() {
             กดปุ่ม <b>เริ่ม</b> เพื่อเปิด metronome → แตะปุ่มใหญ่ตามจังหวะที่กดจริง → ตรวจสอบ BPM ของตัวเอง<br />
             เปลี่ยนคนกดทุก <b>2 นาที</b> เพื่อรักษาคุณภาพ
           </div>
-        </div>
-
-        {/* Decision-game — embedded directly instead of linking out to a separate hub */}
-        <div className="space-y-3 pt-1">
-          <div className="flex items-center gap-2 px-1">
-            <Brain size={16} strokeWidth={2.2} className="text-info shrink-0" />
-            <div className="text-overline text-text-muted">เกมลำดับขั้นตัดสินใจ · 8 ด่าน + ข้อสอบรวม</div>
-          </div>
-          <BLSScenarioStageGrid />
         </div>
 
         {/* Breath alert banner */}
@@ -205,7 +207,7 @@ export default function BLSSkillPractice() {
         {/* Cycle progress */}
         <div className="dash-card">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-sm text-text-secondary">รอบนี้ ({CYCLE_TARGET_SEC}s)</div>
+            <div className="text-sm text-text-secondary">รอบที่ {cycleNumber} ({CYCLE_TARGET_SEC}s)</div>
             {cycleDue && (
               <div className="text-xs font-bold text-warning">⚠ เปลี่ยนคนกดได้แล้ว</div>
             )}
@@ -277,6 +279,15 @@ export default function BLSSkillPractice() {
             <span>{RATE_LOW}</span>
             <span>{RATE_HIGH}</span>
           </div>
+        </div>
+
+        {/* Decision-game — embedded directly instead of linking out to a separate hub */}
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center gap-2 px-1">
+            <Brain size={16} strokeWidth={2.2} className="text-info shrink-0" />
+            <div className="text-overline text-text-muted">เกมลำดับขั้นตัดสินใจ · 8 ด่าน + ข้อสอบรวม</div>
+          </div>
+          <BLSScenarioStageGrid />
         </div>
       </div>
     </div>

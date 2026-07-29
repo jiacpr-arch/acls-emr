@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Play, ExternalLink } from 'lucide-react';
 import VideoLightbox from './VideoLightbox';
-import { getYouTubeId } from '../../utils/youtube';
+import { getVideoSource } from '../../utils/videoSource';
 
 // การ์ด thumbnail เล็ก — คลิกเพื่อเปิด lightbox (ไม่ embed inline เพื่อไม่ดันเลย์เอาต์ให้ยาว)
-function VideoCard({ videoId, label, orientation, onPlay }) {
+function VideoCard({ thumb, label, orientation, onPlay }) {
   const isPortrait = orientation === 'portrait';
-  const thumb = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
   return (
     <button
       type="button"
@@ -36,7 +35,7 @@ function VideoCard({ videoId, label, orientation, onPlay }) {
   );
 }
 
-export default function LessonVideos({ videos }) {
+export default function LessonVideos({ videos, title = 'วิดีโอประกอบบทนี้', onPlay }) {
   const items = (videos || []).filter(v => v.url);
   const [active, setActive] = useState(null);
   if (!items.length) return null;
@@ -45,23 +44,23 @@ export default function LessonVideos({ videos }) {
     <div className="space-y-2">
       <div className="flex items-center gap-2 px-1">
         <Play size={14} strokeWidth={2.4} className="text-info" />
-        <span className="text-overline text-text-muted">วิดีโอประกอบบทนี้</span>
+        <span className="text-overline text-text-muted">{title}</span>
       </div>
       <div className="flex flex-wrap gap-3">
         {items.map((v, i) => {
-          const id = getYouTubeId(v.url);
-          if (id) {
+          const source = getVideoSource(v.url);
+          if (source) {
             return (
               <VideoCard
                 key={`${v.url}-${i}`}
-                videoId={id}
+                thumb={source.thumbUrl}
                 label={v.label}
                 orientation={v.orientation}
-                onPlay={() => setActive({ id, label: v.label, orientation: v.orientation })}
+                onPlay={() => { setActive({ embedUrl: source.embedUrl, label: v.label, orientation: v.orientation }); onPlay?.(v, i); }}
               />
             );
           }
-          // ไม่ใช่ลิงก์ YouTube → fallback เป็นลิงก์ภายนอก
+          // ไม่ใช่ลิงก์ YouTube / Google Drive → fallback เป็นลิงก์ภายนอก
           return (
             <a key={`${v.url}-${i}`} href={v.url} target="_blank" rel="noopener noreferrer"
               className="dash-card flex items-center gap-2 hover:bg-bg-tertiary/50 transition-colors">
@@ -75,7 +74,7 @@ export default function LessonVideos({ videos }) {
       <VideoLightbox
         open={!!active}
         onClose={() => setActive(null)}
-        videoId={active?.id}
+        embedUrl={active?.embedUrl}
         orientation={active?.orientation}
         label={active?.label}
       />

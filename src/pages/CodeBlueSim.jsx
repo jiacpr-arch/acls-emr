@@ -8,8 +8,11 @@ import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { IS_BLS } from '../config/courseMode';
+import { isOpenLeague } from '../config/openLeague';
 import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
+import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import ClassGateModal from '../components/precourse/ClassGateModal';
 import CharacterSprite, { preloadCharacterImages } from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
 import {
@@ -20,7 +23,10 @@ import {
 } from '../game/storyEngine';
 import {
   initAudio, playShockSound, playROSCSound, playWarningBeep,
-  playMetronomeClick, playBeep, setSfxVolume,
+  playMetronomeClick, playBeep, setSfxVolume, playTapSound, playTypeBlip,
+  playChoiceAppear, playTickSound, playCorrectSound, playComboBreakSound,
+  playWinJingle, playLoseSound, playAchievementSound, playImpactSound,
+  playHeartbeatThump,
 } from '../utils/sound';
 import { track } from '../services/analytics';
 import {
@@ -28,11 +34,60 @@ import {
 } from '../game/achievements';
 import './codeBlueSim.css';
 
+// ป้ายชื่อเกมตามโหมด — engine เดียวกัน แต่ bls.morroo.com เห็นแบรนด์/คำโปรยแบบ BLS
+const GAME_NAME = IS_BLS ? 'BLS RESCUE' : 'CODE BLUE';
+const GAME_EYEBROW = IS_BLS ? 'BLS Rescue' : 'Code Blue';
+
 const HISCORE_PREFIX = 'acls_codeblue_hiscore';
 const MUTE_KEY = 'acls_codeblue_muted';
 const SFX_VOLUME_KEY = 'acls_codeblue_sfx_volume';
 const DIFF_KEY = 'acls_codeblue_difficulty';
+/** เคยเห็นคำใบ้ "แตะเพื่อเล่นต่อ" แล้วหรือยัง — โชว์ครั้งเดียวต่อเครื่อง */
+const TAP_COACH_KEY = 'acls_codeblue_tap_coach';
 const hiscoreKey = (diff) => `${HISCORE_PREFIX}_${diff}`;
+
+/** บทพูดอนุญาต HTML แค่ <span class="cbs-em"> สำหรับเน้นคำ (ดู data/codeBlueScenarios.js) —
+ * parse เฉพาะ pattern นี้แทนการ dangerouslySetInnerHTML ทั้งก้อน กันเนื้อเรื่องที่แอดมิน/AI
+ * แต่งเองในอนาคตแทรก HTML ตามใจชอบได้ ข้อความนอก tag นี้ (รวม `<`/`>` หลุดๆ) render เป็น
+ * literal text เสมอ ไม่ถูกตีความเป็น HTML */
+const EM_OPEN = '<span class="cbs-em">';
+const EM_CLOSE = '</span>';
+function parseEmphasis(text) {
+  const segments = [];
+  let i = 0;
+  while (i < text.length) {
+    const openIdx = text.indexOf(EM_OPEN, i);
+    if (openIdx === -1) {
+      segments.push({ em: false, text: text.slice(i) });
+      break;
+    }
+    if (openIdx > i) segments.push({ em: false, text: text.slice(i, openIdx) });
+    const closeIdx = text.indexOf(EM_CLOSE, openIdx + EM_OPEN.length);
+    if (closeIdx === -1) {
+      // แท็กไม่ปิด — กันเกมค้าง: ถือว่าที่เหลือทั้งหมดเป็นข้อความเน้นแทน
+      segments.push({ em: true, text: text.slice(openIdx + EM_OPEN.length) });
+      break;
+    }
+    segments.push({ em: true, text: text.slice(openIdx + EM_OPEN.length, closeIdx) });
+    i = closeIdx + EM_CLOSE.length;
+  }
+  return segments;
+}
+
+/** บทพูดที่พิมพ์ทีละตัว — reveal ตามจำนวนตัวอักษร ไม่มี HTML */
+function DlgText({ segments, count }) {
+  const parts = [];
+  let remaining = count;
+  for (let i = 0; i < segments.length; i++) {
+    const s = segments[i];
+    const take = Math.max(0, Math.min(s.text.length, remaining));
+    remaining -= take;
+    if (take) parts.push({ key: i, em: s.em, text: s.text.slice(0, take) });
+  }
+  return parts.map((p) => (
+    <span key={p.key} className={p.em ? 'cbs-em' : undefined}>{p.text}</span>
+  ));
+}
 
 // สำเนาสถานะ engine สำหรับ render (render ห้ามอ่าน ref ตรงๆ)
 function snapshot(st) {
@@ -41,14 +96,25 @@ function snapshot(st) {
 
 const RHYTHM_NAMES = {
   flat: 'ASYSTOLE',
+  pea: 'PEA ⚠',
   vf: 'V-FIB ⚠',
   nsr: 'SINUS — ROSC',
+  afib: 'ATRIAL FIB',
   brady: 'BRADYCARDIA ⚠',
   pacing: 'PACED RHYTHM — CAPTURED',
   tachy: 'UNSTABLE TACHY ⚠',
 };
 // rhythm ที่ "มีชีพจรแต่ไม่เสถียร" — เตือนสีทอง ไม่ blink (ต่างจาก shockable/arrest ที่ blink แดง)
 const WARN_RHYTHMS = new Set(['brady', 'pacing', 'tachy']);
+// rhythm ของ cardiac arrest (ไม่มีชีพจร) — blink แดง: shockable (vf), asystole (flat), PEA (pea)
+const ARREST_RHYTHMS = new Set(['vf', 'flat', 'pea']);
+
+// ป้ายชื่อจังหวะบนจอ — nsr แยกตามบริบท: หลัง arrest = ROSC, ไม่งั้น = sinus ปกติ
+// (เคส stroke/ACS/หลัง cardiovert ไม่เคย arrest ป้าย "ROSC" จะไม่ตรงสถานการณ์)
+function rhythmLabel(st) {
+  if (st.rhythm === 'nsr') return st.rosc ? 'SINUS — ROSC' : 'SINUS RHYTHM';
+  return RHYTHM_NAMES[st.rhythm];
+}
 
 const CLEARED_KEY = 'acls_codeblue_cleared'; // เก็บ id เคสที่เคยผ่าน (ROSC)
 const readCleared = () => {
@@ -119,8 +185,17 @@ export default function CodeBlueSim() {
   // นักเรียนที่อยู่ในคลาส (ถ้ามี) — ใช้บันทึกผลเกมขึ้น cloud ให้อาจารย์เห็น
   // ไม่มีก็เล่นได้ปกติ แค่ไม่มีใครเห็นผลนอกจากตัวเอง (เหมือนเดิม)
   const activeStudent = usePreCourseStore((s) => s.activeStudent);
-  // อยู่ในคลาสไหม — ใช้โชว์ปุ่มอันดับเหรียญ (เข้า/ออกคลาสไม่เกิดกลางเกม อ่านครั้งเดียวพอ)
-  const [inClass] = useState(() => !!getClassContext().classCode);
+  // อยู่ในคลาสไหม — ใช้โชว์ปุ่มอันดับเหรียญ + ชิปลงทะเบียน
+  // (เป็น state เพราะตอนนี้เข้าคลาสได้จากในเกมเอง ผ่าน ClassGateModal ด้านล่าง)
+  const [inClass, setInClass] = useState(() => !!getClassContext().classCode);
+  // ในคลาส: ก่อนรับเคสครั้งแรกต้องรู้ว่าใครเล่น ไม่งั้นผลจะไม่ถูกบันทึกให้ครูเห็น
+  // (rpcSubmitCodeBlueResult ต้องมี studentPk เสมอ) — startAfterIdentityRef จำไว้ว่า
+  // เปิด modal มาเพื่อ "รับเคส" ต่อ ไม่ใช่แค่แก้ชื่อจากชิปสถานะ
+  const [showIdentity, setShowIdentity] = useState(false);
+  // ยังไม่มีคลาส: ให้เข้าคลาสจากหน้าเกมได้เลย (เดิมต้องอ้อมไป /pre-course ก่อน
+  // นักเรียนเลยไม่รู้ว่าจะกรอกชื่อ/รหัสจากตรงไหน)
+  const [showClassGate, setShowClassGate] = useState(false);
+  const startAfterIdentityRef = useRef(false);
 
   // ---- engine state: mutable ใน ref (logic) + snapshot state (render) ----
   const S = useRef(createInitialState(DEFAULT_DIFFICULTY));
@@ -186,7 +261,8 @@ export default function CodeBlueSim() {
   }, [preview]);
   const [speaker, setSpeaker] = useState(null); // { who, pose, popN }
   const [plate, setPlate] = useState(null); // { name } override (time-skip)
-  const [dlgHtml, setDlgHtml] = useState('');
+  const [dlgSegments, setDlgSegments] = useState([]);
+  const [dlgCount, setDlgCount] = useState(0);
   const [typing, setTyping] = useState(false);
   const [choice, setChoice] = useState(null); // { q, options, hintTgt }
   const [decisionLeft, setDecisionLeft] = useState(getDifficulty(difficulty).decisionTime);
@@ -202,13 +278,15 @@ export default function CodeBlueSim() {
   const timers = useRef({ type: null, dec: null, misc: [], metronome: null });
   const busyRef = useRef(false);
   const [awaitTap, setAwaitTap] = useState(false);
+  // คำใบ้เต็มจอตอนเปิดเกมครั้งแรก — ปิดทิ้งก่อนแตะสักครั้ง
+  const [tapCoach, setTapCoach] = useState(false);
   const currentChoiceRef = useRef(null);
   const retryChoiceRef = useRef(null);
   const decisionLeftRef = useRef(0); // เวลาที่เหลือ ณ วินาทีที่กดเลือก (คำนวณโบนัสความไว)
   const comboBreakN = useRef(0);     // key ให้อนิเมชัน COMBO BREAK เล่นซ้ำได้
   const hintUsedRef = useRef(false); // โหมดง่าย: ใบ้ target หลังตอบผิดครั้งแรกของแต่ละจุด
   const typeDoneRef = useRef(null);
-  const fullHtmlRef = useRef('');
+  const fullSegmentsRef = useRef([]);
   const popCounter = useRef(0);
 
   const stopMetronome = useCallback(() => {
@@ -227,6 +305,44 @@ export default function CodeBlueSim() {
     t.type = null; t.dec = null; t.metronome = null; t.misc = [];
   }, []);
   useEffect(() => clearAllTimers, [clearAllTimers]);
+
+  // เลเยอร์ความกดดัน: เสียงหัวใจเต้น "ตุบ-ตุบ" พื้นหลังระหว่างเล่น
+  // คำนวณ "ความตึงเครียด" ใหม่ทุกจังหวะเต้น จาก HP + ภาวะผู้ป่วย + นาทีบีบคั้นตอนตัดสินใจ
+  // ยิ่งแย่/ยิ่งลุ้น ยิ่งเต้นเร็วและดังขึ้นพร้อมกัน (~55→130 ครั้ง/นาที)
+  // — ระหว่าง CPR เว้นจังหวะให้ metronome นำแทน (110/นาทีคือสาระของบทเรียน)
+  useEffect(() => {
+    if (screen !== 'game' || muted) return undefined;
+    let t = null;
+    const tick = () => {
+      const st = S.current;
+      let period = 800; // ช่วงที่งดตุบ (CPR/หมด HP) — เช็คซ้ำถี่พอให้กลับมาทันเมื่อสถานะเปลี่ยน
+      if (st.hp > 0 && !(st.cpr && !st.rosc)) {
+        if (st.rosc) {
+          // ROSC แล้ว — จังหวะสงบ เบาๆ ให้รู้สึกโล่ง
+          if (!mutedRef.current) playHeartbeatThump(0.09);
+          period = Math.round(60000 / 64);
+        } else {
+          const maxHp = st.maxHp || getDifficulty(st.difficulty).hp;
+          const frac = Math.max(0, Math.min(1, st.hp / maxHp));
+          let tension = (1 - frac) * 0.7; // ฐาน: อาการผู้ป่วยยิ่งแย่ยิ่งเครียด
+          if (st.alarm) tension += 0.15; // หมดสติ/ไม่หายใจ
+          if (currentChoiceRef.current) { // กำลังลุ้นตัดสินใจ = ช่วงตื่นเต้นสุด
+            tension += 0.15;
+            const dt = getDifficulty(st.difficulty).decisionTime;
+            const leftFrac = dt > 0 ? Math.max(0, decisionLeftRef.current / dt) : 1;
+            tension += (1 - leftFrac) * 0.3; // เวลายิ่งงวด ยิ่งระทึก
+          }
+          tension = Math.min(1, tension);
+          // ดัง (0.10→0.36) และเร็ว (55→130 bpm) ไปด้วยกันตามระดับความตึงเครียด
+          if (!mutedRef.current) playHeartbeatThump(0.1 + tension * 0.26);
+          period = Math.round(60000 / (55 + tension * 75));
+        }
+      }
+      t = setTimeout(tick, period);
+    };
+    t = setTimeout(tick, 600);
+    return () => clearTimeout(t);
+  }, [screen, muted]);
 
   // ---- flow ทั้งหมดเป็น plain functions: เรียกไขว้/เรียกซ้ำกันได้อิสระ
   //      ปลอดภัยจาก stale closure เพราะแตะเฉพาะ ref + state setter (stable) ----
@@ -265,36 +381,38 @@ export default function CodeBlueSim() {
     if (fx.cpr && !S.current.cpr) startMetronome();
   }
 
+  function totalChars(segments) {
+    return segments.reduce((n, s) => n + s.text.length, 0);
+  }
+
   function finishTyping() {
     if (timers.current.type) clearTimeout(timers.current.type);
     timers.current.type = null;
-    setDlgHtml(fullHtmlRef.current);
+    setDlgCount(totalChars(fullSegmentsRef.current));
     setTyping(false);
     const done = typeDoneRef.current;
     typeDoneRef.current = null;
     if (done) done();
   }
 
-  function typeText(html, onDone) {
+  function typeText(text, onDone) {
     if (timers.current.type) clearTimeout(timers.current.type);
-    fullHtmlRef.current = html;
+    const segments = parseEmphasis(text);
+    fullSegmentsRef.current = segments;
     typeDoneRef.current = onDone || null;
     setTyping(true);
-    setDlgHtml('');
+    setDlgSegments(segments);
+    setDlgCount(0);
+    const full = segments.map((s) => s.text).join('');
+    const total = full.length;
     let i = 0;
-    let out = '';
+    let blipN = 0;
     const step = () => {
-      if (i >= html.length) { finishTyping(); return; }
-      const ch = html[i];
-      if (ch === '<') {
-        const close = html.indexOf('>', i);
-        out += html.slice(i, close + 1);
-        i = close + 1;
-      } else {
-        out += ch;
-        i += 1;
-      }
-      setDlgHtml(out);
+      if (i >= total) { finishTyping(); return; }
+      // เสียงพิมพ์ทีละตัว (สไตล์ visual novel) — เว้นทุก 3 ตัวอักษรกันถี่เกิน
+      if (!reducedMotion && full[i] !== ' ' && blipN++ % 3 === 0) sfx(playTypeBlip);
+      i += 1;
+      setDlgCount(i);
       timers.current.type = setTimeout(step, reducedMotion ? 0 : 16);
     };
     step();
@@ -359,6 +477,7 @@ export default function CodeBlueSim() {
           wrongCount: st.wrong,
           durationSeconds: Math.round(st.simTime),
           finishedAt: new Date().toISOString(),
+          fastClear, // ให้ restore ข้ามเครื่องกู้เหรียญ "สายฟ้า" ได้ด้วย
         },
       }).catch(() => {});
     }
@@ -380,6 +499,9 @@ export default function CodeBlueSim() {
     setInter(null);
     setScreen('debrief');
     window.scrollTo(0, 0);
+    // เสียงปิดเคส: ชนะ = แตรสั้น, แพ้ = โน้ตลง — ถ้ามีเหรียญใหม่ตามด้วยเสียงประกาย
+    sfx(won ? playWinJingle : playLoseSound);
+    if (fresh.length > 0) later(() => sfx(playAchievementSound), 1100);
   }
 
   function showChoice(c) {
@@ -391,6 +513,7 @@ export default function CodeBlueSim() {
       ? (c.options.find((o) => o.ok)?.tgt || null)
       : null;
     setChoice({ q: c.q, options: shuffled(c.options), hintTgt });
+    sfx(playChoiceAppear); // มีคำถามเด้งขึ้น — เรียกสมาธิ
     setDecisionLeft(diff.decisionTime);
     decisionLeftRef.current = diff.decisionTime;
     if (timers.current.dec) clearInterval(timers.current.dec);
@@ -399,6 +522,10 @@ export default function CodeBlueSim() {
       left -= 0.25;
       decisionLeftRef.current = left;
       setDecisionLeft(left);
+      // 5 วิสุดท้ายติ๊กเตือนรายวินาที (2 วิสุดท้ายโทนสูงขึ้น) — เร่งจังหวะหัวใจ
+      if (left > 0 && left <= 5 && Number.isInteger(left)) {
+        sfx(() => playTickSound(left <= 2));
+      }
       if (left <= 0) {
         clearInterval(timers.current.dec);
         timers.current.dec = null;
@@ -418,7 +545,10 @@ export default function CodeBlueSim() {
     syncView();
 
     if (node.say) {
-      const { who, pose, text, fx } = node.say;
+      const { who, pose, text } = node.say;
+      // fx รองรับทั้งใน say ({say:{fx}}) และระดับ node ({say:{}, fx}) — บางเคสวางไว้ระดับ node
+      // ถ้าไม่รวม node.fx จังหวะที่ตั้งบน say node แบบนั้นจะถูกมองข้าม จอค้าง STANDBY ไม่ตรงบท
+      const fx = node.say.fx || node.fx;
       soundForFx(fx);
       applyFx(st, fx);
       pushEtco2(st);
@@ -440,6 +570,8 @@ export default function CodeBlueSim() {
       if (node.drama) setDrama(node.drama);
       syncView();
       doBigMoment();
+      // ป้ายเด้ง: เหตุดี = โน้ตชื่นชม, เหตุวิกฤต = เสียงตุบกระแทก
+      sfx(node.green ? playCorrectSound : playImpactSound);
       setInter({ text: node.inter, green: !!node.green });
       later(() => {
         setInter(null);
@@ -496,15 +628,17 @@ export default function CodeBlueSim() {
       recordCorrect(st, option, speedFrac);
       currentChoiceRef.current = null;
       hintUsedRef.current = false; // จุดถัดไปเริ่มใหม่ ไม่ใบ้
-      // เสียงคอมโบ — ยิ่งสตรีคยาว เสียงยิ่งสูงขึ้น (juice)
+      // เสียงตอบถูก — คอมโบยิ่งยาวโทนยิ่งสูงขึ้น (juice), ตอบถูกธรรมดาก็มีเสียงชม
       if (st.combo >= 2) sfx(() => playBeep(360 + Math.min(st.combo, 8) * 70, 0.1, 0.22));
+      else sfx(playCorrectSound);
       syncView();
       advance();
       return;
     }
 
     // คอมโบขาด — ถ้าสตรีคเคยยาวพอ โชว์ "BREAK" ให้รู้สึกถึงการเสีย streak
-    if (st.combo >= 3) {
+    const broke = st.combo >= 3;
+    if (broke) {
       setComboBreak({ n: st.combo, k: comboBreakN.current++ });
       later(() => setComboBreak(null), reducedMotion ? 300 : 900);
     }
@@ -512,7 +646,8 @@ export default function CodeBlueSim() {
     pushEtco2(st);
     hintUsedRef.current = true; // จุดนี้เคยพลาด — โหมดง่ายจะใบ้ตอนเล่นซ้ำ
     vibrate([60, 40, 60]);
-    sfx(() => playBeep(160, 0.28, 0.35)); // เสียงผิดต่ำ
+    // เสียงผิดต่ำ / ถ้าสตรีคขาดใช้เสียงไล่โน้ตลงแทน ให้เจ็บกว่า
+    sfx(broke ? playComboBreakSound : () => playBeep(160, 0.28, 0.35));
     if (!reducedMotion) {
       setRedN((n) => n + 1);
       doShake();
@@ -546,9 +681,15 @@ export default function CodeBlueSim() {
   }
 
   function onDialogTap() {
+    // แตะครั้งแรก = เข้าใจแล้ว ไม่ต้องสอนอีก (เก็บถาวรต่อเครื่อง)
+    if (tapCoach) {
+      setTapCoach(false);
+      try { localStorage.setItem(TAP_COACH_KEY, '1'); } catch { /* โหมดส่วนตัว */ }
+    }
     if (busyRef.current) return;
-    if (timers.current.type) { finishTyping(); return; }
+    if (timers.current.type) { sfx(playTapSound); finishTyping(); return; }
     if (!awaitTap) return;
+    sfx(playTapSound);
     setAwaitTap(false);
     if (retryChoiceRef.current) {
       const c = retryChoiceRef.current;
@@ -578,10 +719,99 @@ export default function CodeBlueSim() {
     setDrama(null);
     setSpeaker(null);
     setPlate(null);
-    setDlgHtml('');
+    setDlgSegments([]);
+    setDlgCount(0);
     setScreen('game');
+    // สอนเฉพาะคนที่ไม่เคยเล่น — คนเล่นซ้ำไม่ต้องเจอซ้ำ
+    try { setTapCoach(localStorage.getItem(TAP_COACH_KEY) !== '1'); } catch { setTapCoach(false); }
     track('game_started', { props: { scenario_id: sc.id, difficulty } });
     later(() => advance(), reducedMotion ? 100 : 400);
+  }
+
+  // ปุ่ม "รับเคส" เรียกอันนี้แทน startGame ตรงๆ: ในคลาสแต่ยังไม่รู้ว่าใครเล่น
+  // ให้ขอชื่อก่อน แล้วค่อยเริ่มเกมต่อให้อัตโนมัติหลังยืนยัน
+  function requestStart() {
+    if (inClass && !activeStudent?.id) {
+      startAfterIdentityRef.current = true;
+      setShowIdentity(true);
+      return;
+    }
+    startGame();
+  }
+
+  // ลงทะเบียนเสร็จ modal อาจเพิ่งกู้ความคืบหน้าจาก cloud ลง localStorage
+  // (restoreCodeBlueProgress) — อ่านกลับมาอัพเดต state เกม: เคสที่ปลดแล้ว,
+  // hi-score และคำนวณเหรียญใหม่จากคลังปัจจุบัน
+  function refreshLocalProgress() {
+    const nextCleared = readCleared();
+    setCleared(nextCleared);
+    setHiscore(Number(localStorage.getItem(hiscoreKey(difficulty)) || 0));
+    syncAwards(pool, nextCleared, readGrades());
+    setAwardsTick((n) => n + 1);
+  }
+
+  function handleIdentityConfirm() {
+    setShowIdentity(false);
+    refreshLocalProgress();
+    if (startAfterIdentityRef.current) {
+      startAfterIdentityRef.current = false;
+      startGame();
+    }
+  }
+
+  // ปิดหน้ากรอกรหัสคลาส: ถ้าเพิ่งเข้าคลาสสำเร็จและยังไม่รู้ว่าใครเล่น
+  // เปิดฟอร์มชื่อ+รหัสนักเรียนต่อทันที — จบใน flow เดียว ไม่ต้องหาปุ่มอีกรอบ
+  function handleClassGateClose() {
+    setShowClassGate(false);
+    const joined = !!getClassContext().classCode;
+    setInClass(joined);
+    if (joined && !activeStudent?.id) setShowIdentity(true);
+  }
+
+  // ชิปลงทะเบียน (หน้าเลือกเคส + หน้าเริ่มเคส) — โชว์เสมอ ไม่ใช่เฉพาะในคลาส
+  // เพื่อให้นักเรียนเห็นตั้งแต่แรกว่ากรอกชื่อ/รหัสได้จากตรงไหน และได้อะไรกลับมา
+  function renderIdentityChip() {
+    if (!inClass) {
+      return (
+        <div className="cbs-identity-chip">
+          <span>
+            👥 <b>บันทึกผล · ขึ้นอันดับเหรียญ · เล่นต่อเครื่องอื่นได้</b> —
+            เข้าคลาสด้วยรหัสจากอาจารย์ หรือเข้าลีกออนไลน์ (บุคคลทั่วไป)
+          </span>
+          <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowClassGate(true)}>
+            เข้าร่วม
+          </button>
+        </div>
+      );
+    }
+    const openLeague = isOpenLeague(getClassContext().classCode);
+    if (!activeStudent?.id) {
+      return (
+        <div className="cbs-identity-chip cbs-identity-chip-warn">
+          <span>
+            {openLeague
+              ? '⚠ ยังไม่ได้ลงชื่อ — ลงชื่อเพื่อรับรหัสผู้เล่น ใช้บันทึกผล ขึ้นอันดับเหรียญ และเล่นต่อเครื่องอื่น'
+              : '⚠ ยังไม่ได้ลงทะเบียน — กรอกชื่อ + รหัสนักเรียน เพื่อให้ผลบันทึกถึงอาจารย์ และมีชื่อบนอันดับเหรียญของคลาส'}
+          </span>
+          <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowIdentity(true)}>
+            {openLeague ? 'ลงชื่อ' : 'กรอกชื่อ+รหัส'}
+          </button>
+        </div>
+      );
+    }
+    return (
+      <div className="cbs-identity-chip cbs-identity-chip-ok">
+        <span>
+          👤 บันทึกผลในชื่อ <b>{activeStudent.name}</b>
+          {openLeague && activeStudent.studentId && (
+            <> · รหัสผู้เล่น <b className="cbs-player-code">{activeStudent.studentId}</b> — จดไว้ใช้เล่นต่อบนเครื่องอื่น</>
+          )}
+        </span>
+        <button type="button" className="cbs-identity-chip-btn" onClick={() => setShowIdentity(true)}>
+          เปลี่ยน
+        </button>
+      </div>
+    );
   }
 
   function pickScenario(chosen) {
@@ -608,7 +838,16 @@ export default function CodeBlueSim() {
     setMuted((m) => {
       const next = !m;
       localStorage.setItem(MUTE_KEY, next ? '1' : '0');
-      if (next) stopMetronome();
+      // เก็บสถิติว่าคนเปิด/ปิดเสียงจากหน้าไหน — ใช้ตัดสินใจเรื่อง backing track/จูนความดัง
+      track('game_mute_toggle', { props: { muted: next, screen } });
+      mutedRef.current = next; // อัพเดตทันที ไม่รอ effect — ให้ startMetronome ด้านล่างไม่โดนเบรก
+      if (next) {
+        stopMetronome();
+      } else {
+        initAudio();
+        // เปิดเสียงกลางเคสที่กำลังปั๊มหัวใจอยู่ — จังหวะ metronome ต้องกลับมาเอง
+        if (S.current.cpr && !S.current.rosc) startMetronome();
+      }
       return next;
     });
   }
@@ -628,7 +867,7 @@ export default function CodeBlueSim() {
     return (
       <div className="cbs-app">
         <section className="cbs-select">
-          <div className="cbs-eyebrow">Code Blue · รางวัลของฉัน</div>
+          <div className="cbs-eyebrow">{GAME_EYEBROW} · รางวัลของฉัน</div>
           <h1 className="cbs-select-title"><span className="cbs-gold-text">เหรียญ</span> ที่ปลดล็อกได้</h1>
           <p className="cbs-select-sub">ปลดล็อกแล้ว {earnedN}/{badges.length} — เก็บครบทุกเหรียญเพื่อพิสูจน์ฝีมือกู้ชีพ</p>
           <div className="cbs-award-grid">
@@ -650,6 +889,9 @@ export default function CodeBlueSim() {
 
   // ============ CASE SELECT ============
   if (screen === 'select') {
+    // awardsTick บังคับให้คำนวณเหรียญใหม่หลังจบเคส (ค่าอยู่ใน localStorage)
+    void awardsTick;
+    const badgeList = listWithEarned(pool, cleared, readGrades());
     // จัดกลุ่มตาม "หมวด" (algorithm/ธีมแบบหลักสูตร ACLS) — level เหลือเป็นป้ายความยากบนการ์ด
     const tracksInPool = [...new Set(pool.map(trackOf))]
       .sort((a, b) => (TRACK_META[a]?.order ?? 9) - (TRACK_META[b]?.order ?? 9));
@@ -698,9 +940,14 @@ export default function CodeBlueSim() {
     return (
       <div className="cbs-app">
         <section className="cbs-select">
-          <div className="cbs-eyebrow">Code Blue · เลือกเคส</div>
-          <h1 className="cbs-select-title"><span className="cbs-gold-text">CODE BLUE</span> ภารกิจกู้ชีพ</h1>
-          <p className="cbs-select-sub">ฝึกทีละหมวดจนครบทุก algorithm — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น</p>
+          <div className="cbs-eyebrow">{GAME_EYEBROW} · เลือกเคส</div>
+          <h1 className="cbs-select-title"><span className="cbs-gold-text">{GAME_NAME}</span> ภารกิจกู้ชีพ</h1>
+          <p className="cbs-select-sub">
+            {IS_BLS
+              ? 'ฝึกช่วยชีวิตขั้นพื้นฐานทีละสถานการณ์ — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น'
+              : 'ฝึกทีละหมวดจนครบทุก algorithm — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น'}
+          </p>
+          {renderIdentityChip()}
           {(nextCase || pool.length > 1) && (
             <div className="cbs-quick-row">
               {nextCase && (
@@ -770,19 +1017,26 @@ export default function CodeBlueSim() {
               ผ่านเคส megacode ครบทุกเคส รับตราทอง MEGACODE MASTER (ไม่บังคับ ไม่มีผลต่อการออกใบ)
             </div>
           )}
-          <button type="button" className="cbs-btn-ghost" onClick={() => { void awardsTick; setScreen('awards'); window.scrollTo(0, 0); }}>
-            🏅 รางวัลของฉัน ({listWithEarned(pool, cleared, readGrades()).filter((b) => b.earned).length}/{ACHIEVEMENTS.length})
+          <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('awards'); window.scrollTo(0, 0); }}>
+            🏅 รางวัลของฉัน ({badgeList.filter((b) => b.earned).length}/{badgeList.length})
           </button>
-          {inClass && (
-            <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
-              🏆 อันดับเหรียญในคลาส
-            </button>
-          )}
+          {/* บอร์ดรวมทั้งเว็บเปิดดูได้แม้ไม่มีคลาส — ป้ายเปลี่ยนตามบริบท */}
+          <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
+            {!inClass
+              ? '🏆 อันดับรวมทั้งเว็บ'
+              : isOpenLeague(getClassContext().classCode) ? '🏆 อันดับลีกออนไลน์' : '🏆 อันดับเหรียญในคลาส'}
+          </button>
           <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/')}>
             <Home size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
             กลับหน้าแรก
           </button>
         </section>
+        <StudentIdentityModal
+          open={showIdentity}
+          onClose={() => { setShowIdentity(false); startAfterIdentityRef.current = false; }}
+          onConfirm={handleIdentityConfirm}
+        />
+        <ClassGateModal open={showClassGate} onClose={handleClassGateClose} initialMode="join" openLeague />
       </div>
     );
   }
@@ -792,11 +1046,13 @@ export default function CodeBlueSim() {
     return (
       <div className="cbs-app">
         <section className="cbs-title">
-          <div className="cbs-eyebrow">Code Blue · {LEVEL_META[sc.level]?.label || 'เคส'}</div>
+          <div className="cbs-eyebrow">{GAME_EYEBROW} · {LEVEL_META[sc.level]?.label || 'เคส'}</div>
           <h1><span className="cbs-gold-text">{sc.title}</span></h1>
           <p className="cbs-title-sub">
             {sc.subtitle}<br />
-            คุณคือ <b>Team Leader</b> — ทีมทั้งห้องรอฟังคำสั่งของคุณ<br />
+            {IS_BLS
+              ? <>คุณคือ <b>ผู้ช่วยเหลือคนแรก</b> — ทุกคนรอบตัวรอการตัดสินใจของคุณ</>
+              : <>คุณคือ <b>Team Leader</b> — ทีมทั้งห้องรอฟังคำสั่งของคุณ</>}<br />
             ตัดสินใจผิด ผู้ป่วยแย่ลงจริง เวลาไม่เคยรอใคร
           </p>
           <div className="cbs-diff-group" role="group" aria-label="เลือกระดับความยาก">
@@ -842,7 +1098,8 @@ export default function CodeBlueSim() {
               />
             </div>
           </div>
-          <button type="button" className="cbs-btn-main" onClick={startGame}>
+          {renderIdentityChip()}
+          <button type="button" className="cbs-btn-main" onClick={requestStart}>
             <AlertTriangle size={18} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-3px', marginRight: 8 }} />
             รับเคส
           </button>
@@ -853,6 +1110,12 @@ export default function CodeBlueSim() {
           </button>
           <div className="cbs-note">DECISION GAME · MORROO</div>
         </section>
+        <StudentIdentityModal
+          open={showIdentity}
+          onClose={() => { setShowIdentity(false); startAfterIdentityRef.current = false; }}
+          onConfirm={handleIdentityConfirm}
+        />
+        <ClassGateModal open={showClassGate} onClose={handleClassGateClose} initialMode="join" openLeague />
       </div>
     );
   }
@@ -960,11 +1223,11 @@ export default function CodeBlueSim() {
               <RefreshCw size={16} strokeWidth={2.6} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 8 }} />
               เล่นเคสนี้อีกครั้ง
             </button>
-            {inClass && (
-              <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
-                🏆 ดูอันดับในคลาส
-              </button>
-            )}
+            <button type="button" className="cbs-btn-ghost" onClick={() => navigate('/sim-board')}>
+              {!inClass
+                ? '🏆 ดูอันดับรวมทั้งเว็บ'
+                : isOpenLeague(getClassContext().classCode) ? '🏆 ดูอันดับลีกออนไลน์' : '🏆 ดูอันดับในคลาส'}
+            </button>
             {pool.length > 1 && (
               <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('select'); window.scrollTo(0, 0); }}>
                 ← เลือกเคสอื่น
@@ -987,8 +1250,10 @@ export default function CodeBlueSim() {
   const gameDiff = getDifficulty(st.difficulty);
   const maxHp = st.maxHp || gameDiff.hp;
   const timerPct = Math.max(0, (decisionLeft / gameDiff.decisionTime) * 100);
-  const rhythmBad = st.rhythm === 'vf' || st.rhythm === 'flat';
-  const rhythmWarn = WARN_RHYTHMS.has(st.rhythm);
+  // ก่อนทีมติดเครื่อง monitor/defib (fx.rhythm แรก) จอต้องว่าง — ห้ามโชว์ rhythm ใดๆ
+  const monitorOn = st.monitorOn;
+  const rhythmBad = monitorOn && ARREST_RHYTHMS.has(st.rhythm);
+  const rhythmWarn = monitorOn && WARN_RHYTHMS.has(st.rhythm);
 
   return (
     <div className={`cbs-app ${shaking ? 'cbs-shake' : ''}`}>
@@ -996,10 +1261,10 @@ export default function CodeBlueSim() {
         <div className={`cbs-stage ${drama === 'red' ? 'cbs-drama-red' : drama === 'white' ? 'cbs-drama' : ''}`}>
           <div className="cbs-hud">
             <div className="cbs-hud-monitor">
-              <span className={`cbs-rhythm-name ${rhythmBad ? 'cbs-bad' : rhythmWarn ? 'cbs-warn' : ''}`}>
-                {st.alarm || st.rhythm !== 'flat' ? RHYTHM_NAMES[st.rhythm] : 'MONITOR — STANDBY'}
+              <span className={`cbs-rhythm-name ${rhythmBad ? 'cbs-bad' : rhythmWarn ? 'cbs-warn' : !monitorOn ? 'cbs-dim' : ''}`}>
+                {monitorOn ? rhythmLabel(st) : 'ยังไม่ติดเครื่อง monitor'}
               </span>
-              <EcgStrip rhythm={st.rhythm} cpr={st.cpr} />
+              <EcgStrip rhythm={st.rhythm} cpr={st.cpr} on={monitorOn} />
             </div>
             <div className="cbs-hud-right">
               <div className="cbs-gauge">
@@ -1094,12 +1359,31 @@ export default function CodeBlueSim() {
             >
               {plateName}
             </div>
-            {/* บทพูดมาจาก scenario data ในโค้ดเรา (จำกัด <span class="cbs-em"> เท่านั้น) */}
-            <div className="cbs-dlg-text" dangerouslySetInnerHTML={{ __html: dlgHtml }} />
-            {!typing && awaitTap && <div className="cbs-adv">»</div>}
+            {/* บทพูดมาจาก scenario data (จำกัด <span class="cbs-em"> เท่านั้น) —
+                parse ผ่าน parseEmphasis ก่อนเสมอ ไม่ inject HTML ตรงๆ */}
+            <div className="cbs-dlg-text">
+              <DlgText segments={dlgSegments} count={dlgCount} />
+            </div>
+            {/* เดิมเป็น "▼" 13px มุมขวาล่าง และโผล่เฉพาะตอนพิมพ์จบ — ช่วงที่คน
+                เพิ่งเปิดเกม (กำลังพิมพ์) จึงไม่มีอะไรบอกเลยว่าแตะได้ */}
+            {(typing || awaitTap) && (
+              <div className={`cbs-adv ${typing ? 'cbs-adv-typing' : ''}`}>
+                {typing ? 'แตะเพื่อข้าม' : 'แตะเพื่อไปต่อ'}
+                <span className="cbs-adv-caret" aria-hidden>▼</span>
+              </div>
+            )}
           </div>
         </div>
       </section>
+
+      {/* คำใบ้ครั้งแรก — pointer-events: none เพื่อให้แตะทะลุไปโดนเวทีจริง
+          ผู้เล่นจะได้เดินเรื่องต่อด้วยการแตะเดียว ไม่ต้องปิดคำใบ้ก่อน */}
+      {tapCoach && (
+        <div className="cbs-tap-coach" aria-hidden>
+          <div className="cbs-tap-coach-ring" />
+          <p className="cbs-tap-coach-text">แตะที่หน้าจอเพื่อเล่นต่อ</p>
+        </div>
+      )}
 
       {quitMenu && (
         <div className="cbs-quit" role="dialog" aria-label="เมนูระหว่างเล่น">
@@ -1112,6 +1396,20 @@ export default function CodeBlueSim() {
               <RefreshCw size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
               เริ่มเคสนี้ใหม่
             </button>
+            <button type="button" className="cbs-btn-ghost" onClick={toggleMute}>
+              {muted
+                ? <><VolumeX size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />เปิดเสียง</>
+                : <><Volume2 size={15} strokeWidth={2.4} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />ปิดเสียง</>}
+            </button>
+            {inClass && !activeStudent?.id && (
+              <button
+                type="button"
+                className="cbs-btn-ghost"
+                onClick={() => { setQuitMenu(false); setShowIdentity(true); }}
+              >
+                👤 กรอกชื่อ+รหัสนักเรียน — ให้ผลบันทึกถึงอาจารย์
+              </button>
+            )}
             <button type="button" className="cbs-btn-ghost" onClick={backToSelect}>
               {pool.length > 1 ? 'ออกไปเลือกเคสอื่น' : 'ออกไปหน้าแรก'}
             </button>
@@ -1130,6 +1428,12 @@ export default function CodeBlueSim() {
       )}
       {flashN > 0 && <div key={`fl-${flashN}`} className="cbs-flash cbs-go" />}
       {redN > 0 && <div key={`rf-${redN}`} className="cbs-redflash cbs-go" />}
+      {/* ลงทะเบียนกลางเกมได้จากเมนู ☰ — เคสที่จบหลังจากนี้จะถูกบันทึกถึงอาจารย์ */}
+      <StudentIdentityModal
+        open={showIdentity}
+        onClose={() => setShowIdentity(false)}
+        onConfirm={() => { setShowIdentity(false); refreshLocalProgress(); }}
+      />
     </div>
   );
 }

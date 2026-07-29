@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { ERROR_TYPES, ERROR_TYPE_META } from '../../data/recorderGameLevels';
 import { RATINGS, RATING_META } from '../../utils/recorderGameScore';
 import CharacterSprite from '../../game/CharacterSprite';
@@ -45,6 +46,7 @@ export default function ResultScreen({
   level, result, mode, stars, isNewHi, hasNext,
   onRetry, onNext, onHub,
 }) {
+  const navigate = useNavigate();
   const groups = collectErrors(mode, result);
   const errorTypeKeys = Object.keys(groups).filter(k => groups[k].length > 0);
   const perfectRun = errorTypeKeys.length === 0;
@@ -144,6 +146,19 @@ export default function ResultScreen({
       {hasNext && stars >= 1 && (
         <button onClick={onHub} className="btn btn-ghost btn-sm btn-block">
           <Home size={14} strokeWidth={2.2} /> กลับหน้าเลือกด่าน
+        </button>
+      )}
+
+      {/* ขั้น 2 ของเส้นทางผู้บันทึก: โจทย์บนหน้า Recording จริง */}
+      {stars >= 2 && (
+        <button onClick={() => navigate('/scenarios')}
+          className="w-full dash-card !p-3 text-left hover:bg-bg-tertiary transition-colors flex items-center gap-3">
+          <span className="text-2xl shrink-0">🏥</span>
+          <div className="flex-1 min-w-0">
+            <div className="text-body-strong text-text-primary">พร้อมของจริงแล้ว → ขั้น 2 · สอบสนามจริง</div>
+            <div className="text-caption text-text-muted">ทำโจทย์เคสเดียวกันนี้บนหน้า Recording จริง — มีเกรดให้ทุกเคส</div>
+          </div>
+          <ChevronRight size={16} strokeWidth={2} className="text-text-muted shrink-0" />
         </button>
       )}
     </div>

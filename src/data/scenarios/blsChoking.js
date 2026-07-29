@@ -1,11 +1,11 @@
 // เคส BLS (สำหรับ MorRoo): ผู้ใหญ่สำลักอาหารจนหมดสติ — choking → CPR
-// ขอบเขต BLS: ประเมินสำลักรุนแรง → abdominal thrust → หมดสติ → CPR + เรียก AED
+// ขอบเขต BLS: ประเมินสำลักรุนแรง → back blows สลับ abdominal thrust → หมดสติ → CPR + เรียก AED
 export const blsChoking = {
   id: 'bls-choking-01',
   title: 'สำลักในร้านอาหาร',
   subtitle: 'หญิงวัย 45 ปี กำลังกินข้าวอยู่ดี ๆ ก็ลุกขึ้นเอามือกุมคอ พูดไม่ออก หน้าเริ่มเขียว',
   level: 'basic',
-  track: 'special',
+  track: 'choking',
   course: 'bls',
   hiddenCause: null,
   story: [
@@ -17,17 +17,17 @@ export const blsChoking = {
         q: 'ผู้ป่วยสำลัก ยังรู้สึกตัว ไอไม่มีเสียง',
         options: [
           {
-            tgt: 'YOU', label: 'ถาม "สำลักใช่ไหม?" แล้วทำ abdominal thrust (Heimlich)', ok: true,
-            then: [{ say: { who: 'nurse_mint', pose: 'talk', text: 'ยืนหลังเธอ กระตุกเข้า-ขึ้นที่ท้อง… <span class="cbs-em">ทำซ้ำเรื่อย ๆ ค่ะ</span>' }, t: 6 }],
+            tgt: 'YOU', label: 'ถาม "สำลักใช่ไหม?" แล้วตบหลัง 5 ครั้ง สลับกระทุ้งท้อง (Heimlich) 5 ครั้ง', ok: true,
+            then: [{ say: { who: 'nurse_mint', pose: 'talk', text: 'ตบหลังระหว่างสะบัก 5 ที… ยังไม่ออก! ยืนหลังเธอ กระทุ้งท้องเข้า-ขึ้น 5 ที… <span class="cbs-em">สลับไปเรื่อย ๆ ค่ะ</span>' }, t: 6 }],
           },
-          { tgt: 'CPR', label: 'จับนอนลงกดหน้าอกทันที', ok: false, why: 'ยังรู้สึกตัวอยู่ — ใช้ abdominal thrust ก่อน CPR เริ่มเมื่อหมดสติ', worsen: true },
-          { tgt: 'YOU', label: 'ให้ดื่มน้ำเยอะ ๆ ให้อาหารไหลลง', ok: false, why: 'อันตราย! ห้ามให้กินดื่มตอนสำลัก — ทำ abdominal thrust' },
+          { tgt: 'CPR', label: 'จับนอนลงกดหน้าอกทันที', ok: false, why: 'ยังรู้สึกตัวอยู่ — ตบหลังสลับกระทุ้งท้องก่อน CPR เริ่มเมื่อหมดสติ', worsen: true },
+          { tgt: 'YOU', label: 'ให้ดื่มน้ำเยอะ ๆ ให้อาหารไหลลง', ok: false, why: 'อันตราย! ห้ามให้กินดื่มตอนสำลัก — ตบหลังสลับกระทุ้งท้อง' },
         ],
       },
     },
     {
       choice: {
-        q: 'กระตุกหลายครั้งแล้วยังไม่ออก — เธอเริ่มตัวอ่อนหมดสติ',
+        q: 'ตบหลังสลับกระทุ้งท้องหลายรอบแล้วยังไม่ออก — เธอเริ่มตัวอ่อนหมดสติ',
         options: [
           {
             tgt: 'YOU', label: 'ประคองลงพื้น + สั่งคน "โทร 1669! เอา AED!" แล้วเริ่ม CPR', ok: true,
@@ -82,7 +82,7 @@ export const blsChoking = {
             tgt: 'YOU', label: 'จัดท่า recovery + เฝ้าการหายใจ + ส่งต่อ EMS', ok: true,
             then: [
               { inter: 'รอดแล้ว!', green: true, t: 5, fx: { rosc: true } },
-              { say: { who: 'att_dech', pose: 'happy', text: 'สุดยอด! <span class="cbs-em">จำ 3 จังหวะ: สำลักรู้ตัว→thrust, หมดสติ→CPR, เห็นของค่อยเขี่ย</span> คุณช่วยชีวิตเธอไว้ได้' }, t: 5 },
+              { say: { who: 'att_dech', pose: 'happy', text: 'สุดยอด! <span class="cbs-em">จำ 3 จังหวะ: สำลักรู้ตัว→ตบหลังสลับกระทุ้งท้อง, หมดสติ→CPR, เห็นของค่อยเขี่ย</span> คุณช่วยชีวิตเธอไว้ได้' }, t: 5 },
             ],
           },
           { tgt: 'CPR', label: 'กดหน้าอกต่ออีกเผื่อไว้', ok: false, why: 'มีชีพจร+หายใจเองแล้ว หยุดกด จัดท่า recovery' },

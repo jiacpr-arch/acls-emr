@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut, Shield, Plus, Trash2, Pencil, X, Video, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
 import { signOut } from '../services/auth';
 import { VIDEO_TOPICS, VIDEO_TOPIC_MAP } from '../data/videoTopics';
-import { getYouTubeId, parseClipTime, formatClipTime } from '../utils/youtube';
+import { parseClipTime, formatClipTime } from '../utils/youtube';
+import { toStoredVideoId, parseStoredVideoId } from '../utils/videoSource';
 import {
   listVideoLessonsAdmin, createVideoLesson, updateVideoLesson, deleteVideoLesson, swapVideoLessonOrder,
-  generateQuizWithAI,
+  generateQuizWithAI, generateKeyPointsWithAI,
 } from '../services/videoLessonAdminService';
 
 const LETTERS = ['a', 'b', 'c', 'd', 'e'];
@@ -49,12 +50,12 @@ export default function AdminVideoLessons() {
 
   const save = async () => {
     const f = editing;
-    const ytId = getYouTubeId(f.youtubeId) || (/^[\w-]{11}$/.test(f.youtubeId.trim()) ? f.youtubeId.trim() : '');
+    const storedId = toStoredVideoId(f.youtubeId);
     if (!f.title.trim()) return alert('กรุณาใส่ชื่อคลิป');
-    if (!ytId) return alert('ลิงก์ YouTube ไม่ถูกต้อง (ต้องเป็นลิงก์ youtu.be / youtube.com หรือ video id 11 ตัว)');
+    if (!storedId) return alert('ลิงก์ไม่ถูกต้อง — รองรับ YouTube (ลิงก์ youtu.be / youtube.com หรือ id 11 ตัว) และ Google Drive (drive.google.com/file/d/…)');
     setSaving(true);
     try {
-      const payload = { ...f, youtubeId: ytId, chapters: f.chapters.map(c => ({ ...c, t: Number(c.t) || 0 })) };
+      const payload = { ...f, youtubeId: storedId, chapters: f.chapters.map(c => ({ ...c, t: Number(c.t) || 0 })) };
       if (f.id) await updateVideoLesson(f.id, payload);
       else await createVideoLesson(payload);
       setEditing(null);
@@ -159,7 +160,8 @@ function TimeInput({ value, onChange, className, style, placeholder }) {
 
 function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving }) {
   const upd = (patch) => setForm(f => ({ ...f, ...patch }));
-  const ytId = getYouTubeId(form.youtubeId) || (/^[\w-]{11}$/.test((form.youtubeId || '').trim()) ? form.youtubeId.trim() : '');
+  const storedId = toStoredVideoId(form.youtubeId);
+  const sourceType = parseStoredVideoId(storedId)?.type;
 
   // chapters
   const addChapter = () => upd({ chapters: [...form.chapters, { t: '', label: '' }] });
@@ -182,6 +184,28 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
   // (ถ้าเป็นคลิปที่มีอยู่แล้ว); คลิปใหม่ต้องกด "บันทึก" หลักให้มี id ก่อน
   const [generatingQuiz, setGeneratingQuiz] = useState(false);
   const [quizGenMsg, setQuizGenMsg] = useState(null); // { type: 'error'|'success', text }
+
+  // AI generate — ร่างสรุปประเด็นจาก title/topic/chapters (เติมลงช่องให้แอดมินตรวจแก้ ไม่บันทึกเอง)
+  const [generatingKeyPoints, setGeneratingKeyPoints] = useState(false);
+  const [keyPointsGenMsg, setKeyPointsGenMsg] = useState(null); // { type: 'error'|'success', text }
+
+  const generateKeyPoints = async () => {
+    if (!form.title.trim()) return alert('กรุณาใส่ชื่อคลิปก่อนร่างสรุป');
+    setGeneratingKeyPoints(true);
+    setKeyPointsGenMsg(null);
+    try {
+      const topicLabel = VIDEO_TOPIC_MAP[form.topic]?.label || '';
+      const keyPoints = await generateKeyPointsWithAI({
+        title: form.title, topicLabel, chapters: form.chapters, keyPoints: form.keyPoints,
+      });
+      upd({ keyPoints });
+      setKeyPointsGenMsg({ type: 'success', text: 'ร่างสรุปแล้ว — ตรวจความถูกต้องแล้วกด "บันทึก" ด้านล่าง' });
+    } catch (err) {
+      setKeyPointsGenMsg({ type: 'error', text: 'ร่างสรุปไม่สำเร็จ: ' + (err?.message || err) });
+    } finally {
+      setGeneratingKeyPoints(false);
+    }
+  };
 
   const generateQuiz = async () => {
     if (!form.title.trim()) return alert('กรุณาใส่ชื่อคลิปก่อนสร้างควิซ');
@@ -232,10 +256,17 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
         </label>
 
         <label className="block">
-          <span className="text-caption font-bold text-text-secondary">🔗 ลิงก์ YouTube (วางลิงก์ ไม่ต้องอัปไฟล์)</span>
-          <input value={form.youtubeId} onChange={e => upd({ youtubeId: e.target.value })} className={inputCls} style={inputStyle} placeholder="https://youtu.be/xxxxxxxxxxx" />
+          <span className="text-caption font-bold text-text-secondary">🔗 ลิงก์ YouTube หรือ Google Drive (วางลิงก์ ไม่ต้องอัปไฟล์)</span>
+          <input value={form.youtubeId} onChange={e => upd({ youtubeId: e.target.value })} className={inputCls} style={inputStyle} placeholder="https://youtu.be/… หรือ https://drive.google.com/file/d/…" />
           {form.youtubeId && (
-            <span className={`text-2xs ${ytId ? 'text-success' : 'text-danger'}`}>{ytId ? `id: ${ytId}` : 'ลิงก์ไม่ถูกต้อง'}</span>
+            <span className={`text-2xs ${storedId ? 'text-success' : 'text-danger'}`}>
+              {storedId ? `${sourceType === 'drive' ? 'Google Drive' : 'YouTube'} · id: ${storedId}` : 'ลิงก์ไม่ถูกต้อง'}
+            </span>
+          )}
+          {sourceType === 'drive' && (
+            <span className="block text-2xs text-warning">
+              Drive: ต้องแชร์ไฟล์เป็น "ทุกคนที่มีลิงก์" · ไม่รองรับ เริ่ม/จบ และสารบัญกดข้ามเวลาไม่ได้ · ผู้เรียนกดปุ่มยืนยันเองเมื่อดูจบ
+            </span>
           )}
         </label>
 
@@ -263,10 +294,24 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
         </label>
 
         {/* B */}
-        <label className="block">
-          <span className="text-caption font-bold text-purple">📝 B · สรุปประเด็น (markdown bullet)</span>
-          <textarea value={form.keyPoints} onChange={e => upd({ keyPoints: e.target.value })} rows={3} className={inputCls} style={inputStyle} placeholder={'- ประเด็นที่ 1\n- ประเด็นที่ 2'} />
-        </label>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-caption font-bold text-purple">📝 B · สรุปประเด็น (markdown bullet)</span>
+            <button onClick={generateKeyPoints} disabled={generatingKeyPoints}
+              className="btn btn-ghost btn-sm text-purple disabled:opacity-50">
+              <Sparkles size={13} strokeWidth={2.2} /> {generatingKeyPoints ? 'กำลังร่าง…' : 'ร่างสรุปด้วย AI'}
+            </button>
+          </div>
+          {keyPointsGenMsg && (
+            <div className={`text-2xs font-bold ${keyPointsGenMsg.type === 'error' ? 'text-danger' : 'text-success'}`}>
+              {keyPointsGenMsg.text}
+            </div>
+          )}
+          <textarea value={form.keyPoints} onChange={e => upd({ keyPoints: e.target.value })} rows={5} className={inputCls} style={inputStyle} placeholder={'- ประเด็นที่ 1\n- ประเด็นที่ 2'} />
+          <div className="text-2xs text-text-muted">
+            AI ร่างจากชื่อคลิป หัวข้อ และสารบัญ (ไม่ได้ดูวิดีโอ) — โปรดตรวจความถูกต้องก่อนบันทึก
+          </div>
+        </div>
 
         {/* A */}
         <div className="space-y-2">

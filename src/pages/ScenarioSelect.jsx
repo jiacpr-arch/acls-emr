@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { scenarios, getScenariosByLevel } from '../data/scenarios';
 import { useCaseStore } from '../stores/caseStore';
+import { getScenarioGrades } from '../utils/scenarioProgress';
 import {
   Heart, TrendingDown, TrendingUp, Brain, FileText, GraduationCap, Edit,
   Sparkles, ChevronRight, X,
 } from '../components/ui/Icon';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+
+const GRADE_TONE = {
+  A: 'bg-success/15 text-success',
+  B: 'bg-info/15 text-info',
+  C: 'bg-warning/15 text-warning',
+  D: 'bg-danger/15 text-danger',
+  F: 'bg-danger/15 text-danger',
+};
 
 export default function ScenarioSelect() {
   const navigate = useNavigate();
@@ -15,6 +24,7 @@ export default function ScenarioSelect() {
   const [mode, setMode] = useState('learning');
   const [loading, setLoading] = useState(false);
   const [briefScenario, setBriefScenario] = useState(null);
+  const grades = useMemo(() => getScenarioGrades(), []);
 
   const filtered = filterLevel === 'all' ? scenarios : getScenariosByLevel(filterLevel);
 
@@ -42,11 +52,23 @@ export default function ScenarioSelect() {
   return (
     <div className="page-container space-y-5">
       <div>
-        <h1 className="text-title text-text-primary">Training Scenarios</h1>
-        <p className="text-caption text-text-muted mt-0.5">Practice ACLS in simulated cases</p>
+        <div className="text-overline text-purple">เส้นทางฝึกผู้บันทึก · ขั้น 2/2</div>
+        <h1 className="text-title text-text-primary">สอบสนามจริง</h1>
+        <p className="text-caption text-text-muted mt-0.5">Training Scenarios — ทำโจทย์บนหน้า Recording จริง</p>
       </div>
 
       <JiacprCourseBanner />
+
+      {/* ขั้น 1 ของเส้นทาง: ซ้อมมือกับปุ่มจำลองก่อน */}
+      <button onClick={() => navigate('/recorder-game')}
+        className="w-full dash-card !p-3 text-left hover:bg-bg-tertiary transition-colors flex items-center gap-3">
+        <span className="text-2xl shrink-0">🎯</span>
+        <div className="flex-1 min-w-0">
+          <div className="text-body-strong text-text-primary">ยังไม่คุ้นปุ่มบันทึก?</div>
+          <div className="text-caption text-text-muted">กลับไปขั้น 1 · ซ้อมมือ Recorder — ฝึกจำปุ่ม + จับผิด log ก่อน แล้วค่อยมาสอบจริงที่นี่</div>
+        </div>
+        <ChevronRight size={16} strokeWidth={2} className="text-text-muted shrink-0" />
+      </button>
 
       {/* Mode selection */}
       <div>
@@ -101,6 +123,12 @@ export default function ScenarioSelect() {
                   <span>{s.category}</span>
                 </div>
               </div>
+              {grades[s.id]?.grade && (
+                <span className={`badge font-black ${GRADE_TONE[grades[s.id].grade] || ''}`}
+                  title={grades[s.id].examPassed ? 'ผ่านโหมด Exam แล้ว' : 'เกรดที่ดีที่สุด'}>
+                  {grades[s.id].grade}{grades[s.id].examPassed ? ' ✓' : ''}
+                </span>
+              )}
               <span className={`badge ${levelTone[s.level]}`}>{s.level}</span>
               <ChevronRight size={16} strokeWidth={2} className="text-text-muted shrink-0" />
             </button>

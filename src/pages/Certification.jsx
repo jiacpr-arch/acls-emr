@@ -6,9 +6,13 @@ import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
 import { EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
+import { getScenarioGameStatus } from '../data/blsScenarios';
+import { simGameStatus } from '../data/codeBlueScenarios';
 import { certConfig } from '../data/activeCert';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
+import { useClassStore } from '../stores/classStore';
+import { rpcJoinClass, rpcGetMyPracticalStatus } from '../services/cohortSync';
 import { exportCertificatePDF } from '../utils/exportCertificate';
 import { simCertHighlights } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
@@ -54,6 +58,40 @@ export default function Certification() {
   // Soft gate: ปลดล็อกปุ่มดาวน์โหลดเมื่อกดเพิ่มเพื่อน LINE OA (หรือกดข้าม) — จำค่าไว้ข้าม refresh
   const [lineUnlocked, setLineUnlocked] = useState(!!certData.lineFollowed);
   const ekgTestDone = localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
+  const classCode = useClassStore(s => s.classCode);
+
+  // สถานะภาคปฏิบัติจากระบบเช็คชื่อ QR (วันเรียนจริง) — เข้าครบทุกฐาน + สอบ
+  // ปฏิบัติผ่านครบ = ใบประกาศอัปเกรดเป็นฉบับสมบูรณ์อัตโนมัติ (best-effort:
+  // ออฟไลน์/ไม่มีคลาส = null → แสดงใบทฤษฎีตามเดิม ไม่บล็อกอะไร)
+  const [practical, setPractical] = useState(null); // { stations, complete } | null
+  useEffect(() => {
+    if (!classCode || !activeStudent?.id) { setPractical(null); return undefined; }
+    let cancelled = false;
+    const load = async () => {
+      // canonicalize student_pk กับ server ก่อน (idempotent) — กัน pk ค้างจาก
+      // เครื่อง/เบราว์เซอร์เก่า แพทเทิร์นเดียวกับ StudentQrCard
+      let pk = activeStudent.id;
+      const { data: joined } = await rpcJoinClass({
+        code: classCode,
+        studentUuid: activeStudent.id,
+        studentId: activeStudent.studentId,
+        name: activeStudent.name,
+        phone: activeStudent.phone ?? null,
+      });
+      if (joined?.studentPk) pk = joined.studentPk;
+      const { data, error } = await rpcGetMyPracticalStatus({ studentPk: pk });
+      if (cancelled || error || !Array.isArray(data?.stations)) return;
+      const stations = data.stations;
+      const exams = stations.filter(s => s.kind === 'exam');
+      const complete = stations.length > 0
+        && stations.every(s => !!s.checkedInAt)
+        && exams.every(s => s.examPassed === true);
+      setPractical({ stations, complete });
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [classCode, activeStudent?.id, activeStudent?.studentId, activeStudent?.name, activeStudent?.phone]);
+  const practicalComplete = !!practical?.complete;
 
   const {
     data: preCourseData,
@@ -100,7 +138,16 @@ export default function Certification() {
   const videoComp = computeVideoCompletion(videoLessons, preCourseProgress, preCourseAttempts);
   const videoGateActive = !IS_BLS && videoComp.total > 0;
 
-  // BLS: 2 knowledge requirements. ACLS: online theory certification — the four
+  // BLS ขั้นที่ 2 (ฝึก CPR): วัดผลจากเกมลำดับขั้นตัดสินใจ 8 ด่าน + ข้อสอบรวม
+  // ที่ฝังอยู่ในหน้า skill-practice — อ่านสดจาก localStorage ทุก render
+  // เหมือน EKG test ของ ACLS
+  const scenarioGame = IS_BLS ? getScenarioGameStatus() : null;
+  // BLS: เกม BLS Rescue (/sim) ก็เป็นเงื่อนไขบังคับ — ต้องผ่านครบทุกเคส built-in
+  // (ฝั่ง ACLS เกม sim ยังเป็นโบนัสไม่บังคับเหมือนเดิม)
+  const simGame = IS_BLS ? simGameStatus() : null;
+
+  // BLS: 4 requirements mirroring the landing journey (บทเรียน → ฝึก CPR →
+  // เกม BLS Rescue → Post-test). ACLS: online theory certification — the four
   // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
   // skills are completed separately at a training center.
   // Once a student has an attempt on record, tapping the requirement should
@@ -112,6 +159,8 @@ export default function Certification() {
   const requirements = IS_BLS
     ? [
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
+        { label: `ผ่านฝึก CPR — เกมลำดับขั้น 8 ด่าน + ข้อสอบรวม (${scenarioGame.done}/${scenarioGame.total})`, done: scenarioGame.allPassed, Icon: Activity, to: '/skill-practice' },
+        { label: `ผ่านเกม BLS Rescue ครบทุกเคส (${simGame.done}/${simGame.total})`, done: simGame.allPassed, Icon: Sparkles, to: '/sim' },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
       ]
     : [
@@ -163,6 +212,7 @@ export default function Certification() {
       ekgPassed: IS_BLS ? null : ekgTestDone,
       videoCompleted: videoGateActive ? videoComp.allDone : null,
       theoryOnly: !!certConfig.theoryOnly,
+      // eslint-disable-next-line react-hooks/purity -- รันใน event handler (กดปุ่มออกใบ) ไม่ใช่ตอน render
       certId: `${certConfig.certIdPrefix}-${Date.now().toString(36).toUpperCase()}`,
     };
     saveCertData({ ...certData, ...data });
@@ -213,7 +263,10 @@ export default function Certification() {
     });
     setDownloadError('');
     try {
-      await exportCertificatePDF({ cert: certData, certConfig, sim: simHighlights });
+      await exportCertificatePDF({
+        cert: certData, certConfig, sim: simHighlights,
+        practical: { complete: practicalComplete },
+      });
     } catch (err) {
       console.error('cert PDF export failed:', err);
       setDownloadError('ดาวน์โหลดใบประกาศนียบัตรไม่สำเร็จ ลองใหม่อีกครั้ง หรือเปิดผ่านเบราว์เซอร์ปกติ (ไม่ใช่ในแอป LINE)');
@@ -364,11 +417,68 @@ export default function Certification() {
             <div className="stat-label">Lessons passed</div>
           </div>
           <div className="stat-box">
+            <div className={`stat-value text-lg ${scenarioGame.allPassed ? 'text-success' : 'text-warning'}`}>
+              {scenarioGame.done}/{scenarioGame.total}
+            </div>
+            <div className="stat-label">ฝึก CPR (เกม)</div>
+          </div>
+          <div className="stat-box">
             <div className={`stat-value text-lg ${postTestBest.score >= POST_TEST_PASS_PERCENT ? 'text-success' : 'text-warning'}`}>
               {postTestBest.score}%
             </div>
             <div className="stat-label">Post-test best</div>
           </div>
+          <div className="stat-box">
+            <div className={`stat-value text-lg ${simGame.allPassed ? 'text-success' : 'text-warning'}`}>
+              {simGame.done}/{simGame.total}
+            </div>
+            <div className="stat-label">BLS Rescue</div>
+          </div>
+        </div>
+      )}
+
+      {/* ภาคปฏิบัติ (วันเรียนจริง) — จากระบบเช็คชื่อ QR: ครบทุกฐาน + สอบผ่านครบ
+          = ใบประกาศเป็นฉบับสมบูรณ์ (แสดงเฉพาะเมื่อเชื่อมต่อคลาส + โหลดสถานะได้) */}
+      {practical && practical.stations.length > 0 && (
+        <div className={`dash-card !p-3 space-y-2 border ${practicalComplete ? 'border-success/40' : 'border-border'}`}>
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-overline text-text-muted">ภาคปฏิบัติ (วันเรียนจริง)</div>
+            {practicalComplete ? (
+              <span className="text-2xs font-bold text-success inline-flex items-center gap-1">
+                <Check size={12} strokeWidth={2.6} /> ครบ — ใบประกาศฉบับสมบูรณ์
+              </span>
+            ) : (
+              <span className="text-2xs text-text-muted">ยังไม่ครบทุกฐาน</span>
+            )}
+          </div>
+          {practical.stations.map(s => {
+            const attended = !!s.checkedInAt;
+            const isExam = s.kind === 'exam';
+            return (
+              <div key={s.id} className="flex items-center gap-2 text-caption">
+                <span className={`w-5 h-5 inline-flex items-center justify-center shrink-0 ${
+                  attended ? 'bg-success/15 text-success' : 'bg-bg-tertiary text-text-muted'
+                }`} style={{ borderRadius: 'var(--radius-sm)' }}>
+                  {attended ? <Check size={12} strokeWidth={2.6} /> : <Circle size={10} strokeWidth={2} />}
+                </span>
+                <span className="flex-1 text-text-secondary truncate">{s.name}</span>
+                <span className={`text-2xs font-bold ${
+                  isExam
+                    ? (s.examPassed === true ? 'text-success' : s.examPassed === false ? 'text-danger' : 'text-text-muted')
+                    : (attended ? 'text-success' : 'text-text-muted')
+                }`}>
+                  {isExam
+                    ? (s.examPassed === true ? 'สอบผ่าน' : s.examPassed === false ? 'ไม่ผ่าน' : 'ยังไม่สอบ')
+                    : (attended ? 'เข้าแล้ว' : 'ยังไม่เข้า')}
+                </span>
+              </div>
+            );
+          })}
+          {!practicalComplete && (
+            <div className="text-2xs text-text-muted">
+              เข้าครบทุกฐาน + สอบปฏิบัติผ่านครบ ใบประกาศจะเปลี่ยนเป็นฉบับสมบูรณ์ให้อัตโนมัติ
+            </div>
+          )}
         </div>
       )}
 
@@ -476,13 +586,17 @@ export default function Certification() {
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
           <div>
-            <div className="text-title text-text-primary">{certConfig.title}</div>
+            <div className="text-title text-text-primary">
+              {(practicalComplete && certConfig.fullTitle) || certConfig.title}
+            </div>
             <div className="text-caption text-text-muted mt-1">{certConfig.subtitle}</div>
             <div className="text-body text-text-secondary mt-2 font-bold">{certData.studentName}</div>
           </div>
-          {certConfig.theoryOnly && certConfig.theoryStatement && (
+          {practicalComplete && certConfig.fullStatement ? (
+            <div className="text-caption font-semibold text-success">{certConfig.fullStatement}</div>
+          ) : (certConfig.theoryOnly && certConfig.theoryStatement && (
             <div className="text-caption font-semibold text-success">{certConfig.theoryStatement}</div>
-          )}
+          ))}
           {!IS_BLS && (
             <div className="text-caption text-text-muted">
               Pre-test: {certData.preTestScore != null ? `${certData.preTestScore}%` : '—'}
@@ -520,7 +634,7 @@ export default function Certification() {
           </div>
           <div className="font-mono text-2xs text-info">ID: {certData.certId}</div>
           <div className="text-2xs text-text-muted">{certConfig.centerName} · {certConfig.centerUrl}</div>
-          {certConfig.theoryOnly && certConfig.practicalRecommendation && (
+          {!practicalComplete && certConfig.theoryOnly && certConfig.practicalRecommendation && (
             <div className="dash-card !p-3 !bg-info/10 border border-info/30 text-caption text-info flex items-start gap-2 text-left">
               <MapPin size={15} strokeWidth={2.4} className="text-info shrink-0 mt-0.5" />
               <span>{certConfig.practicalRecommendation}</span>

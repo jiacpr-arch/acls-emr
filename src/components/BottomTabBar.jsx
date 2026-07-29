@@ -7,7 +7,7 @@ import {
   HeartPulse, FileText, Pill, Menu,
   BarChart3, GraduationCap, Users,
   MessageSquare, Settings, X, Award, Bell,
-  GitBranch, Zap, Wind, Brain,
+  GitBranch, Zap, Wind, Brain, Gamepad2,
 } from './ui/Icon';
 
 export default function BottomTabBar() {
@@ -28,23 +28,26 @@ export default function BottomTabBar() {
         { path: '/', Icon: HeartPulse, label: 'Home' },
         { path: '/history', Icon: FileText, label: t('history', lang) },
         { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
-        { path: '/drug-calc', Icon: Pill, label: t('drugs', lang) },
+        { path: '/games', Icon: Gamepad2, label: t('games', lang) },
         { key: 'more', Icon: Menu, label: 'More' },
       ];
 
   const moreItems = IS_BLS
     ? [
+        { path: '/bls/knowledge', Icon: GraduationCap, label: 'คลังความรู้ BLS' },
         { path: '/bls/algorithm', Icon: GitBranch, label: 'Algorithm' },
         { path: '/bls/aed', Icon: Zap, label: 'การใช้ AED' },
         { path: '/bls/choking', Icon: Wind, label: 'สำลัก' },
         { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR Metronome' },
         { path: '/bls/scenario', Icon: Brain, label: 'เกมลำดับขั้น' },
+        { path: '/sim', Icon: Gamepad2, label: 'เกมกู้ชีพ' },
         { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
         { path: '/news', Icon: Bell, label: 'ข่าว' },
         { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
         { path: '/settings', Icon: Settings, label: t('settings', lang) },
       ]
     : [
+        { path: '/drug-calc', Icon: Pill, label: 'คำนวณยา' },
         { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
         { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
         { path: '/compare', Icon: BarChart3, label: 'Compare' },

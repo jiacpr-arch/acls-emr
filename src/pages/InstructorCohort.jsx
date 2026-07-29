@@ -13,7 +13,10 @@ import {
 } from '../data/activePostTest';
 import { IS_ACLS } from '../config/courseMode';
 import CohortTable from '../components/precourse/CohortTable';
+import CheckinCohortSummary from '../components/precourse/CheckinCohortSummary';
+import AwardSummaryCard from '../components/precourse/AwardSummaryCard';
 import CodeBlueCohortSummary from '../components/precourse/CodeBlueCohortSummary';
+import RecorderCohortSummary from '../components/precourse/RecorderCohortSummary';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import { track } from '../services/analytics';
 import {
@@ -523,9 +526,20 @@ export default function InstructorCohort() {
         </div>
       </div>
 
+      {/* เช็คชื่อเข้าฐาน + ผลสอบปฏิบัติ (วันเรียนจริง) — self-contained เหมือน
+          summary ตัวอื่น: ดึง board ผ่าน RPC ของตัวเอง ไม่แตะ state ด้านบน */}
+      <CheckinCohortSummary classCode={classCode} />
+
+      {/* สรุปรางวัลประจำคลาส 3 รางวัล — จัดอันดับจาก summary ที่โหลดไว้แล้ว +
+          leaderboard เกม (ดึงเองข้างใน) */}
+      <AwardSummaryCard summary={summary} classCode={classCode} />
+
       {/* Code Blue Simulator — สรุปแยกอิสระ (คนละรูปแบบข้อมูลจาก pre-course:
           ต่อเคส ไม่ใช่ต่อบทเรียน) ดึงเองผ่าน RPC ของตัวเอง ไม่แตะ state ด้านบน */}
       <CodeBlueCohortSummary classCode={classCode} />
+
+      {/* Recorder Hero — ACLS เท่านั้น (route กันไว้ด้วย IS_ACLS ใน App.jsx แล้ว) */}
+      {IS_ACLS && <RecorderCohortSummary classCode={classCode} />}
 
       {summary.length > 0 && (
         <button

@@ -41,7 +41,7 @@ export const pregChoking = {
               { say: { who: 'boy_compressor', pose: 'talk', text: 'เริ่มกดครับ! ตำแหน่งมือกลางอกเหมือนผู้ใหญ่ทั่วไป <span class="cbs-em">หนึ่ง-สอง-สาม…</span>', fx: { cpr: true, firstCPR: true } }, t: 8 },
               { say: { who: 'nurse_mint', pose: 'talk', text: 'หนูดันมดลูกไปทางซ้ายให้แล้วค่ะ — <span class="cbs-em">left uterine displacement</span> ลด aortocaval compression' }, t: 6 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'จอขึ้นแล้วค่ะ… <span class="cbs-em">มี QRS เป็นจังหวะ แต่คลำชีพจรไม่ได้</span>' }, t: 6 },
-              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'flat' } },
+              { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'pea' } },
             ],
           },
           { tgt: 'YOU', label: 'ให้นอนตะแคงซ้าย 30° เต็มตัวเพื่อลด compression', ok: false, why: 'ตะแคงเต็มตัวทำให้กดหน้าอกไม่ได้ผล — ในหญิงตั้งครรภ์ให้นอนหงายแล้วใช้มือดันมดลูกไปซ้ายแทน', worsen: true },

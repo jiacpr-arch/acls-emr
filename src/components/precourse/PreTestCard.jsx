@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Check, RotateCcw, ArrowRight } from 'lucide-react';
-import { PRE_TEST_PASS_PERCENT, PRE_TEST_QUESTION_COUNT } from '../../data/assessment';
+import { PRE_TEST_PASS_PERCENT, PRE_TEST_QUESTION_COUNT } from '../../data/activePreTest';
+import { IS_BLS } from '../../config/courseMode';
 
 export default function PreTestCard({ bestScore, passed, attemptCount }) {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function PreTestCard({ bestScore, passed, attemptCount }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <div className="text-body-strong text-text-primary truncate">Pre-test ACLS</div>
+            <div className="text-body-strong text-text-primary truncate">Pre-test {IS_BLS ? 'BLS' : 'ACLS'}</div>
             {hasAttempt && (
               <span className={`inline-flex items-center gap-0.5 text-2xs font-bold px-1.5 py-0.5 shrink-0 ${
                 passed ? 'bg-success/12 text-success' : 'bg-warning/12 text-warning'

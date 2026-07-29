@@ -1,13 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
+import { getScenarioGameStatus } from '../../data/blsScenarios';
+import { simGameStatus } from '../../data/codeBlueScenarios';
 
-// Numbered study journey for the BLS landing. Full-width step cards (1 → 4)
+// Numbered study journey for the BLS landing. Full-width step cards (1 → 5)
 // that mirror the Learn hub's card style, so the Pre-course page is the single
-// place a student follows: อ่านบท → ฝึก CPR → Post-test → ใบประกาศฯ.
+// place a student follows: อ่านบท → ฝึก CPR → เกมกู้ชีพ → Post-test → ใบประกาศฯ.
 const toneColor = {
   info:    'var(--color-info)',
   danger:  'var(--color-danger)',
   shock:   'var(--color-shock)',
+  success: 'var(--color-success)',
   warning: 'var(--color-warning)',
 };
 
@@ -21,6 +24,12 @@ export default function BLSQuickActions({
   const navigate = useNavigate();
 
   const lessonsComplete = totalLessons > 0 && lessonsPassed === totalLessons;
+  // ขั้นที่ 2 (ฝึก CPR) วัดผลจากเกมลำดับขั้น 8 ด่าน + ข้อสอบรวม — อ่านสดจาก
+  // localStorage ทุก render ให้ตรงกับเงื่อนไขบนหน้าใบประกาศนียบัตร
+  const scenarioGame = getScenarioGameStatus();
+  // ใบประกาศนียบัตร (ขั้น 5) ต้องผ่านทุกขั้น 1–4 ไม่ใช่แค่ Post-test
+  const simGame = simGameStatus();
+  const allStepsDone = lessonsComplete && scenarioGame.allPassed && postTestPassed && simGame.allPassed;
 
   const tiles = [
     {
@@ -38,31 +47,46 @@ export default function BLSQuickActions({
       step: 2,
       emoji: '💗',
       label: 'ฝึก CPR',
-      subtitle: 'Metronome',
-      desc: 'จังหวะ 110/นาที',
+      subtitle: 'Metronome + เกมลำดับขั้น',
+      desc: scenarioGame.allPassed ? 'ผ่านครบทุกด่านแล้ว' : 'จังหวะ 110/นาที · ผ่านเกมให้ครบทุกด่าน',
       tone: 'danger',
       onClick: () => navigate('/skill-practice'),
+      count: { done: scenarioGame.done, total: scenarioGame.total },
+      complete: scenarioGame.allPassed,
     },
     {
       step: 3,
+      emoji: '🚨',
+      label: 'เกมกู้ชีพ',
+      subtitle: `BLS Rescue · ${simGame.total} เคส`,
+      desc: simGame.allPassed
+        ? 'ผ่านครบทุกเคสแล้ว'
+        : 'เกมตัดสินใจช่วยชีวิต — ผ่านให้ครบทุกเคส',
+      tone: 'shock',
+      onClick: () => navigate('/sim'),
+      count: { done: simGame.done, total: simGame.total },
+      complete: simGame.allPassed,
+    },
+    {
+      step: 4,
       emoji: '🏆',
       label: 'Post-test',
       subtitle: 'ข้อสอบปลายทาง',
       desc: postTestPassed ? 'ผ่านแล้ว' : postTestUnlocked ? 'พร้อมสอบ' : 'ยังไม่ปลดล็อก',
-      tone: 'shock',
+      tone: 'success',
       onClick: () => postTestUnlocked && navigate('/pre-course/post-test'),
       disabled: !postTestUnlocked,
       complete: postTestPassed,
     },
     {
-      step: 4,
+      step: 5,
       emoji: '🏅',
       label: 'ใบประกาศนียบัตร',
       subtitle: 'My Records',
-      desc: postTestPassed ? 'พร้อมดาวน์โหลด' : 'ผ่าน Post-test ก่อน',
+      desc: allStepsDone ? 'พร้อมดาวน์โหลด' : 'ผ่านขั้น 1–4 ให้ครบก่อน',
       tone: 'warning',
       onClick: () => navigate('/certification'),
-      complete: postTestPassed,
+      complete: allStepsDone,
     },
   ];
 
@@ -77,7 +101,7 @@ export default function BLSQuickActions({
             disabled={tile.disabled}
             className={`learn-card tone-${tile.tone} relative flex flex-col items-center text-center px-3 pt-6 pb-4 disabled:opacity-55 disabled:cursor-not-allowed`}
           >
-            {/* Step number badge — drives the 1 → 2 → 3 → 4 reading order */}
+            {/* Step number badge — drives the 1 → 2 → 3 → 4 → 5 reading order */}
             <span
               className="absolute top-2 left-2 inline-flex items-center justify-center w-6 h-6 text-2xs font-extrabold text-white shadow-sm"
               style={{ borderRadius: '50%', background: color }}

@@ -1,28 +1,28 @@
 import { useState } from 'react';
 import { Plus, Trash2, Video, Play } from 'lucide-react';
-import { addPreCourseVideo } from '../../services/precourseImageService';
 import { updateImage, deleteImage } from '../../services/alsAdminService';
-import { getYouTubeId } from '../../utils/youtube';
+import { getVideoSource } from '../../utils/videoSource';
 
-// แผงจัดการวิดีโอประกอบของ read step (วางลิงก์ YouTube — เก็บใน acls_images parent_type='precourse-video')
-export default function VideoManager({ stepId, videos, onChange }) {
+// แผงจัดการวิดีโอประกอบ (วางลิงก์ YouTube หรือ Google Drive) — เก็บผ่าน onAdd ที่ caller ส่งมา
+// เพื่อให้ใช้ร่วมกันได้ทั้ง precourse-video, bls-guide-video ฯลฯ โดยไม่ผูกกับ parent_type ใดตายตัว
+export default function VideoManager({ videos, onAdd, onChange }) {
   const [url, setUrl] = useState('');
   const [orientation, setOrientation] = useState('portrait');
   const [label, setLabel] = useState('');
   const [adding, setAdding] = useState(false);
 
-  const validId = getYouTubeId(url.trim());
+  const validSource = getVideoSource(url.trim());
 
   const handleAdd = async () => {
     const trimmed = url.trim();
     if (!trimmed) return;
-    if (!validId) {
-      alert('ลิงก์ YouTube ไม่ถูกต้อง — รองรับ youtu.be/, watch?v= และ shorts/');
+    if (!validSource) {
+      alert('ลิงก์ไม่ถูกต้อง — รองรับ YouTube (youtu.be/, watch?v=, shorts/) และ Google Drive (drive.google.com/file/d/…)\nไฟล์ Drive ต้องแชร์เป็น "ทุกคนที่มีลิงก์"');
       return;
     }
     setAdding(true);
     try {
-      await addPreCourseVideo(stepId, trimmed, { orientation, label: label.trim() || 'ดูคลิป' });
+      await onAdd(trimmed, { orientation, label: label.trim() || 'ดูคลิป' });
       setUrl('');
       setLabel('');
       setOrientation('portrait');
@@ -47,7 +47,7 @@ export default function VideoManager({ stepId, videos, onChange }) {
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="ลิงก์ YouTube (youtu.be/ · watch?v= · shorts/)"
+          placeholder="ลิงก์ YouTube หรือ Google Drive (แชร์แบบทุกคนที่มีลิงก์)"
           className="w-full px-2 py-1 bg-bg-primary border border-border text-xs"
           style={{ borderRadius: 4 }}
         />
@@ -100,8 +100,7 @@ function VideoRow({ video, onChange }) {
   const [orientation, setOrientation] = useState(video.orientation || 'portrait');
   const [busy, setBusy] = useState(false);
   const dirty = label !== (video.label || '') || orientation !== (video.orientation || 'portrait');
-  const ytId = getYouTubeId(video.url);
-  const thumb = ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : null;
+  const thumb = getVideoSource(video.url)?.thumbUrl || null;
 
   const handleSave = async () => {
     setBusy(true);
@@ -128,11 +127,13 @@ function VideoRow({ video, onChange }) {
 
   return (
     <div className="border border-border bg-bg-secondary p-2 flex gap-2" style={{ borderRadius: 'var(--radius-sm)' }}>
-      <div className="w-16 h-16 shrink-0 bg-bg-tertiary inline-flex items-center justify-center overflow-hidden"
+      <div className="relative w-16 h-16 shrink-0 bg-bg-tertiary inline-flex items-center justify-center overflow-hidden"
         style={{ borderRadius: 'var(--radius-sm)' }}>
-        {thumb
-          ? <img src={thumb} alt="" className="w-full h-full object-cover" />
-          : <Play size={18} strokeWidth={2.2} className="text-text-muted" />}
+        <Play size={18} strokeWidth={2.2} className="text-text-muted absolute" />
+        {thumb && (
+          <img src={thumb} alt="" className="relative w-full h-full object-cover"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+        )}
       </div>
       <div className="flex-1 min-w-0 space-y-1">
         <input

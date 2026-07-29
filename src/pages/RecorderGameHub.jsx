@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LEVELS } from '../data/recorderGameLevels';
 import { CASE_PACKS } from '../data/recorderCases';
 import { loadProgress, isUnlocked, getTotalStars } from '../utils/recorderGameProgress';
-import { Target, Star, Lock, ChevronRight, Shuffle, Layers } from 'lucide-react';
+import { usePreCourseStore } from '../stores/preCourseStore';
+import { useClassStore } from '../stores/classStore';
+import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import { Target, Star, Lock, ChevronRight, Shuffle, Layers, User } from 'lucide-react';
 
 // ==========================================
 // Recorder Hero — หน้าเลือกด่าน (hub)
@@ -31,9 +35,33 @@ export default function RecorderGameHub() {
   const progress = loadProgress();
   const totalStars = getTotalStars(progress);
   const levels = [...LEVELS].sort((a, b) => a.order - b.order);
+  const activeStudent = usePreCourseStore(s => s.activeStudent);
+  const classCode = useClassStore(s => s.classCode);
+  const [showIdentity, setShowIdentity] = useState(false);
 
   return (
     <div className="page-container space-y-3 pb-28">
+      {/* อยู่ในคลาส: บอกว่ากำลังบันทึกผลในชื่อใคร — เกมนอกคลาสไม่มี summary ให้บันทึก
+          จึงไม่ต้องกวนนักเรียนที่เล่นเดี่ยว/ออฟไลน์ให้ลงทะเบียน (เหมือน GamesHub) */}
+      {classCode && (
+        <div className={`flex items-center justify-between gap-2 px-3 py-2.5 text-caption ${
+          activeStudent ? 'bg-bg-tertiary' : 'bg-warning/8 border border-warning/30'
+        }`} style={{ borderRadius: 'var(--radius-md)' }}>
+          <span className="inline-flex items-center gap-1.5 min-w-0">
+            <User size={14} strokeWidth={2.4} className={activeStudent ? 'text-text-muted shrink-0' : 'text-warning shrink-0'} />
+            <span className="truncate">
+              {activeStudent
+                ? <>บันทึกผลในชื่อ <b className="text-text-primary">{activeStudent.name}</b></>
+                : 'ยังไม่ได้ลงทะเบียน — จะถูกขอชื่อก่อนเริ่มเล่น'}
+            </span>
+          </span>
+          <button onClick={() => setShowIdentity(true)}
+            className="btn btn-ghost btn-sm shrink-0">
+            {activeStudent ? 'เปลี่ยน' : 'ลงทะเบียน'}
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="text-center pt-2 flex flex-col items-center gap-2">
         <div className="w-14 h-14 inline-flex items-center justify-center"
@@ -44,8 +72,9 @@ export default function RecorderGameHub() {
           }}>
           <Target size={26} strokeWidth={2.4} className="text-white" />
         </div>
-        <h1 className="text-title text-text-primary">Recorder Hero</h1>
-        <p className="text-caption text-text-muted">ฝึกกดบันทึก Code Blue ให้ถูก ให้ทัน ลดข้อผิดพลาด</p>
+        <div className="text-overline text-purple">เส้นทางฝึกผู้บันทึก · ขั้น 1/2</div>
+        <h1 className="text-title text-text-primary">ซ้อมมือ Recorder</h1>
+        <p className="text-caption text-text-muted">Recorder Hero — มินิเกมปุ่มจำลอง ฝึกกดให้ถูก ให้ทัน ก่อนไปสอบสนามจริง</p>
         <div className="inline-flex items-center gap-1.5 text-warning font-black">
           <Star size={16} strokeWidth={2.4} fill="currentColor" /> {totalStars} / {levels.length * 3} ดาว
         </div>
@@ -120,9 +149,26 @@ export default function RecorderGameHub() {
         })}
       </div>
 
+      {/* ขั้น 2 ของเส้นทาง: โจทย์บนหน้า Recording จริง */}
+      <button onClick={() => navigate('/scenarios')}
+        className="w-full dash-card !p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors">
+        <span className="text-2xl shrink-0">🏥</span>
+        <div className="flex-1 min-w-0">
+          <div className="text-caption font-black text-text-primary">ขั้น 2 · สอบสนามจริง</div>
+          <div className="text-3xs text-text-muted">ซ้อมมือคล่องแล้ว? ไปทำโจทย์บนหน้า Recording จริง</div>
+        </div>
+        <ChevronRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
+      </button>
+
       <div className="text-3xs text-text-muted text-center px-4 leading-relaxed">
         ปุ่มในเกมจำลองจากหน้า Recording จริง — เล่นเกมนี้ไม่สร้างเคสจริงในระบบ
       </div>
+
+      <StudentIdentityModal
+        open={showIdentity}
+        onClose={() => setShowIdentity(false)}
+        onConfirm={() => setShowIdentity(false)}
+      />
     </div>
   );
 }

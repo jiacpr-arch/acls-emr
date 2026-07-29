@@ -26,6 +26,7 @@
     "howler": "^2.2.4",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",
+    "jsqr": "^1.4.0",
     "lucide-react": "^1.14.0",
     "posthog-js": "^1.386.1",
     "qrcode": "^1.5.4",

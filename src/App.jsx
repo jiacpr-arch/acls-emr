@@ -26,6 +26,7 @@ import CodeBlueLeaderboard from './pages/CodeBlueLeaderboard';
 import RecorderGameHub from './pages/RecorderGameHub';
 import RecorderGamePlay from './pages/RecorderGamePlay';
 import RecorderEndless from './pages/RecorderEndless';
+import GamesHub from './pages/GamesHub';
 import PreCourse from './pages/PreCourse';
 import Learn from './pages/Learn';
 import VideoLessons from './pages/VideoLessons';
@@ -33,6 +34,8 @@ import VideoLessonDetail from './pages/VideoLessonDetail';
 import LessonReader from './pages/LessonReader';
 import QuizResults from './pages/QuizResults';
 import InstructorCohort from './pages/InstructorCohort';
+import InstructorCheckin from './pages/InstructorCheckin';
+import StudentQrCard from './pages/StudentQrCard';
 import PostTestExam from './pages/PostTestExam';
 import PreTestExam from './pages/PreTestExam';
 import BLSSkillPractice from './pages/BLSSkillPractice';
@@ -41,6 +44,7 @@ import BLSScenarioHub from './pages/BLSScenarioHub';
 import BLSAlgorithm from './pages/BLSAlgorithm';
 import BLSAedGuide from './pages/BLSAedGuide';
 import BLSChokingRelief from './pages/BLSChokingRelief';
+import BLSKnowledge from './pages/BLSKnowledge';
 import NewsPage from './pages/NewsPage';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
@@ -57,6 +61,7 @@ const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminChapters = lazy(() => import('./pages/AdminChapters'));
 const AdminPreCourseImages = lazy(() => import('./pages/AdminPreCourseImages'));
+const AdminBlsGuideMedia = lazy(() => import('./pages/AdminBlsGuideMedia'));
 const AdminQADeep = lazy(() => import('./pages/AdminQADeep'));
 const AdminQADeepPosted = lazy(() => import('./pages/AdminQADeepPosted'));
 const AdminStudentQuestions = lazy(() => import('./pages/AdminStudentQuestions'));
@@ -112,6 +117,10 @@ function App() {
   // ไม่รวมหน้า landing (/pre-course, /), หน้าผลสอบ (/results), หน้าอาจารย์ (/cohort)
   const isStudying = /^\/pre-course\/[^/]+(\/quiz)?$/.test(location.pathname)
     && location.pathname !== '/pre-course/cohort';
+  // หน้าฝึก CPR + เกมสถานการณ์ตัดสินใจ — เป็นเครื่องมือฝึกจริง ไม่ใช่หน้าขายคอร์ส
+  // ปุ่ม LINE ลอยจะไปบังคำอธิบาย/ปุ่มควบคุมพอดี จึงซ่อนไว้เฉพาะหน้านี้
+  const isPractice = location.pathname === '/skill-practice'
+    || /^\/bls\/scenario\/.+/.test(location.pathname);
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -130,6 +139,8 @@ function App() {
         {/* pre-course flow — ทั้งสอง mode ใช้ (lesson content เปลี่ยนตาม mode ผ่าน activeLessons shim) */}
         <Route path="/pre-course" element={<PreCourse />} />
         <Route path="/pre-course/cohort" element={<InstructorCohort />} />
+        <Route path="/pre-course/checkin" element={<InstructorCheckin />} />
+        <Route path="/pre-course/my-qr" element={<StudentQrCard />} />
         <Route path="/pre-course/pre-test" element={<PreTestExam />} />
         <Route path="/pre-course/post-test" element={<PostTestExam />} />
         <Route path="/pre-course/results/:attemptId" element={<QuizResults />} />
@@ -152,33 +163,31 @@ function App() {
         {/* เกม Code Blue เปิดทั้ง ACLS และ BLS/MorRoo — คลังโจทย์กรองตามโหมดเอง */}
         <Route path="/sim" element={<CodeBlueSim />} />
         <Route path="/sim-board" element={<CodeBlueLeaderboard />} />
+        {IS_ACLS && <Route path="/games" element={<GamesHub />} />}
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
         {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
         {IS_ACLS && <Route path="/video-lessons" element={<VideoLessons />} />}
         {IS_ACLS && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
-        {IS_ACLS && (
-          <Route
-            path="/admin/login"
-            element={
-              <Suspense fallback={<AdminFallback />}>
-                <AdminLogin />
-              </Suspense>
-            }
-          />
-        )}
-        {IS_ACLS && (
-          <Route
-            path="/admin"
-            element={
-              <Suspense fallback={<AdminFallback />}>
-                <RequireAdmin>
-                  <AdminDashboard />
-                </RequireAdmin>
-              </Suspense>
-            }
-          />
-        )}
+        {/* เข้าถึงได้ทั้ง ACLS/BLS — เมนูใน AdminDashboard กรองตามโหมดเอง */}
+        <Route
+          path="/admin/login"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <AdminLogin />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminDashboard />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
         {IS_ACLS && (
           <Route
             path="/admin/chapters"
@@ -320,6 +329,17 @@ function App() {
             </Suspense>
           }
         />
+        {/* สื่อประกอบหน้า Guide BLS — เปิดทั้ง ACLS/BLS (ใช้จริงเฉพาะ build BLS) */}
+        <Route
+          path="/admin/bls-guide-media"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminBlsGuideMedia />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
 
         {IS_BLS && <Route path="/" element={<PreCourse />} />}
         {IS_BLS && <Route path="/new-case" element={<NewCase />} />}
@@ -331,6 +351,7 @@ function App() {
         {IS_BLS && <Route path="/bls/algorithm" element={<BLSAlgorithm />} />}
         {IS_BLS && <Route path="/bls/aed" element={<BLSAedGuide />} />}
         {IS_BLS && <Route path="/bls/choking" element={<BLSChokingRelief />} />}
+        {IS_BLS && <Route path="/bls/knowledge" element={<BLSKnowledge />} />}
 
         {/* unknown paths (including the other course mode's routes) go home
             instead of rendering an empty page */}
@@ -341,7 +362,7 @@ function App() {
       {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin + recorder-game play */}
       {!isRecording && !isAdmin && !isRecorderGamePlay && <BottomTabBar />}
-      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && <LineFloatButton />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isPractice && <LineFloatButton />}
       <Analytics />
       <MetaPixel />
     </div>

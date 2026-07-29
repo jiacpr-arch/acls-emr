@@ -1,6 +1,12 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GitBranch, HeartPulse, Baby, Users, ChevronRight, Construction } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
+import LessonImages from '../components/precourse/LessonImages';
+import StepVideoBox from '../components/StepVideoBox';
+import { useStepMediaUnlock } from '../hooks/useStepMediaUnlock';
+import { algorithmMedia } from '../data/blsGuideMedia';
+import { fetchBlsGuideMedia, guideMediaKey } from '../services/blsGuideMediaService';
 
 const variants = [
   {
@@ -44,6 +50,36 @@ const variants = [
 ];
 
 export default function BLSAlgorithm() {
+  const [imagesByKey, setImagesByKey] = useState({});
+  const [videosByKey, setVideosByKey] = useState({});
+
+  useEffect(() => {
+    let alive = true;
+    fetchBlsGuideMedia()
+      .then(({ imagesByKey, videosByKey }) => {
+        if (!alive) return;
+        setImagesByKey(imagesByKey);
+        setVideosByKey(videosByKey);
+      })
+      .catch(() => { /* ออฟไลน์/โหลดไม่ได้ — ไม่แสดงสื่อเพิ่ม ไม่ถือเป็น error */ });
+    return () => { alive = false; };
+  }, []);
+
+  const variantMedia = variants.map(v => {
+    const key = guideMediaKey('algorithm', v.id);
+    return {
+      id: v.id,
+      images: [...(algorithmMedia[v.id]?.images ?? []), ...(imagesByKey[key] ?? [])],
+      videos: [...(algorithmMedia[v.id]?.videos ?? []), ...(videosByKey[key] ?? [])],
+    };
+  });
+  const hasAnyMedia = variantMedia.some(m => m.images.length > 0 || m.videos.some(v => v.url));
+  const unlockSteps = variantMedia.map(m => ({
+    key: m.id,
+    hasVideo: m.videos.some(v => v.url),
+  }));
+  const { isUnlocked, markOpened } = useStepMediaUnlock('bls-algorithm', unlockSteps);
+
   return (
     <div className="page-container space-y-5">
       <div className="flex items-center gap-3">
@@ -59,16 +95,19 @@ export default function BLSAlgorithm() {
 
       <MorrooAdCard />
 
-      <div className="dash-card !p-3 flex items-start gap-2 bg-warning/10 border border-warning/30">
-        <Construction size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
-        <span className="text-caption text-text-secondary">
-          หน้านี้กำลังพัฒนา — เนื้อหา algorithm แบบเต็ม (รูป flowchart + รายละเอียดแต่ละขั้น) จะเพิ่มในเร็วๆ นี้
-        </span>
-      </div>
+      {!hasAnyMedia && (
+        <div className="dash-card !p-3 flex items-start gap-2 bg-warning/10 border border-warning/30">
+          <Construction size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
+          <span className="text-caption text-text-secondary">
+            หน้านี้กำลังพัฒนา — เนื้อหา algorithm แบบเต็ม (รูป flowchart + รายละเอียดแต่ละขั้น) จะเพิ่มในเร็วๆ นี้
+          </span>
+        </div>
+      )}
 
       <div className="space-y-3">
-        {variants.map(v => {
+        {variants.map((v, idx) => {
           const VIcon = v.Icon;
+          const media = variantMedia[idx];
           return (
             <div key={v.id} className="dash-card space-y-2">
               <div className="flex items-center gap-3">
@@ -89,6 +128,12 @@ export default function BLSAlgorithm() {
                   </li>
                 ))}
               </ul>
+              {media.images?.length > 0 && <LessonImages images={media.images} fallbackAlt={v.title} />}
+              <StepVideoBox
+                videos={media.videos}
+                locked={!isUnlocked(idx)}
+                onOpened={() => markOpened(v.id)}
+              />
             </div>
           );
         })}

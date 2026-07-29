@@ -16,6 +16,7 @@ import { useVoucherStore } from '../stores/voucherStore';
 import { validateVoucher } from '../config/vouchers';
 import { track } from '../services/analytics';
 import FeaturedVideo from '../components/precourse/FeaturedVideo';
+import MyScoreCard from '../components/precourse/MyScoreCard';
 import BLSHero from '../components/precourse/BLSHero';
 import BLSProgressCard from '../components/precourse/BLSProgressCard';
 import BLSQuickActions from '../components/precourse/BLSQuickActions';
@@ -24,11 +25,11 @@ import ACLSProgressCard from '../components/precourse/ACLSProgressCard';
 import NewsCard from '../components/NewsCard';
 import StreakBadge from '../components/StreakBadge';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
-import { PRE_TEST_LESSON_ID } from '../data/assessment';
+import { PRE_TEST_LESSON_ID } from '../data/activePreTest';
 import { IS_BLS, courseMeta } from '../config/courseMode';
 import {
   GraduationCap, Users, FileText,
-  Cloud, CloudOff, ChevronDown,
+  Cloud, CloudOff, ChevronDown, QrCode,
 } from 'lucide-react';
 
 // Module-level flag — splash shows once per full page load, not on every
@@ -161,6 +162,14 @@ export default function PreCourse() {
             </div>
             <div className="text-2xs text-text-muted font-mono">รหัสคลาส: {classCode}</div>
           </div>
+          {/* บัตร QR เช็คชื่อเข้าฐาน — โชว์เมื่อลงชื่อนักเรียนแล้วเท่านั้น
+              (QR ต้องผูกกับ student_pk ของคนที่ลงชื่อ) */}
+          {activeStudent && (
+            <button onClick={() => navigate('/pre-course/my-qr')}
+              className="btn btn-ghost btn-sm">
+              <QrCode size={14} strokeWidth={2.2} /> บัตร QR
+            </button>
+          )}
           <button onClick={() => { clearClass(); setShowClassGate(true); }}
             className="btn btn-ghost btn-sm">
             เปลี่ยนคลาส
@@ -183,6 +192,12 @@ export default function PreCourse() {
       )}
     </div>
   );
+
+  // Pre-test / post-test best scores (ใช้ทั้งสองโหมด — BLS ใช้ชุดข้อสอบในไฟล์)
+  const preTestAttempts = attempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
+  const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
+  const preTestPassed = preTestBest?.passed ?? false;
+  const preTestAttempted = preTestAttempts.length > 0;
 
   if (IS_BLS) {
     return (
@@ -209,6 +224,9 @@ export default function PreCourse() {
 
         <VoucherCard onOpen={() => setShowVoucher(true)} />
 
+        {/* คะแนนของฉัน — นักเรียนเห็นผลตัวเองครบในที่เดียว (แสดงเมื่อลงชื่อแล้ว) */}
+        {activeStudent && <MyScoreCard student={activeStudent} />}
+
         <BLSQuickActions
           lessonsPassed={lessonsPassed}
           totalLessons={totalLessons}
@@ -218,6 +236,16 @@ export default function PreCourse() {
         />
 
         {courseMeta.featuredVideo && <FeaturedVideo video={courseMeta.featuredVideo} />}
+
+        {/* Pre-test — แบบวัดพื้นฐานก่อนเริ่มอ่านบทเรียน (ไม่ใช่เงื่อนไขใบประกาศ) */}
+        <div className="space-y-2">
+          <div className="text-overline text-text-muted px-1">ข้อสอบก่อนเรียน</div>
+          <PreTestCard
+            bestScore={preTestBest?.score ?? null}
+            passed={preTestPassed}
+            attemptCount={preTestAttempts.length}
+          />
+        </div>
 
         {/* Collapsible lessons section */}
         <div ref={lessonsRef}>
@@ -288,12 +316,6 @@ export default function PreCourse() {
     );
   }
 
-  // ACLS pre-test / post-test best scores
-  const preTestAttempts = attempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
-  const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-  const preTestPassed = preTestBest?.passed ?? false;
-  const preTestAttempted = preTestAttempts.length > 0;
-
   return (
     <div className="page-container space-y-5">
       <div className="text-center space-y-2">
@@ -328,6 +350,9 @@ export default function PreCourse() {
       {classBanner}
 
       <VoucherCard onOpen={() => setShowVoucher(true)} />
+
+      {/* คะแนนของฉัน — นักเรียนเห็นผลตัวเองครบในที่เดียว (แสดงเมื่อลงชื่อแล้ว) */}
+      {activeStudent && <MyScoreCard student={activeStudent} />}
 
       {/* Step 1 — Pre-test */}
       {activeStudent && (

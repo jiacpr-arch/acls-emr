@@ -5,16 +5,14 @@ import {
   PRE_TEST_LESSON_ID,
   PRE_TEST_PASS_PERCENT,
   PRE_TEST_QUESTION_COUNT,
-} from '../data/assessment';
+  loadActivePreTestExam,
+} from '../data/activePreTest';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getAttemptCount, saveQuizAttempt } from '../db/database';
 import { scheduleFlush } from '../services/syncEngine';
 import { track } from '../services/analytics';
-import {
-  loadExamForBank,
-  submitAttempt as submitRemoteAttempt,
-} from '../services/assessmentService';
-import { IS_ACLS } from '../config/courseMode';
+import { submitAttempt as submitRemoteAttempt } from '../services/assessmentService';
+import { IS_ACLS, IS_BLS } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import LoadingCard from '../components/ui/LoadingCard';
@@ -46,7 +44,7 @@ export default function PreTestExam() {
     let cancelled = false;
     (async () => {
       try {
-        const loaded = await loadExamForBank(PRE_TEST_BANK_ID);
+        const loaded = await loadActivePreTestExam();
         if (cancelled) return;
         setExam(loaded);
         if (!currentPreTest || currentPreTest.setId !== loaded.set.id) {
@@ -71,20 +69,6 @@ export default function PreTestExam() {
   );
   const allAnswered = questions.length > 0 && answeredCount === questions.length;
   const isLastQuestion = safeIndex === questions.length - 1;
-
-  if (!IS_ACLS) {
-    return (
-      <div className="page-container space-y-5">
-        <Header />
-        <div className="dash-card text-center !p-6 space-y-3">
-          <AlertTriangle size={32} className="mx-auto text-warning" />
-          <div className="text-headline">ยังไม่เปิดใช้สำหรับหลักสูตรนี้</div>
-          <div className="text-caption text-text-muted">Pre-test มีเฉพาะหลักสูตร ACLS</div>
-          <button onClick={() => navigate('/pre-course')} className="btn btn-primary btn-md">กลับ Pre-course</button>
-        </div>
-      </div>
-    );
-  }
 
   if (!activeStudent) {
     return (
@@ -161,19 +145,23 @@ export default function PreTestExam() {
         props: { score, passed, attempt_number: attemptNumber },
       });
 
-      submitRemoteAttempt({
-        studentLocalId: activeStudent.id,
-        studentCode: activeStudent.studentId,
-        studentName: activeStudent.name,
-        studentPhone: activeStudent.phone,
-        studentEmail: activeStudent.email,
-        bankId: PRE_TEST_BANK_ID,
-        setId: exam.set.id,
-        score, totalQuestions: total, correctCount: correct, passed,
-        durationSeconds: durationSec,
-        answers: detailed,
-        startedAt, finishedAt,
-      }).catch(() => {});
+      // ธนาคารข้อสอบใน Supabase มีเฉพาะ ACLS — BLS ใช้ชุดข้อสอบในไฟล์
+      // (ผลสอบ BLS ยัง sync ผ่าน syncEngine/quizAttempts ตามปกติ)
+      if (IS_ACLS) {
+        submitRemoteAttempt({
+          studentLocalId: activeStudent.id,
+          studentCode: activeStudent.studentId,
+          studentName: activeStudent.name,
+          studentPhone: activeStudent.phone,
+          studentEmail: activeStudent.email,
+          bankId: PRE_TEST_BANK_ID,
+          setId: exam.set.id,
+          score, totalQuestions: total, correctCount: correct, passed,
+          durationSeconds: durationSec,
+          answers: detailed,
+          startedAt, finishedAt,
+        }).catch(() => {});
+      }
 
       clearPreTest();
       navigate(`/pre-course/results/${attemptId}`);
@@ -304,7 +292,7 @@ function Header({ subtitle }) {
         <Sparkles size={22} strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
-        <h1 className="text-title text-text-primary">Pre-test ACLS</h1>
+        <h1 className="text-title text-text-primary">Pre-test {IS_BLS ? 'BLS' : 'ACLS'}</h1>
         <p className="text-2xs text-text-muted">{subtitle ?? `${PRE_TEST_QUESTION_COUNT} ข้อ · ทดสอบความรู้พื้นฐาน`}</p>
       </div>
     </div>

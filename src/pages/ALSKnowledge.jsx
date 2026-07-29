@@ -8,7 +8,7 @@ import {
   GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock, Activity, Check, X, RotateCcw,
   ArrowRight, Heart, HeartPulse, Brain, Stethoscope, Shield, ShieldCheck,
-  Users, Wind, Zap, Pill,
+  Users, Wind, Zap, Pill, Play, Pause,
 } from 'lucide-react';
 
 /* === Per-chapter visual theme: icon + gradient + accent ===
@@ -87,6 +87,8 @@ export default function ALSKnowledge() {
   const [quizScore, setQuizScore] = useState(0);
   const [quizBest, setQuizBest] = useState(() => parseInt(localStorage.getItem(QUIZ_KEY) || '0', 10));
   const [quizSeed, setQuizSeed] = useState(() => Date.now() % 100000);
+  // true = คลื่นวิ่งแบบจอมอนิเตอร์, false = หยุดนิ่งแบบกระดาษ EKG (วัด/อ่านง่าย)
+  const [quizLive, setQuizLive] = useState(true);
 
   useEffect(() => { setHistory(getHistory()); }, [tip]);
 
@@ -419,9 +421,25 @@ export default function ALSKnowledge() {
                     style={{ background: '#fff7f0' }}
                   />
                 ) : (
-                  <EKGWaveform rhythmId={quizQ.rhythmId} variant="paper" />
+                  <EKGWaveform
+                    rhythmId={quizQ.rhythmId}
+                    variant={quizLive ? 'monitor' : 'paper'}
+                    animate={quizLive}
+                  />
                 )}
               </div>
+              {!quizQ.imageUrl && (
+                <button
+                  onClick={() => setQuizLive(v => !v)}
+                  className="btn btn-ghost btn-sm w-full"
+                >
+                  {quizLive ? (
+                    <><Pause size={13} strokeWidth={2.2} /> หยุดคลื่น — ดูแบบกระดาษ EKG</>
+                  ) : (
+                    <><Play size={13} strokeWidth={2.2} /> ให้คลื่นวิ่งแบบจอมอนิเตอร์</>
+                  )}
+                </button>
+              )}
               <div className="grid grid-cols-2 gap-2">
                 {shuffled.map(opt => {
                   const isAnswered = quizChoice !== null;

@@ -5,6 +5,10 @@ import { getPackById, getCaseById, caseToLevel, CATEGORY_ACTIONS } from '../data
 import { computeStars } from '../utils/recorderGameScore';
 import { loadProgress, saveResult } from '../utils/recorderGameProgress';
 import { useLiveLevelEngine } from '../hooks/recordergame/useLiveLevelEngine';
+import { usePreCourseStore } from '../stores/preCourseStore';
+import { getClassContext } from '../stores/classStore';
+import { rpcSubmitRecorderResult } from '../services/cohortSync';
+import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import LevelIntro from '../components/recordergame/LevelIntro';
 import ResultScreen from '../components/recordergame/ResultScreen';
 import GameCprDashboard from '../components/recordergame/GameCprDashboard';
@@ -27,6 +31,13 @@ export default function RecorderGamePlay() {
   const [phase, setPhase] = useState('intro');
   const [result, setResult] = useState(null);
 
+  // ในคลาส: ก่อนเริ่มด่านครั้งแรกต้องรู้ว่าใครเล่น ไม่งั้นผลจะไม่ถูกบันทึกให้ครูเห็น
+  // (rpcSubmitRecorderResult ต้องมี studentPk เสมอ) — ตาม pattern เดียวกับ CodeBlueSim
+  const activeStudent = usePreCourseStore((s) => s.activeStudent);
+  const [inClass] = useState(() => !!getClassContext().classCode);
+  const [showIdentity, setShowIdentity] = useState(false);
+  const startAfterIdentityRef = useRef(false);
+
   useEffect(() => {
     if (!level && !pack) navigate('/recorder-game', { replace: true });
   }, [level, pack, navigate]);
@@ -45,13 +56,50 @@ export default function RecorderGamePlay() {
     const stars = computeStars(raw.score, raw.maxScore, missCount);
     const isNewHi = raw.score > prior.hiscore;
     saveResult(level.id, { stars, score: raw.score });
+    if (activeStudent?.id) {
+      rpcSubmitRecorderResult({
+        attemptUuid: crypto.randomUUID(),
+        studentPk: activeStudent.id,
+        levelId: level.id,
+        payload: {
+          mode, score: raw.score, maxScore: raw.maxScore ?? null, stars, missCount,
+          finishedAt: new Date().toISOString(),
+        },
+      }).catch(() => {});
+    }
     setResult({ ...raw, mode, stars, isNewHi });
     setPhase('done');
   };
 
+  const requestStart = () => {
+    if (inClass && !activeStudent?.id) {
+      startAfterIdentityRef.current = true;
+      setShowIdentity(true);
+      return;
+    }
+    setPhase('playing');
+  };
+
+  const handleIdentityConfirm = () => {
+    setShowIdentity(false);
+    if (startAfterIdentityRef.current) {
+      startAfterIdentityRef.current = false;
+      setPhase('playing');
+    }
+  };
+
   if (phase === 'intro') {
-    return <LevelIntro level={level} hiscore={hiscore}
-      onStart={() => setPhase('playing')} onBack={() => navigate('/recorder-game')} />;
+    return (
+      <>
+        <LevelIntro level={level} hiscore={hiscore}
+          onStart={requestStart} onBack={() => navigate('/recorder-game')} />
+        <StudentIdentityModal
+          open={showIdentity}
+          onClose={() => { setShowIdentity(false); startAfterIdentityRef.current = false; }}
+          onConfirm={handleIdentityConfirm}
+        />
+      </>
+    );
   }
 
   if (phase === 'done' && result) {

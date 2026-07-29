@@ -89,6 +89,7 @@ export default function Learn() {
         {
           title: t('learn_prepare', lang),
           items: [
+            { path: '/pre-course/pre-test', emoji: '📝', label: 'Pre-test', subtitle: 'Knowledge Check', desc: 'วัดพื้นฐานก่อนเริ่มเรียน', tone: 'purple' },
             { path: '/pre-course', emoji: '🎓', label: t('pre_course', lang), subtitle: 'Pre-course', desc: t('pre_course_desc', lang), tone: 'info', progressKey: 'lessons' },
           ],
         },
@@ -101,6 +102,7 @@ export default function Learn() {
         {
           title: t('learn_reference', lang),
           items: [
+            { path: '/bls/knowledge', emoji: '📚', label: 'คลังความรู้ BLS', subtitle: 'BLS Book', desc: 'หนังสือ + Q&A เชิงลึก + AI Tips', tone: 'info' },
             { path: '/guide', emoji: '📖', label: t('guide', lang), subtitle: 'Field Guide', desc: t('guide_desc', lang), tone: 'success' },
           ],
         },
@@ -136,8 +138,9 @@ export default function Learn() {
           title: t('learn_practice', lang),
           items: [
             { path: '/sim',           emoji: '🚨', label: t('code_sim', lang),      subtitle: 'Code Blue Sim', desc: t('code_sim_desc', lang),      tone: 'danger', badge: '🏅', featured: true },
-            { path: '/scenarios',     emoji: '🎮', label: t('scenarios', lang),     subtitle: 'Scenarios',     desc: t('scenarios_desc', lang),     tone: 'warning' },
-            { path: '/recorder-game', emoji: '🎯', label: t('recorder_game', lang), subtitle: 'Recorder Hero', desc: t('recorder_game_desc', lang), tone: 'purple' },
+            // เส้นทางผู้บันทึก: ขั้น 1 (ปุ่มจำลอง) มาก่อนขั้น 2 (หน้า Recording จริง)
+            { path: '/recorder-game', emoji: '🎯', label: t('recorder_game', lang), subtitle: 'Recorder Hero',      desc: t('recorder_game_desc', lang), tone: 'purple' },
+            { path: '/scenarios',     emoji: '🏥', label: t('scenarios', lang),     subtitle: 'Training Scenarios', desc: t('scenarios_desc', lang),     tone: 'warning' },
             { path: '/drill',         emoji: '⚡', label: t('drill', lang),         subtitle: 'Skill Drill',   desc: t('drill_desc', lang),         tone: 'shock', featured: true },
           ],
         },

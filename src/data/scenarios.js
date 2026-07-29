@@ -1,5 +1,13 @@
 // ACLS Training Scenarios — Thai language
 // Levels: basic (1 scenario), intermediate (1-2 changes), megacode (complex + cause correction)
+//
+// Visual fields (optional ทั้งหมด — ไม่มีก็ derive อัตโนมัติใน stageState.js):
+//   scenario.visual: { patientLabel_th, scene_th, defaultSpeaker } | false (= banner ข้อความเดิม)
+//   step.speaker  — charId จาก src/game/characters.js (nurse_mint/boy_compressor/fon_defib/att_dech)
+//   step.pose     — idle|talk|panic|stern|happy
+//   step.rhythm   — override คลื่นบนจอ ECG (default: step.ekg ผ่าน RHYTHM_MAP, ไม่มีก็ใช้ของ step ก่อนหน้า)
+//   step.fx       — 'alarm' ตอนเข้า step (default: เดาจาก rhythm วิกฤต)
+//   step.onCorrect — { pose, line_th } ปฏิกิริยาทีมตอนนักเรียน record ถูก (learning mode)
 
 export const scenarios = [
   // =============== BASIC ===============
@@ -10,56 +18,82 @@ export const scenarios = [
     level: 'basic',
     category: 'cardiac_arrest',
     description_th: 'ชาย 55 ปี หมดสติขณะออกกำลังกาย',
+    visual: { patientLabel_th: 'ชาย 55 ปี', scene_th: 'สวนสาธารณะ' },
     steps: [
       {
         trigger: 'initial',
         scenario_th: 'ชาย 55 ปี หมดสติขณะออกกำลังกายที่สวนสาธารณะ พบนอนหงายไม่เคลื่อนไหว',
         vitals: { hr: 0, bp: '0/0', spo2: 0 },
+        speaker: 'att_dech',
+        pose: 'stern',
         correctActions: ['scene_safety'],
+        onCorrect: { line_th: 'พื้นที่ปลอดภัย — เข้าถึงผู้ป่วยได้!' },
         hint_th: 'ตรวจสอบความปลอดภัยของที่เกิดเหตุก่อนเสมอ',
       },
       {
         trigger: 'after_scene_safety',
         scenario_th: 'เข้าถึงผู้ป่วยแล้ว',
+        speaker: 'nurse_mint',
+        pose: 'panic',
         correctActions: ['check_response'],
+        onCorrect: { pose: 'panic', line_th: 'เรียกแล้วไม่ตอบสนอง! ไม่หายใจ!' },
         hint_th: 'ตบไหล่ + ตะโกนเรียก "คุณเป็นอะไรไหม"',
       },
       {
         trigger: 'after_check_response',
         scenario_th: 'ไม่ตอบสนอง ไม่หายใจ',
+        speaker: 'nurse_mint',
+        pose: 'panic',
         correctActions: ['call_for_help'],
+        onCorrect: { line_th: 'โทร 1669 แล้ว! AED กำลังมา!' },
         hint_th: 'เรียกคนช่วย + โทร 1669 + ขอ AED',
       },
       {
         trigger: 'after_call_help',
         scenario_th: 'ไม่มีชีพจร (carotid pulse ≤10 วินาที)',
+        speaker: 'boy_compressor',
+        pose: 'panic',
         correctActions: ['start_cpr'],
+        onCorrect: { pose: 'stern', line_th: 'ปั๊มเลย! ลึก 5-6 ซม. 100-120 ครั้ง/นาที!' },
         hint_th: 'เริ่ม CPR ทันที — กดลึก 5-6 cm, 100-120/min',
       },
       {
         trigger: 'after_cpr_start',
         scenario_th: 'ติด monitor แล้ว — EKG แสดง:',
         ekg: 'vf',
+        speaker: 'fon_defib',
+        pose: 'panic',
         correctActions: ['defib_200j'],
+        onCorrect: { line_th: 'CLEAR! ⚡ ช็อก 200J แล้ว!' },
         wrongActions: { 'epi': 'VF = Shockable → Defib ก่อน!', 'amiodarone': 'Shock ก่อน, Amio หลัง shock ครั้งที่ 3' },
         hint_th: 'VF เป็น shockable rhythm → Defibrillation 200J ทันที',
       },
       {
         trigger: 'after_shock',
         scenario_th: 'Shock แล้ว — กด CPR ต่อทันที 2 นาที',
+        speaker: 'boy_compressor',
+        pose: 'stern',
         correctActions: ['resume_cpr'],
+        onCorrect: { line_th: 'กดต่อทันที ไม่ต้องรอ check rhythm!' },
         hint_th: 'กด CPR ทันทีหลัง shock ไม่ต้องรอ check rhythm',
       },
       {
         trigger: 'after_2min',
         scenario_th: 'ครบ 2 นาที — check rhythm: ยังเป็น VF\nEtCO₂ พุ่งขึ้น 42 mmHg! ผู้ป่วยขยับแขน',
+        speaker: 'fon_defib',
+        pose: 'panic',
         correctActions: ['check_pulse'],
+        onCorrect: { pose: 'happy', line_th: 'คลำชีพจรได้!' },
         hint_th: 'EtCO₂ >40 + ผู้ป่วยขยับ = สงสัย ROSC → check pulse ทันที',
       },
       {
         trigger: 'after_pulse_check',
         scenario_th: 'คลำได้ชีพจร! ROSC!',
+        rhythm: 'rosc',
+        speaker: 'att_dech',
+        pose: 'happy',
         correctActions: ['rosc'],
+        onCorrect: { pose: 'happy', line_th: 'ROSC! ยอดเยี่ยมมากทีม — ต่อด้วย Post-ROSC care' },
         hint_th: 'เริ่ม Post-ROSC care ทันที',
       },
     ],
@@ -72,43 +106,64 @@ export const scenarios = [
     level: 'basic',
     category: 'cardiac_arrest',
     description_th: 'หญิง 72 ปี พบนอนนิ่งบนเตียงใน ward',
+    visual: { patientLabel_th: 'หญิง 72 ปี', scene_th: 'Ward ใน รพ.' },
     steps: [
       {
         trigger: 'initial',
         scenario_th: 'หญิง 72 ปี โรคประจำตัว DM, HT, CKD stage 4\nเจ้าหน้าที่พบนอนนิ่งบนเตียง ไม่หายใจ',
+        speaker: 'att_dech',
+        pose: 'stern',
         correctActions: ['scene_safety'],
+        onCorrect: { line_th: 'สิ่งแวดล้อมปลอดภัย — ประเมินผู้ป่วยเลย!' },
         hint_th: 'Scene safety — ตรวจสอบสิ่งแวดล้อม',
       },
       {
         trigger: 'after_scene_safety',
         scenario_th: 'เรียกไม่ตอบ ไม่หายใจ คลำชีพจรไม่ได้',
+        speaker: 'boy_compressor',
+        pose: 'panic',
         correctActions: ['start_cpr'],
+        onCorrect: { pose: 'stern', line_th: 'เริ่มปั๊มแล้ว! ขอ monitor ด่วน!' },
         hint_th: 'ไม่มีชีพจร → เริ่ม CPR ทันที',
       },
       {
         trigger: 'after_cpr_start',
         scenario_th: 'ติด monitor — EKG แสดง Asystole (flat line)\nตรวจสอบ leads แล้ว — ยืนยัน Asystole',
         ekg: 'asystole',
+        speaker: 'nurse_mint',
+        pose: 'panic',
         correctActions: ['epi_1mg'],
+        onCorrect: { line_th: 'Epi 1mg IV push แล้ว — flush ตาม!' },
         wrongActions: { 'defib': 'Asystole = Non-shockable → ห้าม Defib!', 'amiodarone': 'Amiodarone ใช้เฉพาะ VF/pVT' },
         hint_th: 'Asystole = Non-shockable → Epi 1mg IV ทันที (ไม่ shock)',
       },
       {
         trigger: 'after_epi',
         scenario_th: 'ให้ Epi แล้ว — CPR ต่อ 2 นาที\nCheck rhythm: ยังเป็น Asystole\nต้องหาสาเหตุ — CKD stage 4 → K+ อาจสูง',
+        speaker: 'att_dech',
+        pose: 'stern',
         correctActions: ['find_cause', 'epi_repeat'],
+        onCorrect: { line_th: 'ส่งตรวจ K+ แล้ว — เตรียม Ca Gluconate ไว้เลย' },
         hint_th: 'CKD → นึกถึง Hyperkalemia → ตรวจ K+ + ให้ Ca Gluconate',
       },
       {
         trigger: 'after_cause_found',
         scenario_th: 'K+ = 7.2 mEq/L → Hyperkalemia!\nให้ Ca Gluconate + NaHCO₃ + Glucose+RI แล้ว\nCheck rhythm: มี organized rhythm → check pulse',
+        rhythm: 'nsr',
+        speaker: 'fon_defib',
+        pose: 'panic',
         correctActions: ['check_pulse'],
+        onCorrect: { pose: 'happy', line_th: 'มี organized rhythm — คลำชีพจร!' },
         hint_th: 'แก้สาเหตุแล้ว rhythm เปลี่ยน → check pulse',
       },
       {
         trigger: 'after_pulse_check',
         scenario_th: 'คลำได้ชีพจร! ROSC!',
+        rhythm: 'rosc',
+        speaker: 'att_dech',
+        pose: 'happy',
         correctActions: ['rosc'],
+        onCorrect: { pose: 'happy', line_th: 'ROSC! แก้สาเหตุได้ตรงจุด — เยี่ยมมาก!' },
         hint_th: 'เริ่ม Post-ROSC care',
       },
     ],
@@ -121,37 +176,55 @@ export const scenarios = [
     level: 'basic',
     category: 'tachycardia',
     description_th: 'หญิง 28 ปี ใจสั่น หน้ามืด',
+    visual: { patientLabel_th: 'หญิง 28 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
         scenario_th: 'หญิง 28 ปี ไม่มีโรคประจำตัว\nมาด้วยอาการใจสั่น หน้ามืด 30 นาที\nBP 110/70 HR 188 SpO₂ 99% รู้สึกตัวดี',
         vitals: { hr: 188, bp: '110/70', spo2: 99 },
         ekg: 'svt',
+        speaker: 'att_dech',
+        pose: 'stern',
         correctActions: ['assess_stable'],
+        onCorrect: { line_th: 'ใช่ — Stable Tachycardia ยังมีเวลาประเมินต่อ' },
         hint_th: 'HR >150 + ยังรู้สึกตัวดี BP ปกติ → Stable Tachycardia',
       },
       {
         trigger: 'after_assess',
         scenario_th: 'Stable — Narrow Regular Tachycardia (SVT)\nเริ่มรักษาตาม guideline',
+        speaker: 'nurse_mint',
+        pose: 'stern',
         correctActions: ['vagal_maneuver'],
+        onCorrect: { line_th: 'ให้ผู้ป่วยเป่า syringe แล้วยกขา (Modified Valsalva)' },
         hint_th: 'SVT stable → Vagal maneuver ก่อน (Modified Valsalva)',
       },
       {
         trigger: 'after_vagal',
         scenario_th: 'Vagal maneuver ไม่ได้ผล — ยังเป็น SVT HR 185',
+        speaker: 'nurse_mint',
+        pose: 'panic',
         correctActions: ['adenosine_6mg'],
+        onCorrect: { line_th: 'Adenosine 6mg push เร็ว + flush 20ml แล้ว!' },
         hint_th: 'Vagal ไม่ได้ผล → Adenosine 6mg rapid IV push + flush 20ml (3-way)',
       },
       {
         trigger: 'after_adenosine',
         scenario_th: 'Adenosine 6mg — มี brief pause แต่กลับเป็น SVT อีก',
+        speaker: 'nurse_mint',
+        pose: 'panic',
         correctActions: ['adenosine_12mg'],
+        onCorrect: { line_th: 'Adenosine 12mg push แล้ว — จับตาดู monitor!' },
         hint_th: 'Adenosine 6mg ไม่ได้ผล → Adenosine 12mg (same technique)',
       },
       {
         trigger: 'after_adenosine_12',
         scenario_th: 'Adenosine 12mg — converted! NSR HR 82\nBP 120/75 SpO₂ 99% รู้สึกตัวดี',
+        rhythm: 'nsr',
+        vitals: { hr: 82, bp: '120/75', spo2: 99 },
+        speaker: 'att_dech',
+        pose: 'happy',
         correctActions: ['monitor'],
+        onCorrect: { pose: 'happy', line_th: 'Converted! ต่อด้วย 12-Lead ECG + หาสาเหตุ' },
         hint_th: 'SVT converted → Monitor + 12-Lead ECG + หาสาเหตุ',
       },
     ],
@@ -164,6 +237,7 @@ export const scenarios = [
     level: 'basic',
     category: 'bradycardia',
     description_th: 'ชาย 68 ปี หน้ามืด เป็นลม',
+    visual: { patientLabel_th: 'ชาย 68 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
@@ -195,6 +269,7 @@ export const scenarios = [
     level: 'intermediate',
     category: 'cardiac_arrest',
     description_th: 'ชาย 62 ปี Cardiac arrest ที่ ER',
+    visual: { patientLabel_th: 'ชาย 62 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
@@ -234,6 +309,7 @@ export const scenarios = [
     level: 'megacode',
     category: 'cardiac_arrest',
     description_th: 'ชาย 58 ปี CKD หมดสติที่บ้าน',
+    visual: { patientLabel_th: 'ชาย 58 ปี', scene_th: 'บ้านผู้ป่วย → ER' },
     steps: [
       {
         trigger: 'initial',
@@ -288,6 +364,7 @@ export const scenarios = [
     level: 'megacode',
     category: 'mi',
     description_th: 'ชาย 50 ปี เจ็บหน้าอก กลายเป็น cardiac arrest',
+    visual: { patientLabel_th: 'ชาย 50 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
@@ -326,6 +403,7 @@ export const scenarios = [
     level: 'basic',
     category: 'stroke',
     description_th: 'ชาย 65 ปี แขนขาอ่อนแรงซีกขวา พูดไม่ชัด',
+    visual: { patientLabel_th: 'ชาย 65 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
@@ -362,6 +440,7 @@ export const scenarios = [
     level: 'inter',
     category: 'stroke',
     description_th: 'หญิง 72 ปี HT ไม่คุมยา ปวดหัวรุนแรงฉับพลัน แขนขาซ้ายอ่อนแรง',
+    visual: { patientLabel_th: 'หญิง 72 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
@@ -398,6 +477,7 @@ export const scenarios = [
     level: 'inter',
     category: 'stroke',
     description_th: 'ชาย 58 ปี DM กินยาเบาหวาน อ่อนแรงซีกขวาเฉียบพลัน',
+    visual: { patientLabel_th: 'ชาย 58 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
@@ -440,6 +520,7 @@ export const scenarios = [
     level: 'mega',
     category: 'stroke',
     description_th: 'หญิง 70 ปี ตื่นมาพบอ่อนแรงครึ่งซีก ไม่ทราบเวลาที่เริ่มเป็น (Wake-up stroke)',
+    visual: { patientLabel_th: 'หญิง 70 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
@@ -476,6 +557,7 @@ export const scenarios = [
     level: 'inter',
     category: 'stroke',
     description_th: 'ชาย 68 ปี แขนซ้ายอ่อนแรง + พูดไม่ชัด 20 นาที แล้วหายเอง',
+    visual: { patientLabel_th: 'ชาย 68 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
@@ -518,6 +600,7 @@ export const scenarios = [
     level: 'mega',
     category: 'stroke',
     description_th: 'หญิง 62 ปี เวียนหัวรุนแรง เห็นภาพซ้อน เดินเซ — FAST อาจหลอกตา',
+    visual: { patientLabel_th: 'หญิง 62 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',
@@ -554,6 +637,7 @@ export const scenarios = [
     level: 'mega',
     category: 'stroke',
     description_th: 'ชาย 74 ปี ได้ tPA แล้วแย่ลงระหว่าง drip — ภาวะแทรกซ้อนที่ต้องรับมือให้ทัน',
+    visual: { patientLabel_th: 'ชาย 74 ปี', scene_th: 'Stroke Unit' },
     steps: [
       {
         trigger: 'initial',
@@ -590,6 +674,7 @@ export const scenarios = [
     level: 'basic',
     category: 'mi',
     description_th: 'ชาย 60 ปี เจ็บแน่นหน้าอกรุนแรง',
+    visual: { patientLabel_th: 'ชาย 60 ปี', scene_th: 'ห้องฉุกเฉิน' },
     steps: [
       {
         trigger: 'initial',

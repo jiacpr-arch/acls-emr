@@ -20,6 +20,15 @@ import { vfArrest } from './scenarios/vfArrest';
 import { peaHyperK } from './scenarios/peaHyperK';
 import { blsCollapse } from './scenarios/blsCollapse';
 import { blsChoking } from './scenarios/blsChoking';
+// BLS pack (MorRoo) — เคสสำหรับ bls.morroo.com จัดหมวดแบบ BLS (ผู้ใหญ่/เด็ก/สำลัก/พิเศษ)
+import { blsHandsOnly } from './scenarios/blsHandsOnly';
+import { blsAedWet } from './scenarios/blsAedWet';
+import { blsTeamWard } from './scenarios/blsTeamWard';
+import { blsChildDrowning } from './scenarios/blsChildDrowning';
+import { blsInfantCpr } from './scenarios/blsInfantCpr';
+import { blsInfantChoking } from './scenarios/blsInfantChoking';
+import { blsPregnantChoking } from './scenarios/blsPregnantChoking';
+import { blsOpioid } from './scenarios/blsOpioid';
 // ACLS basic pack — เคสเดี่ยว ทีละ algorithm/แขนงย่อย ให้ฝึกก่อนไป megacode
 import { peaAsystoleBasic } from './scenarios/peaAsystoleBasic';
 import { bradycardiaBasic } from './scenarios/bradycardiaBasic';
@@ -30,6 +39,13 @@ import { tachyWideVtBasic } from './scenarios/tachyWideVtBasic';
 import { tachyUnstableBasic } from './scenarios/tachyUnstableBasic';
 import { acsBasic } from './scenarios/acsBasic';
 import { acsNstemiBasic } from './scenarios/acsNstemiBasic';
+import { strokeIschemicBasic } from './scenarios/strokeIschemicBasic';
+import { strokeMimicHypo } from './scenarios/strokeMimicHypo';
+import { strokeHemorrhagic } from './scenarios/strokeHemorrhagic';
+import { strokeTia } from './scenarios/strokeTia';
+import { strokeLvoWakeup } from './scenarios/strokeLvoWakeup';
+import { strokeBasilar } from './scenarios/strokeBasilar';
+import { strokePostTpaIch } from './scenarios/strokePostTpaIch';
 // ACLS megacode pack (ชุดโจทย์ megacode หลายสถานการณ์)
 import { traumaArrest } from './scenarios/traumaArrest';
 import { copdDope } from './scenarios/copdDope';
@@ -76,6 +92,14 @@ const allScenarios = [
   // ── 💔 ACS ──
   acsBasic,
   acsNstemiBasic,
+  // ── 🧠 Stroke ── FAST · DTX · CT · tPA window — แข่งกับเวลา
+  strokeIschemicBasic,
+  strokeMimicHypo,
+  strokeHemorrhagic,
+  strokeTia,
+  strokeLvoWakeup,
+  strokeBasilar,
+  strokePostTpaIch,
   // ── 🔍 สืบหาสาเหตุ (H's & T's) ── arrest ที่ต้องแก้สาเหตุถึงจะรอด
   peaHyperK,
   alcoholHypo,
@@ -90,9 +114,21 @@ const allScenarios = [
   pregChoking,
   preeclampsia,
   traumaArrest,
-  // ── BLS (MorRoo) ──
+  // ── BLS (MorRoo) ── จัดเรียงตามหมวด BLS และในหมวดเรียงง่าย→ยาก
+  // 🫀 ผู้ใหญ่: CPR + AED
   blsCollapse,
+  blsHandsOnly,
+  blsAedWet,
+  blsTeamWard,
+  // 👶 เด็กและทารก
+  blsChildDrowning,
+  blsInfantCpr,
+  // 🌬 สำลัก
   blsChoking,
+  blsInfantChoking,
+  blsPregnantChoking,
+  // 🚨 สถานการณ์พิเศษ
+  blsOpioid,
 ];
 
 // เคสที่ไม่ระบุ course ถือว่าเป็น acls (ค่าเริ่มต้นเดิม)
@@ -122,15 +158,29 @@ export async function loadPlayableScenarios() {
   }
 }
 
+// สถานะผ่านเกม sim สำหรับเงื่อนไขใบประกาศนียบัตร BLS — นับเฉพาะเคส built-in
+// ของโหมดปัจจุบัน (โจทย์ published จาก Supabase ไม่นับ ไม่งั้น admin เพิ่มโจทย์ใหม่
+// แล้วใบประกาศของคนที่ผ่านครบไปแล้วจะถูกล็อกย้อนหลัง)
+// หมายเหตุ: key เดียวกับ CLEARED_KEY ใน CodeBlueSim.jsx
+export function simGameStatus() {
+  let clearedIds = [];
+  try { clearedIds = JSON.parse(localStorage.getItem('acls_codeblue_cleared')) || []; }
+  catch { /* ignore */ }
+  const cleared = new Set(clearedIds);
+  const done = scenarios.filter((s) => cleared.has(s.id)).length;
+  return { done, total: scenarios.length, allPassed: scenarios.length > 0 && done === scenarios.length };
+}
+
+// ระดับความยากของเคส — โหมด BLS ไม่มีคำว่า megacode ใช้ป้าย "ทีมกู้ชีพ" แทน (key เดิม)
 export const LEVEL_META = {
   basic: { label: 'พื้นฐาน', order: 0 },
   intermediate: { label: 'ปานกลาง', order: 1 },
-  megacode: { label: 'Megacode', order: 2 },
+  megacode: { label: COURSE_MODE === 'bls' ? 'ทีมกู้ชีพ' : 'Megacode', order: 2 },
 };
 
-// หมวดของเคส (track) — จัดตาม algorithm/ธีมการเรียนแบบหลักสูตร ACLS
+// หมวดของเคส (track) — ACLS จัดตาม algorithm, BLS จัดตามกลุ่มผู้ป่วย/สถานการณ์
 // หน้าเลือกเคสจัดกลุ่มตามนี้ แทนการกองรวมตาม level ที่ยาวเป็นเส้นเดียว
-export const TRACK_META = {
+const ACLS_TRACK_META = {
   arrest: {
     label: 'Cardiac Arrest หลัก', icon: '🫀', order: 0,
     desc: 'VF/pVT · PEA/Asystole — วนลูป CPR-Shock-ยา ให้เป็นอัตโนมัติ',
@@ -147,16 +197,42 @@ export const TRACK_META = {
     label: 'ACS', icon: '💔', order: 3,
     desc: 'เจ็บแน่นหน้าอก — STEMI/NSTEMI, ECG 12 lead, เปิดทาง PCI',
   },
+  stroke: {
+    label: 'Stroke', icon: '🧠', order: 4,
+    desc: 'FAST · DTX · CT · tPA window — แข่งกับเวลา ทุกนาทีคือเนื้อสมอง',
+  },
   causes: {
-    label: "สืบหาสาเหตุ (H's & T's)", icon: '🔍', order: 4,
+    label: "สืบหาสาเหตุ (H's & T's)", icon: '🔍', order: 5,
     desc: 'arrest ที่ CPR อย่างเดียวไม่พอ — หาสาเหตุที่แก้ได้ให้เจอ',
   },
   special: {
-    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 5,
+    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 6,
     desc: 'ตั้งครรภ์ · trauma · สำลัก — สถานการณ์ที่ algorithm ต้องปรับ',
   },
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
 };
+
+const BLS_TRACK_META = {
+  adult: {
+    label: 'ผู้ใหญ่: CPR + AED', icon: '🫀', order: 0,
+    desc: 'ห่วงโซ่การรอดชีวิต — เรียกช่วย · กดหน้าอกคุณภาพสูง · ใช้ AED ให้ไว',
+  },
+  child: {
+    label: 'เด็กและทารก', icon: '👶', order: 1,
+    desc: 'เทคนิคเฉพาะวัย — ความลึก 1/3 อก, ชีพจร brachial, 15:2 เมื่อช่วยสองคน',
+  },
+  choking: {
+    label: 'สำลัก', icon: '🌬', order: 2,
+    desc: 'ผู้ใหญ่ thrust ท้อง · คนท้องกระแทกอก · ทารกตบหลัง 5 สลับกระแทกอก 5',
+  },
+  special: {
+    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 3,
+    desc: 'จมน้ำ · opioid เกินขนาด — สถานการณ์ที่ขั้นตอนพื้นฐานต้องปรับ',
+  },
+  other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
+};
+
+export const TRACK_META = COURSE_MODE === 'bls' ? BLS_TRACK_META : ACLS_TRACK_META;
 
 // เคสที่ไม่ระบุ track (เช่น โจทย์เก่าจาก Supabase) ตกหมวด 'other'
 export function trackOf(s) {
