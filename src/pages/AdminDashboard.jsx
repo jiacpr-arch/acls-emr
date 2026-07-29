@@ -53,10 +53,10 @@ const SECTIONS = [
   },
   {
     to: '/admin/precourse-images',
-    title: 'สื่อประกอบบทเรียน',
+    title: 'สื่อประกอบบทเรียน Pre-course',
     desc: 'เดินทีละหัวข้อเหมือนแอป — จัดการรูป + วิดีโอของแต่ละหัวข้อ',
     icon: Images,
-    mode: 'acls',
+    mode: 'both',
     gradient: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
     shadow: '0 8px 20px rgba(37, 99, 235, 0.22)',
   },

@@ -200,18 +200,17 @@ function App() {
             }
           />
         )}
-        {IS_ACLS && (
-          <Route
-            path="/admin/precourse-images"
-            element={
-              <Suspense fallback={<AdminFallback />}>
-                <RequireAdmin>
-                  <AdminPreCourseImages />
-                </RequireAdmin>
-              </Suspense>
-            }
-          />
-        )}
+        {/* เข้าถึงได้ทั้ง ACLS/BLS — preCourseLessons ใน activeLessons.js สลับตามโหมดเอง */}
+        <Route
+          path="/admin/precourse-images"
+          element={
+            <Suspense fallback={<AdminFallback />}>
+              <RequireAdmin>
+                <AdminPreCourseImages />
+              </RequireAdmin>
+            </Suspense>
+          }
+        />
         {IS_ACLS && (
           <Route
             path="/admin/qa-deep"
