@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, MapPin, FileText, CheckCircle2, BookOpen, Check, Lock, PlayCircle } from 'lucide-react';
+import {
+  ChevronLeft, ChevronRight, ChevronDown, MapPin, FileText, CheckCircle2,
+  BookOpen, Check, Lock, PlayCircle,
+} from 'lucide-react';
 import { useVideoLessons } from '../hooks/useVideoLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useAuth } from '../hooks/useAuth';
@@ -35,6 +38,23 @@ function buildShuffled(quizArr) {
   return map;
 }
 
+// หน้าเรียนแบ่งเป็นสเต็ป (ดูวิดีโอ → สรุปประเด็น → แบบทดสอบ → สรุปผล) แทนการกางทุกอย่างซ้อนกัน
+// สเต็ปสร้างตามของที่คลิปนั้นมีจริง — คลิปที่ไม่มีสรุป/ไม่มีควิซจะข้ามสเต็ปนั้นไป
+function buildStepKeys(clip) {
+  if (!clip) return ['video'];
+  const keys = ['video'];
+  if (clip.keyPoints?.trim()) keys.push('summary');
+  if (clip.quiz?.length) keys.push('quiz');
+  keys.push('result');
+  return keys;
+}
+const STEP_LABELS = {
+  video: 'ดูวิดีโอ',
+  summary: 'สรุปประเด็น',
+  quiz: 'แบบทดสอบ',
+  result: 'สรุปผล',
+};
+
 export default function VideoLessonDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -59,6 +79,7 @@ export default function VideoLessonDetail() {
   // ซึ่งไม่มี API จับความคืบหน้า/seek จึงใช้ปุ่มยืนยันดูจบแทน และสารบัญกดกระโดดเวลาไม่ได้
   const videoSource = clip ? parseStoredVideoId(clip.youtubeId) : null;
   const canSeek = videoSource?.type !== 'drive';
+  const stepKeys = useMemo(() => buildStepKeys(clip), [clip]);
 
   const [progress, setProgress] = useState([]);
   const [attempts, setAttempts] = useState([]);
@@ -70,6 +91,9 @@ export default function VideoLessonDetail() {
   const [quizScore, setQuizScore] = useState(0);
   const [quizCorrect, setQuizCorrect] = useState(0);
   const [retryCooldown, setRetryCooldown] = useState(0);
+  const [stepIdx, setStepIdx] = useState(0);   // ตำแหน่งใน stepKeys
+  const [qIndex, setQIndex] = useState(0);     // ข้อที่กำลังทำในสเต็ปแบบทดสอบ
+  const [showReview, setShowReview] = useState(false); // กาง "ทบทวนเฉลย" ในสเต็ปสรุปผล
   const startedAtRef = useRef(new Date().toISOString());
   const watchTrackedRef = useRef(false);
   const lockTrackedRef = useRef(false);
@@ -93,6 +117,7 @@ export default function VideoLessonDetail() {
   useEffect(() => {
     setAnswers({}); setQuizSubmitted(false); setQuizPassed(false);
     setQuizScore(0); setQuizCorrect(0); setRetryCooldown(0);
+    setStepIdx(0); setQIndex(0); setShowReview(false);
     startedAtRef.current = new Date().toISOString();
     watchTrackedRef.current = false;
     lockTrackedRef.current = false;
@@ -106,10 +131,15 @@ export default function VideoLessonDetail() {
       if (best?.passed) {
         setQuizSubmitted(true); setQuizPassed(true);
         setQuizScore(best.score ?? 0); setQuizCorrect(best.correctCount ?? 0);
+        // เคยทำผ่านแล้ว — เปิดมาที่สเต็ปสรุปผลเลย ไม่ต้องไล่ดูใหม่ทั้งคลิป
+        setStepIdx(buildStepKeys(clip).length - 1);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clip?.id, progress, attempts]);
+
+  // เปลี่ยนสเต็ป/เปลี่ยนข้อ = เนื้อหาใหม่ทั้งจอ — เด้งขึ้นบนสุด ไม่งั้นบนมือถือจะโผล่กลางหน้า
+  useEffect(() => { window.scrollTo(0, 0); }, [stepIdx, qIndex]);
 
   // นับถอยหลัง cooldown สำหรับปุ่ม "ลองใหม่"
   useEffect(() => {
@@ -176,6 +206,11 @@ export default function VideoLessonDetail() {
     setAnswers({});
     setShuffledChoices(buildShuffled(quiz));
     startedAtRef.current = new Date().toISOString();
+    // กลับไปเริ่มข้อแรกของสเต็ปแบบทดสอบ
+    setShowReview(false);
+    setQIndex(0);
+    const quizStep = stepKeys.indexOf('quiz');
+    if (quizStep >= 0) setStepIdx(quizStep);
   };
 
   if (loading) return <div className="page-container py-12 text-center text-caption text-text-muted">กำลังโหลด…</div>;
@@ -224,73 +259,136 @@ export default function VideoLessonDetail() {
   const done = watched && (quiz.length === 0 || quizPassed);
   const canAdvance = isAdmin || !activeStudent || done;
 
+  const safeStep = Math.min(stepIdx, stepKeys.length - 1);
+  const currentStep = stepKeys[safeStep];
+  const safeQIndex = Math.min(qIndex, Math.max(0, quiz.length - 1));
+  const currentQ = quiz[safeQIndex];
+  const isLastQuestion = safeQIndex >= quiz.length - 1;
+  // "กำลังทำข้อสอบอยู่จริง" — สเต็ปแบบทดสอบที่ปลดล็อกแล้วและยังไม่ส่งคำตอบ
+  const onQuizStep = currentStep === 'quiz' && quizUnlocked && !quizSubmitted;
+  const showActionBar = currentStep !== 'result';
+  const progressPct = Math.round(((safeStep + 1) / stepKeys.length) * 100);
+
+  const goNext = () => {
+    if (onQuizStep) {
+      if (!isLastQuestion) { setQIndex(safeQIndex + 1); return; }
+      if (!allAnswered) return;
+      submitQuiz();
+    }
+    setStepIdx(Math.min(stepKeys.length - 1, safeStep + 1));
+  };
+
+  const goPrev = () => {
+    if (onQuizStep && safeQIndex > 0) { setQIndex(safeQIndex - 1); return; }
+    let target = safeStep - 1;
+    // ส่งคำตอบไปแล้วคำตอบล็อกถาวร ย้อนกลับไปแก้ไม่ได้ — ถอยข้ามสเต็ปแบบทดสอบไปเลย
+    if (stepKeys[target] === 'quiz' && quizSubmitted) target -= 1;
+    if (target < 0) return;
+    setStepIdx(target);
+  };
+
   return (
-    <div className="page-container space-y-4 pb-24">
+    <div className={`page-container space-y-4 ${showActionBar ? 'page-with-action-bar' : 'pb-24'}`}>
       <div className="flex items-center gap-2">
         <button onClick={() => navigate('/video-lessons')} className="inline-flex items-center text-caption text-text-muted hover:text-text-primary">
           <ChevronLeft size={18} strokeWidth={2.2} /> {topicMeta?.emoji} {topicMeta?.label}
         </button>
       </div>
 
-      {videoSource?.type === 'drive' ? (
-        <DriveLessonPlayer
-          fileId={videoSource.id}
-          orientation={clip.orientation}
-          watched={watched}
-          onWatched={handleWatched}
-          label={clip.title}
-        />
-      ) : (
-        <YouTubeLessonPlayer
-          ref={playerRef}
-          videoId={clip.youtubeId}
-          startSec={clip.startSec}
-          endSec={clip.endSec}
-          orientation={clip.orientation}
-          onWatched={handleWatched}
-        />
-      )}
-
-      <div>
-        <div className="flex items-start justify-between gap-2">
-          <h1 className="text-headline text-text-primary">{clip.title}</h1>
-          {done && <span className="inline-flex items-center gap-1 text-2xs font-bold text-success shrink-0 mt-1"><CheckCircle2 size={14} strokeWidth={2.4} /> ผ่านแล้ว</span>}
+      {/* แถบบอกสเต็ป — ดูวิดีโอ → สรุปประเด็น → แบบทดสอบ → สรุปผล */}
+      <div className="dash-card !py-3 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          {/* padding/margin ต้องใส่แบบ !important — reset ที่ index.css:64 ไม่อยู่ใน layer
+              จึงชนะ utility เว้นระยะของ Tailwind เสมอ (เหมือนที่โค้ดเดิมใช้ !p-3) */}
+          <span className="inline-flex items-center gap-1.5 bg-info text-white text-xs font-extrabold !px-2.5 !py-1 shrink-0"
+            style={{ borderRadius: 99 }}>
+            <span className="tabular-nums">{safeStep + 1}</span>
+            <span className="opacity-70">/</span>
+            <span className="tabular-nums opacity-90">{stepKeys.length}</span>
+            <span>{STEP_LABELS[currentStep]}</span>
+          </span>
+          <span className="text-2xs text-text-muted text-right">
+            {currentStep === 'quiz' && quizUnlocked && !quizSubmitted
+              ? <>ข้อ <strong className="text-text-primary">{safeQIndex + 1}</strong>/{quiz.length}</>
+              : <>คลิป {clipIndex + 1}/{topicClips.length}</>}
+          </span>
         </div>
-        <div className="text-caption text-text-muted mt-0.5">
-          คลิป {clipIndex + 1}/{topicClips.length}
-          {watched ? ' · ดูจบแล้ว ✓' : canSeek ? ' · ดูจนเกือบจบเพื่อนับว่า "ดูครบ"' : ' · ดูจบแล้วกดปุ่มยืนยันใต้วิดีโอ'}
+        <div className="progress-track !h-1.5 !mt-2">
+          <div className="progress-fill bg-info" style={{ width: `${progressPct}%` }} />
         </div>
       </div>
 
-      {/* A — สารบัญช่วงเวลา */}
-      {clip.chapters?.length > 0 && (
-        <div className="dash-card !p-3">
-          <div className="text-overline text-purple mb-2 inline-flex items-center gap-1.5"><MapPin size={12} strokeWidth={2.4} /> สารบัญช่วงเวลา</div>
-          <div className="space-y-1">
-            {clip.chapters.map((ch, i) => (
-              <button key={i} onClick={() => canSeek && playerRef.current?.seekTo(ch.t)}
-                disabled={!canSeek}
-                className={`w-full flex items-center gap-2.5 py-1.5 text-left rounded-md px-1 -mx-1 transition-colors ${canSeek ? 'hover:bg-bg-tertiary' : 'cursor-default'}`}>
-                <span className="text-xs font-bold text-purple bg-purple/10 px-2 py-0.5 shrink-0" style={{ borderRadius: 7, fontVariantNumeric: 'tabular-nums' }}>
-                  {formatClipTime(ch.t)}
-                </span>
-                <span className="text-caption text-text-secondary flex-1">{ch.label}</span>
-              </button>
-            ))}
-          </div>
+      {/* ชื่อคลิป — สเต็ปแรกแสดงเต็ม สเต็ปอื่นย่อเป็นบรรทัดเดียวไว้กันหลง */}
+      {currentStep !== 'video' && (
+        <div className="flex items-start justify-between gap-2">
+          <div className="text-body-strong text-text-secondary">{clip.title}</div>
+          {done && <span className="inline-flex items-center gap-1 text-2xs font-bold text-success shrink-0 mt-0.5"><CheckCircle2 size={14} strokeWidth={2.4} /> ผ่านแล้ว</span>}
         </div>
       )}
 
-      {/* B — สรุปประเด็นสำคัญ */}
-      {clip.keyPoints?.trim() && (
+      {/* สเต็ป 1 — ดูวิดีโอ (+ สารบัญช่วงเวลา ใช้กระโดดระหว่างดู) */}
+      {currentStep === 'video' && (
+        <>
+          {videoSource?.type === 'drive' ? (
+            <DriveLessonPlayer
+              fileId={videoSource.id}
+              orientation={clip.orientation}
+              watched={watched}
+              onWatched={handleWatched}
+              label={clip.title}
+            />
+          ) : (
+            <YouTubeLessonPlayer
+              ref={playerRef}
+              videoId={clip.youtubeId}
+              startSec={clip.startSec}
+              endSec={clip.endSec}
+              orientation={clip.orientation}
+              onWatched={handleWatched}
+            />
+          )}
+
+          <div>
+            <div className="flex items-start justify-between gap-2">
+              <h1 className="text-headline text-text-primary">{clip.title}</h1>
+              {done && <span className="inline-flex items-center gap-1 text-2xs font-bold text-success shrink-0 mt-1"><CheckCircle2 size={14} strokeWidth={2.4} /> ผ่านแล้ว</span>}
+            </div>
+            <div className="text-caption text-text-muted mt-0.5">
+              คลิป {clipIndex + 1}/{topicClips.length}
+              {watched ? ' · ดูจบแล้ว ✓' : canSeek ? ' · ดูจนเกือบจบเพื่อนับว่า "ดูครบ"' : ' · ดูจบแล้วกดปุ่มยืนยันใต้วิดีโอ'}
+            </div>
+          </div>
+
+          {clip.chapters?.length > 0 && (
+            <div className="dash-card !p-3">
+              <div className="text-overline text-purple mb-2 inline-flex items-center gap-1.5"><MapPin size={12} strokeWidth={2.4} /> สารบัญช่วงเวลา</div>
+              <div className="space-y-1">
+                {clip.chapters.map((ch, i) => (
+                  <button key={i} onClick={() => canSeek && playerRef.current?.seekTo(ch.t)}
+                    disabled={!canSeek}
+                    className={`w-full flex items-center gap-2.5 py-1.5 text-left rounded-md px-1 -mx-1 transition-colors ${canSeek ? 'hover:bg-bg-tertiary' : 'cursor-default'}`}>
+                    <span className="text-xs font-bold text-purple bg-purple/10 px-2 py-0.5 shrink-0" style={{ borderRadius: 7, fontVariantNumeric: 'tabular-nums' }}>
+                      {formatClipTime(ch.t)}
+                    </span>
+                    <span className="text-caption text-text-secondary flex-1">{ch.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* สเต็ป 2 — สรุปประเด็นสำคัญ */}
+      {currentStep === 'summary' && (
         <div className="dash-card">
           <div className="text-overline text-purple mb-2 inline-flex items-center gap-1.5"><FileText size={12} strokeWidth={2.4} /> สรุปประเด็นสำคัญ</div>
           <ReadBody body={clip.keyPoints} />
         </div>
       )}
 
-      {/* C — เช็คความเข้าใจ (ควิซ) */}
-      {quiz.length > 0 && !quizUnlocked && (
+      {/* สเต็ป 3 — แบบทดสอบทีละข้อ */}
+      {currentStep === 'quiz' && !quizUnlocked && (
         <div className="dash-card text-center space-y-2 py-6">
           <div className="w-12 h-12 mx-auto inline-flex items-center justify-center bg-bg-tertiary text-text-muted"
             style={{ borderRadius: 'var(--radius-lg)' }}>
@@ -301,47 +399,32 @@ export default function VideoLessonDetail() {
         </div>
       )}
 
-      {quiz.length > 0 && quizUnlocked && (
-        <div className="dash-card space-y-4">
+      {currentStep === 'quiz' && quizUnlocked && currentQ && (
+        <div className="dash-card space-y-3">
           <div className="flex items-center justify-between">
             <div className="text-overline text-success inline-flex items-center gap-1.5"><CheckCircle2 size={12} strokeWidth={2.4} /> เช็คความเข้าใจ (ผ่าน ≥ {passingScore}%)</div>
-            <span className="text-2xs text-text-muted">{quiz.length} ข้อ</span>
+            <span className="text-2xs text-text-muted">ข้อ {safeQIndex + 1}/{quiz.length}</span>
           </div>
-          {quiz.map((q, i) => {
-            const correctChoice = q.choices.find(c => c.id === q.correctId);
-            return (
-              <div key={q.id || i} className="space-y-2">
-                <div className="text-2xs font-bold text-text-muted">ข้อ {i + 1}/{quiz.length}</div>
-                <QuizQuestion
-                  question={q}
-                  choices={shuffledChoices[q.id]}
-                  chosenId={answers[q.id]}
-                  onChoose={(cid) => !quizSubmitted && setAnswers(a => ({ ...a, [q.id]: cid }))}
-                  locked={quizSubmitted}
-                  showCorrect={quizSubmitted}
-                />
-                {quizSubmitted && (
-                  <div className="text-caption text-text-secondary bg-bg-tertiary/50 p-2.5 space-y-1" style={{ borderRadius: 'var(--radius-sm)' }}>
-                    {correctChoice && (
-                      <div><span className="font-bold text-success">เฉลย:</span> {correctChoice.text}</div>
-                    )}
-                    {q.explanation && <div>{q.explanation}</div>}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          {!quizSubmitted ? (
-            <button onClick={submitQuiz} disabled={!allAnswered}
-              className="btn btn-success btn-block disabled:opacity-40">
-              ส่งคำตอบ
-            </button>
-          ) : (
-            <div className="text-center space-y-2">
+          <QuizQuestion
+            question={currentQ}
+            choices={shuffledChoices[currentQ.id]}
+            chosenId={answers[currentQ.id]}
+            onChoose={(cid) => !quizSubmitted && setAnswers(a => ({ ...a, [currentQ.id]: cid }))}
+            locked={quizSubmitted}
+            showCorrect={quizSubmitted}
+          />
+        </div>
+      )}
+
+      {/* สเต็ป 4 — สรุปผล + เฉลย (พับไว้) + ไปต่อ */}
+      {currentStep === 'result' && (
+        <>
+          {quiz.length > 0 && quizSubmitted && (
+            <div className="dash-card text-center space-y-2">
               <div className="text-caption text-text-muted">
                 ได้ {quizCorrect}/{quiz.length} ข้อ ({quizScore}%)
               </div>
-              <div className={`text-caption font-bold ${quizPassed ? 'text-success' : 'text-warning'}`}>
+              <div className={`text-headline font-bold ${quizPassed ? 'text-success' : 'text-warning'}`}>
                 {quizPassed ? '🎉 ผ่านควิซแล้ว!' : 'ยังไม่ผ่าน — ทบทวนคลิปแล้วลองใหม่'}
               </div>
               {!quizPassed && (
@@ -352,39 +435,119 @@ export default function VideoLessonDetail() {
               )}
             </div>
           )}
-        </div>
-      )}
 
-      {/* D — อ่านต่อในบทเรียน */}
-      {clip.relatedPath && (
-        <Link to={clip.relatedPath}
-          className="dash-card !p-3 flex items-center gap-3 border-l-4 border-l-info hover:bg-bg-tertiary/50 transition-colors">
-          <BookOpen size={18} strokeWidth={2.2} className="text-info shrink-0" />
-          <span className="flex-1 text-caption font-bold text-info">{clip.relatedLabel || 'อ่านต่อในบทเรียน'}</span>
-          <ChevronRight size={16} strokeWidth={2.2} className="text-info shrink-0" />
-        </Link>
-      )}
-
-      {/* next */}
-      {nextClip && (
-        canAdvance ? (
-          <button onClick={() => navigate(`/video-lessons/${nextClip.id}`)} className="btn btn-primary btn-block">
-            คลิปถัดไป: {nextClip.title} <ChevronRight size={16} strokeWidth={2.4} />
-          </button>
-        ) : (
-          <div className="dash-card !p-3 text-center space-y-1">
-            <button disabled className="btn btn-primary btn-block opacity-40 cursor-not-allowed">
-              <Lock size={14} strokeWidth={2.4} /> คลิปถัดไป: {nextClip.title}
-            </button>
-            <div className="text-2xs text-text-muted">
-              {quiz.length > 0 && !quizPassed ? 'ทำควิซให้ผ่านก่อนเพื่อไปคลิปถัดไป' : 'ดูวิดีโอให้จบก่อนเพื่อไปคลิปถัดไป'}
+          {quiz.length > 0 && !quizSubmitted && (
+            <div className="dash-card text-center space-y-2 py-5">
+              <div className="text-caption font-bold text-text-secondary">ยังไม่ได้ทำแบบทดสอบ</div>
+              <div className="text-2xs text-text-muted">แบบทดสอบ {quiz.length} ข้อ · ผ่าน ≥ {passingScore}%</div>
+              <button onClick={() => { setQIndex(0); setStepIdx(stepKeys.indexOf('quiz')); }}
+                className="btn btn-success btn-sm">
+                ไปทำแบบทดสอบ
+              </button>
             </div>
-          </div>
-        )
+          )}
+
+          {/* เฉลยครบทุกข้อ — พับไว้ ไม่ให้หน้ายาวโดยไม่จำเป็น */}
+          {quiz.length > 0 && quizSubmitted && (
+            <div className="dash-card !p-3 space-y-3">
+              <button onClick={() => setShowReview(v => !v)}
+                className="w-full flex items-center justify-between gap-2 text-left">
+                <span className="text-caption font-bold text-text-primary">ทบทวนเฉลย ({quiz.length} ข้อ)</span>
+                <ChevronDown size={16} strokeWidth={2.4}
+                  className={`text-text-muted shrink-0 transition-transform ${showReview ? 'rotate-180' : ''}`} />
+              </button>
+              {showReview && quiz.map((q, i) => {
+                const correctChoice = q.choices.find(c => c.id === q.correctId);
+                return (
+                  <div key={q.id || i}
+                    className={`space-y-2 ${i > 0 ? 'border-t border-border !pt-3 !mt-3' : '!mt-2'}`}>
+                    <div className="text-2xs font-bold text-text-muted">ข้อ {i + 1}/{quiz.length}</div>
+                    <QuizQuestion
+                      question={q}
+                      choices={shuffledChoices[q.id]}
+                      chosenId={answers[q.id]}
+                      onChoose={() => {}}
+                      locked
+                      showCorrect
+                    />
+                    <div className="text-caption text-text-secondary bg-bg-tertiary/50 p-2.5 space-y-1" style={{ borderRadius: 'var(--radius-sm)' }}>
+                      {correctChoice && (
+                        <div><span className="font-bold text-success">เฉลย:</span> {correctChoice.text}</div>
+                      )}
+                      {q.explanation && <div>{q.explanation}</div>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* อ่านต่อในบทเรียน */}
+          {clip.relatedPath && (
+            <Link to={clip.relatedPath}
+              className="dash-card !p-3 flex items-center gap-3 border-l-4 border-l-info hover:bg-bg-tertiary/50 transition-colors">
+              <BookOpen size={18} strokeWidth={2.2} className="text-info shrink-0" />
+              <span className="flex-1 text-caption font-bold text-info">{clip.relatedLabel || 'อ่านต่อในบทเรียน'}</span>
+              <ChevronRight size={16} strokeWidth={2.2} className="text-info shrink-0" />
+            </Link>
+          )}
+
+          {/* next */}
+          {nextClip && (
+            canAdvance ? (
+              <button onClick={() => navigate(`/video-lessons/${nextClip.id}`)} className="btn btn-primary btn-block">
+                คลิปถัดไป: {nextClip.title} <ChevronRight size={16} strokeWidth={2.4} />
+              </button>
+            ) : (
+              <div className="dash-card !p-3 text-center space-y-1">
+                <button disabled className="btn btn-primary btn-block opacity-40 cursor-not-allowed">
+                  <Lock size={14} strokeWidth={2.4} /> คลิปถัดไป: {nextClip.title}
+                </button>
+                <div className="text-2xs text-text-muted">
+                  {quiz.length > 0 && !quizPassed ? 'ทำควิซให้ผ่านก่อนเพื่อไปคลิปถัดไป' : 'ดูวิดีโอให้จบก่อนเพื่อไปคลิปถัดไป'}
+                </div>
+              </div>
+            )
+          )}
+          {!nextClip && done && (
+            <div className="dash-card !p-3 text-center text-caption text-success font-bold inline-flex items-center justify-center gap-1.5 w-full">
+              <Check size={15} strokeWidth={2.6} /> จบหัวข้อนี้แล้ว
+            </div>
+          )}
+
+          <button onClick={goPrev} className="btn btn-ghost btn-sm !mt-2">
+            <ChevronLeft size={14} strokeWidth={2.4} /> ย้อนกลับ
+          </button>
+        </>
       )}
-      {!nextClip && done && (
-        <div className="dash-card !p-3 text-center text-caption text-success font-bold inline-flex items-center justify-center gap-1.5 w-full">
-          <Check size={15} strokeWidth={2.6} /> จบหัวข้อนี้แล้ว
+
+      {/* แถบปุ่มติดขอบล่าง — เห็นตลอด ไม่ต้องสกรอลล์หา (สเต็ปสรุปผลใช้ปุ่มในเนื้อหาแทน) */}
+      {showActionBar && (
+        <div className="above-tab-bar bg-bg-primary/95 backdrop-blur border-y border-border !px-4 !py-3">
+          <div className="max-w-[820px] !mx-auto flex items-center gap-2">
+            <button
+              onClick={goPrev}
+              disabled={safeStep === 0 && !(onQuizStep && safeQIndex > 0)}
+              className="btn btn-ghost btn-sm inline-flex items-center gap-1 disabled:opacity-30">
+              <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
+            </button>
+            <div className="flex-1" />
+            {onQuizStep && isLastQuestion ? (
+              <button
+                onClick={goNext}
+                disabled={!allAnswered}
+                className="btn btn-success btn-sm inline-flex items-center gap-1 disabled:opacity-40">
+                <Check size={14} strokeWidth={2.4} /> ส่งคำตอบ
+              </button>
+            ) : (
+              <button
+                onClick={goNext}
+                disabled={onQuizStep && answers[currentQ?.id] == null}
+                className="btn btn-primary btn-sm inline-flex items-center gap-1 disabled:opacity-40">
+                ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

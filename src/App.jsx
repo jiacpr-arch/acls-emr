@@ -115,9 +115,12 @@ function App() {
   // หน้าที่นักเรียน "กำลังเรียน/สอบจริง" (อ่านบทเรียน + ทำข้อสอบ pre/post) —
   // ไม่โชว์ปุ่ม LINE ลอย + footer โฆษณา เพื่อไม่รบกวนระหว่างเรียน
   // ครอบคลุม /pre-course/<lessonId>[/quiz], /pre-course/pre-test, /pre-course/post-test
-  // ไม่รวมหน้า landing (/pre-course, /), หน้าผลสอบ (/results), หน้าอาจารย์ (/cohort)
-  const isStudying = /^\/pre-course\/[^/]+(\/quiz)?$/.test(location.pathname)
-    && location.pathname !== '/pre-course/cohort';
+  // และ /video-lessons/<clipId> (หน้าเรียนวิดีโอทีละสเต็ป — มีแถบปุ่มติดขอบล่างอยู่แล้ว)
+  // ไม่รวมหน้า landing (/pre-course, /), ไลบรารีวิดีโอ (/video-lessons),
+  // หน้าผลสอบ (/results), หน้าอาจารย์ (/cohort)
+  const isStudying = (/^\/pre-course\/[^/]+(\/quiz)?$/.test(location.pathname)
+    && location.pathname !== '/pre-course/cohort')
+    || /^\/video-lessons\/.+/.test(location.pathname);
   // หน้าฝึก CPR + เกมสถานการณ์ตัดสินใจ — เป็นเครื่องมือฝึกจริง ไม่ใช่หน้าขายคอร์ส
   // ปุ่ม LINE ลอยจะไปบังคำอธิบาย/ปุ่มควบคุมพอดี จึงซ่อนไว้เฉพาะหน้านี้
   const isPractice = location.pathname === '/skill-practice'
