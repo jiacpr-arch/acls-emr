@@ -1,5 +1,10 @@
 // Web Audio API — no mp3 files needed
 let audioCtx = null;
+let sfxVolume = 1; // 0..1, scales every beep below
+
+export function setSfxVolume(v) {
+  sfxVolume = Math.min(1, Math.max(0, v));
+}
 
 function getAudioContext() {
   if (!audioCtx) {
@@ -21,7 +26,7 @@ export function playBeep(frequency = 880, duration = 0.15, volume = 0.3) {
     gain.connect(ctx.destination);
     osc.frequency.value = frequency;
     osc.type = 'sine';
-    gain.gain.setValueAtTime(volume, ctx.currentTime);
+    gain.gain.setValueAtTime(volume * sfxVolume, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + duration);
@@ -65,7 +70,7 @@ export function playMetronomeClick() {
     gain.connect(ctx.destination);
     osc.frequency.value = 1000;
     osc.type = 'square';
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.setValueAtTime(0.15 * sfxVolume, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.03);

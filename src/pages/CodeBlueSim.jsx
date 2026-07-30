@@ -13,7 +13,7 @@ import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import ClassGateModal from '../components/precourse/ClassGateModal';
-import CharacterSprite from '../game/CharacterSprite';
+import CharacterSprite, { preloadCharacterImages } from '../game/CharacterSprite';
 import EcgStrip from '../game/EcgStrip';
 import {
   createInitialState, applyFx, nextNode, recordCorrect, recordWrong,
@@ -23,7 +23,7 @@ import {
 } from '../game/storyEngine';
 import {
   initAudio, playShockSound, playROSCSound, playWarningBeep,
-  playMetronomeClick, playBeep, playTapSound, playTypeBlip,
+  playMetronomeClick, playBeep, setSfxVolume, playTapSound, playTypeBlip,
   playChoiceAppear, playTickSound, playCorrectSound, playComboBreakSound,
   playWinJingle, playLoseSound, playAchievementSound, playImpactSound,
   playHeartbeatThump,
@@ -40,6 +40,7 @@ const GAME_EYEBROW = IS_BLS ? 'BLS Rescue' : 'Code Blue';
 
 const HISCORE_PREFIX = 'acls_codeblue_hiscore';
 const MUTE_KEY = 'acls_codeblue_muted';
+const SFX_VOLUME_KEY = 'acls_codeblue_sfx_volume';
 const DIFF_KEY = 'acls_codeblue_difficulty';
 /** เคยเห็นคำใบ้ "แตะเพื่อเล่นต่อ" แล้วหรือยัง — โชว์ครั้งเดียวต่อเครื่อง */
 const TAP_COACH_KEY = 'acls_codeblue_tap_coach';
@@ -175,6 +176,12 @@ export default function CodeBlueSim() {
   const mutedRef = useRef(muted);
   useEffect(() => { mutedRef.current = muted; }, [muted]);
 
+  const [sfxVolume, setSfxVolumeState] = useState(() => {
+    const saved = localStorage.getItem(SFX_VOLUME_KEY);
+    return saved !== null ? Number(saved) : 1;
+  });
+  useEffect(() => { setSfxVolume(muted ? 0 : sfxVolume); }, [muted, sfxVolume]);
+
   // นักเรียนที่อยู่ในคลาส (ถ้ามี) — ใช้บันทึกผลเกมขึ้น cloud ให้อาจารย์เห็น
   // ไม่มีก็เล่นได้ปกติ แค่ไม่มีใครเห็นผลนอกจากตัวเอง (เหมือนเดิม)
   const activeStudent = usePreCourseStore((s) => s.activeStudent);
@@ -216,6 +223,30 @@ export default function CodeBlueSim() {
       .finally(() => { if (alive) setCharsReady(true); });
     return () => { alive = false; };
   }, []);
+
+  useEffect(() => {
+    // อุ่นรูปตัวละครทุก (who, pose) ที่เคสนี้ใช้ ก่อนผู้เล่นกดเริ่มจริง —
+    // กัน SVG placeholder โผล่วาบตอน probe รูปจริงรอบแรกระหว่างเล่น
+    // รวมท่าที่ engine เรียกเองแบบ hardcode (ไม่ได้มาจาก story ของเคส) ด้วย:
+    //   att_dech/idle ตอน time-skip, att_dech/stern ตอนตอบผิดโหมดยาก
+    preloadCharacterImages('att_dech', 'idle');
+    preloadCharacterImages('att_dech', 'stern');
+    if (!sc?.story) return;
+    const seen = new Set();
+    const walk = (beats) => {
+      (beats || []).forEach((beat) => {
+        if (beat?.say?.who) {
+          const key = `${beat.say.who}/${beat.say.pose || 'idle'}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            preloadCharacterImages(beat.say.who, beat.say.pose || 'idle');
+          }
+        }
+        (beat?.choice?.options || []).forEach((opt) => walk(opt.then));
+      });
+    };
+    walk(sc.story);
+  }, [sc]);
 
   useEffect(() => {
     if (preview) return undefined; // โหมดทดลองเล่น — ไม่โหลดคลังจาก DB
@@ -821,6 +852,12 @@ export default function CodeBlueSim() {
     });
   }
 
+  function changeSfxVolume(v) {
+    setSfxVolumeState(v);
+    localStorage.setItem(SFX_VOLUME_KEY, String(v));
+    if (v > 0 && muted) toggleMute();
+  }
+
   // ============ AWARDS (รางวัล/เหรียญ) ============
   if (screen === 'awards') {
     // awardsTick อ้างในนี้เพื่อให้ re-read localStorage หลังจบเคส (ค่าเหรียญ sticky)
@@ -1038,14 +1075,28 @@ export default function CodeBlueSim() {
           </div>
           <div className="cbs-title-row">
             {hiscore > 0 && <div className="cbs-hiscore-chip">HI-SCORE {hiscore}</div>}
-            <button
-              type="button"
-              className="cbs-icon-btn"
-              onClick={toggleMute}
-              aria-label={muted ? 'เปิดเสียง' : 'ปิดเสียง'}
-            >
-              {muted ? <VolumeX size={16} strokeWidth={2.4} /> : <Volume2 size={16} strokeWidth={2.4} />}
-            </button>
+            <div className="cbs-vol-group">
+              <button
+                type="button"
+                className="cbs-icon-btn"
+                onClick={toggleMute}
+                aria-label={muted ? 'เปิดเสียง' : 'ปิดเสียง'}
+              >
+                {muted || sfxVolume === 0
+                  ? <VolumeX size={16} strokeWidth={2.4} />
+                  : <Volume2 size={16} strokeWidth={2.4} />}
+              </button>
+              <input
+                type="range"
+                className="cbs-vol-slider"
+                min={0}
+                max={1}
+                step={0.05}
+                value={muted ? 0 : sfxVolume}
+                onChange={(e) => changeSfxVolume(Number(e.target.value))}
+                aria-label="ระดับเสียงเอฟเฟกต์"
+              />
+            </div>
           </div>
           {renderIdentityChip()}
           <button type="button" className="cbs-btn-main" onClick={requestStart}>
@@ -1206,7 +1257,7 @@ export default function CodeBlueSim() {
 
   return (
     <div className={`cbs-app ${shaking ? 'cbs-shake' : ''}`}>
-      <section className="cbs-game">
+      <section className="cbs-game" onClick={onDialogTap}>
         <div className={`cbs-stage ${drama === 'red' ? 'cbs-drama-red' : drama === 'white' ? 'cbs-drama' : ''}`}>
           <div className="cbs-hud">
             <div className="cbs-hud-monitor">
@@ -1217,7 +1268,7 @@ export default function CodeBlueSim() {
             </div>
             <div className="cbs-hud-right">
               <div className="cbs-gauge">
-                <span className="cbs-gauge-label">PATIENT</span>
+                <span className="cbs-gauge-label cbs-gauge-label-th">คนไข้</span>
                 <div className="cbs-gauge-cells">
                   {Array.from({ length: maxHp }).map((_, i) => (
                     <span
@@ -1249,7 +1300,7 @@ export default function CodeBlueSim() {
             <button
               type="button"
               className="cbs-menu-btn"
-              onClick={() => setQuitMenu(true)}
+              onClick={(e) => { e.stopPropagation(); setQuitMenu(true); }}
               aria-label="เมนู"
             >
               ☰
@@ -1276,10 +1327,9 @@ export default function CodeBlueSim() {
                     key={i}
                     type="button"
                     className={`cbs-choice ${dim ? 'cbs-choice-dim' : ''} ${glow ? 'cbs-choice-hint' : ''}`}
-                    onClick={() => pick(o)}
+                    onClick={(e) => { e.stopPropagation(); pick(o); }}
                   >
-                    <span className="cbs-choice-tgt">▸ สั่ง {o.tgt}</span>
-                    {o.label}
+                    <span className="cbs-choice-tgt">[สั่ง {o.tgt}]</span> {o.label}
                   </button>
                 );
               })}
@@ -1297,7 +1347,6 @@ export default function CodeBlueSim() {
           {/* กล่องบทพูดแบบ AA: แตะเพื่อข้าม/ไปต่อ */}
           <div
             className="cbs-dlg"
-            onClick={onDialogTap}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
