@@ -12,6 +12,14 @@ function fmtDate(iso) {
   return d.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
+// YYYY-MM-DD ตามเวลาไทย — ห้ามใช้ toISOString().slice(0,10) เพราะนั่นคือวันที่ UTC
+// คนที่สมัคร/เรียนช่วง 17:00–24:00 น. จะถูกนับเป็น "เมื่อวาน" ทำให้หลุดจากรายชื่อรายวัน
+function isoDateTH(input) {
+  const d = input ? new Date(input) : new Date();
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+}
+
 export default function AdminStudents() {
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
@@ -51,7 +59,7 @@ export default function AdminStudents() {
       String(r.course_mode || '').toUpperCase(),
       r.pre_test_passed ? 'ผ่าน' : '-',
       r.post_test_passed ? 'ผ่าน' : '-',
-      r.created_at ? r.created_at.slice(0, 10) : '',
+      isoDateTH(r.created_at),
     ]);
     const csv = [header, ...lines]
       .map(row => row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
@@ -60,7 +68,7 @@ export default function AdminStudents() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `students-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `students-${isoDateTH()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
