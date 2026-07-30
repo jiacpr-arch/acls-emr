@@ -12,7 +12,7 @@ import { getAttemptCount, saveQuizAttempt } from '../db/database';
 import { scheduleFlush } from '../services/syncEngine';
 import { track } from '../services/analytics';
 import { submitAttempt as submitRemoteAttempt } from '../services/assessmentService';
-import { IS_ACLS, IS_BLS } from '../config/courseMode';
+import { IS_ACLS, courseMeta } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import LoadingCard from '../components/ui/LoadingCard';
@@ -292,7 +292,7 @@ function Header({ subtitle }) {
         <Sparkles size={22} strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
-        <h1 className="text-title text-text-primary">Pre-test {IS_BLS ? 'BLS' : 'ACLS'}</h1>
+        <h1 className="text-title text-text-primary">Pre-test {courseMeta.shortName}</h1>
         <p className="text-2xs text-text-muted">{subtitle ?? `${PRE_TEST_QUESTION_COUNT} ข้อ · ทดสอบความรู้พื้นฐาน`}</p>
       </div>
     </div>

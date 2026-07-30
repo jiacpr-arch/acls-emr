@@ -30,6 +30,20 @@ export const DEFAULT_STATIONS = {
     { name: 'ฐาน AED', kind: 'practice' },
     { name: 'ฐานสอบปฏิบัติ', kind: 'exam' },
   ],
+  airway: [
+    { name: 'ฐาน Airway Management', kind: 'practice', checklistId: 'airway' },
+    { name: 'ฐานสอบปฏิบัติ Airway', kind: 'exam', checklistId: 'airway' },
+  ],
+  defib: [
+    { name: 'ฐาน Defibrillation & Electrical Therapy', kind: 'practice', checklistId: 'electricalTherapy' },
+    { name: 'ฐานสอบปฏิบัติ Electrical Therapy', kind: 'exam', checklistId: 'electricalTherapy' },
+  ],
+  iv: [
+    // ยังไม่มีใบประเมิน IV/IO เฉพาะใน stationChecklists.js — อาจารย์เลือก
+    // checklist ที่ใช้จริงตอนให้คะแนนได้เสมอผ่าน dropdown เต็มรายการ
+    { name: 'ฐาน IV / IO Access', kind: 'practice' },
+    { name: 'ฐานสอบปฏิบัติ IV / IO', kind: 'exam' },
+  ],
 };
 
 export const STATION_KIND_META = {
@@ -41,7 +55,7 @@ export const STATION_KIND_META = {
 // ถ้าเป็นฐานที่ตั้งชื่อเอง/เปลี่ยนชื่อแล้วจำไม่ได้ (ผู้ใช้เลือกจาก dropdown เต็ม
 // รายการแทนได้เสมอ ไม่ใช่ทางเดียว)
 export function resolveChecklistForStation(stationName) {
-  const all = [...DEFAULT_STATIONS.acls, ...DEFAULT_STATIONS.bls];
+  const all = Object.values(DEFAULT_STATIONS).flat();
   const match = all.find((s) => s.name === stationName);
   if (!match) return null;
   return {

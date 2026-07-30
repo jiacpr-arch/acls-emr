@@ -20,7 +20,7 @@ import {
 import { submitAttempt as submitRemoteAttempt } from '../services/assessmentService';
 import { scheduleFlush } from '../services/syncEngine';
 import { track } from '../services/analytics';
-import { IS_ACLS } from '../config/courseMode';
+import { IS_ACLS, courseMeta } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import LoadingCard from '../components/ui/LoadingCard';
@@ -354,8 +354,8 @@ function Header({ subtitle }) {
         <Award size={22} strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
-        <h1 className="text-title text-text-primary">Post-test Exam</h1>
-        <p className="text-2xs text-text-muted">{subtitle ?? `${POST_TEST_QUESTION_COUNT} ข้อ · ครอบคลุม ACLS ทั้งหมด`}</p>
+        <h1 className="text-title text-text-primary">Post-test {courseMeta.shortName}</h1>
+        <p className="text-2xs text-text-muted">{subtitle ?? `${POST_TEST_QUESTION_COUNT} ข้อ · ครอบคลุม ${courseMeta.shortName} ทั้งหมด`}</p>
       </div>
     </div>
   );

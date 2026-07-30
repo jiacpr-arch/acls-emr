@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play, Award, ClipboardCheck, User, UserCheck, RefreshCw } from 'lucide-react';
+import { courseMeta } from '../../config/courseMode';
 
 // At-a-glance progress + next-step CTA for ACLS pre-course flow.
 // Decides what the student should do next:
@@ -179,7 +180,7 @@ export default function ACLSProgressCard({
           <ProgressRing percent={percent} />
           <div className="flex-1 min-w-0">
             <div className="text-2xs font-bold uppercase tracking-wider text-text-muted">
-              ความคืบหน้า ACLS
+              ความคืบหน้า {courseMeta.shortName}
             </div>
             <div className="text-xl font-extrabold text-text-primary leading-tight tabular-nums">
               {lessonsPassed}<span className="text-text-muted text-sm font-bold">/{totalLessons}</span>

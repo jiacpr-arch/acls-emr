@@ -1,9 +1,8 @@
 import { supabase } from './supabase';
-import { IS_BLS } from '../config/courseMode';
+import { COURSE_MODE } from '../config/courseMode';
 
 // อ่าน "วิดีโอบทเรียน" จาก Supabase (public read) + cache 6 ชม. เลียนแบบ precourseImageService
-// video_lessons เก็บ ACLS/BLS ร่วมตารางเดียวกัน แยกด้วย course_mode — ต้องกรองทุก query
-const COURSE_MODE = IS_BLS ? 'bls' : 'acls';
+// video_lessons เก็บทุกคอร์สร่วมตารางเดียวกัน แยกด้วย course_mode — ต้องกรองทุก query
 const CACHE_KEY = `video_lessons_cache_v1:${COURSE_MODE}`;
 const TTL_MS = 6 * 60 * 60 * 1000;
 
