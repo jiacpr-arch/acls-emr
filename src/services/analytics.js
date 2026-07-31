@@ -22,6 +22,24 @@ function readStore(key) {
   }
 }
 
+// เขียน first/last touch ลง localStorage — first touch เขียนครั้งเดียวตลอดชีพเครื่อง
+function storeAttribution(found, landingPage) {
+  try {
+    if (!Object.keys(found).length) return;
+    const entry = {
+      ...found,
+      landing_page: landingPage,
+      captured_at: new Date().toISOString(),
+    };
+    if (!readStore(FIRST_TOUCH_KEY)) {
+      localStorage.setItem(FIRST_TOUCH_KEY, JSON.stringify(entry));
+    }
+    localStorage.setItem(LAST_TOUCH_KEY, JSON.stringify(entry));
+  } catch {
+    /* tracking ห้ามพังแอป */
+  }
+}
+
 // เก็บ utm_*/fbclid จาก URL ตอนเปิดเว็บ ลง localStorage เพื่อให้ attribution
 // รอดข้าม navigation และการเปิดจาก home screen (PWA เปิดมาไม่มี query string)
 function captureAttribution() {
@@ -32,19 +50,22 @@ function captureAttribution() {
       const value = params.get(key);
       if (value) found[key] = value;
     }
-    if (!Object.keys(found).length) return;
-    const entry = {
-      ...found,
-      landing_page: window.location.pathname,
-      captured_at: new Date().toISOString(),
-    };
-    if (!readStore(FIRST_TOUCH_KEY)) {
-      localStorage.setItem(FIRST_TOUCH_KEY, JSON.stringify(entry));
-    }
-    localStorage.setItem(LAST_TOUCH_KEY, JSON.stringify(entry));
+    storeAttribution(found, window.location.pathname);
   } catch {
     /* tracking ห้ามพังแอป */
   }
+}
+
+/**
+ * ลิงก์สั้น /go/:campaign เข้ามาโดยไม่มี query string — captureAttribution() ที่รัน
+ * ตอน boot จึงไม่เห็น utm อะไรเลย ต้องให้หน้า /go เขียน attribution เองก่อน redirect
+ */
+export function captureCampaign(utm, landingPage) {
+  const found = {};
+  for (const key of ATTRIBUTION_PARAMS) {
+    if (utm?.[key]) found[key] = utm[key];
+  }
+  storeAttribution(found, landingPage);
 }
 
 function attributionProps() {
