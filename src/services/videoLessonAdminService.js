@@ -1,9 +1,7 @@
 import { supabase } from './supabase';
 import { invalidateVideoLessonsCache, mapVideoLessonRow } from './videoLessonService';
 import { authedPost } from './adminApi';
-import { IS_BLS } from '../config/courseMode';
-
-const COURSE_MODE = IS_BLS ? 'bls' : 'acls';
+import { COURSE_MODE } from '../config/courseMode';
 
 // CRUD วิดีโอบทเรียน สำหรับหน้าแอดมิน — เขียนผ่าน client ที่ล็อกอินแอดมินแล้ว (RLS คุมสิทธิ์)
 // รูปแบบเดียวกับ alsAdminService.js (insert/update/delete ตรงไปที่ตาราง)

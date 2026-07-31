@@ -4,12 +4,13 @@ import { getLessonProgress, getAttemptsForStudent, upsertStudent } from '../db/d
 import { scheduleFlush } from '../services/syncEngine';
 import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostTest';
-import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
+import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/activePreTest';
 import { EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
-import { getScenarioGameStatus } from '../data/blsScenarios';
+import { getScenarioGameStatus as getBlsScenarioGameStatus } from '../data/blsScenarios';
+import { getScenarioGameStatus as getSkillScenarioGameStatus } from '../data/activeSkillContent';
 import { simGameStatus } from '../data/codeBlueScenarios';
 import { certConfig } from '../data/activeCert';
-import { IS_BLS, courseMeta } from '../config/courseMode';
+import { IS_BLS, IS_SKILL_COURSE, COURSE_MODE, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';
 import { rpcJoinClass, rpcGetMyPracticalStatus } from '../services/cohortSync';
@@ -111,7 +112,7 @@ export default function Certification() {
   useEffect(() => {
     if (certData.certId && !lineUnlocked) {
       track('cert_line_gate_view', {
-        props: { source: 'cert_gate', course: IS_BLS ? 'bls' : 'acls' },
+        props: { source: 'cert_gate', course: COURSE_MODE },
       });
     }
   }, [certData.certId, lineUnlocked]);
@@ -141,15 +142,20 @@ export default function Certification() {
   // BLS ขั้นที่ 2 (ฝึก CPR): วัดผลจากเกมลำดับขั้นตัดสินใจ 8 ด่าน + ข้อสอบรวม
   // ที่ฝังอยู่ในหน้า skill-practice — อ่านสดจาก localStorage ทุก render
   // เหมือน EKG test ของ ACLS
-  const scenarioGame = IS_BLS ? getScenarioGameStatus() : null;
+  const scenarioGame = IS_BLS ? getBlsScenarioGameStatus() : null;
   // BLS: เกม BLS Rescue (/sim) ก็เป็นเงื่อนไขบังคับ — ต้องผ่านครบทุกเคส built-in
   // (ฝั่ง ACLS เกม sim ยังเป็นโบนัสไม่บังคับเหมือนเดิม)
   const simGame = IS_BLS ? simGameStatus() : null;
+  // Airway/Defib/IV skill courses: เกมลำดับขั้นของคอร์สนั้น ๆ (ดูส่วนที่ 3 ของแผน)
+  // เป็นเงื่อนไขบังคับเหมือน BLS แต่ไม่มีเกม BLS Rescue/Code Blue Sim ผูกด้วย
+  const skillScenarioGame = IS_SKILL_COURSE ? getSkillScenarioGameStatus() : null;
 
   // BLS: 4 requirements mirroring the landing journey (บทเรียน → ฝึก CPR →
-  // เกม BLS Rescue → Post-test). ACLS: online theory certification — the four
-  // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
-  // skills are completed separately at a training center.
+  // เกม BLS Rescue → Post-test). Skill courses (airway/defib/iv): pre-test →
+  // pre-course → เกมลำดับขั้น → post-test (ไม่มี EKG test — เป็นแนวคิดเฉพาะ
+  // ACLS). ACLS: online theory certification — the four knowledge gates only
+  // (pre-test, pre-course, post-test, EKG test). Hands-on skills are completed
+  // separately at a training center.
   // Once a student has an attempt on record, tapping the requirement should
   // show that result again rather than always forcing a retake — this is the
   // only way back to a past pre-test/post-test result in the app.
@@ -165,6 +171,16 @@ export default function Certification() {
         { label: `ผ่านฝึก CPR — เกมลำดับขั้น 8 ด่าน + ข้อสอบรวม (${scenarioGame.done}/${scenarioGame.total})`, done: scenarioGame.allPassed, Icon: Activity, to: '/skill-practice' },
         { label: `ผ่านเกม BLS Rescue ครบทุกเคส (${simGame.done}/${simGame.total})`, done: simGame.allPassed, Icon: Sparkles, to: '/sim' },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+      ]
+    : IS_SKILL_COURSE
+    ? [
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
+        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
+        { label: `ผ่านเกมลำดับขั้น ${skillScenarioGame.total - 1} ด่าน + ข้อสอบรวม (${skillScenarioGame.done}/${skillScenarioGame.total})`, done: skillScenarioGame.allPassed, Icon: Activity, to: '/scenario' },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+        ...(videoGateActive
+          ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
+          : []),
       ]
     : [
         { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
@@ -212,7 +228,7 @@ export default function Certification() {
       completedAt: new Date().toISOString(),
       preTestScore: IS_BLS ? null : (preTestBest?.score ?? null),
       postTestScore: postTestBest?.score ?? null,
-      ekgPassed: IS_BLS ? null : ekgTestDone,
+      ekgPassed: (IS_BLS || IS_SKILL_COURSE) ? null : ekgTestDone,
       videoCompleted: videoGateActive ? videoComp.allDone : null,
       theoryOnly: !!certConfig.theoryOnly,
       // eslint-disable-next-line react-hooks/purity -- รันใน event handler (กดปุ่มออกใบ) ไม่ใช่ตอน render
@@ -242,7 +258,7 @@ export default function Certification() {
     setLineUnlocked(true);
     if (via === 'skip') {
       track('cert_line_skip', {
-        props: { source: 'cert_gate', course: IS_BLS ? 'bls' : 'acls' },
+        props: { source: 'cert_gate', course: COURSE_MODE },
       });
     }
   };
@@ -254,7 +270,7 @@ export default function Certification() {
       meta: ['Contact', 'Lead'],
       props: {
         channel: 'line', source: 'cert_gate',
-        course: IS_BLS ? 'bls' : 'acls', value: 2500, currency: 'THB',
+        course: COURSE_MODE, value: 2500, currency: 'THB',
       },
     });
     unlockDownload('line');
@@ -262,7 +278,7 @@ export default function Certification() {
 
   const downloadPDF = async () => {
     track('cert_download', {
-      props: { source: 'cert_card', course: IS_BLS ? 'bls' : 'acls' },
+      props: { source: 'cert_card', course: COURSE_MODE },
     });
     setDownloadError('');
     try {

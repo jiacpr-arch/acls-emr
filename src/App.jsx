@@ -2,7 +2,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { useSettingsStore } from './stores/settingsStore';
-import { IS_BLS, IS_ACLS, courseMeta } from './config/courseMode';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, courseMeta } from './config/courseMode';
 import { useCourseModeInit } from './hooks/useCourseModeInit';
 import Dashboard from './pages/Dashboard';
 import NewCase from './pages/NewCase';
@@ -45,6 +45,9 @@ import BLSAlgorithm from './pages/BLSAlgorithm';
 import BLSAedGuide from './pages/BLSAedGuide';
 import BLSChokingRelief from './pages/BLSChokingRelief';
 import BLSKnowledge from './pages/BLSKnowledge';
+import SkillKnowledge from './pages/SkillKnowledge';
+import SkillScenarioHub from './pages/SkillScenarioHub';
+import SkillScenario from './pages/SkillScenario';
 import NewsPage from './pages/NewsPage';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
@@ -124,7 +127,8 @@ function App() {
   // หน้าฝึก CPR + เกมสถานการณ์ตัดสินใจ — เป็นเครื่องมือฝึกจริง ไม่ใช่หน้าขายคอร์ส
   // ปุ่ม LINE ลอยจะไปบังคำอธิบาย/ปุ่มควบคุมพอดี จึงซ่อนไว้เฉพาะหน้านี้
   const isPractice = location.pathname === '/skill-practice'
-    || /^\/bls\/scenario\/.+/.test(location.pathname);
+    || /^\/bls\/scenario\/.+/.test(location.pathname)
+    || /^\/scenario\/.+/.test(location.pathname);
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -171,8 +175,15 @@ function App() {
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
         {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
-        {(IS_ACLS || IS_BLS) && <Route path="/video-lessons" element={<VideoLessons />} />}
-        {(IS_ACLS || IS_BLS) && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
+        {(IS_ACLS || IS_BLS || IS_SKILL_COURSE) && <Route path="/video-lessons" element={<VideoLessons />} />}
+        {(IS_ACLS || IS_BLS || IS_SKILL_COURSE) && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
+
+        {/* Airway / Defibrillation / IV·IO skill courses — theory-only, one
+            lesson track + knowledge base + scenario game each (see plan). */}
+        {IS_SKILL_COURSE && <Route path="/" element={<PreCourse />} />}
+        {IS_SKILL_COURSE && <Route path="/knowledge" element={<SkillKnowledge />} />}
+        {IS_SKILL_COURSE && <Route path="/scenario" element={<SkillScenarioHub />} />}
+        {IS_SKILL_COURSE && <Route path="/scenario/:stageId" element={<SkillScenario />} />}
         {/* เข้าถึงได้ทั้ง ACLS/BLS — เมนูใน AdminDashboard กรองตามโหมดเอง */}
         <Route
           path="/admin/login"

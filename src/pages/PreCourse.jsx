@@ -327,7 +327,7 @@ export default function PreCourse() {
           }}>
           <GraduationCap size={28} strokeWidth={2.2} className="text-white" />
         </div>
-        <h1 className="text-title text-text-primary">บทเรียน ACLS</h1>
+        <h1 className="text-title text-text-primary">บทเรียน {courseMeta.shortName}</h1>
         <p className="text-caption text-text-muted">3 ขั้นตอน: Pre-test → บทเรียน → Post-test</p>
       </div>
 

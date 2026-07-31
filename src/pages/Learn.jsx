@@ -4,13 +4,14 @@ import { Check, Circle } from 'lucide-react';
 import { useSettingsStore } from '../stores/settingsStore';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { t } from '../utils/i18n';
-import { IS_BLS, courseMeta } from '../config/courseMode';
+import { IS_BLS, IS_SKILL_COURSE, courseMeta } from '../config/courseMode';
 import { GraduationCap } from '../components/ui/Icon';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
-import { PRE_TEST_LESSON_ID } from '../data/assessment';
+import { PRE_TEST_LESSON_ID } from '../data/activePreTest';
 import { EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
+import { getScenarioGameStatus as getSkillScenarioGameStatus } from '../data/activeSkillContent';
 import { computeVideoCompletion } from '../utils/videoProgress';
 import { useVideoLessons } from '../hooks/useVideoLessons';
 
@@ -77,6 +78,10 @@ export default function Learn() {
         return { complete: videoComp.allDone, done: videoComp.done, total: videoComp.total };
       case 'postTest':
         return { complete: passedFor(POST_TEST_LESSON_ID) };
+      case 'scenario': {
+        const s = getSkillScenarioGameStatus();
+        return { complete: s.allPassed, done: s.done, total: s.total };
+      }
       case 'cert':
         return { complete: certDone };
       default:
@@ -111,6 +116,26 @@ export default function Learn() {
           title: t('learn_progress', lang),
           items: [
             { path: '/certification', emoji: '🏅', label: t('cert', lang), subtitle: 'My Records', desc: t('cert_desc', lang), tone: 'warning', progressKey: 'cert' },
+          ],
+        },
+      ]
+    : IS_SKILL_COURSE
+    ? [
+        {
+          title: t('learn_prepare', lang),
+          items: [
+            { path: '/pre-course/pre-test',  emoji: '📝', label: t('pre_test',   lang), subtitle: 'Knowledge Check', desc: t('pre_test_desc', lang),       tone: 'purple',  step: 1, featured: true, progressKey: 'preTest' },
+            { path: '/pre-course',           emoji: '🎓', label: t('pre_course', lang), subtitle: 'บทเรียน + Quiz',  desc: t('pre_course_desc', lang),     tone: 'info',    step: 2, featured: true, progressKey: 'lessons' },
+            { path: '/scenario',             emoji: '🧠', label: 'เกมลำดับขั้น',           subtitle: 'Scenario Game',   desc: 'เดินตามลำดับขั้นตัดสินใจแบบมีเวลา', tone: 'danger',  step: 3, featured: true, progressKey: 'scenario' },
+            { path: '/pre-course/post-test', emoji: '🏆', label: t('post_test',  lang), subtitle: 'Final Exam',      desc: t('post_test_desc', lang),      tone: 'shock',   step: 4, featured: true, progressKey: 'postTest' },
+            { path: '/certification',        emoji: '🏅', label: t('cert', lang),           subtitle: 'My Records',      desc: t('cert_desc', lang),           tone: 'warning', badge: '👑', featured: true, progressKey: 'cert' },
+          ],
+        },
+        {
+          title: t('learn_reference', lang),
+          items: [
+            { path: '/knowledge', emoji: '📚', label: `คลังความรู้ ${courseMeta.shortName}`, subtitle: `${courseMeta.shortName} Book`, desc: 'หนังสือ + Q&A เชิงลึก', tone: 'info' },
+            { path: '/guide',     emoji: '📖', label: t('guide', lang),         subtitle: 'Field Guide', desc: t('guide_desc', lang), tone: 'success' },
           ],
         },
       ]

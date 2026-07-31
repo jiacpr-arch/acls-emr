@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
-import { IS_BLS } from '../config/courseMode';
+import { IS_BLS, IS_SKILL_COURSE } from '../config/courseMode';
 import {
   HeartPulse, FileText, Pill, Menu,
   BarChart3, GraduationCap, Users,
@@ -24,6 +24,14 @@ export default function BottomTabBar() {
         { path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร' },
         { key: 'more', Icon: Menu, label: 'More' },
       ]
+    : IS_SKILL_COURSE
+    ? [
+        { path: '/', Icon: GraduationCap, label: 'เรียน' },
+        { path: '/knowledge', Icon: Brain, label: 'คลังความรู้' },
+        { path: '/scenario', Icon: Gamepad2, label: 'เกม' },
+        { path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร' },
+        { key: 'more', Icon: Menu, label: 'More' },
+      ]
     : [
         { path: '/', Icon: HeartPulse, label: 'Home' },
         { path: '/history', Icon: FileText, label: t('history', lang) },
@@ -42,6 +50,15 @@ export default function BottomTabBar() {
         { path: '/bls/scenario', Icon: Brain, label: 'เกมลำดับขั้น' },
         { path: '/sim', Icon: Gamepad2, label: 'เกมกู้ชีพ' },
         { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
+        { path: '/news', Icon: Bell, label: 'ข่าว' },
+        { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
+        { path: '/settings', Icon: Settings, label: t('settings', lang) },
+      ]
+    : IS_SKILL_COURSE
+    ? [
+        { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
+        { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
+        { path: '/guide', Icon: FileText, label: t('guide', lang) },
         { path: '/news', Icon: Bell, label: 'ข่าว' },
         { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
         { path: '/settings', Icon: Settings, label: t('settings', lang) },

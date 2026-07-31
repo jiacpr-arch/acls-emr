@@ -1,4 +1,4 @@
-import { IS_BLS } from '../config/courseMode';
+import { COURSE_MODE } from '../config/courseMode';
 
 // Best-effort: tell the backend a certificate was issued so it can push a LINE
 // alert to the admin OA. Never throws — a failed alert must not break the
@@ -15,7 +15,7 @@ export async function notifyCertIssued({
         studentName,
         studentPhone: studentPhone || null,
         studentEmail: studentEmail || null,
-        course: IS_BLS ? 'bls' : 'acls',
+        course: COURSE_MODE,
         courseTitle,
         certId,
         completedAt,

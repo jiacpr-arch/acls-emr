@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
-import { IS_BLS } from '../config/courseMode';
+import { COURSE_MODE } from '../config/courseMode';
 
-const COURSE_FILTER = IS_BLS ? ['bls', 'both'] : ['acls', 'both'];
+const COURSE_FILTER = [COURSE_MODE, 'both'];
 
 export async function fetchNews({ limit = 5, course = null, search = null, maxAgeDays = null, freshOnly = false } = {}) {
   let q = supabase
