@@ -21,7 +21,7 @@ export default function BottomTabBar() {
         { path: '/', Icon: GraduationCap, label: 'เรียน' },
         { path: '/new-case', Icon: HeartPulse, label: 'ฝึก code' },
         { path: '/history', Icon: FileText, label: 'ประวัติ' },
-        { path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร' },
+        { path: '/certification', Icon: Award, label: 'ใบเซอร์' },
         { key: 'more', Icon: Menu, label: 'More' },
       ]
     : IS_SKILL_COURSE
@@ -29,7 +29,7 @@ export default function BottomTabBar() {
         { path: '/', Icon: GraduationCap, label: 'เรียน' },
         { path: '/knowledge', Icon: Brain, label: 'คลังความรู้' },
         { path: '/scenario', Icon: Gamepad2, label: 'เกม' },
-        { path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร' },
+        { path: '/certification', Icon: Award, label: 'ใบเซอร์' },
         { key: 'more', Icon: Menu, label: 'More' },
       ]
     : [

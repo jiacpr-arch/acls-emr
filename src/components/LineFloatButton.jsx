@@ -3,7 +3,7 @@ import { jiacprCourse } from '../data/jiacprCourse';
 import { track } from '../services/analytics';
 
 // ปุ่ม LINE ลอยมุมขวาล่าง — CTA หลักของการขายคอร์ส มองเห็นทุกหน้า
-// วางเหนือ bottom-pill-bar (สูง 52px + เว้นขอบ 10px)
+// วางเหนือแถบเมนูล่างแบบแบน (สูง ≈68px)
 export default function LineFloatButton() {
   return (
     <a
