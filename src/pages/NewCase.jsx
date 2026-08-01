@@ -15,6 +15,7 @@ import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   HeartPulse, AlertTriangle, Hospital,
   BookOpen, MessageSquare, Play, GraduationCap,
+  Gamepad2, HelpCircle, ChevronRight,
 } from '../components/ui/Icon';
 
 // Module-level flag — splash shows once per full page load, not on every
@@ -127,10 +128,25 @@ export default function NewCase() {
       )}
 
       <div
-        className="page-container pb-28 flex flex-col gap-5"
+        className="page-container pb-28 flex flex-col gap-4"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
         <ACLSHero isClinical={isClinical} />
+
+        {/* Emergency action — the one red accent card (firstaid 1669-card style) */}
+        <button onClick={() => handleStart('rrt')} disabled={loading}
+          className="card card-hover w-full flex items-center gap-3 disabled:opacity-50"
+          style={{ background: '#FEF2F2', border: '1.5px solid #FCA5A5', textAlign: 'left', justifyContent: 'flex-start' }}>
+          <div className="flex items-center justify-center text-white shrink-0"
+            style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--color-danger)' }}>
+            <Hospital size={22} strokeWidth={2.2} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-headline" style={{ color: '#991B1B' }}>CODE BLUE / CODE 8</div>
+            <div className="text-caption" style={{ color: '#7F1D1D' }}>MET / RRT Team · เริ่มบันทึกเหตุการณ์ทันที</div>
+          </div>
+          <ChevronRight size={18} style={{ color: '#991B1B' }} className="shrink-0" />
+        </button>
 
         <StreakBadge />
 
@@ -162,99 +178,39 @@ export default function NewCase() {
           </div>
         )}
 
-        {/* Primary actions — full-width learn + blue stacked */}
-        <div className="flex flex-col gap-4">
-          <button onClick={() => navigate('/sim')}
-            className="btn btn-xl btn-block text-white animate-fade-in"
-            style={{
-              height: 'auto',
-              paddingTop: 20,
-              paddingBottom: 20,
-              fontSize: 19,
-              background: 'linear-gradient(135deg, #EF4444 0%, #B91C1C 100%)',
-              boxShadow: '0 8px 20px rgba(185, 28, 28, 0.32)',
-            }}>
-            <span className="text-[24px] leading-none" aria-hidden="true">🚨</span>
-            <span className="flex flex-col items-center leading-tight">
-              <span>{t('code_sim', lang)}</span>
-              <span className="text-[13px] font-medium opacity-85 mt-1">{t('code_sim_desc', lang)}</span>
-            </span>
-          </button>
-
-          <button onClick={() => navigate('/learn')}
-            className="btn btn-xl btn-block text-white"
-            style={{
-              height: 'auto',
-              paddingTop: 20,
-              paddingBottom: 20,
-              fontSize: 19,
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-              boxShadow: '0 8px 20px rgba(5, 150, 105, 0.28)',
-            }}>
-            <GraduationCap size={24} strokeWidth={2.4} />
-            <span className="flex flex-col items-center leading-tight">
-              <span>โหมดเรียน</span>
-              <span className="text-[13px] font-medium opacity-85 mt-1">บทเรียน · scenarios · ใบประกาศนียบัตร</span>
-            </span>
-          </button>
-
-          <button onClick={() => navigate('/video-lessons')}
-            className="btn btn-xl btn-block text-white"
-            style={{
-              height: 'auto',
-              paddingTop: 18,
-              paddingBottom: 18,
-              fontSize: 17,
-              background: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
-              boxShadow: '0 8px 20px rgba(124, 58, 237, 0.28)',
-            }}>
-            <span className="text-[22px] leading-none" aria-hidden="true">📹</span>
-            <span className="flex flex-col items-center leading-tight">
-              <span>วิดีโอบทเรียน</span>
-              <span className="text-[13px] font-medium opacity-85 mt-1">คลิปสอนเชิงลึกทุกหัวข้อ</span>
-            </span>
-          </button>
-
-          <button onClick={() => handleStart('rrt')} disabled={loading}
-            className="btn btn-primary btn-xl btn-block disabled:opacity-50"
-            style={{ height: 'auto', paddingTop: 18, paddingBottom: 18 }}>
-            <Hospital size={24} strokeWidth={2.4} />
-            <span className="flex flex-col items-center leading-tight">
-              <span style={{ fontSize: 19 }}>CODE BLUE / CODE 8</span>
-              <span className="text-[13px] font-medium opacity-80 mt-1">MET / RRT Team</span>
-            </span>
-          </button>
+        {/* Main menu — firstaid QuickMenu-style rows (red reserved for the sim) */}
+        <div className="grid gap-2.5">
+          {[
+            { icon: Gamepad2, color: '#DC2626', label: t('code_sim', lang), desc: t('code_sim_desc', lang), to: '/sim' },
+            { icon: GraduationCap, color: '#2563EB', label: 'โหมดเรียน', desc: 'บทเรียน · scenarios · ใบประกาศนียบัตร', to: '/learn' },
+            { icon: Play, color: '#2563EB', label: 'วิดีโอบทเรียน', desc: 'คลิปสอนเชิงลึกทุกหัวข้อ', to: '/video-lessons' },
+            { icon: HelpCircle, color: '#2563EB', label: 'Q&A ACLS เชิงลึก', desc: '13 หมวด พร้อม infographic', to: '/qa-acls-deep' },
+          ].map(({ icon: RowIcon, color, label, desc, to }) => (
+            <button key={to} onClick={() => navigate(to)}
+              className="card card-hover w-full flex items-center gap-3.5"
+              style={{ textAlign: 'left', justifyContent: 'flex-start' }}>
+              <div className="flex items-center justify-center shrink-0"
+                style={{ width: 44, height: 44, borderRadius: 12, background: `${color}15`, color }}>
+                <RowIcon size={22} strokeWidth={2.2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-headline text-text-primary">{label}</div>
+                <div className="text-caption text-text-muted">{desc}</div>
+              </div>
+              <ChevronRight size={18} className="text-text-muted shrink-0" />
+            </button>
+          ))}
         </div>
 
-        {/* Quick-start templates — gradient tile grid */}
-        <div className="space-y-4">
+        {/* Quick-start templates */}
+        <div className="space-y-3">
           <div className="text-overline text-text-muted px-1">เริ่มเร็วตาม pathway</div>
           <ACLSQuickActions onStart={handleStart} disabled={loading} />
         </div>
 
-        <button onClick={() => navigate('/qa-acls-deep')}
-          className="btn btn-block text-white"
-          style={{
-            height: 'auto',
-            paddingTop: 18,
-            paddingBottom: 18,
-            fontSize: 16,
-            borderRadius: 'var(--radius-lg)',
-            background: 'linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%)',
-            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)',
-          }}>
-          <BookOpen size={20} strokeWidth={2.4} />
-          <span className="flex flex-col items-center leading-tight">
-            <span>Q&A ACLS เชิงลึก</span>
-            <span className="text-xs font-medium opacity-85 mt-0.5">
-              13 หมวด พร้อม infographic
-            </span>
-          </span>
-        </button>
-
         <NewsCard />
 
-        <div className="grid grid-cols-2 gap-6 pt-2">
+        <div className="grid grid-cols-2 gap-3 pt-1">
           <button onClick={() => navigate('/guide')}
             className="btn btn-ghost btn-block"
             style={{ height: 'auto', paddingTop: 16, paddingBottom: 16, borderRadius: 'var(--radius-lg)' }}>

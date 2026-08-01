@@ -13,9 +13,10 @@ export default function PostTestCard({ unlocked, bestScore, passed, attemptCount
       <button
         onClick={() => unlocked && navigate('/pre-course/post-test')}
         disabled={!unlocked}
-        className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-bg-tertiary/50 transition-colors disabled:cursor-not-allowed">
+        className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-bg-tertiary/50 transition-colors disabled:cursor-not-allowed"
+        style={{ textAlign: 'left', justifyContent: 'flex-start' }}>
         <div className={`w-10 h-10 inline-flex items-center justify-center shrink-0 ${
-          unlocked ? 'bg-warning/15 text-warning' : 'bg-bg-tertiary text-text-muted'
+          unlocked ? 'bg-info/12 text-info' : 'bg-bg-tertiary text-text-muted'
         }`} style={{ borderRadius: 'var(--radius-md)' }}>
           {unlocked ? <Award size={18} strokeWidth={2.2} /> : <Lock size={16} strokeWidth={2.4} />}
         </div>
@@ -52,8 +53,8 @@ export default function PostTestCard({ unlocked, bestScore, passed, attemptCount
         {unlocked && (
           <button
             onClick={(e) => { e.stopPropagation(); navigate('/pre-course/post-test'); }}
-            className="text-2xs font-bold px-3 py-1.5 inline-flex items-center gap-1 bg-warning text-white hover:opacity-90"
-            style={{ borderRadius: 99 }}>
+            className="text-2xs font-bold px-3 py-1.5 inline-flex items-center gap-1 text-white hover:opacity-90"
+            style={{ borderRadius: 99, background: 'var(--color-info)' }}>
             {hasAttempt ? 'ทำใหม่' : 'เริ่มสอบ'}
           </button>
         )}
