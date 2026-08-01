@@ -1,10 +1,12 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Siren, Zap, Trophy, User, ChevronRight, Target, Hospital, Stethoscope } from 'lucide-react';
 import { useSettingsStore } from '../stores/settingsStore';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';
 import { t } from '../utils/i18n';
-import { Gamepad2, User, ChevronRight } from '../components/ui/Icon';
+import PageHero from '../components/PageHero';
+import GameHighlightCard from '../components/GameHighlightCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 
 // รวมเกม/แบบฝึกทั้งหมดไว้จุดเดียว — เข้าจากแท็บ "เกมส์" บนแถบเมนูล่าง
@@ -15,42 +17,16 @@ export default function GamesHub() {
   const classCode = useClassStore(s => s.classCode);
   const [showIdentity, setShowIdentity] = useState(false);
 
-  const games = [
-    { path: '/sim',           emoji: '🚨', label: t('code_sim', lang),      subtitle: 'Code Blue Sim', desc: t('code_sim_desc', lang),      tone: 'danger', badge: '🏅', featured: true },
-    { path: '/drill',         emoji: '⚡', label: t('drill', lang),         subtitle: 'Skill Drill',   desc: t('drill_desc', lang),         tone: 'shock' },
-    { path: '/sim-board',     emoji: '🏆', label: t('leaderboard', lang),   subtitle: 'Leaderboard',   desc: t('leaderboard_desc', lang),   tone: 'success' },
-  ];
-
   // เกมผู้บันทึกสองตัวใช้เคสชุดเดียวกัน ต่างแค่ระดับความจริง (ปุ่มจำลอง vs หน้า
   // Recording จริง) — จัดเป็นการ์ดเส้นทางเดียว 2 ขั้น แทนสองการ์ดที่ดูเป็นเกมซ้ำกัน
   const recorderSteps = [
-    { path: '/recorder-game', emoji: '🎯', step: 1, label: t('recorder_game', lang), subtitle: 'Recorder Hero',      desc: t('recorder_game_desc', lang) },
-    { path: '/scenarios',     emoji: '🏥', step: 2, label: t('scenarios', lang),     subtitle: 'Training Scenarios', desc: t('scenarios_desc', lang) },
+    { path: '/recorder-game', Icon: Target, step: 1, label: t('recorder_game', lang), desc: t('recorder_game_desc', lang) },
+    { path: '/scenarios',     Icon: Hospital, step: 2, label: t('scenarios', lang), desc: t('scenarios_desc', lang) },
   ];
 
-  const toneColor = {
-    info:    'var(--color-info)',
-    success: 'var(--color-success)',
-    warning: 'var(--color-warning)',
-    danger:  'var(--color-danger)',
-    purple:  'var(--color-purple)',
-    shock:   'var(--color-shock)',
-  };
-
   return (
-    <div className="page-container space-y-5 pb-24">
-      <div className="text-center space-y-2">
-        <div className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-danger) 100%)',
-            borderRadius: 'var(--radius-2xl)',
-            boxShadow: '0 8px 20px rgba(147, 51, 234, 0.28)',
-          }}>
-          <Gamepad2 size={28} strokeWidth={2.2} className="text-white" />
-        </div>
-        <h1 className="text-title text-text-primary">{t('games', lang)}</h1>
-        <p className="text-caption text-text-muted">{t('games_subtitle', lang)}</p>
-      </div>
+    <div className="page-container flex flex-col gap-4 pb-24">
+      <PageHero title={t('games', lang)} desc={t('games_subtitle', lang)} />
 
       {/* อยู่ในคลาส: บอกว่ากำลังบันทึกผลในชื่อใคร — เกมนอกคลาสไม่มี leaderboard ให้บันทึก
           จึงไม่ต้องกวนนักเรียนที่เล่นเดี่ยว/ออฟไลน์ให้ลงทะเบียน */}
@@ -73,80 +49,74 @@ export default function GamesHub() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
-        {games.map((item, i) => {
-          const color = toneColor[item.tone] || toneColor.info;
-          const card = (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`learn-card tone-${item.tone || 'info'} relative flex flex-col items-center text-center px-3 pt-5 pb-4`}
-              /* Inline gridColumn overrides .learn-card:last-child:nth-child(odd)
-                 auto-span, so we control which card spans the row */
-              style={{ gridColumn: item.featured ? '1 / -1' : 'auto' }}
-            >
-              {item.badge && (
+      {/* เกมเรือธง — การ์ดไฮไลต์พื้นเข้ม โดดจากการ์ดขาวรอบตัว */}
+      <GameHighlightCard
+        to="/sim"
+        title={t('code_sim', lang)}
+        desc={t('code_sim_desc', lang)}
+        Icon={Siren}
+      />
+
+      <button onClick={() => navigate('/drill')}
+        className="card card-hover w-full flex items-center gap-3.5"
+        style={{ textAlign: 'left', justifyContent: 'flex-start' }}>
+        <div className="flex items-center justify-center shrink-0"
+          style={{ width: 44, height: 44, borderRadius: 12, background: '#EA580C15', color: '#EA580C' }}>
+          <Zap size={22} strokeWidth={2.2} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-headline text-text-primary">{t('drill', lang)}</div>
+          <div className="text-caption text-text-muted">{t('drill_desc', lang)}</div>
+        </div>
+        <ChevronRight size={18} className="text-text-muted shrink-0" />
+      </button>
+
+      <button onClick={() => navigate('/sim-board')}
+        className="card card-hover w-full flex items-center gap-3.5"
+        style={{ textAlign: 'left', justifyContent: 'flex-start' }}>
+        <div className="flex items-center justify-center shrink-0"
+          style={{ width: 44, height: 44, borderRadius: 12, background: '#05966915', color: 'var(--color-success)' }}>
+          <Trophy size={22} strokeWidth={2.2} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-headline text-text-primary">{t('leaderboard', lang)}</div>
+          <div className="text-caption text-text-muted">{t('leaderboard_desc', lang)}</div>
+        </div>
+        <ChevronRight size={18} className="text-text-muted shrink-0" />
+      </button>
+
+      {/* เส้นทางผู้บันทึก — การ์ดขาวใบเดียว 2 ขั้น */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-1">
+          <Stethoscope size={18} strokeWidth={2.2} className="text-info" />
+          <div className="text-headline text-text-primary">{t('recorder_path', lang)}</div>
+        </div>
+        <div className="text-caption text-text-muted" style={{ marginBottom: 10 }}>
+          {t('recorder_path_desc', lang)}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          {recorderSteps.map(s => {
+            const StepIcon = s.Icon;
+            return (
+              <button key={s.path} onClick={() => navigate(s.path)}
+                className="w-full flex items-center gap-3 p-2.5 transition-colors hover:bg-bg-tertiary/60"
+                style={{ borderRadius: 10, textAlign: 'left', justifyContent: 'flex-start' }}>
                 <span
-                  className="absolute top-2 left-2 inline-flex items-center justify-center w-6 h-6 text-2xs font-extrabold text-white shadow-sm"
-                  style={{ borderRadius: '50%', background: color }}
-                  aria-hidden="true"
+                  className="shrink-0 inline-flex items-center justify-center"
+                  style={{ width: 36, height: 36, borderRadius: 10, background: '#2563EB15' }}
                 >
-                  {item.badge}
+                  <span className="font-bold text-info">{s.step}</span>
                 </span>
-              )}
-              <span className="text-[44px] leading-none mb-2" aria-hidden="true">
-                {item.emoji}
-              </span>
-              <span className="text-sm font-bold leading-tight" style={{ color }}>
-                {item.label}
-              </span>
-              <span className="text-sm font-semibold text-text-primary leading-tight mt-0.5">
-                {item.subtitle}
-              </span>
-              <span className="text-xs text-text-muted leading-snug mt-1">
-                {item.desc}
-              </span>
-            </button>
-          );
-          if (i !== 0) return card;
-          // การ์ดเส้นทางผู้บันทึกแทรกต่อจาก Code Blue Sim — เต็มแถวเหมือนการ์ด featured
-          return (
-            <Fragment key="lead">
-              {card}
-              <div className="learn-card tone-purple !cursor-default px-3 pt-4 pb-3 space-y-3"
-                style={{ gridColumn: '1 / -1' }}>
-                <div className="text-center">
-                  <div className="text-sm font-bold" style={{ color: toneColor.purple }}>
-                    🧑‍⚕️ {t('recorder_path', lang)}
-                  </div>
-                  <div className="text-xs text-text-muted leading-snug mt-0.5">
-                    {t('recorder_path_desc', lang)}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {recorderSteps.map(s => (
-                    <button key={s.path} onClick={() => navigate(s.path)}
-                      className="w-full bg-bg-secondary border border-border p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors"
-                      style={{ borderRadius: 'var(--radius-md)' }}>
-                      <span className="shrink-0 inline-flex flex-col items-center justify-center w-11 h-11 bg-purple/12"
-                        style={{ borderRadius: 'var(--radius-md)' }}>
-                        <span className="text-lg leading-none" aria-hidden="true">{s.emoji}</span>
-                        <span className="text-3xs font-black" style={{ color: toneColor.purple }}>ขั้น {s.step}</span>
-                      </span>
-                      <span className="flex-1 min-w-0">
-                        <span className="block text-sm font-bold text-text-primary leading-tight">
-                          {s.label} <span className="font-semibold text-text-muted">· {s.subtitle}</span>
-                        </span>
-                        <span className="block text-xs text-text-muted leading-snug mt-0.5">{s.desc}</span>
-                      </span>
-                      <ChevronRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </Fragment>
-          );
-        })}
+                <StepIcon size={20} strokeWidth={2.2} className="text-info shrink-0" />
+                <span className="flex-1 min-w-0">
+                  <span className="block text-body-strong text-text-primary">{s.label}</span>
+                  <span className="block text-caption text-text-muted">{s.desc}</span>
+                </span>
+                <ChevronRight size={16} strokeWidth={2.2} className="text-text-muted shrink-0" />
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <StudentIdentityModal

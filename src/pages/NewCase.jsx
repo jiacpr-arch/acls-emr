@@ -17,6 +17,7 @@ import {
   BookOpen, MessageSquare, Play, GraduationCap,
   Gamepad2, HelpCircle, ChevronRight,
 } from '../components/ui/Icon';
+import PageHero from '../components/PageHero';
 
 // Module-level flag — splash shows once per full page load, not on every
 // in-app navigation back to /. Resets when the user reloads the tab.
@@ -59,61 +60,58 @@ export default function NewCase() {
 
   const isClinical = mode === 'clinical';
 
-  // ===== BLS still uses the legacy centered layout =====
+  // ===== BLS "ฝึก code" tab =====
   if (IS_BLS) {
     return (
-      <div
-        className="min-h-[100dvh] flex flex-col bg-bg-primary"
-        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
-      >
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 pb-28">
-          <div className="text-center mb-8 animate-fade-in">
-            <div
-              className="w-20 h-20 mx-auto mb-5 inline-flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)',
-                borderRadius: 'var(--radius-2xl)',
-                boxShadow:
-                  '0 12px 28px rgba(14, 165, 233, 0.32), 0 4px 12px rgba(14, 165, 233, 0.18)',
-              }}
+      <div className="page-container flex flex-col gap-4 pb-24">
+        <PageHero
+          title="BLS Practice"
+          desc={courseMeta.titleTh}
+          meta={
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-2xs font-bold uppercase tracking-wider ${
+                isClinical ? 'bg-danger/10 text-danger' : 'bg-info/10 text-info'
+              }`}
+              style={{ borderRadius: 99 }}
             >
-              <HeartPulse size={38} strokeWidth={2.4} className="text-white" />
-            </div>
-            <h1 className="text-display text-text-primary">BLS Practice</h1>
-            <p className="text-caption text-text-muted mt-1.5 tracking-wide">{courseMeta.titleTh}</p>
-            <p className="text-text-muted text-3xs font-mono mt-1 opacity-60">v2.0.0</p>
-            <div className={`inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 text-2xs font-bold ${
-              isClinical ? 'bg-danger/10 text-danger' : 'bg-info/10 text-info'
-            }`}
-            style={{ borderRadius: 'var(--radius-full)' }}>
               <span className={`w-1.5 h-1.5 ${isClinical ? 'bg-danger animate-pulse' : 'bg-info'}`}
                 style={{ borderRadius: 99 }} />
-              {isClinical ? 'CLINICAL' : 'TRAINING'}
-            </div>
-          </div>
+              {isClinical ? 'Clinical' : 'Training'}
+            </span>
+          }
+        />
 
-          <div className="w-full max-w-sm flex flex-col gap-6 animate-slide-up">
-            <button onClick={() => handleStart('bls')} disabled={loading}
-              className="btn btn-info btn-xl btn-block disabled:opacity-50">
-              <AlertTriangle size={20} strokeWidth={2.4} /> BLS — First Responder
-            </button>
-            <button onClick={() => navigate('/skill-practice')}
-              className="btn btn-ghost btn-lg btn-block">
-              <HeartPulse size={18} strokeWidth={2} /> ฝึก CPR Metronome
-            </button>
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => navigate('/guide')}
-                className="btn btn-ghost btn-lg btn-block">
-                <BookOpen size={18} strokeWidth={2} /> คู่มือ
-              </button>
-              <button onClick={() => navigate('/feedback')}
-                className="btn btn-ghost btn-lg btn-block">
-                <MessageSquare size={18} strokeWidth={2} /> Feedback
-              </button>
-            </div>
-            <MorrooAdCard />
+        <button onClick={() => handleStart('bls')} disabled={loading}
+          className="btn btn-info btn-xl btn-block disabled:opacity-50">
+          <AlertTriangle size={20} strokeWidth={2.4} /> BLS — First Responder
+        </button>
+
+        <button onClick={() => navigate('/skill-practice')}
+          className="card card-hover w-full flex items-center gap-3.5"
+          style={{ textAlign: 'left', justifyContent: 'flex-start' }}>
+          <div className="flex items-center justify-center shrink-0"
+            style={{ width: 44, height: 44, borderRadius: 12, background: '#DC262615', color: 'var(--color-danger)' }}>
+            <HeartPulse size={22} strokeWidth={2.2} />
           </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-headline text-text-primary">ฝึก CPR Metronome</div>
+            <div className="text-caption text-text-muted">จังหวะกดหน้าอกให้ตรงมาตรฐาน</div>
+          </div>
+          <ChevronRight size={18} className="text-text-muted shrink-0" />
+        </button>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => navigate('/guide')}
+            className="btn btn-ghost btn-lg btn-block">
+            <BookOpen size={18} strokeWidth={2} /> คู่มือ
+          </button>
+          <button onClick={() => navigate('/feedback')}
+            className="btn btn-ghost btn-lg btn-block">
+            <MessageSquare size={18} strokeWidth={2} /> Feedback
+          </button>
         </div>
+
+        <MorrooAdCard />
       </div>
     );
   }

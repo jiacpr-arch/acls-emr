@@ -1,12 +1,29 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Video, Check, Circle, ChevronRight, Lock } from 'lucide-react';
+import {
+  Check, Circle, ChevronRight, Lock, Wind, Activity, Zap, Turtle,
+  Rabbit, HeartPulse, Syringe, Heart, LifeBuoy, Link2, Users, Hospital,
+  Baby, BookOpen,
+} from 'lucide-react';
 import { useVideoLessons } from '../hooks/useVideoLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useAuth } from '../hooks/useAuth';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import { buildProgressSets, clipDone, clipWatched, clipUnlocked } from '../utils/videoProgress';
 import { VIDEO_TOPIC_MAP } from '../data/videoTopics';
+import PageHero from '../components/PageHero';
+
+// หัวข้อวิดีโอมี emoji ติดมากับข้อมูล (videoTopics.js) — map เป็น lucide ที่
+// ระดับ component แทน ไม่แก้ data file เพราะใช้ร่วมกันหลายจุด
+const TOPIC_ICONS = {
+  airway: Wind, ekg: Activity, defib: Zap, brady: Turtle, tachy: Rabbit,
+  arrest: HeartPulse, iv: Syringe, postarrest: Heart, bls: LifeBuoy,
+  chain: Link2, 'cpr-adult': Heart, aed: Zap, team: Users, inhospital: Hospital,
+  pediatric: Baby, choking: Wind, special: Activity, assess: Wind,
+  'opa-npa': Wind, bvm: Wind, advanced: Activity, fbao: LifeBuoy,
+  principles: Zap, 'aed-manual': Zap, ccf: Activity, cardioversion: Zap,
+  pacing: HeartPulse, peripheral: Syringe, io: Syringe, 'drugs-cpr': Syringe,
+};
 
 export default function VideoLessons() {
   const navigate = useNavigate();
@@ -31,26 +48,18 @@ export default function VideoLessons() {
   const pct = requiredTotal ? Math.round((requiredDone / requiredTotal) * 100) : 0;
 
   return (
-    <div className="page-container space-y-5 pb-24">
-      <div className="text-center space-y-2">
-        <div className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
-            borderRadius: 'var(--radius-2xl)',
-            boxShadow: '0 8px 20px rgba(124, 58, 237, 0.28)',
-          }}>
-          <Video size={28} strokeWidth={2.2} className="text-white" />
-        </div>
-        <h1 className="text-title text-text-primary">วิดีโอบทเรียน</h1>
-        <p className="text-caption text-text-muted">คลิปสอนเชิงลึกทุกหัวข้อ · ดูครบ + ผ่านควิซ = นับเข้าใบประกาศนียบัตร</p>
-      </div>
+    <div className="page-container flex flex-col gap-4 pb-24">
+      <PageHero
+        title="วิดีโอบทเรียน"
+        desc="คลิปสอนเชิงลึกทุกหัวข้อ · ดูครบ + ผ่านควิซ = นับเข้าใบประกาศนียบัตร"
+      />
 
       {requiredTotal > 0 && (
         <div className="dash-card text-center">
-          <div className={`text-numeric text-4xl ${pct === 100 ? 'text-success' : 'text-purple'}`}>{pct}%</div>
+          <div className={`text-numeric text-4xl ${pct === 100 ? 'text-success' : 'text-info'}`}>{pct}%</div>
           <div className="text-caption text-text-muted mt-1">ดูครบ + ผ่านควิซแล้ว {requiredDone}/{requiredTotal} คลิป (บังคับ)</div>
           <div className="progress-track !h-2 mt-3">
-            <div className="progress-fill" style={{ width: `${pct}%`, background: pct === 100 ? 'var(--color-success)' : '#7C3AED' }} />
+            <div className="progress-fill" style={{ width: `${pct}%`, background: pct === 100 ? 'var(--color-success)' : 'var(--color-info)' }} />
           </div>
         </div>
       )}
@@ -72,10 +81,11 @@ export default function VideoLessons() {
       {!loading && topics.map(tpc => {
         const clips = byTopic[tpc.id] || [];
         const meta = VIDEO_TOPIC_MAP[tpc.id] || tpc;
+        const TopicIcon = TOPIC_ICONS[tpc.id] || BookOpen;
         return (
           <div key={tpc.id} className="space-y-2">
-            <div className="text-overline text-text-muted px-1">
-              <span className="mr-1.5" aria-hidden="true">{meta.emoji}</span>{meta.label}
+            <div className="text-overline text-text-muted px-1 inline-flex items-center gap-1.5">
+              <TopicIcon size={13} strokeWidth={2.4} aria-hidden="true" />{meta.label}
             </div>
             <div className="space-y-2">
               {clips.map((clip, idx) => {
@@ -88,12 +98,12 @@ export default function VideoLessons() {
                     onClick={() => unlocked && navigate(`/video-lessons/${clip.id}`)}
                     disabled={!unlocked}
                     className={`dash-card !p-3 w-full flex items-center gap-3 border transition-colors ${
-                      unlocked ? 'hover:border-purple/40' : 'opacity-60 cursor-not-allowed'
+                      unlocked ? 'hover:border-info/40' : 'opacity-60 cursor-not-allowed'
                     } ${done ? 'border-success/40' : 'border-border'}`}>
                     <div className={`w-9 h-9 inline-flex items-center justify-center shrink-0 ${
                       !unlocked ? 'bg-bg-tertiary text-text-muted'
                         : done ? 'bg-success/15 text-success'
-                        : 'bg-purple/10 text-purple'
+                        : 'bg-info/10 text-info'
                     }`}
                       style={{ borderRadius: 'var(--radius-sm)' }}>
                       {!unlocked ? <Lock size={15} strokeWidth={2.2} />

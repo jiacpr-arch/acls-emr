@@ -163,15 +163,11 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
 
   // When a chapter accent is supplied, theme the question header + badge to it;
   // otherwise fall back to the default info-blue (used on the ALS knowledge page).
-  const badgeGradient = accent
-    ? `linear-gradient(135deg, ${accent} 0%, color-mix(in srgb, ${accent} 72%, #000) 100%)`
-    : 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark) 100%)';
-  const badgeShadow = accent
-    ? `0 2px 6px -2px color-mix(in srgb, ${accent} 55%, transparent)`
-    : '0 2px 6px -2px rgba(37, 99, 235, 0.55)';
+  // แบนทั้งชุด — ตัด gradient/เงาสีออก เหลือพื้นสีทึบ + tint อ่อน
+  const badgeFlat = accent || 'var(--color-info)';
   const headerBand = accent
-    ? `linear-gradient(180deg, color-mix(in srgb, ${accent} 7%, transparent) 0%, color-mix(in srgb, ${accent} 2%, transparent) 100%)`
-    : 'linear-gradient(180deg, rgba(37, 99, 235, 0.06) 0%, rgba(37, 99, 235, 0.02) 100%)';
+    ? `color-mix(in srgb, ${accent} 5%, transparent)`
+    : 'rgba(37, 99, 235, 0.04)';
   const iconChip = accent
     ? { background: `color-mix(in srgb, ${accent} 15%, transparent)`, color: accent }
     : null;
@@ -255,9 +251,8 @@ export default function QASection({ qa, startIndex = 0, showNumber = true, accen
                       minWidth: 32,
                       height: 28,
                       padding: '0 8px',
-                      background: badgeGradient,
+                      background: badgeFlat,
                       borderRadius: 999,
-                      boxShadow: badgeShadow,
                       letterSpacing: '0.02em',
                       marginTop: 1,
                     }}

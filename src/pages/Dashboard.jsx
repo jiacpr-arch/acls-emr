@@ -81,12 +81,13 @@ export default function Dashboard() {
   return (
     <div className="page-container space-y-5">
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between" style={{ marginTop: 8 }}>
         <div>
-          <h1 className="text-title text-text-primary">Dashboard</h1>
-          <p className="text-caption text-text-muted mt-0.5">Recorded cases & analytics</p>
+          <div className="text-caption text-text-muted">ประวัติเคส</div>
+          <h1 className="text-display text-text-primary">Dashboard</h1>
+          <p className="text-body text-text-muted" style={{ marginTop: 4 }}>Recorded cases & analytics</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <Link to="/compare"
             className="btn btn-ghost btn-sm">
             <Layers size={14} strokeWidth={2} /> Compare

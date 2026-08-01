@@ -74,7 +74,7 @@ export default function BLSAedGuide() {
           <Zap size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-title text-text-primary">การใช้ AED</h1>
+          <h1 className="text-display text-text-primary">การใช้ AED</h1>
           <p className="text-caption text-text-muted">Automated External Defibrillator — 5 ขั้นตอน</p>
         </div>
       </div>
