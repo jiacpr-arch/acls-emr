@@ -1,19 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import {
+  GraduationCap, HeartPulse, Siren, Trophy, Award,
+  CheckCircle2, Lock,
+} from 'lucide-react';
 import { getScenarioGameStatus } from '../../data/blsScenarios';
 import { simGameStatus } from '../../data/codeBlueScenarios';
 
-// Numbered study journey for the BLS landing. Full-width step cards (1 → 5)
-// that mirror the Learn hub's card style, so the Pre-course page is the single
-// place a student follows: อ่านบท → ฝึก CPR → เกมกู้ชีพ → Post-test → ใบประกาศฯ.
-const toneColor = {
-  info:    'var(--color-info)',
-  danger:  'var(--color-danger)',
-  shock:   'var(--color-shock)',
-  success: 'var(--color-success)',
-  warning: 'var(--color-warning)',
-};
-
+// Numbered study journey for the BLS landing (firstaid LearningPathCard
+// style): one white card, five numbered rows 1 → 5. The Pre-course page is
+// the single place a student follows: อ่านบท → ฝึก CPR → เกมกู้ชีพ →
+// Post-test → ใบประกาศฯ.
 export default function BLSQuickActions({
   lessonsPassed,
   totalLessons,
@@ -34,116 +30,112 @@ export default function BLSQuickActions({
   const tiles = [
     {
       step: 1,
-      emoji: '🎓',
+      Icon: GraduationCap,
       label: 'บทเรียน',
-      subtitle: `${totalLessons} บท + Quiz`,
-      desc: 'อ่าน + ทำแบบทดสอบ',
-      tone: 'info',
+      desc: `${totalLessons} บท + Quiz · อ่าน + ทำแบบทดสอบ`,
       onClick: onScrollToLessons,
       count: { done: lessonsPassed, total: totalLessons },
       complete: lessonsComplete,
     },
     {
       step: 2,
-      emoji: '💗',
+      Icon: HeartPulse,
       label: 'ฝึก CPR',
-      subtitle: 'Metronome + เกมลำดับขั้น',
-      desc: scenarioGame.allPassed ? 'ผ่านครบทุกด่านแล้ว' : 'จังหวะ 110/นาที · ผ่านเกมให้ครบทุกด่าน',
-      tone: 'danger',
+      desc: scenarioGame.allPassed
+        ? 'Metronome + เกมลำดับขั้น · ผ่านครบทุกด่านแล้ว'
+        : 'Metronome จังหวะ 110/นาที · ผ่านเกมให้ครบทุกด่าน',
       onClick: () => navigate('/skill-practice'),
       count: { done: scenarioGame.done, total: scenarioGame.total },
       complete: scenarioGame.allPassed,
     },
     {
       step: 3,
-      emoji: '🚨',
+      Icon: Siren,
       label: 'เกมกู้ชีพ',
-      subtitle: `BLS Rescue · ${simGame.total} เคส`,
       desc: simGame.allPassed
-        ? 'ผ่านครบทุกเคสแล้ว'
-        : 'เกมตัดสินใจช่วยชีวิต — ผ่านให้ครบทุกเคส',
-      tone: 'shock',
+        ? `BLS Rescue ${simGame.total} เคส · ผ่านครบทุกเคสแล้ว`
+        : `BLS Rescue · เกมตัดสินใจช่วยชีวิต ${simGame.total} เคส`,
       onClick: () => navigate('/sim'),
       count: { done: simGame.done, total: simGame.total },
       complete: simGame.allPassed,
     },
     {
       step: 4,
-      emoji: '🏆',
+      Icon: Trophy,
       label: 'Post-test',
-      subtitle: 'ข้อสอบปลายทาง',
-      desc: postTestPassed ? 'ผ่านแล้ว' : postTestUnlocked ? 'พร้อมสอบ' : 'ยังไม่ปลดล็อก',
-      tone: 'success',
+      desc: postTestPassed ? 'ผ่านแล้ว' : postTestUnlocked ? 'ข้อสอบปลายทาง · พร้อมสอบ' : 'ข้อสอบปลายทาง · ยังไม่ปลดล็อก',
       onClick: () => postTestUnlocked && navigate('/pre-course/post-test'),
       disabled: !postTestUnlocked,
       complete: postTestPassed,
     },
     {
       step: 5,
-      emoji: '🏅',
+      Icon: Award,
       label: 'ใบประกาศนียบัตร',
-      subtitle: 'My Records',
       desc: allStepsDone ? 'พร้อมดาวน์โหลด' : 'ผ่านขั้น 1–4 ให้ครบก่อน',
-      tone: 'warning',
       onClick: () => navigate('/certification'),
       complete: allStepsDone,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-3">
-      {tiles.map((tile) => {
-        const color = toneColor[tile.tone] || toneColor.info;
-        return (
-          <button
-            key={tile.step}
-            onClick={tile.onClick}
-            disabled={tile.disabled}
-            className={`learn-card tone-${tile.tone} relative flex flex-col items-center text-center px-3 pt-6 pb-4 disabled:opacity-55 disabled:cursor-not-allowed`}
-          >
-            {/* Step number badge — drives the 1 → 2 → 3 → 4 → 5 reading order */}
-            <span
-              className="absolute top-2 left-2 inline-flex items-center justify-center w-6 h-6 text-2xs font-extrabold text-white shadow-sm"
-              style={{ borderRadius: '50%', background: color }}
-              aria-hidden="true"
+    <div className="card">
+      <div className="text-headline text-text-primary">เส้นทางสู่ใบประกาศนียบัตร</div>
+      <div className="text-caption text-text-muted" style={{ marginBottom: 10 }}>
+        ทำตามลำดับ 1 → 5
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {tiles.map((tile) => {
+          const Icon = tile.Icon;
+          return (
+            <button
+              key={tile.step}
+              onClick={tile.onClick}
+              disabled={tile.disabled}
+              className="w-full flex items-center gap-3 p-2.5 transition-colors hover:bg-bg-tertiary/60 disabled:opacity-55 disabled:cursor-not-allowed"
+              style={{ borderRadius: 10, textAlign: 'left', justifyContent: 'flex-start' }}
             >
-              {tile.step}
-            </span>
-
-            {/* Top-right progress marker: green check when done, xx/xx while a
-                multi-chapter unit is still incomplete. */}
-            {tile.complete ? (
+              {/* 36px badge: เสร็จ = เช็คเขียว, ล็อก = กุญแจ, ปกติ = เลขขั้น */}
               <span
-                className="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 text-white shadow-sm"
-                style={{ borderRadius: '50%', background: 'var(--color-success)' }}
-              >
-                <Check size={14} strokeWidth={3} />
-              </span>
-            ) : tile.count?.total ? (
-              <span
-                className="absolute top-2 right-2 inline-flex items-center justify-center px-1.5 h-6 text-2xs font-extrabold text-white shadow-sm"
-                style={{ borderRadius: '999px', background: color }}
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  background: tile.complete
+                    ? '#D1FAE5'
+                    : tile.disabled
+                      ? 'var(--color-bg-tertiary)'
+                      : '#2563EB15',
+                }}
                 aria-hidden="true"
               >
-                {tile.count.done}/{tile.count.total}
+                {tile.complete ? (
+                  <CheckCircle2 size={20} color="var(--color-success)" />
+                ) : tile.disabled ? (
+                  <Lock size={16} className="text-text-muted" />
+                ) : (
+                  <span className="font-bold text-info">{tile.step}</span>
+                )}
               </span>
-            ) : null}
-
-            <span className="text-[40px] leading-none mb-2" aria-hidden="true">
-              {tile.emoji}
-            </span>
-            <span className="text-base font-bold leading-tight" style={{ color }}>
-              {tile.label}
-            </span>
-            <span className="text-sm font-semibold text-text-primary leading-tight mt-0.5">
-              {tile.subtitle}
-            </span>
-            <span className="text-xs text-text-muted leading-snug mt-1">
-              {tile.desc}
-            </span>
-          </button>
-        );
-      })}
+              <Icon size={20} strokeWidth={2.2} className={tile.complete ? 'text-success shrink-0' : 'text-info shrink-0'} />
+              <span className="flex-1 min-w-0">
+                <span className="block text-body-strong text-text-primary">{tile.label}</span>
+                <span className="block text-caption text-text-muted">{tile.desc}</span>
+              </span>
+              {!tile.complete && tile.count?.total ? (
+                <span
+                  className="text-2xs font-bold text-info bg-info/10 px-2 py-1 shrink-0"
+                  style={{ borderRadius: 99 }}
+                  aria-hidden="true"
+                >
+                  {tile.count.done}/{tile.count.total}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

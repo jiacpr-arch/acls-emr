@@ -1,42 +1,43 @@
 import { HeartPulse, Activity, Heart, Brain } from 'lucide-react';
 
-// 2x2 quick-start grid for the ACLS landing. Tile gradients hint at the
-// clinical pathway: cardiac arrest = red, rhythm = orange, MI = pink,
-// stroke = purple. Tapping launches the recording flow on the right path.
+// 2x2 quick-start grid for the ACLS landing (firstaid-style white cards with
+// tinted icon tiles). Red is reserved for cardiac arrest; the other pathways
+// share the blue action tint. Tapping launches the recording flow on the
+// right path.
 const TILES = [
   {
     key: 'arrest',
     Icon: HeartPulse,
     label: 'Cardiac Arrest',
     sub: 'VF / pVT / Asystole / PEA',
-    iconBg: 'linear-gradient(135deg, #F97316, #DC2626)',
+    color: '#DC2626',
   },
   {
     key: 'pulse',
     Icon: Activity,
     label: 'Brady / Tachy',
     sub: 'Pulse + arrhythmia',
-    iconBg: 'linear-gradient(135deg, #F59E0B, #B45309)',
+    color: '#2563EB',
   },
   {
     key: 'mi',
     Icon: Heart,
     label: 'MI / ACS',
     sub: 'STEMI · NSTE-ACS',
-    iconBg: 'linear-gradient(135deg, #EC4899, #BE185D)',
+    color: '#2563EB',
   },
   {
     key: 'stroke',
     Icon: Brain,
     label: 'Stroke',
     sub: 'NIHSS · Door-to-CT',
-    iconBg: 'linear-gradient(135deg, #8B5CF6, #6D28D9)',
+    color: '#2563EB',
   },
 ];
 
 export default function ACLSQuickActions({ onStart, disabled }) {
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 gap-3">
       {TILES.map((t) => {
         const Icon = t.Icon;
         return (
@@ -44,25 +45,32 @@ export default function ACLSQuickActions({ onStart, disabled }) {
             key={t.key}
             onClick={() => onStart(t.key)}
             disabled={disabled}
-            className="dash-card text-left flex flex-col justify-between !p-7 min-h-[180px] transition-transform active:scale-[0.97] disabled:opacity-55 disabled:cursor-not-allowed"
-            style={{ borderRadius: 'var(--radius-xl)' }}
+            className="card card-hover disabled:opacity-55 disabled:cursor-not-allowed"
+            style={{
+              // ชนะ button reset (unlayered) ที่บังคับ inline-flex + center
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              justifyContent: 'flex-start',
+              textAlign: 'left',
+            }}
           >
             <div
-              className="w-16 h-16 inline-flex items-center justify-center text-white"
+              className="inline-flex items-center justify-center"
               style={{
-                background: t.iconBg,
-                borderRadius: 'var(--radius-lg)',
-                boxShadow: '0 6px 14px rgba(220, 38, 38, 0.28)',
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                background: `${t.color}15`,
+                color: t.color,
               }}
             >
-              <Icon size={28} strokeWidth={2.4} />
+              <Icon size={22} strokeWidth={2.2} />
             </div>
-            <div className="mt-4">
-              <div className="text-base font-bold text-text-primary leading-tight">
-                {t.label}
-              </div>
-              <div className="text-xs text-text-muted mt-2">{t.sub}</div>
+            <div className="text-headline text-text-primary mt-3 leading-tight">
+              {t.label}
             </div>
+            <div className="text-caption text-text-muted mt-0.5">{t.sub}</div>
           </button>
         );
       })}
