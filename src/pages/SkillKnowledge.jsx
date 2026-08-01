@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { chapters } from '../data/activeSkillContent';
 import { courseMeta } from '../config/courseMode';
 import QASection from '../components/QASection';
-import { GraduationCap, BookOpen, ChevronDown } from 'lucide-react';
+import PageHero from '../components/PageHero';
+import { BookOpen, ChevronDown } from 'lucide-react';
 
 // Knowledge-base page shared by the three skill courses (airway / defib / iv).
 // Modeled on BLSKnowledge.jsx's "book" tab but without the AI-tips tab (that
@@ -13,21 +14,11 @@ export default function SkillKnowledge() {
   const [openCh, setOpenCh] = useState(null);
 
   return (
-    <div className="page-container space-y-5">
-      <div className="text-center space-y-2">
-        <div
-          className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-          style={{
-            background: `linear-gradient(135deg, ${courseMeta.themeColor} 0%, ${courseMeta.themeColor} 100%)`,
-            borderRadius: 'var(--radius-2xl)',
-            boxShadow: `0 8px 20px ${courseMeta.themeColor}47`,
-          }}
-        >
-          <GraduationCap size={28} strokeWidth={2.2} className="text-white" />
-        </div>
-        <h1 className="text-title text-text-primary">คลังความรู้ {courseMeta.shortName}</h1>
-        <p className="text-caption text-text-muted">{courseMeta.title} Knowledge Base</p>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero
+        title={`คลังความรู้ ${courseMeta.shortName}`}
+        desc={`${courseMeta.title} Knowledge Base`}
+      />
 
       <div className="space-y-2.5">
         {chapters.map((ch, idx) => {
@@ -50,7 +41,7 @@ export default function SkillKnowledge() {
               >
                 <div
                   className="chapter-icon-tile text-2xl"
-                  style={{ background: courseMeta.themeColor }}
+                  style={{ background: `${courseMeta.themeColor}15` }}
                 >
                   {ch.icon}
                 </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Flame, PartyPopper } from 'lucide-react';
 import { recordVisitToday } from '../services/streakService';
 
 export default function StreakBadge() {
@@ -15,30 +16,29 @@ export default function StreakBadge() {
   return (
     <div
       className="dash-card flex items-center gap-3"
-      style={{
-        background: isMilestone
-          ? 'linear-gradient(135deg, rgba(217, 119, 6, 0.10) 0%, rgba(220, 38, 38, 0.10) 100%)'
-          : undefined,
-        borderLeft: '4px solid #D97706',
-      }}
+      style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A' }}
     >
       <div
-        className="w-10 h-10 inline-flex items-center justify-center shrink-0 text-[22px]"
-        style={{ background: 'rgba(217, 119, 6, 0.12)', borderRadius: 'var(--radius)' }}
+        className="inline-flex items-center justify-center shrink-0"
+        style={{ width: 44, height: 44, borderRadius: 12, background: '#D9770615', color: '#D97706' }}
         aria-hidden="true"
       >
-        🔥
+        <Flame size={22} strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-overline text-text-muted">
+        <div className="text-caption" style={{ color: '#92400E' }}>
           เข้าเรียนต่อเนื่อง
           {streak.best > streak.count && (
             <span className="ml-1 opacity-70">(best {streak.best})</span>
           )}
         </div>
-        <div className="text-body-strong text-text-primary mt-0.5">
-          <span style={{ color: '#D97706' }}>{streak.count}</span> วัน
-          {isMilestone && <span className="ml-2 text-caption text-warning">🎉 ครบสัปดาห์!</span>}
+        <div className="text-headline" style={{ color: '#B45309' }}>
+          {streak.count} วัน
+          {isMilestone && (
+            <span className="ml-2 text-caption inline-flex items-center gap-1" style={{ color: '#B45309' }}>
+              <PartyPopper size={14} strokeWidth={2.2} /> ครบสัปดาห์!
+            </span>
+          )}
         </div>
       </div>
     </div>

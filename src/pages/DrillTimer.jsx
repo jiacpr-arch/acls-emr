@@ -48,7 +48,7 @@ export default function DrillTimer() {
             <Activity size={22} strokeWidth={2.2} />
           </div>
           <div>
-            <h1 className="text-title text-text-primary">Drill Timer</h1>
+            <h1 className="text-display text-text-primary">Drill Timer</h1>
             <p className="text-caption text-text-muted">Practice CPR skills without a case</p>
           </div>
         </div>

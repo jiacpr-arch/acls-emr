@@ -15,7 +15,6 @@ export default function BLSScenarioStageGrid() {
     ...blsScenarios.map((s) => ({
       id: s.id,
       step: s.stageNumber,
-      emoji: s.emoji,
       title: s.title,
       subtitle: s.subtitle,
       locked: false,
@@ -23,7 +22,6 @@ export default function BLSScenarioStageGrid() {
     {
       id: FINAL_EXAM_ID,
       step: blsScenarios.length + 1,
-      emoji: '🏆',
       title: 'ข้อสอบรวม',
       subtitle: finalUnlocked ? 'ทบทวนไล่ตามลำดับทุกเคส' : 'ผ่านครบ 8 ด่านก่อนเพื่อปลดล็อก',
       locked: !finalUnlocked,
@@ -39,7 +37,8 @@ export default function BLSScenarioStageGrid() {
             key={c.id}
             onClick={() => !c.locked && navigate(`/bls/scenario/${c.id}`)}
             disabled={c.locked}
-            className="learn-card tone-info relative flex items-center gap-3.5 text-left px-4 py-5 disabled:opacity-55 disabled:cursor-not-allowed"
+            className="card card-hover relative flex items-center gap-3.5 px-4 py-4 disabled:opacity-55 disabled:cursor-not-allowed"
+            style={{ textAlign: 'left', justifyContent: 'flex-start' }}
           >
             <span
               className="w-10 h-10 shrink-0 inline-flex items-center justify-center text-white text-base font-extrabold"
@@ -47,7 +46,6 @@ export default function BLSScenarioStageGrid() {
             >
               {c.step}
             </span>
-            <span className="text-3xl shrink-0">{c.emoji}</span>
             <span className="flex-1 min-w-0">
               <span className="block text-base font-bold text-text-primary leading-snug">{c.title}</span>
               <span className="block text-sm text-text-muted mt-1">{c.subtitle}</span>

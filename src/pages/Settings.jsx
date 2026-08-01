@@ -6,16 +6,14 @@ import {
 } from '../components/ui/Icon';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import PageHero from '../components/PageHero';
 
 export default function Settings() {
   const settings = useSettingsStore();
 
   return (
-    <div className="page-container space-y-5">
-      <div>
-        <h1 className="text-title text-text-primary">Settings</h1>
-        <p className="text-caption text-text-muted mt-0.5">Personalise your ACLS recorder</p>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero title="Settings" desc="Personalise your ACLS recorder" />
 
       {/* Mode */}
       <SettingSection title="Mode">
@@ -129,14 +127,10 @@ export default function Settings() {
       {/* About */}
       <div className="dash-card text-center space-y-1.5 py-6">
         <div
-          className="w-14 h-14 mx-auto inline-flex items-center justify-center mb-2"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%)',
-            borderRadius: 'var(--radius-xl)',
-            boxShadow: '0 8px 20px rgba(220, 38, 38, 0.28)',
-          }}
+          className="w-14 h-14 mx-auto inline-flex items-center justify-center mb-2 bg-danger/12 text-danger"
+          style={{ borderRadius: 'var(--radius-xl)' }}
         >
-          <HeartPulse size={28} strokeWidth={2.4} className="text-white" />
+          <HeartPulse size={28} strokeWidth={2.4} />
         </div>
         <div className="text-headline text-text-primary">ACLS EMR</div>
         <div className="text-caption text-text-secondary">Advanced Cardiac Life Support Recording</div>
@@ -250,14 +244,7 @@ function ToggleRow({ Icon: I, label, value, onToggle }) {
               ? 'bg-success border-success'
               : 'bg-bg-tertiary border-border-strong'
           }`}
-          style={{
-            width: TRACK_W,
-            height: TRACK_H,
-            borderRadius: 99,
-            boxShadow: value
-              ? '0 0 0 3px rgba(5, 150, 105, 0.22), inset 0 1px 2px rgba(0,0,0,0.15)'
-              : 'inset 0 2px 4px rgba(0,0,0,0.25)',
-          }}
+          style={{ width: TRACK_W, height: TRACK_H, borderRadius: 99 }}
         >
           <span
             aria-hidden="true"

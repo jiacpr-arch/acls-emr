@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, Search, Shuffle, MessageCircleQuestion, ChevronRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Search, Shuffle, MessageCircleQuestion, ChevronRight, BookOpen, Bookmark } from 'lucide-react';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 import StudentQuestionForm from '../components/StudentQuestionForm';
 import { CHAPTER_PALETTE, UNCATEGORIZED_PALETTE, parseChapterTitle } from '../utils/qaChapters';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import PageHero from '../components/PageHero';
 
 export default function QAAclsDeep() {
   const [page, setPage] = useState({ title: 'Q&A ACLS เชิงลึก', intro: '', coverImage: null });
@@ -99,48 +100,31 @@ export default function QAAclsDeep() {
     : null;
 
   return (
-    <div className="page-container space-y-5">
-      <div className="text-center space-y-2">
-        {page.coverImage ? (
-          <img
-            src={page.coverImage}
-            alt={page.title}
-            className="w-full max-h-56 object-cover border border-border mx-auto"
-            style={{ borderRadius: 'var(--radius-2xl)' }}
-          />
-        ) : (
-          <div
-            className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
-              borderRadius: 'var(--radius-2xl)',
-              boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)',
-            }}
-          >
-            <Sparkles size={28} strokeWidth={2.2} className="text-white" />
-          </div>
-        )}
-        <h1 className="text-title text-text-primary">{page.title}</h1>
-        {page.intro && (
-          <p className="text-caption text-text-muted whitespace-pre-line">{page.intro}</p>
-        )}
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      {page.coverImage ? (
+        <img
+          src={page.coverImage}
+          alt={page.title}
+          className="w-full max-h-56 object-cover border border-border mx-auto"
+          style={{ borderRadius: 'var(--radius-2xl)' }}
+        />
+      ) : (
+        <PageHero title={page.title} desc={page.intro} />
+      )}
 
       <JiacprCourseBanner />
 
       <button
         type="button"
         onClick={() => setAskOpen(true)}
-        className="dash-card !p-0 w-full flex items-center gap-3 px-4 py-3 hover:bg-bg-tertiary/50 transition-colors text-left border-l-4 border-l-info"
+        className="card card-hover w-full flex items-center gap-3"
+        style={{ textAlign: 'left', justifyContent: 'flex-start' }}
       >
         <div
-          className="w-9 h-9 inline-flex items-center justify-center shrink-0"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
-            borderRadius: 'var(--radius-md)',
-          }}
+          className="w-9 h-9 inline-flex items-center justify-center shrink-0 bg-info/12 text-info"
+          style={{ borderRadius: 'var(--radius-md)' }}
         >
-          <MessageCircleQuestion size={18} strokeWidth={2.2} className="text-white" />
+          <MessageCircleQuestion size={18} strokeWidth={2.2} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-body-strong text-text-primary">ถามคำถามของคุณ</div>
@@ -296,14 +280,18 @@ export default function QAAclsDeep() {
                 >
                   <span
                     className="chapter-card-stripe"
-                    style={{ background: `linear-gradient(180deg, ${palette.from} 0%, ${palette.to} 100%)` }}
+                    style={{ background: palette.accent }}
                   />
                   <div className="chapter-card-button">
                     <div
                       className="chapter-icon-tile"
-                      style={{ background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)` }}
+                      style={{ background: `${palette.accent}15` }}
                     >
-                      <span className="leading-none" style={{ fontSize: 26 }}>{ch.icon || '📘'}</span>
+                      {ch.icon ? (
+                        <span className="leading-none" style={{ fontSize: 26 }}>{ch.icon}</span>
+                      ) : (
+                        <BookOpen size={24} strokeWidth={2.2} style={{ color: palette.accent }} />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       {num && (
@@ -332,14 +320,14 @@ export default function QAAclsDeep() {
               <Link to="/qa-acls-deep/_uncategorized" className="chapter-card block">
                 <span
                   className="chapter-card-stripe"
-                  style={{ background: `linear-gradient(180deg, ${UNCATEGORIZED_PALETTE.from} 0%, ${UNCATEGORIZED_PALETTE.to} 100%)` }}
+                  style={{ background: UNCATEGORIZED_PALETTE.accent }}
                 />
                 <div className="chapter-card-button">
                   <div
                     className="chapter-icon-tile"
-                    style={{ background: `linear-gradient(135deg, ${UNCATEGORIZED_PALETTE.from} 0%, ${UNCATEGORIZED_PALETTE.to} 100%)` }}
+                    style={{ background: `${UNCATEGORIZED_PALETTE.accent}15` }}
                   >
-                    <span className="leading-none" style={{ fontSize: 24 }}>📌</span>
+                    <Bookmark size={22} strokeWidth={2.2} style={{ color: UNCATEGORIZED_PALETTE.accent }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="chapter-num-tag" style={{ color: UNCATEGORIZED_PALETTE.accent }}>

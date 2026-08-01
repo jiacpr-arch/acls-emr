@@ -571,57 +571,6 @@ button, [role="button"] {
   box-shadow: var(--shadow-1);
 }
 
-/* ===== LEARN PAGE CARD ===== */
-.learn-card {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  box-shadow:
-    0 1px 2px rgba(15, 26, 46, 0.04),
-    0 8px 20px -10px rgba(15, 26, 46, 0.12);
-  transition: transform 0.22s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.22s ease, border-color 0.22s ease;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.learn-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--color-border-strong);
-  box-shadow:
-    0 2px 4px rgba(15, 26, 46, 0.06),
-    0 16px 32px -12px rgba(15, 26, 46, 0.20);
-}
-.learn-card:active { transform: translateY(0) scale(0.985); }
-
-/* Last lone card in a 2-col grid spans full width — no awkward empty slot */
-.learn-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
-
-.dark .learn-card {
-  background: var(--color-bg-elevated);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.3),
-    0 8px 20px -10px rgba(0, 0, 0, 0.45);
-}
-.dark .learn-card:hover {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.4),
-    0 16px 32px -12px rgba(0, 0, 0, 0.55);
-}
-
-/* Tinted backgrounds per tone — keeps card clean but visually distinct */
-.learn-card.tone-info    { background: color-mix(in srgb, var(--color-info)    9%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-info)    22%, var(--color-border)); }
-.learn-card.tone-purple  { background: color-mix(in srgb, var(--color-purple)  9%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-purple)  22%, var(--color-border)); }
-.learn-card.tone-success { background: color-mix(in srgb, var(--color-success) 9%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-success) 22%, var(--color-border)); }
-.learn-card.tone-warning { background: color-mix(in srgb, var(--color-warning) 10%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-warning) 22%, var(--color-border)); }
-.learn-card.tone-danger  { background: color-mix(in srgb, var(--color-danger)  8%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-danger)  22%, var(--color-border)); }
-.learn-card.tone-shock   { background: color-mix(in srgb, var(--color-shock)   9%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-shock)   22%, var(--color-border)); }
-
-.dark .learn-card.tone-info    { background: color-mix(in srgb, var(--color-info)    18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-info)    28%, var(--color-border)); }
-.dark .learn-card.tone-purple  { background: color-mix(in srgb, var(--color-purple)  18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-purple)  28%, var(--color-border)); }
-.dark .learn-card.tone-success { background: color-mix(in srgb, var(--color-success) 18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-success) 28%, var(--color-border)); }
-.dark .learn-card.tone-warning { background: color-mix(in srgb, var(--color-warning) 18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-warning) 28%, var(--color-border)); }
-.dark .learn-card.tone-danger  { background: color-mix(in srgb, var(--color-danger)  18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-danger)  28%, var(--color-border)); }
-.dark .learn-card.tone-shock   { background: color-mix(in srgb, var(--color-shock)   18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-shock)   28%, var(--color-border)); }
-
 /* ===== Lesson reader: Next button highlight =====
    Gently pulses the primary next button once the student has answered,
    so the next action stays obvious without being aggressive. */
@@ -674,23 +623,14 @@ button, [role="button"] {
   transition: width 0.18s ease;
 }
 .chapter-card:hover .chapter-card-stripe { width: 7px; }
+/* tile บทเรียน — พื้นสีอ่อน `${accent}15` + ไอคอนสี accent ทึบ (ตั้งค่าผ่าน
+   inline style ที่จุดใช้งาน) แทนของเดิมที่เป็น gradient + gloss + เงา */
 .chapter-icon-tile {
   width: 52px; height: 52px;
   display: inline-flex;
   align-items: center; justify-content: center;
   border-radius: var(--radius-lg);
-  color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  position: relative;
-}
-.chapter-icon-tile::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 55%);
-  pointer-events: none;
 }
 .chapter-num-tag {
   font-size: 10px;

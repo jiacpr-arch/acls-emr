@@ -22,12 +22,14 @@ import { jiacprCourse } from '../data/jiacprCourse';
 import {
   Trophy, BookOpen, Sparkles, Activity, Video,
   Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield, MessageCircle, AlertCircle,
+  Medal, PartyPopper, Siren,
 } from 'lucide-react';
 import { useVideoLessons } from '../hooks/useVideoLessons';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { computeVideoCompletion } from '../utils/videoProgress';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import PageHero from '../components/PageHero';
 import LoadingCard from '../components/ui/LoadingCard';
 import ErrorCard from '../components/ui/ErrorCard';
 
@@ -301,17 +303,11 @@ export default function Certification() {
   if (expiresDate) expiresDate.setMonth(expiresDate.getMonth() + (certConfig.validityMonths || 24));
 
   return (
-    <div className="page-container space-y-5">
-      <div className="flex items-center gap-3">
-        <div className="w-11 h-11 inline-flex items-center justify-center bg-warning/15 text-warning"
-          style={{ borderRadius: 'var(--radius-md)' }}>
-          <Trophy size={22} strokeWidth={2.2} />
-        </div>
-        <div>
-          <h1 className="text-title text-text-primary">{certConfig.title}</h1>
-          <p className="text-caption text-text-muted">Track your {courseMeta.shortName} training progress</p>
-        </div>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero
+        title={certConfig.title}
+        desc={`Track your ${courseMeta.shortName} training progress`}
+      />
 
       <JiacprCourseBanner />
 
@@ -341,8 +337,8 @@ export default function Certification() {
       {/* Progress */}
       <div className="dash-card text-center">
         <div className={`text-numeric text-5xl ${allDone ? 'text-success' : 'text-warning'}`}>{progress}%</div>
-        <div className="text-caption text-text-muted mt-1">
-          {allDone ? '🎉 All requirements met!' : 'Complete requirements to earn certificate'}
+        <div className="text-caption text-text-muted mt-1 inline-flex items-center gap-1">
+          {allDone && <PartyPopper size={13} strokeWidth={2.4} />} {allDone ? 'All requirements met!' : 'Complete requirements to earn certificate'}
         </div>
         <div className="progress-track !h-2 mt-3">
           <div className={`progress-fill ${allDone ? 'bg-success' : 'bg-info'}`} style={{ width: `${progress}%` }} />
@@ -521,19 +517,14 @@ export default function Certification() {
             )}
             {simHighlights?.megacodeMaster ? (
               <div
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 text-2xs font-extrabold"
-                style={{
-                  borderRadius: 'var(--radius-full)',
-                  color: '#7A5210',
-                  background: 'linear-gradient(135deg, #F8DC90 0%, #F2C14E 100%)',
-                  boxShadow: '0 2px 8px rgba(242, 193, 78, 0.4)',
-                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 text-2xs font-extrabold bg-warning/12 text-warning"
+                style={{ borderRadius: 'var(--radius-full)' }}
               >
-                🏅 MEGACODE MASTER — จะแสดงบนใบประกาศ
+                <Medal size={14} strokeWidth={2.4} /> MEGACODE MASTER — จะแสดงบนใบประกาศ
               </div>
             ) : (
               <Link to="/sim" className="inline-flex items-center gap-1 mt-1.5 text-caption font-bold text-warning">
-                🚨 ไปเล่น Code Blue Sim <ChevronRight size={14} strokeWidth={2.4} />
+                <Siren size={14} strokeWidth={2.4} /> ไปเล่น Code Blue Sim <ChevronRight size={14} strokeWidth={2.4} />
               </Link>
             )}
           </div>
@@ -589,14 +580,10 @@ export default function Certification() {
         <div className="dash-card !p-6 text-center space-y-3"
           style={{ borderColor: 'rgba(5, 150, 105, 0.4)', borderWidth: 2 }}>
           <div
-            className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%)',
-              borderRadius: 'var(--radius-2xl)',
-              boxShadow: '0 8px 20px rgba(217, 119, 6, 0.28)',
-            }}
+            className="w-16 h-16 mx-auto inline-flex items-center justify-center bg-warning/12 text-warning"
+            style={{ borderRadius: 'var(--radius-2xl)' }}
           >
-            <Trophy size={28} strokeWidth={2.4} className="text-white" />
+            <Trophy size={28} strokeWidth={2.4} />
           </div>
           <img
             src={certConfig.logoUrl || '/images/logo-morroo.png'}
@@ -631,15 +618,10 @@ export default function Certification() {
           )}
           {simHighlights?.megacodeMaster && (
             <div
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-2xs font-extrabold"
-              style={{
-                borderRadius: 'var(--radius-full)',
-                color: '#7A5210',
-                background: 'linear-gradient(135deg, #F8DC90 0%, #F2C14E 100%)',
-                boxShadow: '0 2px 8px rgba(242, 193, 78, 0.4)',
-              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-2xs font-extrabold bg-warning/12 text-warning"
+              style={{ borderRadius: 'var(--radius-full)' }}
             >
-              🏅 MEGACODE MASTER
+              <Medal size={14} strokeWidth={2.4} /> MEGACODE MASTER
             </div>
           )}
           {IS_BLS && certData.postTestScore != null && (

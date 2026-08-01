@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Brain } from 'lucide-react';
 import SkillScenarioStageGrid from '../components/precourse/SkillScenarioStageGrid';
 import { courseMeta } from '../config/courseMode';
 import { scenarios } from '../data/activeSkillContent';
@@ -21,7 +21,9 @@ export default function SkillScenarioHub() {
             style={{ borderRadius: 'var(--radius-full)' }} aria-label="Back">
             <ChevronLeft size={20} />
           </button>
-          <div className="text-headline">🧠 เกมลำดับขั้น {courseMeta.shortName}</div>
+          <div className="text-headline inline-flex items-center gap-1.5">
+            <Brain size={18} strokeWidth={2.2} className="text-info" /> เกมลำดับขั้น {courseMeta.shortName}
+          </div>
         </div>
       </div>
 

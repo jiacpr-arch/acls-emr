@@ -2,27 +2,28 @@ import { useState, useEffect } from 'react';
 import { blsChapters } from '../data/blsKnowledgeContent';
 import QASection from '../components/QASection';
 import LessonVideos from '../components/precourse/LessonVideos';
+import PageHero from '../components/PageHero';
 import { fetchBlsKnowledgeMedia, knowledgeMediaKey } from '../services/blsKnowledgeMediaService';
 import {
-  GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
+  BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock,
   Heart, HeartPulse, Zap, Users, Wind, Baby, Hospital, Siren, User,
 } from 'lucide-react';
 
-/* === Per-chapter visual theme: icon + gradient + accent ===
+/* === Per-chapter visual theme: ไอคอน + สี accent เดี่ยว (จำกัดจานสี) ===
    Keyed by chapter id (bls-ch1..bls-ch9). */
 const CHAPTER_THEMES = {
-  'bls-ch1': { Icon: HeartPulse, from: '#3B82F6', to: '#2563EB', accent: '#2563EB' }, // Overview / Chain of Survival
-  'bls-ch2': { Icon: Heart,      from: '#F87171', to: '#DC2626', accent: '#DC2626' }, // HQ-CPR
-  'bls-ch3': { Icon: Zap,        from: '#FBBF24', to: '#D97706', accent: '#D97706' }, // AED
-  'bls-ch4': { Icon: User,       from: '#06B6D4', to: '#0891B2', accent: '#0891B2' }, // One-rescuer
-  'bls-ch5': { Icon: Users,      from: '#34D399', to: '#059669', accent: '#059669' }, // 2-rescuer / team
-  'bls-ch6': { Icon: Hospital,   from: '#A78BFA', to: '#7C3AED', accent: '#7C3AED' }, // In-hospital
-  'bls-ch7': { Icon: Baby,       from: '#C084FC', to: '#9333EA', accent: '#9333EA' }, // Infant / child
-  'bls-ch8': { Icon: Wind,       from: '#60A5FA', to: '#2563EB', accent: '#2563EB' }, // FBAO
-  'bls-ch9': { Icon: Siren,      from: '#FB923C', to: '#EA580C', accent: '#EA580C' }, // Special situations
+  'bls-ch1': { Icon: HeartPulse, accent: '#2563EB' }, // Overview / Chain of Survival
+  'bls-ch2': { Icon: Heart,      accent: '#DC2626' }, // HQ-CPR
+  'bls-ch3': { Icon: Zap,        accent: '#DC2626' }, // AED
+  'bls-ch4': { Icon: User,       accent: '#2563EB' }, // One-rescuer
+  'bls-ch5': { Icon: Users,      accent: '#059669' }, // 2-rescuer / team
+  'bls-ch6': { Icon: Hospital,   accent: '#2563EB' }, // In-hospital
+  'bls-ch7': { Icon: Baby,       accent: '#2563EB' }, // Infant / child
+  'bls-ch8': { Icon: Wind,       accent: '#DC2626' }, // FBAO
+  'bls-ch9': { Icon: Siren,      accent: '#DC2626' }, // Special situations
 };
-const DEFAULT_THEME = { Icon: BookOpen, from: '#94A3B8', to: '#475569', accent: '#475569' };
+const DEFAULT_THEME = { Icon: BookOpen, accent: '#2563EB' };
 
 function themeForChapter(ch, index) {
   return CHAPTER_THEMES[ch.id] || CHAPTER_THEMES[`bls-ch${index + 1}`] || DEFAULT_THEME;
@@ -106,21 +107,8 @@ export default function BLSKnowledge() {
   };
 
   return (
-    <div className="page-container space-y-5">
-      <div className="text-center space-y-2">
-        <div
-          className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%)',
-            borderRadius: 'var(--radius-2xl)',
-            boxShadow: '0 8px 20px rgba(220, 38, 38, 0.28)',
-          }}
-        >
-          <GraduationCap size={28} strokeWidth={2.2} className="text-white" />
-        </div>
-        <h1 className="text-title text-text-primary">คลังความรู้ BLS</h1>
-        <p className="text-caption text-text-muted">Basic Life Support Knowledge Base</p>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero title="คลังความรู้ BLS" desc="Basic Life Support Knowledge Base" />
 
       <div className="tab-group">
         <button onClick={() => setTab('book')} className={`tab-item ${tab === 'book' ? 'active' : ''}`}>
@@ -150,7 +138,7 @@ export default function BLSKnowledge() {
               >
                 <span
                   className="chapter-card-stripe"
-                  style={{ background: `linear-gradient(180deg, ${theme.from} 0%, ${theme.to} 100%)` }}
+                  style={{ background: theme.accent }}
                 />
                 <button
                   onClick={() => setOpenCh(isOpen ? null : ch.id)}
@@ -158,7 +146,7 @@ export default function BLSKnowledge() {
                 >
                   <div
                     className="chapter-icon-tile"
-                    style={{ background: `linear-gradient(135deg, ${theme.from} 0%, ${theme.to} 100%)` }}
+                    style={{ background: `${theme.accent}15`, color: theme.accent }}
                   >
                     <Icon size={24} strokeWidth={2.2} />
                   </div>

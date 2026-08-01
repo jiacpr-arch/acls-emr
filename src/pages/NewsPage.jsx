@@ -69,7 +69,7 @@ export default function NewsPage() {
           <Bell size={20} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-title text-text-primary">ข่าวสาร</h1>
+          <h1 className="text-display text-text-primary">ข่าวสาร</h1>
           <p className="text-caption text-text-muted mt-0.5">
             ข่าว CPR / ACLS / BLS / AED อัปเดตอัตโนมัติทุกวัน
           </p>

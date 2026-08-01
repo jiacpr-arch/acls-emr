@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Trophy, Globe, School, CalendarDays, Gift, Siren } from 'lucide-react';
 import { useClassStore } from '../stores/classStore';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { isOpenLeague } from '../config/openLeague';
@@ -180,8 +180,11 @@ export default function CodeBlueLeaderboard() {
   return (
     <div className="page-container space-y-4 pb-24">
       <div className="text-center space-y-1 pt-2">
-        <div className="text-[44px] leading-none" aria-hidden="true">🏆</div>
-        <h1 className="text-title text-text-primary">
+        <div className="w-14 h-14 mx-auto inline-flex items-center justify-center bg-warning/12 text-warning"
+          style={{ borderRadius: 'var(--radius-xl)' }}>
+          <Trophy size={26} strokeWidth={2.2} />
+        </div>
+        <h1 className="text-display text-text-primary" style={{ marginTop: 4 }}>
           {tab === 'global' ? 'อันดับรวมทั้งเว็บ' : classTitle}
         </h1>
         <p className="text-caption text-text-muted">
@@ -198,7 +201,7 @@ export default function CodeBlueLeaderboard() {
 
       {/* กติการางวัลรายเดือน — 2 รางวัล: แชมป์ทั้งเว็บ + แชมป์ลีกออนไลน์ */}
       <div className="dash-card !p-3 text-caption text-text-muted text-center">
-        🏆 รางวัลประจำเดือน 2 รางวัล — <b>แชมป์ทั้งเว็บ</b> และ <b>แชมป์ลีกออนไลน์</b>
+        <span className="inline-flex items-center gap-1"><Trophy size={13} strokeWidth={2.4} className="text-warning" /> รางวัลประจำเดือน 2 รางวัล</span> — <b>แชมป์ทั้งเว็บ</b> และ <b>แชมป์ลีกออนไลน์</b>
         <br />
         <span className="text-2xs">
           ตัดคะแนนสิ้นเดือน (ดูจากบอร์ด "เดือนนี้") · ผู้ชนะที่ไม่มีเบอร์ติดต่อถือว่าสละสิทธิ์
@@ -211,14 +214,14 @@ export default function CodeBlueLeaderboard() {
           onClick={() => setTab('global')}
           aria-pressed={tab === 'global'}
         >
-          🌐 ทั้งเว็บ
+          <Globe size={14} strokeWidth={2.2} /> ทั้งเว็บ
         </button>
         <button
           className={`btn btn-sm ${tab === 'class' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setTab('class')}
           aria-pressed={tab === 'class'}
         >
-          🏫 {openLeague ? 'ลีกออนไลน์' : 'คลาสของฉัน'}
+          <School size={14} strokeWidth={2.2} /> {openLeague ? 'ลีกออนไลน์' : 'คลาสของฉัน'}
         </button>
       </div>
 
@@ -228,7 +231,7 @@ export default function CodeBlueLeaderboard() {
           onClick={() => changePeriod('month')}
           aria-pressed={period === 'month'}
         >
-          📅 เดือนนี้
+          <CalendarDays size={14} strokeWidth={2.2} /> เดือนนี้
         </button>
         <button
           className={`btn btn-sm ${period === 'all' ? 'btn-primary' : 'btn-ghost'}`}
@@ -241,7 +244,10 @@ export default function CodeBlueLeaderboard() {
 
       {needContact && (
         <div className="dash-card !p-3 flex items-center gap-3">
-          <span className="text-[26px] leading-none shrink-0" aria-hidden="true">🎁</span>
+          <div className="flex items-center justify-center shrink-0 bg-warning/12 text-warning"
+            style={{ width: 36, height: 36, borderRadius: 10 }}>
+            <Gift size={18} strokeWidth={2.2} />
+          </div>
           <div className="flex-1 min-w-0 text-caption text-text-muted">
             มีประกาศผู้ชนะรางวัลเป็นประจำ — เพิ่มเบอร์โทรไว้ให้ทีมงานติดต่อกลับ
             <b> ผู้ชนะที่ไม่มีเบอร์ติดต่อถือว่าสละสิทธิ์</b>
@@ -296,7 +302,7 @@ export default function CodeBlueLeaderboard() {
                       rank={r.rank}
                       r={r}
                       me={!!gData.me && r.rank === gData.me.rank}
-                      sub={r.isOpenLeague ? '🌐 ลีกออนไลน์' : `🏫 ${r.className}`}
+                      sub={r.isOpenLeague ? 'ลีกออนไลน์' : r.className}
                     />
                   ))}
                 </div>
@@ -314,7 +320,7 @@ export default function CodeBlueLeaderboard() {
             แล้วผล Code Blue Sim ของคุณจะขึ้นบอร์ดอัตโนมัติ
           </p>
           <button className="btn btn-primary" onClick={() => navigate('/sim')}>
-            🚨 ไปหน้าเกม — เข้าร่วมได้จากที่นั่น
+            <Siren size={16} strokeWidth={2.4} /> ไปหน้าเกม — เข้าร่วมได้จากที่นั่น
           </button>
         </div>
       )}
@@ -364,7 +370,7 @@ export default function CodeBlueLeaderboard() {
 
       <div className="text-center">
         <button className="btn btn-primary" onClick={() => navigate('/sim')}>
-          🚨 เก็บเหรียญเพิ่ม — เล่น Code Blue Sim
+          <Siren size={16} strokeWidth={2.4} /> เก็บเหรียญเพิ่ม — เล่น Code Blue Sim
         </button>
       </div>
 

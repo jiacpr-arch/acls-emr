@@ -63,11 +63,13 @@ export default function JiacprCourseBanner({ courseId, group }) {
             <div key={c.id} className="w-full shrink-0">
               <div className="flex items-start gap-3">
                 <div
-                  className="w-10 h-10 inline-flex items-center justify-center shrink-0"
+                  className="inline-flex items-center justify-center shrink-0"
                   style={{
-                    background: 'linear-gradient(135deg, var(--color-success) 0%, var(--color-info) 100%)',
-                    color: '#fff',
-                    borderRadius: 'var(--radius-md)',
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    background: '#05966915',
+                    color: 'var(--color-success)',
                   }}
                 >
                   <GraduationCap size={20} strokeWidth={2.4} />

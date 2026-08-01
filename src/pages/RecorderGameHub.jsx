@@ -6,7 +6,9 @@ import { loadProgress, isUnlocked, getTotalStars } from '../utils/recorderGamePr
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
-import { Target, Star, Lock, ChevronRight, Shuffle, Layers, User } from 'lucide-react';
+import { Star, Lock, ChevronRight, Shuffle, Layers, User, Hospital } from 'lucide-react';
+import PageHero from '../components/PageHero';
+import GameHighlightCard from '../components/GameHighlightCard';
 
 // ==========================================
 // Recorder Hero — หน้าเลือกด่าน (hub)
@@ -62,38 +64,23 @@ export default function RecorderGameHub() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="text-center pt-2 flex flex-col items-center gap-2">
-        <div className="w-14 h-14 inline-flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-info) 100%)',
-            borderRadius: 'var(--radius-2xl)',
-            boxShadow: '0 8px 20px rgba(124, 58, 237, 0.32)',
-          }}>
-          <Target size={26} strokeWidth={2.4} className="text-white" />
-        </div>
-        <div className="text-overline text-purple">เส้นทางฝึกผู้บันทึก · ขั้น 1/2</div>
-        <h1 className="text-title text-text-primary">ซ้อมมือ Recorder</h1>
-        <p className="text-caption text-text-muted">Recorder Hero — มินิเกมปุ่มจำลอง ฝึกกดให้ถูก ให้ทัน ก่อนไปสอบสนามจริง</p>
-        <div className="inline-flex items-center gap-1.5 text-warning font-black">
-          <Star size={16} strokeWidth={2.4} fill="currentColor" /> {totalStars} / {levels.length * 3} ดาว
-        </div>
+      <PageHero
+        eyebrow="เส้นทางฝึกผู้บันทึก · ขั้น 1/2"
+        title="ซ้อมมือ Recorder"
+        desc="Recorder Hero — มินิเกมปุ่มจำลอง ฝึกกดให้ถูก ให้ทัน ก่อนไปสอบสนามจริง"
+      />
+      <div className="inline-flex items-center gap-1.5 text-warning font-black">
+        <Star size={16} strokeWidth={2.4} fill="currentColor" /> {totalStars} / {levels.length * 3} ดาว
       </div>
 
       {/* โหมดเล่น */}
       <div className="text-overline">โหมดเล่น</div>
-      <button onClick={() => navigate('/recorder-game/endless')}
-        className="w-full dash-card !p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors">
-        <div className="w-10 h-10 shrink-0 inline-flex items-center justify-center text-white"
-          style={{ background: 'linear-gradient(135deg, var(--color-shock) 0%, var(--color-danger) 100%)', borderRadius: 'var(--radius-md)' }}>
-          <Shuffle size={18} strokeWidth={2.4} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-caption font-black text-text-primary">Endless Shuffle</div>
-          <div className="text-3xs text-text-muted">สุ่มเคสหลายรูปแบบต่อเนื่อง เก็บคะแนนให้ได้มากที่สุด</div>
-        </div>
-        <ChevronRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
-      </button>
+      <GameHighlightCard
+        to="/recorder-game/endless"
+        title="Endless Shuffle"
+        desc="สุ่มเคสหลายรูปแบบต่อเนื่อง เก็บคะแนนให้ได้มากที่สุด"
+        Icon={Shuffle}
+      />
 
       {/* Case Packs */}
       <div className="text-overline">ชุดเคส (Case Packs)</div>
@@ -152,7 +139,10 @@ export default function RecorderGameHub() {
       {/* ขั้น 2 ของเส้นทาง: โจทย์บนหน้า Recording จริง */}
       <button onClick={() => navigate('/scenarios')}
         className="w-full dash-card !p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors">
-        <span className="text-2xl shrink-0">🏥</span>
+        <div className="w-10 h-10 shrink-0 inline-flex items-center justify-center bg-info/12 text-info"
+          style={{ borderRadius: 'var(--radius-md)' }}>
+          <Hospital size={18} strokeWidth={2.2} />
+        </div>
         <div className="flex-1 min-w-0">
           <div className="text-caption font-black text-text-primary">ขั้น 2 · สอบสนามจริง</div>
           <div className="text-3xs text-text-muted">ซ้อมมือคล่องแล้ว? ไปทำโจทย์บนหน้า Recording จริง</div>

@@ -45,7 +45,7 @@ export default function CaseCompare() {
           <Layers size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-title text-text-primary">Compare Cases</h1>
+          <h1 className="text-display text-text-primary">Compare Cases</h1>
           <p className="text-caption text-text-muted">Side-by-side performance comparison</p>
         </div>
       </div>

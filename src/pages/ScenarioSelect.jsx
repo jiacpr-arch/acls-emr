@@ -7,7 +7,9 @@ import {
   Heart, TrendingDown, TrendingUp, Brain, FileText, GraduationCap, Edit,
   Sparkles, ChevronRight, X,
 } from '../components/ui/Icon';
+import { Target } from 'lucide-react';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import PageHero from '../components/PageHero';
 
 const GRADE_TONE = {
   A: 'bg-success/15 text-success',
@@ -50,19 +52,23 @@ export default function ScenarioSelect() {
   };
 
   return (
-    <div className="page-container space-y-5">
-      <div>
-        <div className="text-overline text-purple">เส้นทางฝึกผู้บันทึก · ขั้น 2/2</div>
-        <h1 className="text-title text-text-primary">สอบสนามจริง</h1>
-        <p className="text-caption text-text-muted mt-0.5">Training Scenarios — ทำโจทย์บนหน้า Recording จริง</p>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero
+        eyebrow="เส้นทางฝึกผู้บันทึก · ขั้น 2/2"
+        title="สอบสนามจริง"
+        desc="Training Scenarios — ทำโจทย์บนหน้า Recording จริง"
+      />
 
       <JiacprCourseBanner />
 
       {/* ขั้น 1 ของเส้นทาง: ซ้อมมือกับปุ่มจำลองก่อน */}
       <button onClick={() => navigate('/recorder-game')}
-        className="w-full dash-card !p-3 text-left hover:bg-bg-tertiary transition-colors flex items-center gap-3">
-        <span className="text-2xl shrink-0">🎯</span>
+        className="card card-hover w-full flex items-center gap-3"
+        style={{ textAlign: 'left', justifyContent: 'flex-start' }}>
+        <div className="flex items-center justify-center shrink-0"
+          style={{ width: 44, height: 44, borderRadius: 12, background: '#2563EB15', color: '#2563EB' }}>
+          <Target size={22} strokeWidth={2.2} />
+        </div>
         <div className="flex-1 min-w-0">
           <div className="text-body-strong text-text-primary">ยังไม่คุ้นปุ่มบันทึก?</div>
           <div className="text-caption text-text-muted">กลับไปขั้น 1 · ซ้อมมือ Recorder — ฝึกจำปุ่ม + จับผิด log ก่อน แล้วค่อยมาสอบจริงที่นี่</div>

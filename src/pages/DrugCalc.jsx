@@ -29,7 +29,7 @@ export default function DrugCalc() {
           <Pill size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-title text-text-primary">Drug Calculator</h1>
+          <h1 className="text-display text-text-primary">Drug Calculator</h1>
           <p className="text-caption text-text-muted">Weight-based dosing reference</p>
         </div>
       </div>

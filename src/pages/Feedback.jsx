@@ -5,6 +5,7 @@ import {
 } from '../components/ui/Icon';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import PageHero from '../components/PageHero';
 
 const categories = [
   { key: 'bug', Icon: AlertCircle, label: 'แจ้งปัญหา' },
@@ -75,22 +76,8 @@ export default function Feedback() {
   };
 
   return (
-    <div className="page-container space-y-5">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div
-          className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%)',
-            borderRadius: 'var(--radius-2xl)',
-            boxShadow: '0 8px 20px rgba(217, 119, 6, 0.28)',
-          }}
-        >
-          <MessageSquare size={28} strokeWidth={2.2} className="text-white" />
-        </div>
-        <h1 className="text-title text-text-primary">ส่งความคิดเห็น</h1>
-        <p className="text-caption text-text-muted">ช่วยเราปรับปรุงแอป ACLS EMR</p>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero title="ส่งความคิดเห็น" desc="ช่วยเราปรับปรุงแอป ACLS EMR" />
 
       <JiacprCourseBanner />
 

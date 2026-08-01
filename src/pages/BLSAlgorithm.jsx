@@ -88,7 +88,7 @@ export default function BLSAlgorithm() {
           <GitBranch size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-title text-text-primary">BLS Algorithm</h1>
+          <h1 className="text-display text-text-primary">BLS Algorithm</h1>
           <p className="text-caption text-text-muted">ขั้นตอนช่วยชีวิตตาม ILCOR 2025</p>
         </div>
       </div>

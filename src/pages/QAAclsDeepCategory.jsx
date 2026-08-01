@@ -119,7 +119,7 @@ export default function QAAclsDeepCategory() {
                   minWidth: 32,
                   height: 28,
                   padding: '0 8px',
-                  background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
+                  background: palette.accent,
                   borderRadius: 999,
                   letterSpacing: '0.02em',
                   marginTop: 1,
