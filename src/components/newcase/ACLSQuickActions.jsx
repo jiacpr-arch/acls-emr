@@ -1,9 +1,9 @@
 import { HeartPulse, Activity, Heart, Brain } from 'lucide-react';
 
 // 2x2 quick-start grid for the ACLS landing (firstaid-style white cards with
-// tinted icon tiles). Red is reserved for cardiac arrest; the other pathways
-// share the blue action tint. Tapping launches the recording flow on the
-// right path.
+// tinted icon tiles). แต่ละ pathway ใช้สีประจำโหมดตามดีไซน์เดิม (arrest=แดง,
+// rhythm=เหลืองอำพัน, MI=ชมพู, stroke=ม่วง) เพื่อให้แยกโหมดได้ปราดเดียว.
+// Tapping launches the recording flow on the right path.
 const TILES = [
   {
     key: 'arrest',
@@ -17,21 +17,21 @@ const TILES = [
     Icon: Activity,
     label: 'Brady / Tachy',
     sub: 'Pulse + arrhythmia',
-    color: '#2563EB',
+    color: '#D97706',
   },
   {
     key: 'mi',
     Icon: Heart,
     label: 'MI / ACS',
     sub: 'STEMI · NSTE-ACS',
-    color: '#2563EB',
+    color: '#DB2777',
   },
   {
     key: 'stroke',
     Icon: Brain,
     label: 'Stroke',
     sub: 'NIHSS · Door-to-CT',
-    color: '#2563EB',
+    color: '#7C3AED',
   },
 ];
 
@@ -67,7 +67,7 @@ export default function ACLSQuickActions({ onStart, disabled }) {
             >
               <Icon size={22} strokeWidth={2.2} />
             </div>
-            <div className="text-headline text-text-primary mt-3 leading-tight">
+            <div className="text-headline mt-3 leading-tight" style={{ color: t.color }}>
               {t.label}
             </div>
             <div className="text-caption text-text-muted mt-0.5">{t.sub}</div>
