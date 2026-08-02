@@ -12,6 +12,7 @@ export const strokeMimicHypo = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! ชาย 58 ปี ลูกพามา — <span class="cbs-em">พูดไม่รู้เรื่อง แขนขวาอ่อนแรง</span> 20 นาทีก่อนค่ะ! BP 130/80 HR 102 SpO₂ 98% แต่<span class="cbs-em">เหงื่อแตกท่วมตัว</span>เลยค่ะ' }, t: 6, fx: { rhythm: 'nsr' } },
     { inter: 'STROKE ALERT!!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'หมอคะ! พ่อเป็นเบาหวาน กิน <span class="cbs-em">Glibenclamide ทุกเช้า</span> — แต่เช้านี้<span class="cbs-em">กินยาแล้วไม่ได้กินข้าวเลย</span>ค่ะ บอกว่าไม่หิว!' }, t: 6 },
     { say: { who: 'att_dech', pose: 'stern', text: 'ลูกบอกว่าพ่อเป็นเบาหวาน กิน Glibenclamide แล้วเช้านี้<span class="cbs-em">ไม่ได้กินข้าว</span>… คุณเห็นอะไรในภาพนี้ไหม Leader' }, t: 5 },
     {
       choice: {
@@ -36,8 +37,10 @@ export const strokeMimicHypo = {
           {
             tgt: 'LAB', label: 'เช็ค DTX ก่อนเสมอ', ok: true,
             then: [
+              { say: { who: 'mind_runner', pose: 'talk', text: 'เจาะ DTX แล้วค่ะ — เครื่องกำลังอ่าน… <span class="cbs-em">ค่าออกแล้วค่ะ!</span>' }, t: 5 },
               { say: { who: 'nurse_mint', pose: 'panic', text: 'DTX = <span class="cbs-em">42 mg/dL</span> — Hypoglycemia ค่ะอาจารย์!' }, t: 7 },
               { inter: 'น้ำตาลต่ำ!!', drama: 'red', t: 0 },
+              { say: { who: 'mind_runner', pose: 'talk', text: 'เก็บเลือดยืนยัน plasma glucose <span class="cbs-em">วิ่งส่งแล็บเองเลยค่ะ</span> — 3 นาทีถึง!' }, t: 5 },
             ],
           },
           { tgt: 'CT', label: 'ส่ง CT Brain ก่อน ค่าน้ำตาลไว้ทีหลัง', ok: false, why: 'DTX คือของที่ต้องมาก่อน CT — ใช้เวลาแค่วินาทีเดียว และถ้าต่ำจริง แก้ได้ทันทีโดยไม่ต้องเสีย CT ทั้งรอบ', worsen: true },

@@ -118,6 +118,7 @@ export const blsInfantChoking = {
         ],
       },
     },
+    { say: { who: 'pae_ems', pose: 'talk', text: 'กู้ชีพ 1669 ครับ! ค่อย ๆ นะครับทุกคน — <span class="cbs-em">น้องสำลักอะไร ของออกมาหรือยัง หมดสติไปนานไหมครับ?</span>' }, t: 4 },
     {
       choice: {
         q: 'ทารกร้องไห้แล้ว — EMS ถึงหน้าบ้าน',
@@ -127,6 +128,7 @@ export const blsInfantChoking = {
             then: [
               { inter: 'รอดแล้ว!', green: true, t: 5, fx: { rosc: true } },
               { say: { who: 'att_dech', pose: 'happy', text: 'เยี่ยม! สูตรทารกสำลัก: <span class="cbs-em">ตบหลัง 5 ↔ กระแทกอก 5 · ห้ามกระแทกท้อง · หมดสติ = CPR</span> — แม่นมาก' }, t: 5 },
+              { say: { who: 'pae_ems', pose: 'happy', text: 'ทำถูกทุกจุดเลยครับ — <span class="cbs-em">ไม่กระแทกท้องทารก แถมมองในปากก่อนเป่าทุกรอบ</span> เดี๋ยวพาน้องไปให้หมอตรวจซ้ำนะครับ สบายใจได้ครับ' }, t: 5 },
             ],
           },
           { tgt: 'YOU', label: 'ร้องได้ปกติแล้ว ไม่ต้องไปโรงพยาบาล', ok: false, why: 'หลังสำลักรุนแรง+ถูกกระแทกอก ควรตรวจเสมอ — เศษของ/การบาดเจ็บอาจหลงเหลือ' },

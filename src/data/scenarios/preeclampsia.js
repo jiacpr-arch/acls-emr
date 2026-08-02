@@ -58,6 +58,7 @@ export const preeclampsia = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> IV เส้นบนสะดือเปิดได้แล้วค่ะ', fx: { epi: true, cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบรอบ สลับคนกดครับ! <span class="cbs-em">คนดันมดลูกไปซ้ายห้ามปล่อยมือเด็ดขาด</span> — ปล่อยเมื่อไหร่เลือดไหลกลับหัวใจหายทันที!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… มีคลื่นขึ้นมาแล้ว แต่ช้ามาก' }, t: 6 },
             ],
           },
@@ -75,6 +76,7 @@ export const preeclampsia = {
             then: [
               { inter: 'PEA!', drama: 'red', t: 4, fx: { rhythm: 'pea' } },
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi dose 2 in!"</span> กดต่อเนื่องไม่หยุดค่ะ', fx: { epi: true, cpr: true } }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'ตำแหน่งมือ<span class="cbs-em">กลางกระดูกอกเหมือนเดิม ลึก 5-6 ซม.</span>ครับ — LUD ยังดันอยู่ กดถึงหัวใจแน่นอน!' }, t: 4 },
             ],
           },
           { tgt: 'DEFIB', label: 'มี rhythm แล้ว shock ได้เลย', ok: false, why: 'มีไฟฟ้าแต่ไม่มีชีพจร = PEA ยัง non-shockable — ห้าม shock', worsen: true },

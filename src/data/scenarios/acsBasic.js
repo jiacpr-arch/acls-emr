@@ -15,6 +15,7 @@ export const acsBasic = {
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! คนไข้ชายเดินมาที่เคาน์เตอร์เอง บอกว่า<span class="cbs-em">เจ็บแน่นหน้าอกมาก ร้าวไปแขนซ้าย</span> เหงื่อแตกทั้งตัวเลยค่ะ!' }, t: 5 },
     { inter: 'เจ็บหน้าอกเฉียบพลัน!!', drama: 'red', t: 0 },
     { say: { who: 'att_dech', pose: 'stern', text: 'คนไข้ยังรู้สึกตัวดี พูดคุยได้ พาเดินมาเอง — <span class="cbs-em">คุณคือหมอคนแรกที่ประเมิน</span> จำไว้ว่ากล้ามเนื้อหัวใจตายไปเรื่อยๆ ทุกนาทีที่ช้า' }, t: 5 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'หมอคะ ฉันเป็นภรรยา ขับรถตามมาติดๆ เลยค่ะ — เขาบอก<span class="cbs-em">เจ็บกลางอกเหมือนโดนบีบ ร้าวไปแขนซ้ายถึงกราม</span> เป็นมาราวครึ่งชั่วโมงแล้ว แกสูบบุหรี่จัดมายี่สิบกว่าปีค่ะ!' }, t: 7 },
     {
       choice: {
         q: 'คำสั่งแรกของคุณ',
@@ -39,6 +40,7 @@ export const acsBasic = {
             tgt: 'MONITOR', label: 'สั่ง 12-lead ECG ทันทีให้เสร็จภายใน 10 นาที พร้อมส่งเลือด troponin คู่ขนานโดยไม่ต้องรอผล', ok: true,
             then: [
               { say: { who: 'fon_defib', pose: 'talk', text: 'ECG กำลังปริ้นค่ะ! ส่งเลือด troponin คู่ไปด้วยแล้ว' }, t: 8 },
+              { say: { who: 'mind_runner', pose: 'talk', text: 'มายด์รับหลอดเลือดเองค่ะ! วิ่งส่ง <span class="cbs-em">troponin</span> ถึงแลปเรียบร้อย — ผลออกภายใน <span class="cbs-em">45 นาที</span> เดี๋ยวมายด์ตามมารายงานเองเลยค่ะ!' }, t: 6 },
               { say: { who: 'att_dech', pose: 'stern', text: '<span class="cbs-em">"Time is muscle"</span> — อย่ารอผล lab ก่อนดู ECG เด็ดขาด' }, t: 5 },
             ],
           },

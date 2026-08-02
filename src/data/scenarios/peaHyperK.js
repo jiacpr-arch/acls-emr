@@ -55,6 +55,7 @@ export const peaHyperK = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> IV เปิดได้แล้วค่ะ', fx: { epi: true, cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'สองนาทีแล้วครับ! <span class="cbs-em">สลับคนกดเดี๋ยวนี้</span> — มือใหม่วางปุ๊บกดปั๊บ ช่องว่างต้องสั้นที่สุด!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… ยัง PEA เหมือนเดิมค่ะ' }, t: 6 },
             ],
           },
@@ -89,6 +90,7 @@ export const peaHyperK = {
             tgt: 'DRUG', label: 'Calcium gluconate IV (stabilize หัวใจ) — ตามด้วย insulin+glucose, NaHCO₃', ok: true,
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Calcium in!"</span> ตามด้วย insulin + glucose แล้วค่ะ', fx: { cpr: true } }, t: 8 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'จังหวะแบบนี้ไฟฟ้าช่วยไม่ได้ครับ — <span class="cbs-em">non-shockable ทั้งชีวิตป้าอยู่บนมือเรา</span> กดลึก 5-6 ซม. ปล่อยอกคืนสุดทุกครั้ง!' }, t: 4 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'QRS แคบลง… <span class="cbs-em">คลำชีพจรได้แล้วค่ะ!!</span>' }, t: 6 },
             ],

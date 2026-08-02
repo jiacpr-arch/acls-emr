@@ -20,7 +20,7 @@ export const strokeIschemicBasic = {
           {
             tgt: 'YOU', label: 'ประเมิน FAST (Face-Arm-Speech-Time) + ถามเวลาเริ่มอาการให้ชัด', ok: true,
             then: [
-              { say: { who: 'nurse_mint', pose: 'talk', text: 'FAST: <span class="cbs-em">หน้าเบี้ยวขวา + แขนขวาตก + พูดไม่ชัด</span> ค่ะ — เมียยืนยันเริ่มเป็นตอน 1 ชั่วโมงก่อนเป๊ะ ตอนกำลังกินข้าว' }, t: 8 },
+              { say: { who: 'family_witness', pose: 'panic', text: 'หมอคะ! ตอนกำลังกินข้าวอยู่ดีๆ <span class="cbs-em">หน้าเขาเบี้ยว ช้อนหลุดจากมือขวา พูดไม่เป็นคำ</span> — <span class="cbs-em">1 ชั่วโมงก่อน</span>เป๊ะค่ะ ฉันดูนาฬิกาไว้เลย!' }, t: 8 },
             ],
           },
           { tgt: 'DRUG', label: 'ให้ Aspirin เคี้ยวทันทีกันไว้ก่อน', ok: false, why: 'ยังไม่รู้ว่าเป็น ischemic หรือ hemorrhagic — ถ้าเลือดออกในสมอง aspirin จะซ้ำเติม ต้องประเมิน + CT ก่อนเสมอ', worsen: true },
@@ -52,7 +52,9 @@ export const strokeIschemicBasic = {
           {
             tgt: 'CT', label: 'ประเมิน NIHSS + ส่ง CT Brain ด่วน (non-contrast)', ok: true,
             then: [
+              { say: { who: 'mind_runner', pose: 'talk', text: 'เปลพร้อมค่ะ! โทรแจ้งห้อง CT <span class="cbs-em">เคลียร์คิวให้แล้ว</span> — ไปเลยค่ะ!' }, t: 5 },
               { skip: '— เข็นผู้ป่วยเข้าห้อง CT · Door-to-CT 20 นาที —', t: 10 },
+              { say: { who: 'mind_runner', pose: 'talk', text: 'ขานเวลาค่ะ — <span class="cbs-em">Door-to-CT 20 นาที!</span> เข้าเป้าค่ะอาจารย์!' }, t: 5 },
               { say: { who: 'fon_defib', pose: 'talk', text: 'NIHSS = <span class="cbs-em">12 (Moderate)</span> ค่ะ — CT Brain: <span class="cbs-em">ไม่มี hemorrhage</span> → Ischemic stroke!' }, t: 8 },
             ],
           },

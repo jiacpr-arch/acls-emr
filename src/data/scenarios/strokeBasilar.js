@@ -12,6 +12,7 @@ export const strokeBasilar = {
   hiddenCause: null,
   story: [
     { say: { who: 'nurse_mint', pose: 'talk', text: 'อาจารย์คะ หญิง 62 ปี <span class="cbs-em">เวียนหัวรุนแรงฉับพลัน + เห็นภาพซ้อน + พูดอ้อแอ้ + เดินเซล้ม</span> 1.5 ชั่วโมงก่อน — BP 172/94 HR 88 ไม่สม่ำเสมอ SpO₂ 96% แต่<span class="cbs-em">แขนขาแรงปกติทั้งสองข้าง</span>ค่ะ', fx: { rhythm: 'afib' } }, t: 7 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'หมอครับ! เธอลุกจากโซฟาแล้วบอกว่า<span class="cbs-em">บ้านหมุนรุนแรง มองอะไรเห็นเป็นสองภาพ</span> พูดก็อ้อแอ้ เดินไปห้องน้ำแล้ว<span class="cbs-em">เซล้ม</span>เลยครับ — อยู่ดีๆ เป็นขึ้นมาพร้อมกันหมดเลย!' }, t: 7 },
     { say: { who: 'boy_compressor', pose: 'talk', text: 'เวรก่อนหน้าเกือบจ่ายยาแก้เวียนหัวแล้วให้กลับบ้านครับ — บอกว่า "น่าจะน้ำในหูไม่เท่ากัน"' }, t: 5 },
     { say: { who: 'att_dech', pose: 'stern', text: 'หยุดตรงนั้นก่อน — ประวัติ HT + AF ไม่กินยา แล้วอาการมา<span class="cbs-em">ฉับพลันเป็นชุด</span>แบบนี้… คุณคิดยังไง Leader' }, t: 5 },
     {
@@ -52,6 +53,7 @@ export const strokeBasilar = {
           {
             tgt: 'CT', label: 'NIHSS + CT Brain ด่วน (onset 1.5 ชม. — ยังอยู่ใน window!)', ok: true,
             then: [
+              { say: { who: 'mind_runner', pose: 'talk', text: 'เปลพร้อมค่ะ! เคลียร์ทางถึงห้อง CT แล้ว — <span class="cbs-em">window เหลืออีกไม่ถึง 3 ชั่วโมง</span> ไปเลยค่ะ!' }, t: 5 },
               { skip: '— CT ด่วน —', t: 8 },
               { say: { who: 'fon_defib', pose: 'talk', text: 'NIHSS = <span class="cbs-em">8</span> — CT Brain: <span class="cbs-em">ไม่มี hemorrhage</span> ค่ะ… แต่ posterior fossa ดูปกติ ไม่เห็นรอย infarct ชัดค่ะ' }, t: 8 },
             ],

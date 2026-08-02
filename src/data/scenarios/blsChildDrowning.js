@@ -13,6 +13,7 @@ export const blsChildDrowning = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'เด็กจมน้ำ!! <span class="cbs-em">ลอยอยู่ห่างฝั่งไม่กี่เมตร!</span> ช่วยด้วยค่ะ!' }, t: 3 },
     { inter: 'เด็กจมน้ำ!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'ลูกฉัน!! แม่คลาดสายตาแค่แป๊บเดียว หันมาอีกที<span class="cbs-em">ลอยอยู่ในคลองแล้ว!</span> ช่วยลูกแม่ด้วย!!' }, t: 4 },
     { say: { who: 'att_dech', pose: 'stern', text: 'ใจเย็นก่อนกระโดด — <span class="cbs-em">คนช่วยที่จมตามคือโศกนาฏกรรมซ้ำสอง</span> จะเอาเด็กขึ้นมายังไง?' }, t: 3 },
     {
       choice: {
@@ -124,7 +125,9 @@ export const blsChildDrowning = {
             tgt: 'YOU', label: 'ท่า recovery ห่มผ้ากันหนาวสั่น เฝ้าใกล้ ๆ จนส่งต่อ EMS (ต้องไป รพ. เสมอ)', ok: true,
             then: [
               { inter: 'รอดแล้ว!', green: true, t: 5, fx: { rosc: true } },
+              { say: { who: 'pae_ems', pose: 'talk', text: 'กู้ชีพ 1669 ถึงแล้วครับ! รับทราบ — เด็กชาย 7 ขวบ จมน้ำ ได้ CPR จากที่เกิดเหตุ ตอนนี้หายใจเอง <span class="cbs-em">ให้ออกซิเจน นำส่งโรงพยาบาลเลยครับ</span>' }, t: 5 },
               { say: { who: 'att_dech', pose: 'happy', text: 'สุดยอด! และจำไว้ — <span class="cbs-em">เด็กจมน้ำแม้ฟื้นแล้วต้องไปโรงพยาบาลทุกราย</span> ปอดอาจแย่ลงภายหลังได้' }, t: 5 },
+              { say: { who: 'pae_ems', pose: 'happy', text: 'คนช่วยทำครบทุกขั้นเลยครับ — <span class="cbs-em">ไม่ลงน้ำ เป่าก่อนกด ตะแคงตอนอาเจียน</span> เพราะแบบนี้น้องถึงรอดครับ!' }, t: 5 },
             ],
           },
           { tgt: 'YOU', label: 'ฟื้นแล้วก็ปล่อยกลับไปเล่นต่อได้เลย', ok: false, why: 'อันตราย! ภาวะแทรกซ้อนทางปอดเกิดตามหลังได้หลายชั่วโมง — ต้องไปโรงพยาบาลทุกราย', worsen: true },

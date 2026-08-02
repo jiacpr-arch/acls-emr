@@ -57,6 +57,7 @@ export const vfPeaVfAcs = {
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'nurse_mint', pose: 'talk', text: 'IV เปิดได้แล้วค่ะ — กดต่อเลย! <span class="cbs-em">ไม่เช็คชีพจร</span>', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบ 2 นาที! <span class="cbs-em">ขอสลับคนกด</span> — เปลี่ยนไวๆ หยุดกดไม่เกิน 10 วิครับ!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… <span class="cbs-em">ยัง VF ค่ะ!</span> ดื้อไฟ' }, t: 6 },
             ],
           },
@@ -94,6 +95,7 @@ export const vfPeaVfAcs = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> กดต่อเนื่องอยู่ค่ะ', fx: { epi: true, cpr: true } }, t: 6 },
               { say: { who: 'att_dech', pose: 'stern', text: 'ชายหนุ่มเจ็บหน้าอกนำมาก่อน arrest… <span class="cbs-em">สาเหตุน่าจะอยู่ที่หลอดเลือดหัวใจ</span> Thrombosis-coronary' }, t: 5 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'PEA ห้าม shock — งั้นก็เหลือแต่มือเรา! <span class="cbs-em">ลึก 5-6 ซม. recoil สุดทุกครั้ง</span> ไปต่อครับ!' }, t: 4 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
             ],
           },

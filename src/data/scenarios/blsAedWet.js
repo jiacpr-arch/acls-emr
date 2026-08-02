@@ -12,6 +12,7 @@ export const blsAedWet = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'คุณลุงเพิ่งขึ้นจากสระแล้วล้มเลยค่ะ! <span class="cbs-em">นอนแช่อยู่ในแอ่งน้ำ!</span>' }, t: 4 },
     { inter: 'มีคนหมดสติ!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'ฉันเห็นกับตาเลยค่ะ! ลุงแก<span class="cbs-em">ว่ายมาเกือบชั่วโมง</span> พอโหนบันไดขึ้นจากสระได้ไม่กี่ก้าวก็<span class="cbs-em">ทรุดฮวบลงไปนอนแช่แอ่งน้ำ</span> ตัวเปียกโชกอยู่อย่างนั้นเลย!' }, t: 6 },
     { say: { who: 'att_dech', pose: 'stern', text: 'ผู้ป่วยเปียกทั้งตัว นอนในแอ่งน้ำข้างสระ — <span class="cbs-em">คิดให้ดีก่อนแตะตัว</span>' }, t: 3 },
     {
       choice: {
@@ -160,6 +161,7 @@ export const blsAedWet = {
         ],
       },
     },
+    { say: { who: 'pae_ems', pose: 'talk', text: 'กู้ชีพ 1669 ถึงแล้วครับ! ขอทางหน่อยครับ — <span class="cbs-em">หมดสติกี่นาที ช็อกไปกี่ครั้ง?</span> เล่าสั้น ๆ ได้เลยครับ' }, t: 4 },
     {
       choice: {
         q: 'ผู้ป่วยหายใจเอง มีชีพจร — EMS มาถึง',
@@ -168,6 +170,7 @@ export const blsAedWet = {
             tgt: 'YOU', label: 'จัดท่า recovery position เฝ้าการหายใจ ส่งต่อ EMS', ok: true,
             then: [
               { inter: 'รอดแล้ว!', green: true, t: 5, fx: { rosc: true } },
+              { say: { who: 'pae_ems', pose: 'happy', text: 'ทำถูกแล้วครับที่<span class="cbs-em">เช็ดอกให้แห้งก่อนแปะ pads</span> แถมยังเลื่อนแผ่นเลี่ยงเครื่องกระตุ้นหัวใจอีก — ระดับมืออาชีพเลยครับ!' }, t: 5 },
               { say: { who: 'att_dech', pose: 'happy', text: 'เยี่ยม! จำไว้: <span class="cbs-em">พ้นน้ำ → เช็ดแห้ง → เลี่ยงเครื่องฝัง → เคลียร์คนก่อน shock</span> — AED ใช้ได้แทบทุกสถานการณ์ ถ้ารู้วิธีปรับ' }, t: 6 },
             ],
           },

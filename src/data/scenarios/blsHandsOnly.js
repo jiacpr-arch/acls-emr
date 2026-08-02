@@ -16,6 +16,7 @@ export const blsHandsOnly = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'เสียงของหล่นดังโครม! พ่อล้มอยู่กลางห้อง <span class="cbs-em">ไม่ขยับเลย!</span>' }, t: 3 },
     { inter: 'มีคนหมดสติ!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'เมื่อกี้พ่อยังนั่งดูทีวีอยู่ดีๆ… จู่ๆ ก็<span class="cbs-em">กุมหน้าอก หน้าเหยเก แล้วล้มทั้งตัวลงกับพื้น</span> — ไม่ได้สะดุดอะไรเลย!' }, t: 5 },
     { say: { who: 'att_dech', pose: 'stern', text: 'บ้านคุณ ไม่มีใครอื่น ไม่มีอุปกรณ์สักชิ้น — <span class="cbs-em">คุณรู้ทุกขั้นตอน แต่มีแค่มือกับโทรศัพท์หนึ่งเครื่อง</span> เริ่มยังไง?' }, t: 4 },
     {
       choice: {
@@ -83,6 +84,7 @@ export const blsHandsOnly = {
       },
     },
     { skip: 'กดหน้าอกต่อเนื่อง — เจ้าหน้าที่ 1669 นับจังหวะให้ทางลำโพง', t: 120 },
+    { say: { who: 'pae_ems', pose: 'talk', text: '(เสียงปลายสาย) พี่เป้ กู้ชีพ 1669 ครับ! รถกำลังไปหาคุณ — <span class="cbs-em">กดตามจังหวะผมเลย หนึ่ง-สอง-สาม-สี่!</span> แขนตรง อย่าหยุดนะครับ!' }, t: 4 },
     { say: { who: 'nurse_mint', pose: 'panic', text: 'แขนเริ่มล้า… <span class="cbs-em">กดมา 2 นาทีแล้ว</span> ยังไม่มีใครมาเลย!' }, t: 4 },
     {
       choice: {
@@ -110,6 +112,7 @@ export const blsHandsOnly = {
             then: [
               { inter: 'ส่งต่อทีมกู้ชีพ!', green: true, t: 4 },
               { say: { who: 'boy_compressor', pose: 'talk', text: 'รับช่วงต่อครับ! ติดเครื่อง AED… <span class="cbs-em">Shock 1 ครั้ง — ชีพจรกลับมาแล้ว!</span>', fx: { rosc: true } }, t: 6 },
+              { say: { who: 'pae_ems', pose: 'happy', text: 'บนรถผมดูแลต่อเองครับ — <span class="cbs-em">คุณกดมาตลอดจนเรามาถึง</span> นั่นแหละคือเหตุผลที่ชีพจรเขากลับมาครับ!' }, t: 5 },
               { say: { who: 'att_dech', pose: 'happy', text: 'สถิติชัดเจน: <span class="cbs-em">คนที่รอดส่วนใหญ่ เพราะมีคนกดหน้าอกก่อนรถมาถึง</span> — วันนี้คนนั้นคือคุณ' }, t: 5 },
             ],
           },

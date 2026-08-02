@@ -56,6 +56,7 @@ export const hypothermiaVf = {
             then: [
               { inter: 'SHOCK!!', t: 6, fx: { shock: true } },
               { say: { who: 'fon_defib', pose: 'stern', text: 'ยิงไป 1 ครั้งแล้ว… <span class="cbs-em">ยัง VF อยู่ค่ะ</span> ตามคาดเพราะยังเย็น', fx: { rhythm: 'vf', cpr: true } }, t: 8 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ไม่เป็นไรครับ! เคสนี้วัดกันที่ความอึด — <span class="cbs-em">ผมกดยาวๆ จนกว่าตัวจะอุ่น</span> หนึ่ง-สอง-สาม!' }, t: 4 },
             ],
           },
           { tgt: 'DEFIB', label: 'ยิง shock รัวๆ ติดกันหลายครั้งจนกว่าจะหาย', ok: false, why: 'core < 30°C VF ดื้อไฟ — ยิงรัวไม่ช่วย ควรยิงจำกัดแล้วเน้นอุ่นตัว', worsen: true },
@@ -71,8 +72,10 @@ export const hypothermiaVf = {
             tgt: 'YOU', label: 'Active rewarming เต็มที่: ถอดเสื้อผ้าเปียก ผ้าห่มลมร้อน น้ำเกลืออุ่น พิจารณา ECMO/bypass', ok: true,
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: 'ถอดเสื้อเปียกออกหมดแล้ว เป่าลมร้อน + ให้สารน้ำอุ่นทาง IV ค่ะ <span class="cbs-em">อุณหภูมิเริ่มขยับ… 28… 29…</span>', fx: { cpr: true } }, t: 10 },
+              { say: { who: 'krit_airway', pose: 'talk', text: 'ทางนี้ผมต่อ<span class="cbs-em">ออกซิเจนอุ่นชื้น</span>เข้าทางเดินหายใจแล้วครับ… อุ่นจากข้างในไปพร้อมกัน — ช้า… แต่แน่นอน' }, t: 5 },
               { say: { who: 'att_dech', pose: 'stern', text: 'โทรปรึกษาทีม ECMO แล้ว — <span class="cbs-em">"ยังไม่ตายจนกว่าจะอุ่นและตาย"</span> เราจะกดต่อจนกว่าตัวจะอุ่น' }, t: 6 },
               { skip: 'CPR + อุ่นตัวต่อเนื่อง — core ค่อยๆ ขึ้นถึง 32°C', t: 300 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'หอบ… ไหล่แทบหลุดแล้วครับ… สลับกันมากี่รอบไม่ได้นับ — แต่<span class="cbs-em">"ยังไม่ตายจนกว่าจะอุ่น"</span> ผมกดต่อ!' }, t: 4 },
             ],
           },
           { tgt: 'YOU', label: 'ประกาศยุติการกู้ชีพเพราะ shock แล้วไม่ขึ้น', ok: false, why: 'ห้ามยุติในคนตัวเย็นจนกว่าจะอุ่นแล้วยังไม่ตอบสนอง — hypothermia ปกป้องสมองไว้', worsen: true },
