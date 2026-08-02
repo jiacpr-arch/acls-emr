@@ -79,6 +79,7 @@ export const blsHandsOnly = {
       },
     },
     { skip: 'กดหน้าอกต่อเนื่อง — เจ้าหน้าที่ 1669 นับจังหวะให้ทางลำโพง', t: 120 },
+    { say: { who: 'pae_ems', pose: 'talk', text: '(เสียงปลายสาย) พี่เป้ กู้ชีพ 1669 ครับ! รถกำลังไปหาคุณ — <span class="cbs-em">กดตามจังหวะผมเลย หนึ่ง-สอง-สาม-สี่!</span> แขนตรง อย่าหยุดนะครับ!' }, t: 4 },
     { say: { who: 'nurse_mint', pose: 'panic', text: 'แขนเริ่มล้า… <span class="cbs-em">กดมา 2 นาทีแล้ว</span> ยังไม่มีใครมาเลย!' }, t: 4 },
     {
       choice: {
@@ -106,6 +107,7 @@ export const blsHandsOnly = {
             then: [
               { inter: 'ส่งต่อทีมกู้ชีพ!', green: true, t: 4 },
               { say: { who: 'boy_compressor', pose: 'talk', text: 'รับช่วงต่อครับ! ติดเครื่อง AED… <span class="cbs-em">Shock 1 ครั้ง — ชีพจรกลับมาแล้ว!</span>', fx: { rosc: true } }, t: 6 },
+              { say: { who: 'pae_ems', pose: 'happy', text: 'บนรถผมดูแลต่อเองครับ — <span class="cbs-em">คุณกดมาตลอดจนเรามาถึง</span> นั่นแหละคือเหตุผลที่ชีพจรเขากลับมาครับ!' }, t: 5 },
               { say: { who: 'att_dech', pose: 'happy', text: 'สถิติชัดเจน: <span class="cbs-em">คนที่รอดส่วนใหญ่ เพราะมีคนกดหน้าอกก่อนรถมาถึง</span> — วันนี้คนนั้นคือคุณ' }, t: 5 },
             ],
           },

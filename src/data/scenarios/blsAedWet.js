@@ -123,6 +123,7 @@ export const blsAedWet = {
         ],
       },
     },
+    { say: { who: 'pae_ems', pose: 'talk', text: 'กู้ชีพ 1669 ถึงแล้วครับ! ขอทางหน่อยครับ — <span class="cbs-em">หมดสติกี่นาที ช็อกไปกี่ครั้ง?</span> เล่าสั้น ๆ ได้เลยครับ' }, t: 4 },
     {
       choice: {
         q: 'ผู้ป่วยหายใจเอง มีชีพจร — EMS มาถึง',
@@ -131,6 +132,7 @@ export const blsAedWet = {
             tgt: 'YOU', label: 'จัดท่า recovery position เฝ้าการหายใจ ส่งต่อ EMS', ok: true,
             then: [
               { inter: 'รอดแล้ว!', green: true, t: 5, fx: { rosc: true } },
+              { say: { who: 'pae_ems', pose: 'happy', text: 'ทำถูกแล้วครับที่<span class="cbs-em">เช็ดอกให้แห้งก่อนแปะ pads</span> แถมยังเลื่อนแผ่นเลี่ยงเครื่องกระตุ้นหัวใจอีก — ระดับมืออาชีพเลยครับ!' }, t: 5 },
               { say: { who: 'att_dech', pose: 'happy', text: 'เยี่ยม! จำไว้: <span class="cbs-em">พ้นน้ำ → เช็ดแห้ง → เลี่ยงเครื่องฝัง → เคลียร์คนก่อน shock</span> — AED ใช้ได้แทบทุกสถานการณ์ ถ้ารู้วิธีปรับ' }, t: 6 },
             ],
           },

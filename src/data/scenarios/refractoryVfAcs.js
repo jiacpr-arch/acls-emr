@@ -71,6 +71,7 @@ export const refractoryVfAcs = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: 'IV เปิดได้แล้วค่ะ! <span class="cbs-em">เส้นพร้อมให้ยา!</span>', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบ 2 นาที! <span class="cbs-em">ขอสลับคนกด</span> — จังหวะยังแน่นครับ ลึก 5-6 ซม. ไม่มีตก!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">ยัง VF ค่ะ!</span> ดื้อไฟ!' }, t: 6 },
             ],
           },
@@ -90,6 +91,7 @@ export const refractoryVfAcs = {
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> เสียงขานยาดังทั่วห้อง', fx: { epi: true, cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… ยัง VF! พี่บอยเหงื่อหยดลงพื้นแล้วค่ะ' }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'panic', text: 'แขนเริ่มล้าแล้วครับ… <span class="cbs-em">ขอสลับ!</span> แต่ห้ามให้จังหวะหลุดแม้แต่วินาทีเดียว!' }, t: 4 },
             ],
           },
           { tgt: 'DRUG', label: 'Epinephrine 5 mg ให้แรงขึ้นไปเลย', ok: false, why: 'ขนาดผิด — Epi ใน arrest คือ 1 mg เสมอ ทุก 3-5 นาที' },
@@ -107,6 +109,7 @@ export const refractoryVfAcs = {
             then: [
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'nurse_mint', pose: 'talk', text: '"Amio 300 in!" — สลับคนกด <span class="cbs-em">คุณภาพการกดต้องไม่ตก</span>', fx: { cpr: true } }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'หอบแล้วครับ… มือชาไปหมด… แต่<span class="cbs-em">ผมไม่หยุด</span> — ลุงยังสู้อยู่ เราก็ต้องสู้!' }, t: 4 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… เดี๋ยวนะ… จอเปลี่ยน… <span class="cbs-em">คลื่นเป็นระเบียบสม่ำเสมอ — organized rhythm… คลำชีพจรได้ค่ะ!!</span>' }, t: 6 },
             ],

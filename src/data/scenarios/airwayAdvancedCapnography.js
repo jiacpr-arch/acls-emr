@@ -14,6 +14,7 @@ export const airwayAdvancedCapnography = {
       t: 5,
       fx: { rhythm: 'pea', cpr: true, firstCPR: true },
     },
+    { say: { who: 'krit_airway', pose: 'talk', text: 'หมอกฤต วิสัญญีครับ ผมรับหัวเตียงเอง… ท้องป่องคือ<span class="cbs-em">ลมลงกระเพาะ</span> ไม่ใช่ลงปอด — ใจเย็นครับ เราแก้ได้' }, t: 4 },
     {
       choice: {
         q: 'Bag-mask seal ยาก ท้องเริ่มป่อง จะเลือกอุปกรณ์ทางเดินหายใจขั้นสูงอะไรระหว่าง CPR?',
@@ -33,7 +34,10 @@ export const airwayAdvancedCapnography = {
         options: [
           {
             tgt: 'AIRWAY', label: 'ต่อ waveform capnography ดูรูปคลื่นและตัวเลข EtCO2', ok: true,
-            then: [{ say: { who: 'fon_defib', pose: 'talk', text: 'EtCO2 ขึ้นคลื่นสวย ตัวเลข 30 mmHg ตำแหน่งถูกต้องค่ะ' }, t: 5 }],
+            then: [
+              { say: { who: 'fon_defib', pose: 'talk', text: 'EtCO2 ขึ้นคลื่นสวย ตัวเลข 30 mmHg ตำแหน่งถูกต้องค่ะ' }, t: 5 },
+              { say: { who: 'krit_airway', pose: 'talk', text: 'ดูจอครับ… คลื่น<span class="cbs-em">รูปสี่เหลี่ยมสม่ำเสมอทุกลมหายใจ</span> — ยืนยันตำแหน่งได้แม่นกว่าหูฟังทุกตัวครับ' }, t: 4 },
+            ],
           },
           { tgt: 'AIRWAY', label: 'ฟัง breath sound ข้างเดียวก็พอ', ok: false, why: 'ฟัง breath sound ช่วยได้ แต่มาตรฐานยืนยันที่แม่นยำที่สุดคือ waveform capnography ต่อเนื่อง' },
           { tgt: 'AIRWAY', label: 'ดูอกขยับเฉย ๆ ไม่ต้องต่อเครื่องอะไร', ok: false, why: 'อกขยับอาจลวงตาได้ ต้องมี waveform capnography ยืนยันและ monitor ต่อเนื่อง' },
@@ -46,7 +50,10 @@ export const airwayAdvancedCapnography = {
         options: [
           {
             tgt: 'YOU', label: 'กดหน้าอกต่อเนื่องไม่หยุด + ช่วยหายใจ 1 ครั้งทุก 6 วินาทีแบบไม่ประสาน (asynchronous)', ok: true,
-            then: [{ say: { who: 'att_dech', pose: 'talk', text: 'ถูกต้อง — มีทางเดินหายใจขั้นสูงแล้วไม่ต้องหยุดกดเพื่อช่วยหายใจอีก' }, t: 5 }],
+            then: [
+              { say: { who: 'att_dech', pose: 'talk', text: 'ถูกต้อง — มีทางเดินหายใจขั้นสูงแล้วไม่ต้องหยุดกดเพื่อช่วยหายใจอีก' }, t: 5 },
+              { say: { who: 'krit_airway', pose: 'stern', text: 'ผมเฝ้าตัวเลขให้… EtCO2 ระหว่างกดต้อง<span class="cbs-em">อย่างน้อย 10 mmHg</span> — ถ้าต่ำกว่านั้น คุณภาพการกดยังไม่พอครับ' }, t: 4 },
+            ],
           },
           { tgt: 'YOU', label: 'กลับไปสลับ 30:2 เหมือนเดิม', ok: false, why: 'มีทางเดินหายใจขั้นสูงแล้ว เปลี่ยนเป็นกดต่อเนื่อง + ช่วยหายใจ asynchronous ไม่ต้องสลับหยุด' },
           { tgt: 'AIRWAY', label: 'หยุดกดทุกครั้งที่ช่วยหายใจเหมือน BVM ปกติ', ok: false, why: 'ข้อดีของทางเดินหายใจขั้นสูงคือไม่ต้องหยุดกดเพื่อช่วยหายใจอีกต่อไป', worsen: true },
@@ -61,6 +68,7 @@ export const airwayAdvancedCapnography = {
             tgt: 'YOU', label: 'อาจเป็นสัญญาณ ROSC — คลำชีพจร/ดู rhythm ทันที', ok: true,
             then: [
               { inter: 'EtCO2 พุ่ง!', drama: 'red', t: 3 },
+              { say: { who: 'krit_airway', pose: 'happy', text: 'EtCO2 กระโดดจาก 30 เป็น 45 ในพริบตา… <span class="cbs-em">เลือดกลับมาไหลจริง</span> — สัญญาณ ROSC ที่สวยที่สุดครับ คลำชีพจรเลย' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'happy', text: 'ชีพจรกลับมาแล้วค่ะ! ROSC!' }, t: 4, fx: { rosc: true } },
             ],
           },

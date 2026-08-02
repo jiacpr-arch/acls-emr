@@ -71,6 +71,7 @@ export const tensionPneumo = {
             then: [
               { say: { who: 'nurse_mint', pose: 'panic', text: 'ฟังปอด… <span class="cbs-em">ข้างขวาเงียบสนิท!</span> เคาะโปร่งเหมือนกลอง!' }, t: 8 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'หลอดลมเบี้ยวไปทางซ้าย เส้นเลือดคอโป่ง <span class="cbs-em">bagging ก็ยากขึ้นเรื่อยๆ!</span>' }, t: 6 },
+              { say: { who: 'krit_airway', pose: 'stern', text: 'ผมบีบ bag เองอยู่… <span class="cbs-em">แรงต้านสูงผิดปกติครับ</span> — ลมเข้าไม่ลง เหมือนมีแรงดันในอกดันกลับมา' }, t: 5 },
               { inter: 'TENSION PNEUMOTHORAX!', drama: 'red', t: 4 },
             ],
           },
@@ -89,6 +90,7 @@ export const tensionPneumo = {
               { inter: 'HISSSS — ลมพุ่งออก!', drama: 'red', t: 6 },
               { say: { who: 'fon_defib', pose: 'talk', text: 'ลมพุ่งออกมาเลยค่ะ! ตามด้วยใส่ ICD… <span class="cbs-em">bagging คล่องขึ้นทันที</span>', fx: { cpr: true } }, t: 8 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบ 2 นาที <span class="cbs-em">สลับคนกด!</span> — ปลดลมออกแล้วอกเด้งกลับดีขึ้นเยอะเลยครับ!' }, t: 4 },
               { say: { who: 'nurse_mint', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">คลำชีพจรได้แล้วค่ะ!!</span> ความดันเริ่มกลับมา!' }, t: 6 },
             ],
           },

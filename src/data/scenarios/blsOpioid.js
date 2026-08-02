@@ -16,6 +16,7 @@ export const blsOpioid = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'เพื่อนเขาโทรมา — <span class="cbs-em">ปลุกไม่ตื่น ริมฝีปากเขียว!</span> ข้างตัวมีซองยาแก้ปวดชนิดแรงเกลื่อนเลยค่ะ!' }, t: 3 },
     { inter: 'พบคนหมดสติ!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'ผมขอโทษครับ… จริง ๆ เขา<span class="cbs-em">ใช้ยาแก้ปวดตัวแรงเกินขนาด</span>มาพักใหญ่แล้ว เมื่อเย็นก็เพิ่งซื้อมาเพิ่มอีก — ช่วยเขาด้วยนะครับ!' }, t: 4 },
     { say: { who: 'att_dech', pose: 'stern', text: 'เบาะแสอยู่ตรงหน้า — ยากลุ่ม opioid กด<span class="cbs-em">การหายใจ</span>ก่อนหัวใจ คุณถึงที่เกิดเหตุแล้ว เริ่มเลย' }, t: 3 },
     {
       choice: {
@@ -104,6 +105,7 @@ export const blsOpioid = {
             tgt: 'YOU', label: 'จัดท่า recovery เฝ้าติด ๆ (ฤทธิ์ยาอยู่นานกว่า naloxone) เก็บซองยาให้ EMS', ok: true,
             then: [
               { inter: 'พ้นวิกฤต!', green: true, t: 5 },
+              { say: { who: 'pae_ems', pose: 'talk', text: 'กู้ชีพ 1669 ถึงแล้วครับ! รับทราบ — สงสัย opioid เกินขนาด ได้ naloxone พ่นจมูกไปหนึ่งโดส ตอนนี้หายใจเอง <span class="cbs-em">ผมเตรียมโดสซ้ำไว้บนรถแล้ว</span> เฝ้าการหายใจใกล้ชิดระหว่างนำส่งครับ' }, t: 5 },
               { say: { who: 'att_dech', pose: 'happy', text: 'เยี่ยมมาก — และจำไว้ <span class="cbs-em">naloxone หมดฤทธิ์ก่อน opioid ได้</span> เขาอาจกลับไปหยุดหายใจอีก ต้องไปโรงพยาบาลเสมอ' }, t: 5 },
             ],
           },

@@ -53,6 +53,7 @@ export const strokePostTpaIch = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: 'tPA เดินแล้วค่ะ Door-to-Needle 48 นาที — monitor BP + neuro ทุก 15 นาทีตามสั่งค่ะ' }, t: 7 },
               { skip: '— นาทีที่ 40 ของ drip —', t: 10 },
+              { say: { who: 'family_witness', pose: 'panic', text: 'หมอคะ!! เมื่อกี้เขายังบีบมือฉันอยู่เลย จู่ๆ ก็กุมหัวบอกว่า<span class="cbs-em">ปวดขึ้นมาใหม่ ปวดกว่าตอนแรกมาก</span> แล้วตอนนี้เรียกก็ไม่ค่อยรู้ตัวแล้วค่ะ!!' }, t: 6 },
               { say: { who: 'boy_compressor', pose: 'panic', text: 'อาจารย์!! ผู้ป่วย<span class="cbs-em">ปวดหัวรุนแรงเฉียบพลัน อาเจียนพุ่ง ซึมลง GCS 15 → 11</span> — BP พุ่ง <span class="cbs-em">210/115</span> ครับ!!' }, t: 8 },
               { inter: 'ผู้ป่วยแย่ลงกลาง DRIP!!', drama: 'red', t: 0 },
             ],
@@ -86,6 +87,7 @@ export const strokePostTpaIch = {
           {
             tgt: 'CT', label: 'CT Brain ซ้ำด่วน + ส่ง labs (PT/aPTT/fibrinogen/CBC) + จอง cryoprecipitate', ok: true,
             then: [
+              { say: { who: 'mind_runner', pose: 'talk', text: 'เปลมาแล้วค่ะ! แจ้งห้อง CT <span class="cbs-em">ขอคิวด่วนที่สุด</span> — เลือด coag ฉันวิ่งส่งแล็บเองเลยค่ะ!' }, t: 5 },
               { skip: '— CT ซ้ำด่วน —', t: 8 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'CT ซ้ำ: <span class="cbs-em">Hemorrhagic transformation — เลือดออกในเนื้อสมองบริเวณ infarct!</span> ยืนยัน symptomatic ICH ค่ะ' }, t: 8 },
               { inter: 'sICH CONFIRMED!!', drama: 'red', t: 0 },

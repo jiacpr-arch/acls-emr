@@ -107,6 +107,7 @@ export const vfArrest = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: 'IV ได้แล้วค่ะ! <span class="cbs-em">เส้นพร้อมให้ยา!</span>', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบ 2 นาที! <span class="cbs-em">ขอสลับคนกด</span> — เปลี่ยนไวๆ หยุดกดไม่เกิน 10 วิ!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">ยัง VF ค่ะ!</span> ดื้อไฟ!' }, t: 6 },
             ],
           },
@@ -126,6 +127,7 @@ export const vfArrest = {
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> เสียงขานยาดังทั่วห้อง — เข็มที่สองพร้อม', fx: { epi: true, cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… ยัง VF! พี่บอยเหงื่อหยดลงพื้นแล้วค่ะ' }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'panic', text: 'ยังไหวครับ!! แต่เตรียมคนสลับไว้เลย — <span class="cbs-em">กดต้องลึก 5-6 ซม. ห้ามตก</span> แม้แขนจะล้า!' }, t: 4 },
             ],
           },
           { tgt: 'DRUG', label: 'Atropine 1 mg', ok: false, why: 'Atropine ไม่มีที่ใน VF — ใช้ใน bradycardia' },
@@ -142,6 +144,7 @@ export const vfArrest = {
             then: [
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'nurse_mint', pose: 'talk', text: '"Amio 300 in!" — สลับคนกด <span class="cbs-em">คุณภาพการกดต้องไม่ตก</span>', fx: { cpr: true } }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'สลับแล้วครับ! ปล่อยให้อก <span class="cbs-em">recoil สุดทุกครั้ง</span> — ไปต่อ!' }, t: 4 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… เดี๋ยวนะ… จอเปลี่ยน… <span class="cbs-em">คลื่นเป็นระเบียบสม่ำเสมอ — organized rhythm… มีชีพจรค่ะ!!</span>' }, t: 6 },
             ],

@@ -10,6 +10,7 @@ export const airwayOpaNpaBasic = {
   hiddenCause: null,
   story: [
     { say: { who: 'att_dech', pose: 'stern', text: 'หมดสติหลังชัก หายใจมีเสียงคราง — สงสัยลิ้นตกอุดทางเดินหายใจ คุณจะทำอะไรก่อน?' }, t: 4 },
+    { say: { who: 'krit_airway', pose: 'talk', text: 'หมอกฤต วิสัญญีครับ… ผมยืนหัวเตียงให้ เสียง snoring แบบนี้คือ<span class="cbs-em">ลิ้นตก</span> — ใจเย็น ๆ ทำทีละขั้นครับ' }, t: 4 },
     {
       choice: {
         q: 'หายใจมีเสียงคราง (snoring) จากลิ้นตกอุดทางเดินหายใจ จะทำอะไรก่อน?',
@@ -29,7 +30,10 @@ export const airwayOpaNpaBasic = {
         options: [
           {
             tgt: 'AIRWAY', label: 'ใส่ Oropharyngeal Airway (OPA)', ok: true,
-            then: [{ say: { who: 'nurse_mint', pose: 'talk', text: 'ไม่มี gag reflex เลยค่ะ — OPA เหมาะกับเคสนี้' }, t: 4 }],
+            then: [
+              { say: { who: 'nurse_mint', pose: 'talk', text: 'ไม่มี gag reflex เลยค่ะ — OPA เหมาะกับเคสนี้' }, t: 4 },
+              { say: { who: 'krit_airway', pose: 'stern', text: 'ถูกครับ… แต่จำไว้ — ถ้า gag reflex กลับมาเมื่อไหร่ OPA จะกระตุ้นอาเจียน <span class="cbs-em">ตอนนั้นค่อยสลับเป็น NPA</span>' }, t: 4 },
+            ],
           },
           { tgt: 'AIRWAY', label: 'ใส่ Nasopharyngeal Airway (NPA) แทน', ok: false, why: 'ไม่มี gag reflex ใส่ OPA ได้ปลอดภัยและมีประสิทธิภาพกว่า — NPA เก็บไว้ใช้เมื่อมี gag reflex หรือขากรรไกรค้าง' },
           { tgt: 'AIRWAY', label: 'ใส่ท่อช่วยหายใจ (ET tube) เลย', ok: false, why: 'ยังไม่จำเป็นต้องใส่ทางเดินหายใจขั้นสูง — ลองอุปกรณ์พื้นฐานก่อน' },
@@ -42,7 +46,10 @@ export const airwayOpaNpaBasic = {
         options: [
           {
             tgt: 'AIRWAY', label: 'วัดจากมุมปากถึงติ่งหู (หรือมุมกราม)', ok: true,
-            then: [{ say: { who: 'boy_compressor', pose: 'talk', text: 'ขนาดพอดีครับ ใส่ได้เลย' }, t: 3 }],
+            then: [
+              { say: { who: 'krit_airway', pose: 'talk', text: 'ทาบข้างแก้มครับ… <span class="cbs-em">มุมปากถึงติ่งหู</span> — ยาวไปปลายจะกดฝาปิดกล่องเสียง สั้นไปจะดันลิ้นแทน' }, t: 4 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ขนาดพอดีครับ ใส่ได้เลย' }, t: 3 },
+            ],
           },
           { tgt: 'AIRWAY', label: 'เลือกไซซ์กลาง ๆ เดา ๆ ไปก่อน', ok: false, why: 'ขนาดผิดอาจดันลิ้นลึกลงไปอุดกั้นมากขึ้น หรือสั้นเกินไม่ช่วยอะไร — ต้องวัดให้พอดีทุกครั้ง' },
           { tgt: 'AIRWAY', label: 'วัดจากปลายจมูกถึงติ่งหู', ok: false, why: 'นั่นคือวิธีวัดขนาด NPA ไม่ใช่ OPA' },
@@ -55,7 +62,10 @@ export const airwayOpaNpaBasic = {
         options: [
           {
             tgt: 'AIRWAY', label: 'สอดปลายชี้ขึ้นเพดานปาก แล้วหมุน 180° ขณะเลื่อนลง', ok: true,
-            then: [{ say: { who: 'att_dech', pose: 'happy', text: 'ดีมาก — เสียงครางหายสนิทแล้ว หายใจโล่งขึ้นเยอะ' }, t: 5 }],
+            then: [
+              { say: { who: 'krit_airway', pose: 'talk', text: 'หมุนนุ่ม ๆ… เข้าที่พอดีครับ ฟังตรงปาก — ลมผ่านเรียบ ไม่มีเสียงคราง <span class="cbs-em">ลมเข้าดี</span>' }, t: 4 },
+              { say: { who: 'att_dech', pose: 'happy', text: 'ดีมาก — เสียงครางหายสนิทแล้ว หายใจโล่งขึ้นเยอะ' }, t: 5 },
+            ],
           },
           { tgt: 'AIRWAY', label: 'สอดโค้งลงตามลิ้นตั้งแต่แรกโดยไม่หมุน', ok: false, why: 'วิธีนี้จะดันลิ้นลงไปอุดกั้นมากกว่าเดิม — สอดปลายชี้เพดานก่อนค่อยหมุน', worsen: true },
           { tgt: 'AIRWAY', label: 'ดันแรง ๆ ให้สุดเร็วที่สุด', ok: false, why: 'ต้องใส่นุ่มนวลตามแนวโค้งธรรมชาติ ใส่แรงอาจบาดเจ็บเพดานปาก' },

@@ -12,6 +12,7 @@ export const strokeHemorrhagic = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! หญิง 72 ปี <span class="cbs-em">ปวดหัวรุนแรงฉับพลัน + อาเจียน + แขนขาซ้ายอ่อนแรง</span> 45 นาทีก่อนค่ะ — BP <span class="cbs-em">210/120</span>! HR 92 GCS 13 ซึมลงเรื่อยๆ' }, t: 6, fx: { rhythm: 'nsr' } },
     { inter: 'STROKE ALERT!!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'หมอคะ! แม่นั่งดูทีวีอยู่ดีๆ ก็ร้องว่า<span class="cbs-em">ปวดหัวเหมือนถูกฟาดที่หัว ปวดที่สุดในชีวิต</span> แล้วอาเจียนพุ่งเลยค่ะ — แม่<span class="cbs-em">ไม่กินยาความดัน</span>มาเป็นปีแล้วค่ะ!' }, t: 7 },
     { say: { who: 'att_dech', pose: 'stern', text: 'ปวดหัวแบบ "ฟ้าผ่า" + อาเจียน + ความดันทะลุ 200… ภาพนี้กระซิบอะไรบางอย่าง — แต่<span class="cbs-em">อย่าเพิ่งข้ามขั้นตอน</span> Leader' }, t: 5 },
     {
       choice: {
@@ -35,7 +36,9 @@ export const strokeHemorrhagic = {
           {
             tgt: 'CT', label: 'NIHSS + CT Brain ด่วนที่สุด', ok: true,
             then: [
+              { say: { who: 'mind_runner', pose: 'talk', text: 'เปลมาแล้วค่ะ! ห้อง CT <span class="cbs-em">เคลียร์คิวรอแล้ว</span> — ผู้ป่วยซึมลงเรื่อยๆ รีบไปเลยค่ะ!' }, t: 5 },
               { skip: '— เข็นเข้า CT ด่วน —', t: 8 },
+              { say: { who: 'mind_runner', pose: 'talk', text: 'ขานเวลาค่ะ — <span class="cbs-em">Door-to-CT 14 นาที!</span> ภาพขึ้นจอแล้วค่ะ!' }, t: 5 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'NIHSS = <span class="cbs-em">18 (Severe)</span> — CT: <span class="cbs-em">Intracerebral hemorrhage ที่ basal ganglia ขนาด 3 ซม.</span> ค่ะอาจารย์!' }, t: 8 },
               { inter: 'HEMORRHAGE!!', drama: 'red', t: 0 },
             ],
