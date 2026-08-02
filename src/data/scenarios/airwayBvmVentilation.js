@@ -6,6 +6,7 @@ export const airwayBvmVentilation = {
   level: 'intermediate',
   track: 'ventilation',
   course: 'airway',
+  bg: 'public_indoor',
   hiddenCause: null,
   story: [
     { say: { who: 'att_dech', pose: 'stern', text: 'ไม่หายใจ แต่ชีพจรยังมี — ต้อง bag-mask ทันที เริ่มอย่างไรดี?' }, t: 4 },

@@ -7,6 +7,7 @@ export const defibAedVf = {
   level: 'basic',
   track: 'aed',
   course: 'defib',
+  bg: 'public_indoor',
   hiddenCause: null,
   story: [
     { say: { who: 'fon_defib', pose: 'panic', text: 'ไม่หายใจ ไม่ตอบสนอง! เอา AED มาแล้วค่ะ ตอนนี้ต้องทำอะไรก่อน?' }, t: 4 },
