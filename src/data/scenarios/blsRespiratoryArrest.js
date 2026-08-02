@@ -10,6 +10,7 @@ export const blsRespiratoryArrest = {
   level: 'intermediate',
   track: 'breathing',
   course: 'bls',
+  bg: 'ward_night',
   hiddenCause: null,
   outcome: {
     stamp: 'ประคองไว้ได้!',

@@ -9,6 +9,7 @@ export const blsPregnantChoking = {
   level: 'intermediate',
   track: 'choking',
   course: 'bls',
+  bg: 'public_indoor',
   hiddenCause: null,
   outcome: {
     stamp: 'พ้นวิกฤต!',

@@ -9,6 +9,7 @@ export const blsChoking = {
   level: 'basic',
   track: 'choking',
   course: 'bls',
+  bg: 'public_indoor',
   hiddenCause: null,
   outcome: {
     stamp: 'ทางเดินหายใจโล่งแล้ว!',

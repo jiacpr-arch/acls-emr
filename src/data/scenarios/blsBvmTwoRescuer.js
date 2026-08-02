@@ -9,6 +9,7 @@ export const blsBvmTwoRescuer = {
   level: 'intermediate',
   track: 'breathing',
   course: 'bls',
+  bg: 'ward_night',
   hiddenCause: null,
   outcome: {
     stamp: 'ทีมสองคนทำได้!',

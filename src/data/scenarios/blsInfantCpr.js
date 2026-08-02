@@ -9,6 +9,7 @@ export const blsInfantCpr = {
   level: 'intermediate',
   track: 'child',
   course: 'bls',
+  bg: 'pediatric',
   hiddenCause: null,
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'คุณแม่อุ้มลูกวิ่งมา — <span class="cbs-em">"น้องไม่ขยับ! ตัวอ่อนไปหมด!"</span>' }, t: 3 },

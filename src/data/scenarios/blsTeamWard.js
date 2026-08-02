@@ -8,6 +8,7 @@ export const blsTeamWard = {
   level: 'megacode',
   track: 'team',
   course: 'bls',
+  bg: 'ward_night',
   hiddenCause: null,
   outcome: {
     stamp: 'ส่งเวรสำเร็จ!',

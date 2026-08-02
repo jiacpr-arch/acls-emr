@@ -8,6 +8,7 @@ export const blsHandsOnly = {
   level: 'basic',
   track: 'adult',
   course: 'bls',
+  bg: 'home_room',
   hiddenCause: null,
   outcome: {
     stamp: 'ส่งต่อสำเร็จ!',
