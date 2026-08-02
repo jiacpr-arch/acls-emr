@@ -43,6 +43,7 @@
 @keyframes cbs-stamp-slam { 0% { transform: rotate(-7deg) scale(2.6); opacity: 0; } 100% { transform: rotate(-7deg) scale(1); opacity: 1; } }
 @keyframes cbs-flashout { 0% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes cbs-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+@keyframes cbs-talk-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes cbs-shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-8px); } 40% { transform: translateX(7px); }
@@ -310,6 +311,8 @@
   filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .45));
 }
 .cbs-sprite-img { user-select: none; }
+/* ตัวละครที่ไม่มีเฟรมปากอ้าคู่ (built-in ทุกตัว + custom บางตัว) — ขยับตัวเบาๆ แทนตอนพูด */
+.cbs-sprite-talking { animation: cbs-talk-bob .32s ease-in-out infinite; }
 
 /* HUD */
 .cbs-hud {
@@ -624,7 +627,7 @@
   .cbs-shake, .cbs-flash.cbs-go, .cbs-redflash.cbs-go,
   .cbs-title::before, .cbs-stage.cbs-drama::before, .cbs-stage.cbs-drama-red::before,
   .cbs-inter-burst, .cbs-adv-caret, .cbs-choice, .cbs-sprite.cbs-pop,
-  .cbs-inter-bubble, .cbs-stamp, .cbs-tap-coach-ring {
+  .cbs-inter-bubble, .cbs-stamp, .cbs-tap-coach-ring, .cbs-sprite-talking {
     animation: none !important;
   }
   /* วงแหวนไม่กะพริบแล้ว ต้องคงให้เห็นอยู่ ไม่งั้นคำใบ้หายไปครึ่งหนึ่ง */
