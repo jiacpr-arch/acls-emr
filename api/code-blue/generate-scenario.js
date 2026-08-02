@@ -14,6 +14,7 @@ const BUILTIN_CHARACTERS = [
   { key: 'pae_ems', name: 'พี่เป้ กู้ชีพ', role: 'EMS · 1669' },
   { key: 'mind_runner', name: 'น้องมายด์', role: 'Runner · Lab & CT' },
   { key: 'family_witness', name: 'ญาติผู้ป่วย', role: 'Family · Witness' },
+  { key: 'patient_male', name: 'ผู้ป่วยชาย', role: 'Patient' },
 ];
 const POSES = ['idle', 'talk', 'panic', 'stern', 'happy'];
 const TARGETS = ['YOU', 'CPR', 'AIRWAY', 'DEFIB', 'DRUG', 'MONITOR', 'IV', 'CT', 'LAB'];
