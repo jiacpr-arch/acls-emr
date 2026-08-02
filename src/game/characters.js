@@ -148,6 +148,102 @@ export const CHARACTERS = {
       </svg>`;
     },
   },
+
+  // ─── ตัวละครชุดที่ 2 (ยังไม่มีรูป webp จริง — ใช้ SVG placeholder ไปก่อน) ───
+  // probeArt: true → CharacterSprite จะ probe หารูปก่อนเสมอ ไม่เจอค่อย fallback SVG
+  // เมื่อ generate รูปครบทุกท่าตาม docs/characters.md แล้ว: วางไฟล์ที่
+  // public/images/characters/{charId}/ และ "ลบ probeArt ออก" เพื่อกลับ fast path ไม่ต้อง probe
+
+  krit_airway: {
+    name: 'หมอกฤต',
+    role: 'Anesthesia · Airway',
+    plate: ['#3E7BC8', '#24508C'],
+    probeArt: true,
+    placeholder(pose) {
+      const skin = '#EEB98C', scrub = '#3E7BC8', scrubD = '#24508C', cap = '#2E62A6';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24,250 L24,204 Q24,168 100,166 Q176,168 176,204 L176,250 Z" fill="${scrub}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M76,172 L100,198 L124,172 L118,166 L100,184 L82,166 Z" fill="${scrubD}" stroke="${OUT}" stroke-width="3"/>
+      <path d="M66,198 Q100,216 134,198 L134,212 Q100,230 66,212 Z" fill="#DDE7F6" stroke="${OUT}" stroke-width="3"/>
+      <rect x="88" y="148" width="24" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M54,102 Q54,46 100,44 Q146,46 146,102 Q146,138 127,150 Q113,159 100,159 Q87,159 73,150 Q54,138 54,102 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M50,96 Q48,34 100,30 Q152,34 150,96 Q142,66 100,62 Q58,66 50,96 Z" fill="${cap}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M58,78 L142,78" stroke="${OUT}" stroke-width="3" fill="none"/>
+      ${brows(pose, 80, 120, 94)}
+      ${eyes(pose, 80, 120, 106, '#33261B')}
+      ${mouthGroups(pose, 100, 133)}
+      </svg>`;
+    },
+  },
+
+  pae_ems: {
+    name: 'พี่เป้ กู้ชีพ',
+    role: 'EMS · 1669',
+    plate: ['#D14B4B', '#8F2B2B'],
+    probeArt: true,
+    placeholder(pose) {
+      const skin = '#E2A876', suit = '#D14B4B', suitD = '#8F2B2B', hair = '#22252D';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22,250 L22,204 Q22,168 100,166 Q178,168 178,204 L178,250 Z" fill="${suit}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M74,172 L100,198 L126,172 L119,166 L100,184 L81,166 Z" fill="${suitD}" stroke="${OUT}" stroke-width="3"/>
+      <path d="M24,214 Q100,232 176,214 L176,228 Q100,246 24,228 Z" fill="#F5C93B" stroke="${OUT}" stroke-width="3"/>
+      <rect x="34" y="184" width="18" height="26" rx="4" fill="#2B2F3A" stroke="${OUT}" stroke-width="3"/>
+      <path d="M40,184 L40,174" stroke="${OUT}" stroke-width="3" stroke-linecap="round"/>
+      <rect x="86" y="148" width="28" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M52,102 Q52,44 100,42 Q148,44 148,102 Q148,140 128,152 Q114,160 100,160 Q86,160 72,152 Q52,140 52,102 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M50,92 Q52,40 100,32 Q148,40 150,92 L142,90 L146,74 L132,84 L134,64 L118,78 L114,56 L100,74 L86,56 L82,78 L66,64 L68,84 L54,74 L58,90 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+      ${brows(pose, 80, 120, 96)}
+      ${eyes(pose, 80, 120, 107, '#33261B')}
+      ${mouthGroups(pose, 100, 134)}
+      <path d="M60,120 Q58,126 62,130 M140,120 Q142,126 138,130" stroke="#C98F5E" stroke-width="2.4" fill="none"/>
+      </svg>`;
+    },
+  },
+
+  mind_runner: {
+    name: 'น้องมายด์',
+    role: 'Runner · Lab & CT',
+    plate: ['#C05299', '#7E3167'],
+    probeArt: true,
+    placeholder(pose) {
+      const skin = '#F6CDA8', scrub = '#C05299', scrubD = '#93386F', hair = '#33222E';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M28,250 L28,206 Q28,172 100,170 Q172,172 172,206 L172,250 Z" fill="${scrub}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M76,176 L100,200 L124,176 L118,170 L100,186 L82,170 Z" fill="${scrubD}" stroke="${OUT}" stroke-width="3"/>
+      <rect x="88" y="150" width="24" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M150,52 Q168,58 164,86 Q160,112 148,128 L138,120 Q150,102 152,84 Q154,66 146,60 Z" fill="${hair}" stroke="${OUT}" stroke-width="3.6"/>
+      <path d="M52,100 Q52,42 100,40 Q148,42 148,100 Q148,140 128,152 Q114,161 100,161 Q86,161 72,152 Q52,140 52,100 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M48,106 Q42,44 100,34 Q158,44 152,106 Q150,80 138,72 Q120,88 100,66 Q80,88 62,72 Q50,80 48,106 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+      <circle cx="152" cy="52" r="7" fill="#E8B4D2" stroke="${OUT}" stroke-width="3"/>
+      ${brows(pose, 80, 120, 92)}
+      ${eyes(pose, 80, 120, 104, '#4A3728')}
+      ${mouthGroups(pose, 100, 132)}
+      </svg>`;
+    },
+  },
+
+  family_witness: {
+    name: 'ญาติผู้ป่วย',
+    role: 'Family · Witness',
+    plate: ['#6E7B94', '#43506B'],
+    probeArt: true,
+    placeholder(pose) {
+      const skin = '#F1C49E', shirt = '#6E7B94', shirtD = '#43506B', hair = '#57515C';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M26,250 L26,206 Q26,170 100,168 Q174,170 174,206 L174,250 Z" fill="${shirt}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M80,170 Q100,182 120,170 Q114,184 100,184 Q86,184 80,170 Z" fill="${shirtD}" stroke="${OUT}" stroke-width="3"/>
+      <rect x="88" y="150" width="24" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M44,124 Q36,190 48,214 L62,206 Q54,172 60,128 Z" fill="${hair}" stroke="${OUT}" stroke-width="3.6"/>
+      <path d="M156,124 Q164,190 152,214 L138,206 Q146,172 140,128 Z" fill="${hair}" stroke="${OUT}" stroke-width="3.6"/>
+      <path d="M52,100 Q52,42 100,40 Q148,42 148,100 Q148,140 128,152 Q114,161 100,161 Q86,161 72,152 Q52,140 52,100 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M46,112 Q40,42 100,32 Q160,42 154,112 Q152,80 134,70 Q116,86 100,64 Q84,86 66,70 Q48,80 46,112 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M58,66 Q70,54 84,52 L80,62 Z" fill="#9BA3B5"/>
+      ${brows(pose, 80, 120, 92)}
+      ${eyes(pose, 80, 120, 104, '#4A3728')}
+      ${mouthGroups(pose, 100, 132)}
+      </svg>`;
+    },
+  },
 };
 
 // ตัวละคร custom ที่แอดมินสร้าง (โหลดจาก Supabase ตอนเข้าเกม) — merge ทับ/เพิ่มจาก built-in

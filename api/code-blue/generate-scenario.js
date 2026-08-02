@@ -10,9 +10,13 @@ const BUILTIN_CHARACTERS = [
   { key: 'boy_compressor', name: 'พี่บอย', role: 'Compressor' },
   { key: 'fon_defib', name: 'หมอฝน', role: 'Defib / Monitor' },
   { key: 'att_dech', name: 'อ.เดช', role: 'Attending' },
+  { key: 'krit_airway', name: 'หมอกฤต', role: 'Anesthesia · Airway' },
+  { key: 'pae_ems', name: 'พี่เป้ กู้ชีพ', role: 'EMS · 1669' },
+  { key: 'mind_runner', name: 'น้องมายด์', role: 'Runner · Lab & CT' },
+  { key: 'family_witness', name: 'ญาติผู้ป่วย', role: 'Family · Witness' },
 ];
 const POSES = ['idle', 'talk', 'panic', 'stern', 'happy'];
-const TARGETS = ['YOU', 'CPR', 'AIRWAY', 'DEFIB', 'DRUG', 'MONITOR'];
+const TARGETS = ['YOU', 'CPR', 'AIRWAY', 'DEFIB', 'DRUG', 'MONITOR', 'IV', 'CT', 'LAB'];
 const LEVELS = ['basic', 'intermediate', 'megacode'];
 const COURSES = ['acls', 'bls'];
 
@@ -118,6 +122,9 @@ ${courseScope}
 ${charList}
 - pose (สีหน้า): ${POSES.join(', ')}
 - tgt (เป้าหมายคำสั่ง): ${TARGETS.join(', ')}
+  (IV = เปิดเส้น/IO, CT = ส่งตรวจภาพ เช่น stroke pathway, LAB = เจาะเลือด/DTX — ใช้เฉพาะเมื่อเข้ากับเคสเท่านั้น)
+- แนวทางเลือกตัวละคร: krit_airway รับบท airway/ใส่ท่อ, pae_ems ใช้เฉพาะเหตุการณ์นอกโรงพยาบาล,
+  mind_runner รับบทส่ง CT/LAB, family_witness พูดได้เฉพาะให้ประวัติ/ดราม่า ห้ามยืนยันหัตถการทางคลินิก
 - fx (ผลต่อผู้ป่วย ใส่เฉพาะเมื่อเกิดจริง): {"cpr":true} เริ่มกด, {"firstCPR":true} กดครั้งแรก, {"shock":true} ช็อต, {"epi":true} ให้ Epi, {"alarm":true} ยืนยัน arrest, {"rhythm":"vf"|"flat"|"nsr"}, {"rosc":true} ผู้ป่วยกลับมา
 
 กติกาสำคัญ (ความปลอดภัยผู้ป่วยมาก่อน):
