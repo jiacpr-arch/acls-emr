@@ -242,13 +242,11 @@ export const CHARACTERS = {
   },
 
   // ผู้ป่วยชายวัยกลางคนที่ยังมีสติ — ใช้กับเคสที่ผู้ป่วยพูดได้ (ACS เจ็บอก,
-  // stable brady/tachy, ซักประวัติก่อนทรุด) มีรูปจริงแล้วเฉพาะ idle/talk
-  // (ท่ากุมอก) — pose อื่นยังเป็น placeholder จึงติดธง probeArt ไว้ก่อน
+  // stable brady/tachy, ซักประวัติก่อนทรุด) รูปครบ 5 pose แล้ว
   patient_male: {
     name: 'ผู้ป่วยชาย',
     role: 'Patient',
     plate: ['#7FA3C4', '#4F6E8C'],
-    probeArt: true,
     placeholder(pose) {
       const skin = '#E8B98C', gown = '#A8C8E0', gownD = '#7FA3C4', hair = '#4A4A50', hairL = '#8E8E96';
       return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
