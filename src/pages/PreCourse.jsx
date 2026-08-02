@@ -321,9 +321,9 @@ export default function PreCourse() {
       <div className="text-center space-y-2">
         <div className="w-16 h-16 mx-auto inline-flex items-center justify-center"
           style={{
-            background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-primary) 100%)',
+            background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
             borderRadius: 'var(--radius-2xl)',
-            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)',
+            boxShadow: '0 8px 20px color-mix(in srgb, var(--color-accent) 28%, transparent)',
           }}>
           <GraduationCap size={28} strokeWidth={2.2} className="text-white" />
         </div>
