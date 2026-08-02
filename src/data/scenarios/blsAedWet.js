@@ -8,6 +8,7 @@ export const blsAedWet = {
   level: 'intermediate',
   track: 'adult',
   course: 'bls',
+  bg: 'poolside',
   hiddenCause: null,
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'คุณลุงเพิ่งขึ้นจากสระแล้วล้มเลยค่ะ! <span class="cbs-em">นอนแช่อยู่ในแอ่งน้ำ!</span>' }, t: 4 },

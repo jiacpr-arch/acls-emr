@@ -9,6 +9,7 @@ export const blsOpioid = {
   level: 'intermediate',
   track: 'breathing',
   course: 'bls',
+  bg: 'home_room',
   hiddenCause: null,
   outcome: {
     stamp: 'พ้นวิกฤต!',

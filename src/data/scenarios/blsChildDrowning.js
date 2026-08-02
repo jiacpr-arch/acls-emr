@@ -9,6 +9,7 @@ export const blsChildDrowning = {
   level: 'basic',
   track: 'child',
   course: 'bls',
+  bg: 'poolside',
   hiddenCause: null,
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'เด็กจมน้ำ!! <span class="cbs-em">ลอยอยู่ห่างฝั่งไม่กี่เมตร!</span> ช่วยด้วยค่ะ!' }, t: 3 },

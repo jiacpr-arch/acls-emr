@@ -10,6 +10,7 @@ export const blsMonitorAlarmScope = {
   level: 'megacode',
   track: 'team',
   course: 'bls',
+  bg: 'ward_night',
   hiddenCause: null,
   outcome: {
     stamp: 'ทำครบในขอบเขต!',

@@ -10,6 +10,7 @@ export const blsPregnantArrest = {
   level: 'megacode',
   track: 'special',
   course: 'bls',
+  bg: 'delivery_room',
   hiddenCause: null,
   outcome: {
     stamp: 'สองชีวิตปลอดภัย!',

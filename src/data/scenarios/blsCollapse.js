@@ -9,6 +9,7 @@ export const blsCollapse = {
   level: 'basic',
   track: 'adult',
   course: 'bls',
+  bg: 'public_indoor',
   hiddenCause: null,
   outcome: {
     stamp: 'รอดแล้ว!',

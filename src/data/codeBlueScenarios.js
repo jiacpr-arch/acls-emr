@@ -7,7 +7,8 @@
 // แต่ละเคสมี field:
 //   id, title, subtitle, level ('basic'|'intermediate'|'megacode'),
 //   track (หมวดในหน้าเลือกเคส — key ของ TRACK_META, ไม่ระบุ = 'other'),
-//   course ('acls'|'bls' — ไม่ระบุ = ตามได้ทั้งสองโหมด), hiddenCause, story[]
+//   course ('acls'|'bls' — ไม่ระบุ = ตามได้ทั้งสองโหมด), hiddenCause, story[],
+//   bg (ฉากพื้นหลังบนเวที — key ของ BACKGROUNDS, ไม่ระบุ = ห้องฉุกเฉิน er_bay)
 //
 // คลังกรองตาม COURSE_MODE: acls.morroo.com เห็นเคส ACLS,
 // bls.morroo.com (MorRoo) เห็นเคส BLS — engine เดียวกัน คนละชุดโจทย์
@@ -345,4 +346,25 @@ export const TRACK_META = TRACK_META_BY_MODE[COURSE_MODE] || ACLS_TRACK_META;
 // เคสที่ไม่ระบุ track (เช่น โจทย์เก่าจาก Supabase) ตกหมวด 'other'
 export function trackOf(s) {
   return TRACK_META[s.track] ? s.track : 'other';
+}
+
+// ── ฉากพื้นหลังบนเวที ──────────────────────────────────────────────────
+// ไฟล์อยู่ที่ public/images/backgrounds/{key}.webp — ดูสเปกและ prompt สร้างภาพใน docs/backgrounds.md
+// ฉากใช้ร่วมกันหลายเคส (ไม่ใช่ฉากละเคส) เคสที่ไม่ระบุ bg ใช้ er_bay เหมือนเดิม
+export const BACKGROUNDS = {
+  er_bay: 'ห้องฉุกเฉิน (ค่าเริ่มต้น)',
+  ward_night: 'หอผู้ป่วยกลางดึก',
+  public_indoor: 'ที่สาธารณะในร่ม (ห้าง/โรงอาหาร)',
+  home_room: 'บ้าน/ห้องพัก',
+  poolside: 'ริมสระว่ายน้ำ/ริมน้ำกลางแจ้ง',
+  pediatric: 'ห้องตรวจกุมารเวช',
+  delivery_room: 'ห้องคลอด',
+};
+export const DEFAULT_BACKGROUND = 'er_bay';
+
+// URL พื้นหลังของเคส — key ที่ไม่รู้จัก (เช่นโจทย์จาก Supabase ที่พิมพ์ผิด) ตกไปใช้ค่าเริ่มต้น
+// จึงไม่มีทางได้เวทีที่ภาพหาย
+export function backgroundUrl(s) {
+  const key = s && BACKGROUNDS[s.bg] ? s.bg : DEFAULT_BACKGROUND;
+  return `/images/backgrounds/${key}.webp`;
 }

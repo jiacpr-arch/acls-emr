@@ -9,6 +9,7 @@ export const blsEmsConfinedSpace = {
   level: 'megacode',
   track: 'team',
   course: 'bls',
+  bg: 'home_room',
   hiddenCause: null,
   outcome: {
     stamp: 'ส่งถึง ER!',

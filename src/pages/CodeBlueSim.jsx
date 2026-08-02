@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, RefreshCw, Home, Volume2, VolumeX } from 'lucide-react';
 import {
   scenarios as builtInScenarios, LEVEL_META, TRACK_META, trackOf, loadPlayableScenarios,
+  backgroundUrl,
 } from '../data/codeBlueScenarios';
 import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
@@ -231,6 +232,8 @@ export default function CodeBlueSim() {
     //   att_dech/idle ตอน time-skip, att_dech/stern ตอนตอบผิดโหมดยาก
     preloadCharacterImages('att_dech', 'idle');
     preloadCharacterImages('att_dech', 'stern');
+    // อุ่นพื้นหลังของเคสด้วย ไม่งั้นเวทีจะว่างวาบหนึ่งตอนเข้าฉากแรก
+    if (typeof Image !== 'undefined') { new Image().src = backgroundUrl(sc); }
     if (!sc?.story) return;
     const seen = new Set();
     const walk = (beats) => {
@@ -1260,7 +1263,10 @@ export default function CodeBlueSim() {
   return (
     <div className={`cbs-app ${shaking ? 'cbs-shake' : ''}`}>
       <section className="cbs-game" onClick={onDialogTap}>
-        <div className={`cbs-stage ${drama === 'red' ? 'cbs-drama-red' : drama === 'white' ? 'cbs-drama' : ''}`}>
+        <div
+          className={`cbs-stage ${drama === 'red' ? 'cbs-drama-red' : drama === 'white' ? 'cbs-drama' : ''}`}
+          style={{ '--cbs-stage-bg': `url('${backgroundUrl(sc)}')` }}
+        >
           <div className="cbs-hud">
             <div className="cbs-hud-monitor">
               <span className={`cbs-rhythm-name ${rhythmBad ? 'cbs-bad' : rhythmWarn ? 'cbs-warn' : !monitorOn ? 'cbs-dim' : ''}`}>

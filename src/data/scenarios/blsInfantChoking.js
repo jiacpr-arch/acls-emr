@@ -9,6 +9,7 @@ export const blsInfantChoking = {
   level: 'basic',
   track: 'choking',
   course: 'bls',
+  bg: 'home_room',
   hiddenCause: null,
   outcome: {
     stamp: 'ของหลุดแล้ว!',

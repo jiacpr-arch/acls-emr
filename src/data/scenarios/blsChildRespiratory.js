@@ -10,6 +10,7 @@ export const blsChildRespiratory = {
   level: 'megacode',
   track: 'child',
   course: 'bls',
+  bg: 'pediatric',
   hiddenCause: null,
   outcome: {
     stamp: 'ช่วยน้องไว้ได้!',

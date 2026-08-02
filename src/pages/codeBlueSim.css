@@ -291,7 +291,8 @@
 .cbs-stage {
   position: relative; flex: 1; min-height: 54dvh;
   display: flex; align-items: flex-end; justify-content: center;
-  background: url('/images/backgrounds/er_bay.webp') center center / cover no-repeat;
+  /* ฉากมาจากโจทย์ (--cbs-stage-bg ที่ CodeBlueSim ใส่ให้) — ไม่ระบุก็ตกมาที่ห้องฉุกเฉิน */
+  background: var(--cbs-stage-bg, url('/images/backgrounds/er_bay.webp')) center center / cover no-repeat;
   overflow: hidden;
 }
 .cbs-stage::after {
