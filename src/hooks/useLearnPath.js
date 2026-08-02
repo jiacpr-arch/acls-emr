@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { usePreCourseStore } from '../stores/preCourseStore';
-import { IS_BLS, IS_SKILL_COURSE, courseMeta } from '../config/courseMode';
+import { IS_BLS, IS_SKILL_COURSE, IS_DEFIB, courseMeta } from '../config/courseMode';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
 import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/activePreTest';
 import { EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
+import { RHYTHM_QUIZ_PASSED_KEY } from '../data/rhythmDecisionQuiz';
 import { getScenarioGameStatus as getSkillScenarioGameStatus } from '../data/activeSkillContent';
 import { computeVideoCompletion } from '../utils/videoProgress';
 import { useVideoLessons } from './useVideoLessons';
@@ -21,6 +22,7 @@ const PATH_STEPS = IS_BLS
   ? [
       { key: 'preTest', path: '/pre-course/pre-test', label: 'Pre-test' },
       { key: 'lessons', path: '/pre-course', label: 'บทเรียน + Quiz' },
+      ...(IS_DEFIB ? [{ key: 'rhythmQuiz', path: '/rhythm-quiz', label: 'Rhythm Quiz' }] : []),
       { key: 'scenario', path: '/scenario', label: 'เกมลำดับขั้น' },
       { key: 'postTest', path: '/pre-course/post-test', label: 'Post-test' },
       { key: 'cert', path: '/certification', label: 'รับใบประกาศนียบัตร' },
@@ -69,6 +71,8 @@ export function useLearnPath() {
   const lessonsPassed = preCourseLessons.filter(l => passedFor(l.id)).length;
   const ekgDone = typeof localStorage !== 'undefined'
     && localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
+  const rhythmQuizDone = typeof localStorage !== 'undefined'
+    && localStorage.getItem(RHYTHM_QUIZ_PASSED_KEY) === 'true';
   const videoComp = computeVideoCompletion(videoLessons, progress, attempts);
   const certDone = (() => {
     try {
@@ -89,6 +93,8 @@ export function useLearnPath() {
         return { complete: totalLessons > 0 && lessonsPassed === totalLessons, done: lessonsPassed, total: totalLessons };
       case 'ekg':
         return { complete: ekgDone };
+      case 'rhythmQuiz':
+        return { complete: rhythmQuizDone };
       case 'video':
         if (videoComp.total === 0) return { complete: false };
         return { complete: videoComp.allDone, done: videoComp.done, total: videoComp.total };
