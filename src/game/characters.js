@@ -266,6 +266,27 @@ export const CHARACTERS = {
       </svg>`;
     },
   },
+
+  // ลุงผู้ป่วยสูงวัย — ใช้ซ้ำได้หลายเคส BLS นอกโรงพยาบาลที่ผู้ป่วยยังพูดได้
+  // (stroke ก่อนหมดสติ, เจ็บอก, น้ำตาลต่ำ, หมดสติกลางตลาดก่อนทรุด) รูปครบ 5 pose แล้ว
+  victim_uncle: {
+    name: 'ลุงผู้ป่วย',
+    role: 'Patient · Bystander',
+    plate: ['#8E4A45', '#5C2E2A'],
+    placeholder(pose) {
+      const skin = '#E8B98C', shirt = '#8E4A45', shirtD = '#5C2E2A', hair = '#5A5A62';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24,250 L24,206 Q24,170 100,168 Q176,170 176,206 L176,250 Z" fill="${shirt}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M74,172 L100,198 L126,172 L118,166 L100,186 L82,166 Z" fill="${shirtD}" stroke="${OUT}" stroke-width="3"/>
+      <rect x="86" y="150" width="28" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M52,104 Q52,48 100,46 Q148,48 148,104 Q148,140 128,152 Q114,160 100,160 Q86,160 72,152 Q52,140 52,104 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M50,96 Q52,44 100,36 Q148,44 150,96 L140,92 Q138,66 120,62 Q104,74 100,64 Q96,74 80,62 Q62,66 60,92 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+      ${brows(pose, 80, 120, 98)}
+      ${eyes(pose, 80, 120, 109, '#33261B')}
+      ${mouthGroups(pose, 100, 136)}
+      </svg>`;
+    },
+  },
 };
 
 // ตัวละคร custom ที่แอดมินสร้าง (โหลดจาก Supabase ตอนเข้าเกม) — merge ทับ/เพิ่มจาก built-in
