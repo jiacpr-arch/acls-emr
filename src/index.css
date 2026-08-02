@@ -30,6 +30,16 @@
   --color-shock: #EA580C;
   --color-shock-dark: #C2410C;
 
+  /* === Course accent ===
+     Structural/brand chrome only (bottom nav active tab, in-page tab switcher,
+     hero gradients) — NOT semantic action buttons (those stay on --color-info/
+     -danger/-success/etc. so "primary action" never accidentally looks like
+     "destructive action" just because a course's brand color happens to be red).
+     Overridden per course at runtime in src/utils/applyCourseAccent.js from
+     courseMeta.themeColor — this default is only what shows before that JS runs. */
+  --color-accent: var(--color-info);
+  --color-accent-dark: var(--color-info-dark);
+
   /* === Borders === */
   --color-border: #E2E8F0;
   --color-border-strong: #CBD5E1;
@@ -404,7 +414,7 @@ body {
 }
 .tab-item.active {
   background: var(--color-bg-secondary);
-  color: var(--color-info);
+  color: var(--color-accent);
   box-shadow: var(--shadow-1);
 }
 
@@ -584,8 +594,8 @@ body {
    Gently pulses the primary next button once the student has answered,
    so the next action stays obvious without being aggressive. */
 @keyframes lesson-next-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-info) 45%, transparent); }
-  50%      { box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-info) 0%, transparent); }
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 45%, transparent); }
+  50%      { box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-accent) 0%, transparent); }
 }
 .lesson-next-ready {
   animation: lesson-next-pulse 1.8s ease-out infinite;
@@ -774,7 +784,7 @@ body {
   height: 22px;
 }
 .bottom-pill-bar button.active {
-  color: var(--color-info);
+  color: var(--color-accent);
   font-weight: 700;
 }
 .bottom-pill-bar button:hover:not(.active) {
