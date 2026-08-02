@@ -73,6 +73,16 @@ const manifest = {
 }
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      // Points at the scenario pack for the course being built, so a single-course
+      // build's module graph never even sees the other courses' Code Blue Sim
+      // scenario files (a `COURSE_MODE ? x : y` runtime filter can't stop Rollup
+      // from bundling every branch — this alias makes the unused branches
+      // unreachable at the module-resolution level instead).
+      '@scenario-pack': path.resolve(__dirname, `src/data/scenarioPacks/${mode}.js`),
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
