@@ -359,6 +359,10 @@ export const BACKGROUNDS = {
   poolside: 'ริมสระว่ายน้ำ/ริมน้ำกลางแจ้ง',
   pediatric: 'ห้องตรวจกุมารเวช',
   delivery_room: 'ห้องคลอด',
+  ambulance: 'ในรถกู้ชีพ',
+  ct_room: 'ห้อง CT',
+  cath_lab: 'ห้องสวนหัวใจ (Cath Lab)',
+  outdoor_street: 'ริมถนน/หน้าตึกแถว',
 };
 export const DEFAULT_BACKGROUND = 'er_bay';
 

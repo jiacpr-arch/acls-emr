@@ -240,6 +240,32 @@ export const CHARACTERS = {
       </svg>`;
     },
   },
+
+  // ผู้ป่วยชายวัยกลางคนที่ยังมีสติ — ใช้กับเคสที่ผู้ป่วยพูดได้ (ACS เจ็บอก,
+  // stable brady/tachy, ซักประวัติก่อนทรุด) มีรูปจริงแล้วเฉพาะ idle/talk
+  // (ท่ากุมอก) — pose อื่นยังเป็น placeholder จึงติดธง probeArt ไว้ก่อน
+  patient_male: {
+    name: 'ผู้ป่วยชาย',
+    role: 'Patient',
+    plate: ['#7FA3C4', '#4F6E8C'],
+    probeArt: true,
+    placeholder(pose) {
+      const skin = '#E8B98C', gown = '#A8C8E0', gownD = '#7FA3C4', hair = '#4A4A50', hairL = '#8E8E96';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24,250 L24,206 Q24,170 100,168 Q176,170 176,206 L176,250 Z" fill="${gown}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M74,172 L100,200 L126,172 L118,166 L100,186 L82,166 Z" fill="${gownD}" stroke="${OUT}" stroke-width="3"/>
+      <path d="M64,196 Q66,214 64,236 M136,196 Q134,214 136,236" stroke="${gownD}" stroke-width="2.6" fill="none" opacity=".7"/>
+      <rect x="86" y="148" width="28" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M52,102 Q52,46 100,44 Q148,46 148,102 Q148,140 128,152 Q114,160 100,160 Q86,160 72,152 Q52,140 52,102 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M50,94 Q52,42 100,34 Q148,42 150,94 L140,90 Q138,62 120,58 Q104,70 100,60 Q96,70 80,60 Q62,64 60,90 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M66,52 Q82,42 100,42 M114,44 Q128,46 138,56" stroke="${hairL}" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      <path d="M60,122 Q58,128 62,132 M140,122 Q142,128 138,132" stroke="#C98F5E" stroke-width="2.4" fill="none"/>
+      ${brows(pose, 80, 120, 96)}
+      ${eyes(pose, 80, 120, 107, '#33261B')}
+      ${mouthGroups(pose, 100, 134)}
+      </svg>`;
+    },
+  },
 };
 
 // ตัวละคร custom ที่แอดมินสร้าง (โหลดจาก Supabase ตอนเข้าเกม) — merge ทับ/เพิ่มจาก built-in

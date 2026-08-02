@@ -16,7 +16,12 @@
 | ที่วาง | `public/images/backgrounds/{key}.webp` |
 
 ชื่อไฟล์ต้องตรงกับ key เป๊ะ ๆ: `ward_night.webp` · `public_indoor.webp` · `home_room.webp` ·
-`poolside.webp` · `pediatric.webp` · `delivery_room.webp`
+`poolside.webp` · `pediatric.webp` · `delivery_room.webp` · `ambulance.webp` · `ct_room.webp` ·
+`cath_lab.webp` · `outdoor_street.webp`
+
+> **สถานะ:** ทุก key ข้างบนมีไฟล์รูปแล้ว — 4 ฉากหลัง (ambulance, ct_room, cath_lab,
+> outdoor_street) ยังไม่ถูกใช้โดยเคส built-in ตัวไหน (เคสเดิมดำเนินเรื่องใน ER/ฉากที่มีอยู่แล้ว)
+> มีไว้ให้เคสใหม่/เคสจากแอดมิน-AI ตั้ง `bg` ได้ทันที
 
 **ถ้า AI ส่งออกมาเป็น PNG/JPG** แปลงเป็น webp ก่อนวาง เช่น
 `cwebp -q 80 ward_night.png -o ward_night.webp` หรือใช้เว็บแปลงไฟล์ทั่วไป
