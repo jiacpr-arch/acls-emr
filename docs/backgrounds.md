@@ -17,11 +17,12 @@
 
 ชื่อไฟล์ต้องตรงกับ key เป๊ะ ๆ: `ward_night.webp` · `public_indoor.webp` · `home_room.webp` ·
 `poolside.webp` · `pediatric.webp` · `delivery_room.webp` · `ambulance.webp` · `ct_room.webp` ·
-`cath_lab.webp` · `outdoor_street.webp`
+`cath_lab.webp` · `outdoor_street.webp` · `opd_lobby.webp` · `ward_bathroom.webp` ·
+`dialysis_unit.webp` (3 ฉากหลังนี้ยังไม่มีไฟล์ — ดูหัวข้อ 4 ท้ายไฟล์)
 
-> **สถานะ:** ทุก key ข้างบนมีไฟล์รูปแล้ว — 4 ฉากหลัง (ambulance, ct_room, cath_lab,
-> outdoor_street) ยังไม่ถูกใช้โดยเคส built-in ตัวไหน (เคสเดิมดำเนินเรื่องใน ER/ฉากที่มีอยู่แล้ว)
-> มีไว้ให้เคสใหม่/เคสจากแอดมิน-AI ตั้ง `bg` ได้ทันที
+> **สถานะ:** ambulance, ct_room, cath_lab, outdoor_street มีไฟล์รูปแล้ว แต่ยังไม่ถูกใช้โดยเคส
+> built-in ตัวไหน (เคสเดิมดำเนินเรื่องใน ER/ฉากที่มีอยู่แล้ว) มีไว้ให้เคสใหม่/เคสจากแอดมิน-AI
+> ตั้ง `bg` ได้ทันที — ส่วน opd_lobby, ward_bathroom, dialysis_unit ยังไม่มีไฟล์รูป
 
 **ถ้า AI ส่งออกมาเป็น PNG/JPG** แปลงเป็น webp ก่อนวาง เช่น
 `cwebp -q 80 ward_night.png -o ward_night.webp` หรือใช้เว็บแปลงไฟล์ทั่วไป
@@ -47,7 +48,7 @@
 
 ## 3. บล็อกสไตล์ร่วม — ต่อท้ายทุก prompt
 
-ก๊อปบล็อกนี้ไปต่อท้าย prompt ของทุกฉาก เพื่อให้ทั้ง 6 ภาพเป็นชุดเดียวกัน
+ก๊อปบล็อกนี้ไปต่อท้าย prompt ของทุกฉาก เพื่อให้ทุกภาพเป็นชุดเดียวกัน
 
 ```
 Style: semi-realistic anime illustration, clean linework, soft even lighting,
@@ -64,7 +65,8 @@ border, no text overlay. 3:2 landscape, 1536x1024.
 ## 4. Prompt รายฉาก
 
 ### `ward_night.webp` — หอผู้ป่วยกลางดึก
-ใช้กับ 4 เคส: Code ในหอผู้ป่วย · หายใจช้าลงเรื่อย ๆ เตียง 12 · จอเตือน VF ตอนตีสาม · บีบ bag ให้เป็น
+ใช้กับ 5 เคส: Code ในหอผู้ป่วย · หายใจช้าลงเรื่อย ๆ เตียง 12 · จอเตือน VF ตอนตีสาม · บีบ bag ให้เป็น ·
+ผู้ป่วย stroke สำลักข้าวบนหอ
 
 ```
 A hospital inpatient ward at night, viewed from the foot of an empty bed area.
@@ -127,6 +129,40 @@ stand with a paper strip, an infant warmer with an overhead heat lamp along the
 far wall, an instrument trolley covered with a sterile drape, a wall-mounted
 oxygen and suction panel. Pale green-tiled walls, polished floor with clear open
 space in front of the bed.
+```
+
+### `opd_lobby.webp` — โถงลิฟต์ / OPD โรงพยาบาล
+ใช้กับ 1 เคส: ญาติล้มหน้าลิฟต์ OPD
+
+```
+The ground-floor lobby of a hospital outpatient department, near a bank of
+elevators. Bright daytime lighting, polished floor, rows of waiting chairs
+along one side, a hospital directory sign, a green wall-mounted AED cabinet
+clearly visible near the center on a pillar. Elevator doors in the background,
+potted plants, an information counter blurred further back. Open empty floor
+in the foreground.
+```
+
+### `ward_bathroom.webp` — ห้องน้ำผู้ป่วยในหอผู้ป่วย
+ใช้กับ 1 เคส: ผู้ป่วยล้มในห้องน้ำหอผู้ป่วย
+
+```
+A hospital inpatient bathroom, compact and clinical. Light blue tiled walls
+and non-slip tile floor with visible wet patches, a wall-mounted grab bar
+near a toilet, a wheelchair-accessible sink with lever handles, a nurse call
+cord hanging on the wall, a wide swing door propped open. Bright fluorescent
+lighting. Open clear floor space in the center of the frame.
+```
+
+### `dialysis_unit.webp` — หน่วยไตเทียม
+ใช้กับ 1 เคส: วูบคาเครื่องฟอกไต
+
+```
+A hemodialysis treatment room in a hospital, bright and clean. A reclining
+dialysis treatment chair with an armrest, a dialysis machine on wheels beside
+it with tubing coiled neatly and a digital display glowing, a small side
+table with supplies, pale green walls, a window with blinds letting in
+afternoon light. Vinyl floor with clear open space in front of the chair.
 ```
 
 ---
