@@ -7,7 +7,7 @@ import {
 import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
 import { usePreCourseStore } from '../stores/preCourseStore';
-import { IS_BLS, IS_ACLS, IS_SKILL_COURSE } from '../config/courseMode';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, courseMeta } from '../config/courseMode';
 import { isOpenLeague } from '../config/openLeague';
 import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
@@ -1013,10 +1013,10 @@ export default function CodeBlueSim() {
               );
             })}
           </div>
-          {IS_ACLS && (
+          {(IS_ACLS || IS_SKILL_COURSE) && (
             <div className="cbs-cert-note">
-              🏅 โบนัสพิเศษ: เคสที่ผ่านและเหรียญจะโชว์บนใบประกาศ ACLS ของคุณ —
-              ผ่านเคส megacode ครบทุกเคส รับตราทอง MEGACODE MASTER (ไม่บังคับ ไม่มีผลต่อการออกใบ)
+              🏅 โบนัสพิเศษ: เคสที่ผ่านและเหรียญจะโชว์บนใบประกาศ {courseMeta.shortName} ของคุณ —
+              ผ่านเคสระดับสูงสุดครบทุกเคส รับตราทองพิเศษ (ไม่บังคับ ไม่มีผลต่อการออกใบ)
             </div>
           )}
           <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('awards'); window.scrollTo(0, 0); }}>
@@ -1150,8 +1150,8 @@ export default function CodeBlueSim() {
               <><br />🔥 สตรีคสูงสุด ×{st.maxCombo} — ตัวคูณคะแนน ×{comboMultiplier(st).toFixed(2)}</>
             )}
             {result.isHiscore && <><br />🏆 New Hi-Score: {result.score}</>}
-            {result.won && IS_ACLS && (
-              <><br /><span style={{ opacity: 0.7 }}>🏅 ผลงานสะสมแสดงเป็นโบนัสบนใบประกาศ ACLS</span></>
+            {result.won && (IS_ACLS || IS_SKILL_COURSE) && (
+              <><br /><span style={{ opacity: 0.7 }}>🏅 ผลงานสะสมแสดงเป็นโบนัสบนใบประกาศ {courseMeta.shortName}</span></>
             )}
           </p>
           {freshAwards.length > 0 && (
@@ -1165,9 +1165,9 @@ export default function CodeBlueSim() {
                   </div>
                 ))}
               </div>
-              {IS_ACLS && freshAwards.some((a) => a.id === 'megacode_all') && (
+              {(IS_ACLS || IS_SKILL_COURSE) && freshAwards.some((a) => a.id === 'megacode_all') && (
                 <div className="cbs-cert-note" style={{ marginTop: 10 }}>
-                  🏅 ตราทอง MEGACODE MASTER จะปรากฏบนใบประกาศ ACLS ของคุณ!
+                  🏅 ตราทอง {freshAwards.find((a) => a.id === 'megacode_all')?.title} จะปรากฏบนใบประกาศ {courseMeta.shortName} ของคุณ!
                 </div>
               )}
             </div>

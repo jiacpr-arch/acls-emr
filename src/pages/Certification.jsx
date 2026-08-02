@@ -6,16 +6,17 @@ import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/activePreTest';
 import { EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
+import { RHYTHM_QUIZ_PASS_PERCENT, RHYTHM_QUIZ_PASSED_KEY } from '../data/rhythmDecisionQuiz';
 import { getScenarioGameStatus as getBlsScenarioGameStatus } from '../data/blsScenarios';
 import { getScenarioGameStatus as getSkillScenarioGameStatus } from '../data/activeSkillContent';
 import { simGameStatus } from '../data/codeBlueScenarios';
 import { certConfig } from '../data/activeCert';
-import { IS_BLS, IS_SKILL_COURSE, COURSE_MODE, courseMeta } from '../config/courseMode';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, IS_DEFIB, COURSE_MODE, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';
 import { rpcJoinClass, rpcGetMyPracticalStatus } from '../services/cohortSync';
 import { exportCertificatePDF } from '../utils/exportCertificate';
-import { simCertHighlights } from '../game/achievements';
+import { simCertHighlights, ACHIEVEMENTS } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
@@ -61,6 +62,7 @@ export default function Certification() {
   // Soft gate: ปลดล็อกปุ่มดาวน์โหลดเมื่อกดเพิ่มเพื่อน LINE OA (หรือกดข้าม) — จำค่าไว้ข้าม refresh
   const [lineUnlocked, setLineUnlocked] = useState(!!certData.lineFollowed);
   const ekgTestDone = localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
+  const rhythmQuizDone = localStorage.getItem(RHYTHM_QUIZ_PASSED_KEY) === 'true';
   const classCode = useClassStore(s => s.classCode);
 
   // สถานะภาคปฏิบัติจากระบบเช็คชื่อ QR (วันเรียนจริง) — เข้าครบทุกฐาน + สอบ
@@ -178,6 +180,9 @@ export default function Certification() {
     ? [
         { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
+        ...(IS_DEFIB
+          ? [{ label: `ผ่าน Rhythm Quiz ≥ ${RHYTHM_QUIZ_PASS_PERCENT}%`, done: rhythmQuizDone, Icon: Activity, to: '/rhythm-quiz' }]
+          : []),
         { label: `ผ่านเกมลำดับขั้น ${skillScenarioGame.total - 1} ด่าน + ข้อสอบรวม (${skillScenarioGame.done}/${skillScenarioGame.total})`, done: skillScenarioGame.allPassed, Icon: Activity, to: '/scenario' },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
         ...(videoGateActive
@@ -231,6 +236,7 @@ export default function Certification() {
       preTestScore: IS_BLS ? null : (preTestBest?.score ?? null),
       postTestScore: postTestBest?.score ?? null,
       ekgPassed: (IS_BLS || IS_SKILL_COURSE) ? null : ekgTestDone,
+      rhythmQuizPassed: IS_DEFIB ? rhythmQuizDone : null,
       videoCompleted: videoGateActive ? videoComp.allDone : null,
       theoryOnly: !!certConfig.theoryOnly,
       // eslint-disable-next-line react-hooks/purity -- รันใน event handler (กดปุ่มออกใบ) ไม่ใช่ตอน render
@@ -294,9 +300,10 @@ export default function Certification() {
     }
   };
 
-  // ผลงาน Code Blue Sim สำหรับใบ cert (ACLS เท่านั้น) — null = ไม่เคยผ่านเคส
+  // ผลงาน Code Blue Sim สำหรับใบ cert (ทุกคอร์สยกเว้น BLS) — null = ไม่เคยผ่านเคส
   // อ่านสดจาก localStorage ทุก render เพื่อให้เก็บเหรียญเพิ่มแล้วกลับมาหน้านี้เห็นทันที
   const simHighlights = !IS_BLS ? simCertHighlights() : null;
+  const megacodeAwardTitle = ACHIEVEMENTS.find((a) => a.id === 'megacode_all')?.title || 'MEGACODE MASTER';
 
   const issuedDate = certData.completedAt ? new Date(certData.completedAt) : null;
   const expiresDate = issuedDate ? new Date(issuedDate) : null;
@@ -398,9 +405,11 @@ export default function Certification() {
         </div>
       )}
 
-      {/* Stats — ACLS only (BLS has no scenarios) */}
+      {/* Stats — everyone except BLS (BLS has its own stat block below).
+          3rd tile is course-specific: ACLS shows EKG test, Defib shows Rhythm
+          Quiz, Airway/IV have neither so the grid drops to 2 columns. */}
       {!IS_BLS && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className={`grid ${(IS_ACLS || IS_DEFIB) ? 'grid-cols-3' : 'grid-cols-2'} gap-2`}>
           <div className="stat-box">
             <div className={`stat-value text-lg ${preTestDone ? 'text-success' : 'text-warning'}`}>
               {preTestBest ? `${preTestBest.score}%` : '—'}
@@ -413,12 +422,22 @@ export default function Certification() {
             </div>
             <div className="stat-label">Post-test</div>
           </div>
-          <div className="stat-box">
-            <div className={`stat-value text-lg ${ekgTestDone ? 'text-success' : 'text-warning'}`}>
-              {ekgTestDone ? 'ผ่าน' : '—'}
+          {IS_ACLS && (
+            <div className="stat-box">
+              <div className={`stat-value text-lg ${ekgTestDone ? 'text-success' : 'text-warning'}`}>
+                {ekgTestDone ? 'ผ่าน' : '—'}
+              </div>
+              <div className="stat-label">EKG test</div>
             </div>
-            <div className="stat-label">EKG test</div>
-          </div>
+          )}
+          {IS_DEFIB && (
+            <div className="stat-box">
+              <div className={`stat-value text-lg ${rhythmQuizDone ? 'text-success' : 'text-warning'}`}>
+                {rhythmQuizDone ? 'ผ่าน' : '—'}
+              </div>
+              <div className="stat-label">Rhythm Quiz</div>
+            </div>
+          )}
         </div>
       )}
 
@@ -497,8 +516,8 @@ export default function Certification() {
         </div>
       )}
 
-      {/* Code Blue Sim bonus teaser (ACLS เท่านั้น) — ชวนเล่นแบบไม่บังคับ ก่อนออกใบ
-          หรือหลังออกใบแต่ยังไม่เคยเล่น (การ์ด cert ด้านล่างโชว์ผลงานจริงอยู่แล้วถ้าเคยเล่น) */}
+      {/* Code Blue Sim bonus teaser (ทุกคอร์สยกเว้น BLS — ACLS + 3 คอร์สทักษะ) — ชวนเล่นแบบไม่บังคับ
+          ก่อนออกใบ หรือหลังออกใบแต่ยังไม่เคยเล่น (การ์ด cert ด้านล่างโชว์ผลงานจริงอยู่แล้วถ้าเคยเล่น) */}
       {!IS_BLS && !(certData.certId && simHighlights) && (
         <div className="dash-card !p-3 bg-warning/10 border border-warning/30 flex items-start gap-2">
           <Sparkles size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
@@ -506,7 +525,7 @@ export default function Certification() {
             <span className="font-bold text-warning">โบนัสพิเศษบนใบประกาศ (ไม่บังคับ)</span>
             <div className="mt-0.5">
               เล่น Code Blue Sim แล้วเคสที่ผ่าน + เกรด S จะโชว์บนใบประกาศ —
-              ผ่านเคส megacode ครบทุกเคส รับตราทอง MEGACODE MASTER บนใบด้วย
+              ผ่านเคสระดับสูงสุดครบทุกเคส รับตราทอง{megacodeAwardTitle} บนใบด้วย
               ไม่เล่นก็รับใบประกาศได้ตามปกติ
             </div>
             {simHighlights && (
@@ -520,7 +539,7 @@ export default function Certification() {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 text-2xs font-extrabold bg-warning/12 text-warning"
                 style={{ borderRadius: 'var(--radius-full)' }}
               >
-                <Medal size={14} strokeWidth={2.4} /> MEGACODE MASTER — จะแสดงบนใบประกาศ
+                <Medal size={14} strokeWidth={2.4} /> {megacodeAwardTitle} — จะแสดงบนใบประกาศ
               </div>
             ) : (
               <Link to="/sim" className="inline-flex items-center gap-1 mt-1.5 text-caption font-bold text-warning">

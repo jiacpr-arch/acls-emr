@@ -2,7 +2,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { useSettingsStore } from './stores/settingsStore';
-import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, courseMeta } from './config/courseMode';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, IS_DEFIB, courseMeta } from './config/courseMode';
 import { useCourseModeInit } from './hooks/useCourseModeInit';
 import Dashboard from './pages/Dashboard';
 import NewCase from './pages/NewCase';
@@ -46,6 +46,7 @@ import BLSAedGuide from './pages/BLSAedGuide';
 import BLSChokingRelief from './pages/BLSChokingRelief';
 import BLSKnowledge from './pages/BLSKnowledge';
 import SkillKnowledge from './pages/SkillKnowledge';
+import RhythmQuiz from './pages/RhythmQuiz';
 import SkillScenarioHub from './pages/SkillScenarioHub';
 import SkillScenario from './pages/SkillScenario';
 import NewsPage from './pages/NewsPage';
@@ -182,6 +183,7 @@ function App() {
             lesson track + knowledge base + scenario game each (see plan). */}
         {IS_SKILL_COURSE && <Route path="/" element={<PreCourse />} />}
         {IS_SKILL_COURSE && <Route path="/knowledge" element={<SkillKnowledge />} />}
+        {IS_DEFIB && <Route path="/rhythm-quiz" element={<RhythmQuiz />} />}
         {IS_SKILL_COURSE && <Route path="/scenario" element={<SkillScenarioHub />} />}
         {IS_SKILL_COURSE && <Route path="/scenario/:stageId" element={<SkillScenario />} />}
         {/* เข้าถึงได้ทั้ง ACLS/BLS — เมนูใน AdminDashboard กรองตามโหมดเอง */}
