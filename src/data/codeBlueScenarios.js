@@ -20,7 +20,9 @@ import { vfArrest } from './scenarios/vfArrest';
 import { peaHyperK } from './scenarios/peaHyperK';
 import { blsCollapse } from './scenarios/blsCollapse';
 import { blsChoking } from './scenarios/blsChoking';
-// BLS pack (MorRoo) — เคสสำหรับ bls.morroo.com จัดหมวดแบบ BLS (ผู้ใหญ่/เด็ก/สำลัก/พิเศษ)
+// BLS pack (MorRoo) — เคสสำหรับ bls.morroo.com "BLS สำหรับบุคลากรทางการแพทย์"
+// ผู้เล่นสวมบทพยาบาลในโรงพยาบาล / ทีมกู้ชีพนอกโรงพยาบาลที่ไม่ใช่แพทย์ / บุคลากรนอกเวร
+// ขอบเขต: คลำชีพจร · CPR · ช่วยหายใจด้วย bag-mask · AED — ไม่อ่าน rhythm เอง ไม่ตั้งพลังงานเอง ไม่สั่งยาเอง
 import { blsHandsOnly } from './scenarios/blsHandsOnly';
 import { blsAedWet } from './scenarios/blsAedWet';
 import { blsTeamWard } from './scenarios/blsTeamWard';
@@ -29,6 +31,12 @@ import { blsInfantCpr } from './scenarios/blsInfantCpr';
 import { blsInfantChoking } from './scenarios/blsInfantChoking';
 import { blsPregnantChoking } from './scenarios/blsPregnantChoking';
 import { blsOpioid } from './scenarios/blsOpioid';
+import { blsRespiratoryArrest } from './scenarios/blsRespiratoryArrest';
+import { blsBvmTwoRescuer } from './scenarios/blsBvmTwoRescuer';
+import { blsMonitorAlarmScope } from './scenarios/blsMonitorAlarmScope';
+import { blsEmsConfinedSpace } from './scenarios/blsEmsConfinedSpace';
+import { blsChildRespiratory } from './scenarios/blsChildRespiratory';
+import { blsPregnantArrest } from './scenarios/blsPregnantArrest';
 // ACLS basic pack — เคสเดี่ยว ทีละ algorithm/แขนงย่อย ให้ฝึกก่อนไป megacode
 import { peaAsystoleBasic } from './scenarios/peaAsystoleBasic';
 import { bradycardiaBasic } from './scenarios/bradycardiaBasic';
@@ -127,20 +135,28 @@ const allScenarios = [
   preeclampsia,
   traumaArrest,
   // ── BLS (MorRoo) ── จัดเรียงตามหมวด BLS และในหมวดเรียงง่าย→ยาก
-  // 🫀 ผู้ใหญ่: CPR + AED
+  // 🫀 ผู้ใหญ่: BLS Survey · CPR · AED
   blsCollapse,
   blsHandsOnly,
   blsAedWet,
-  blsTeamWard,
+  // 🫁 คลำชีพจร & ช่วยหายใจ
+  blsOpioid,
+  blsRespiratoryArrest,
+  blsBvmTwoRescuer,
   // 👶 เด็กและทารก
   blsChildDrowning,
   blsInfantCpr,
+  blsChildRespiratory,
   // 🌬 สำลัก
   blsChoking,
   blsInfantChoking,
   blsPregnantChoking,
+  // 🏥 ทีมในโรงพยาบาล & ขอบเขตบทบาท
+  blsTeamWard,
+  blsMonitorAlarmScope,
+  blsEmsConfinedSpace,
   // 🚨 สถานการณ์พิเศษ
-  blsOpioid,
+  blsPregnantArrest,
   // ── Airway (สำหรับ airway.morroo.com) — เคสเดี่ยวต่อทักษะ เรียงพื้นฐาน→ขั้นสูง ──
   airwayOpaNpaBasic,
   airwayBvmVentilation,
@@ -238,22 +254,32 @@ const ACLS_TRACK_META = {
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
 };
 
+// BLS ของ MorRoo เป็นหลักสูตร "สำหรับบุคลากรทางการแพทย์" — หมวดจึงจัดตามทักษะที่ผู้ปฏิบัติ
+// ระดับ BLS ต้องทำได้จริง (ประเมิน · คลำชีพจร · ช่วยหายใจ · AED · ทำงานเป็นทีม) ไม่ใช่หมวดแบบผู้พบเหตุทั่วไป
 const BLS_TRACK_META = {
   adult: {
-    label: 'ผู้ใหญ่: CPR + AED', icon: '🫀', order: 0,
-    desc: 'ห่วงโซ่การรอดชีวิต — เรียกช่วย · กดหน้าอกคุณภาพสูง · ใช้ AED ให้ไว',
+    label: 'ผู้ใหญ่: BLS Survey · CPR · AED', icon: '🫀', order: 0,
+    desc: 'ประเมิน–เรียกช่วย–คลำชีพจร ≤10 วิ · กดลึก 5-6 ซม. เร็ว 100-120 · ใช้ AED ให้ไว',
+  },
+  breathing: {
+    label: 'คลำชีพจร & ช่วยหายใจ', icon: '🫁', order: 1,
+    desc: 'มีชีพจรแต่ไม่หายใจต้องทำอะไร — ผู้ใหญ่ 1 ครั้ง/6 วิ · เด็ก 1 ครั้ง/2-3 วิ · OPA + bag-mask',
   },
   child: {
-    label: 'เด็กและทารก', icon: '👶', order: 1,
-    desc: 'เทคนิคเฉพาะวัย — ความลึก 1/3 อก, ชีพจร brachial, 15:2 เมื่อช่วยสองคน',
+    label: 'เด็กและทารก', icon: '👶', order: 2,
+    desc: 'ตัวเลขคนละชุด — ลึก 1/3 อก · ทารกคลำต้นแขน เด็กคลำคอ/ขาหนีบ · ชีพจร <60 ก็เริ่มกด · 15:2 เมื่อสองคน',
   },
   choking: {
-    label: 'สำลัก', icon: '🌬', order: 2,
-    desc: 'ผู้ใหญ่ thrust ท้อง · คนท้องกระแทกอก · ทารกตบหลัง 5 สลับกระแทกอก 5',
+    label: 'สำลัก', icon: '🌬', order: 3,
+    desc: 'ผู้ใหญ่ตบหลังสลับกระทุ้งท้อง · คนท้อง/อ้วนมากใช้กระแทกอก · ทารกตบหลัง 5 สลับกระแทกอก 5',
+  },
+  team: {
+    label: 'ทีมในโรงพยาบาล & ขอบเขตบทบาท', icon: '🏥', order: 4,
+    desc: 'Code Blue · สื่อสารแบบทวนคำสั่ง · ส่งเวรแบบ SBAR — และเส้นแบ่งว่าอะไรต้องรอทีมขั้นสูง',
   },
   special: {
-    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 3,
-    desc: 'จมน้ำ · opioid เกินขนาด — สถานการณ์ที่ขั้นตอนพื้นฐานต้องปรับ',
+    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 5,
+    desc: 'ตั้งครรภ์ · จมน้ำ · ยาเกินขนาด — สถานการณ์ที่ขั้นตอนพื้นฐานต้องปรับ',
   },
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
 };
