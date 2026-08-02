@@ -87,12 +87,17 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-:focus-visible {
-  outline: 2px solid var(--color-info);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
+/* @layer base: ให้ Tailwind utility (อยู่ใน @layer utilities) ชนะ reset พวกนี้
+   เมื่อ property ชนกัน — เดิมกฎเหล่านี้ unlayered จึงชนะทุก utility เสมอ ทำให้
+   ปุ่มที่ใส่ bg-*/text-left/border-* กลายเป็นล่องหน (ดู PR ประวัติ commit นี้) */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-info);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  button:focus { outline: none; }
 }
-button:focus { outline: none; }
 
 /* ===== TYPOGRAPHY (firstaid scale) ===== */
 .text-display { font-size: 30px; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
@@ -108,17 +113,19 @@ button:focus { outline: none; }
 .text-numeric { font-family: 'SF Mono', 'JetBrains Mono', 'Menlo', monospace; font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: -0.01em; }
 
 /* ===== BUTTON SYSTEM ===== */
-button, [role="button"] {
-  cursor: pointer;
-  touch-action: manipulation;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border: 1px solid transparent;
-  background: none;
-  line-height: 1.3;
-  font-family: inherit;
+@layer base {
+  button, [role="button"] {
+    cursor: pointer;
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid transparent;
+    background: none;
+    line-height: 1.3;
+    font-family: inherit;
+  }
 }
 
 .btn {
@@ -889,22 +896,24 @@ button, [role="button"] {
 
 
 /* ===== INPUTS ===== */
-input, textarea, select {
-  font-family: inherit;
-  font-size: 15px;
-  border-radius: var(--radius);
-}
-input[type="text"], input[type="number"], input[type="email"], input[type="tel"], textarea, select {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  padding: 10px 12px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  color: var(--color-text-primary);
-}
-input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="tel"]:focus, textarea:focus, select:focus {
-  outline: none;
-  border-color: var(--color-info);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+@layer base {
+  input, textarea, select {
+    font-family: inherit;
+    font-size: 15px;
+    border-radius: var(--radius);
+  }
+  input[type="text"], input[type="number"], input[type="email"], input[type="tel"], textarea, select {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    padding: 10px 12px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    color: var(--color-text-primary);
+  }
+  input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="tel"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--color-info);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
 }
 
 /* ===== RESPONSIVE ===== */
