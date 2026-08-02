@@ -158,7 +158,6 @@ export const CHARACTERS = {
     name: 'หมอกฤต',
     role: 'Anesthesia · Airway',
     plate: ['#3E7BC8', '#24508C'],
-    probeArt: true,
     placeholder(pose) {
       const skin = '#EEB98C', scrub = '#3E7BC8', scrubD = '#24508C', cap = '#2E62A6';
       return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
@@ -180,7 +179,6 @@ export const CHARACTERS = {
     name: 'พี่เป้ กู้ชีพ',
     role: 'EMS · 1669',
     plate: ['#D14B4B', '#8F2B2B'],
-    probeArt: true,
     placeholder(pose) {
       const skin = '#E2A876', suit = '#D14B4B', suitD = '#8F2B2B', hair = '#22252D';
       return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
@@ -226,7 +224,6 @@ export const CHARACTERS = {
     name: 'ญาติผู้ป่วย',
     role: 'Family · Witness',
     plate: ['#6E7B94', '#43506B'],
-    probeArt: true,
     placeholder(pose) {
       const skin = '#F1C49E', shirt = '#6E7B94', shirtD = '#43506B', hair = '#57515C';
       return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
