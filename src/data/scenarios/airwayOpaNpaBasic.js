@@ -7,6 +7,7 @@ export const airwayOpaNpaBasic = {
   level: 'basic',
   track: 'basicAirway',
   course: 'airway',
+  bg: 'ward_night',
   hiddenCause: null,
   story: [
     { say: { who: 'att_dech', pose: 'stern', text: 'หมดสติหลังชัก หายใจมีเสียงคราง — สงสัยลิ้นตกอุดทางเดินหายใจ คุณจะทำอะไรก่อน?' }, t: 4 },

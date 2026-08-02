@@ -7,6 +7,7 @@ export const ivIoAccess = {
   level: 'intermediate',
   track: 'io',
   course: 'iv',
+  bg: 'pediatric',
   hiddenCause: null,
   story: [
     {
