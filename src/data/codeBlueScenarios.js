@@ -66,6 +66,18 @@ import { completeHeartBlock } from './scenarios/completeHeartBlock';
 import { mobitz2Vf } from './scenarios/mobitz2Vf';
 import { svtCascade } from './scenarios/svtCascade';
 import { pvtHandover } from './scenarios/pvtHandover';
+// Airway pack (สำหรับ airway.morroo.com) — เคสเดี่ยวต่อทักษะ ไม่ปนกับคลัง ACLS/BLS
+import { airwayOpaNpaBasic } from './scenarios/airwayOpaNpaBasic';
+import { airwayBvmVentilation } from './scenarios/airwayBvmVentilation';
+import { airwayAdvancedCapnography } from './scenarios/airwayAdvancedCapnography';
+// Defib pack (สำหรับ defib.morroo.com)
+import { defibAedVf } from './scenarios/defibAedVf';
+import { defibManualPause } from './scenarios/defibManualPause';
+import { defibCardioversion } from './scenarios/defibCardioversion';
+// IV/IO pack (สำหรับ iv.morroo.com)
+import { ivPeripheralAccess } from './scenarios/ivPeripheralAccess';
+import { ivIoAccess } from './scenarios/ivIoAccess';
+import { ivDrugDelivery } from './scenarios/ivDrugDelivery';
 
 // เคสทั้งหมดในระบบ (built-in) — จัดเรียงตามหมวด (track) และในหมวดเรียงง่าย→ยาก
 // ลำดับในนี้คือ "บันได" ของแต่ละหมวดบนหน้าเลือกเคส + ลำดับเคสแนะนำถัดไป
@@ -129,6 +141,18 @@ const allScenarios = [
   blsPregnantChoking,
   // 🚨 สถานการณ์พิเศษ
   blsOpioid,
+  // ── Airway (สำหรับ airway.morroo.com) — เคสเดี่ยวต่อทักษะ เรียงพื้นฐาน→ขั้นสูง ──
+  airwayOpaNpaBasic,
+  airwayBvmVentilation,
+  airwayAdvancedCapnography,
+  // ── Defibrillation (สำหรับ defib.morroo.com) ──
+  defibAedVf,
+  defibManualPause,
+  defibCardioversion,
+  // ── IV/IO Access & Drug Delivery (สำหรับ iv.morroo.com) ──
+  ivPeripheralAccess,
+  ivIoAccess,
+  ivDrugDelivery,
 ];
 
 // เคสที่ไม่ระบุ course ถือว่าเป็น acls (ค่าเริ่มต้นเดิม)
@@ -172,10 +196,12 @@ export function simGameStatus() {
 }
 
 // ระดับความยากของเคส — โหมด BLS ไม่มีคำว่า megacode ใช้ป้าย "ทีมกู้ชีพ" แทน (key เดิม)
+// คอร์สทักษะเดี่ยว (airway/defib/iv) ก็ไม่ใช่ megacode จริง — ใช้ "ขั้นสูง" แทน
+const MEGACODE_LABEL = { bls: 'ทีมกู้ชีพ', airway: 'ขั้นสูง', defib: 'ขั้นสูง', iv: 'ขั้นสูง' };
 export const LEVEL_META = {
   basic: { label: 'พื้นฐาน', order: 0 },
   intermediate: { label: 'ปานกลาง', order: 1 },
-  megacode: { label: COURSE_MODE === 'bls' ? 'ทีมกู้ชีพ' : 'Megacode', order: 2 },
+  megacode: { label: MEGACODE_LABEL[COURSE_MODE] || 'Megacode', order: 2 },
 };
 
 // หมวดของเคส (track) — ACLS จัดตาม algorithm, BLS จัดตามกลุ่มผู้ป่วย/สถานการณ์
@@ -232,7 +258,63 @@ const BLS_TRACK_META = {
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
 };
 
-export const TRACK_META = COURSE_MODE === 'bls' ? BLS_TRACK_META : ACLS_TRACK_META;
+// คอร์สทักษะเดี่ยว — แต่ละ track ผูกตรงกับหนึ่งทักษะย่อยของคอร์สนั้น (ไม่ปนกับ track ของ ACLS/BLS)
+const AIRWAY_TRACK_META = {
+  basicAirway: {
+    label: 'เปิดทางเดินหายใจ + OPA/NPA', icon: '🫁', order: 0,
+    desc: 'head-tilt–chin-lift · เลือก OPA/NPA ตาม gag reflex · วัดขนาด · เทคนิคใส่',
+  },
+  ventilation: {
+    label: 'Bag-Mask Ventilation', icon: '💨', order: 1,
+    desc: 'E-C clamp คนเดียว · seal ที่ดี · จังหวะบีบไม่ให้ลมเข้ากระเพาะ',
+  },
+  advanced: {
+    label: 'ทางเดินหายใจขั้นสูง', icon: '🔬', order: 2,
+    desc: 'SGA ระหว่าง CPR ไม่หยุดกด · waveform capnography · จับสัญญาณ ROSC',
+  },
+  other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
+};
+
+const DEFIB_TRACK_META = {
+  aed: {
+    label: 'AED สำหรับ VF', icon: '⚡', order: 0,
+    desc: 'เริ่ม CPR ระหว่างรอเครื่อง · แปะ pads ถูกตำแหน่ง · ช็อกอย่างปลอดภัย',
+  },
+  manual: {
+    label: 'Manual Defibrillator', icon: '🔋', order: 1,
+    desc: 'ตั้งพลังงาน · ลด peri-shock pause · ช็อกซ้ำตามรอบพร้อมยา',
+  },
+  electrical: {
+    label: 'Cardioversion & Pacing', icon: '📟', order: 2,
+    desc: 'Synchronized cardioversion สำหรับ unstable tachycardia · โหมด Sync',
+  },
+  other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
+};
+
+const IV_TRACK_META = {
+  peripheral: {
+    label: 'Peripheral IV', icon: '💉', order: 0,
+    desc: 'เลือกเบอร์เข็ม/ตำแหน่งเส้น · ยืนยัน flashback · bolus สารน้ำ',
+  },
+  io: {
+    label: 'Intraosseous (IO)', icon: '🦴', order: 1,
+    desc: 'เปลี่ยนไป IO เมื่อ IV ล้มเหลว · ตำแหน่ง proximal tibia · ยืนยันก่อนให้ยา',
+  },
+  drugs: {
+    label: 'ให้ยาระหว่าง CPR', icon: '💊', order: 2,
+    desc: 'bolus + flush 20 mL · ยกแขน · รอบเวลาให้ยา · จัดการเส้นที่ infiltrate',
+  },
+  other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
+};
+
+const TRACK_META_BY_MODE = {
+  bls: BLS_TRACK_META,
+  airway: AIRWAY_TRACK_META,
+  defib: DEFIB_TRACK_META,
+  iv: IV_TRACK_META,
+};
+
+export const TRACK_META = TRACK_META_BY_MODE[COURSE_MODE] || ACLS_TRACK_META;
 
 // เคสที่ไม่ระบุ track (เช่น โจทย์เก่าจาก Supabase) ตกหมวด 'other'
 export function trackOf(s) {

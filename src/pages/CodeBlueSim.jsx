@@ -7,7 +7,7 @@ import {
 import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
 import { usePreCourseStore } from '../stores/preCourseStore';
-import { IS_BLS } from '../config/courseMode';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE } from '../config/courseMode';
 import { isOpenLeague } from '../config/openLeague';
 import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
@@ -945,6 +945,8 @@ export default function CodeBlueSim() {
           <p className="cbs-select-sub">
             {IS_BLS
               ? 'ฝึกช่วยชีวิตขั้นพื้นฐานทีละสถานการณ์ — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น'
+              : IS_SKILL_COURSE
+              ? 'ฝึกทีละทักษะจนครบทุกด่าน — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น'
               : 'ฝึกทีละหมวดจนครบทุก algorithm — ผ่านเคสพื้นฐานของหมวด เพื่อปลดเคสที่ยากขึ้นในหมวดนั้น'}
           </p>
           {renderIdentityChip()}
@@ -1011,7 +1013,7 @@ export default function CodeBlueSim() {
               );
             })}
           </div>
-          {!IS_BLS && (
+          {IS_ACLS && (
             <div className="cbs-cert-note">
               🏅 โบนัสพิเศษ: เคสที่ผ่านและเหรียญจะโชว์บนใบประกาศ ACLS ของคุณ —
               ผ่านเคส megacode ครบทุกเคส รับตราทอง MEGACODE MASTER (ไม่บังคับ ไม่มีผลต่อการออกใบ)
@@ -1148,7 +1150,7 @@ export default function CodeBlueSim() {
               <><br />🔥 สตรีคสูงสุด ×{st.maxCombo} — ตัวคูณคะแนน ×{comboMultiplier(st).toFixed(2)}</>
             )}
             {result.isHiscore && <><br />🏆 New Hi-Score: {result.score}</>}
-            {result.won && !IS_BLS && (
+            {result.won && IS_ACLS && (
               <><br /><span style={{ opacity: 0.7 }}>🏅 ผลงานสะสมแสดงเป็นโบนัสบนใบประกาศ ACLS</span></>
             )}
           </p>
@@ -1163,7 +1165,7 @@ export default function CodeBlueSim() {
                   </div>
                 ))}
               </div>
-              {!IS_BLS && freshAwards.some((a) => a.id === 'megacode_all') && (
+              {IS_ACLS && freshAwards.some((a) => a.id === 'megacode_all') && (
                 <div className="cbs-cert-note" style={{ marginTop: 10 }}>
                   🏅 ตราทอง MEGACODE MASTER จะปรากฏบนใบประกาศ ACLS ของคุณ!
                 </div>
