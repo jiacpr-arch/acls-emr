@@ -74,6 +74,7 @@ export const blsChoking = {
         ],
       },
     },
+    { say: { who: 'pae_ems', pose: 'talk', text: 'กู้ชีพ 1669 ครับ ขอทางครับ! ใครเป็นคนช่วย — <span class="cbs-em">สำลักอะไร นานเท่าไหร่ เอาออกได้ตอนไหน?</span> สรุปสั้น ๆ เลยครับ' }, t: 4 },
     {
       choice: {
         q: 'ผู้ป่วยหายใจเอง + มีชีพจร EMS มาถึง',
@@ -83,6 +84,7 @@ export const blsChoking = {
             then: [
               { inter: 'รอดแล้ว!', green: true, t: 5, fx: { rosc: true } },
               { say: { who: 'att_dech', pose: 'happy', text: 'สุดยอด! <span class="cbs-em">จำ 3 จังหวะ: สำลักรู้ตัว→ตบหลังสลับกระทุ้งท้อง, หมดสติ→CPR, เห็นของค่อยเขี่ย</span> คุณช่วยชีวิตเธอไว้ได้' }, t: 5 },
+              { say: { who: 'pae_ems', pose: 'happy', text: 'ผมขอชมเลยครับ — พอเธอหมดสติคุณ<span class="cbs-em">เปลี่ยนเป็น CPR ทันที และเขี่ยเฉพาะของที่เห็นชัด</span> ตัดสินใจแบบนี้แหละที่ทำให้คนรอดครับ!' }, t: 5 },
             ],
           },
           { tgt: 'CPR', label: 'กดหน้าอกต่ออีกเผื่อไว้', ok: false, why: 'มีชีพจร+หายใจเองแล้ว หยุดกด จัดท่า recovery' },

@@ -15,6 +15,7 @@ export const blsHandsOnly = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'เสียงของหล่นดังโครม! พ่อล้มอยู่กลางห้อง <span class="cbs-em">ไม่ขยับเลย!</span>' }, t: 3 },
     { inter: 'มีคนหมดสติ!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'เมื่อกี้พ่อยังนั่งดูทีวีอยู่ดีๆ… จู่ๆ ก็<span class="cbs-em">กุมหน้าอก หน้าเหยเก แล้วล้มทั้งตัวลงกับพื้น</span> — ไม่ได้สะดุดอะไรเลย!' }, t: 5 },
     { say: { who: 'att_dech', pose: 'stern', text: 'บ้านคุณ ไม่มีใครอื่น ไม่มี AED — <span class="cbs-em">มีแค่คุณกับโทรศัพท์หนึ่งเครื่อง</span> เริ่มยังไง?' }, t: 3 },
     {
       choice: {

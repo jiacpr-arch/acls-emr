@@ -87,8 +87,10 @@ export const blsPregnantChoking = {
           {
             tgt: 'YOU', label: 'พยุงนั่งพัก เฝ้าดูการหายใจ+อาการปวดท้อง/ปวดอก จนส่งต่อ EMS', ok: true,
             then: [
+              { say: { who: 'pae_ems', pose: 'talk', text: 'กู้ชีพ 1669 ครับ! รับแจ้งคนท้องสำลัก — <span class="cbs-em">ของหลุดหรือยัง กระแทกอกไปกี่รอบครับ?</span> ขอข้อมูลสั้น ๆ ก่อนขึ้นรถครับ' }, t: 4 },
               { say: { who: 'att_dech', pose: 'happy', text: 'เยี่ยม — และเพราะเป็นคุณแม่ตั้งครรภ์ที่โดนกระแทกอก <span class="cbs-em">ต้องให้หมอตรวจทั้งแม่และลูกเสมอ</span>' }, t: 5 },
               { say: { who: 'nurse_mint', pose: 'happy', text: 'เธอฝากขอบคุณค่ะ… บอกว่า <span class="cbs-em">"คุณช่วยไว้สองชีวิตเลยนะคะ"</span>' }, t: 4 },
+              { say: { who: 'pae_ems', pose: 'happy', text: 'จุดนี้ผมให้เต็มสิบครับ — คนท้องแบบนี้คุณ<span class="cbs-em">เลือกกระแทกอกแทนกระแทกท้อง</span> ปลอดภัยทั้งแม่ทั้งลูก มืออาชีพจริง ๆ ครับ!' }, t: 5 },
             ],
           },
           { tgt: 'YOU', label: 'หายแล้วก็แยกย้าย ให้กลับไปกินต่อ', ok: false, why: 'หลังอุดกั้นสมบูรณ์+โดน chest thrusts ต้องพบแพทย์ตรวจแม่และทารกเสมอ', worsen: true },

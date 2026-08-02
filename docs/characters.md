@@ -143,12 +143,8 @@ public/images/characters/
 6. ถ้าอยากให้ AI generator รู้จักตัวใหม่ด้วย: เพิ่มใน `BUILTIN_CHARACTERS`
    ที่ `api/code-blue/generate-scenario.js`
 
-## Backlog — เกลี่ยบทรอบถัดไป (Tier 2)
+## หมายเหตุการเกลี่ยบท
 
-รอบแรกวางตัวละครใหม่ + เพิ่มบทพี่บอยเฉพาะไฟล์หลักแล้ว ไฟล์เหล่านี้ยังรอเก็บ:
-
-- **พี่บอย** (ฉาก CPR หนักที่บทยังน้อย): `peaHyperK` `tamponade` `tensionPneumo`
-  `pulmonaryEmbolism` `preeclampsia` `aaaRupture` `alcoholHypo` `traumaArrest`
-- **พี่เป้ กู้ชีพ**: `blsChoking` `blsInfantCpr` `blsInfantChoking` `blsPregnantChoking`
-- **ญาติผู้ป่วย**: `blsHandsOnly` `blsAedWet` `acsBasic` (ประวัติเจ็บอก) `bradyOverdose` (ขวดยา)
-- **น้องมายด์**: บทส่ง troponin/lab ใน `acsBasic` `acsNstemiBasic`
+เกลี่ยบทครบ 2 รอบแล้ว (Tier 1: วางตัวละครใหม่ + บทพี่บอยไฟล์หลัก, Tier 2: เก็บไฟล์ backlog
+ที่เหลือ) — ไฟล์ที่พี่บอยไม่มีบท (stable brady/tachy, ACS ที่ยังไม่ arrest ฯลฯ) เป็นความตั้งใจ
+เพราะไม่มี CPR ในเคส ไม่ใช่ตกหล่น

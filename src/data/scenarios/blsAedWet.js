@@ -11,6 +11,7 @@ export const blsAedWet = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'คุณลุงเพิ่งขึ้นจากสระแล้วล้มเลยค่ะ! <span class="cbs-em">นอนแช่อยู่ในแอ่งน้ำ!</span>' }, t: 4 },
     { inter: 'มีคนหมดสติ!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'ฉันเห็นกับตาเลยค่ะ! ลุงแก<span class="cbs-em">ว่ายมาเกือบชั่วโมง</span> พอโหนบันไดขึ้นจากสระได้ไม่กี่ก้าวก็<span class="cbs-em">ทรุดฮวบลงไปนอนแช่แอ่งน้ำ</span> ตัวเปียกโชกอยู่อย่างนั้นเลย!' }, t: 6 },
     { say: { who: 'att_dech', pose: 'stern', text: 'ผู้ป่วยเปียกทั้งตัว นอนในแอ่งน้ำข้างสระ — <span class="cbs-em">คิดให้ดีก่อนแตะตัว</span>' }, t: 3 },
     {
       choice: {
