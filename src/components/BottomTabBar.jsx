@@ -57,6 +57,7 @@ export default function BottomTabBar() {
     : IS_SKILL_COURSE
     ? [
         { path: '/learn', Icon: GraduationCap, label: t('learn', lang) },
+        { path: '/sim', Icon: Gamepad2, label: 'เกมกู้ชีพ' },
         { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
         { path: '/guide', Icon: FileText, label: t('guide', lang) },
         { path: '/news', Icon: Bell, label: 'ข่าว' },
