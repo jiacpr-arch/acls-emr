@@ -37,10 +37,10 @@ public/images/characters/
 > ทุกตัวต้องมี 5 pose หลัก: `idle` `talk` `panic` `stern` `happy`
 > (talk = ท่าเดียวกับ idle แต่กำลังพูด — ถ้าขี้เกียจวาดแยก ใช้รูป idle ซ้ำได้)
 
-> **สถานะรูป:** ทุกตัวมีรูป webp แล้ว ยกเว้น `mind_runner` ที่ยังขาด pose `happy`
-> (บทปัจจุบันของมายด์ใช้แค่ talk จึงไม่กระทบเกม) และ `patient_male` ที่มีเฉพาะ
-> `idle`/`talk` — สองตัวนี้จึงติดธง `probeArt: true` ใน `src/game/characters.js` อยู่;
-> เมื่อเติมรูปครบแล้ว **ลบ `probeArt` ออก** เพื่อให้เกมเรนเดอร์รูปตรงๆ ไม่ต้อง probe
+> **สถานะรูป:** ตัวที่ 1-8 ครบทุก pose แล้ว — เหลือ `patient_male` (ตัวที่ 9)
+> ที่มีเฉพาะ `idle`/`talk` จึงยังติดธง `probeArt: true` ใน `src/game/characters.js`;
+> เมื่อเติม `panic`/`stern`/`happy` ครบแล้ว **ลบ `probeArt` ออก**
+> เพื่อให้เกมเรนเดอร์รูปตรงๆ ไม่ต้อง probe
 
 ### 1. `nurse_mint` — พยาบาลมิ้นท์ (Nurse · IV & Drugs)
 - หญิงไทย วัย ~26-28 ปี ผมดำมัดมวยต่ำ หน้าตาสดใสแต่มือโปร

@@ -83,20 +83,32 @@ export default function CharacterSprite({ charId, pose = 'idle', talking = false
   if (!char) return null;
 
   // built-in ที่มีรูปครบ — ไม่มีสถานะ "กำลัง probe" ให้ race เลย
+  // แต่ละท่าเป็นภาพนิ่งภาพเดียว ไม่มีเฟรมปากอ้าคู่ให้สลับ — ใช้การขยับตัวเบาๆ (bob)
+  // แทนตอนกำลังพิมพ์บทพูด กันตัวละครดูนิ่งค้างทั้งฉาก
   if (!needsProbe) {
     return (
       <img
         src={characterImageUrl(charId, pose)}
         alt={char.name}
-        className="cbs-sprite-img"
+        className={`cbs-sprite-img${talking ? ' cbs-sprite-talking' : ''}`}
         draggable="false"
       />
     );
   }
 
   if (imgState && imgState !== false) {
-    const src = talking && frame === 1 && imgState.talk ? imgState.talk : imgState.base;
-    return <img src={src} alt={char.name} className="cbs-sprite-img" draggable="false" />;
+    const hasTalkFrame = !!imgState.talk;
+    const src = talking && frame === 1 && hasTalkFrame ? imgState.talk : imgState.base;
+    // ไม่มีเฟรมปากอ้าของตัวละคร custom ตัวนี้ — bob แทนเหมือนกัน
+    const bobbing = talking && !hasTalkFrame;
+    return (
+      <img
+        src={src}
+        alt={char.name}
+        className={`cbs-sprite-img${bobbing ? ' cbs-sprite-talking' : ''}`}
+        draggable="false"
+      />
+    );
   }
 
   // probing (สั้นมาก) หรือไม่มีรูปจริง → SVG placeholder

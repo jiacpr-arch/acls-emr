@@ -149,10 +149,10 @@ export const CHARACTERS = {
     },
   },
 
-  // ─── ตัวละครชุดที่ 2 (ยังไม่มีรูป webp จริง — ใช้ SVG placeholder ไปก่อน) ───
-  // probeArt: true → CharacterSprite จะ probe หารูปก่อนเสมอ ไม่เจอค่อย fallback SVG
-  // เมื่อ generate รูปครบทุกท่าตาม docs/characters.md แล้ว: วางไฟล์ที่
-  // public/images/characters/{charId}/ และ "ลบ probeArt ออก" เพื่อกลับ fast path ไม่ต้อง probe
+  // ─── ตัวละครชุดที่ 2 (รูป webp ครบทุกท่าแล้ว) ───
+  // ตัวละครใหม่ในอนาคตที่รูปยังไม่ครบ: ใส่ `probeArt: true` ใน entry ไว้ก่อน →
+  // CharacterSprite จะ probe หารูปก่อนเสมอ ไม่เจอค่อย fallback SVG placeholder
+  // เมื่อวางรูปครบทุกท่าที่ public/images/characters/{charId}/ แล้วค่อยลบ probeArt ออก
 
   krit_airway: {
     name: 'หมอกฤต',
@@ -202,7 +202,6 @@ export const CHARACTERS = {
     name: 'น้องมายด์',
     role: 'Runner · Lab & CT',
     plate: ['#C05299', '#7E3167'],
-    probeArt: true,
     placeholder(pose) {
       const skin = '#F6CDA8', scrub = '#C05299', scrubD = '#93386F', hair = '#33222E';
       return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
