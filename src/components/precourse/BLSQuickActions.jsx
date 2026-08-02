@@ -30,6 +30,7 @@ export default function BLSQuickActions({
   const tiles = [
     {
       step: 1,
+      color: '#2563EB',
       Icon: GraduationCap,
       label: 'บทเรียน',
       desc: `${totalLessons} บท + Quiz · อ่าน + ทำแบบทดสอบ`,
@@ -39,6 +40,7 @@ export default function BLSQuickActions({
     },
     {
       step: 2,
+      color: '#DC2626',
       Icon: HeartPulse,
       label: 'ฝึก CPR',
       desc: scenarioGame.allPassed
@@ -50,6 +52,7 @@ export default function BLSQuickActions({
     },
     {
       step: 3,
+      color: '#EA580C',
       Icon: Siren,
       label: 'เกมกู้ชีพ',
       desc: simGame.allPassed
@@ -61,6 +64,7 @@ export default function BLSQuickActions({
     },
     {
       step: 4,
+      color: '#059669',
       Icon: Trophy,
       label: 'Post-test',
       desc: postTestPassed ? 'ผ่านแล้ว' : postTestUnlocked ? 'ข้อสอบปลายทาง · พร้อมสอบ' : 'ข้อสอบปลายทาง · ยังไม่ปลดล็อก',
@@ -70,6 +74,7 @@ export default function BLSQuickActions({
     },
     {
       step: 5,
+      color: '#D97706',
       Icon: Award,
       label: 'ใบประกาศนียบัตร',
       desc: allStepsDone ? 'พร้อมดาวน์โหลด' : 'ผ่านขั้น 1–4 ให้ครบก่อน',
@@ -106,7 +111,7 @@ export default function BLSQuickActions({
                     ? '#D1FAE5'
                     : tile.disabled
                       ? 'var(--color-bg-tertiary)'
-                      : '#2563EB15',
+                      : `${tile.color}15`,
                 }}
                 aria-hidden="true"
               >
@@ -115,18 +120,19 @@ export default function BLSQuickActions({
                 ) : tile.disabled ? (
                   <Lock size={16} className="text-text-muted" />
                 ) : (
-                  <span className="font-bold text-info">{tile.step}</span>
+                  <span className="font-bold" style={{ color: tile.color }}>{tile.step}</span>
                 )}
               </span>
-              <Icon size={20} strokeWidth={2.2} className={tile.complete ? 'text-success shrink-0' : 'text-info shrink-0'} />
+              <Icon size={20} strokeWidth={2.2} className="shrink-0"
+                style={{ color: tile.complete ? 'var(--color-success)' : tile.color }} />
               <span className="flex-1 min-w-0">
                 <span className="block text-body-strong text-text-primary">{tile.label}</span>
                 <span className="block text-caption text-text-muted">{tile.desc}</span>
               </span>
               {!tile.complete && tile.count?.total ? (
                 <span
-                  className="text-2xs font-bold text-info bg-info/10 px-2 py-1 shrink-0"
-                  style={{ borderRadius: 99 }}
+                  className="text-2xs font-bold px-2 py-1 shrink-0"
+                  style={{ borderRadius: 99, color: tile.color, background: `${tile.color}12` }}
                   aria-hidden="true"
                 >
                   {tile.count.done}/{tile.count.total}
