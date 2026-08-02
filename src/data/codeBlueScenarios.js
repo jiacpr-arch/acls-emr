@@ -38,6 +38,10 @@ import { blsMonitorAlarmScope } from './scenarios/blsMonitorAlarmScope';
 import { blsEmsConfinedSpace } from './scenarios/blsEmsConfinedSpace';
 import { blsChildRespiratory } from './scenarios/blsChildRespiratory';
 import { blsPregnantArrest } from './scenarios/blsPregnantArrest';
+import { blsOpdLobby } from './scenarios/blsOpdLobby';
+import { blsWardBathroom } from './scenarios/blsWardBathroom';
+import { blsDialysis } from './scenarios/blsDialysis';
+import { blsStrokeChoking } from './scenarios/blsStrokeChoking';
 // ACLS basic pack — เคสเดี่ยว ทีละ algorithm/แขนงย่อย ให้ฝึกก่อนไป megacode
 import { peaAsystoleBasic } from './scenarios/peaAsystoleBasic';
 import { bradycardiaBasic } from './scenarios/bradycardiaBasic';
@@ -140,6 +144,7 @@ const allScenarios = [
   blsCollapse,
   blsHandsOnly,
   blsAedWet,
+  blsOpdLobby,
   // 🫁 คลำชีพจร & ช่วยหายใจ
   blsOpioid,
   blsRespiratoryArrest,
@@ -152,12 +157,15 @@ const allScenarios = [
   blsChoking,
   blsInfantChoking,
   blsPregnantChoking,
+  blsStrokeChoking,
   // 🏥 ทีมในโรงพยาบาล & ขอบเขตบทบาท
   blsTeamWard,
   blsMonitorAlarmScope,
   blsEmsConfinedSpace,
+  blsWardBathroom,
   // 🚨 สถานการณ์พิเศษ
   blsPregnantArrest,
+  blsDialysis,
   // ── Airway (สำหรับ airway.morroo.com) — เคสเดี่ยวต่อทักษะ เรียงพื้นฐาน→ขั้นสูง ──
   airwayOpaNpaBasic,
   airwayBvmVentilation,
