@@ -300,7 +300,7 @@ function App() {
             }
           />
         )}
-        {(IS_ACLS || IS_BLS) && (
+        {(IS_ACLS || IS_BLS || IS_SKILL_COURSE) && (
           <Route
             path="/admin/video-lessons"
             element={

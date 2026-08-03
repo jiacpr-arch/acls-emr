@@ -7,11 +7,14 @@ import { rpcGetCohortSummary, rpcDeleteCohortStudent } from '../services/cohortS
 import { scheduleFlush, getPendingCount, subscribeToSync } from '../services/syncEngine';
 import {
   PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT,
-} from '../data/assessment';
+} from '../data/activePreTest';
 import {
   POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT,
 } from '../data/activePostTest';
-import { IS_ACLS } from '../config/courseMode';
+import { IS_ACLS, IS_SKILL_COURSE } from '../config/courseMode';
+
+// ACLS และ 3 คอร์สทักษะเดี่ยว (airway/defib/iv) มี pre-test — มีแค่ BLS เท่านั้นที่ไม่มี
+const HAS_PRE_TEST = IS_ACLS || IS_SKILL_COURSE;
 import CohortTable from '../components/precourse/CohortTable';
 import CheckinCohortSummary from '../components/precourse/CheckinCohortSummary';
 import AwardSummaryCard from '../components/precourse/AwardSummaryCard';
@@ -33,10 +36,11 @@ export default function InstructorCohort() {
   const navigate = useNavigate();
 
   // Virtual "lessons" so the existing CohortTable + per-id selector keep working.
-  // Pre-test is ACLS-only; Post-test exists in both modes (different content per mode).
+  // Pre-test exists for ACLS + the 3 skill courses; BLS has none. Post-test
+  // exists in every mode (different content per mode).
   const assessmentEntries = useMemo(() => {
     const list = [];
-    if (IS_ACLS) {
+    if (HAS_PRE_TEST) {
       list.push({
         id: PRE_TEST_LESSON_ID,
         title: 'Pre-test',
@@ -422,13 +426,13 @@ export default function InstructorCohort() {
               <th className="px-3 py-2 text-left">เบอร์โทร</th>
               <th className="px-3 py-2 text-center">บทเรียน อ่าน</th>
               <th className="px-3 py-2 text-center">บทเรียน ผ่าน</th>
-              {IS_ACLS && <th className="px-3 py-2 text-center">Pre-test</th>}
+              {HAS_PRE_TEST && <th className="px-3 py-2 text-center">Pre-test</th>}
               <th className="px-3 py-2 text-center">Post-test</th>
             </tr>
           </thead>
           <tbody>
             {overallRows.length === 0 ? (
-              <tr><td colSpan={IS_ACLS ? 7 : 6} className="px-3 py-6 text-center text-text-muted">
+              <tr><td colSpan={HAS_PRE_TEST ? 7 : 6} className="px-3 py-6 text-center text-text-muted">
                 ยังไม่มีนักเรียน
               </td></tr>
             ) : overallRows.map((r) => (
@@ -440,7 +444,7 @@ export default function InstructorCohort() {
                 <td className={`px-3 py-2 text-center font-bold ${
                   r.passedCount === r.total ? 'text-success' : 'text-warning'
                 }`}>{r.passedCount}/{r.total}</td>
-                {IS_ACLS && (
+                {HAS_PRE_TEST && (
                   <td className={`px-3 py-2 text-center font-bold ${
                     r.preTestScore == null ? 'text-text-muted'
                       : r.preTestPassed ? 'text-success' : 'text-warning'
@@ -466,12 +470,12 @@ export default function InstructorCohort() {
           <div className="text-overline text-text-muted px-1">ดาวน์โหลดสรุปผลรวม (สำหรับส่งคณะกรรมการ)</div>
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => exportCohortSummaryCSV({ rows: overallRows, isAcls: IS_ACLS })}
+              onClick={() => exportCohortSummaryCSV({ rows: overallRows, isAcls: HAS_PRE_TEST })}
               className="btn btn-ghost btn-block">
               <FileText size={14} strokeWidth={2.2} /> สรุปรวม CSV
             </button>
             <button
-              onClick={() => exportCohortSummaryPDF({ rows: overallRows, className, classCode, isAcls: IS_ACLS })}
+              onClick={() => exportCohortSummaryPDF({ rows: overallRows, className, classCode, isAcls: HAS_PRE_TEST })}
               className="btn btn-primary btn-block">
               <Download size={14} strokeWidth={2.2} /> สรุปรวม PDF
             </button>
