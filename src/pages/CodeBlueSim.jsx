@@ -285,6 +285,8 @@ export default function CodeBlueSim() {
   const [tapCoach, setTapCoach] = useState(false);
   const currentChoiceRef = useRef(null);
   const retryChoiceRef = useRef(null);
+  // ข้อที่ตอบผิดไปแล้วของคำถามปัจจุบัน — ขีดฆ่า + ปิดไม่ให้เลือกซ้ำตอนตอบใหม่
+  const wrongPicksRef = useRef(new Set());
   const decisionLeftRef = useRef(0); // เวลาที่เหลือ ณ วินาทีที่กดเลือก (คำนวณโบนัสความไว)
   const comboBreakN = useRef(0);     // key ให้อนิเมชัน COMBO BREAK เล่นซ้ำได้
   const hintUsedRef = useRef(false); // โหมดง่าย: ใบ้ target หลังตอบผิดครั้งแรกของแต่ละจุด
@@ -508,6 +510,7 @@ export default function CodeBlueSim() {
   }
 
   function showChoice(c) {
+    if (currentChoiceRef.current !== c) wrongPicksRef.current = new Set();
     currentChoiceRef.current = c;
     setDrama('white');
     const diff = getDifficulty(S.current.difficulty);
@@ -647,6 +650,7 @@ export default function CodeBlueSim() {
     }
     recordWrong(st, option);
     pushEtco2(st);
+    if (option.label) wrongPicksRef.current.add(option.label); // timeout ไม่มี label — ไม่ต้องขีด
     hintUsedRef.current = true; // จุดนี้เคยพลาด — โหมดง่ายจะใบ้ตอนเล่นซ้ำ
     vibrate([60, 40, 60]);
     // เสียงผิดต่ำ / ถ้าสตรีคขาดใช้เสียงไล่โน้ตลงแทน ให้เจ็บกว่า
@@ -679,7 +683,7 @@ export default function CodeBlueSim() {
     retryChoiceRef.current = currentChoiceRef.current;
     setAwaitTap(true);
     typeText(
-      `<span class="cbs-em">ช้าก่อน!</span>${whyText}${option.worsen ? ' — ผู้ป่วยแย่ลง สีผิวคล้ำขึ้น!' : ''}`,
+      `<span class="cbs-em">ช้าก่อน!</span>${whyText}${option.worsen ? ' — ผู้ป่วยแย่ลง สีผิวคล้ำขึ้น!' : ''} แตะจอเพื่อ<span class="cbs-em">ตอบใหม่</span> (ข้อที่ผิดถูกขีดฆ่าไว้แล้ว)`,
     );
   }
 
@@ -713,6 +717,7 @@ export default function CodeBlueSim() {
     setAwaitTap(false);
     currentChoiceRef.current = null;
     retryChoiceRef.current = null;
+    wrongPicksRef.current = new Set();
     hintUsedRef.current = false;
     setResult(null);
     setFreshAwards([]);
@@ -1328,13 +1333,15 @@ export default function CodeBlueSim() {
                 <div className="cbs-hint">💡 ลองสั่งหมวด <b>{choice.hintTgt}</b> ดูสิ</div>
               )}
               {choice.options.map((o, i) => {
-                const dim = choice.hintTgt && o.tgt !== choice.hintTgt;
+                const tried = wrongPicksRef.current.has(o.label);
+                const dim = !tried && choice.hintTgt && o.tgt !== choice.hintTgt;
                 const glow = choice.hintTgt && o.tgt === choice.hintTgt;
                 return (
                   <button
                     key={i}
                     type="button"
-                    className={`cbs-choice ${dim ? 'cbs-choice-dim' : ''} ${glow ? 'cbs-choice-hint' : ''}`}
+                    disabled={tried}
+                    className={`cbs-choice ${tried ? 'cbs-choice-tried' : ''} ${dim ? 'cbs-choice-dim' : ''} ${glow ? 'cbs-choice-hint' : ''}`}
                     onClick={(e) => { e.stopPropagation(); pick(o); }}
                   >
                     <span className="cbs-choice-tgt">[สั่ง {o.tgt}]</span> {o.label}
