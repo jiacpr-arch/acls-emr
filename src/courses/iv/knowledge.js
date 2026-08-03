@@ -70,6 +70,18 @@ export const chapters = [
         ],
       },
       {
+        heading: '⟐ เชิงลึก: กายวิภาคหลอดเลือดดำและโพรงกระดูกเชิงหัตถการ',
+        body: `**Superficial veins แขน (ที่ใช้จริง):** dorsal venous network → **cephalic** (ด้านนอก/radial), **basilic** (ด้านใน/ulnar — ลึกและคดกว่า เสี่ยงโดน brachial artery/median nerve ที่ข้อพับ), **median cubital** เชื่อมสองเส้นที่ antecubital (เป้าหมายแรก) — **external jugular** เป็นทางเลือกเมื่อแขนล้มเหลว
+
+**Central venous — landmark + ความเสี่ยงจำเพาะ:**
+| ตำแหน่ง | ข้อดี | ความเสี่ยงเด่น |
+|---|---|---|
+| **Internal jugular** | US ชัด, กดห้ามเลือดได้ | carotid puncture, pneumothorax (ต่ำ) |
+| **Subclavian** | สบายผู้ป่วย, ติดเชื้อต่ำ | **pneumothorax**, กดห้ามเลือดไม่ได้ |
+| **Femoral** | เปิดง่ายขณะ CPR | ติดเชื้อ/DVT สูง |
+
+**IO — หลอดเลือดในโพรงกระดูก:** medullary sinusoids → **central venous sinus** → nutrient & emissary veins → systemic — โครงกระดูกค้ำให้ไม่ยุบ; **ตำแหน่งเด็ก:** proximal tibia (ใต้ tuberosity ~1–2 ซม. ด้าน medial flat), distal femur, proximal humerus` },
+      {
         kind: 'summary',
         body: `| หลัก | จำ |
 |---|---|
@@ -127,6 +139,18 @@ export const chapters = [
 
 > เข้าใจ glycocalyx ช่วยอธิบายว่าทำไมการให้ crystalloid ปริมาณมหาศาลไม่ได้อยู่ในหลอดเลือดนาน และอาจทำให้เนื้อเยื่อบวมได้ (บท 3/5)`,
       },
+      {
+        heading: '⟐ ระดับโมเลกุล: Endothelial glycocalyx และหน้าที่ของ endothelium',
+        body: `**Glycocalyx — องค์ประกอบ:** ชั้นเจลบน endothelium ประกอบด้วย **proteoglycan (syndecan, glypican) + heparan sulfate + hyaluronan + sialic acid** ที่ยึด albumin/สารละลาย — เป็น "กำแพงกึ่งซึมผ่านตัวจริง" (revised Starling)
+
+- **ถูกทำลายใน sepsis, ischemia-reperfusion, hypervolemia (การให้สารน้ำเร็ว/มากเกิน), hyperglycemia** → permeability พุ่ง → บวมน้ำ, coagulopathy — เป็นเหตุผลเชิงกลไกของ **restrictive/goal-directed fluid**
+
+**Endothelium ไม่ใช่แค่ผนัง — สมดุลลิ่มเลือด/หลอดเลือด:**
+- ปล่อย **NO (จาก eNOS)** + **prostacyclin (PGI₂)** → vasodilation + ต้านเกล็ดเลือด
+- แสดง **thrombomodulin, heparan** → ต้านลิ่ม (ปกติ)
+- เมื่อบาดเจ็บ (เข็ม/vesicant) เผย **tissue factor + vWF** → กระตุ้น coagulation/เกล็ดเลือด = จุดเริ่ม **thrombophlebitis**
+
+> จึงเข้าใจว่าทำไมยา vesicant/hyperosmolar และการแทงซ้ำ ทำลาย endothelium → phlebitis/thrombosis` },
       {
         kind: 'summary',
         body: `**intima** (endothelium — เรียบ กันลิ่ม; ถูกทำลาย → phlebitis) · **media** (กล้ามเนื้อ/elastic — เส้นดำบางจึงกลิ้ง) · **adventitia** (ยึดรอบข้าง) · **valve** ในเส้นดำอาจขวางการดันสาย · **glycocalyx** = กำแพงกรองจริง พังใน sepsis → รั่ว/บวม
@@ -229,6 +253,24 @@ export const chapters = [
 
 > เชื่อมปฏิบัติ: ปล่อย tourniquet ทันทีหลังดันสายเข้า เพื่อคืนการไหลปกติ ก่อน flush/ต่อสาร` },
       {
+        heading: '⟐ เชิงลึก: สมการสำคัญและตัวอย่างคำนวณ',
+        body: `**1) Starling equation (การไหลข้าม capillary):**
+
+\`Jv = Kf × [(Pc − Pi) − σ(πc − πi)]\`
+
+- Pc/Pi = hydrostatic ใน/นอกหลอดเลือด, πc/πi = oncotic, **σ** = reflection coefficient (glycocalyx), Kf = filtration coeff.
+- **Revised (glycocalyx) model:** πi ที่มีผลจริงคือใต้ glycocalyx (subglycocalyx) ไม่ใช่ interstitium ทั้งก้อน → อธิบายว่าทำไม colloid ไม่ "ดึงน้ำกลับ" ได้ดีเท่าที่ทฤษฎีเก่าทำนาย
+
+**2) Plasma osmolarity (คำนวณ):** \`2×Na + Glucose/18 + BUN/2.8\` (mg/dL) — **osmolar gap** = measured − calculated > ~10 → สงสัยสารแปลก (เช่น methanol/ethylene glycol, mannitol)
+
+**3) Anion gap:** \`Na − (Cl + HCO₃)\` ปกติ ~8–12 — สูง = กรดจาก unmeasured anion (lactate, ketone, toxin)
+
+**4) Fluid deficit / maintenance:**
+- Maintenance **4-2-1**: 4 mL/kg/hr (10 กก.แรก) + 2 (10 ถัดไป) + 1 (ที่เหลือ)
+- Total body water deficit ใน hypernatremia: \`TBW × (Na/140 − 1)\`; TBW ≈ 0.6×นน. (ชาย)
+
+**5) Poiseuille เต็มรูป:** \`Q = (π × r⁴ × ΔP) / (8 × η × L)\` — r⁴ เด่นสุด, L/η ผกผัน (อุ่นเลือดลด η)` },
+      {
         kind: 'summary',
         body: `| หลัก | ตัวเลข/ทิศทาง |
 |---|---|
@@ -305,6 +347,24 @@ export const chapters = [
         kind: 'warning',
         body: `**vasopressor (เช่น norepinephrine/dopamine เข้มข้น) รั่วออกนอกเส้น = extravasation อันตราย** ทำให้เนื้อเยื่อขาดเลือดตายเฉพาะที่ — ให้ทางเส้นที่มั่นใจ (นิยม central), เฝ้าดูจุดแทงบ่อย, ถ้ารั่ว **หยุดทันที** และทำตาม protocol (เช่น phentolamine) — ห้ามให้ vesicant ผ่านเส้นที่ไหลไม่ดี`,
       },
+      {
+        heading: '⟐ เชิงลึก: Oxygen delivery, Lactate และการแยกช็อก',
+        body: `**ช็อก = DO₂ ไม่พอต่อ VO₂ (ระดับเซลล์):**
+
+\`DO₂ = CO × CaO₂ = CO × (1.34 × Hb × SaO₂ + 0.003×PaO₂)\`
+
+- **O₂ extraction ratio (O₂ER)** = VO₂/DO₂ ปกติ ~25% — เมื่อ DO₂ ตก เนื้อเยื่อดึง O₂ มากขึ้นชดเชย จนถึงจุด **critical DO₂** → เข้าสู่ **anaerobic → lactate↑**
+- **Lactate/lactate clearance** เป็น marker ของ hypoperfusion + ใช้ติดตามการ resuscitate; **ScvO₂** ต่ำ = extraction สูง (DO₂ ไม่พอ), สูงผิดปกติใน sepsis = ใช้ O₂ ไม่ได้ (mitochondrial/shunt)
+
+**แยกช็อกด้วย hemodynamic profile:**
+| ชนิด | Preload (CVP) | Cardiac output | SVR | ScvO₂ |
+|---|---|---|---|---|
+| Hypovolemic | ต่ำ | ต่ำ | สูง | ต่ำ |
+| Cardiogenic | **สูง** | ต่ำ | สูง | ต่ำ |
+| Distributive (sepsis) | ต่ำ/ปกติ | **สูง/ปกติ** | **ต่ำ** | สูง/ปกติ |
+| Obstructive | แล้วแต่สาเหตุ | ต่ำ | สูง | ต่ำ |
+
+> ผู้ป่วยจริงมักเป็น **mixed shock** — จึงต้องประเมินซ้ำ (US, lactate, ตอบสนองต่อ fluid challenge)` },
       {
         kind: 'summary',
         body: `| ช็อก | รักษาหลัก |
@@ -411,6 +471,33 @@ Infiltration (สารไม่ระคาย) · **Extravasation** (vesicant 
 
 > **หลักคิดร่วม:** "จังหวะการฉีด" ไม่ใช่พิธีกรรม แต่ออกแบบให้ **ความเข้มข้นของยาที่หัวใจตรงกับช่วงที่ต้องการฤทธิ์** — สั้นก็ให้ถี่, สลายเร็วก็ต้องดันเร็ว` },
       {
+        heading: '⟐ ระดับโมเลกุล: Vasopressor/Inotrope ตาม receptor',
+        body: `| ยา | Receptor เด่น | ผลเด่น | ใช้ |
+|---|---|---|---|
+| **Norepinephrine** | α₁ >> β₁ | vasoconstrict (+inotrope เล็กน้อย) | first-line septic shock |
+| **Epinephrine** | α + β₁ + β₂ | inotrope+chronotrope+vasoconstrict | anaphylaxis, arrest, refractory |
+| **Phenylephrine** | α₁ ล้วน | vasoconstrict (reflex brady) | เมื่อต้อง α อย่างเดียว |
+| **Vasopressin** | **V1 (non-adrenergic)** | vasoconstrict ผ่าน IP₃ | เสริม NE (ไม่ขึ้นกับ pH/receptor down-reg) |
+| **Dopamine** | dose-dependent (D→β→α) | แล้วแต่ขนาด | ใช้น้อยลง (arrhythmia) |
+| **Dobutamine** | β₁ >> β₂ | inotrope + vasodilate เล็กน้อย | cardiogenic (คู่ vasopressor) |
+
+> **α₁ → Gq → IP₃/DAG → Ca²⁺** ในกล้ามเนื้อเรียบ; **β → Gs → cAMP** — ในภาวะกรด/sepsis adrenergic receptor down-regulate จึงเสริม **vasopressin** ที่ทำงานคนละทาง; vasopressor vesicant → ให้ทาง central` },
+      {
+        heading: '⟐ องค์ประกอบสารน้ำ (เทียบกับพลาสมา)',
+        body: `| สารน้ำ | Na | Cl | K | Buffer | Osm (โดยประมาณ) |
+|---|---|---|---|---|---|
+| Plasma | ~140 | ~100 | ~4 | HCO₃ 24 | ~290 |
+| **NS 0.9%** | 154 | **154** | 0 | — | ~308 |
+| **LR** | 130 | 109 | 4 | lactate 28 (+Ca) | ~273 |
+| **Plasma-Lyte** | 140 | 98 | 5 | acetate/gluconate | ~295 |
+| **D5W** | 0 | 0 | 0 | — | ~252 (free water หลังใช้ glucose) |
+
+- **NS Cl สูง** → ให้มาก ๆ เกิด **hyperchloremic metabolic acidosis** (strong ion difference ลด) → balanced มักนิยมกว่า
+- **LR มี Ca²⁺** → ระวังตกตะกอนกับ citrate ในเลือด/ยาบางชนิด; **D5W** ไม่ใช่สารน้ำ resuscitate (เป็น free water)` },
+      {
+        kind: 'evidence',
+        body: `**Balanced crystalloid vs saline** (แนวคิดจาก SMART/SALT-ED): balanced สัมพันธ์กับผลลัพธ์ไต/major adverse kidney event ที่ดีกว่าเล็กน้อยเมื่อให้ปริมาณมาก · **Restrictive/goal-directed fluid** + สมดุลกับ vasopressor (ไม่ over-resuscitate) เป็นแนวโน้มปัจจุบันใน sepsis · **Balanced transfusion ~1:1:1** (PRC:FFP:platelet) ใน trauma massive *(อ้างเชิงหลักการ — ตรวจสอบ Surviving Sepsis/trauma guideline ล่าสุด)*` },
+      {
         kind: 'summary',
         body: `| สารน้ำ | ใช้เมื่อ |
 |---|---|
@@ -480,6 +567,22 @@ Epi α₁ onset ~1 นาที/duration ~3–5 นาที → ให้ซ้
 - **Pressure bag/infusion pump** เพิ่มแรงดัน
 - **Fluid/blood warmer** อุ่นสารน้ำ ลดความหนืดและป้องกัน hypothermia (สำคัญมากใน massive transfusion)`,
       },
+      {
+        heading: '⟐ เชิงลึก: วัสดุสาย, อัตราไหลตาม gauge และ Central line',
+        body: `**วัสดุ catheter:** สมัยใหม่เป็น **polyurethane/PTFE (Teflon)** — นิ่มลงเมื่ออุ่นในร่างกาย (ลดการระคายผนัง/phlebitis) เทียบวัสดุเก่า
+
+**อัตราไหลตามขนาด (โดยประมาณ ตาม gauge — สะท้อน Poiseuille r⁴ และความยาว):**
+| Gauge | สี | อัตราไหล gravity โดยประมาณ |
+|---|---|---|
+| 14G | ส้ม | ~240 mL/min |
+| 16G | เทา | ~180 mL/min |
+| 18G | เขียว | ~90 mL/min |
+| 20G | ชมพู | ~60 mL/min |
+| 22G | ฟ้า | ~36 mL/min |
+
+> **สำคัญ:** central line ปกติ (สายยาว lumen เล็ก) ไหล **ช้ากว่า** peripheral 14–16G สั้น — introducer sheath (8.5 Fr) ต่างหากที่ไหลเร็วสุด; เพิ่มไหลด้วย **pressure bag/rapid infuser + warmer**
+
+**Central venous — เทคนิค:** ใช้ **ultrasound-guided** (ลด complication), **Seldinger** (needle → guidewire → dilator → catheter), ยืนยันปลายที่ SVC-RA junction; ตรวจ pneumothorax/ตำแหน่งหลังใส่` },
       {
         kind: 'summary',
         body: `| ประเด็น | ตัวเลข/หลักจำ |
@@ -571,6 +674,46 @@ Epi α₁ onset ~1 นาที/duration ~3–5 นาที → ให้ซ้
           },
         ],
       },
+      {
+        heading: '⟐ เชิงลึก: Ultrasound-guided access, Seldinger และการยืนยัน IO ผู้ใหญ่',
+        body: `**Ultrasound-guided peripheral/central (เมื่อเส้นยาก/ลึก):**
+- โพรบ **linear high-frequency** (~5–13 MHz) — resolution สูง ตื้น; แยก **vein (บีบยุบ, ไม่เต้น)** จาก **artery (กลม, เต้น, ไม่ยุบ)** ด้วยการกดโพรบ
+- เทคนิค **out-of-plane** (ตัดขวาง เห็นเข็มเป็นจุด) vs **in-plane** (ตามยาว เห็นทั้งเข็ม) — ติดตามปลายเข็มตลอด (ป้องกันทะลุผนังหลัง)
+- เลือก vein ที่ **ลึก < ~1.5 ซม.** และเส้นผ่านศูนย์กลางพอ; ใช้สายยาวขึ้นถ้าลึก (กันหลุด)
+
+**Seldinger (central/IO-catheter/arterial) ทีละขั้น — เข้าใจว่าทำไม:**
+1. **needle** เจาะได้ flashback เลือดดำ (สีเข้ม ไม่พุ่ง) → 2. สอด **guidewire** ผ่านเข็ม (J-tip ลดการทิ่มผนัง) — *ห้ามฝืน* ถ้าติด; เฝ้า ECG (ลวดลึกเกินกระตุ้น **PVC/VT**) → 3. ถอดเข็มคาลวด (**ห้ามปล่อยลวดหลุดเข้าหลอดเลือด**) → 4. **dilator** ขยายรูผิวหนัง → 5. สอด **catheter** ตามลวด → 6. **ถอนลวด** → aspirate/flush ทุก lumen → เย็บตรึง → ยืนยันปลาย **SVC–RA junction** (CXR) และแยก **pneumothorax**
+
+**ยืนยัน IO ในผู้ใหญ่ (เกณฑ์รวม ไม่พึ่งข้อเดียว):**
+- เข็ม **ตั้งมั่นเองไม่โยก** (well-seated)
+- **flush ~5–10 mL ได้ลื่น ไม่บวม**รอบจุดแทง (สำคัญสุด — aspirate ไขกระดูกอาจไม่ได้เสมอ จึงไม่ใช่เกณฑ์บังคับ)
+- ในผู้ป่วยรู้สึกตัว: ให้ **ยาชาในโพรง (intraosseous local anesthetic)** ก่อน bolus เพราะการดันสารเข้าโพรงเจ็บมาก
+- ระวัง **compartment syndrome** ถ้า extravasation ที่ tibia — คลำน่องซ้ำ` },
+      {
+        kind: 'evidence',
+        body: `**Massive transfusion / damage-control resuscitation (เชิงหลักการ):**
+- ในเลือดออกรุนแรง แนวคิดปัจจุบันเน้นให้ **PRBC : FFP : Platelet ใกล้เคียง 1:1:1** (จำลองเลือดครบส่วน) แทนการให้ crystalloid ปริมาณมาก — ลด dilutional coagulopathy
+- **Permissive hypotension** (คุมความดันเป้าต่ำลงก่อนห้ามเลือดสำเร็จ) และ **tranexamic acid** เร็วในผู้ป่วย trauma เลือดออก เป็นหลักการที่แนวทางกล่าวถึง
+- ให้ **อุ่นเลือด/สารน้ำ** + ป้องกัน "lethal triad" (hypothermia + acidosis + coagulopathy)
+
+> ⚠️ ตัวเลขสัดส่วน/ค่าเป้าหมาย/timing ของ TXA เป็น **หลักการโดยสรุป — ต้องตรวจสอบกับ MTP/แนวทางฉบับล่าสุดของสถาบัน** ก่อนใช้จริง` },
+      {
+        heading: '⟐ Special populations: เด็ก · ตั้งครรภ์ · สูงอายุ · ไต/ตับ',
+        body: `**เด็ก/ทารก:**
+- เส้นเล็ก → gauge เล็ก (22–24G), พิจารณา **IO เร็ว** (proximal tibia) เมื่อวิกฤต
+- สารน้ำ/ยา **คิดตามน้ำหนัก (mL/kg)**; bolus มาตรฐานตามแนวทางเด็ก แล้วประเมินซ้ำ (ระวัง fluid overload)
+- ใช้ **microdrip/infusion pump** คุมปริมาตรแม่นยำ
+
+**หญิงตั้งครรภ์ (ไตรมาสท้าย):**
+- **aortocaval compression** จากมดลูก → เอียงตัวซ้าย (left lateral tilt) เพิ่ม venous return ก่อนประเมินการให้สารน้ำ
+- ปริมาตรเลือดเพิ่ม ~40–50% → สัญญาณช็อกอาจมาช้า (ประเมินระวัง)
+
+**ผู้สูงอายุ:**
+- ผนังหลอดเลือดเปราะ/เส้นกลิ้ง (บท 2) → ตรึงผิว, พิจารณา gauge เล็กลง; ระวัง **fluid overload** (หัวใจ/ไตสำรองน้อย)
+
+**ไตวาย/ตับวาย (ผลต่อ PK — บท 5):**
+- **ไตวาย:** ระวัง **K⁺** ในสารน้ำ (LR มี K⁺~4), ยาขับทางไตสะสม → ยึด protocol/ปรับตามการทำงานไต
+- **ตับวาย:** เมแทบอลิซึมยาช้าลง, บวม/ascites จาก albumin ต่ำ (Starling, บท 3) — ประเมิน fluid responsiveness ระวัง` },
       {
         kind: 'summary',
         body: `| ขั้น | จุดสำคัญ |
