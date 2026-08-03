@@ -17,6 +17,15 @@ export const chapters = [
     icon: '🫀',
     sections: [
       {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบายว่าทำไม VF/pVT เป็นปัญหาของ **ventricle** และ defibrillation จึงมุ่งรีเซ็ตมวลนี้
+- เรียงลำดับ **SA → AV → His-Purkinje** พร้อมอัตราธรรมชาติและ escape rhythm
+- จับคู่ **P/QRS/T** บน ECG กับเหตุการณ์ไฟฟ้าในหัวใจ
+- อธิบาย **R-on-T** และเหตุผลของ synchronized cardioversion
+- นิยาม **CPP** และเชื่อมกับ "ทำไม peri-shock pause ต้องสั้น"`,
+      },
+      {
         heading: 'ห้องหัวใจ ผนัง และหลอดเลือดโคโรนารี',
         body: `หัวใจมี 4 ห้อง: **atria (บน) 2 + ventricles (ล่าง) 2** — ventricle ซ้ายผนังหนาสุดเพราะปั๊มเลือดสู่ร่างกายทั้งตัว
 
@@ -55,6 +64,41 @@ export const chapters = [
           },
         ],
       },
+      {
+        kind: 'pearl',
+        body: `**RCA เลี้ยง SA/AV node ในคนส่วนใหญ่** — inferior MI (RCA อุด) จึงมักมาพร้อม **bradycardia/AV block** ให้เฝ้าระวังหัวใจเต้นช้าและเตรียม pacing/atropine ไว้ล่วงหน้า`,
+      },
+      {
+        heading: '⟐ เชิงลึก: Conduction velocity, Autonomic tone และ Coronary dominance',
+        body: `**ความเร็วนำสัญญาณ (conduction velocity) — ทำไม AV ต้องหน่วง:**
+
+| โครงสร้าง | ความเร็วโดยประมาณ | เหตุผลเชิงหน้าที่ |
+|---|---|---|
+| **AV node** | ~0.05 m/s (ช้าสุด) | หน่วงให้ ventricle เติมเลือดก่อนบีบ (PR interval) + กันความถี่สูงจาก atria |
+| กล้ามเนื้อ atria/ventricle | ~0.5–1 m/s | — |
+| **His-Purkinje** | ~2–4 m/s (เร็วสุด) | กระจายทั่ว ventricle เกือบพร้อมกัน → บีบประสาน |
+
+**Autonomic control:** vagal (parasympathetic, ACh→M2) กด SA/AV เด่น; sympathetic (NE→β₁) เร่งทั้งอัตราและการนำ — สมดุลนี้อธิบาย bradycardia จาก vagal tone และ tachycardia จาก catecholamine
+
+**Coronary dominance:** ~85% **right-dominant** (RCA ให้ PDA + เลี้ยง AV node) — inferior STEMI จึงมักมาพร้อม AV block/bradycardia` },
+      {
+        kind: 'summary',
+        body: `| โครงสร้าง | อัตราธรรมชาติ |
+|---|---|
+| SA node | 60–100/นาที (pacemaker หลัก) |
+| AV node | 40–60 (backup + หน่วงสัญญาณ) |
+| Purkinje | 20–40 (backup ต่ำสุด) |
+
+P = atria · QRS = ventricle depol · T = ventricle repol (ช่วงเสี่ยง R-on-T)
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ถ้า SA node หยุดทำงาน หัวใจจะหยุดเต้นทันทีไหม เพราะอะไร?',
+            a: `ไม่ทันที — ระบบนำไฟฟ้ามี **ลำดับชั้น backup**: ถ้า SA ล้มเหลว AV node (~40–60) หรือ Purkinje (~20–40) จะรับช่วงเป็น **escape rhythm** แต่ช้าลงและอาจไม่พอเลี้ยงร่างกาย จึงเป็นที่มาของ symptomatic bradycardia ที่อาจต้อง pacing`,
+          },
+        ],
+      },
     ],
   },
 
@@ -63,6 +107,13 @@ export const chapters = [
     id: 'df-ch2', title: 'บทที่ 2: จุลกายวิภาคกล้ามเนื้อหัวใจ (Histology)',
     icon: '🔬',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบาย **gap junction (connexin)** และแนวคิด functional syncytium
+- เชื่อมโยงว่าทำไม syncytium ทำให้ **mass depolarization** (รากฐาน defibrillation) เป็นไปได้
+- แยก **pacemaker cell vs contractile cell** และ automaticity (funny current I_f)`,
+      },
       {
         heading: 'Cardiomyocyte, Intercalated disc และ Gap junction',
         body: `กล้ามเนื้อหัวใจ (cardiac muscle) มีลักษณะเฉพาะที่อธิบายว่าทำไม defibrillation ถึงได้ผล:
@@ -89,6 +140,31 @@ export const chapters = [
 - SA node ไหลขึ้นเร็วสุด จึง "ชนะ" เป็น pacemaker หลัก (overdrive suppression)
 - **T-tubule + sarcoplasmic reticulum** ใน contractile cell จัดการแคลเซียมสำหรับการบีบตัว (excitation–contraction coupling)`,
       },
+      {
+        heading: '⟐ ระดับโมเลกุล: Connexin isoforms และ Excitation–contraction coupling',
+        body: `**Gap junction — connexin isoform ต่างกันตามตำแหน่ง** (กำหนดความเร็ว/ทิศทางการนำ):
+
+| Connexin | ตำแหน่งเด่น | หมายเหตุ |
+|---|---|---|
+| **Cx43** | ventricle (มากสุด) | remodeling/redistribution ในแผลเป็น → เอื้อ reentry |
+| **Cx40** | atria + His-Purkinje | conduction เร็ว |
+| **Cx45** | SA/AV node | conduction ช้า |
+
+**Excitation–contraction coupling (calcium-induced calcium release):** action potential → เปิด **L-type Ca²⁺ channel (DHPR)** ที่ T-tubule → Ca²⁺ เล็กน้อยไปเปิด **RyR2** บน sarcoplasmic reticulum → ปล่อย Ca²⁺ ก้อนใหญ่ → จับ troponin C → บีบตัว; **SERCA** ปั๊ม Ca²⁺ กลับ SR (คลายตัว)
+
+> **เชื่อม arrhythmia:** RyR2 ที่รั่ว (phosphorylation เกิน/พันธุกรรม) → Ca²⁺ leak → delayed afterdepolarization → triggered activity (เช่น CPVT, digoxin toxicity)` },
+      {
+        kind: 'summary',
+        body: `**หัวใจของบท:** gap junction เชื่อมทุกเซลล์เป็น **หน่วยเดียว** → กระแสภายนอกจึง depolarize ทั้งดวงพร้อมกันได้ = ทำไม defibrillation ได้ผล · pacemaker cell มี automaticity (I_f) · SA ชนะเพราะไต่ threshold เร็วสุด (overdrive suppression)
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ถ้ากล้ามเนื้อหัวใจไม่มี gap junction การ defibrillation จะเป็นไปได้ไหม?',
+            a: `แทบเป็นไปไม่ได้อย่างมีประสิทธิภาพ — เพราะการช็อกอาศัยการที่กระแสไฟ **กระจายจากเซลล์สู่เซลล์ทั่วทั้งมวลกล้ามเนื้อ** ผ่าน gap junction พร้อมกัน ถ้าเซลล์แยกกันไม่เชื่อมต่อ กระแสจะ depolarize เฉพาะจุดที่สัมผัส ไม่สามารถ "รีเซ็ต" วงจร reentry ทั้งดวงได้`,
+          },
+        ],
+      },
     ],
   },
 
@@ -97,6 +173,14 @@ export const chapters = [
     id: 'df-ch3', title: 'บทที่ 3: ไฟฟ้าสรีรวิทยาหัวใจ (Physiology)',
     icon: '⚡',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบาย **action potential 5 เฟส** ของ ventricle และไอออนหลักแต่ละเฟส (Na→Ca plateau→K)
+- อธิบาย **refractory period** และเชื่อมกับ R-on-T
+- แยก **"พลังงาน (J) ที่ตั้ง" vs "กระแส (current) ที่หัวใจได้รับ"** และบทบาทของ **impedance**
+- อธิบายว่าทำไม **biphasic** ใช้พลังงานต่ำกว่า monophasic`,
+      },
       {
         heading: 'Cardiac action potential และช่องไอออน (Ion channels)',
         body: `**Action potential ของ ventricular myocyte** มี 5 เฟส (0–4) ที่ต่างจากเซลล์ประสาทตรง "plateau" ยาว:
@@ -141,6 +225,57 @@ export const chapters = [
           },
         ],
       },
+      {
+        kind: 'case',
+        heading: 'เคส: ช็อกแล้วแต่ VF ยังอยู่ — impedance สูง',
+        body: `ชาย 90 กก. ขนหน้าอกดก เหงื่อท่วม ช็อก 200 J (biphasic) ครั้งแรกไม่สำเร็จ VF ยังอยู่`,
+        qa: [
+          {
+            q: 'ก่อนเพิ่มพลังงาน มีอะไรทำได้บ้างเพื่อให้ "กระแสถึงหัวใจ" มากขึ้น (เชื่อมแนวคิด impedance)?',
+            a: `เพราะ **พลังงานที่ตั้ง ≠ กระแสที่หัวใจได้รับ** — ก่อนอื่นลด TTI: (1) **เช็ดเหงื่อ/น้ำให้แห้ง** (น้ำพากระแสไปตามผิว) (2) **กด pad แนบสนิท** (3) **โกน/ปัดขนหน้าอก**บริเวณ pad (4) วาง pad ให้ "หนีบหัวใจ" ถูกตำแหน่ง (5) ปล่อยไฟช่วง **หายใจออก** (ปอดมีลมน้อย impedance ต่ำลง) — จากนั้นจึงพิจารณาเพิ่มพลังงานตามคู่มือเครื่อง + ให้ CPR คุณภาพสูงคั่นเสมอ`,
+          },
+        ],
+      },
+      {
+        heading: '⟐ ระดับโมเลกุล: Action potential กับ ion channel เฉพาะเฟส',
+        body: `| เฟส | เหตุการณ์ | Channel / current หลัก |
+|---|---|---|
+| **0** upstroke | depolarize เร็ว | **I_Na** (fast Na⁺, Naᵥ1.5/**SCN5A**) |
+| **1** notch | ลงเล็กน้อย | **I_to** (transient outward K⁺) |
+| **2** plateau | คงระดับ (เอกลักษณ์หัวใจ) | **I_CaL** (L-type Ca²⁺) สมดุลกับ **I_Kr/I_Ks** |
+| **3** repolarization | กลับค่าพัก | **I_Kr (hERG/KCNH2)** + **I_Ks (KCNQ1)** |
+| **4** resting/pacemaker | ค่าพัก/ไต่ขึ้นเอง | **I_K1** (คงค่าพัก) · **I_f (funny, HCN)** ใน pacemaker |
+
+**Resting potential ≈ Nernst ของ K⁺:** \`E_K = 61 × log([K]o/[K]i)\` — ~−90 mV; ดังนั้น **hyperkalemia (K]o↑)** ทำ resting เป็นบวกขึ้น → inactivate I_Na → นำสัญญาณช้า (peaked T → wide QRS → sine wave → arrest)
+
+**Refractory period:** absolute (ERP, Na channel ยัง inactivated) → relative (RRP ≈ ช่วง T wave, กระตุ้นได้ด้วยสิ่งเร้าแรง = **R-on-T**)` },
+      {
+        heading: '⟐ ฟิสิกส์ Defibrillation: Ohm, Critical mass และ ULV',
+        body: `**กระแสคือสิ่งที่ depolarize หัวใจ ไม่ใช่พลังงาน:** \`I = V / Z\` (Z = transthoracic impedance, TTI ~70–80 Ω) — เครื่องตั้ง **joule** แต่ผลอยู่ที่ **ampere ที่ไหลผ่าน myocardium**
+
+- **Critical mass hypothesis:** ต้อง depolarize มวลกล้ามเนื้อวิกฤต (~ส่วนใหญ่ของ ventricle) พร้อมกันเพื่อหยุดวงจร reentry ทุกวง
+- **Upper limit of vulnerability (ULV):** ช็อกที่ **แรงเกินไป** ก็เหนี่ยวนำ VF ซ้ำได้ (มี "หน้าต่าง" ที่เหมาะสม) — เป็นเหตุผลเชิงทฤษฎีว่าทำไมพลังงานสูงสุดไม่ใช่คำตอบเสมอ
+- **Biphasic truncated exponential:** เฟสสองช่วยลด threshold + เครื่องปรับ **tilt/ระยะเวลา** ชดเชย impedance ให้กระแสคงที่
+
+**Weil — coronary perfusion pressure:** \`CPP = aortic diastolic − right atrial diastolic\` — CPP > ~15 mmHg สัมพันธ์กับโอกาส ROSC; นี่คือฟิสิกส์เบื้องหลัง "peri-shock pause สั้น" และ epinephrine (α₁ เพิ่ม aortic diastolic)` },
+      {
+        kind: 'evidence',
+        body: `**Waveform capnography เป็น class I** สำหรับยืนยันตำแหน่งท่อและติดตามคุณภาพ CPR/ROSC · แนวทางปัจจุบันเน้น **high-quality CPR + defibrillation เร็ว** เป็นปัจจัยรอดชีวิตหลัก มากกว่ายา · การเลือก fixed vs escalating energy — เครื่องต่างรุ่นมี protocol ต่างกัน *(อ้างเชิงหลักการ — ตรวจสอบ ILCOR/AHA ล่าสุด)*` },
+      {
+        kind: 'warning',
+        body: `**Special populations:** เด็ก — defibrillation ตามน้ำหนัก (มัก 2→4 J/kg), ใช้ pediatric attenuator ถ้ามีแต่ไม่ชะลอ · ตั้งครรภ์ — ช็อกได้ตามปกติ (พลังงานไม่ต้องปรับ), left-lateral tilt, เตรียม perimortem C-section ถ้าไม่ ROSC · hypothermia รุนแรง — หัวใจอาจดื้อช็อก/ยา ให้ทำ CPR ต่อและอุ่นร่างกายควบคู่` },
+      {
+        kind: 'summary',
+        body: `**สรุปไฟฟ้าสรีรวิทยา:** AP 5 เฟส (I_Na → I_CaL plateau → I_Kr/I_Ks) · resting ≈ E_K (hyperkalemia อันตราย) · defibrillation = **กระแส (I=V/Z)** depolarize critical mass · CPP ขับ ROSC
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ทำไม hyperkalemia รุนแรงจึงทำให้ QRS กว้างและนำไปสู่ arrest — อธิบายด้วย Nernst และ channel?',
+            a: `[K]o ที่สูงทำให้ \`E_K\` (และ resting potential) **เป็นบวกขึ้น** → Na⁺ channel (Naᵥ1.5) ส่วนหนึ่งอยู่สภาพ **inactivated** ตั้งแต่ค่าพัก → phase 0 upstroke ช้าลง การนำสัญญาณทั่ว ventricle ช้าลง → **QRS กว้างขึ้นเรื่อย ๆ** จนรวมกับ T เป็น sine wave และหยุดเต้น — จึงให้ **calcium** (คงเสถียร membrane ทันที) + ดัน K⁺ เข้าเซลล์ (insulin/glucose, β-agonist) + ขับออก`,
+          },
+        ],
+      },
     ],
   },
 
@@ -149,6 +284,14 @@ export const chapters = [
     id: 'df-ch4', title: 'บทที่ 4: กลไกการเกิดภาวะหัวใจเต้นผิดจังหวะ (Pathology)',
     icon: '🌀',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบาย **3 กลไก** ของ arrhythmia (automaticity / triggered / reentry) และ 3 เงื่อนไขของ reentry
+- แยก **shockable (VF/pVT) vs non-shockable (asystole/PEA)** ตามกลไก
+- ท่อง **H's & T's** สาเหตุที่แก้ได้ของ PEA/asystole
+- อธิบาย **3-phase model ของ VF** และเหตุผลที่ทุกนาทีมีค่า`,
+      },
       {
         heading: 'สามกลไกของ arrhythmia และ Reentry',
         body: `ภาวะหัวใจเต้นผิดจังหวะเกิดจาก 3 กลไกหลัก:
@@ -190,6 +333,51 @@ export const chapters = [
           },
         ],
       },
+      {
+        heading: '⟐ เชิงลึก: Reentry wavelength, Triggered activity และ Channelopathies',
+        body: `**Reentry — เงื่อนไขเชิงปริมาณ:** \`wavelength = conduction velocity × refractory period\`
+- reentry เกิดง่ายเมื่อ **wavelength สั้น** (นำช้า + refractory สั้น) พอให้คลื่นวนกลับเจอเนื้อเยื่อที่ฟื้นแล้ว — จึงเป็นเหตุผลที่ยา **class III (ยืด refractory)** ต้าน reentry และ ischemia (นำช้า) ส่งเสริม reentry
+
+**Triggered activity (afterdepolarization):**
+| ชนิด | เกิดเมื่อ | สัมพันธ์กับ |
+|---|---|---|
+| **EAD** (early) | เฟส 2–3, QT ยาว | **Torsades** (I_Kr block, ยา, hypoK/Mg) |
+| **DAD** (delayed) | เฟส 4, Ca²⁺ overload | digoxin toxicity, CPVT (RyR2), catecholamine |
+
+**Channelopathies (พันธุกรรม) — arrest ในหัวใจโครงสร้างปกติ:**
+- **Long QT:** LQT1 (**KCNQ1/I_Ks**), LQT2 (**hERG/I_Kr**), LQT3 (**SCN5A/I_Na** gain) → torsades
+- **Brugada:** SCN5A loss → ST ยก V1–V3, VF ตอนพัก/ไข้
+- **CPVT:** RyR2/CASQ2 → VT จาก catecholamine (ออกกำลัง/อารมณ์)` },
+      {
+        heading: '⟐ Differential: Wide-complex tachycardia (WCT)',
+        body: `WCT (QRS ≥ 120 ms) — **สมมติเป็น VT ไว้ก่อนจนพิสูจน์เป็นอื่น** โดยเฉพาะถ้ามีประวัติโรคหัวใจ
+
+| สาเหตุ | เบาะแส |
+|---|---|
+| **VT** (พบบ่อยสุด) | AV dissociation, capture/fusion beats, concordance, QRS กว้างมาก |
+| **SVT + aberrancy** (BBB) | รูป QRS ตรงแบบ typical RBBB/LBBB |
+| **SVT + pre-excitation** (WPW/antidromic) | ระวัง — AV nodal blocker (adenosine/verapamil) **อันตราย** ใน AF + WPW |
+| **Toxic/metabolic** (hyperK, TCA, Na-channel blocker) | QRS กว้างทั่ว, ประวัติยา |
+
+> **หลักปฏิบัติ:** ผู้ป่วยไม่คงที่ → synchronized cardioversion; อย่ามัวแยกชนิดจนช้า — "ถ้าสงสัย VT รักษาแบบ VT"` },
+      {
+        kind: 'summary',
+        body: `| จังหวะ | ช็อก? | ทำอะไร |
+|---|---|---|
+| VF / pVT | ✅ | defib + CPR |
+| Asystole / PEA | ❌ | CPR + หา H's&T's + ยา |
+
+**H's:** Hypovolemia · Hypoxia · H⁺(acidosis) · Hypo/Hyperkalemia · Hypothermia
+**T's:** Toxins · Tamponade · Tension pneumothorax · Thrombosis (MI/PE)
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ผู้ป่วย arrest พบเป็น VF มา ~7 นาทีโดยไม่มีใครทำ CPR — ควร "ช็อกทันที" หรือ "กดก่อน" และเพราะอะไร?',
+            a: `ตามหลัก **3-phase model** ผู้ป่วยน่าจะอยู่ใน *circulatory phase* (พลังงานหัวใจร่อยหรอ) — การ **CPR คุณภาพสูงสักครู่เพื่อเติมเลือด/ออกซิเจนให้กล้ามเนื้อหัวใจก่อน** ช่วยเพิ่มโอกาสที่การช็อกจะสำเร็จ (ต่างจากช่วง electrical phase ~4 นาทีแรกที่ช็อกทันทีได้ผลดีสุด) — ในทางปฏิบัติทีมจะกดหน้าอกทันทีระหว่างเตรียม/ชาร์จเครื่อง แล้วช็อกโดยไม่หน่วง CCF`,
+          },
+        ],
+      },
     ],
   },
 
@@ -199,9 +387,16 @@ export const chapters = [
     icon: '💊',
     sections: [
       {
-        heading: '⚠️ ข้อควรระวังก่อนอ่านบทนี้',
-        body: `> เนื้อหาบทนี้อธิบาย **กลไกและชั้นยา** เพื่อความเข้าใจเชิงลึกเท่านั้น **ไม่ใช่คำสั่งใช้ยา/ขนาดยา**
-> ขนาดยา ข้อบ่งชี้ และลำดับการให้ ต้องยึด protocol ACLS ของสถาบันและการกำกับของแพทย์เสมอ`,
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบายว่าประโยชน์หลักของ **epinephrine** ใน arrest มาจากฤทธิ์ **α₁** (เพิ่ม CPP) ไม่ใช่ β
+- บอกบทบาทของ **amiodarone/lidocaine** ใน VF/pVT ที่ดื้อการช็อก
+- อธิบายความจำเป็นของ **sedation** ก่อน cardioversion/pacing ในผู้ตื่น
+- โยง **Vaughan-Williams class** กับเฟสของ action potential (บท 3)`,
+      },
+      {
+        kind: 'warning',
+        body: `เนื้อหาบทนี้อธิบาย **กลไกและชั้นยา** เพื่อความเข้าใจเชิงลึกเท่านั้น **ไม่ใช่คำสั่งใช้ยา/ขนาดยา** — ขนาดยา ข้อบ่งชี้ และลำดับการให้ ต้องยึด protocol ACLS ของสถาบันและการกำกับของแพทย์เสมอ`,
       },
       {
         heading: 'ยาที่ให้ระหว่าง arrest: Vasopressor และ Antiarrhythmic',
@@ -245,6 +440,49 @@ export const chapters = [
           },
         ],
       },
+      {
+        kind: 'pearl',
+        body: `**ทำไม Epinephrine ให้ซ้ำทุก 3–5 นาที:** ฤทธิ์ **α₁** ที่ดัน coronary perfusion pressure ขึ้น *onset ~30 วินาที–1 นาที (IV/IO)* แต่ *duration สั้น ~3–5 นาที* — ถ้าปล่อยหมดฤทธิ์ CPP ตกกลับ จึงต้องเติมซ้ำ **ก่อนฤทธิ์เดิมหาย** ให้พอดีจังหวะ rhythm check ทุก 2 นาที`,
+      },
+      {
+        heading: '⟐ ระดับโมเลกุล: Signaling ของยา และ Use-dependence',
+        body: `**Adrenergic signaling ของ epinephrine:**
+- **α₁** → Gq → phospholipase C → IP₃/DAG → Ca²⁺ ในกล้ามเนื้อเรียบหลอดเลือด → **vasoconstriction** (เพิ่ม aortic diastolic → CPP) = ประโยชน์หลักใน arrest
+- **β₁** → Gs → **adenylyl cyclase → cAMP → PKA** → เพิ่ม I_CaL (inotropy/chronotropy) แต่ก็เพิ่มการใช้ O₂ (ผลเสียใน ischemia)
+
+**Adenosine:** A1 receptor → **Gi** → เปิด **GIRK (I_KACh)** + ลด cAMP → **hyperpolarize AV node** ชั่วขณะ → บล็อกการนำ (จบ AVNRT/AVRT) — half-life < 10 วินาที จึง push เร็ว+flush; **theophylline บล็อก** (ต้องใช้ขนาดสูงขึ้น), **dipyridamole เสริมฤทธิ์**
+
+**Vaughan-Williams เชิงโมเลกุล + use-dependence:**
+| Class | เป้า | หมายเหตุ |
+|---|---|---|
+| **Ia/Ib/Ic** | Na⁺ channel (จับ **state-dependent**) | Ib (lidocaine) จับ inactivated state เด่น → เลือกทำงานที่เนื้อเยื่อ ischemic/เต้นเร็ว (**use-dependence**) |
+| **II** | β-blocker | ลด cAMP |
+| **III** | K⁺ (I_Kr) → ยืด APD/refractory | amiodarone จับ **หลาย** channel (I,II,III,IV) |
+| **IV** | Ca²⁺ (L-type) | verapamil/diltiazem — ห้ามใน WCT ที่อาจเป็น VT |
+
+> **Amiodarone reverse-use-dependence** ของ QT prolongation ทำให้เกิด torsades น้อยกว่ายา class III บริสุทธิ์` },
+      {
+        kind: 'warning',
+        body: `**Special populations / เตือน:** ยาว QT + hypoK/hypoMg → torsades: รักษาด้วย **magnesium** (คงเสถียร ไม่ใช่ยืด QT เพิ่ม) + overdrive pacing · digoxin toxicity → DAD/arrhythmia หลากหลาย (ระวัง calcium ใน dig tox — "stone heart" theoretical) · ไต/ตับวายเปลี่ยน clearance ของ amiodarone (สะสม, ตับ) และ metabolite; ผู้สูงอายุไวต่อ bradycardia/hypotension` },
+      {
+        kind: 'summary',
+        body: `| ยา | กลไกเด่น | บทบาทใน arrest |
+|---|---|---|
+| Epinephrine | **α₁** หดหลอดเลือด → CPP↑ | ให้ทุก ~3–5 นาที (ตาม protocol) |
+| Amiodarone | หลายช่อง ยืด refractory | VF/pVT ดื้อช็อก |
+| Lidocaine | Na⁺ (Ib) | ทางเลือกแทน amiodarone |
+| Magnesium | — | torsades (QT ยาว) |
+
+ยา **ไม่ทดแทน** CPR/ช็อก — ให้โดยไม่หยุดกด
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'Vaughan-Williams Class III (เช่น amiodarone) ออกฤทธิ์ที่เฟสไหนของ action potential และผลคืออะไร?',
+            a: `Class III บล็อก **K⁺ channel** ในเฟส 3 (repolarization) → ยืดเวลา repolarization และ **refractory period** ให้ยาวขึ้น → เซลล์กลับมากระตุ้นซ้ำได้ช้าลง ทำให้วงจร **reentry เกิดต่อได้ยาก** (แต่การยืด QT มากไปก็เสี่ยง torsades — จึงต้องระวัง)`,
+          },
+        ],
+      },
     ],
   },
 
@@ -253,6 +491,14 @@ export const chapters = [
     id: 'df-ch6', title: 'บทที่ 6: เครื่องมือช็อกไฟฟ้าและการตั้งค่า (Equipment)',
     icon: '🧰',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- เลือกใช้ **AED vs manual** ตามสถานการณ์/ผู้ใช้ และรู้โหมด SYNC/Pacer
+- วาง **pad** ตำแหน่ง anterior-lateral / anterior-posterior ได้ถูกและรู้เหตุผล
+- ใช้เทคนิค **ลด impedance** ระดับปฏิบัติ (แห้ง/แนบ/โกนขน) + ตัวเลขระยะสำคัญ
+- จัดการข้อควรระวัง: ICD, แผ่นแปะยา, สิ่งแวดล้อมเปียก`,
+      },
       {
         heading: 'AED vs Manual Defibrillator',
         body: `**AED (Automated External Defibrillator):**
@@ -277,9 +523,38 @@ export const chapters = [
 - โกน/ปัดขนหน้าอกหนา ๆ ถ้าขวางการแนบ
 
 **ข้อควรระวัง:**
-- **Pacemaker/ICD ฝัง** — วาง pad ห่างจากตัวเครื่อง ≥ ~2.5 ซม. (ไม่วางทับ)
+- **Pacemaker/ICD ฝัง** — วาง pad ห่างจากตัวเครื่อง ≥ ~2.5 ซม. (ไม่วางทับ ไม่งั้นกระแสถูก shunt เข้าเครื่องและอาจทำเครื่องเสียหาย/หัวใจได้กระแสน้อยลง)
 - **แผ่นแปะยา (transdermal)** — ลอกออกและเช็ดก่อน (เสี่ยงประกายไฟ/ขวางการนำไฟฟ้า)
-- **สิ่งแวดล้อมเปียก/โลหะ** — ย้ายผู้ป่วยพ้นแอ่งน้ำ; ตะโกน "CLEAR" ทุกครั้งก่อนช็อก`,
+- **สิ่งแวดล้อมเปียก/โลหะ** — ย้ายผู้ป่วยพ้นแอ่งน้ำ; ตะโกน "CLEAR" ทุกครั้งก่อนช็อก
+
+**ตัวเลขเชิงปฏิบัติ:** pad ผู้ใหญ่เส้นผ่านศูนย์กลาง ~8–12 ซม. · ถ้าใช้ **paddle** กดแรง ~8 กก. (ลด impedance) · pad ทั้งสองต้อง **ไม่แตะกัน** (เว้น ≥ ~2.5 ซม.) ไม่งั้นเกิด arcing กระแสลัดตามผิว`,
+      },
+      {
+        heading: '⟐ เชิงลึก: วิศวกรรมของเครื่องช็อก',
+        body: `**Biphasic truncated exponential (BTE) vs rectilinear biphasic (RLB):** ทั้งคู่ปล่อยกระแสสองเฟส แต่ต่างวิธี **ชดเชย impedance** — RLB ควบคุมกระแสให้เกือบคงที่ (rectilinear), BTE ปรับ **tilt/ระยะเวลา** ตาม TTI ที่วัดได้ ก่อน/ระหว่างช็อก → กระแสที่หัวใจสม่ำเสมอขึ้นในผู้ป่วยหน้าอกต้านทานต่างกัน
+
+**pad (self-adhesive) vs paddle:** pad ปลอดภัยกว่า (hands-off, วางตำแหน่งคงที่, hands-free pacing) และให้ CCF ดีกว่า; paddle ต้องกด ~8 กก.ลด impedance แต่ต้องหยุดกดและถือ
+
+**การเลือกพลังงาน:** biphasic เริ่ม ~120–200 J ตาม **คู่มือเครื่องรุ่นนั้น** (แต่ละ waveform มี dose-response ต่างกัน — จึงห้ามสมมติค่าข้ามรุ่น); escalating vs fixed ยังถกเถียง
+
+> **ICD/pacemaker ฝัง:** วาง pad ห่าง ≥ ~2.5 ซม. (บางแนวทาง ~8 ซม.) และ **ตรวจสอบ/interrogate เครื่องหลังช็อก** เพราะกระแสภายนอกอาจรีเซ็ต/ทำ lead เสียหาย` },
+      {
+        kind: 'summary',
+        body: `| ประเด็น | ตัวเลข/หลักจำ |
+|---|---|
+| Pad–ICD | ห่าง ≥ ~2.5 ซม. |
+| Pad–Pad | ไม่แตะกัน (เว้น ≥ ~2.5 ซม.) |
+| Paddle force | ~8 กก. (ลด impedance) |
+| Biphasic energy | ~120–200 J ตามคู่มือเครื่อง |
+| ก่อนช็อก | แห้ง · แนบ · CLEAR |
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ผู้ป่วยตัวเปียกในห้องน้ำ arrest — ทำไมต้องเช็ดหน้าอกแห้งและย้ายพ้นน้ำก่อนช็อก?',
+            a: `น้ำเป็น **ตัวนำไฟฟ้า** — ถ้าหน้าอก/พื้นเปียก กระแสจากการช็อกจะ **ไหลลัดไปตามผิวหนัง/พื้น** แทนที่จะไหลผ่านหัวใจ ทำให้ช็อกไม่ได้ผลเต็มที่ + เสี่ยงไฟไหม้ผิวเป็นบริเวณกว้าง + อันตรายต่อผู้ช่วยเหลือ — เช็ดแห้ง ย้ายพ้นแอ่งน้ำ แล้วจึงช็อก`,
+          },
+        ],
       },
     ],
   },
@@ -289,6 +564,14 @@ export const chapters = [
     id: 'df-ch7', title: 'บทที่ 7: เทคนิค Defib / Cardioversion / Pacing (Technique)',
     icon: '🔄',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- ใช้เทคนิค **charge-while-compressing** เพื่อลด peri-shock pause และเพิ่ม **CCF > 80%**
+- ทำ **defibrillation** และ **synchronized cardioversion** ครบขั้น + รู้ว่าต้องเปิด SYNC ใหม่ทุกครั้ง
+- ทำ **transcutaneous pacing** และยืนยัน **electrical + mechanical capture**
+- แยกใช้สามเทคนิคไฟฟ้าให้ถูกกับผู้ป่วย`,
+      },
       {
         heading: 'ลด Peri-shock pause และเพิ่ม Chest Compression Fraction (CCF)',
         body: `**ทำไม pause ต้องสั้น (เชื่อมโยงบท 1 — CPP):**
@@ -343,6 +626,39 @@ export const chapters = [
 - แม้จริง ๆ หัวใจกลับมาเต้น การกดต่ออีกเล็กน้อยก็ไม่เป็นอันตราย เทียบกับความเสียหายจากการปล่อยให้ไม่มีเลือดไหลเวียน
 
 **แนวปฏิบัติ:** หลังช็อกให้ **CPR ต่อทันที 2 นาทีเต็ม** แล้วค่อยประเมิน rhythm/ชีพจรในรอบถัดไป — ยกเว้นเห็นสัญญาณชัดว่าผู้ป่วยฟื้น (ขยับ ไอ หายใจปกติ) หรือ **EtCO₂ พุ่งขึ้นฉับพลัน** (สัญญาณ ROSC) จึงประเมินได้เร็วขึ้น`,
+          },
+        ],
+      },
+      {
+        kind: 'warning',
+        body: `**อย่าลืมเปิด SYNC ใหม่ก่อน cardiovert ซ้ำ** — เครื่องส่วนใหญ่กลับไปโหมด defib (unsync) อัตโนมัติหลังปล่อยไฟ ถ้าลืม กระแสอาจตกตรง **T wave** → R-on-T → เหนี่ยวนำ **VF** ในผู้ป่วยที่ยังมีชีพจร`,
+      },
+      {
+        heading: '⟐ เชิงลึก: Refractory VF และ Pacing thresholds',
+        body: `**Refractory VF (ช็อกมาตรฐาน ≥3 ครั้งไม่หาย) — ทางเลือกขั้นสูง:**
+- **Vector change (VC):** เปลี่ยนตำแหน่ง pad เป็น **anterior–posterior** เพื่อให้กระแสผ่านมวล ventricle ในแกนต่างออกไป
+- **Double sequential external defibrillation (DSED):** ใช้ 2 เครื่อง 2 คู่ pad ปล่อยไฟ **แทบพร้อมกัน** — depolarize critical mass ได้มากขึ้น
+- ควบคู่: ทบทวน reversible causes, คุณภาพ CPR, antiarrhythmic, พิจารณา ECPR ในบริบทที่เหมาะ
+
+**Transcutaneous pacing — ตัวเลขเชิงเทคนิค:** ตั้ง rate (~60–80) แล้วเพิ่ม **output (mA)** จนได้ capture (มัก ~40–90 mA); ยืนยัน **electrical + mechanical capture** (คลำชีพจร/femoral หรือ US) — pacing เจ็บ ต้อง analgesia/sedation; เป็น **bridge** ไป transvenous pacing/สาเหตุที่แก้ได้` },
+      {
+        kind: 'evidence',
+        body: `**DOSE-VF (concept):** ใน refractory VF การ **DSED หรือ vector-change** สัมพันธ์กับอัตราหยุด VF/รอดชีวิตดีกว่าช็อกมาตรฐานซ้ำที่ตำแหน่งเดิม — สนับสนุนการเปลี่ยนกลยุทธ์เมื่อช็อกซ้ำไม่ได้ผล *(อ้างเชิงหลักการจากงานวิจัยล่าสุด — ตรวจสอบ protocol/แนวทางสถาบันก่อนนำไปใช้ เพราะยังเป็นแนวปฏิบัติที่กำลังพัฒนา)*` },
+      {
+        kind: 'summary',
+        body: `| เทคนิค | ผู้ป่วย | SYNC? | หลังทำ |
+|---|---|---|---|
+| Defibrillation | VF/pVT ไม่มีชีพจร | ไม่ | CPR ต่อ 2 นาที ไม่คลำชีพจร |
+| Cardioversion | เต้นเร็วไม่คงที่ มีชีพจร | ใช่ (R wave) | เปิด SYNC ใหม่ก่อนช็อกซ้ำ |
+| Pacing | เต้นช้าไม่คงที่ | — | ยืนยัน electrical + mechanical capture |
+
+Charge-while-compressing → peri-shock pause สั้น → **CCF > 80%**
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ระหว่าง pacing เห็น pacing spike + QRS บนจอ (electrical capture) แต่คลำชีพจรไม่ได้ตามอัตราที่ตั้ง — แปลว่าอะไร?',
+            a: `เป็น **electrical capture โดยไม่มี mechanical capture** — ไฟฟ้ากระตุ้นได้แต่กล้ามเนื้อ **ยังบีบตัวไม่สร้างการไหลเวียนจริง** จึงยังไม่ถือว่า pacing สำเร็จ ต้อง **เพิ่ม output (mA)** จนคลำชีพจร (เช่น femoral) ได้ตรงอัตราที่ตั้ง — การยืนยัน mechanical capture คือสิ่งเดียวที่บอกว่าไฟฟ้าแปลงเป็นเลือดไปเลี้ยงจริง`,
           },
         ],
       },

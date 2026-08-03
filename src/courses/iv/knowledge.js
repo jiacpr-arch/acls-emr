@@ -17,6 +17,14 @@ export const chapters = [
     icon: '🩸',
     sections: [
       {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- เลือกตำแหน่งเปิดเส้นตามหลัก **ตรง–ตื้น–ตรึง–ไม่เหนือข้อพับ** และรู้ตัวเลือกแรกในภาวะฉุกเฉิน
+- แยก **หลอดเลือดดำ vs แดง** ทางคลินิก และรู้เมื่อแทงโดนแดง
+- อธิบาย **กายวิภาค IO** (venous sinusoids ที่ไม่ยุบตัว) และทำไมได้ผลในภาวะช็อก
+- บอกตำแหน่ง IO ที่ใช้บ่อยและข้อห้ามสำคัญ`,
+      },
+      {
         heading: 'หลอดเลือดดำส่วนปลายที่ใช้เปิดเส้น',
         body: `การเลือกเส้นที่ดีเริ่มจากรู้กายวิภาค — เส้นที่ **ตรง ตื้น ตรึงอยู่กับที่ และไม่อยู่เหนือข้อพับ** จะเปิดง่ายและอยู่ทน
 
@@ -61,6 +69,35 @@ export const chapters = [
           },
         ],
       },
+      {
+        heading: '⟐ เชิงลึก: กายวิภาคหลอดเลือดดำและโพรงกระดูกเชิงหัตถการ',
+        body: `**Superficial veins แขน (ที่ใช้จริง):** dorsal venous network → **cephalic** (ด้านนอก/radial), **basilic** (ด้านใน/ulnar — ลึกและคดกว่า เสี่ยงโดน brachial artery/median nerve ที่ข้อพับ), **median cubital** เชื่อมสองเส้นที่ antecubital (เป้าหมายแรก) — **external jugular** เป็นทางเลือกเมื่อแขนล้มเหลว
+
+**Central venous — landmark + ความเสี่ยงจำเพาะ:**
+| ตำแหน่ง | ข้อดี | ความเสี่ยงเด่น |
+|---|---|---|
+| **Internal jugular** | US ชัด, กดห้ามเลือดได้ | carotid puncture, pneumothorax (ต่ำ) |
+| **Subclavian** | สบายผู้ป่วย, ติดเชื้อต่ำ | **pneumothorax**, กดห้ามเลือดไม่ได้ |
+| **Femoral** | เปิดง่ายขณะ CPR | ติดเชื้อ/DVT สูง |
+
+**IO — หลอดเลือดในโพรงกระดูก:** medullary sinusoids → **central venous sinus** → nutrient & emissary veins → systemic — โครงกระดูกค้ำให้ไม่ยุบ; **ตำแหน่งเด็ก:** proximal tibia (ใต้ tuberosity ~1–2 ซม. ด้าน medial flat), distal femur, proximal humerus` },
+      {
+        kind: 'summary',
+        body: `| หลัก | จำ |
+|---|---|
+| ตัวเลือกแรกฉุกเฉิน | antecubital (ใหญ่/ไหลเร็ว) |
+| ดำ vs แดง | ดำผนังบาง เลือดไหล; แดง pulsatile พุ่ง |
+| IO ได้ผลเพราะ | sinusoids ไม่ยุบ เชื่อม central |
+| IO ห้าม | กระดูกหัก/ติดเชื้อ/แทงซ้ำ <48 ชม. |
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ผู้ป่วยช็อกรุนแรง ความดัน 60/40 หาเส้นดำผิวเผินไม่เจอเพราะเส้นแฟบ — ทำไม IO ยังใช้ได้ทั้งที่เส้นดำทั่วตัว "ยุบ"?',
+            a: `เพราะหลอดเลือดในโพรงกระดูก (**venous sinusoids**) ถูก **ผนังกระดูกแข็งค้ำไว้ให้เปิดตลอด** ไม่ยุบตามความดันเลือดที่ต่ำ ต่างจากเส้นดำผิวเผินที่ผนังนิ่มและ collapse เมื่อ volume ต่ำ — IO จึงเป็น "เส้นเลือดที่หากันไม่เจอไม่ได้" ในภาวะช็อก`,
+          },
+        ],
+      },
     ],
   },
 
@@ -69,6 +106,13 @@ export const chapters = [
     id: 'iv-ch2', title: 'บทที่ 2: จุลกายวิภาคผนังหลอดเลือด (Histology)',
     icon: '🔬',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- ระบุ **ผนังหลอดเลือด 3 ชั้น** (intima/media/adventitia) และความหมายเมื่อแทงเข็ม
+- อธิบายว่าทำไมเส้นดำ "กลิ้ง" ง่าย (media บาง) และมี valve
+- อธิบายบทบาท **endothelium/glycocalyx** ต่อการแข็งตัวของเลือดและการรั่วของสารน้ำ`,
+      },
       {
         heading: 'ผนังหลอดเลือด 3 ชั้น และความหมายเมื่อแทงเข็ม',
         body: `ผนังหลอดเลือด (ยกเว้น capillary) มี **3 ชั้น** จากในออกนอก:
@@ -95,6 +139,30 @@ export const chapters = [
 
 > เข้าใจ glycocalyx ช่วยอธิบายว่าทำไมการให้ crystalloid ปริมาณมหาศาลไม่ได้อยู่ในหลอดเลือดนาน และอาจทำให้เนื้อเยื่อบวมได้ (บท 3/5)`,
       },
+      {
+        heading: '⟐ ระดับโมเลกุล: Endothelial glycocalyx และหน้าที่ของ endothelium',
+        body: `**Glycocalyx — องค์ประกอบ:** ชั้นเจลบน endothelium ประกอบด้วย **proteoglycan (syndecan, glypican) + heparan sulfate + hyaluronan + sialic acid** ที่ยึด albumin/สารละลาย — เป็น "กำแพงกึ่งซึมผ่านตัวจริง" (revised Starling)
+
+- **ถูกทำลายใน sepsis, ischemia-reperfusion, hypervolemia (การให้สารน้ำเร็ว/มากเกิน), hyperglycemia** → permeability พุ่ง → บวมน้ำ, coagulopathy — เป็นเหตุผลเชิงกลไกของ **restrictive/goal-directed fluid**
+
+**Endothelium ไม่ใช่แค่ผนัง — สมดุลลิ่มเลือด/หลอดเลือด:**
+- ปล่อย **NO (จาก eNOS)** + **prostacyclin (PGI₂)** → vasodilation + ต้านเกล็ดเลือด
+- แสดง **thrombomodulin, heparan** → ต้านลิ่ม (ปกติ)
+- เมื่อบาดเจ็บ (เข็ม/vesicant) เผย **tissue factor + vWF** → กระตุ้น coagulation/เกล็ดเลือด = จุดเริ่ม **thrombophlebitis**
+
+> จึงเข้าใจว่าทำไมยา vesicant/hyperosmolar และการแทงซ้ำ ทำลาย endothelium → phlebitis/thrombosis` },
+      {
+        kind: 'summary',
+        body: `**intima** (endothelium — เรียบ กันลิ่ม; ถูกทำลาย → phlebitis) · **media** (กล้ามเนื้อ/elastic — เส้นดำบางจึงกลิ้ง) · **adventitia** (ยึดรอบข้าง) · **valve** ในเส้นดำอาจขวางการดันสาย · **glycocalyx** = กำแพงกรองจริง พังใน sepsis → รั่ว/บวม
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ทำไมเส้นดำจึง "กลิ้งหนี" เข็มง่ายกว่าเส้นแดง และแก้ด้วยเทคนิคใด?',
+            a: `เพราะ **tunica media ของเส้นดำบาง** (กล้ามเนื้อ/elastic น้อย) ผนังจึงนิ่มและเลื่อนไถลในเนื้อเยื่อได้ง่ายเมื่อเข็มดัน — แก้โดย **ดึงผิวหนังให้ตึงและตรึงเส้นด้วยนิ้วโป้งใต้จุดแทง** ก่อนแทง เพื่อ "ล็อก" เส้นไม่ให้กลิ้ง`,
+          },
+        ],
+      },
     ],
   },
 
@@ -103,6 +171,14 @@ export const chapters = [
     id: 'iv-ch3', title: 'บทที่ 3: สรีรวิทยาสารน้ำและการไหล (Physiology)',
     icon: '📊',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบายช่องสารน้ำ **ICF/ECF (interstitial/plasma)** และการกระจายของสารน้ำแต่ละชนิด
+- แยก **osmolality vs tonicity** และผลของ iso/hypo/hypertonic ต่อเซลล์
+- ใช้ **Starling forces** อธิบายการเกิด edema
+- ใช้ **กฎ Poiseuille (r⁴, L)** เลือกสายและเพิ่มอัตราการไหล`,
+      },
       {
         heading: 'ช่องสารน้ำในร่างกาย และการกระจายตัว',
         body: `น้ำในร่างกาย (~60% ของน้ำหนักตัว) แบ่งเป็น:
@@ -159,6 +235,60 @@ export const chapters = [
           },
         ],
       },
+      {
+        heading: 'ฟิสิกส์ผนังเส้นเลือด: Transmural pressure, Compliance และทำไมต้องรัดแขน',
+        body: `เส้นเลือดดำจะ "โป่ง" ให้แทงง่ายเมื่อ **แรงดันภายในดันผนังออก** — อธิบายด้วยฟิสิกส์:
+
+**1) Transmural pressure (P_tm)** = ความดันในหลอดเลือด − ความดันนอกหลอดเลือด
+- เส้นดำโป่งเมื่อ P_tm เป็นบวกมากพอ; ในภาวะช็อก P ในเส้นต่ำ เส้นจึงแฟบ (collapse) หาแทงยาก
+
+**2) Law of Laplace สำหรับหลอดเลือด:** **T = P × r**
+- แรงตึงผนัง (T) แปรตามทั้งความดัน (P) และรัศมี (r) — เส้นที่โป่ง (r มาก) ผนังตึง คลำเป็นลำได้
+- เส้นดำ media บาง (บท 2) จึง compliance สูง = "ยืดง่าย" ด้วยแรงดันเพิ่มเพียงเล็กน้อยก็โป่งชัด
+
+**3) ทำไมต้องรัด tourniquet — และรัดแรงแค่ไหน:**
+- รัดด้วยแรง **ระหว่าง diastolic กับ systolic (~40–60 mmHg)** = **ขวางการไหลกลับของเลือดดำ (แรงดันต่ำ) แต่ยังปล่อยเลือดแดง (แรงดันสูง) ไหลเข้าได้**
+- เลือดแดงยังเข้ามาเรื่อย ๆ แต่ออกทางดำไม่ได้ → เลือดคั่ง → **P ในเส้นดำเพิ่ม → เส้นโป่ง (r เพิ่ม)** ตามสมการข้างบน
+- ถ้ารัดแรงเกิน systolic = ปิดเลือดแดงด้วย เส้นจะไม่โป่ง (และคลำ pulse ไม่ได้) — จึง "รัดพอตึง ไม่ถึงกับปิดชีพจร"
+
+> เชื่อมปฏิบัติ: ปล่อย tourniquet ทันทีหลังดันสายเข้า เพื่อคืนการไหลปกติ ก่อน flush/ต่อสาร` },
+      {
+        heading: '⟐ เชิงลึก: สมการสำคัญและตัวอย่างคำนวณ',
+        body: `**1) Starling equation (การไหลข้าม capillary):**
+
+\`Jv = Kf × [(Pc − Pi) − σ(πc − πi)]\`
+
+- Pc/Pi = hydrostatic ใน/นอกหลอดเลือด, πc/πi = oncotic, **σ** = reflection coefficient (glycocalyx), Kf = filtration coeff.
+- **Revised (glycocalyx) model:** πi ที่มีผลจริงคือใต้ glycocalyx (subglycocalyx) ไม่ใช่ interstitium ทั้งก้อน → อธิบายว่าทำไม colloid ไม่ "ดึงน้ำกลับ" ได้ดีเท่าที่ทฤษฎีเก่าทำนาย
+
+**2) Plasma osmolarity (คำนวณ):** \`2×Na + Glucose/18 + BUN/2.8\` (mg/dL) — **osmolar gap** = measured − calculated > ~10 → สงสัยสารแปลก (เช่น methanol/ethylene glycol, mannitol)
+
+**3) Anion gap:** \`Na − (Cl + HCO₃)\` ปกติ ~8–12 — สูง = กรดจาก unmeasured anion (lactate, ketone, toxin)
+
+**4) Fluid deficit / maintenance:**
+- Maintenance **4-2-1**: 4 mL/kg/hr (10 กก.แรก) + 2 (10 ถัดไป) + 1 (ที่เหลือ)
+- Total body water deficit ใน hypernatremia: \`TBW × (Na/140 − 1)\`; TBW ≈ 0.6×นน. (ชาย)
+
+**5) Poiseuille เต็มรูป:** \`Q = (π × r⁴ × ΔP) / (8 × η × L)\` — r⁴ เด่นสุด, L/η ผกผัน (อุ่นเลือดลด η)` },
+      {
+        kind: 'summary',
+        body: `| หลัก | ตัวเลข/ทิศทาง |
+|---|---|
+| น้ำในตัว | ~60% นน. (ICF 2/3, ECF 1/3) |
+| Isotonic คงในหลอดเลือด | ~1/4–1/3 → ให้ ~3 เท่าที่เสีย |
+| Osmolality พลาสมา | ~275–295 mOsm/kg |
+| Poiseuille | Q ∝ r⁴/L → สายใหญ่+สั้น = เร็ว |
+| Laplace หลอดเลือด | T = P × r (โป่งเมื่อ P_tm พอ) |
+| Tourniquet | ~40–60 mmHg: กันดำ ปล่อยแดง |
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ต้องการให้สารน้ำเร็วสุดในผู้ป่วยเลือดออก — สาย 16G สั้นที่แขน กับ central line 20 ซม.ที่คอ อันไหนไหลเร็วกว่า และทำไม?',
+            a: `**16G สั้นที่แขนไหลเร็วกว่า** — ตาม Poiseuille อัตราไหล **แปรผกผันกับความยาว (L)** และแปรตาม **r⁴**; central line แม้ปลายใกล้หัวใจแต่ **ยาวและ lumen มักเล็กกว่า** จึงต้านการไหลมาก การกู้ปริมาตรเร็วจึงเลือก **peripheral large-bore สั้น** ไม่ใช่ central line ปกติ`,
+          },
+        ],
+      },
     ],
   },
 
@@ -167,6 +297,14 @@ export const chapters = [
     id: 'iv-ch4', title: 'บทที่ 4: พยาธิสรีรวิทยาช็อกและภาวะแทรกซ้อน (Pathology)',
     icon: '🚑',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- แยกช็อก **4 ชนิด** (hypovolemic/distributive/cardiogenic/obstructive) และการรักษาหลัก
+- อธิบายว่าทำไม "ไม่ใช่ช็อกทุกชนิดแก้ด้วยสารน้ำเยอะ"
+- แยก **infiltration vs extravasation vs phlebitis** และการจัดการ
+- โยง **hypovolemia กับ PEA** และเชื่อมการเปิดเส้นใหญ่กับ Poiseuille`,
+      },
       {
         heading: 'ชนิดของช็อก (Shock) และการเลือกการรักษา',
         body: `ช็อก = ภาวะที่ **การนำส่งออกซิเจนสู่เนื้อเยื่อไม่พอ** ต่อความต้องการ แบ่งตามกลไก:
@@ -205,6 +343,47 @@ export const chapters = [
           },
         ],
       },
+      {
+        kind: 'warning',
+        body: `**vasopressor (เช่น norepinephrine/dopamine เข้มข้น) รั่วออกนอกเส้น = extravasation อันตราย** ทำให้เนื้อเยื่อขาดเลือดตายเฉพาะที่ — ให้ทางเส้นที่มั่นใจ (นิยม central), เฝ้าดูจุดแทงบ่อย, ถ้ารั่ว **หยุดทันที** และทำตาม protocol (เช่น phentolamine) — ห้ามให้ vesicant ผ่านเส้นที่ไหลไม่ดี`,
+      },
+      {
+        heading: '⟐ เชิงลึก: Oxygen delivery, Lactate และการแยกช็อก',
+        body: `**ช็อก = DO₂ ไม่พอต่อ VO₂ (ระดับเซลล์):**
+
+\`DO₂ = CO × CaO₂ = CO × (1.34 × Hb × SaO₂ + 0.003×PaO₂)\`
+
+- **O₂ extraction ratio (O₂ER)** = VO₂/DO₂ ปกติ ~25% — เมื่อ DO₂ ตก เนื้อเยื่อดึง O₂ มากขึ้นชดเชย จนถึงจุด **critical DO₂** → เข้าสู่ **anaerobic → lactate↑**
+- **Lactate/lactate clearance** เป็น marker ของ hypoperfusion + ใช้ติดตามการ resuscitate; **ScvO₂** ต่ำ = extraction สูง (DO₂ ไม่พอ), สูงผิดปกติใน sepsis = ใช้ O₂ ไม่ได้ (mitochondrial/shunt)
+
+**แยกช็อกด้วย hemodynamic profile:**
+| ชนิด | Preload (CVP) | Cardiac output | SVR | ScvO₂ |
+|---|---|---|---|---|
+| Hypovolemic | ต่ำ | ต่ำ | สูง | ต่ำ |
+| Cardiogenic | **สูง** | ต่ำ | สูง | ต่ำ |
+| Distributive (sepsis) | ต่ำ/ปกติ | **สูง/ปกติ** | **ต่ำ** | สูง/ปกติ |
+| Obstructive | แล้วแต่สาเหตุ | ต่ำ | สูง | ต่ำ |
+
+> ผู้ป่วยจริงมักเป็น **mixed shock** — จึงต้องประเมินซ้ำ (US, lactate, ตอบสนองต่อ fluid challenge)` },
+      {
+        kind: 'summary',
+        body: `| ช็อก | รักษาหลัก |
+|---|---|
+| Hypovolemic | สารน้ำ/เลือด + หยุดเลือด |
+| Distributive | สารน้ำ + vasopressor |
+| Cardiogenic | ระวังสารน้ำเกิน, inotrope |
+| Obstructive | แก้สิ่งอุดกั้นโดยตรง |
+
+Infiltration (สารไม่ระคาย) · **Extravasation** (vesicant → เนื้อตาย) · Phlebitis (อักเสบเป็นลำ)
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ผู้ป่วยหลังกล้ามเนื้อหัวใจตาย ความดันตก ฟังปอดมี crepitation — ควร "อัดสารน้ำเร็ว" เหมือน hypovolemic ไหม?',
+            a: `**ไม่** — นี่คือ **cardiogenic shock** (ปั๊มล้มเหลว) การอัดสารน้ำมากจะยิ่งทำให้ **ปอดบวมน้ำ** แย่ลง เพราะหัวใจสูบไม่ไหว ต้องเน้น **inotrope/รักษาสาเหตุ (เปิดหลอดเลือดหัวใจ)** และให้สารน้ำอย่างระมัดระวัง — ตอกย้ำว่าต้อง **แยกกลไกช็อกก่อนเลือกการรักษา**`,
+          },
+        ],
+      },
     ],
   },
 
@@ -214,9 +393,16 @@ export const chapters = [
     icon: '💊',
     sections: [
       {
-        heading: '⚠️ ข้อควรระวังก่อนอ่านบทนี้',
-        body: `> เนื้อหาบทนี้อธิบาย **ประเภทสารน้ำและกลไกยา** เพื่อความเข้าใจเชิงลึกเท่านั้น **ไม่ใช่คำสั่งใช้ยา/ขนาดยา**
-> ขนาด ข้อบ่งชี้ ความเข้ากันได้ของยา และลำดับการให้ ต้องยึด protocol สถาบันและการกำกับของแพทย์เสมอ`,
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- เปรียบเทียบ **crystalloid vs colloid vs เลือด** และเลือกตามสถานการณ์
+- อธิบาย **NSS vs balanced (LR)** และปัญหา hyperchloremic acidosis
+- บอกกลไกคร่าว ๆ ของยาช่วยชีวิตหลัก (epinephrine/antiarrhythmic/atropine/adenosine)
+- อธิบายเทคนิค **bolus → flush → ยกแขน** ระหว่าง CPR และทำไม`,
+      },
+      {
+        kind: 'warning',
+        body: `เนื้อหาบทนี้อธิบาย **ประเภทสารน้ำและกลไกยา** เพื่อความเข้าใจเชิงลึกเท่านั้น **ไม่ใช่คำสั่งใช้ยา/ขนาดยา** — ขนาด ข้อบ่งชี้ ความเข้ากันได้ของยา และลำดับการให้ ต้องยึด protocol สถาบันและการกำกับของแพทย์เสมอ`,
       },
       {
         heading: 'สารน้ำ: Crystalloid vs Colloid vs เลือด',
@@ -265,6 +451,70 @@ export const chapters = [
           },
         ],
       },
+      {
+        heading: 'เภสัชจลนศาสตร์ระหว่าง CPR: Receptor, Onset/Duration และทำไมต้องให้ซ้ำทุก 3–5 นาที',
+        body: `เข้าใจ "ยาไปออกฤทธิ์ที่ไหน นานแค่ไหน" อธิบายว่าทำไมต้องให้ซ้ำเป็นจังหวะ
+
+| ยา | Receptor/เป้าหมาย | Onset (IV/IO) | Duration โดยประมาณ |
+|---|---|---|---|
+| **Epinephrine** | **α₁** (หดหลอดเลือด) + β₁/β₂ | ~30 วินาที–1 นาที | สั้น ~**3–5 นาที** |
+| **Amiodarone** | K⁺/Na⁺/Ca²⁺/β channel | ไม่กี่นาที | ยาว (สะสมในเนื้อเยื่อ) |
+| **Atropine** | บล็อก muscarinic (M2) ที่ SA/AV | ~1 นาที | ~ชั่วโมง |
+| **Adenosine** | A1 receptor (บล็อก AV ชั่วขณะ) | **~10–20 วินาที** | สั้นมาก (**half-life < 10 วินาที**) |
+
+**ทำไม Epinephrine ต้องให้ซ้ำทุก 3–5 นาที:**
+- ฤทธิ์ **α₁ ที่เพิ่ม coronary perfusion pressure** อยู่ได้เพียงไม่กี่นาที (duration สั้น) แล้วเริ่มหมด
+- ถ้าปล่อยให้หมดฤทธิ์ CPP จะตกกลับ → ต้อง **เติมซ้ำก่อนฤทธิ์เดิมหาย** เพื่อคง perfusion ต่อเนื่อง — จึงตรงกับจังหวะ **สลับ rhythm check ทุก 2 นาที (≈ ทุก 2 รอบ CPR = ~3–5 นาที)**
+
+**ทำไม Adenosine ต้อง push เร็วมาก + flush ตามทันที:**
+- half-life **< 10 วินาที** (ถูก endothelium/เม็ดเลือดแดงจับทำลายเร็วมาก) — ถ้าฉีดช้า ยาจะสลายก่อนถึงหัวใจ จึงต้อง **push เร็วผ่านเส้นใกล้ตัว + flush NSS ดันตามทันที + ยกแขน**
+
+> **หลักคิดร่วม:** "จังหวะการฉีด" ไม่ใช่พิธีกรรม แต่ออกแบบให้ **ความเข้มข้นของยาที่หัวใจตรงกับช่วงที่ต้องการฤทธิ์** — สั้นก็ให้ถี่, สลายเร็วก็ต้องดันเร็ว` },
+      {
+        heading: '⟐ ระดับโมเลกุล: Vasopressor/Inotrope ตาม receptor',
+        body: `| ยา | Receptor เด่น | ผลเด่น | ใช้ |
+|---|---|---|---|
+| **Norepinephrine** | α₁ >> β₁ | vasoconstrict (+inotrope เล็กน้อย) | first-line septic shock |
+| **Epinephrine** | α + β₁ + β₂ | inotrope+chronotrope+vasoconstrict | anaphylaxis, arrest, refractory |
+| **Phenylephrine** | α₁ ล้วน | vasoconstrict (reflex brady) | เมื่อต้อง α อย่างเดียว |
+| **Vasopressin** | **V1 (non-adrenergic)** | vasoconstrict ผ่าน IP₃ | เสริม NE (ไม่ขึ้นกับ pH/receptor down-reg) |
+| **Dopamine** | dose-dependent (D→β→α) | แล้วแต่ขนาด | ใช้น้อยลง (arrhythmia) |
+| **Dobutamine** | β₁ >> β₂ | inotrope + vasodilate เล็กน้อย | cardiogenic (คู่ vasopressor) |
+
+> **α₁ → Gq → IP₃/DAG → Ca²⁺** ในกล้ามเนื้อเรียบ; **β → Gs → cAMP** — ในภาวะกรด/sepsis adrenergic receptor down-regulate จึงเสริม **vasopressin** ที่ทำงานคนละทาง; vasopressor vesicant → ให้ทาง central` },
+      {
+        heading: '⟐ องค์ประกอบสารน้ำ (เทียบกับพลาสมา)',
+        body: `| สารน้ำ | Na | Cl | K | Buffer | Osm (โดยประมาณ) |
+|---|---|---|---|---|---|
+| Plasma | ~140 | ~100 | ~4 | HCO₃ 24 | ~290 |
+| **NS 0.9%** | 154 | **154** | 0 | — | ~308 |
+| **LR** | 130 | 109 | 4 | lactate 28 (+Ca) | ~273 |
+| **Plasma-Lyte** | 140 | 98 | 5 | acetate/gluconate | ~295 |
+| **D5W** | 0 | 0 | 0 | — | ~252 (free water หลังใช้ glucose) |
+
+- **NS Cl สูง** → ให้มาก ๆ เกิด **hyperchloremic metabolic acidosis** (strong ion difference ลด) → balanced มักนิยมกว่า
+- **LR มี Ca²⁺** → ระวังตกตะกอนกับ citrate ในเลือด/ยาบางชนิด; **D5W** ไม่ใช่สารน้ำ resuscitate (เป็น free water)` },
+      {
+        kind: 'evidence',
+        body: `**Balanced crystalloid vs saline** (แนวคิดจาก SMART/SALT-ED): balanced สัมพันธ์กับผลลัพธ์ไต/major adverse kidney event ที่ดีกว่าเล็กน้อยเมื่อให้ปริมาณมาก · **Restrictive/goal-directed fluid** + สมดุลกับ vasopressor (ไม่ over-resuscitate) เป็นแนวโน้มปัจจุบันใน sepsis · **Balanced transfusion ~1:1:1** (PRC:FFP:platelet) ใน trauma massive *(อ้างเชิงหลักการ — ตรวจสอบ Surviving Sepsis/trauma guideline ล่าสุด)*` },
+      {
+        kind: 'summary',
+        body: `| สารน้ำ | ใช้เมื่อ |
+|---|---|
+| Isotonic crystalloid (NSS/LR) | resuscitate ปริมาตรทั่วไป |
+| Colloid (albumin) | เฉพาะข้อบ่งชี้ |
+| เลือด/ส่วนประกอบ | **hemorrhagic shock** |
+
+Epi α₁ onset ~1 นาที/duration ~3–5 นาที → ให้ซ้ำทุก 3–5 นาที · Adenosine half-life <10 วินาที → push เร็ว+flush · CPR: bolus → flush ~20 mL → ยกแขน
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ให้ NSS 0.9% ปริมาณมาก ๆ ทำไมเสี่ยง metabolic acidosis และควรพิจารณาอะไรแทน?',
+            a: `NSS มี **Cl⁻ สูง (154 mmol/L)** — ให้ปริมาณมากทำให้เกิด **hyperchloremic metabolic acidosis** (Cl⁻ ที่มากไปดัน HCO₃⁻ ลง) พิจารณา **balanced solution (LR/Plasma-Lyte)** ที่องค์ประกอบใกล้พลาสมาและมี buffer แทนเมื่อต้องให้ปริมาณมาก (โดยระวัง K⁺/Ca²⁺ ใน LR บางกรณี)`,
+          },
+        ],
+      },
     ],
   },
 
@@ -274,8 +524,22 @@ export const chapters = [
     icon: '🧰',
     sections: [
       {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบายโครงสร้าง **IV catheter (over-the-needle)** ระดับมิลลิเมตร รวม **ระยะเยื้องปลายเข็ม–ปลาย catheter** และเหตุผล
+- แปลระบบ **Gauge** และเลือกขนาดตามงาน (เชื่อม Poiseuille)
+- แยก **macrodrip vs microdrip** และรู้ตัวช่วยเพิ่มการไหล (pressure bag, warmer)
+- อธิบายอุปกรณ์ **IO drill** และความจำเป็นของ pressure bag`,
+      },
+      {
         heading: 'เข็ม IV catheter: ขนาด (Gauge) และโครงสร้าง',
-        body: `**IV catheter (over-the-needle)** ประกอบด้วย **เข็มโลหะ** อยู่ในสาย **พลาสติก (catheter)** — เมื่อเห็น flashback จะดันสายพลาสติกเข้าต่อ แล้วดึงเข็มโลหะออก เหลือเฉพาะสายนุ่มคาไว้
+        body: `**IV catheter (over-the-needle)** ประกอบด้วย **เข็มโลหะ (introducer needle)** สอดอยู่ในสาย **พลาสติก (catheter)** — เมื่อเห็น flashback จะดันสายพลาสติกเข้าต่อ แล้วดึงเข็มโลหะออก เหลือเฉพาะสายนุ่มคาไว้
+
+**รายละเอียดระดับมิลลิเมตร — ทำไม flashback ≠ ดันสายได้เลย:**
+- ปลาย **เข็มโลหะยื่นเลยปลาย catheter ~1–2 มม.** (needle–catheter offset)
+- ดังนั้นตอนเห็น **flashback ครั้งแรก คือ "ปลายเข็ม" เข้า lumen แล้ว แต่ "ปลาย catheter" ยังอยู่ในผนัง/นอกเส้น**
+- ต้อง **ลดมุมแล้วดันชุดเข็ม+สายต่อไปอีก ~1–2 มม.** เพื่อให้ *ปลาย catheter* เข้า lumen ด้วย จึงจะดันสายพลาสติกเข้าได้ลื่น
+- สัมพันธ์กับ **ขนาดเส้น:** เส้นดำที่ใช้มักมีเส้นผ่านศูนย์กลางเพียง ~2–6 มม. ระยะเยื้องระดับมิลลิเมตรจึงสำคัญ — ดันไวเกินจะทะลุผนังหลังเส้น (blown vein), ดันช้าเกินสายก็ไม่เข้า
 
 **ระบบ Gauge (สวนทางสามัญสำนึก):** **เลขยิ่งน้อย = รูยิ่งใหญ่**
 | Gauge | สี (ทั่วไป) | ใช้เมื่อ |
@@ -303,6 +567,40 @@ export const chapters = [
 - **Pressure bag/infusion pump** เพิ่มแรงดัน
 - **Fluid/blood warmer** อุ่นสารน้ำ ลดความหนืดและป้องกัน hypothermia (สำคัญมากใน massive transfusion)`,
       },
+      {
+        heading: '⟐ เชิงลึก: วัสดุสาย, อัตราไหลตาม gauge และ Central line',
+        body: `**วัสดุ catheter:** สมัยใหม่เป็น **polyurethane/PTFE (Teflon)** — นิ่มลงเมื่ออุ่นในร่างกาย (ลดการระคายผนัง/phlebitis) เทียบวัสดุเก่า
+
+**อัตราไหลตามขนาด (โดยประมาณ ตาม gauge — สะท้อน Poiseuille r⁴ และความยาว):**
+| Gauge | สี | อัตราไหล gravity โดยประมาณ |
+|---|---|---|
+| 14G | ส้ม | ~240 mL/min |
+| 16G | เทา | ~180 mL/min |
+| 18G | เขียว | ~90 mL/min |
+| 20G | ชมพู | ~60 mL/min |
+| 22G | ฟ้า | ~36 mL/min |
+
+> **สำคัญ:** central line ปกติ (สายยาว lumen เล็ก) ไหล **ช้ากว่า** peripheral 14–16G สั้น — introducer sheath (8.5 Fr) ต่างหากที่ไหลเร็วสุด; เพิ่มไหลด้วย **pressure bag/rapid infuser + warmer**
+
+**Central venous — เทคนิค:** ใช้ **ultrasound-guided** (ลด complication), **Seldinger** (needle → guidewire → dilator → catheter), ยืนยันปลายที่ SVC-RA junction; ตรวจ pneumothorax/ตำแหน่งหลังใส่` },
+      {
+        kind: 'summary',
+        body: `| ประเด็น | ตัวเลข/หลักจำ |
+|---|---|
+| Needle–catheter offset | ปลายเข็มยื่นเลย catheter ~1–2 มม. |
+| Gauge | เลขน้อย = รูใหญ่ (14G > 22G) |
+| Large-bore | 14–16G เมื่อต้องเร็ว |
+| Macrodrip | 10–15 หยด/mL (กู้ปริมาตร) |
+| Microdrip | 60 หยด/mL (ยา/เด็ก) |
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'เห็น flashback แล้วรีบดันสายพลาสติกทันที แต่ดันไม่เข้า/บวม — อธิบายด้วยโครงสร้างเข็มว่าเกิดอะไร?',
+            a: `เพราะ **ปลายเข็มยื่นเลยปลาย catheter ~1–2 มม.** — ตอนเห็น flashback มีแค่ *ปลายเข็ม* ที่เข้า lumen ส่วน *ปลาย catheter* ยังคาผนัง ถ้าดันสายทันทีสายจะชนผนัง (ดันไม่เข้า) หรือถ้าดันชุดเข็มแรงไปก็ **ทะลุผนังหลังเส้น (blown vein) → บวม** วิธีถูกคือ **ลดมุมแล้วเลื่อนชุดเข็ม+สายต่ออีก ~1–2 มม.** ให้ปลาย catheter เข้า lumen ก่อน จึงดันสาย`,
+          },
+        ],
+      },
     ],
   },
 
@@ -311,6 +609,14 @@ export const chapters = [
     id: 'iv-ch7', title: 'บทที่ 7: เทคนิคหัตถการแบบบูรณาการ (Technique)',
     icon: '🙌',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- เปิด **peripheral IV** ครบขั้น (มุม 15–30°, bevel ขึ้น, จัดการ needle–catheter offset) และแก้ปัญหาที่พบบ่อย
+- ใส่ **IO** และยืนยันตำแหน่งด้วยเกณฑ์ที่ถูกต้อง
+- ให้ยาระหว่าง CPR โดยไม่ลด chest compression fraction
+- เรียงลำดับการตัดสินใจ **IV → IO → central** ในภาวะ arrest`,
+      },
       {
         heading: 'เปิด Peripheral IV: ขั้นตอนและ trouble-shooting',
         body: `1. **เลือกเส้น** (บท 1) — ตรง ตื้น ตรึงดี ไม่เหนือข้อพับถ้าเลี่ยงได้; รัด tourniquet เหนือจุด ~10 ซม.
@@ -352,6 +658,76 @@ export const chapters = [
 4. **ETT route** — ไม่แนะนำแล้ว (ดูดซึมคาดเดาไม่ได้)
 
 **หลักครอบคลุม:** เป้าหมายคือ "มีเส้นทางให้ยา/สารน้ำที่เชื่อถือได้ **โดยเร็วและไม่ลด chest compression fraction**" — ความเร็วและความต่อเนื่องของ CPR สำคัญกว่าการยืนยันจะเปิด IV ให้ได้`,
+          },
+        ],
+      },
+      {
+        kind: 'case',
+        heading: 'เคส: trauma เสียเลือด เปิด IV ยาก 90 วินาที',
+        body: `ชาย 25 ปี อุบัติเหตุ ความดัน 80/50 เส้นแฟบ ทีมแทง IV 2 ครั้งไม่สำเร็จ ผ่านไป 90 วินาที`,
+        qa: [
+          {
+            q: 'ควรทำอะไรต่อ และเลือกสาย/ตำแหน่งอย่างไรให้กู้ปริมาตรเร็วสุด?',
+            a: `**เปลี่ยนเป็น IO ทันที** (proximal tibia/humerus) — อย่าเสียเวลาแทง IV ซ้ำในเส้นที่แฟบจากช็อก (บท 1: IO ไม่ยุบตัว)
+
+**เลือกให้ไหลเร็ว (บท 3 — Poiseuille):** ใช้ **large-bore สั้น** (14–16G ถ้าเปิด IV ได้ที่ antecubital) + **pressure bag** + **อุ่นสารน้ำ/เลือด**; ให้ **เลือดเป็นหลัก** ในเลือดออกรุนแรง จำกัด crystalloid — และทำโดยไม่ให้กระบวนการเปิดเส้นไปหยุดการดูแลอื่น`,
+          },
+        ],
+      },
+      {
+        heading: '⟐ เชิงลึก: Ultrasound-guided access, Seldinger และการยืนยัน IO ผู้ใหญ่',
+        body: `**Ultrasound-guided peripheral/central (เมื่อเส้นยาก/ลึก):**
+- โพรบ **linear high-frequency** (~5–13 MHz) — resolution สูง ตื้น; แยก **vein (บีบยุบ, ไม่เต้น)** จาก **artery (กลม, เต้น, ไม่ยุบ)** ด้วยการกดโพรบ
+- เทคนิค **out-of-plane** (ตัดขวาง เห็นเข็มเป็นจุด) vs **in-plane** (ตามยาว เห็นทั้งเข็ม) — ติดตามปลายเข็มตลอด (ป้องกันทะลุผนังหลัง)
+- เลือก vein ที่ **ลึก < ~1.5 ซม.** และเส้นผ่านศูนย์กลางพอ; ใช้สายยาวขึ้นถ้าลึก (กันหลุด)
+
+**Seldinger (central/IO-catheter/arterial) ทีละขั้น — เข้าใจว่าทำไม:**
+1. **needle** เจาะได้ flashback เลือดดำ (สีเข้ม ไม่พุ่ง) → 2. สอด **guidewire** ผ่านเข็ม (J-tip ลดการทิ่มผนัง) — *ห้ามฝืน* ถ้าติด; เฝ้า ECG (ลวดลึกเกินกระตุ้น **PVC/VT**) → 3. ถอดเข็มคาลวด (**ห้ามปล่อยลวดหลุดเข้าหลอดเลือด**) → 4. **dilator** ขยายรูผิวหนัง → 5. สอด **catheter** ตามลวด → 6. **ถอนลวด** → aspirate/flush ทุก lumen → เย็บตรึง → ยืนยันปลาย **SVC–RA junction** (CXR) และแยก **pneumothorax**
+
+**ยืนยัน IO ในผู้ใหญ่ (เกณฑ์รวม ไม่พึ่งข้อเดียว):**
+- เข็ม **ตั้งมั่นเองไม่โยก** (well-seated)
+- **flush ~5–10 mL ได้ลื่น ไม่บวม**รอบจุดแทง (สำคัญสุด — aspirate ไขกระดูกอาจไม่ได้เสมอ จึงไม่ใช่เกณฑ์บังคับ)
+- ในผู้ป่วยรู้สึกตัว: ให้ **ยาชาในโพรง (intraosseous local anesthetic)** ก่อน bolus เพราะการดันสารเข้าโพรงเจ็บมาก
+- ระวัง **compartment syndrome** ถ้า extravasation ที่ tibia — คลำน่องซ้ำ` },
+      {
+        kind: 'evidence',
+        body: `**Massive transfusion / damage-control resuscitation (เชิงหลักการ):**
+- ในเลือดออกรุนแรง แนวคิดปัจจุบันเน้นให้ **PRBC : FFP : Platelet ใกล้เคียง 1:1:1** (จำลองเลือดครบส่วน) แทนการให้ crystalloid ปริมาณมาก — ลด dilutional coagulopathy
+- **Permissive hypotension** (คุมความดันเป้าต่ำลงก่อนห้ามเลือดสำเร็จ) และ **tranexamic acid** เร็วในผู้ป่วย trauma เลือดออก เป็นหลักการที่แนวทางกล่าวถึง
+- ให้ **อุ่นเลือด/สารน้ำ** + ป้องกัน "lethal triad" (hypothermia + acidosis + coagulopathy)
+
+> ⚠️ ตัวเลขสัดส่วน/ค่าเป้าหมาย/timing ของ TXA เป็น **หลักการโดยสรุป — ต้องตรวจสอบกับ MTP/แนวทางฉบับล่าสุดของสถาบัน** ก่อนใช้จริง` },
+      {
+        heading: '⟐ Special populations: เด็ก · ตั้งครรภ์ · สูงอายุ · ไต/ตับ',
+        body: `**เด็ก/ทารก:**
+- เส้นเล็ก → gauge เล็ก (22–24G), พิจารณา **IO เร็ว** (proximal tibia) เมื่อวิกฤต
+- สารน้ำ/ยา **คิดตามน้ำหนัก (mL/kg)**; bolus มาตรฐานตามแนวทางเด็ก แล้วประเมินซ้ำ (ระวัง fluid overload)
+- ใช้ **microdrip/infusion pump** คุมปริมาตรแม่นยำ
+
+**หญิงตั้งครรภ์ (ไตรมาสท้าย):**
+- **aortocaval compression** จากมดลูก → เอียงตัวซ้าย (left lateral tilt) เพิ่ม venous return ก่อนประเมินการให้สารน้ำ
+- ปริมาตรเลือดเพิ่ม ~40–50% → สัญญาณช็อกอาจมาช้า (ประเมินระวัง)
+
+**ผู้สูงอายุ:**
+- ผนังหลอดเลือดเปราะ/เส้นกลิ้ง (บท 2) → ตรึงผิว, พิจารณา gauge เล็กลง; ระวัง **fluid overload** (หัวใจ/ไตสำรองน้อย)
+
+**ไตวาย/ตับวาย (ผลต่อ PK — บท 5):**
+- **ไตวาย:** ระวัง **K⁺** ในสารน้ำ (LR มี K⁺~4), ยาขับทางไตสะสม → ยึด protocol/ปรับตามการทำงานไต
+- **ตับวาย:** เมแทบอลิซึมยาช้าลง, บวม/ascites จาก albumin ต่ำ (Starling, บท 3) — ประเมิน fluid responsiveness ระวัง` },
+      {
+        kind: 'summary',
+        body: `| ขั้น | จุดสำคัญ |
+|---|---|
+| แทง IV | มุม 15–30°, bevel ขึ้น, flashback → เลื่อนต่อ ~1–2 มม.ก่อนดันสาย |
+| เส้นกลิ้ง | ตรึงผิวให้ตึงก่อนแทง |
+| IO ยืนยัน | ตั้งมั่น + flush ลื่นไม่บวม |
+| ลำดับ arrest | IV เร็ว → IO → (central ทีหลัง) |
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'หลังใส่ IO ที่ tibia แล้ว flush เข้ายากและเริ่มบวมที่น่อง — แปลว่าอะไรและทำอย่างไร?',
+            a: `สงสัย **IO อยู่ผิดตำแหน่ง/extravasation** (เข็มไม่อยู่ในโพรงหรือทะลุ cortex อีกด้าน) — **หยุดใช้เส้นนั้นทันที** ถอดออก กดบริเวณนั้น แล้ว **เปลี่ยนไปกระดูก/ตำแหน่งอื่น** (เช่น tibia อีกข้าง/humerus) การฝืน flush ต่อจะดันสารเข้าเนื้อเยื่อทำให้บวม/เสี่ยง compartment syndrome`,
           },
         ],
       },

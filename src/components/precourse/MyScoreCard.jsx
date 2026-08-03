@@ -9,7 +9,7 @@ import { preCourseLessons } from '../../data/activeLessons';
 import { PRE_TEST_LESSON_ID } from '../../data/activePreTest';
 import { POST_TEST_LESSON_ID } from '../../data/activePostTest';
 import { EKG_TEST_PASSED_KEY } from '../../data/ekgQuiz';
-import { IS_BLS } from '../../config/courseMode';
+import { IS_BLS, IS_SKILL_COURSE } from '../../config/courseMode';
 import { useClassStore } from '../../stores/classStore';
 import {
   rpcGetCodeBlueLeaderboard, rpcJoinClass, rpcGetMyPracticalStatus,
@@ -23,7 +23,7 @@ import { useAsyncData } from '../../hooks/useAsyncData';
 // ออฟไลน์/ไม่มีคลาส = ซ่อนบรรทัดนั้นเฉยๆ ไม่บล็อกการ์ด
 export default function MyScoreCard({ student }) {
   const classCode = useClassStore(s => s.classCode);
-  const ekgDone = !IS_BLS && localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
+  const ekgDone = !IS_BLS && !IS_SKILL_COURSE && localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
 
   const { data: localData } = useAsyncData(
     () => (student
@@ -131,7 +131,7 @@ export default function MyScoreCard({ student }) {
         <>{lessonsPassed}/{preCourseLessons.length} <span className="font-normal text-2xs text-text-muted">(อ่านแล้ว {lessonsRead})</span></>)}
       {!IS_BLS && row(ClipboardCheck, 'Pre-test', fmtTest(pre))}
       {row(ClipboardCheck, 'Post-test', fmtTest(post))}
-      {!IS_BLS && row(Activity, 'EKG test',
+      {!IS_BLS && !IS_SKILL_COURSE && row(Activity, 'EKG test',
         ekgDone ? 'ผ่าน' : <span className="font-normal text-text-muted">ยังไม่ผ่าน</span>, '/als?tab=ekg')}
       {classCode && game && row(Gamepad2, 'เกม Code Blue Sim',
         game.row
