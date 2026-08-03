@@ -17,6 +17,15 @@ export const chapters = [
     icon: '🫀',
     sections: [
       {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบายว่าทำไม VF/pVT เป็นปัญหาของ **ventricle** และ defibrillation จึงมุ่งรีเซ็ตมวลนี้
+- เรียงลำดับ **SA → AV → His-Purkinje** พร้อมอัตราธรรมชาติและ escape rhythm
+- จับคู่ **P/QRS/T** บน ECG กับเหตุการณ์ไฟฟ้าในหัวใจ
+- อธิบาย **R-on-T** และเหตุผลของ synchronized cardioversion
+- นิยาม **CPP** และเชื่อมกับ "ทำไม peri-shock pause ต้องสั้น"`,
+      },
+      {
         heading: 'ห้องหัวใจ ผนัง และหลอดเลือดโคโรนารี',
         body: `หัวใจมี 4 ห้อง: **atria (บน) 2 + ventricles (ล่าง) 2** — ventricle ซ้ายผนังหนาสุดเพราะปั๊มเลือดสู่ร่างกายทั้งตัว
 
@@ -55,6 +64,28 @@ export const chapters = [
           },
         ],
       },
+      {
+        kind: 'pearl',
+        body: `**RCA เลี้ยง SA/AV node ในคนส่วนใหญ่** — inferior MI (RCA อุด) จึงมักมาพร้อม **bradycardia/AV block** ให้เฝ้าระวังหัวใจเต้นช้าและเตรียม pacing/atropine ไว้ล่วงหน้า`,
+      },
+      {
+        kind: 'summary',
+        body: `| โครงสร้าง | อัตราธรรมชาติ |
+|---|---|
+| SA node | 60–100/นาที (pacemaker หลัก) |
+| AV node | 40–60 (backup + หน่วงสัญญาณ) |
+| Purkinje | 20–40 (backup ต่ำสุด) |
+
+P = atria · QRS = ventricle depol · T = ventricle repol (ช่วงเสี่ยง R-on-T)
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ถ้า SA node หยุดทำงาน หัวใจจะหยุดเต้นทันทีไหม เพราะอะไร?',
+            a: `ไม่ทันที — ระบบนำไฟฟ้ามี **ลำดับชั้น backup**: ถ้า SA ล้มเหลว AV node (~40–60) หรือ Purkinje (~20–40) จะรับช่วงเป็น **escape rhythm** แต่ช้าลงและอาจไม่พอเลี้ยงร่างกาย จึงเป็นที่มาของ symptomatic bradycardia ที่อาจต้อง pacing`,
+          },
+        ],
+      },
     ],
   },
 
@@ -63,6 +94,13 @@ export const chapters = [
     id: 'df-ch2', title: 'บทที่ 2: จุลกายวิภาคกล้ามเนื้อหัวใจ (Histology)',
     icon: '🔬',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบาย **gap junction (connexin)** และแนวคิด functional syncytium
+- เชื่อมโยงว่าทำไม syncytium ทำให้ **mass depolarization** (รากฐาน defibrillation) เป็นไปได้
+- แยก **pacemaker cell vs contractile cell** และ automaticity (funny current I_f)`,
+      },
       {
         heading: 'Cardiomyocyte, Intercalated disc และ Gap junction',
         body: `กล้ามเนื้อหัวใจ (cardiac muscle) มีลักษณะเฉพาะที่อธิบายว่าทำไม defibrillation ถึงได้ผล:
@@ -89,6 +127,18 @@ export const chapters = [
 - SA node ไหลขึ้นเร็วสุด จึง "ชนะ" เป็น pacemaker หลัก (overdrive suppression)
 - **T-tubule + sarcoplasmic reticulum** ใน contractile cell จัดการแคลเซียมสำหรับการบีบตัว (excitation–contraction coupling)`,
       },
+      {
+        kind: 'summary',
+        body: `**หัวใจของบท:** gap junction เชื่อมทุกเซลล์เป็น **หน่วยเดียว** → กระแสภายนอกจึง depolarize ทั้งดวงพร้อมกันได้ = ทำไม defibrillation ได้ผล · pacemaker cell มี automaticity (I_f) · SA ชนะเพราะไต่ threshold เร็วสุด (overdrive suppression)
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ถ้ากล้ามเนื้อหัวใจไม่มี gap junction การ defibrillation จะเป็นไปได้ไหม?',
+            a: `แทบเป็นไปไม่ได้อย่างมีประสิทธิภาพ — เพราะการช็อกอาศัยการที่กระแสไฟ **กระจายจากเซลล์สู่เซลล์ทั่วทั้งมวลกล้ามเนื้อ** ผ่าน gap junction พร้อมกัน ถ้าเซลล์แยกกันไม่เชื่อมต่อ กระแสจะ depolarize เฉพาะจุดที่สัมผัส ไม่สามารถ "รีเซ็ต" วงจร reentry ทั้งดวงได้`,
+          },
+        ],
+      },
     ],
   },
 
@@ -97,6 +147,14 @@ export const chapters = [
     id: 'df-ch3', title: 'บทที่ 3: ไฟฟ้าสรีรวิทยาหัวใจ (Physiology)',
     icon: '⚡',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบาย **action potential 5 เฟส** ของ ventricle และไอออนหลักแต่ละเฟส (Na→Ca plateau→K)
+- อธิบาย **refractory period** และเชื่อมกับ R-on-T
+- แยก **"พลังงาน (J) ที่ตั้ง" vs "กระแส (current) ที่หัวใจได้รับ"** และบทบาทของ **impedance**
+- อธิบายว่าทำไม **biphasic** ใช้พลังงานต่ำกว่า monophasic`,
+      },
       {
         heading: 'Cardiac action potential และช่องไอออน (Ion channels)',
         body: `**Action potential ของ ventricular myocyte** มี 5 เฟส (0–4) ที่ต่างจากเซลล์ประสาทตรง "plateau" ยาว:
@@ -141,6 +199,17 @@ export const chapters = [
           },
         ],
       },
+      {
+        kind: 'case',
+        heading: 'เคส: ช็อกแล้วแต่ VF ยังอยู่ — impedance สูง',
+        body: `ชาย 90 กก. ขนหน้าอกดก เหงื่อท่วม ช็อก 200 J (biphasic) ครั้งแรกไม่สำเร็จ VF ยังอยู่`,
+        qa: [
+          {
+            q: 'ก่อนเพิ่มพลังงาน มีอะไรทำได้บ้างเพื่อให้ "กระแสถึงหัวใจ" มากขึ้น (เชื่อมแนวคิด impedance)?',
+            a: `เพราะ **พลังงานที่ตั้ง ≠ กระแสที่หัวใจได้รับ** — ก่อนอื่นลด TTI: (1) **เช็ดเหงื่อ/น้ำให้แห้ง** (น้ำพากระแสไปตามผิว) (2) **กด pad แนบสนิท** (3) **โกน/ปัดขนหน้าอก**บริเวณ pad (4) วาง pad ให้ "หนีบหัวใจ" ถูกตำแหน่ง (5) ปล่อยไฟช่วง **หายใจออก** (ปอดมีลมน้อย impedance ต่ำลง) — จากนั้นจึงพิจารณาเพิ่มพลังงานตามคู่มือเครื่อง + ให้ CPR คุณภาพสูงคั่นเสมอ`,
+          },
+        ],
+      },
     ],
   },
 
@@ -149,6 +218,14 @@ export const chapters = [
     id: 'df-ch4', title: 'บทที่ 4: กลไกการเกิดภาวะหัวใจเต้นผิดจังหวะ (Pathology)',
     icon: '🌀',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบาย **3 กลไก** ของ arrhythmia (automaticity / triggered / reentry) และ 3 เงื่อนไขของ reentry
+- แยก **shockable (VF/pVT) vs non-shockable (asystole/PEA)** ตามกลไก
+- ท่อง **H's & T's** สาเหตุที่แก้ได้ของ PEA/asystole
+- อธิบาย **3-phase model ของ VF** และเหตุผลที่ทุกนาทีมีค่า`,
+      },
       {
         heading: 'สามกลไกของ arrhythmia และ Reentry',
         body: `ภาวะหัวใจเต้นผิดจังหวะเกิดจาก 3 กลไกหลัก:
@@ -190,6 +267,24 @@ export const chapters = [
           },
         ],
       },
+      {
+        kind: 'summary',
+        body: `| จังหวะ | ช็อก? | ทำอะไร |
+|---|---|---|
+| VF / pVT | ✅ | defib + CPR |
+| Asystole / PEA | ❌ | CPR + หา H's&T's + ยา |
+
+**H's:** Hypovolemia · Hypoxia · H⁺(acidosis) · Hypo/Hyperkalemia · Hypothermia
+**T's:** Toxins · Tamponade · Tension pneumothorax · Thrombosis (MI/PE)
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ผู้ป่วย arrest พบเป็น VF มา ~7 นาทีโดยไม่มีใครทำ CPR — ควร "ช็อกทันที" หรือ "กดก่อน" และเพราะอะไร?',
+            a: `ตามหลัก **3-phase model** ผู้ป่วยน่าจะอยู่ใน *circulatory phase* (พลังงานหัวใจร่อยหรอ) — การ **CPR คุณภาพสูงสักครู่เพื่อเติมเลือด/ออกซิเจนให้กล้ามเนื้อหัวใจก่อน** ช่วยเพิ่มโอกาสที่การช็อกจะสำเร็จ (ต่างจากช่วง electrical phase ~4 นาทีแรกที่ช็อกทันทีได้ผลดีสุด) — ในทางปฏิบัติทีมจะกดหน้าอกทันทีระหว่างเตรียม/ชาร์จเครื่อง แล้วช็อกโดยไม่หน่วง CCF`,
+          },
+        ],
+      },
     ],
   },
 
@@ -199,9 +294,16 @@ export const chapters = [
     icon: '💊',
     sections: [
       {
-        heading: '⚠️ ข้อควรระวังก่อนอ่านบทนี้',
-        body: `> เนื้อหาบทนี้อธิบาย **กลไกและชั้นยา** เพื่อความเข้าใจเชิงลึกเท่านั้น **ไม่ใช่คำสั่งใช้ยา/ขนาดยา**
-> ขนาดยา ข้อบ่งชี้ และลำดับการให้ ต้องยึด protocol ACLS ของสถาบันและการกำกับของแพทย์เสมอ`,
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- อธิบายว่าประโยชน์หลักของ **epinephrine** ใน arrest มาจากฤทธิ์ **α₁** (เพิ่ม CPP) ไม่ใช่ β
+- บอกบทบาทของ **amiodarone/lidocaine** ใน VF/pVT ที่ดื้อการช็อก
+- อธิบายความจำเป็นของ **sedation** ก่อน cardioversion/pacing ในผู้ตื่น
+- โยง **Vaughan-Williams class** กับเฟสของ action potential (บท 3)`,
+      },
+      {
+        kind: 'warning',
+        body: `เนื้อหาบทนี้อธิบาย **กลไกและชั้นยา** เพื่อความเข้าใจเชิงลึกเท่านั้น **ไม่ใช่คำสั่งใช้ยา/ขนาดยา** — ขนาดยา ข้อบ่งชี้ และลำดับการให้ ต้องยึด protocol ACLS ของสถาบันและการกำกับของแพทย์เสมอ`,
       },
       {
         heading: 'ยาที่ให้ระหว่าง arrest: Vasopressor และ Antiarrhythmic',
@@ -245,6 +347,25 @@ export const chapters = [
           },
         ],
       },
+      {
+        kind: 'summary',
+        body: `| ยา | กลไกเด่น | บทบาทใน arrest |
+|---|---|---|
+| Epinephrine | **α₁** หดหลอดเลือด → CPP↑ | ให้ทุก ~3–5 นาที (ตาม protocol) |
+| Amiodarone | หลายช่อง ยืด refractory | VF/pVT ดื้อช็อก |
+| Lidocaine | Na⁺ (Ib) | ทางเลือกแทน amiodarone |
+| Magnesium | — | torsades (QT ยาว) |
+
+ยา **ไม่ทดแทน** CPR/ช็อก — ให้โดยไม่หยุดกด
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'Vaughan-Williams Class III (เช่น amiodarone) ออกฤทธิ์ที่เฟสไหนของ action potential และผลคืออะไร?',
+            a: `Class III บล็อก **K⁺ channel** ในเฟส 3 (repolarization) → ยืดเวลา repolarization และ **refractory period** ให้ยาวขึ้น → เซลล์กลับมากระตุ้นซ้ำได้ช้าลง ทำให้วงจร **reentry เกิดต่อได้ยาก** (แต่การยืด QT มากไปก็เสี่ยง torsades — จึงต้องระวัง)`,
+          },
+        ],
+      },
     ],
   },
 
@@ -253,6 +374,14 @@ export const chapters = [
     id: 'df-ch6', title: 'บทที่ 6: เครื่องมือช็อกไฟฟ้าและการตั้งค่า (Equipment)',
     icon: '🧰',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- เลือกใช้ **AED vs manual** ตามสถานการณ์/ผู้ใช้ และรู้โหมด SYNC/Pacer
+- วาง **pad** ตำแหน่ง anterior-lateral / anterior-posterior ได้ถูกและรู้เหตุผล
+- ใช้เทคนิค **ลด impedance** ระดับปฏิบัติ (แห้ง/แนบ/โกนขน) + ตัวเลขระยะสำคัญ
+- จัดการข้อควรระวัง: ICD, แผ่นแปะยา, สิ่งแวดล้อมเปียก`,
+      },
       {
         heading: 'AED vs Manual Defibrillator',
         body: `**AED (Automated External Defibrillator):**
@@ -277,9 +406,29 @@ export const chapters = [
 - โกน/ปัดขนหน้าอกหนา ๆ ถ้าขวางการแนบ
 
 **ข้อควรระวัง:**
-- **Pacemaker/ICD ฝัง** — วาง pad ห่างจากตัวเครื่อง ≥ ~2.5 ซม. (ไม่วางทับ)
+- **Pacemaker/ICD ฝัง** — วาง pad ห่างจากตัวเครื่อง ≥ ~2.5 ซม. (ไม่วางทับ ไม่งั้นกระแสถูก shunt เข้าเครื่องและอาจทำเครื่องเสียหาย/หัวใจได้กระแสน้อยลง)
 - **แผ่นแปะยา (transdermal)** — ลอกออกและเช็ดก่อน (เสี่ยงประกายไฟ/ขวางการนำไฟฟ้า)
-- **สิ่งแวดล้อมเปียก/โลหะ** — ย้ายผู้ป่วยพ้นแอ่งน้ำ; ตะโกน "CLEAR" ทุกครั้งก่อนช็อก`,
+- **สิ่งแวดล้อมเปียก/โลหะ** — ย้ายผู้ป่วยพ้นแอ่งน้ำ; ตะโกน "CLEAR" ทุกครั้งก่อนช็อก
+
+**ตัวเลขเชิงปฏิบัติ:** pad ผู้ใหญ่เส้นผ่านศูนย์กลาง ~8–12 ซม. · ถ้าใช้ **paddle** กดแรง ~8 กก. (ลด impedance) · pad ทั้งสองต้อง **ไม่แตะกัน** (เว้น ≥ ~2.5 ซม.) ไม่งั้นเกิด arcing กระแสลัดตามผิว`,
+      },
+      {
+        kind: 'summary',
+        body: `| ประเด็น | ตัวเลข/หลักจำ |
+|---|---|
+| Pad–ICD | ห่าง ≥ ~2.5 ซม. |
+| Pad–Pad | ไม่แตะกัน (เว้น ≥ ~2.5 ซม.) |
+| Paddle force | ~8 กก. (ลด impedance) |
+| Biphasic energy | ~120–200 J ตามคู่มือเครื่อง |
+| ก่อนช็อก | แห้ง · แนบ · CLEAR |
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ผู้ป่วยตัวเปียกในห้องน้ำ arrest — ทำไมต้องเช็ดหน้าอกแห้งและย้ายพ้นน้ำก่อนช็อก?',
+            a: `น้ำเป็น **ตัวนำไฟฟ้า** — ถ้าหน้าอก/พื้นเปียก กระแสจากการช็อกจะ **ไหลลัดไปตามผิวหนัง/พื้น** แทนที่จะไหลผ่านหัวใจ ทำให้ช็อกไม่ได้ผลเต็มที่ + เสี่ยงไฟไหม้ผิวเป็นบริเวณกว้าง + อันตรายต่อผู้ช่วยเหลือ — เช็ดแห้ง ย้ายพ้นแอ่งน้ำ แล้วจึงช็อก`,
+          },
+        ],
       },
     ],
   },
@@ -289,6 +438,14 @@ export const chapters = [
     id: 'df-ch7', title: 'บทที่ 7: เทคนิค Defib / Cardioversion / Pacing (Technique)',
     icon: '🔄',
     sections: [
+      {
+        kind: 'objective',
+        body: `เมื่อจบบทนี้ ผู้เรียนจะสามารถ:
+- ใช้เทคนิค **charge-while-compressing** เพื่อลด peri-shock pause และเพิ่ม **CCF > 80%**
+- ทำ **defibrillation** และ **synchronized cardioversion** ครบขั้น + รู้ว่าต้องเปิด SYNC ใหม่ทุกครั้ง
+- ทำ **transcutaneous pacing** และยืนยัน **electrical + mechanical capture**
+- แยกใช้สามเทคนิคไฟฟ้าให้ถูกกับผู้ป่วย`,
+      },
       {
         heading: 'ลด Peri-shock pause และเพิ่ม Chest Compression Fraction (CCF)',
         body: `**ทำไม pause ต้องสั้น (เชื่อมโยงบท 1 — CPP):**
@@ -343,6 +500,28 @@ export const chapters = [
 - แม้จริง ๆ หัวใจกลับมาเต้น การกดต่ออีกเล็กน้อยก็ไม่เป็นอันตราย เทียบกับความเสียหายจากการปล่อยให้ไม่มีเลือดไหลเวียน
 
 **แนวปฏิบัติ:** หลังช็อกให้ **CPR ต่อทันที 2 นาทีเต็ม** แล้วค่อยประเมิน rhythm/ชีพจรในรอบถัดไป — ยกเว้นเห็นสัญญาณชัดว่าผู้ป่วยฟื้น (ขยับ ไอ หายใจปกติ) หรือ **EtCO₂ พุ่งขึ้นฉับพลัน** (สัญญาณ ROSC) จึงประเมินได้เร็วขึ้น`,
+          },
+        ],
+      },
+      {
+        kind: 'warning',
+        body: `**อย่าลืมเปิด SYNC ใหม่ก่อน cardiovert ซ้ำ** — เครื่องส่วนใหญ่กลับไปโหมด defib (unsync) อัตโนมัติหลังปล่อยไฟ ถ้าลืม กระแสอาจตกตรง **T wave** → R-on-T → เหนี่ยวนำ **VF** ในผู้ป่วยที่ยังมีชีพจร`,
+      },
+      {
+        kind: 'summary',
+        body: `| เทคนิค | ผู้ป่วย | SYNC? | หลังทำ |
+|---|---|---|---|
+| Defibrillation | VF/pVT ไม่มีชีพจร | ไม่ | CPR ต่อ 2 นาที ไม่คลำชีพจร |
+| Cardioversion | เต้นเร็วไม่คงที่ มีชีพจร | ใช่ (R wave) | เปิด SYNC ใหม่ก่อนช็อกซ้ำ |
+| Pacing | เต้นช้าไม่คงที่ | — | ยืนยัน electrical + mechanical capture |
+
+Charge-while-compressing → peri-shock pause สั้น → **CCF > 80%**
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ระหว่าง pacing เห็น pacing spike + QRS บนจอ (electrical capture) แต่คลำชีพจรไม่ได้ตามอัตราที่ตั้ง — แปลว่าอะไร?',
+            a: `เป็น **electrical capture โดยไม่มี mechanical capture** — ไฟฟ้ากระตุ้นได้แต่กล้ามเนื้อ **ยังบีบตัวไม่สร้างการไหลเวียนจริง** จึงยังไม่ถือว่า pacing สำเร็จ ต้อง **เพิ่ม output (mA)** จนคลำชีพจร (เช่น femoral) ได้ตรงอัตราที่ตั้ง — การยืนยัน mechanical capture คือสิ่งเดียวที่บอกว่าไฟฟ้าแปลงเป็นเลือดไปเลี้ยงจริง`,
           },
         ],
       },
