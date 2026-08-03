@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { chapters } from '../data/activeSkillContent';
 import { courseMeta } from '../config/courseMode';
 import QASection from '../components/QASection';
+import { mdComponents, Figure } from '../components/markdownComponents';
 import PageHero from '../components/PageHero';
 import { BookOpen, ChevronDown } from 'lucide-react';
 
@@ -72,9 +75,22 @@ export default function SkillKnowledge() {
                           {s.heading}
                         </h3>
                       )}
-                      {s.body && <p className="als-section-body">{s.body}</p>}
+                      {s.body && (
+                        <div className="als-section-body">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                            {s.body}
+                          </ReactMarkdown>
+                        </div>
+                      )}
+                      {s.images?.length > 0 && (
+                        <div className={`space-y-3 ${s.heading || s.body ? 'mt-3' : ''}`}>
+                          {s.images.map((img, j) => (
+                            <Figure key={j} img={img} fallbackAlt={s.heading} />
+                          ))}
+                        </div>
+                      )}
                       {s.qa?.length > 0 && (
-                        <div className={s.heading || s.body ? 'mt-3' : ''}>
+                        <div className={s.heading || s.body || s.images?.length ? 'mt-3' : ''}>
                           <QASection qa={s.qa} accent={courseMeta.themeColor} />
                         </div>
                       )}
