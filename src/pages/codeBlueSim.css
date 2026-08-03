@@ -332,6 +332,45 @@
   filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .45));
 }
 .cbs-sprite-img { user-select: none; }
+
+/* เผยผลแล็บ/เอกซเรย์เต็มจอ — ต้อง object-fit: contain (อ่านออกครบ ไม่ครอปแบบตัวละคร/ฉาก) */
+.cbs-docframe {
+  position: relative; z-index: 2; width: min(92vw, 480px); aspect-ratio: 4 / 5;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; box-shadow: 0 16px 40px rgba(0, 0, 0, .55);
+  animation: cbs-pop .22s ease;
+}
+.cbs-docframe-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+/* lab: ใบผลแล็บ/กระดาษพิมพ์ */
+.cbs-docframe-lab {
+  background: linear-gradient(180deg, #fbf9f2, #eee9da);
+  border: 3px solid #d8d2bd; padding: 16px;
+}
+.cbs-docframe-lab::before {
+  content: ""; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+  width: 70px; height: 18px; background: #8a8f9c; border-radius: 4px;
+}
+.cbs-docframe-lab .cbs-docframe-placeholder-text { color: #3a3a3a; }
+
+/* xray: ฟิล์มบนกล่องไฟ (lightbox) */
+.cbs-docframe-xray {
+  background: radial-gradient(ellipse at center, #0e1424, #05070f);
+  border: 10px solid #2a2f3c;
+  box-shadow: 0 0 40px rgba(140, 180, 255, .25) inset, 0 16px 40px rgba(0, 0, 0, .6);
+}
+.cbs-docframe-xray .cbs-docframe-placeholder-text { color: #9db4e8; }
+
+.cbs-docframe-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.cbs-docframe-icon { font-size: 42px; }
+.cbs-docframe-placeholder-text { font-family: var(--cbs-mono); font-size: 13px; text-align: center; padding: 0 12px; }
+
+.cbs-docframe-caption {
+  position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%);
+  font-family: var(--cbs-mono); font-size: 11px; letter-spacing: .06em;
+  background: rgba(4, 8, 18, .82); color: #FFD9DA; border: 1.5px solid rgba(229, 72, 77, .65);
+  border-radius: 999px; padding: 4px 12px; white-space: nowrap;
+}
 /* ตัวละครที่ไม่มีเฟรมปากอ้าคู่ (built-in ทุกตัว + custom บางตัว) — ขยับตัวเบาๆ แทนตอนพูด */
 .cbs-sprite-talking { animation: cbs-talk-bob .32s ease-in-out infinite; }
 
@@ -649,7 +688,7 @@
   .cbs-title::before, .cbs-stage.cbs-drama::before, .cbs-stage.cbs-drama-red::before,
   .cbs-inter-burst, .cbs-adv-caret, .cbs-choice, .cbs-sprite.cbs-pop,
   .cbs-inter-bubble, .cbs-stamp, .cbs-tap-coach-ring, .cbs-sprite-talking,
-  .cbs-retry-banner {
+  .cbs-retry-banner, .cbs-docframe {
     animation: none !important;
   }
   /* วงแหวนไม่กะพริบแล้ว ต้องคงให้เห็นอยู่ ไม่งั้นคำใบ้หายไปครึ่งหนึ่ง */
