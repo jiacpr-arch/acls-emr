@@ -69,6 +69,19 @@ export const chapters = [
         body: `**RCA เลี้ยง SA/AV node ในคนส่วนใหญ่** — inferior MI (RCA อุด) จึงมักมาพร้อม **bradycardia/AV block** ให้เฝ้าระวังหัวใจเต้นช้าและเตรียม pacing/atropine ไว้ล่วงหน้า`,
       },
       {
+        heading: '⟐ เชิงลึก: Conduction velocity, Autonomic tone และ Coronary dominance',
+        body: `**ความเร็วนำสัญญาณ (conduction velocity) — ทำไม AV ต้องหน่วง:**
+
+| โครงสร้าง | ความเร็วโดยประมาณ | เหตุผลเชิงหน้าที่ |
+|---|---|---|
+| **AV node** | ~0.05 m/s (ช้าสุด) | หน่วงให้ ventricle เติมเลือดก่อนบีบ (PR interval) + กันความถี่สูงจาก atria |
+| กล้ามเนื้อ atria/ventricle | ~0.5–1 m/s | — |
+| **His-Purkinje** | ~2–4 m/s (เร็วสุด) | กระจายทั่ว ventricle เกือบพร้อมกัน → บีบประสาน |
+
+**Autonomic control:** vagal (parasympathetic, ACh→M2) กด SA/AV เด่น; sympathetic (NE→β₁) เร่งทั้งอัตราและการนำ — สมดุลนี้อธิบาย bradycardia จาก vagal tone และ tachycardia จาก catecholamine
+
+**Coronary dominance:** ~85% **right-dominant** (RCA ให้ PDA + เลี้ยง AV node) — inferior STEMI จึงมักมาพร้อม AV block/bradycardia` },
+      {
         kind: 'summary',
         body: `| โครงสร้าง | อัตราธรรมชาติ |
 |---|---|
@@ -127,6 +140,19 @@ P = atria · QRS = ventricle depol · T = ventricle repol (ช่วงเสี
 - SA node ไหลขึ้นเร็วสุด จึง "ชนะ" เป็น pacemaker หลัก (overdrive suppression)
 - **T-tubule + sarcoplasmic reticulum** ใน contractile cell จัดการแคลเซียมสำหรับการบีบตัว (excitation–contraction coupling)`,
       },
+      {
+        heading: '⟐ ระดับโมเลกุล: Connexin isoforms และ Excitation–contraction coupling',
+        body: `**Gap junction — connexin isoform ต่างกันตามตำแหน่ง** (กำหนดความเร็ว/ทิศทางการนำ):
+
+| Connexin | ตำแหน่งเด่น | หมายเหตุ |
+|---|---|---|
+| **Cx43** | ventricle (มากสุด) | remodeling/redistribution ในแผลเป็น → เอื้อ reentry |
+| **Cx40** | atria + His-Purkinje | conduction เร็ว |
+| **Cx45** | SA/AV node | conduction ช้า |
+
+**Excitation–contraction coupling (calcium-induced calcium release):** action potential → เปิด **L-type Ca²⁺ channel (DHPR)** ที่ T-tubule → Ca²⁺ เล็กน้อยไปเปิด **RyR2** บน sarcoplasmic reticulum → ปล่อย Ca²⁺ ก้อนใหญ่ → จับ troponin C → บีบตัว; **SERCA** ปั๊ม Ca²⁺ กลับ SR (คลายตัว)
+
+> **เชื่อม arrhythmia:** RyR2 ที่รั่ว (phosphorylation เกิน/พันธุกรรม) → Ca²⁺ leak → delayed afterdepolarization → triggered activity (เช่น CPVT, digoxin toxicity)` },
       {
         kind: 'summary',
         body: `**หัวใจของบท:** gap junction เชื่อมทุกเซลล์เป็น **หน่วยเดียว** → กระแสภายนอกจึง depolarize ทั้งดวงพร้อมกันได้ = ทำไม defibrillation ได้ผล · pacemaker cell มี automaticity (I_f) · SA ชนะเพราะไต่ threshold เร็วสุด (overdrive suppression)
@@ -210,6 +236,46 @@ P = atria · QRS = ventricle depol · T = ventricle repol (ช่วงเสี
           },
         ],
       },
+      {
+        heading: '⟐ ระดับโมเลกุล: Action potential กับ ion channel เฉพาะเฟส',
+        body: `| เฟส | เหตุการณ์ | Channel / current หลัก |
+|---|---|---|
+| **0** upstroke | depolarize เร็ว | **I_Na** (fast Na⁺, Naᵥ1.5/**SCN5A**) |
+| **1** notch | ลงเล็กน้อย | **I_to** (transient outward K⁺) |
+| **2** plateau | คงระดับ (เอกลักษณ์หัวใจ) | **I_CaL** (L-type Ca²⁺) สมดุลกับ **I_Kr/I_Ks** |
+| **3** repolarization | กลับค่าพัก | **I_Kr (hERG/KCNH2)** + **I_Ks (KCNQ1)** |
+| **4** resting/pacemaker | ค่าพัก/ไต่ขึ้นเอง | **I_K1** (คงค่าพัก) · **I_f (funny, HCN)** ใน pacemaker |
+
+**Resting potential ≈ Nernst ของ K⁺:** \`E_K = 61 × log([K]o/[K]i)\` — ~−90 mV; ดังนั้น **hyperkalemia (K]o↑)** ทำ resting เป็นบวกขึ้น → inactivate I_Na → นำสัญญาณช้า (peaked T → wide QRS → sine wave → arrest)
+
+**Refractory period:** absolute (ERP, Na channel ยัง inactivated) → relative (RRP ≈ ช่วง T wave, กระตุ้นได้ด้วยสิ่งเร้าแรง = **R-on-T**)` },
+      {
+        heading: '⟐ ฟิสิกส์ Defibrillation: Ohm, Critical mass และ ULV',
+        body: `**กระแสคือสิ่งที่ depolarize หัวใจ ไม่ใช่พลังงาน:** \`I = V / Z\` (Z = transthoracic impedance, TTI ~70–80 Ω) — เครื่องตั้ง **joule** แต่ผลอยู่ที่ **ampere ที่ไหลผ่าน myocardium**
+
+- **Critical mass hypothesis:** ต้อง depolarize มวลกล้ามเนื้อวิกฤต (~ส่วนใหญ่ของ ventricle) พร้อมกันเพื่อหยุดวงจร reentry ทุกวง
+- **Upper limit of vulnerability (ULV):** ช็อกที่ **แรงเกินไป** ก็เหนี่ยวนำ VF ซ้ำได้ (มี "หน้าต่าง" ที่เหมาะสม) — เป็นเหตุผลเชิงทฤษฎีว่าทำไมพลังงานสูงสุดไม่ใช่คำตอบเสมอ
+- **Biphasic truncated exponential:** เฟสสองช่วยลด threshold + เครื่องปรับ **tilt/ระยะเวลา** ชดเชย impedance ให้กระแสคงที่
+
+**Weil — coronary perfusion pressure:** \`CPP = aortic diastolic − right atrial diastolic\` — CPP > ~15 mmHg สัมพันธ์กับโอกาส ROSC; นี่คือฟิสิกส์เบื้องหลัง "peri-shock pause สั้น" และ epinephrine (α₁ เพิ่ม aortic diastolic)` },
+      {
+        kind: 'evidence',
+        body: `**Waveform capnography เป็น class I** สำหรับยืนยันตำแหน่งท่อและติดตามคุณภาพ CPR/ROSC · แนวทางปัจจุบันเน้น **high-quality CPR + defibrillation เร็ว** เป็นปัจจัยรอดชีวิตหลัก มากกว่ายา · การเลือก fixed vs escalating energy — เครื่องต่างรุ่นมี protocol ต่างกัน *(อ้างเชิงหลักการ — ตรวจสอบ ILCOR/AHA ล่าสุด)*` },
+      {
+        kind: 'warning',
+        body: `**Special populations:** เด็ก — defibrillation ตามน้ำหนัก (มัก 2→4 J/kg), ใช้ pediatric attenuator ถ้ามีแต่ไม่ชะลอ · ตั้งครรภ์ — ช็อกได้ตามปกติ (พลังงานไม่ต้องปรับ), left-lateral tilt, เตรียม perimortem C-section ถ้าไม่ ROSC · hypothermia รุนแรง — หัวใจอาจดื้อช็อก/ยา ให้ทำ CPR ต่อและอุ่นร่างกายควบคู่` },
+      {
+        kind: 'summary',
+        body: `**สรุปไฟฟ้าสรีรวิทยา:** AP 5 เฟส (I_Na → I_CaL plateau → I_Kr/I_Ks) · resting ≈ E_K (hyperkalemia อันตราย) · defibrillation = **กระแส (I=V/Z)** depolarize critical mass · CPP ขับ ROSC
+
+**ทดสอบตัวเอง:**`,
+        qa: [
+          {
+            q: 'ทำไม hyperkalemia รุนแรงจึงทำให้ QRS กว้างและนำไปสู่ arrest — อธิบายด้วย Nernst และ channel?',
+            a: `[K]o ที่สูงทำให้ \`E_K\` (และ resting potential) **เป็นบวกขึ้น** → Na⁺ channel (Naᵥ1.5) ส่วนหนึ่งอยู่สภาพ **inactivated** ตั้งแต่ค่าพัก → phase 0 upstroke ช้าลง การนำสัญญาณทั่ว ventricle ช้าลง → **QRS กว้างขึ้นเรื่อย ๆ** จนรวมกับ T เป็น sine wave และหยุดเต้น — จึงให้ **calcium** (คงเสถียร membrane ทันที) + ดัน K⁺ เข้าเซลล์ (insulin/glucose, β-agonist) + ขับออก`,
+          },
+        ],
+      },
     ],
   },
 
@@ -267,6 +333,33 @@ P = atria · QRS = ventricle depol · T = ventricle repol (ช่วงเสี
           },
         ],
       },
+      {
+        heading: '⟐ เชิงลึก: Reentry wavelength, Triggered activity และ Channelopathies',
+        body: `**Reentry — เงื่อนไขเชิงปริมาณ:** \`wavelength = conduction velocity × refractory period\`
+- reentry เกิดง่ายเมื่อ **wavelength สั้น** (นำช้า + refractory สั้น) พอให้คลื่นวนกลับเจอเนื้อเยื่อที่ฟื้นแล้ว — จึงเป็นเหตุผลที่ยา **class III (ยืด refractory)** ต้าน reentry และ ischemia (นำช้า) ส่งเสริม reentry
+
+**Triggered activity (afterdepolarization):**
+| ชนิด | เกิดเมื่อ | สัมพันธ์กับ |
+|---|---|---|
+| **EAD** (early) | เฟส 2–3, QT ยาว | **Torsades** (I_Kr block, ยา, hypoK/Mg) |
+| **DAD** (delayed) | เฟส 4, Ca²⁺ overload | digoxin toxicity, CPVT (RyR2), catecholamine |
+
+**Channelopathies (พันธุกรรม) — arrest ในหัวใจโครงสร้างปกติ:**
+- **Long QT:** LQT1 (**KCNQ1/I_Ks**), LQT2 (**hERG/I_Kr**), LQT3 (**SCN5A/I_Na** gain) → torsades
+- **Brugada:** SCN5A loss → ST ยก V1–V3, VF ตอนพัก/ไข้
+- **CPVT:** RyR2/CASQ2 → VT จาก catecholamine (ออกกำลัง/อารมณ์)` },
+      {
+        heading: '⟐ Differential: Wide-complex tachycardia (WCT)',
+        body: `WCT (QRS ≥ 120 ms) — **สมมติเป็น VT ไว้ก่อนจนพิสูจน์เป็นอื่น** โดยเฉพาะถ้ามีประวัติโรคหัวใจ
+
+| สาเหตุ | เบาะแส |
+|---|---|
+| **VT** (พบบ่อยสุด) | AV dissociation, capture/fusion beats, concordance, QRS กว้างมาก |
+| **SVT + aberrancy** (BBB) | รูป QRS ตรงแบบ typical RBBB/LBBB |
+| **SVT + pre-excitation** (WPW/antidromic) | ระวัง — AV nodal blocker (adenosine/verapamil) **อันตราย** ใน AF + WPW |
+| **Toxic/metabolic** (hyperK, TCA, Na-channel blocker) | QRS กว้างทั่ว, ประวัติยา |
+
+> **หลักปฏิบัติ:** ผู้ป่วยไม่คงที่ → synchronized cardioversion; อย่ามัวแยกชนิดจนช้า — "ถ้าสงสัย VT รักษาแบบ VT"` },
       {
         kind: 'summary',
         body: `| จังหวะ | ช็อก? | ทำอะไร |
@@ -352,6 +445,26 @@ P = atria · QRS = ventricle depol · T = ventricle repol (ช่วงเสี
         body: `**ทำไม Epinephrine ให้ซ้ำทุก 3–5 นาที:** ฤทธิ์ **α₁** ที่ดัน coronary perfusion pressure ขึ้น *onset ~30 วินาที–1 นาที (IV/IO)* แต่ *duration สั้น ~3–5 นาที* — ถ้าปล่อยหมดฤทธิ์ CPP ตกกลับ จึงต้องเติมซ้ำ **ก่อนฤทธิ์เดิมหาย** ให้พอดีจังหวะ rhythm check ทุก 2 นาที`,
       },
       {
+        heading: '⟐ ระดับโมเลกุล: Signaling ของยา และ Use-dependence',
+        body: `**Adrenergic signaling ของ epinephrine:**
+- **α₁** → Gq → phospholipase C → IP₃/DAG → Ca²⁺ ในกล้ามเนื้อเรียบหลอดเลือด → **vasoconstriction** (เพิ่ม aortic diastolic → CPP) = ประโยชน์หลักใน arrest
+- **β₁** → Gs → **adenylyl cyclase → cAMP → PKA** → เพิ่ม I_CaL (inotropy/chronotropy) แต่ก็เพิ่มการใช้ O₂ (ผลเสียใน ischemia)
+
+**Adenosine:** A1 receptor → **Gi** → เปิด **GIRK (I_KACh)** + ลด cAMP → **hyperpolarize AV node** ชั่วขณะ → บล็อกการนำ (จบ AVNRT/AVRT) — half-life < 10 วินาที จึง push เร็ว+flush; **theophylline บล็อก** (ต้องใช้ขนาดสูงขึ้น), **dipyridamole เสริมฤทธิ์**
+
+**Vaughan-Williams เชิงโมเลกุล + use-dependence:**
+| Class | เป้า | หมายเหตุ |
+|---|---|---|
+| **Ia/Ib/Ic** | Na⁺ channel (จับ **state-dependent**) | Ib (lidocaine) จับ inactivated state เด่น → เลือกทำงานที่เนื้อเยื่อ ischemic/เต้นเร็ว (**use-dependence**) |
+| **II** | β-blocker | ลด cAMP |
+| **III** | K⁺ (I_Kr) → ยืด APD/refractory | amiodarone จับ **หลาย** channel (I,II,III,IV) |
+| **IV** | Ca²⁺ (L-type) | verapamil/diltiazem — ห้ามใน WCT ที่อาจเป็น VT |
+
+> **Amiodarone reverse-use-dependence** ของ QT prolongation ทำให้เกิด torsades น้อยกว่ายา class III บริสุทธิ์` },
+      {
+        kind: 'warning',
+        body: `**Special populations / เตือน:** ยาว QT + hypoK/hypoMg → torsades: รักษาด้วย **magnesium** (คงเสถียร ไม่ใช่ยืด QT เพิ่ม) + overdrive pacing · digoxin toxicity → DAD/arrhythmia หลากหลาย (ระวัง calcium ใน dig tox — "stone heart" theoretical) · ไต/ตับวายเปลี่ยน clearance ของ amiodarone (สะสม, ตับ) และ metabolite; ผู้สูงอายุไวต่อ bradycardia/hypotension` },
+      {
         kind: 'summary',
         body: `| ยา | กลไกเด่น | บทบาทใน arrest |
 |---|---|---|
@@ -416,6 +529,15 @@ P = atria · QRS = ventricle depol · T = ventricle repol (ช่วงเสี
 
 **ตัวเลขเชิงปฏิบัติ:** pad ผู้ใหญ่เส้นผ่านศูนย์กลาง ~8–12 ซม. · ถ้าใช้ **paddle** กดแรง ~8 กก. (ลด impedance) · pad ทั้งสองต้อง **ไม่แตะกัน** (เว้น ≥ ~2.5 ซม.) ไม่งั้นเกิด arcing กระแสลัดตามผิว`,
       },
+      {
+        heading: '⟐ เชิงลึก: วิศวกรรมของเครื่องช็อก',
+        body: `**Biphasic truncated exponential (BTE) vs rectilinear biphasic (RLB):** ทั้งคู่ปล่อยกระแสสองเฟส แต่ต่างวิธี **ชดเชย impedance** — RLB ควบคุมกระแสให้เกือบคงที่ (rectilinear), BTE ปรับ **tilt/ระยะเวลา** ตาม TTI ที่วัดได้ ก่อน/ระหว่างช็อก → กระแสที่หัวใจสม่ำเสมอขึ้นในผู้ป่วยหน้าอกต้านทานต่างกัน
+
+**pad (self-adhesive) vs paddle:** pad ปลอดภัยกว่า (hands-off, วางตำแหน่งคงที่, hands-free pacing) และให้ CCF ดีกว่า; paddle ต้องกด ~8 กก.ลด impedance แต่ต้องหยุดกดและถือ
+
+**การเลือกพลังงาน:** biphasic เริ่ม ~120–200 J ตาม **คู่มือเครื่องรุ่นนั้น** (แต่ละ waveform มี dose-response ต่างกัน — จึงห้ามสมมติค่าข้ามรุ่น); escalating vs fixed ยังถกเถียง
+
+> **ICD/pacemaker ฝัง:** วาง pad ห่าง ≥ ~2.5 ซม. (บางแนวทาง ~8 ซม.) และ **ตรวจสอบ/interrogate เครื่องหลังช็อก** เพราะกระแสภายนอกอาจรีเซ็ต/ทำ lead เสียหาย` },
       {
         kind: 'summary',
         body: `| ประเด็น | ตัวเลข/หลักจำ |
@@ -511,6 +633,17 @@ P = atria · QRS = ventricle depol · T = ventricle repol (ช่วงเสี
         kind: 'warning',
         body: `**อย่าลืมเปิด SYNC ใหม่ก่อน cardiovert ซ้ำ** — เครื่องส่วนใหญ่กลับไปโหมด defib (unsync) อัตโนมัติหลังปล่อยไฟ ถ้าลืม กระแสอาจตกตรง **T wave** → R-on-T → เหนี่ยวนำ **VF** ในผู้ป่วยที่ยังมีชีพจร`,
       },
+      {
+        heading: '⟐ เชิงลึก: Refractory VF และ Pacing thresholds',
+        body: `**Refractory VF (ช็อกมาตรฐาน ≥3 ครั้งไม่หาย) — ทางเลือกขั้นสูง:**
+- **Vector change (VC):** เปลี่ยนตำแหน่ง pad เป็น **anterior–posterior** เพื่อให้กระแสผ่านมวล ventricle ในแกนต่างออกไป
+- **Double sequential external defibrillation (DSED):** ใช้ 2 เครื่อง 2 คู่ pad ปล่อยไฟ **แทบพร้อมกัน** — depolarize critical mass ได้มากขึ้น
+- ควบคู่: ทบทวน reversible causes, คุณภาพ CPR, antiarrhythmic, พิจารณา ECPR ในบริบทที่เหมาะ
+
+**Transcutaneous pacing — ตัวเลขเชิงเทคนิค:** ตั้ง rate (~60–80) แล้วเพิ่ม **output (mA)** จนได้ capture (มัก ~40–90 mA); ยืนยัน **electrical + mechanical capture** (คลำชีพจร/femoral หรือ US) — pacing เจ็บ ต้อง analgesia/sedation; เป็น **bridge** ไป transvenous pacing/สาเหตุที่แก้ได้` },
+      {
+        kind: 'evidence',
+        body: `**DOSE-VF (concept):** ใน refractory VF การ **DSED หรือ vector-change** สัมพันธ์กับอัตราหยุด VF/รอดชีวิตดีกว่าช็อกมาตรฐานซ้ำที่ตำแหน่งเดิม — สนับสนุนการเปลี่ยนกลยุทธ์เมื่อช็อกซ้ำไม่ได้ผล *(อ้างเชิงหลักการจากงานวิจัยล่าสุด — ตรวจสอบ protocol/แนวทางสถาบันก่อนนำไปใช้ เพราะยังเป็นแนวปฏิบัติที่กำลังพัฒนา)*` },
       {
         kind: 'summary',
         body: `| เทคนิค | ผู้ป่วย | SYNC? | หลังทำ |
