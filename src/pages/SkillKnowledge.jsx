@@ -6,13 +6,82 @@ import { courseMeta } from '../config/courseMode';
 import QASection from '../components/QASection';
 import { mdComponents, Figure } from '../components/markdownComponents';
 import PageHero from '../components/PageHero';
-import { BookOpen, ChevronDown } from 'lucide-react';
+import {
+  BookOpen, ChevronDown, Target, Lightbulb, AlertTriangle,
+  Stethoscope, ClipboardCheck,
+} from 'lucide-react';
+
+// กล่อง callout เชิงการสอน — section ที่มี `kind` จะ render เป็นกล่องสีแยกประเภท
+// (section ปกติที่ไม่มี kind ยังใช้ als-section-card เดิม → backward-compatible)
+// สี case ใช้ธีมของคอร์ส ที่เหลืออิง semantic token ใน index.css
+const CALLOUT = {
+  objective: { label: 'วัตถุประสงค์การเรียนรู้', Icon: Target, color: 'var(--color-info)' },
+  pearl: { label: 'Clinical Pearl', Icon: Lightbulb, color: 'var(--color-success)' },
+  warning: { label: 'กับดัก / ข้อควรระวัง', Icon: AlertTriangle, color: 'var(--color-warning)' },
+  case: { label: 'กรณีศึกษา', Icon: Stethoscope, color: courseMeta.themeColor },
+  summary: { label: 'สรุปประเด็นสำคัญ', Icon: ClipboardCheck, color: 'var(--color-danger)' },
+};
 
 // Knowledge-base page shared by the three skill courses (airway / defib / iv).
 // Modeled on BLSKnowledge.jsx's "book" tab but without the AI-tips tab (that
 // needs its own API route per course) or the Supabase media admin hookup
 // (deferred — see plan §4, acls_images_parent_type_check). Reading is the
 // same schema as ALSKnowledge/BLSKnowledge: chapter.sections[].{heading,body,qa}.
+// เนื้อหาหนึ่ง section — render markdown body + รูป + Q&A ร่วมกัน
+// ถ้า section มี `kind` → ห่อด้วยกล่อง callout สี + ป้ายประเภท, ไม่งั้นใช้การ์ดปกติ
+function SectionInner({ s, accent }) {
+  return (
+    <>
+      {s.heading && (
+        <h3 className="als-section-heading">
+          <span className="als-section-bar" style={accent ? { background: accent } : undefined} />
+          {s.heading}
+        </h3>
+      )}
+      {s.body && (
+        <div className="als-section-body">
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+            {s.body}
+          </ReactMarkdown>
+        </div>
+      )}
+      {s.images?.length > 0 && (
+        <div className={`space-y-3 ${s.heading || s.body ? 'mt-3' : ''}`}>
+          {s.images.map((img, j) => (
+            <Figure key={j} img={img} fallbackAlt={s.heading} />
+          ))}
+        </div>
+      )}
+      {s.qa?.length > 0 && (
+        <div className={s.heading || s.body || s.images?.length ? 'mt-3' : ''}>
+          <QASection qa={s.qa} accent={accent || courseMeta.themeColor} />
+        </div>
+      )}
+    </>
+  );
+}
+
+function Section({ s }) {
+  const callout = s.kind ? CALLOUT[s.kind] : null;
+  if (!callout) {
+    return (
+      <article className="als-section-card">
+        <SectionInner s={s} />
+      </article>
+    );
+  }
+  const { label, Icon, color } = callout;
+  return (
+    <article className="als-callout" style={{ '--callout-color': color }}>
+      <div className="als-callout-chip" style={{ color }}>
+        <Icon size={13} strokeWidth={2.6} />
+        {label}
+      </div>
+      <SectionInner s={s} accent={color} />
+    </article>
+  );
+}
+
 export default function SkillKnowledge() {
   const [openCh, setOpenCh] = useState(null);
 
@@ -68,33 +137,7 @@ export default function SkillKnowledge() {
               {isOpen && (
                 <div className="px-3 pb-4 pt-3 space-y-3 animate-slide-up bg-bg-tertiary/30 border-t border-border">
                   {ch.sections.map((s, i) => (
-                    <article key={i} className="als-section-card">
-                      {s.heading && (
-                        <h3 className="als-section-heading">
-                          <span className="als-section-bar" />
-                          {s.heading}
-                        </h3>
-                      )}
-                      {s.body && (
-                        <div className="als-section-body">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
-                            {s.body}
-                          </ReactMarkdown>
-                        </div>
-                      )}
-                      {s.images?.length > 0 && (
-                        <div className={`space-y-3 ${s.heading || s.body ? 'mt-3' : ''}`}>
-                          {s.images.map((img, j) => (
-                            <Figure key={j} img={img} fallbackAlt={s.heading} />
-                          ))}
-                        </div>
-                      )}
-                      {s.qa?.length > 0 && (
-                        <div className={s.heading || s.body || s.images?.length ? 'mt-3' : ''}>
-                          <QASection qa={s.qa} accent={courseMeta.themeColor} />
-                        </div>
-                      )}
-                    </article>
+                    <Section key={i} s={s} />
                   ))}
                 </div>
               )}
