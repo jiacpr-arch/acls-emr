@@ -348,6 +348,10 @@ P = atria · QRS = ventricle depol · T = ventricle repol (ช่วงเสี
         ],
       },
       {
+        kind: 'pearl',
+        body: `**ทำไม Epinephrine ให้ซ้ำทุก 3–5 นาที:** ฤทธิ์ **α₁** ที่ดัน coronary perfusion pressure ขึ้น *onset ~30 วินาที–1 นาที (IV/IO)* แต่ *duration สั้น ~3–5 นาที* — ถ้าปล่อยหมดฤทธิ์ CPP ตกกลับ จึงต้องเติมซ้ำ **ก่อนฤทธิ์เดิมหาย** ให้พอดีจังหวะ rhythm check ทุก 2 นาที`,
+      },
+      {
         kind: 'summary',
         body: `| ยา | กลไกเด่น | บทบาทใน arrest |
 |---|---|---|
