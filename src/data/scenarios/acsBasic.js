@@ -91,7 +91,9 @@ export const acsBasic = {
         ],
       },
     },
-    { say: { who: 'fon_defib', pose: 'panic', text: 'ผล 12-lead ECG ออกแล้วค่ะ! <span class="cbs-em">ST elevation ชัดเจนที่ II, III, aVF</span>!' }, t: 8 },
+    { say: { who: 'fon_defib', pose: 'panic', text: 'ผล 12-lead ECG ออกแล้วค่ะ!' }, t: 3 },
+    { doc: { key: 'ecg_stemi', kind: 'xray', caption: '12-lead ECG' }, t: 5 },
+    { say: { who: 'fon_defib', pose: 'panic', text: '<span class="cbs-em">ST elevation ชัดเจนที่ II, III, aVF</span>!' }, t: 5 },
     { inter: 'STEMI!!', drama: 'red', t: 6 },
     { say: { who: 'att_dech', pose: 'stern', text: 'นี่คือ STEMI ชัดเจน — <span class="cbs-em">ตัดสินใจได้เลย ไม่ต้องรอใคร</span>' }, t: 5 },
     {

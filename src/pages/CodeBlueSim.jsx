@@ -15,6 +15,7 @@ import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import CharacterSprite, { preloadCharacterImages } from '../game/CharacterSprite';
+import DocReveal from '../game/DocReveal';
 import EcgStrip from '../game/EcgStrip';
 import {
   createInitialState, applyFx, nextNode, recordCorrect, recordWrong,
@@ -264,6 +265,7 @@ export default function CodeBlueSim() {
   }, [preview]);
   const [speaker, setSpeaker] = useState(null); // { who, pose, popN }
   const [plate, setPlate] = useState(null); // { name } override (time-skip)
+  const [docReveal, setDocReveal] = useState(null); // { key, kind, caption } — ผลแล็บ/เอกซเรย์เต็มจอ
   const [dlgSegments, setDlgSegments] = useState([]);
   const [dlgCount, setDlgCount] = useState(0);
   const [typing, setTyping] = useState(false);
@@ -513,6 +515,7 @@ export default function CodeBlueSim() {
     if (currentChoiceRef.current !== c) wrongPicksRef.current = new Set();
     currentChoiceRef.current = c;
     setDrama('white');
+    setDocReveal(null);
     const diff = getDifficulty(S.current.difficulty);
     // โหมดง่าย: หลังพลาดจุดนี้ไปแล้วครั้งนึง ใบ้หมวด target ที่ถูก + dim ตัวที่ผิด
     const hintTgt = diff.hints && hintUsedRef.current
@@ -560,6 +563,7 @@ export default function CodeBlueSim() {
       applyFx(st, fx);
       pushEtco2(st);
       setDrama(pose === 'panic' ? 'red' : null);
+      setDocReveal(null);
       popCounter.current += 1;
       setSpeaker({ who, pose, popN: popCounter.current });
       setPlate(null);
@@ -569,11 +573,23 @@ export default function CodeBlueSim() {
       return;
     }
 
+    if (node.doc) {
+      setDrama(null);
+      setSpeaker(null); // ตัวละครหายไปชั่วคราว — รูปผลเป็นจุดสนใจเดียวบนจอ
+      setPlate(null);
+      setDocReveal({ key: node.doc.key, kind: node.doc.kind || 'lab', caption: node.doc.caption });
+      setAwaitTap(true);
+      typeText(node.doc.caption ? `📋 ${node.doc.caption}` : '📋 ผลตรวจออกมาแล้ว — แตะจอเพื่อไปต่อ');
+      syncView();
+      return;
+    }
+
     if (node.inter) {
       busyRef.current = true;
       soundForFx(node.fx);
       applyFx(st, node.fx);
       pushEtco2(st);
+      setDocReveal(null);
       if (node.drama) setDrama(node.drama);
       syncView();
       doBigMoment();
@@ -591,6 +607,7 @@ export default function CodeBlueSim() {
     if (node.skip) {
       busyRef.current = true;
       setDrama(null);
+      setDocReveal(null);
       popCounter.current += 1;
       setSpeaker({ who: 'att_dech', pose: 'idle', popN: popCounter.current });
       setPlate({ name: '— เวลาเดินต่อ —' });
@@ -728,6 +745,7 @@ export default function CodeBlueSim() {
     setDrama(null);
     setSpeaker(null);
     setPlate(null);
+    setDocReveal(null);
     setDlgSegments([]);
     setDlgCount(0);
     setScreen('game');
@@ -1325,6 +1343,10 @@ export default function CodeBlueSim() {
             <div className={`cbs-sprite ${reducedMotion ? '' : 'cbs-pop'}`} key={`sp-${speaker.popN}-${charsReady}`}>
               <CharacterSprite charId={speaker.who} pose={speaker.pose} talking={typing} />
             </div>
+          )}
+
+          {docReveal && (
+            <DocReveal docKey={docReveal.key} kind={docReveal.kind} caption={docReveal.caption} />
           )}
 
           {choice && (
