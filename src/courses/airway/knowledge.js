@@ -111,6 +111,24 @@ export const chapters = [
         ],
       },
       {
+        heading: '⟐ เชิงลึกเฉพาะทาง: Innervation ของทางเดินหายใจ',
+        body: `การควบคุมประสาทสัมพันธ์โดยตรงกับ reflex, การทำ awake intubation และภาวะแทรกซ้อน
+
+| เส้นประสาท | เลี้ยง (sensory/motor) | ความสำคัญคลินิก |
+|---|---|---|
+| **CN IX (glossopharyngeal)** | sensory: oropharynx, โคนลิ้น 1/3 หลัง, tonsil | gag reflex; บล็อกเพื่อ awake laryngoscopy |
+| **Superior laryngeal n. (internal br., จาก CN X)** | sensory: เหนือสายเสียงถึง epiglottis | ไวต่อ laryngospasm; บล็อกที่ cornu ของ hyoid |
+| **Recurrent laryngeal n. (จาก CN X)** | sensory: ใต้สายเสียง + motor: กล้ามเนื้อ intrinsic เกือบทั้งหมด | บาดเจ็บ → เสียงแหบ/สายเสียงอัมพาต; สองข้าง = อุดกั้นเฉียบพลัน |
+| **Cricothyroid m.** | motor: external branch ของ superior laryngeal | ตึงสายเสียง (pitch) |
+
+> **นัยเชิงหัตถการ:** laryngospasm คือ reflex ผ่าน superior laryngeal n. — จัดการด้วย positive pressure, ลึกยาสลบ, หรือ succinylcholine ขนาดต่ำ; การกระตุ้นสายเสียงตอนยาสลบตื้นเป็นตัวจุดชนวนที่พบบ่อย` },
+      {
+        kind: 'evidence',
+        body: `**ตัวทำนายทางเดินหายใจยากที่มีหลักฐานรองรับ** (ใช้ประกอบ ไม่ใช่ตัดสินเดี่ยว): Mallampati III–IV, thyromental distance < 6 ซม., mouth opening < 3 ซม., neck extension จำกัด, upper-lip-bite test, คอหนา/BMI สูง — ความไว/จำเพาะของแต่ละตัวปานกลาง จึงใช้ **รวมกัน (เช่น LEMON/El-Ganzouri)** และเตรียมแผนสำรองเสมอ *(ตรวจสอบกับแนวทาง difficult airway ฉบับล่าสุด เช่น DAS/ASA)*` },
+      {
+        kind: 'warning',
+        body: `**Special populations — กายวิภาคที่เปลี่ยนความเสี่ยง:** ผู้สูงอายุ (ฟันโยก, ข้อคอเสื่อม, arthritis → extension จำกัด) · หญิงตั้งครรภ์ (เยื่อบุบวม/เลือดคั่ง → เลือกท่อเล็กลง ~0.5–1 มม., desaturate เร็วจาก FRC ลด) · อ้วน (จัดท่า ramped, desaturate เร็ว) · **Down syndrome** (atlantoaxial instability + ลิ้นใหญ่ + subglottic แคบ) · rheumatoid (cricoarytenoid/atlantoaxial involvement)` },
+      {
         kind: 'summary',
         body: `| ประเด็น | จำให้ขึ้นใจ |
 |---|---|
@@ -194,6 +212,21 @@ export const chapters = [
         kind: 'warning',
         body: `**ออกซิเจนแห้ง + ท่อ = ศัตรูของซิเลีย** การให้ O₂ flow สูงแบบไม่ให้ความชื้นนาน ๆ และการคาท่อ ทำให้ซิเลียหยุดโบก เมือกเหนียวคั่ง → **mucus plugging** อุดท่อ/หลอดลม เป็นสาเหตุที่ EtCO₂ ตกหรือ SpO₂ ดิ่งแบบหาสาเหตุอื่นไม่เจอ — นึกถึง "ดูดเสมหะ/เปลี่ยนท่อ" ไว้เสมอ`,
       },
+      {
+        heading: '⟐ เชิงลึกเฉพาะทาง: ระดับโมเลกุลของ Surfactant และ Cilia',
+        body: `**Surfactant — องค์ประกอบและโปรตีน:** สร้างใน **lamellar bodies** ของ type II pneumocyte; ~90% เป็น phospholipid (หลักคือ **DPPC/dipalmitoylphosphatidylcholine**) + ~10% โปรตีน
+
+| Surfactant protein | หน้าที่ |
+|---|---|
+| **SP-B, SP-C** (hydrophobic) | เร่งการกระจายฟิล์ม ลดแรงตึงผิว; **SP-B deficiency** → RDS รุนแรงในทารก |
+| **SP-A, SP-D** (hydrophilic, collectins) | innate immunity — opsonization เชื้อ/ควบคุมการอักเสบ |
+
+**Cilia — โครงสร้างระดับ ultrastructure:** axoneme แบบ **"9+2"** (microtubule doublet 9 คู่ล้อม 2 เดี่ยว) ขับเคลื่อนด้วย **dynein arm** ที่ใช้ ATP — ความผิดปกติของ dynein = **primary ciliary dyskinesia** (Kartagener) → เสมหะคั่ง/หลอดลมโป่งพอง
+
+> **Club (Clara) cells** มี **CYP450** เมแทบอลิซึมสารพิษที่สูดเข้า + เป็น progenitor ซ่อม epithelium; **alveolar macrophage** มาจาก monocyte สาย myeloid` },
+      {
+        kind: 'evidence',
+        body: `**Exogenous surfactant** ได้ผลชัดใน **neonatal RDS** (ลดอัตราตาย) แต่ **ไม่ได้ผลใน adult ARDS** — เพราะ ARDS มีการอักเสบ/รั่วของโปรตีนที่ยับยั้ง surfactant มากกว่าการขาดปริมาณ กลไกจึงต่างกัน จุดนี้เตือนว่า "กลไกเดียวกันในต่างบริบทให้ผลต่างกัน" *(อ้างเชิงหลักการ — ตรวจสอบ guideline neonatology/critical care ล่าสุด)*` },
       {
         kind: 'summary',
         body: `| โครงสร้าง | หน้าที่หลัก |
@@ -306,6 +339,38 @@ export const chapters = [
         ],
       },
       {
+        heading: '⟐ เชิงลึกเฉพาะทาง: สมการสำคัญและตัวอย่างคำนวณ',
+        body: `**1) Alveolar gas equation (หา PAO₂ ในถุงลม):**
+
+\`PAO₂ = FiO₂ × (Patm − PH₂O) − PaCO₂ / R\`
+
+- ที่ระดับน้ำทะเล: Patm 760, PH₂O 47 mmHg, R (respiratory quotient) ≈ 0.8
+- หายใจ room air (FiO₂ 0.21), PaCO₂ 40: \`PAO₂ = 0.21×(760−47) − 40/0.8 = 149.7 − 50 ≈ **100 mmHg**\`
+
+**2) A–a gradient** = PAO₂ − PaO₂
+- ปกติ ≈ **(อายุ/4) + 4** mmHg (กว้างขึ้นตามอายุ); กว้างผิดปกติ = shunt / V̇/Q̇ mismatch / diffusion; **ปกติแต่ hypoxemia** = hypoventilation หรือ FiO₂/แรงดันต่ำ
+
+**3) Oxygen content (CaO₂):** \`CaO₂ = (1.34 × Hb × SaO₂) + (0.003 × PaO₂)\` — สังเกตว่า Hb มีน้ำหนักมากกว่าส่วนที่ละลาย (0.003) มหาศาล
+
+**4) Bohr (dead space):** \`V_D/V_T = (PaCO₂ − PeCO₂) / PaCO₂\` (Pe = mixed expired) — ปกติ ~0.2–0.35
+
+**5) Shunt (Qs/Qt) เชิงแนวคิด:** เลือดที่ไม่สัมผัสถุงลม — เมื่อ shunt สูง PaO₂ ไม่ขึ้นตาม FiO₂ (แยกจาก V̇/Q̇ mismatch ที่ยังตอบ O₂)` },
+      {
+        heading: '⟐ ระดับโมเลกุล: O₂–Hb curve และการขนส่ง CO₂',
+        body: `**O₂–Hb dissociation** เป็นรูป **sigmoid** จาก **cooperative binding** (Hill coefficient ≈ 2.7) — การจับ O₂ ตัวแรกเปลี่ยนโครงสร้าง Hb (T→R state) ให้จับตัวถัดไปง่ายขึ้น
+
+- **P50** (PaO₂ ที่ SaO₂ 50%) ≈ **26–27 mmHg** — ตัวชี้ตำแหน่ง curve
+- เลื่อน **ขวา (P50↑, ปล่อย O₂ ง่าย):** CO₂↑, H⁺↑, อุณหภูมิ↑, **2,3-BPG↑** (จับที่ β-chain ของ deoxyHb)
+- เลื่อน **ซ้าย:** ด่าง, เย็น, **CO** (affinity สูงกว่า O₂ ~240 เท่า + เลื่อนซ้าย = พิษสองชั้น), **HbF** (จับ 2,3-BPG น้อย)
+
+**CO₂ transport (3 รูป):** ~**70% เป็น HCO₃⁻** (ผ่าน **carbonic anhydrase** ใน RBC → chloride shift), ~23% เป็น **carbamino-Hb**, ~7% ละลาย — **Haldane effect:** deoxyHb จับ CO₂/H⁺ ได้ดีกว่า จึงพา CO₂ กลับปอดมากขึ้น (คู่กับ Bohr effect ที่เนื้อเยื่อ)` },
+      {
+        kind: 'evidence',
+        body: `**Apneic oxygenation (NO DESAT):** ให้ O₂ flow ทางจมูกระหว่าง apnea ของ intubation ช่วยยืดเวลา desaturation (อาศัย aventilatory mass flow) — ลดอุบัติการณ์ hypoxemia ในผู้ป่วยเสี่ยง · **Permissive hypercapnia** ใน ARDS/asthma: ยอมให้ PaCO₂ สูงเพื่อเลี่ยง volutrauma โดยคุม pH *(อ้างเชิงหลักการ — ตรวจสอบ ARDSnet/critical care ล่าสุด)*` },
+      {
+        kind: 'warning',
+        body: `**Special populations — สรีรวิทยาที่ทำให้ desaturate เร็ว:** หญิงตั้งครรภ์ (FRC ลด ~20%, O₂ consumption เพิ่ม → apnea แล้ว SpO₂ ตกเร็วมาก) · อ้วน (FRC ลดจากน้ำหนักผนังอก, closing capacity > FRC) · เด็ก (O₂ consumption ต่อ นน. สูง ~2 เท่า, FRC สำรองน้อย) — ทั้งหมดต้อง **pre-oxygenate ให้ดีและทำหัตถการกระชับ**` },
+      {
         kind: 'summary',
         body: `| หลักการ | ตัวเลข/ทิศทางที่ต้องจำ |
 |---|---|
@@ -376,6 +441,27 @@ export const chapters = [
           },
         ],
       },
+      {
+        heading: '⟐ เชิงลึก: กลไกระดับโมเลกุลของ Angioedema และ Flow-volume loop',
+        body: `**Angioedema — 2 เส้นทางที่รักษาต่างกัน:**
+
+| ชนิด | mediator | ตอบต่อ adrenaline/steroid/antihistamine? |
+|---|---|---|
+| **Histaminergic** (allergic/anaphylaxis) | histamine, mast cell | **ตอบดี** — adrenaline คือหลัก |
+| **Bradykinin-mediated** (ACE-inhibitor, hereditary C1-INH def.) | **bradykinin** สะสม | **ตอบไม่ดี**ต่อยาแพ้มาตรฐาน — ต้องจัดการทางเดินหายใจเชิงรุก; HAE ใช้ C1-INH/icatibant |
+
+> ACEi ยับยั้งการสลาย bradykinin → angioedema ที่มาช้าและดื้อ adrenaline — จุดที่แพทย์เฉพาะทางต้องแยกเพราะเปลี่ยนการรักษาโดยสิ้นเชิง
+
+**Flow-volume loop จำแนกระดับอุดกั้น:**
+- **Variable extrathoracic** (เช่น vocal cord dysfunction, croup) → **inspiratory** flattening (stridor ตอนหายใจเข้า)
+- **Variable intrathoracic** (เช่น tracheomalacia) → **expiratory** flattening
+- **Fixed** (เช่น subglottic stenosis, mass) → flatten ทั้งเข้า-ออก` },
+      {
+        kind: 'warning',
+        body: `**Differential ของ stridor ตามอายุ (เฉพาะทาง):** ทารก — laryngomalacia (พบบ่อยสุด), vascular ring, subglottic hemangioma · เด็ก — **croup** (viral, เห่า), **epiglottitis** (แบคทีเรีย, น้ำลายไหล, tripod — ห้ามกระตุ้น), **FBAO**, bacterial tracheitis, retropharyngeal abscess · ผู้ใหญ่ — angioedema, anaphylaxis, มะเร็งกล่องเสียง, post-extubation edema, vocal cord dysfunction (เลียนแบบ asthma)` },
+      {
+        kind: 'evidence',
+        body: `**Croup:** dexamethasone ขนาดเดียวลดความรุนแรง/การกลับมา รพ.; nebulized epinephrine สำหรับ moderate-severe (ออกฤทธิ์เร็วแต่สั้น เฝ้า rebound) · **Epiglottitis:** จัดการทางเดินหายใจในห้องผ่าตัดโดยทีมพร้อม ไม่กระตุ้นเด็ก *(อ้างเชิงหลักการ — ตรวจสอบแนวทางกุมาร/ENT ล่าสุด)*` },
       {
         kind: 'summary',
         body: `| เสียง | ระดับที่อุดกั้น | แก้เบื้องต้น |
@@ -471,6 +557,23 @@ Type I = ปัญหา **ออกซิเจน** (PaO₂↓) · Type II = �
         kind: 'pearl',
         body: `**เลือก induction ตาม "ความดัน" ไม่ใช่ความเคยชิน:** ช็อก/ความดันต่ำ → *ketamine หรือ etomidate* (คงความดัน) · หอบหืด → *ketamine* (ขยายหลอดลม) · เสี่ยง hyperkalemia (ไตวาย/ไหม้เก่า) → เลี่ยง *succinylcholine* ใช้ *rocuronium*`,
       },
+      {
+        heading: '⟐ ระดับโมเลกุล: NMBA และ Induction agents ที่ receptor',
+        body: `**Succinylcholine (depolarizing) ที่ nicotinic ACh receptor (NMJ):**
+- จับ receptor แล้ว **ค้าง depolarize** (agonist ที่ไม่ถูกสลายเร็ว) → phase I block; ให้ซ้ำ/นานเข้า phase II (คล้าย non-depol)
+- เมแทบอลิซึมโดย **plasma (pseudo)cholinesterase** — **pseudocholinesterase deficiency** (พันธุกรรม/atypical) → อัมพาตยืดยาวเป็นชั่วโมง
+- **Hyperkalemia:** ในภาวะ **upregulation ของ extrajunctional/fetal nAChR** (แผลไหม้เก่า >24–72 ชม., denervation, immobility นาน, กล้ามเนื้อเสื่อม) การ depolarize ปล่อย K⁺ มหาศาล → arrest
+- **Malignant hyperthermia:** กระตุ้น **RYR1 (ryanodine receptor)** ที่ผิดปกติ → Ca²⁺ ท่วม sarcoplasm, hypermetabolism, EtCO₂/อุณหภูมิพุ่ง — **รักษาด้วย dantrolene** (บล็อก RYR1)
+
+**Rocuronium (non-depolarizing):** แข่งกับ ACh แบบ competitive; **reverse ด้วย sugammadex** = **γ-cyclodextrin** ที่ "ห่อหุ้ม (encapsulate)" โมเลกุล rocuronium ในกระแสเลือด → ดึงออกจาก receptor เร็ว
+
+**Induction agents ที่ receptor:** propofol & etomidate = **GABA_A** agonist (etomidate ยังยับยั้ง **11β-hydroxylase** → adrenal suppression) · **ketamine = NMDA receptor antagonist** (dissociative, คง sympathetic + bronchodilation)` },
+      {
+        kind: 'evidence',
+        body: `**RSI:** succinylcholine (~1–1.5 mg/kg) หรือ rocuronium ขนาดสูง (~1.2 mg/kg) ให้สภาพใส่ท่อใกล้เคียง; **sugammadex** ทำให้ rocuronium เป็นทางเลือกที่ reverse ได้เร็วแม้ deep block · **Cricoid pressure** ยัง controversial (อาจบิด anatomy/บดบัง view) — หลายแนวทางให้ปรับ/ปล่อยถ้าขัดการมองเห็น *(อ้างเชิงหลักการ — ตรวจสอบแนวทางวิสัญญี/EM ล่าสุด)*` },
+      {
+        kind: 'warning',
+        body: `**Special populations / PK:** ไตวาย — เลี่ยงยา/metabolite ที่ขับทางไต (เช่นสะสมของบางยา), succinylcholine เพิ่ม K⁺ ระวังใน hyperkalemia อยู่เดิม · ตับวาย — การสร้าง pseudocholinesterase ลด → succinylcholine ออกฤทธิ์นานขึ้น · ผู้สูงอายุ/ช็อก — ลดขนาด induction, ระวัง propofol กดความดัน · เด็ก — succinylcholine เสี่ยง bradycardia/hyperkalemia (จาก myopathy แฝง) จึงสงวนไว้เฉพาะข้อบ่งชี้` },
       {
         kind: 'summary',
         body: `| ยา | จุดเด่นเชิงกลไก | ระวัง |
@@ -574,6 +677,17 @@ O₂ เป้า **94–98%** (COPD ~88–92%); หลัง ROSC *titrate ล�
         ],
       },
       {
+        heading: '⟐ เชิงลึก: ฟิสิกส์ของ Cuff, Capnography และ Video laryngoscope',
+        body: `**ETT cuff — ทำไมเป้าแรงดัน 20–30 cmH₂O:** ใช้ **high-volume low-pressure cuff** กระจายแรงบนผนัง trachea; แรงดันที่ผนัง **ต้องต่ำกว่า capillary perfusion pressure ของเยื่อบุ (~30 mmHg ≈ 40 cmH₂O)** ไม่งั้นเยื่อบุขาดเลือด → ischemia/stenosis ระยะยาว; ต่ำเกิน (<20) เสี่ยง micro-aspiration รอบ cuff
+
+**Waveform capnography — หลักการวัด:** วัด CO₂ ด้วย **การดูดกลืนแสงอินฟราเรดที่ ~4.26 µm** (CO₂ ดูดกลืนจำเพาะ) — mainstream (เร็ว) vs sidestream (ดูดตัวอย่าง)
+- 4 เฟส (I dead space → II ขาขึ้น → III plateau/alveolar → 0 หายใจเข้า); **α-angle** กว้างขึ้นใน obstruction (shark-fin)
+
+**Video laryngoscope — 2 แบบ:** *Macintosh-style blade* (ใช้เทคนิคคล้าย DL, ใส่ท่อตรง) vs **hyperangulated blade** (มุมชันเห็น glottis ที่ direct มองไม่เห็น แต่ **ต้องใช้ stylet/รูปโค้งเฉพาะ** เพราะท่อต้องเลี้ยวมุมชัน)` },
+      {
+        kind: 'evidence',
+        body: `**Video laryngoscopy** เพิ่มอัตราการเห็น glottis (Cormack-Lehane) และ **first-pass success** โดยเฉพาะในทางเดินหายใจยาก/ผู้ทำประสบการณ์น้อย จนหลายแนวทางแนะนำเป็น first-line หรือ backup ทันที · **Bougie** (coudé tip) ช่วยเมื่อเห็น glottis ไม่ชัด — ยืนยันด้วย "tracheal clicks" และ "hold-up" *(อ้างเชิงหลักการ — ตรวจสอบ meta-analysis/แนวทางล่าสุด)*` },
+      {
         kind: 'summary',
         body: `| อุปกรณ์ | ตัวเลข/หลักจำ |
 |---|---|
@@ -671,6 +785,22 @@ O₂ เป้า **94–98%** (COPD ~88–92%); หลัง ROSC *titrate ล�
         kind: 'warning',
         body: `**ห้าม blind finger sweep** (ล้วงคอแบบมองไม่เห็น) ในผู้ป่วย FBAO — อาจดันสิ่งแปลกปลอมลึกลงไปอีกหรือทำให้บาดเจ็บ; เอาออก **เฉพาะที่มองเห็นชัดเจน** เท่านั้น และในผู้หมดสติให้ **เริ่ม CPR** (การกดหน้าอกสร้างแรงดันไล่สิ่งแปลกปลอมได้)`,
       },
+      {
+        heading: '⟐ เชิงลึก: Failed-airway algorithm และ Surgical cricothyrotomy',
+        body: `**แนวคิด Vortex/DAS — 3 ทางหลักก่อนถึง CICO:** (1) face-mask (2) SGA (3) ETT — แต่ละทางมี "optimization" (จัดท่า, adjunct, ขนาด, ปรับ operator) ก่อนประกาศล้มเหลว; จำกัดจำนวนครั้งเพื่อไม่ให้เกิด "can't intubate, can't oxygenate (CICO)" โดยไม่ทันตั้งตัว
+
+**Scalpel–bougie–tube cricothyrotomy (ผู้ใหญ่):**
+1. คลำ **laryngeal handshake** หา cricothyroid membrane
+2. มีดกรีดแนวตั้งผ่านผิว → กรีดแนวขวางทะลุ membrane
+3. สอด **bougie** ลง trachea → เลื่อน **ETT/tracheostomy tube ~6.0** ตาม bougie → ใส่ cuff, ยืนยัน capnography
+
+> **เด็กเล็ก (< ~8–10 ปี):** cricothyroid membrane เล็กมาก — ใช้ **needle cricothyrotomy + jet/ที่รองรับ** แทน surgical (เสี่ยง barotrauma ต้องระวังทางลมออก)` },
+      {
+        kind: 'evidence',
+        body: `**Human factors** เป็นสาเหตุใหญ่ของ airway disaster (NAP4 concept): ความล้มเหลวมักไม่ใช่เทคนิคล้วน แต่คือการ **ไม่ประกาศ/ไม่ลงมือ cricothyrotomy ทันเวลา** ("การตัดสินใจ" มากกว่า "มือ") — จึงเน้นการซ้อม, checklist, และ shared mental model *(อ้างเชิงหลักการ — ตรวจสอบ DAS/NAP report ล่าสุด)*` },
+      {
+        kind: 'warning',
+        body: `**Special populations — เทคนิคที่ต้องปรับ:** หญิงตั้งครรภ์ (ท่า left-lateral tilt ลด aortocaval compression, desaturate เร็ว, aspiration เสี่ยงสูง → cuffed ETT) · อ้วน (ท่า ramped/HELP: ear-to-sternal-notch, pre-oxygenate ท่าหัวสูง) · trauma cervical (in-line stabilization, VL/bougie ช่วยลดการขยับคอ)` },
       {
         kind: 'summary',
         body: `| สถานการณ์ | ทำอะไร |

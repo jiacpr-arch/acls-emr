@@ -8,7 +8,7 @@ import { mdComponents, Figure } from '../components/markdownComponents';
 import PageHero from '../components/PageHero';
 import {
   BookOpen, ChevronDown, Target, Lightbulb, AlertTriangle,
-  Stethoscope, ClipboardCheck,
+  Stethoscope, ClipboardCheck, BookMarked,
 } from 'lucide-react';
 
 // กล่อง callout เชิงการสอน — section ที่มี `kind` จะ render เป็นกล่องสีแยกประเภท
@@ -20,6 +20,7 @@ const CALLOUT = {
   warning: { label: 'กับดัก / ข้อควรระวัง', Icon: AlertTriangle, color: 'var(--color-warning)' },
   case: { label: 'กรณีศึกษา', Icon: Stethoscope, color: courseMeta.themeColor },
   summary: { label: 'สรุปประเด็นสำคัญ', Icon: ClipboardCheck, color: 'var(--color-danger)' },
+  evidence: { label: 'หลักฐาน / แนวทาง', Icon: BookMarked, color: '#7C3AED' },
 };
 
 // Knowledge-base page shared by the three skill courses (airway / defib / iv).
