@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { Fragment, useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { preCourseLessons } from '../data/activeLessons';
 import { getCohortSummary, deleteStudent } from '../db/database';
@@ -101,6 +101,8 @@ export default function InstructorCohort() {
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [showQrFull, setShowQrFull] = useState(false);
   const [dangerOpen, setDangerOpen] = useState(false);
+  // แถวนักเรียนที่กางดูรายละเอียดอยู่ในตารางภาพรวม (id เดียวต่อครั้ง)
+  const [expandedStudent, setExpandedStudent] = useState(null);
   // ลบทั้งคลาสต้องกด 2 จังหวะ (arm → ยืนยัน) กันนิ้วพลาดตอนถือมือถือหน้างาน
   const [clearArmed, setClearArmed] = useState(false);
   const clearArmTimer = useRef(null);
@@ -237,6 +239,32 @@ export default function InstructorCohort() {
       postTestPassed: postTest?.passed ?? false,
     };
   });
+
+  // เช็คลิสต์รายคนสำหรับแถวที่กางออกในตารางภาพรวม — ผ่าน / ค้างอยู่ / ยังไม่เริ่ม
+  // ต่อทุกบทเรียน + Pre/Post-test คำนวณจาก summary ที่โหลดไว้แล้ว ไม่ fetch เพิ่ม
+  const studentChecklist = (studentDbId) => {
+    const det = summary.find(s => s.student.id === studentDbId);
+    const lessonsMap = det?.lessons || {};
+    return allEntries.map(l => {
+      const isAssessment = assessmentEntries.some(e => e.id === l.id);
+      const ls = lessonsMap[l.id] || {};
+      // ชื่อบทเต็มยาวมาก — ใช้แค่ "บทที่ N" พออ่านออกบนชิปเล็ก
+      const shortTitle = isAssessment ? l.title : (l.title.split(':')[0] || l.title);
+      if (isAssessment) {
+        if (ls.bestScore != null) {
+          return { id: l.id, shortTitle, status: ls.passed ? 'passed' : 'partial', note: `${ls.bestScore}%` };
+        }
+        return { id: l.id, shortTitle, status: 'missing', note: 'ยังไม่สอบ' };
+      }
+      if (ls.passed) {
+        return { id: l.id, shortTitle, status: 'passed', note: ls.bestScore != null ? `${ls.bestScore}%` : '' };
+      }
+      if (ls.read || ls.attemptCount) {
+        return { id: l.id, shortTitle, status: 'partial', note: ls.bestScore != null ? `${ls.bestScore}%` : 'อ่านแล้ว' };
+      }
+      return { id: l.id, shortTitle, status: 'missing', note: '' };
+    });
+  };
 
   // ตัวเลขด่วนบนหัวหน้า — อาจารย์เห็นภาพรวมทันทีไม่ว่าจะอยู่แท็บไหน
   const quickStats = useMemo(() => ({
@@ -569,6 +597,12 @@ export default function InstructorCohort() {
           {/* ===== แท็บ ภาพรวม ===== */}
           {tab === 'overview' && (
             <div className="space-y-4">
+              <div className="text-2xs text-text-muted px-1">
+                แตะชื่อนักเรียนเพื่อดูรายคนว่าผ่านอะไรแล้ว ยังขาดอะไร —
+                <span className="text-success font-bold"> เขียว</span> ผ่าน ·
+                <span className="text-warning font-bold"> เหลือง</span> ค้างอยู่/ยังไม่ผ่าน ·
+                <span className="font-bold"> เทา</span> ยังไม่เริ่ม
+              </div>
               <div className="dash-card !p-0 overflow-x-auto">
                 <table className="w-full text-caption">
                   <thead className="bg-bg-tertiary text-text-secondary">
@@ -591,31 +625,83 @@ export default function InstructorCohort() {
                       <tr><td colSpan={HAS_PRE_TEST ? 7 : 6} className="px-3 py-6 text-center text-text-muted">
                         ยังไม่มีนักเรียน
                       </td></tr>
-                    ) : overallRows.map((r) => (
-                      <tr key={r.id} className="border-t border-border">
-                        <td className="px-3 py-2 font-mono text-text-secondary">{r.studentId}</td>
-                        <td className="px-3 py-2 text-text-primary">{r.name}</td>
-                        <td className="px-3 py-2 font-mono text-text-secondary">{r.phone || '-'}</td>
-                        <td className="px-3 py-2 text-center text-text-secondary">{r.readCount}/{r.total}</td>
-                        <td className={`px-3 py-2 text-center font-bold ${
-                          r.passedCount === r.total ? 'text-success' : 'text-warning'
-                        }`}>{r.passedCount}/{r.total}</td>
-                        {HAS_PRE_TEST && (
-                          <td className={`px-3 py-2 text-center font-bold ${
-                            r.preTestScore == null ? 'text-text-muted'
-                              : r.preTestPassed ? 'text-success' : 'text-warning'
-                          }`}>
-                            {r.preTestScore != null ? `${r.preTestScore}%` : '-'}
-                          </td>
-                        )}
-                        <td className={`px-3 py-2 text-center font-bold ${
-                          r.postTestScore == null ? 'text-text-muted'
-                            : r.postTestPassed ? 'text-success' : 'text-warning'
-                        }`}>
-                          {r.postTestScore != null ? `${r.postTestScore}%` : '-'}
-                        </td>
-                      </tr>
-                    ))}
+                    ) : overallRows.map((r) => {
+                      const expanded = expandedStudent === r.id;
+                      return (
+                        <Fragment key={r.id}>
+                          <tr
+                            onClick={() => setExpandedStudent(expanded ? null : r.id)}
+                            className={`border-t border-border cursor-pointer ${expanded ? 'bg-bg-tertiary/60' : ''}`}>
+                            <td className="px-3 py-2 font-mono text-text-secondary">{r.studentId}</td>
+                            <td className="px-3 py-2 text-text-primary">
+                              <span className="inline-flex items-center gap-1">
+                                {r.name}
+                                <ChevronDown size={12} strokeWidth={2.2}
+                                  className={`text-text-muted shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                              </span>
+                            </td>
+                            <td className="px-3 py-2 font-mono text-text-secondary">{r.phone || '-'}</td>
+                            <td className="px-3 py-2 text-center text-text-secondary">{r.readCount}/{r.total}</td>
+                            <td className={`px-3 py-2 text-center font-bold ${
+                              r.passedCount === r.total ? 'text-success' : 'text-warning'
+                            }`}>{r.passedCount}/{r.total}</td>
+                            {HAS_PRE_TEST && (
+                              <td className={`px-3 py-2 text-center font-bold ${
+                                r.preTestScore == null ? 'text-text-muted'
+                                  : r.preTestPassed ? 'text-success' : 'text-warning'
+                              }`}>
+                                {r.preTestScore != null ? `${r.preTestScore}%` : '-'}
+                              </td>
+                            )}
+                            <td className={`px-3 py-2 text-center font-bold ${
+                              r.postTestScore == null ? 'text-text-muted'
+                                : r.postTestPassed ? 'text-success' : 'text-warning'
+                            }`}>
+                              {r.postTestScore != null ? `${r.postTestScore}%` : '-'}
+                            </td>
+                          </tr>
+                          {expanded && (() => {
+                            const items = studentChecklist(r.id);
+                            const missing = items.filter(i => i.status !== 'passed');
+                            return (
+                              <tr className="bg-bg-tertiary/40">
+                                <td colSpan={HAS_PRE_TEST ? 7 : 6} className="px-3 py-3">
+                                  {/* ตารางกว้างกว่าจอ (scroll แนวนอน) — sticky left + จำกัดกว้าง
+                                      ให้เนื้อหาที่กางออกอยู่ในพื้นที่มองเห็นเสมอ ชิปได้ wrap จริง */}
+                                  <div className="sticky left-0"
+                                    style={{ maxWidth: 'min(656px, calc(100vw - 48px))' }}>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {items.map(i => (
+                                      <span key={i.id}
+                                        className={`inline-flex items-center gap-1 px-2 py-1 text-2xs font-bold ${
+                                          i.status === 'passed' ? 'bg-success/12 text-success'
+                                            : i.status === 'partial' ? 'bg-warning/12 text-warning'
+                                            : 'bg-bg-secondary text-text-muted border border-border'
+                                        }`}
+                                        style={{ borderRadius: 'var(--radius-full)' }}>
+                                        {i.status === 'passed' && <Check size={11} strokeWidth={2.6} />}
+                                        {i.shortTitle}{i.note ? ` · ${i.note}` : ''}
+                                      </span>
+                                    ))}
+                                  </div>
+                                  <div className="mt-2 text-2xs">
+                                    {missing.length === 0 ? (
+                                      <span className="text-success font-bold">ผ่านครบทุกรายการ 🎉</span>
+                                    ) : (
+                                      <span className="text-text-secondary">
+                                        <b className="text-warning">ยังขาด {missing.length} รายการ:</b>{' '}
+                                        {missing.map(i => i.shortTitle).join(' · ')}
+                                      </span>
+                                    )}
+                                  </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })()}
+                        </Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
