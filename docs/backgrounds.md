@@ -18,11 +18,11 @@
 ชื่อไฟล์ต้องตรงกับ key เป๊ะ ๆ: `ward_night.webp` · `public_indoor.webp` · `home_room.webp` ·
 `poolside.webp` · `pediatric.webp` · `delivery_room.webp` · `ambulance.webp` · `ct_room.webp` ·
 `cath_lab.webp` · `outdoor_street.webp` · `opd_lobby.webp` · `ward_bathroom.webp` ·
-`dialysis_unit.webp` (3 ฉากหลังนี้ยังไม่มีไฟล์ — ดูหัวข้อ 4 ท้ายไฟล์)
+`dialysis_unit.webp`
 
-> **สถานะ:** ambulance, ct_room, cath_lab, outdoor_street มีไฟล์รูปแล้ว แต่ยังไม่ถูกใช้โดยเคส
-> built-in ตัวไหน (เคสเดิมดำเนินเรื่องใน ER/ฉากที่มีอยู่แล้ว) มีไว้ให้เคสใหม่/เคสจากแอดมิน-AI
-> ตั้ง `bg` ได้ทันที — ส่วน opd_lobby, ward_bathroom, dialysis_unit ยังไม่มีไฟล์รูป
+> **สถานะ:** มีไฟล์รูปครบทุก key แล้ว — ambulance, ct_room, cath_lab, outdoor_street,
+> opd_lobby, ward_bathroom, dialysis_unit ยังไม่ถูกใช้โดยเคส built-in ตัวไหน (เคสเดิม
+> ดำเนินเรื่องใน ER/ฉากที่มีอยู่แล้ว) มีไว้ให้เคสใหม่/เคสจากแอดมิน-AI ตั้ง `bg` ได้ทันที
 
 **ถ้า AI ส่งออกมาเป็น PNG/JPG** แปลงเป็น webp ก่อนวาง เช่น
 `cwebp -q 80 ward_night.png -o ward_night.webp` หรือใช้เว็บแปลงไฟล์ทั่วไป
