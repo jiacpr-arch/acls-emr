@@ -178,16 +178,24 @@ export async function getAttemptCount(studentId, lessonId) {
 
 // ===== Pre-course: cloud restore =====
 // Hydrates local IndexedDB from a get_student_progress RPC response — used
-// when a student re-registers on a device with no local record for them
-// (new browser, cleared storage, different phone). Rows are marked
-// already-synced so the sync engine doesn't try to re-push them.
+// both when a student registers on a device with no local record for them
+// (new browser, cleared storage, different phone) and on every background
+// pull (services/progressPull.js) so a second device catches up on work done
+// elsewhere. Merge-only: rows already present are skipped (lesson rows keyed
+// on [studentId+lessonId], attempts on the uuid they were pushed with), so
+// this never overwrites local work. New rows are marked already-synced so the
+// sync engine doesn't try to re-push them.
+// Returns the number of rows actually added — callers use it to avoid
+// re-rendering when the pull brought nothing new.
 export async function hydrateStudentProgress(studentId, { lessonProgress = [], quizAttempts = [] } = {}) {
   const now = new Date().toISOString();
+  let added = 0;
   for (const row of lessonProgress) {
     const dup = await db.lessonProgress
       .where('[studentId+lessonId]').equals([studentId, row.lessonId]).first();
     if (dup) continue;
     await db.lessonProgress.add({ studentId, lessonId: row.lessonId, readAt: row.readAt, syncedAt: now });
+    added++;
   }
   for (const row of quizAttempts) {
     if (!row.uuid) continue;
@@ -207,7 +215,9 @@ export async function hydrateStudentProgress(studentId, { lessonProgress = [], q
       attemptNumber: row.attemptNumber,
       syncedAt: now,
     });
+    added++;
   }
+  return added;
 }
 
 // Combined cohort view: every student + their best score & read status per lesson

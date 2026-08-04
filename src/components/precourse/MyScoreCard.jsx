@@ -15,6 +15,7 @@ import {
   rpcGetCodeBlueLeaderboard, rpcJoinClass, rpcGetMyPracticalStatus,
 } from '../../services/cohortSync';
 import { useAsyncData } from '../../hooks/useAsyncData';
+import { usePullTick } from '../../services/progressPull';
 
 // การ์ด "คะแนนของฉัน" — นักเรียนเห็นผลตัวเองครบในที่เดียวบนหน้า Pre-course:
 // บทเรียน / Pre-Post-test (+จำนวนครั้ง) / EKG / เหรียญ+อันดับเกมในคลาส /
@@ -25,11 +26,13 @@ export default function MyScoreCard({ student }) {
   const classCode = useClassStore(s => s.classCode);
   const ekgDone = !IS_BLS && !IS_SKILL_COURSE && localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
 
+  // pullTick เปลี่ยนเมื่อ progressPull ดึงของใหม่จากอีกเครื่องลงมา → refetch
+  const pullTick = usePullTick();
   const { data: localData } = useAsyncData(
     () => (student
       ? Promise.all([getLessonProgress(student.id), getAttemptsForStudent(student.id)])
       : [[], []]),
-    [student?.id],
+    [student?.id, pullTick],
   );
   const progress = localData?.[0] ?? [];
   const attempts = localData?.[1] ?? [];

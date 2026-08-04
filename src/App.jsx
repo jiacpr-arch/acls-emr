@@ -59,6 +59,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import InAppBrowserGuard from './components/InAppBrowserGuard';
 import MetaPixel from './components/MetaPixel';
 import { useSyncEngine } from './services/syncEngine';
+import { usePullEngine } from './services/progressPull';
 
 // Admin pages are code-split — keep the main bundle below the workbox precache limit
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -105,7 +106,8 @@ function App() {
   }, []);
 
   useCourseModeInit();
-  useSyncEngine();
+  useSyncEngine();   // ขาขึ้น: ผลในเครื่อง → cloud
+  usePullEngine();   // ขาลง: cloud → เครื่องนี้ (เล่นหลายเครื่องแล้วตามกันทัน)
 
   // Recording page has its own nav (QuickBar + FloatingStatus)
   // Admin pages also hide the bottom tab bar
