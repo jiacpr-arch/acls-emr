@@ -866,19 +866,21 @@ body {
 }
 
 /* ===== FIXED ACTION BAR (exam prev/next ฯลฯ) =====
-   Full-width bar pinned just above the flat bottom tab bar — the bar
-   occupies bottom 0→~68px (+safe-area), so anchoring at 68px keeps the
-   buttons visible instead of hidden behind the tab bar. */
+   Full-width bar pinned above the flat bottom tab bar. Anchored to the tab
+   bar's REAL height via --tab-bar-h (measured by BottomTabBar — includes
+   safe-area) + a 10px gap so the "ถัดไป" button never sits flush against
+   the More tab (mis-taps opened the More sheet). Fallback = old constant
+   for the first paint before the measurement lands. */
 .above-tab-bar {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 68px);
+  bottom: calc(var(--tab-bar-h, calc(68px + env(safe-area-inset-bottom, 0px))) + 10px);
   z-index: 40;
 }
-/* Pair with .above-tab-bar: page padding tall enough for tab bar + action bar */
+/* Pair with .above-tab-bar: page padding tall enough for tab bar + gap + action bar */
 .page-with-action-bar {
-  padding-bottom: calc(164px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--tab-bar-h, calc(68px + env(safe-area-inset-bottom, 0px))) + 128px);
 }
 
 /* ===== PANEL WRAPPER (modal/sheet) ===== */
