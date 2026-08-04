@@ -11,6 +11,9 @@ import { mdComponents } from '../markdownComponents';
 // (ย่อหน้า + bullet/เลขข้อ) เพื่อ "ไม่ regress" เนื้อหา legacy ของทุกคอร์ส
 // (ตรวจแล้วว่าเนื้อหาเดิมไม่มี table/heading/blockquote — ดู verify ใน PR)
 const BLOCK_MD = /(?:^|\n)\s*(?:\|[^\n]*\||#{1,6}\s|>\s)/;
+// inline emphasis ที่ legacy parser (บรรทัดต่อบรรทัด) ไม่รองรับ — ถ้า body มี
+// **bold** ต้อง render ผ่าน markdown เต็ม ไม่งั้นจะโชว์ `**` ดิบ
+const INLINE_MD = /\*\*[^*\n]+\*\*/;
 
 // ในโหมด markdown แปลง bullet `•`/`·` (ที่ markdown ไม่รู้จัก) เป็น `- ` เพื่อให้
 // ยังขึ้นเป็น list ถูกต้อง (safety net; เนื้อหาใหม่จะเขียน `-` อยู่แล้ว)
@@ -21,7 +24,7 @@ function normalizeLessonMarkdown(body) {
 export default function ReadBody({ body }) {
   const raw = body ?? '';
 
-  if (BLOCK_MD.test(raw)) {
+  if (BLOCK_MD.test(raw) || INLINE_MD.test(raw)) {
     return (
       <div className="als-section-body">
         <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
