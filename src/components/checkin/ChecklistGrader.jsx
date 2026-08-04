@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { STATION_CHECKLISTS } from '../../data/checklists/stationChecklists';
 import { MEGACODE_CASES, MEGACODE_LEVEL_META, MEGACODE_CORE_ITEMS } from '../../data/checklists/megacodeCases';
 import { CODE_BLUE_EXAM_CASES } from '../../data/checklists/codeBlueExamCases';
 import { PRACTICE_CASES } from '../../data/checklists/practiceCases';
 import { resolveChecklistForStation } from '../../data/checkinStations';
 import { tallyChecklist, suggestPass } from '../../utils/checklistScoring';
+
+// คู่มือคุมหุ่น + ข้อมูลของมันเป็นข้อความยาว และใช้เฉพาะตอนเปิดใบประเมิน —
+// แยก chunk ไว้ ไม่ให้ bundle หลักโตจนเกินเพดาน precache ของ PWA
+const ManikinSetupPanel = lazy(() => import('./ManikinSetupPanel'));
 import { X, Shuffle, Check, AlertTriangle, ListChecks, Eraser } from 'lucide-react';
 
 // แถวเช็คลิสต์แบบการ์ดใหญ่เต็มบรรทัด — แตะตรงไหนก็ติ๊กได้ เปลี่ยนเป็นเขียวเมื่อติ๊ก
@@ -315,6 +319,12 @@ export default function ChecklistGrader({
               โจทย์: {template?.scenario || caseData?.scenario}
             </div>
           )}
+
+          {/* คู่มือคุมหุ่น — ต้องอยู่เหนือเช็คลิสต์ อาจารย์ตั้งหุ่น/เตรียมจังหวะ
+              ให้เสร็จก่อนเรียกนักเรียนเข้าฐาน แล้วค่อยเลื่อนลงไปติ๊กคะแนน */}
+          <Suspense fallback={null}>
+            <ManikinSetupPanel target={caseData ?? template} />
+          </Suspense>
 
           <div className="sticky top-0 bg-bg-secondary py-1 space-y-1.5">
             <div className="flex items-center justify-between text-caption">
