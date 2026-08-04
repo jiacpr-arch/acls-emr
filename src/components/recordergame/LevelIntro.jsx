@@ -1,30 +1,11 @@
 import CharacterSprite from '../../game/CharacterSprite';
 import { Play, Star, ArrowLeft } from 'lucide-react';
+import GameRulesCard from './GameRulesCard';
 
 // ==========================================
 // Recorder Hero — การ์ดเปิดด่าน (กติกา + hi-score + เริ่ม)
 // ==========================================
-const TYPE_RULES = {
-  hunt: [
-    'หาปุ่มที่โจทย์บอกให้เจอ แล้วกดให้ทันเวลา',
-    'หาไม่เจอ/กดผิด 2 ครั้ง = ระบบจะไฮไลต์ให้ (นับเป็นข้อผิดพลาด "หาปุ่มไม่เจอ")',
-    'ยิ่งกดเร็ว ยิ่งได้คะแนนเยอะ',
-  ],
-  live: [
-    'เหตุการณ์เล่นตามเวลาจริง — กดปุ่มบันทึกให้ตรงจังหวะ',
-    'เร็ว = Perfect, ช้าหน่อย = ดี/ช้า, ไม่กด = พลาด',
-    'บางเหตุการณ์ต้องกรอกข้อมูล (ยา/พลังงาน/จังหวะ) ให้ถูก',
-    'กดผิดปุ่มหรือกดมั่ว จะโดนหักคะแนน',
-  ],
-  audit: [
-    'ดู log ที่ผู้บันทึกทำไว้ — หาบรรทัดที่ผิด',
-    'แตะบรรทัด แล้วเลือกว่าผิดประเภทไหน',
-    'กล่าวหาผิดบรรทัดจะถูกหักคะแนน — ดูให้ดีก่อนกด',
-  ],
-};
-
 export default function LevelIntro({ level, hiscore = 0, onStart, onBack }) {
-  const rules = TYPE_RULES[level.type] || [];
   return (
     <div className="page-container space-y-3 pb-28">
       <button onClick={onBack} className="btn btn-ghost btn-sm inline-flex items-center gap-1">
@@ -46,14 +27,7 @@ export default function LevelIntro({ level, hiscore = 0, onStart, onBack }) {
         </div>
       </div>
 
-      <div className="bg-bg-secondary border-2 border-text-primary p-3 space-y-1.5">
-        <div className="text-xs font-black text-text-primary">กติกา</div>
-        {rules.map((r, i) => (
-          <div key={i} className="flex items-start gap-1.5 text-2xs text-text-secondary">
-            <span className="text-info shrink-0">•</span><span>{r}</span>
-          </div>
-        ))}
-      </div>
+      <GameRulesCard type={level.type} />
 
       <div className="stat-box border-2 border-text-primary">
         <div className="stat-value text-warning inline-flex items-center gap-1 justify-center">

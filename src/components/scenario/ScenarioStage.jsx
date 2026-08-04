@@ -141,8 +141,8 @@ export default function ScenarioStage({
           </div>
         </div>
 
-        {/* popup ✓/✗ แบบอาร์เคด (ไม่บล็อกจอ) */}
-        {resultAt > 0 && resultKind && (
+        {/* popup ✓/✗ แบบอาร์เคด (ไม่บล็อกจอ) — เฉพาะผลจริง ไม่ใช่ปุ่มที่ระบบแค่เมิน (ignored) */}
+        {resultAt > 0 && (resultKind === 'correct' || resultKind === 'wrong') && (
           <div key={`pop-${resultAt}`}
             className={`scn-popup ${resultKind === 'wrong' ? 't-bad' : 't-good'}`}>
             {resultKind === 'wrong' ? '✗' : '✓'}
