@@ -53,6 +53,12 @@ export default function AdminVideoLessons() {
     const storedId = toStoredVideoId(f.youtubeId);
     if (!f.title.trim()) return alert('กรุณาใส่ชื่อคลิป');
     if (!storedId) return alert('ลิงก์ไม่ถูกต้อง — รองรับ YouTube (ลิงก์ youtu.be / youtube.com หรือ id 11 ตัว) และ Google Drive (drive.google.com/file/d/…)');
+    // กันบท 2 บทชี้ไฟล์วิดีโอเดียวกัน (ผู้เรียนจะได้ดูคลิปไม่ตรงกับสรุป/ควิซของบทนั้น)
+    const clash = items.find(i => i.id !== f.id && i.youtubeId === storedId);
+    if (clash && !confirm(
+      `วิดีโอนี้ถูกใช้ในคลิป "${clash.title}" (${VIDEO_TOPIC_MAP[clash.topic]?.label || clash.topic}) อยู่แล้ว\n\n` +
+      'ถ้าบันทึกต่อ ผู้เรียนจะเห็นคลิปเดียวกันในสองบท — สรุปประเด็นและควิซจะไม่ตรงกับคลิป\n\nยืนยันบันทึกซ้ำ?'
+    )) return;
     setSaving(true);
     try {
       const payload = { ...f, youtubeId: storedId, chapters: f.chapters.map(c => ({ ...c, t: Number(c.t) || 0 })) };
@@ -69,6 +75,11 @@ export default function AdminVideoLessons() {
     try { await deleteVideoLesson(item.id); await reload(); }
     catch (err) { alert('ลบไม่สำเร็จ: ' + (err?.message || err)); }
   };
+
+  // วิดีโอที่ถูกใช้ซ้ำมากกว่า 1 บท — ขึ้นป้ายเตือนในลิสต์ให้เห็นทันทีว่าบทไหนชี้ไฟล์ผิด
+  const dupVideoIds = new Set(
+    items.map(i => i.youtubeId).filter((id, i, arr) => id && arr.indexOf(id) !== i)
+  );
 
   const move = async (clips, index, dir) => {
     const other = clips[index + dir];
@@ -106,6 +117,9 @@ export default function AdminVideoLessons() {
                     {item.youtubeId} · {item.quiz?.length || 0} ควิซ · {item.chapters?.length || 0} สารบัญ
                     {!item.required && ' · เสริม'}
                   </div>
+                  {dupVideoIds.has(item.youtubeId) && (
+                    <div className="text-2xs text-danger font-bold">⚠ วิดีโอซ้ำกับบทอื่น — ผู้เรียนจะได้ดูคลิปไม่ตรงเนื้อหา</div>
+                  )}
                 </div>
                 <div className="flex flex-col shrink-0">
                   <button onClick={() => move(clips, i, -1)} disabled={i === 0} className="btn btn-ghost btn-sm !p-1 disabled:opacity-30"><ChevronUp size={14} strokeWidth={2.2} /></button>
