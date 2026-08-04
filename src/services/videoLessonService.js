@@ -34,6 +34,7 @@ export function mapVideoLessonRow(row) {
     orientation: row.orientation || 'portrait',
     startSec: row.start_sec ?? null,
     endSec: row.end_sec ?? null,
+    durationSec: row.duration_sec ?? null,
     required: row.required !== false,
     keyPoints: row.key_points || '',
     chapters: Array.isArray(row.chapters) ? row.chapters : [],

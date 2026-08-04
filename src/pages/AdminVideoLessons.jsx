@@ -19,7 +19,7 @@ const blankQuestion = () => ({
 const blankForm = (topic) => ({
   topic: topic || VIDEO_TOPICS[0].id,
   title: '', youtubeId: '', orientation: 'portrait',
-  startSec: '', endSec: '', required: true,
+  startSec: '', endSec: '', durationSec: '', required: true,
   keyPoints: '', chapters: [], quiz: [],
   relatedPath: '', relatedLabel: '',
 });
@@ -45,7 +45,7 @@ export default function AdminVideoLessons() {
   const startCreate = (topic) => setEditing(blankForm(topic));
   const startEdit = (item) => setEditing({
     ...blankForm(item.topic), ...item,
-    startSec: item.startSec ?? '', endSec: item.endSec ?? '',
+    startSec: item.startSec ?? '', endSec: item.endSec ?? '', durationSec: item.durationSec ?? '',
   });
 
   const save = async () => {
@@ -301,6 +301,15 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
             </select>
           </label>
         </div>
+
+        <label className="block">
+          <span className="text-caption font-bold text-text-secondary">⏱ ความยาวคลิป (นาที:วิ)</span>
+          <TimeInput value={form.durationSec} onChange={v => upd({ durationSec: v })} className={inputCls} style={inputStyle} placeholder="เช่น 1:20" />
+          <span className="block text-2xs text-text-muted">
+            ใส่แล้วปุ่ม "ถัดไป" ในสเต็ปดูวิดีโอจะซ่อนไว้จนผู้เรียนอยู่หน้านั้นครบ 90% ของความยาวคลิป (หยุดนับเมื่อสลับแท็บ) — กันการกดข้ามคลิป
+            {sourceType !== 'drive' && ' · คลิป YouTube วัดการเล่นจริงอยู่แล้ว ไม่ต้องใส่ก็ได้'}
+          </span>
+        </label>
 
         <label className="flex items-center gap-2 cursor-pointer py-1">
           <input type="checkbox" checked={form.required} onChange={e => upd({ required: e.target.checked })} className="w-4 h-4" />
