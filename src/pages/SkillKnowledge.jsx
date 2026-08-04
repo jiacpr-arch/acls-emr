@@ -84,7 +84,18 @@ function Section({ s }) {
 }
 
 export default function SkillKnowledge() {
-  const [openCh, setOpenCh] = useState(null);
+  // เปิด "บทแรก" ค้างไว้ตั้งแต่เข้าหน้า เพื่อให้ผู้ใช้เห็นว่ามีเนื้อหาจริงทันที
+  // (เดิม default = ยุบทุกบท ทำให้ดูเหมือนหน้าว่าง). เก็บเป็น Set ของ id ที่เปิด
+  // เพื่อรองรับปุ่ม "ขยายทุกบท / ยุบทุกบท"
+  const [openIds, setOpenIds] = useState(() => new Set(chapters[0] ? [chapters[0].id] : []));
+  const allOpen = openIds.size === chapters.length;
+
+  const toggleCh = (id) => setOpenIds((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+  const toggleAll = () => setOpenIds(allOpen ? new Set() : new Set(chapters.map((c) => c.id)));
 
   return (
     <div className="page-container flex flex-col gap-4">
@@ -93,9 +104,27 @@ export default function SkillKnowledge() {
         desc={`${courseMeta.title} Knowledge Base`}
       />
 
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm text-text-secondary">
+          {chapters.length} บท · แตะที่บทเพื่ออ่านเนื้อหาเต็ม
+        </span>
+        <button
+          onClick={toggleAll}
+          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold"
+          style={{ background: `${courseMeta.themeColor}18`, color: courseMeta.themeColor }}
+        >
+          <ChevronDown
+            size={15}
+            strokeWidth={2.6}
+            style={{ transform: allOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}
+          />
+          {allOpen ? 'ยุบทุกบท' : 'ขยายทุกบท'}
+        </button>
+      </div>
+
       <div className="space-y-2.5">
         {chapters.map((ch, idx) => {
-          const isOpen = openCh === ch.id;
+          const isOpen = openIds.has(ch.id);
           const chapterNum = String(idx + 1).padStart(2, '0');
           const cleanTitle = ch.title.replace(/^บทที่\s*\d+\s*:?\s*/u, '').trim() || ch.title;
           return (
@@ -109,7 +138,7 @@ export default function SkillKnowledge() {
                 style={{ background: courseMeta.themeColor }}
               />
               <button
-                onClick={() => setOpenCh(isOpen ? null : ch.id)}
+                onClick={() => toggleCh(ch.id)}
                 className="chapter-card-button"
               >
                 <div
