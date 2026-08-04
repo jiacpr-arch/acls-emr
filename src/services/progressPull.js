@@ -3,7 +3,7 @@ import { hydrateStudentProgress } from '../db/database';
 import { useClassStore, getClassContext } from '../stores/classStore';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { rpcGetStudentProgress } from './cohortSync';
-import { restoreCodeBlueProgress } from '../game/progressSync';
+import { restoreCodeBlueProgress, restoreRecorderProgress } from '../game/progressSync';
 
 // ขาลงของ sync (cloud → เครื่องนี้) — คู่กับ syncEngine.js ที่ทำแต่ขาขึ้น
 //
@@ -76,6 +76,8 @@ export async function pullRemoteProgress({ force = false } = {}) {
     }
     // เกม Code Blue: เคสที่ผ่าน / เกรด / hi-score (bearer = รหัสคลาส + pk)
     if (await restoreCodeBlueProgress(student.id)) changed = true;
+    // Recorder Hero: ดาว+hi-score ต่อด่าน และ hi-score ของ Endless ต่อหมวด
+    if (await restoreRecorderProgress(student.id)) changed = true;
   } catch { /* best-effort — รอบหน้าค่อยว่ากัน */ }
   finally {
     lastPullAt = Date.now();

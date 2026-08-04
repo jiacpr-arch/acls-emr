@@ -11,7 +11,8 @@ import { usePreCourseStore } from '../stores/preCourseStore';
 import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, courseMeta } from '../config/courseMode';
 import { isOpenLeague } from '../config/openLeague';
 import { getClassContext } from '../stores/classStore';
-import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
+import { enqueueGameResult } from '../db/database';
+import { scheduleFlush } from '../services/syncEngine';
 import { subscribeToPull } from '../services/progressPull';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import ClassGateModal from '../components/precourse/ClassGateModal';
@@ -469,13 +470,15 @@ export default function CodeBlueSim() {
     }
     setFreshAwards(fresh);
     // บันทึกผลขึ้น cloud ให้อาจารย์เห็น — เฉพาะตอนอยู่ในคลาส (มี activeStudent)
-    // และไม่ใช่โหมด preview ของแอดมิน best-effort ล้วน: ไม่มีคลาส/ออฟไลน์/error
-    // ก็แค่ไม่ถูกบันทึก ไม่กระทบการเล่นเกม (เหมือน assessmentService mirror-write)
+    // และไม่ใช่โหมด preview ของแอดมิน เข้าคิวใน IndexedDB แล้วให้ syncEngine
+    // ส่งพร้อม retry/backoff: เดิมยิง RPC ตรงแล้ว .catch() ทิ้ง ผลที่จบตอน
+    // ออฟไลน์/เน็ตสะดุด/นักเรียนยัง sync ไม่เสร็จ จึงหายเงียบ นักเรียนเห็นเหรียญ
+    // ในเครื่องแต่บอร์ดอาจารย์ไม่ขึ้น — enqueue ไม่ throw จึงไม่กระทบหน้า debrief
     if (!preview && activeStudent?.id) {
-      rpcSubmitCodeBlueResult({
-        attemptUuid: crypto.randomUUID(),
-        studentPk: activeStudent.id,
-        scenarioId: sc.id,
+      enqueueGameResult({
+        kind: 'codeblue',
+        studentId: activeStudent.id,
+        refId: sc.id,
         payload: {
           level: sc.level,
           difficulty: st.difficulty,
@@ -487,7 +490,8 @@ export default function CodeBlueSim() {
           finishedAt: new Date().toISOString(),
           fastClear, // ให้ restore ข้ามเครื่องกู้เหรียญ "สายฟ้า" ได้ด้วย
         },
-      }).catch(() => {});
+      });
+      scheduleFlush();
     }
     track('game_completed', {
       props: {

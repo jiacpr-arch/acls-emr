@@ -38,6 +38,25 @@ db.version(3).stores({
   });
 });
 
+// v4: durable queue for game results (Code Blue Sim + Recorder Hero).
+// These used to be fired straight at the RPC with `.catch(() => {})`, so a
+// result finished offline, on flaky hospital wifi, or while the student row
+// hadn't synced yet was dropped silently — the student saw their medal
+// locally and the instructor's board never showed it. Now they queue like
+// lesson progress / quiz attempts and flush with the same retry+backoff.
+// `uuid` is the attempt id the RPC dedupes on, so re-flushing is idempotent.
+db.version(4).stores({
+  cases: 'id, mode, startTime, outcome',
+  events: '++autoId, caseId, timestamp, category, type',
+  cprCycles: '++autoId, caseId, cycleNumber',
+  etco2Readings: '++autoId, caseId, elapsed',
+  students: 'id, studentId, name, createdAt, syncedAt',
+  lessonProgress: '++autoId, [studentId+lessonId], readAt, syncedAt',
+  quizAttempts: '++autoId, uuid, studentId, lessonId, finishedAt, score, passed, syncedAt',
+  syncFailures: '++autoId, table, refId, attempts, lastError, nextRetryAt',
+  gameResults: '++autoId, uuid, kind, studentId, syncedAt',
+});
+
 // Generate case ID: YYYY-MMDD-NNN
 export async function generateCaseId() {
   const now = new Date();
@@ -174,6 +193,28 @@ export async function getAttemptCount(studentId, lessonId) {
   if (!studentId) return 0;
   const rows = await db.quizAttempts.where('studentId').equals(studentId).toArray();
   return rows.filter(r => r.lessonId === lessonId).length;
+}
+
+// ===== Game results: offline queue =====
+// kind = 'codeblue' | 'recorder'; refId = scenarioId / levelId (the RPCs take
+// them under different names, so the flusher maps it). Callers fire and forget
+// — the row is durable, so a failed or offline submit is retried later instead
+// of vanishing. Never throws: a full/unavailable IndexedDB must not break the
+// debrief screen the player is looking at.
+export async function enqueueGameResult({ kind, studentId, refId, payload }) {
+  try {
+    return await db.gameResults.add({
+      uuid: uuidv4(),
+      kind,
+      studentId,
+      refId,
+      payload,
+      createdAt: new Date().toISOString(),
+      syncedAt: null,
+    });
+  } catch {
+    return null;
+  }
 }
 
 // ===== Pre-course: cloud restore =====

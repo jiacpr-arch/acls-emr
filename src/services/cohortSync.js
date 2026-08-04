@@ -227,6 +227,21 @@ export async function rpcSubmitRecorderResult({ attemptUuid, studentPk, levelId,
   return error ? { error } : { data: true };
 }
 
+// ความคืบหน้า Recorder Hero "ของตัวเอง" — คู่กับ rpcGetMyCodeBlueProgress
+// server สรุปจากผลที่เคยส่งขึ้นไป: ดาว+hi-score ต่อด่าน และ hi-score ต่อหมวด
+// ของ Endless ใช้ hydrate กลับลง localStorage ตอนเปิดแอปบนเครื่องอื่น
+// (ต้องรัน supabase-cleanup/recorder-progress-restore.sql ก่อน ไม่งั้น server
+// ตอบ 404 ซึ่ง progressPull กลืนไว้อยู่แล้ว — แค่ไม่มีอะไรถูกกู้)
+export async function rpcGetMyRecorderProgress({ studentPk }) {
+  const { classCode } = getClassContext();
+  if (!classCode || !studentPk) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_my_recorder_progress', {
+    p_code: classCode,
+    p_student_pk: studentPk,
+  });
+  return error ? { error } : { data };
+}
+
 export async function rpcGetCohortRecorderSummary() {
   const code = instructorAccessCode();
   if (!code) return { error: new Error('no_class') };
