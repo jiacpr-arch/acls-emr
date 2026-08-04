@@ -163,6 +163,68 @@ const stages = [
         ] },
     ],
   },
+  {
+    id: 'iv-stage-6', chapterId: 'iv-6', stageNumber: 6,
+    title: 'Vasopressor รั่วจากเส้นส่วนปลาย', subtitle: 'บทที่ 6 · Extravasation',
+    emoji: '🧯', passScore: 80,
+    steps: [
+      { situation: 'ผู้ป่วยช็อกได้ norepinephrine ทาง peripheral IV ที่หลังมือ พยาบาลสังเกตว่ารอบจุดแทงเริ่มซีดขาวและบวม ผู้ป่วยบ่นปวด',
+        question: 'สิ่งแรกที่ควรทำคืออะไร?',
+        options: [
+          { label: 'หยุดการให้ยาทางสายนั้นทันที แต่คาเข็มไว้ก่อนเพื่อพยายามดูดยาที่รั่วออก', correct: true, feedback: 'ถูกต้อง — extravasation ของ vasopressor เสี่ยงเนื้อตาย ต้องหยุดยาทันที และคาเข็มไว้ดูดสารที่ค้างออกก่อนถอด' },
+          { label: 'ปรับเพิ่มอัตราการให้ยาเพื่อดันให้เข้าเส้น', correct: false, feedback: 'ยิ่งดันยา vasopressor เข้าเนื้อเยื่อมากขึ้น ยิ่งเสี่ยงเนื้อตายรุนแรง', trap: true },
+          { label: 'ถอดเข็มออกทันทีแล้วกดแรง ๆ', correct: false, feedback: 'ควรพยายามดูดยาที่รั่วออกก่อนถอด และไม่กดแรงจนยากระจายในเนื้อเยื่อ' },
+          { label: 'ไม่ต้องทำอะไร รอดูอาการ', correct: false, feedback: 'extravasation ของ vasopressor เป็นภาวะเร่งด่วน ปล่อยไว้เสี่ยงเนื้อตาย' },
+        ] },
+      { situation: 'หยุดยาและดูดออกแล้ว ทีมประเมินการดูแลบริเวณที่รั่วต่อ',
+        question: 'การดูแลต่อที่เหมาะสมคืออะไร?',
+        options: [
+          { label: 'ยกแขนสูง เฝ้าดูผิวหนัง และพิจารณา antidote (เช่น phentolamine) ตาม protocol', correct: true, feedback: 'ถูกต้อง — การยกแขน เฝ้าติดตาม และให้ antidote ตามแนวทางช่วยลดความเสียหายของเนื้อเยื่อจาก vasopressor' },
+          { label: 'ประคบร้อนจัดและนวดแรง ๆ บริเวณที่รั่ว', correct: false, feedback: 'การนวดแรงทำให้ยากระจายและบาดเจ็บมากขึ้น ควรทำตาม protocol ของยานั้น ๆ', trap: true },
+          { label: 'ให้ norepinephrine ซ้ำทางเส้นเดิมทันที', correct: false, feedback: 'เส้นเดิมมีปัญหา ต้องเปิดเส้นใหม่ (ควรเป็น central สำหรับ vasopressor) ไม่ใช้เส้นที่รั่ว' },
+          { label: 'เพิกเฉยเพราะยาหยุดแล้ว', correct: false, feedback: 'ยาที่รั่วไปแล้วยังทำอันตรายต่อเนื้อเยื่อ ต้องดูแลและติดตามต่อ' },
+        ] },
+      { situation: 'ผู้ป่วยยังต้องการ vasopressor ต่อเนื่องเพื่อพยุงความดัน',
+        question: 'เส้นทางที่เหมาะสมสำหรับให้ vasopressor ต่อเนื่องคืออะไร?',
+        options: [
+          { label: 'เปิด central line เมื่อทำได้ เพราะเจือจางยาในเลือดไหลเร็ว ลดเสี่ยง extravasation', correct: true, feedback: 'ถูกต้อง — vasopressor เข้มข้นควรให้ทาง central line เมื่อเป็นไปได้ ส่วนปลาย/IO ใช้ชั่วคราวโดยเฝ้าจุดแทงใกล้ชิด' },
+          { label: 'ให้ทางเส้นส่วนปลายเล็ก ๆ ที่หลังมืออีกข้างต่อไปเรื่อย ๆ', correct: false, feedback: 'เส้นส่วนปลายเล็กเสี่ยง extravasation ซ้ำ ควรใช้ central line สำหรับ vasopressor ต่อเนื่อง', trap: true },
+          { label: 'หยุด vasopressor ทั้งหมดถาวร', correct: false, feedback: 'ผู้ป่วยยังช็อกและต้องการยาพยุงความดัน การหยุดถาวรอันตราย' },
+          { label: 'ให้ vasopressor ทางปากแทน', correct: false, feedback: 'vasopressor ไม่ให้ทางปาก ต้องให้ทางหลอดเลือด' },
+        ] },
+    ],
+  },
+  {
+    id: 'iv-stage-7', chapterId: 'iv-7', stageNumber: 7,
+    title: 'เปิดเส้นไม่ได้ในผู้ป่วยรู้สึกตัว', subtitle: 'บทที่ 7 · IO ในผู้ป่วยตื่น',
+    emoji: '🦵', passScore: 80,
+    steps: [
+      { situation: 'ผู้ป่วย sepsis รุนแรง ความดันต่ำ ยังรู้สึกตัว แต่แทง IV หลายครั้งไม่สำเร็จ (เส้นแฟบ) ต้องให้สารน้ำ/ยาด่วน',
+        question: 'ทางเลือกที่เหมาะสมคืออะไร?',
+        options: [
+          { label: 'เปิด IO เพราะเชื่อถือได้แม้เส้นส่วนปลายแฟบจากช็อก', correct: true, feedback: 'ถูกต้อง — โพรงไขกระดูกไม่ยุบตัวตามภาวะช็อก IO จึงเปิดได้เร็วและเชื่อถือได้เมื่อ IV ล้มเหลว' },
+          { label: 'พยายามแทง IV ที่เดิมซ้ำไปเรื่อย ๆ จนกว่าจะได้', correct: false, feedback: 'เส้นแฟบจากช็อกทำให้ IV ยาก การแทงซ้ำเสียเวลาให้การรักษาที่จำเป็น ควรเปลี่ยนไป IO', trap: true },
+          { label: 'ให้สารน้ำทางปาก', correct: false, feedback: 'ผู้ป่วยช็อกรุนแรงต้องการสารน้ำเข้าหลอดเลือดเร็ว ทางปากช้าเกินและเสี่ยงสำลัก' },
+          { label: 'รอเปิด central line อย่างเดียวโดยไม่ทำ IO', correct: false, feedback: 'central line ใช้เวลานาน IO เร็วกว่าและเหมาะเป็นสะพานระหว่างรอ' },
+        ] },
+      { situation: 'คุณใส่ IO ที่ proximal tibia สำเร็จ แต่ผู้ป่วยรู้สึกตัวและจะเจ็บมากตอนให้สารน้ำ',
+        question: 'ควรทำอย่างไรก่อน flush/ให้สารน้ำ?',
+        options: [
+          { label: 'ให้ lidocaine (ชนิดเหมาะสม) ทาง IO ช้า ๆ ก่อนเพื่อลดปวด', correct: true, feedback: 'ถูกต้อง — การให้สารน้ำเข้าโพรงไขกระดูกเจ็บมากในผู้ที่รู้สึกตัว lidocaine ทาง IO ช่วยลดปวดได้ชัดก่อน flush' },
+          { label: 'flush เร็ว ๆ แรง ๆ ให้จบไปโดยไม่สนใจความเจ็บ', correct: false, feedback: 'การ flush แรงโดยไม่ลดปวดทำให้ผู้ป่วยทรมานและอาจดิ้นจน IO เลื่อน ควรให้ lidocaine ก่อน', trap: true },
+          { label: 'ถอด IO ออกเพราะผู้ป่วยเจ็บ', correct: false, feedback: 'IO ยังจำเป็น การถอดทำให้เสียเส้นทางที่ได้มายาก ควรจัดการความปวดแทน' },
+          { label: 'ให้ยาแก้ปวดทางปากแล้วรอ 30 นาที', correct: false, feedback: 'ช้าเกินไปสำหรับภาวะช็อก และผู้ป่วยต้องการสารน้ำด่วน' },
+        ] },
+      { situation: 'ระหว่างให้สารน้ำ คุณเฝ้าติดตามตำแหน่งเข็ม IO ที่น่อง',
+        question: 'สัญญาณใดบ่งว่า IO อาจหลุดออกนอกโพรงและต้องหยุด?',
+        options: [
+          { label: 'บริเวณน่องบวมตึงขึ้น flush ฝืด และสารน้ำไหลไม่ดี', correct: true, feedback: 'ถูกต้อง — บวม/flush ฝืดบ่งว่าเข็มไม่อยู่ในโพรง (extravasation) เสี่ยง compartment syndrome ต้องหยุดและหาทางใหม่' },
+          { label: 'ผู้ป่วยบ่นเจ็บตอน flush เท่านั้น', correct: false, feedback: 'ความเจ็บตอน flush พบได้ปกติในผู้ที่รู้สึกตัว ไม่ใช่สัญญาณหลุดเสมอ ต่างจากการบวม/ไหลไม่ดี', trap: true },
+          { label: 'สารน้ำไหลได้ดีและไม่บวม', correct: false, feedback: 'นั่นคือสัญญาณว่า IO อยู่ในโพรงดี ไม่ใช่สัญญาณให้หยุด' },
+          { label: 'เข็มตั้งมั่นไม่โยก', correct: false, feedback: 'เข็มมั่นคงเป็นสัญญาณที่ดี ไม่ใช่เหตุให้หยุด' },
+        ] },
+    ],
+  },
 ];
 
 const engine = createScenarioEngine(stages, {

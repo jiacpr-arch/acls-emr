@@ -163,6 +163,68 @@ const stages = [
         ] },
     ],
   },
+  {
+    id: 'df-stage-6', chapterId: 'df-6', stageNumber: 6,
+    title: 'VF ที่ดื้อต่อการช็อก', subtitle: 'บทที่ 6 · Refractory VF',
+    emoji: '🔁', passScore: 80,
+    steps: [
+      { situation: 'ผู้ป่วย cardiac arrest เป็น VF ช็อกไปแล้ว 3 ครั้ง ให้ epinephrine แล้ว แต่จอยังแสดง VF อยู่',
+        question: 'ขั้นตอนสำคัญถัดไปที่ควรทำคืออะไร?',
+        options: [
+          { label: 'ให้ยา antiarrhythmic (amiodarone หรือ lidocaine) พร้อมคง CPR คุณภาพสูง', correct: true, feedback: 'ถูกต้อง — VF ที่ยังดื้อหลังช็อก + epinephrine เป็นข้อบ่งชี้ของ antiarrhythmic ซึ่งยืด refractory period ให้ช็อกครั้งถัดไปสำเร็จง่ายขึ้น' },
+          { label: 'หยุด CPR เพื่อรอดูว่า VF จะหายเอง', correct: false, feedback: 'VF ไม่หายเอง การหยุด CPR ตัดการไหลเวียนไปเลี้ยงหัวใจ ยิ่งลดโอกาสสำเร็จ', trap: true },
+          { label: 'ลดพลังงานช็อกลงครึ่งหนึ่ง', correct: false, feedback: 'ควรใช้พลังงานเท่าเดิมหรือเพิ่มขึ้น การลดพลังงานลดโอกาส defibrillate สำเร็จ' },
+          { label: 'เปลี่ยนไปทำ synchronized cardioversion', correct: false, feedback: 'ผู้ป่วยไม่มีชีพจร (VF) ต้องช็อกแบบ unsynchronized ไม่ใช่ cardioversion' },
+        ] },
+      { situation: 'ให้ amiodarone แล้ว ช็อกอีกครั้งยังไม่หาย ทีมทบทวนคุณภาพการกดและตำแหน่ง pad',
+        question: 'มาตรการใดที่อาจช่วยใน refractory VF?',
+        options: [
+          { label: 'ยกระดับคุณภาพ CPR และพิจารณาเปลี่ยนตำแหน่ง pad เป็น anterior-posterior', correct: true, feedback: 'ถูกต้อง — CPR ที่ดีขึ้นและการเปลี่ยนแนวกระแส (AP) อาจทำให้กระแสผ่าน myocardium ต่างออกไปและช็อกสำเร็จ' },
+          { label: 'ช็อกถี่ ๆ ติดกันโดยไม่กดหน้าอกคั่น', correct: false, feedback: 'การช็อกโดยไม่กดคั่นทำลาย coronary perfusion ที่สร้างจากการกด ยิ่งลดโอกาสสำเร็จ', trap: true },
+          { label: 'ถอด pad ออกเพื่อรีเซ็ตเครื่อง', correct: false, feedback: 'ไม่ช่วยอะไรและทำให้เสียเวลา/หยุดการรักษา' },
+          { label: 'หยุดการช่วยชีวิตทันที', correct: false, feedback: 'ยังไม่ถึงเกณฑ์ยุติ ควรดำเนินการต่ออย่างเป็นระบบ' },
+        ] },
+      { situation: 'ระหว่างนั้นทีมไล่ทบทวนสาเหตุที่แก้ไขได้ควบคู่ไปกับการช่วยชีวิต',
+        question: 'สิ่งใดที่ต้องไม่ลืมใน refractory VF/arrest ทุกครั้ง?',
+        options: [
+          { label: 'ไล่หาและแก้สาเหตุที่แก้ได้ (กลุ่ม H และ T) เช่น hypoxia, โพแทสเซียมผิดปกติ, acidosis', correct: true, feedback: 'ถูกต้อง — arrest ที่ดื้อมักมีสาเหตุเบื้องหลัง การแก้สาเหตุ (เช่นโพแทสเซียมผิดปกติ, hypoxia) เป็นกุญแจให้กลับมาได้' },
+          { label: 'มั่นใจว่าไม่มีสาเหตุอื่น ช็อกอย่างเดียวพอ', correct: false, feedback: 'การช็อกอย่างเดียวไม่แก้สาเหตุเบื้องหลัง เช่นโพแทสเซียมสูงหรือ hypoxia ต้องไล่หาและแก้ควบคู่', trap: true },
+          { label: 'ให้ epinephrine ถี่ทุก 1 นาที', correct: false, feedback: 'epinephrine ให้ทุก ~3–5 นาที การให้ถี่เกินไม่มีประโยชน์เพิ่มและอาจมีโทษ' },
+          { label: 'ยุติการช่วยชีวิตเพราะช็อกหลายครั้งแล้ว', correct: false, feedback: 'จำนวนครั้งที่ช็อกไม่ใช่เกณฑ์ยุติเดี่ยว ๆ ควรพิจารณาปัจจัยรวมและแก้สาเหตุต่อ' },
+        ] },
+    ],
+  },
+  {
+    id: 'df-stage-7', chapterId: 'df-7', stageNumber: 7,
+    title: 'Defibrillation ในเด็ก', subtitle: 'บทที่ 7 · พลังงานตามน้ำหนัก',
+    emoji: '🧒', passScore: 80,
+    steps: [
+      { situation: 'เด็กชายน้ำหนักประมาณ 20 กก. หัวใจหยุดเต้น จอ monitor แสดง VF',
+        question: 'ควรตั้งพลังงาน defibrillation ครั้งแรกเท่าไร?',
+        options: [
+          { label: 'ประมาณ 2 J/kg (≈ 40 J สำหรับเด็ก 20 กก.)', correct: true, feedback: 'ถูกต้อง — เด็กใช้พลังงานตามน้ำหนัก เริ่ม ~2 J/kg เพราะมวลกล้ามเนื้อหัวใจเล็กกว่าผู้ใหญ่' },
+          { label: '360 J เท่าผู้ใหญ่', correct: false, feedback: 'มากเกินไปสำหรับเด็ก ควรคำนวณตามน้ำหนัก (~2 J/kg ครั้งแรก)', trap: true },
+          { label: '10 J คงที่', correct: false, feedback: 'ต่ำเกินไป ไม่พอ defibrillate ตามน้ำหนักเด็กรายนี้' },
+          { label: 'ไม่ต้อง defibrillate เด็ก', correct: false, feedback: 'เด็กที่เป็น VF/pVT ต้อง defibrillate เช่นกัน' },
+        ] },
+      { situation: 'ช็อก 2 J/kg แล้วยังเป็น VF ต่อ ทีมเตรียมช็อกครั้งถัดไป',
+        question: 'ควรปรับพลังงานอย่างไรในครั้งถัดไป?',
+        options: [
+          { label: 'เพิ่มเป็น ~4 J/kg (เพิ่มขึ้นตามน้ำหนัก ไม่เกินขนาดผู้ใหญ่)', correct: true, feedback: 'ถูกต้อง — เด็กเพิ่มเป็น ~4 J/kg ในครั้งถัด ๆ ไป (อาจถึง ~10 J/kg แต่ไม่เกินขนาดผู้ใหญ่)' },
+          { label: 'ลดลงเหลือ 1 J/kg', correct: false, feedback: 'การลดพลังงานลดโอกาสสำเร็จ ควรเพิ่มขึ้นเมื่อครั้งแรกไม่ได้ผล', trap: true },
+          { label: 'ใช้ 2 J/kg เท่าเดิมตลอด', correct: false, feedback: 'แนวทางแนะนำให้เพิ่มพลังงานเมื่อครั้งแรกไม่สำเร็จ' },
+          { label: 'หยุดช็อกและ CPR', correct: false, feedback: 'ยังเป็น shockable rhythm ต้องช็อกต่อพร้อม CPR คุณภาพสูง' },
+        ] },
+      { situation: 'พยาบาลหยิบ pad ผู้ใหญ่มา แต่หน้าอกเด็กเล็กจน pad เกือบชนกัน',
+        question: 'เรื่อง pad ในเด็กควรคำนึงถึงอะไร?',
+        options: [
+          { label: 'ใช้ pad ขนาดเหมาะกับเด็ก และวางไม่ให้ pad สองแผ่นสัมผัสกัน (เด็กเล็กอาจใช้ AP)', correct: true, feedback: 'ถูกต้อง — pad ต้องไม่ทับ/สัมผัสกันเพื่อไม่ให้กระแสลัด; เด็กเล็ก/ทารกอาจวาง anterior-posterior' },
+          { label: 'วาง pad ผู้ใหญ่สองแผ่นชิดกันบนหน้าอกเล็ก', correct: false, feedback: 'ถ้า pad สัมผัสกันกระแสจะลัดไม่ผ่านหัวใจ ต้องเว้นระยะหรือใช้ AP', trap: true },
+          { label: 'ไม่ต้องสนใจขนาด/ตำแหน่ง pad', correct: false, feedback: 'ขนาด/ตำแหน่ง pad มีผลต่อการนำกระแสผ่านหัวใจ โดยเฉพาะในเด็กตัวเล็ก' },
+          { label: 'งดช็อกเพราะไม่มี pad เด็ก', correct: false, feedback: 'ถ้าไม่มี pad เด็กจริง ๆ ใช้ pad ผู้ใหญ่แบบวางไม่ให้สัมผัสกัน (เช่น AP) ยังดีกว่างดช็อกใน shockable rhythm' },
+        ] },
+    ],
+  },
 ];
 
 const engine = createScenarioEngine(stages, {
