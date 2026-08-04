@@ -15,6 +15,7 @@ import { useClassStore } from '../stores/classStore';
 import { useVoucherStore } from '../stores/voucherStore';
 import { validateVoucher } from '../config/vouchers';
 import { track } from '../services/analytics';
+import { subscribeToPull } from '../services/progressPull';
 import FeaturedVideo from '../components/precourse/FeaturedVideo';
 import MyScoreCard from '../components/precourse/MyScoreCard';
 import BLSHero from '../components/precourse/BLSHero';
@@ -96,10 +97,13 @@ export default function PreCourse() {
       Promise.resolve().then(() => { setProgress([]); setAttempts([]); });
       return;
     }
-    Promise.all([
+    const load = () => Promise.all([
       getLessonProgress(id),
       getAttemptsForStudent(id),
     ]).then(([p, a]) => { setProgress(p); setAttempts(a); });
+    load();
+    // ผลที่เรียนมาจากอีกเครื่องเพิ่งลงมาถึง — โหลดใหม่ ไม่ต้องรอ remount
+    return subscribeToPull(load);
   }, [activeStudent?.id]);
 
   const lessonState = (lessonId) => {

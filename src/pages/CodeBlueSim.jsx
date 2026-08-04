@@ -12,6 +12,7 @@ import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, courseMeta } from '../config/courseMo
 import { isOpenLeague } from '../config/openLeague';
 import { getClassContext } from '../stores/classStore';
 import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
+import { subscribeToPull } from '../services/progressPull';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import CharacterSprite, { preloadCharacterImages } from '../game/CharacterSprite';
@@ -776,6 +777,19 @@ export default function CodeBlueSim() {
     syncAwards(pool, nextCleared, readGrades());
     setAwardsTick((n) => n + 1);
   }
+
+  // ...และ progressPull ก็ดึงลงมาเป็นระยะด้วย (เล่นบนเครื่องอื่นแล้วกลับมาเปิด
+  // เครื่องนี้) — latest-ref เพราะหน้าเกม re-render ถี่มาก จะได้ไม่ต้อง
+  // subscribe/unsubscribe ใหม่ทุกเฟรม และไม่รีเฟรชระหว่างเล่นอยู่ เพราะ
+  // syncAwards จะไปเด้ง state เหรียญกลางเคส
+  const pullRefreshRef = useRef(null);
+  useEffect(() => {
+    pullRefreshRef.current = () => {
+      if (screen === 'game') return;
+      refreshLocalProgress();
+    };
+  });
+  useEffect(() => subscribeToPull(() => pullRefreshRef.current?.()), []);
 
   function handleIdentityConfirm() {
     setShowIdentity(false);
