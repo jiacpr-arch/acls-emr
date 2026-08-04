@@ -534,23 +534,23 @@ export default function VideoLessonDetail() {
             <button
               onClick={goPrev}
               disabled={safeStep === 0 && !(onQuizStep && safeQIndex > 0)}
-              className="btn btn-ghost btn-sm inline-flex items-center gap-1 disabled:opacity-30">
-              <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
+              className="btn btn-ghost inline-flex items-center gap-1 disabled:opacity-30">
+              <ChevronLeft size={15} strokeWidth={2.4} /> ก่อนหน้า
             </button>
             <div className="flex-1" />
             {onQuizStep && isLastQuestion ? (
               <button
                 onClick={goNext}
                 disabled={!allAnswered}
-                className="btn btn-success btn-sm inline-flex items-center gap-1 disabled:opacity-40">
-                <Check size={14} strokeWidth={2.4} /> ส่งคำตอบ
+                className="btn btn-success inline-flex items-center gap-1 disabled:opacity-40">
+                <Check size={15} strokeWidth={2.4} /> ส่งคำตอบ
               </button>
             ) : (
               <button
                 onClick={goNext}
                 disabled={onQuizStep && answers[currentQ?.id] == null}
-                className="btn btn-primary btn-sm inline-flex items-center gap-1 disabled:opacity-40">
-                ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
+                className="btn btn-primary inline-flex items-center gap-1 disabled:opacity-40">
+                ถัดไป <ChevronRight size={15} strokeWidth={2.4} />
               </button>
             )}
           </div>
