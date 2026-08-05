@@ -321,17 +321,20 @@ export async function rpcSetExamResult({
   return error ? { error } : { data: true };
 }
 
-// ล็อกเคสสอบ Megacode กับนักเรียนที่ฐานสอบแบบสุ่มข้อสอบ — server ใช้กติกา
-// "เคสแรกชนะ" (atomic): ถ้านักเรียนถูกล็อกเคสไว้แล้วและไม่ force จะคืนเคสเดิม
-// force=true ใช้กับปุ่ม "สุ่มใหม่" เพื่อทับเคสเดิม คืนค่า data = case id ที่ติดจริง
-export async function rpcAssignExamCase({ studentPk, stationId, caseId, force = false }) {
+// ล็อกเคสสอบ Megacode กับนักเรียนที่ฐานสอบแบบสุ่มข้อสอบ — ส่งเคสทั้ง pool
+// (caseIds) ให้ server เลือกเอง (เลือกเคสที่ถูกใช้น้อยที่สุดในฐานนี้ก่อนเสมอ —
+// กระจายเคสทั่วรุ่น กันนักเรียนจำโจทย์เพื่อนได้) server ใช้กติกา "เคสแรกชนะ"
+// (atomic): ถ้านักเรียนถูกล็อกเคสไว้แล้วและไม่ force จะคืนเคสเดิม
+// force=true ใช้กับปุ่ม "สุ่มใหม่" เพื่อเลือกเคสใหม่ทับเคสเดิม คืนค่า data =
+// case id ที่ติดจริง
+export async function rpcAssignExamCase({ studentPk, stationId, caseIds, force = false }) {
   const code = instructorAccessCode();
   if (!code) return { error: new Error('no_class') };
   const { data, error } = await supabase.rpc('assign_exam_case', {
     p_code: code,
     p_student_pk: studentPk,
     p_station_id: stationId,
-    p_case_id: caseId,
+    p_case_ids: caseIds,
     p_force: force,
   });
   return error ? { error } : { data };
