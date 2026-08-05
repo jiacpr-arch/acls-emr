@@ -63,8 +63,9 @@
 .rgaa-btn.is-hint { border-color: var(--cbs-gold); box-shadow: 0 4px 0 #0B1130, 0 0 16px rgba(242, 193, 78, .6); animation: cbs-blink 1s steps(2) infinite; }
 
 /* ===== overlay เริ่มเกม (countdown 3-2-1 / โค้ชครั้งแรก) ===== */
+/* z-index ต้องสูงกว่า .cbs-app (z-index:60) ไม่งั้น overlay นี้จะโดนฉากเกมบังจนมองไม่เห็นเลย */
 .rgaa-startoverlay {
-  position: absolute; inset: 0; z-index: 50;
+  position: absolute; inset: 0; z-index: 70;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 14px; padding: 24px; text-align: center;
   background: rgba(4, 8, 18, .82);

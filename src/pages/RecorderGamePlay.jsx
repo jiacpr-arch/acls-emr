@@ -146,7 +146,7 @@ const ARREST_BUTTONS = [
 // ครั้งแรกสุดที่ผู้เล่นเข้าโหมด live (ไม่ว่าทางแคมเปญ/pack/endless) — โชว์คำแนะนำวิธีเล่น
 // ครั้งเดียวแล้วจำไว้ (localStorage) เหมือน pattern TAP_COACH_KEY ของ CodeBlueSim
 const LIVE_COACH_KEY = 'acls_recgame_live_coach';
-const LIVE_COACH_TEXT = 'ฟังเหตุการณ์จากตัวละคร แล้วกดปุ่มบันทึกด้านล่างให้ตรงจังหวะ — ปุ่มที่กะพริบคือปุ่มที่ควรกด';
+const LIVE_COACH_TEXT = 'ฟังเหตุการณ์จากตัวละคร แล้วกดปุ่มบันทึกด้านล่างให้ตรงจังหวะ — ปุ่มที่กะพริบคือปุ่มที่ควรกด บางปุ่มจะเปิดเมนูให้เลือกข้อมูลเพิ่ม (เช่น จังหวะ/ยา/พลังงาน) เวลาจะหยุดรอระหว่างที่เมนูเปิดอยู่ — เลือกแล้วกดยืนยันได้เลย ไม่ต้องรีบ';
 const HINT_EVENT_LIMIT = 3; // ไฮไลต์ปุ่มที่ควรกดให้เฉพาะ 3 เหตุการณ์แรกของรอบแรก
 
 // รองรับทั้งเคส arrest (GameCprDashboard + QuickBar) และ non-arrest (GameActionPad)
@@ -189,17 +189,20 @@ export function LivePlay({ level, onFinish, hudLabel, readyMode = 'countdown' })
   }, [engine.pendingEvent]);
 
   // ปุ่มบน dashboard/quickbar (arrest) — ใช้ metadata จาก GAME_BUTTONS
+  // ปุ่มที่ต้องเลือกข้อมูลต่อ (needsData) จะหยุดนาฬิกาไว้ระหว่างเปิด sheet กันเวลาไหลไปเงียบๆ
   const onPress = useCallback((buttonId) => {
     const needs = GAME_BUTTONS[buttonId]?.needsData;
-    if (needs) setModal({ kind: needs, buttonId });
+    if (needs) { engine.pause(); setModal({ kind: needs, buttonId }); }
     else engine.handlePress(buttonId);
   }, [engine]);
 
   // ปุ่มบน action pad (non-arrest) — action descriptor พก needsData/options มาเอง
   const onPadPress = useCallback((buttonId, action) => {
     if (action?.needsData === 'choice') {
+      engine.pause();
       setModal({ kind: 'choice', buttonId, options: action.options || [], title_th: action.label_th });
     } else if (action?.needsData === 'energy') {
+      engine.pause();
       setModal({ kind: 'energy', buttonId, energyChoices: action.energyChoices });
     } else {
       engine.handlePress(buttonId);
@@ -208,6 +211,7 @@ export function LivePlay({ level, onFinish, hudLabel, readyMode = 'countdown' })
 
   const onSubmit = (data) => {
     if (modal) engine.handlePress(modal.buttonId, data);
+    engine.resume();
     setModal(null);
   };
 
@@ -236,7 +240,8 @@ export function LivePlay({ level, onFinish, hudLabel, readyMode = 'countdown' })
         hudLabel={hudLabel}
         coachText={coachText}
       />
-      {modal && <DataEntryModal kind={modal.kind} onSubmit={onSubmit} onClose={() => setModal(null)}
+      {modal && <DataEntryModal kind={modal.kind} onSubmit={onSubmit}
+        onClose={() => { engine.resume(); setModal(null); }}
         options={modal.options} energyChoices={modal.energyChoices} title_th={modal.title_th} />}
       {!ready && (
         <LiveStartOverlay title={level.title_th} coachText={coachText} onDone={() => setReady(true)} />

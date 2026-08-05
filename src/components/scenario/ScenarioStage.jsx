@@ -131,7 +131,10 @@ export default function ScenarioStage({
           <div className="scn-sprite cbs-pop" key={stage.speakerKey}>
             <CharacterSprite charId={stage.speaker} pose={stage.pose} talking={typing} />
           </div>
-          <div className="cbs-dlg scn-dlg">
+          {/* key={stage.narration} รีเมาต์กล่องบทพูดทุกครั้งที่ข้อความเปลี่ยน — CSS animation
+              บน .scn-dlg เลยเล่นซ้ำเป็น pulse สั้นๆ ดึงสายตาให้อ่านก่อนไปกดปุ่มด้านล่าง */}
+          <div className="cbs-dlg scn-dlg" key={stage.narration}>
+            <div className="scn-eyebrow">สถานการณ์ล่าสุด</div>
             <div className="cbs-nameplate scn-nameplate"
               style={plate ? { background: `linear-gradient(180deg, ${plate[0]}, ${plate[1]})` } : undefined}>
               {char?.name || '—'}

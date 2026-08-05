@@ -56,6 +56,10 @@ export default function Recording() {
   const scenario = scenarioId ? getScenarioById(scenarioId) : null;
   const [scenarioState, setScenarioState] = useState(scenario ? 'active' : null);
   const [scenarioScore, setScenarioScore] = useState(null);
+  // จังหวะอ่านก่อนกดสั้นๆ (~900ms หลัง step เปลี่ยน) — มาจาก SimulationEngine เท่านั้น
+  // (ไม่ mount ตอนไม่มี scenario) และถูก gate ซ้ำอีกชั้นตอนส่งเข้า StepRouter ด้านล่าง
+  // เพื่อไม่ให้การบันทึกจริงแบบ freeform ถูกหน่วง/disable โดยเด็ดขาด
+  const [narrationBusy, setNarrationBusy] = useState(false);
 
   // Initialize
   useTimerWorker();
@@ -119,9 +123,10 @@ export default function Recording() {
 
       {/* Simulation engine */}
       {scenario && scenarioState === 'active' && (
-        <SimulationEngine scenario={scenario} mode={scenarioMode}
+        <SimulationEngine scenario={scenario} mode={scenarioMode} step={step}
           onComplete={(s) => { setScenarioScore(s); setScenarioState('complete'); }}
-          onStaffTakeover={(s) => { setScenarioScore(s); setScenarioState('takeover'); }} />
+          onStaffTakeover={(s) => { setScenarioScore(s); setScenarioState('takeover'); }}
+          onNarrationBusy={setNarrationBusy} />
       )}
 
       {/* Timer Bar + Pediatric + Voice */}
@@ -147,6 +152,7 @@ export default function Recording() {
             startMode={startMode}
             scenario={scenario}
             isTraining={isTraining}
+            narrationBusy={scenario ? narrationBusy : false}
             onGoStep={goStep}
             onLog={log}
             onEndCase={handleEndCase}

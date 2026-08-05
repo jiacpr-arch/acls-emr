@@ -5,6 +5,7 @@ import { playBeep, playShockSound, playWarningBeep } from '../utils/sound';
 import ScenarioStage from './scenario/ScenarioStage';
 import { deriveStageState, autoSpeaker } from './scenario/stageState';
 import { useScenarioStageStore } from '../stores/scenarioStageStore';
+import { STEPS } from '../data/recordingSteps';
 
 // SimulationEngine v3 — cinematic stage (Code Blue Sim style) ครอบหน้า Recording จริง
 // - โจทย์แสดงเป็นฉาก: ตัวละคร + จอ ECG + เอฟเฟกต์ (ScenarioStage)
@@ -153,8 +154,12 @@ function matchWrongAction(step, eventType, eventCategory) {
   return null;
 }
 
-export default function SimulationEngine({ scenario, mode, onComplete, onStaffTakeover }) {
+export default function SimulationEngine({ scenario, mode, step: realStep, onComplete, onStaffTakeover, onNarrationBusy }) {
   const isLearning = mode === 'learning';
+  // step จริงจาก Recording.jsx เดินคนละ state กับ currentStepIdx ของ engine นี้ (sync กันแบบ
+  // เดาจาก event log เท่านั้น) — ถ้า wizard จริงไปถึง ROSC/TERMINATED แล้ว engine นี้ต้องเงียบ
+  // ไม่พ่น narration/gate ของ step เก่าที่ค้างอยู่ทับหน้า Post-ROSC ที่นักเรียนทำไปไกลแล้ว
+  const caseIsOver = realStep === STEPS.ROSC || realStep === STEPS.TERMINATED;
   const useCinematic = scenario.visual !== false; // escape hatch ต่อ scenario
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [score, setScore] = useState({ correct: 0, wrong: 0, total: 0, reactions: [], steps: [] });
@@ -196,9 +201,19 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
     }
   }, [currentStepIdx]);
 
+  // "จังหวะอ่านก่อนกด" สั้นๆ ทุกครั้งที่ step เปลี่ยนจริง (ไม่ใช่ทุก re-render) — ให้เวลาผู้เล่น
+  // เห็นบทพูดตัวละครก่อนปุ่มเลือกจะกดได้ ผูกกับ currentStepIdx เท่านั้นเพื่อไม่ให้ทริกเกอร์ซ้ำ
+  // ตอน vitals/teamMessages อัปเดตเฉยๆ — ต้นทาง narrationBusy ทั้งหมด ไม่กระทบการบันทึกจริงนอก scenario
+  useEffect(() => {
+    onNarrationBusy?.(true);
+    const id = setTimeout(() => onNarrationBusy?.(false), 900);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStepIdx]);
+
   // นับถอยหลังรอบ CPR ให้เห็นล่วงหน้า — เฉพาะ step ที่ติด cycle-gate จริง (ดู isCycleGatedToken)
   useEffect(() => {
-    const gated = isLearning && scenario.category === 'cardiac_arrest'
+    const gated = !caseIsOver && isLearning && scenario.category === 'cardiac_arrest'
       && currentStep?.correctActions?.some(isCycleGatedToken);
     if (!gated) { setGateRemain(null); return undefined; }
     const tick = () => {
@@ -208,7 +223,7 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [isLearning, scenario.category, currentStep, stepStartTime]);
+  }, [caseIsOver, isLearning, scenario.category, currentStep, stepStartTime]);
 
   // publish สถานะฉากลง store (จุด broadcast สำหรับโหมดสองจอในอนาคต)
   useEffect(() => {
@@ -231,6 +246,9 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
   // Listen for real recording events → correct / wrong
   useEffect(() => {
     if (!currentStep || completed) return;
+    // wizard จริงจบเคสไปแล้ว (ROSC/TERMINATED) — engine นี้หยุดจับคู่ correct/wrong ต่อ
+    // กัน currentStepIdx ที่ค้างไปจับคู่กับ event ของ step ที่ผ่านไปแล้วแบบผิดๆ
+    if (caseIsOver) return;
     // init: ไม่นับ events ที่มีอยู่ก่อน scenario เริ่ม
     if (processedCountRef.current === null) {
       processedCountRef.current = events.length;
