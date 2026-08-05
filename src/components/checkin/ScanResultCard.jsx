@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check, AlertTriangle, X, Award, ClipboardList } from 'lucide-react';
+import { isMegacodeExamStation } from '../../data/checkinStations';
 
 const timeStr = (iso) => (iso ? new Date(iso).toLocaleTimeString('th-TH', {
   hour: '2-digit', minute: '2-digit',
@@ -29,6 +30,9 @@ export default function ScanResultCard({ result, onSetExam, examBusy, onOpenChec
   const dup = status === 'duplicate';
   const isExam = data?.station?.kind === 'exam';
   const judged = data?.examPassed != null;
+  // ฐานสอบ Megacode: ห้ามให้คะแนนผ่านปุ่มลัดนี้ — ต้องผ่านเช็คลิสต์ (ที่เช็ค
+  // เงื่อนไขฐานพื้นฐานให้ก่อนเปิด) เท่านั้น กันข้ามเกตด้วยปุ่มผ่าน/ไม่ผ่านตรงๆ
+  const hideQuickExamButtons = isMegacodeExamStation(data?.station?.name);
 
   return (
     <div className={`dash-card space-y-3 border ${
@@ -71,7 +75,7 @@ export default function ScanResultCard({ result, onSetExam, examBusy, onOpenChec
             )}
           </div>
         )}
-        {(isExam || message) && (
+        {(isExam || message) && !hideQuickExamButtons && (
           <div className="flex gap-2">
             <input
               type="number"

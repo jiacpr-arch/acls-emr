@@ -51,6 +51,15 @@ export const STATION_KIND_META = {
   exam: { label: 'สอบ' },
 };
 
+// ฐานสอบ Megacode (จับด้วยชื่อ ไม่ใช่ kind — ครอบคลุมทั้งจุด A/B และฐานสุ่ม
+// ข้อสอบ) ใช้เป็นเงื่อนไข "ต้องผ่านฐานพื้นฐานอื่นครบก่อนถึงจะสอบได้" ใน
+// InstructorCheckin — กันนักเรียนข้ามไปสอบก่อนฝึกฐานอื่น
+export function isMegacodeExamStation(name) {
+  if (!name) return false;
+  const n = name.trim();
+  return n.startsWith('Megacode') || n.startsWith('สอบ Megacode');
+}
+
 // จับคู่ชื่อฐาน (ที่สร้างจาก DEFAULT_STATIONS) กับคำแนะนำ checklist — คืน null
 // ถ้าเป็นฐานที่ตั้งชื่อเอง/เปลี่ยนชื่อแล้วจำไม่ได้ (ผู้ใช้เลือกจาก dropdown เต็ม
 // รายการแทนได้เสมอ ไม่ใช่ทางเดียว)

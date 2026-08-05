@@ -105,19 +105,17 @@ export default function ChecklistGrader({
 
   // ล็อกเคสกับนักเรียนบน server แล้วยึดเคสที่ server คืนมาเป็นตัวจริง (อาจไม่ใช่
   // เคสที่เพิ่งสุ่ม ถ้าอาจารย์อีกเครื่องล็อกไปก่อนแล้ว)
-  const persistAssign = async (caseId, force) => {
+  const persistAssign = async (caseIds, force) => {
     setAssignState('saving');
-    const finalId = await onAssignCase(caseId, { force });
+    const finalId = await onAssignCase(caseIds, { force });
     if (!finalId) {
       setAssignState('error');
       return;
     }
-    if (finalId !== caseId) {
-      const c = findCaseById(finalId);
-      if (c) {
-        setCaseData(c);
-        setChecked({});
-      }
+    const c = findCaseById(finalId);
+    if (c) {
+      setCaseData(c);
+      setChecked({});
     }
     setAssignState('saved');
   };
@@ -133,10 +131,13 @@ export default function ChecklistGrader({
         // (หาแบบข้าม pool เผื่อเคสถูกล็อกไว้ก่อนฐานเปลี่ยนธนาคารข้อสอบ)
         setCaseData(existing);
         setAssignState('saved');
+      } else if (poolFixed) {
+        // ยังไม่เคยล็อก — ให้ server เลือกเคสเอง (ใช้น้อยสุดในฐานนี้ก่อน) ไม่สุ่ม
+        // ฝั่ง client อีกต่อไป (กันเคสซ้ำกับเพื่อนในรุ่นเดียวกัน)
+        setCaseData(null);
+        persistAssign(poolCases.map((c) => c.id), false);
       } else {
-        const c = pickRandomCase(poolCases);
-        setCaseData(c);
-        if (poolFixed) persistAssign(c.id, false);
+        setCaseData(pickRandomCase(poolCases));
       }
       setChecklistId(null);
       setStep('setup'); // เคส pool มีคู่มือคุมหุ่นเสมอ → เริ่มที่หน้าเตรียมหุ่น
@@ -173,8 +174,10 @@ export default function ChecklistGrader({
   const suggestedPass = template ? suggestPass({ checkedCount, criticalDone }, template.passRule) : null;
 
   // มีคู่มือคุมหุ่นไหม → ตัดสินว่ามีหน้า "เตรียมหุ่น" (wizard) หรือเข้าเช็คลิสต์ตรงๆ
-  // เคส pool มีเสมอ, template มีเฉพาะ 4 ใบ megacode (คำนวณแบบ sync ไม่ import ข้อมูล)
-  const hasSetup = !!caseData || (!!checklistId && templateHasSetup(checklistId));
+  // เคส pool มีเสมอ (เช็คจาก suggestion เพราะฐานสอบแบบล็อกเคสยังไม่มี caseData
+  // ระหว่างรอ server เลือก/ล็อกเคสให้ — ต้องไม่ตกไปหน้าเช็คลิสต์ระหว่างรอ),
+  // template มีเฉพาะ 4 ใบ megacode (คำนวณแบบ sync ไม่ import ข้อมูล)
+  const hasSetup = !!suggestion?.checklistPool || (!!checklistId && templateHasSetup(checklistId));
   const onSetupStep = hasSetup && step === 'setup';
 
   if (!open) return null;
@@ -186,12 +189,15 @@ export default function ChecklistGrader({
   const clearAll = () => setChecked({});
 
   const reroll = () => {
-    const next = pickRandomCase(levelPool, caseData?.id);
-    setCaseData(next);
     setChecked({});
     setStep('setup'); // เคสใหม่ = ต้องเตรียมหุ่นใหม่ก่อนประเมิน
-    // ฐานสอบแบบล็อกเคส: สุ่มใหม่ = ทับเคสเดิมบน server ด้วย (force)
-    if (poolFixed) persistAssign(next.id, true);
+    if (poolFixed) {
+      // ฐานสอบแบบล็อกเคส: ให้ server เลือกเคสใหม่ (ใช้น้อยสุด, ไม่ใช่เคสเดิม
+      // ของตัวเอง) แล้วทับเคสเดิมบน server ด้วย (force)
+      persistAssign(levelPool.map((c) => c.id), true);
+      return;
+    }
+    setCaseData(pickRandomCase(levelPool, caseData?.id));
   };
 
   // เปลี่ยนระดับความยาก — ถ้าเคสปัจจุบันไม่อยู่ในระดับที่เลือก สุ่มเคสใหม่ใน
@@ -201,11 +207,13 @@ export default function ChecklistGrader({
     if (lv === 'all' || caseData?.level === lv) return;
     const pool = poolCases.filter((c) => c.level === lv);
     if (!pool.length) return;
-    const next = pickRandomCase(pool, caseData?.id);
-    setCaseData(next);
     setChecked({});
     setStep('setup');
-    if (poolFixed) persistAssign(next.id, true);
+    if (poolFixed) {
+      persistAssign(pool.map((c) => c.id), true);
+      return;
+    }
+    setCaseData(pickRandomCase(pool, caseData?.id));
   };
 
   // เลือกบทประเมิน (จุด B: Brady/Tachy) — บทใหม่มีคู่มือคุมหุ่นของตัวเอง กลับไป
