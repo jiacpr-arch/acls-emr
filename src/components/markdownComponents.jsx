@@ -86,18 +86,22 @@ export const mdComponents = {
       {children}
     </div>
   ),
-  code: ({ inline, children }) =>
-    inline ? (
-      <code className="px-1.5 py-0.5 bg-bg-tertiary text-[13px] font-mono text-text-primary"
-        style={{ borderRadius: 4 }}>
-        {children}
-      </code>
-    ) : (
-      <pre className="p-3 bg-bg-tertiary overflow-x-auto text-[13px] font-mono text-text-primary my-3"
-        style={{ borderRadius: 'var(--radius-sm)', lineHeight: 1.55 }}>
-        <code>{children}</code>
-      </pre>
-    ),
+  // react-markdown v10 เลิกส่ง prop `inline` แล้ว — โค้ด inline (backtick เดี่ยว)
+  // จึงต้อง render เป็น <code> เสมอ ไม่งั้น branch เดิมจะสร้าง <pre> ซ้อนใน <p>
+  // → DOM error "pre cannot be a descendant of p" และ inline code โชว์เป็นบล็อกผิด ๆ
+  code: ({ children }) => (
+    <code className="px-1.5 py-0.5 bg-bg-tertiary text-[13px] font-mono text-text-primary"
+      style={{ borderRadius: 4 }}>
+      {children}
+    </code>
+  ),
+  // โค้ดบล็อก (fenced ```) react-markdown จะห่อ <code> ด้วย <pre> ให้เอง → คุมสไตล์ที่นี่
+  pre: ({ children }) => (
+    <pre className="p-3 bg-bg-tertiary overflow-x-auto text-[13px] font-mono text-text-primary my-3"
+      style={{ borderRadius: 'var(--radius-sm)', lineHeight: 1.55 }}>
+      {children}
+    </pre>
+  ),
   img: ({ src, alt }) => <MarkdownImage src={src} alt={alt} />,
   table: ({ children }) => (
     <div className="overflow-x-auto my-3">
