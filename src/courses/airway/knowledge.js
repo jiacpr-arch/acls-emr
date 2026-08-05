@@ -345,7 +345,7 @@ export const chapters = [
 \`PAO₂ = FiO₂ × (Patm − PH₂O) − PaCO₂ / R\`
 
 - ที่ระดับน้ำทะเล: Patm 760, PH₂O 47 mmHg, R (respiratory quotient) ≈ 0.8
-- หายใจ room air (FiO₂ 0.21), PaCO₂ 40: \`PAO₂ = 0.21×(760−47) − 40/0.8 = 149.7 − 50 ≈ **100 mmHg**\`
+- หายใจ room air (FiO₂ 0.21), PaCO₂ 40: \`PAO₂ = 0.21×(760−47) − 40/0.8 = 149.7 − 50 ≈ 100 mmHg\` (≈ **100 mmHg**)
 
 **2) A–a gradient** = PAO₂ − PaO₂
 - ปกติ ≈ **(อายุ/4) + 4** mmHg (กว้างขึ้นตามอายุ); กว้างผิดปกติ = shunt / V̇/Q̇ mismatch / diffusion; **ปกติแต่ hypoxemia** = hypoventilation หรือ FiO₂/แรงดันต่ำ
