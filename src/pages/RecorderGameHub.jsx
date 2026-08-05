@@ -5,6 +5,7 @@ import { CASE_PACKS } from '../data/recorderCases';
 import { loadProgress, isUnlocked, getTotalStars } from '../utils/recorderGameProgress';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';
+import { usePullTick } from '../services/progressPull';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import { Star, Lock, ChevronRight, Shuffle, Layers, User, Hospital, Play } from 'lucide-react';
 import PageHero from '../components/PageHero';
@@ -36,6 +37,9 @@ function Stars({ n }) {
 
 export default function RecorderGameHub() {
   const navigate = useNavigate();
+  // progress อ่านสดตอน render — usePullTick บังคับ re-render เมื่อ progressPull
+  // เพิ่งกู้ดาว/hi-score จากเครื่องอื่นลงมา ไม่งั้นต้องออกจากหน้าแล้วเข้าใหม่
+  usePullTick();
   const progress = loadProgress();
   const totalStars = getTotalStars(progress);
   const levels = [...LEVELS].sort((a, b) => a.order - b.order);

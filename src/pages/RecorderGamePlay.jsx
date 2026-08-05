@@ -7,7 +7,8 @@ import { loadProgress, saveResult } from '../utils/recorderGameProgress';
 import { useLiveLevelEngine } from '../hooks/recordergame/useLiveLevelEngine';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getClassContext } from '../stores/classStore';
-import { rpcSubmitRecorderResult } from '../services/cohortSync';
+import { enqueueGameResult } from '../db/database';
+import { scheduleFlush } from '../services/syncEngine';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import LevelIntro from '../components/recordergame/LevelIntro';
 import LiveStartOverlay from '../components/recordergame/LiveStartOverlay';
@@ -58,16 +59,19 @@ export default function RecorderGamePlay() {
     const stars = computeStars(raw.score, raw.maxScore, missCount);
     const isNewHi = raw.score > prior.hiscore;
     saveResult(level.id, { stars, score: raw.score });
+    // เข้าคิวแล้วให้ syncEngine ส่งพร้อม retry — เดิมยิงตรงแล้ว .catch() ทิ้ง
+    // ผลที่จบตอนออฟไลน์/นักเรียนยัง sync ไม่เสร็จจึงหายเงียบ
     if (activeStudent?.id) {
-      rpcSubmitRecorderResult({
-        attemptUuid: crypto.randomUUID(),
-        studentPk: activeStudent.id,
-        levelId: level.id,
+      enqueueGameResult({
+        kind: 'recorder',
+        studentId: activeStudent.id,
+        refId: level.id,
         payload: {
           mode, score: raw.score, maxScore: raw.maxScore ?? null, stars, missCount,
           finishedAt: new Date().toISOString(),
         },
-      }).catch(() => {});
+      });
+      scheduleFlush();
     }
     setResult({ ...raw, mode, stars, isNewHi });
     setPhase('done');
