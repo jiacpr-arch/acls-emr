@@ -10,6 +10,7 @@ import { usePreCourseStore } from '../stores/preCourseStore';
 import { getClassContext } from '../stores/classStore';
 import { rpcSubmitRecorderResult } from '../services/cohortSync';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import GameRulesCard from '../components/recordergame/GameRulesCard';
 import { Shuffle, Heart, Star, ArrowLeft, Play, Trophy, RefreshCw, Home } from 'lucide-react';
 
 // ==========================================
@@ -154,6 +155,11 @@ export default function RecorderEndless() {
             );
           })}
         </div>
+
+        <GameRulesCard type="live" extra={[
+          `พลาดรวม ${MAX_MISSES} ครั้ง = จบรอบ`,
+          'สุ่มเคสต่อเนื่อง เก็บคะแนนสูงสุด',
+        ]} />
 
         <button onClick={requestStart} className="w-full btn btn-danger btn-lg btn-full font-black border-2">
           <Play size={18} strokeWidth={2.4} /> เริ่ม Endless

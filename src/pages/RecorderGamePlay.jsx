@@ -10,6 +10,8 @@ import { getClassContext } from '../stores/classStore';
 import { rpcSubmitRecorderResult } from '../services/cohortSync';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import LevelIntro from '../components/recordergame/LevelIntro';
+import LiveStartOverlay from '../components/recordergame/LiveStartOverlay';
+import GameRulesCard from '../components/recordergame/GameRulesCard';
 import ResultScreen from '../components/recordergame/ResultScreen';
 import GameCprDashboard from '../components/recordergame/GameCprDashboard';
 import RecorderStageAA from '../components/recordergame/RecorderStageAA';
@@ -137,20 +139,50 @@ const ARREST_BUTTONS = [
   { id: 'rosc', label: 'ROSC', sub: 'คืนชีพ', tone: 'success' },
 ];
 
+// ครั้งแรกสุดที่ผู้เล่นเข้าโหมด live (ไม่ว่าทางแคมเปญ/pack/endless) — โชว์คำแนะนำวิธีเล่น
+// ครั้งเดียวแล้วจำไว้ (localStorage) เหมือน pattern TAP_COACH_KEY ของ CodeBlueSim
+const LIVE_COACH_KEY = 'acls_recgame_live_coach';
+const LIVE_COACH_TEXT = 'ฟังเหตุการณ์จากตัวละคร แล้วกดปุ่มบันทึกด้านล่างให้ตรงจังหวะ — ปุ่มที่กะพริบคือปุ่มที่ควรกด';
+const HINT_EVENT_LIMIT = 3; // ไฮไลต์ปุ่มที่ควรกดให้เฉพาะ 3 เหตุการณ์แรกของรอบแรก
+
 // รองรับทั้งเคส arrest (GameCprDashboard + QuickBar) และ non-arrest (GameActionPad)
 // exported เพื่อให้หน้า Endless และ admin test-play ใช้ซ้ำได้
-export function LivePlay({ level, onFinish }) {
-  const engine = useLiveLevelEngine(level, { onFinish });
+// readyMode='countdown' (ปกติ) โชว์ overlay 3-2-1 ก่อนเริ่ม; 'none' เริ่มทันที (admin test-play)
+export function LivePlay({ level, onFinish, hudLabel, readyMode = 'countdown' }) {
+  const [ready, setReady] = useState(readyMode !== 'countdown');
+  const [firstRun] = useState(() => {
+    try { return localStorage.getItem(LIVE_COACH_KEY) !== '1'; } catch { return false; }
+  });
+  const seenEventTsRef = useRef(new Set());
+  const [seenEventCount, setSeenEventCount] = useState(0);
+
+  const handleFinish = useCallback((raw) => {
+    if (firstRun) {
+      try { localStorage.setItem(LIVE_COACH_KEY, '1'); } catch { /* storage full/unavailable */ }
+    }
+    onFinish?.(raw);
+  }, [firstRun, onFinish]);
+
+  const engine = useLiveLevelEngine(level, { onFinish: handleFinish });
   const [modal, setModal] = useState(null); // { kind, buttonId, options?, energyChoices?, title_th? }
   const isArrest = (level.category || 'cardiac_arrest') === 'cardiac_arrest';
 
-  // เริ่มเกมครั้งเดียวหลัง mount (setTimeout เพื่อไม่ setState ตรงๆ ใน effect body)
-  // deps ต้องเป็น [] — ถ้าใส่ [engine] cleanup จะ clearTimeout ทุก re-render ก่อน start() ทัน (นาฬิกาค้าง 00:00)
+  // เริ่มเกมหลังผู้เล่นผ่าน overlay 3-2-1 (setTimeout เพื่อไม่ setState ตรงๆ ใน effect body)
+  // deps ต้องมีแค่ [ready] — ถ้าใส่ [engine] cleanup จะ clearTimeout ทุก re-render ก่อน start() ทัน (นาฬิกาค้าง 00:00)
   useEffect(() => {
+    if (!ready) return undefined;
     const id = setTimeout(() => engine.start(), 0);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ready]);
+
+  // นับเหตุการณ์ที่เคยเห็นแล้ว (by .t) เพื่อจำกัดคำใบ้ 3 เหตุการณ์แรกของรอบแรก
+  useEffect(() => {
+    const t = engine.pendingEvent?.t;
+    if (t === undefined || t === null || seenEventTsRef.current.has(t)) return;
+    seenEventTsRef.current.add(t);
+    setSeenEventCount(seenEventTsRef.current.size);
+  }, [engine.pendingEvent]);
 
   // ปุ่มบน dashboard/quickbar (arrest) — ใช้ metadata จาก GAME_BUTTONS
   const onPress = useCallback((buttonId) => {
@@ -180,6 +212,9 @@ export function LivePlay({ level, onFinish }) {
 
   const onRecord = (id, action) => { if (action) onPadPress(id, action); else onPress(id); };
 
+  const showHint = !!level.showHint || (firstRun && seenEventCount <= HINT_EVENT_LIMIT);
+  const coachText = firstRun ? LIVE_COACH_TEXT : undefined;
+
   return (
     <div className="relative" style={{ height: '100dvh' }}>
       <RecorderStageAA
@@ -193,10 +228,15 @@ export function LivePlay({ level, onFinish }) {
         streak={engine.streak}
         buttons={buttons}
         onPress={onRecord}
-        showHint={!!level.showHint}
+        showHint={showHint}
+        hudLabel={hudLabel}
+        coachText={coachText}
       />
       {modal && <DataEntryModal kind={modal.kind} onSubmit={onSubmit} onClose={() => setModal(null)}
         options={modal.options} energyChoices={modal.energyChoices} title_th={modal.title_th} />}
+      {!ready && (
+        <LiveStartOverlay title={level.title_th} coachText={coachText} onDone={() => setReady(true)} />
+      )}
     </div>
   );
 }
@@ -365,6 +405,7 @@ function PackPlay({ pack, onExit }) {
             </div>
           ))}
         </div>
+        <GameRulesCard type="live" extra={['เล่นหลายเคสต่อกัน — คะแนนรวมสรุปท้ายชุด']} />
         <button onClick={start} className="w-full btn btn-danger btn-lg btn-full font-black border-2">
           เริ่มชุดเคส
         </button>

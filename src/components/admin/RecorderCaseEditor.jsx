@@ -123,7 +123,7 @@ export default function RecorderCaseEditor({ item, onClose, onSaved }) {
     const level = caseToLevel({ ...buildPayload(), id: id || 'preview' });
     return (
       <div className="fixed inset-0 z-[60] bg-bg-primary">
-        <LivePlay key={'test_' + Date.now()} level={level} onFinish={() => setTesting(false)} />
+        <LivePlay key={'test_' + Date.now()} level={level} onFinish={() => setTesting(false)} readyMode="none" />
         <button onClick={() => setTesting(false)}
           className="absolute top-2 right-2 z-[70] btn btn-danger btn-sm">
           <X size={14} strokeWidth={2.4} /> ปิดทดลอง

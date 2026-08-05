@@ -6,13 +6,15 @@ import { loadProgress, isUnlocked, getTotalStars } from '../utils/recorderGamePr
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
-import { Star, Lock, ChevronRight, Shuffle, Layers, User, Hospital } from 'lucide-react';
+import { Star, Lock, ChevronRight, Shuffle, Layers, User, Hospital, Play } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import GameHighlightCard from '../components/GameHighlightCard';
 
 // ==========================================
 // Recorder Hero — หน้าเลือกด่าน (hub)
 // แสดงด่านทั้งหมด + ดาว + hi-score + ล็อก/ปลดล็อก
+// ลำดับจงใจ: CTA "เริ่มที่นี่/เล่นต่อ" ก่อนเสมอ → แคมเปญ (เส้นทางหลัก) →
+// โหมดเสริม (Endless/Packs) หรี่ไว้จนผ่านด่าน 1 — กันนักเรียนงงว่าควรกดอะไรก่อน
 // ==========================================
 const TYPE_BADGE = {
   hunt:  { label: 'รู้จักปุ่ม', color: 'text-info' },
@@ -40,6 +42,13 @@ export default function RecorderGameHub() {
   const activeStudent = usePreCourseStore(s => s.activeStudent);
   const classCode = useClassStore(s => s.classCode);
   const [showIdentity, setShowIdentity] = useState(false);
+
+  // ด่านถัดไปที่ควรเล่น: ด่านแรกที่ยังไม่มีดาวและปลดล็อกแล้ว; ถ้าผ่านหมดแล้วให้กลับไปด่านสุดท้าย
+  const nextLevel = levels.find(l => (progress[l.id]?.stars || 0) === 0 && isUnlocked(l, levels, progress))
+    || levels[levels.length - 1];
+  const hasPlayed = totalStars > 0;
+  // ด่าน 1 ยังไม่มีดาว → หรี่โหมดเสริมไว้ก่อน (ยังกดเล่นได้ ไม่ล็อกจริง)
+  const level1Cleared = (progress[levels[0]?.id]?.stars || 0) > 0;
 
   return (
     <div className="page-container space-y-3 pb-28">
@@ -73,33 +82,13 @@ export default function RecorderGameHub() {
         <Star size={16} strokeWidth={2.4} fill="currentColor" /> {totalStars} / {levels.length * 3} ดาว
       </div>
 
-      {/* โหมดเล่น */}
-      <div className="text-overline">โหมดเล่น</div>
+      {/* CTA เริ่ม/เล่นต่อ — ทางที่ควรกดก่อนเสมอ */}
       <GameHighlightCard
-        to="/recorder-game/endless"
-        title="Endless Shuffle"
-        desc="สุ่มเคสหลายรูปแบบต่อเนื่อง เก็บคะแนนให้ได้มากที่สุด"
-        Icon={Shuffle}
+        to={`/recorder-game/${nextLevel.id}`}
+        title={hasPlayed ? 'เล่นต่อ' : 'เริ่มที่นี่'}
+        desc={`ด่าน ${nextLevel.order} · ${nextLevel.title_th}`}
+        Icon={Play}
       />
-
-      {/* Case Packs */}
-      <div className="text-overline">ชุดเคส (Case Packs)</div>
-      <div className="space-y-2">
-        {CASE_PACKS.map(pack => (
-          <button key={pack.id} onClick={() => navigate(`/recorder-game/${pack.id}`)}
-            className="w-full dash-card !p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors">
-            <div className="w-10 h-10 shrink-0 inline-flex items-center justify-center bg-bg-tertiary text-text-secondary"
-              style={{ borderRadius: 'var(--radius-md)' }}>
-              <Layers size={18} strokeWidth={2.4} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className={`text-caption font-black ${pack.color}`}>{pack.title_th}</div>
-              <div className="text-3xs text-text-muted truncate">{pack.subtitle_th}</div>
-            </div>
-            <ChevronRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
-          </button>
-        ))}
-      </div>
 
       {/* Campaign Levels */}
       <div className="text-overline">แคมเปญ (ไล่ระดับ)</div>
@@ -134,6 +123,41 @@ export default function RecorderGameHub() {
             </button>
           );
         })}
+      </div>
+
+      {/* โหมดเสริม — Endless + Case Packs (ไม่ล็อก แค่แนะนำให้ผ่านด่าน 1 ก่อน) */}
+      <div className="text-overline">โหมดเสริม</div>
+      {!level1Cleared && (
+        <div className="text-3xs text-text-muted -mt-1">แนะนำให้ผ่านด่าน 1 ก่อน</div>
+      )}
+      <div className={`space-y-2 transition-opacity ${level1Cleared ? '' : 'opacity-70'}`}>
+        <button onClick={() => navigate('/recorder-game/endless')}
+          className="w-full dash-card !p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors">
+          <div className="w-10 h-10 shrink-0 inline-flex items-center justify-center bg-danger/12 text-danger"
+            style={{ borderRadius: 'var(--radius-md)' }}>
+            <Shuffle size={18} strokeWidth={2.4} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-caption font-black text-text-primary">Endless Shuffle</div>
+            <div className="text-3xs text-text-muted truncate">สุ่มเคสหลายรูปแบบต่อเนื่อง เก็บคะแนนให้ได้มากที่สุด</div>
+          </div>
+          <ChevronRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
+        </button>
+
+        {CASE_PACKS.map(pack => (
+          <button key={pack.id} onClick={() => navigate(`/recorder-game/${pack.id}`)}
+            className="w-full dash-card !p-3 flex items-center gap-3 text-left hover:bg-bg-tertiary transition-colors">
+            <div className="w-10 h-10 shrink-0 inline-flex items-center justify-center bg-bg-tertiary text-text-secondary"
+              style={{ borderRadius: 'var(--radius-md)' }}>
+              <Layers size={18} strokeWidth={2.4} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className={`text-caption font-black ${pack.color}`}>{pack.title_th}</div>
+              <div className="text-3xs text-text-muted truncate">{pack.subtitle_th}</div>
+            </div>
+            <ChevronRight size={18} strokeWidth={2.2} className="text-text-muted shrink-0" />
+          </button>
+        ))}
       </div>
 
       {/* ขั้น 2 ของเส้นทาง: โจทย์บนหน้า Recording จริง */}

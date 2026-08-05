@@ -94,6 +94,10 @@ const CYCLE_GATE_SECONDS = 110;
 function isCycleGatedToken(token) {
   return token === 'defib' || token === 'check_pulse' || token === 'epi_repeat';
 }
+function fmtCountdown(totalSec) {
+  const s = Math.max(0, totalSec);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
 
 // เทียบ event จริงจาก Recording กับ correctActions ของ step — คืน action token ที่ตรง
 // (ไม่ใช่แค่ boolean) เพื่อให้รู้ว่าต้องเช็ค cycle-gate จาก token ไหน
@@ -174,6 +178,8 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
   const currentStep = scenario.steps[currentStepIdx];
   const maxWrong = 4;
   const events = useCaseStore(s => s.events);
+  // นับถอยหลังรอบ CPR แบบ proactive (โหมดฝึกเท่านั้น) — ให้เห็นล่วงหน้าแทนที่จะรู้ตอนโดนหักคะแนน
+  const [gateRemain, setGateRemain] = useState(null);
 
   // Monitor beep based on patient HR
   useMonitorBeep(patientVitals.hr, soundEnabled);
@@ -189,6 +195,20 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
       if (fx === 'alarm') playWarningBeep();
     }
   }, [currentStepIdx]);
+
+  // นับถอยหลังรอบ CPR ให้เห็นล่วงหน้า — เฉพาะ step ที่ติด cycle-gate จริง (ดู isCycleGatedToken)
+  useEffect(() => {
+    const gated = isLearning && scenario.category === 'cardiac_arrest'
+      && currentStep?.correctActions?.some(isCycleGatedToken);
+    if (!gated) { setGateRemain(null); return undefined; }
+    const tick = () => {
+      const remain = Math.ceil(CYCLE_GATE_SECONDS - (Date.now() - stepStartTime) / 1000);
+      setGateRemain(remain > 0 ? remain : null);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [isLearning, scenario.category, currentStep, stepStartTime]);
 
   // publish สถานะฉากลง store (จุด broadcast สำหรับโหมดสองจอในอนาคต)
   useEffect(() => {
@@ -343,6 +363,14 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
       if (newWrong >= maxWrong) {
         onStaffTakeover(score);
       }
+      return;
+    }
+
+    // ไม่ตรงทั้ง correct และ wrongActions ที่ประกาศไว้ — ไม่ใช่ก้าวที่ถูกหรือผิดของ step นี้
+    // เฉยๆ (เช่น กดปุ่มของขั้นตอนอื่น) โหมดฝึก: บอกให้รู้ กันคิดว่าแอปค้าง — ไม่หักคะแนน/ไม่นับผิด
+    // โหมดสอบ: เงียบเหมือนเดิม (ไม่ใบ้ว่าปุ่มไหนถูก)
+    if (isLearning) {
+      showReaction({ kind: 'ignored', message: 'ยังไม่ใช่ขั้นตอนนี้ — ดูโจทย์บนฉากแล้วเลือกใหม่ได้เลย', at: Date.now() }, 2000);
     }
   }, [events.length]);
 
@@ -361,6 +389,10 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
           soundEnabled={soundEnabled}
           onToggleSound={() => setSoundEnabled(s => !s)}
         />
+        {/* นับถอยหลังรอบ CPR (learning เท่านั้น) — เตือนล่วงหน้าก่อนจะโดนหักคะแนนเพราะกดเร็วไป */}
+        {isLearning && !collapsed && gateRemain != null && (
+          <div className="scn-hint">⏳ รอครบรอบ CPR 2 นาที — อีก {fmtCountdown(gateRemain)} จึงจะบันทึกขั้นต่อไปได้</div>
+        )}
         {/* Score bar (learning only) */}
         {isLearning && !collapsed && (
           <div className="flex items-center justify-center gap-4 px-4 py-1 bg-bg-tertiary/30 text-3xs text-text-muted">
