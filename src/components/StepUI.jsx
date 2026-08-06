@@ -41,7 +41,11 @@ export function StepCard({ phase, phaseColor, icon, title, subtitle, instruction
 }
 
 // ===== BIG BUTTON =====
-export function BigButton({ color, onClick, children, size = 'normal', disabled = false }) {
+// `pending`: ต่างจาก `disabled` ตรงที่ยังกดได้ (ไม่ตั้ง pointer-events:none) แค่หรี่ไว้เป็น
+// สัญญาณ "ยังไม่ใช่จังหวะ" — ใช้กับ narrationBusy เพื่อไม่ให้ปุ่มดูค้าง/ไม่ตอบสนองตอนกดเร็วไป
+// (ผู้เรียนงงว่าแอปค้างมาก่อนตอนใช้ disabled ตรงๆ) ตัว onClick เดิมเป็นคนเช็คเองว่าจะทำงานจริง
+// หรือแค่โชว์ nudge ให้รอ
+export function BigButton({ color, onClick, children, size = 'normal', disabled = false, pending = false }) {
   const sizeClass = size === 'huge' ? 'btn-xl' : 'btn-lg';
   const c = color || '';
   const btnClass = c.includes('bg-danger') || c.includes('danger') ? 'btn-danger'
@@ -54,7 +58,7 @@ export function BigButton({ color, onClick, children, size = 'normal', disabled 
   const extra = c.includes('animate-pulse') ? 'animate-pulse' : '';
   return (
     <button onClick={onClick} disabled={disabled}
-      className={`btn btn-block ${sizeClass} ${btnClass} ${extra} ${disabled ? 'btn-disabled' : ''}`}>
+      className={`btn btn-block ${sizeClass} ${btnClass} ${extra} ${disabled ? 'btn-disabled' : ''} ${pending ? 'btn-pending' : ''}`}>
       {children}
     </button>
   );

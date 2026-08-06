@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useCaseStore } from '../../stores/caseStore';
 import { useTimerStore } from '../../stores/timerStore';
 import { IS_BLS } from '../../config/courseMode';
@@ -29,6 +29,26 @@ export default function StepRouter({ step, startMode, scenario, isTraining, narr
   const log = onLog;
   const goStep = onGoStep;
 
+  // จังหวะอ่านก่อนกด (narrationBusy): เดิมใช้ disabled ตรงๆ ทำให้ปุ่มดูค้าง/ไม่ตอบสนอง
+  // ตอนผู้เรียนกดเร็วไป (pointer-events:none = เงียบสนิท) — เปลี่ยนมาให้ปุ่มยังกดได้จริง
+  // แค่โชว์ nudge สั้นๆ แทนถ้ากดระหว่างที่ยังไม่ถึงจังหวะ
+  const [waitHint, setWaitHint] = useState(false);
+  const waitTimerRef = useRef(null);
+  const guard = (fn) => () => {
+    if (narrationBusy) {
+      setWaitHint(true);
+      clearTimeout(waitTimerRef.current);
+      waitTimerRef.current = setTimeout(() => setWaitHint(false), 1100);
+      return;
+    }
+    fn();
+  };
+  const waitHintNode = waitHint && (
+    <div className="text-2xs text-warning text-center font-semibold animate-pulse -mt-1">
+      ⏳ ฟังตัวละครอีกนิดนะ แล้วค่อยเลือก
+    </div>
+  );
+
   switch (step) {
     // ========== BLS SURVEY ==========
     case STEPS.SCENE_SAFETY:
@@ -52,20 +72,21 @@ export default function StepRouter({ step, startMode, scenario, isTraining, narr
             <p>Gasping or no breathing → check pulse → may need CPR</p>
           </TrainingHint>
           <div className="text-caption text-text-secondary text-center font-medium mb-1">ประเมินผู้ป่วยแล้วพบว่า:</div>
+          {waitHintNode}
           <div className="grid grid-cols-1 gap-3 w-full">
-            <BigButton color="bg-danger" disabled={narrationBusy} onClick={() => { log('other', '❌ Unresponsive + Not Breathing'); goStep(STEPS.CALL_FOR_HELP); }}>
+            <BigButton color="bg-danger" pending={narrationBusy} onClick={guard(() => { log('other', '❌ Unresponsive + Not Breathing'); goStep(STEPS.CALL_FOR_HELP); })}>
               ❌ Unresponsive + Not Breathing
               <div className="text-3xs font-normal mt-0.5">→ Call for help → Check Pulse</div>
             </BigButton>
-            <BigButton color="bg-danger" disabled={narrationBusy} onClick={() => { log('other', '❌ Unresponsive + Gasping (agonal breathing)'); goStep(STEPS.CALL_FOR_HELP); }}>
+            <BigButton color="bg-danger" pending={narrationBusy} onClick={guard(() => { log('other', '❌ Unresponsive + Gasping (agonal breathing)'); goStep(STEPS.CALL_FOR_HELP); })}>
               ❌ Unresponsive + Gasping
               <div className="text-3xs font-normal mt-0.5">Gasping = NOT normal → treat as no breathing</div>
             </BigButton>
-            <BigButton color="bg-warning text-black" disabled={narrationBusy} onClick={() => { log('other', '❌ Unresponsive BUT Breathing normally → Recovery position'); goStep(STEPS.PULSE_PRESENT); }}>
+            <BigButton color="bg-warning text-black" pending={narrationBusy} onClick={guard(() => { log('other', '❌ Unresponsive BUT Breathing normally → Recovery position'); goStep(STEPS.PULSE_PRESENT); })}>
               ❌ Unresponsive BUT Breathing Normally
               <div className="text-3xs font-normal mt-0.5">Has pulse → Recovery position → Monitor</div>
             </BigButton>
-            <BigButton color="bg-success" disabled={narrationBusy} onClick={() => { log('other', '✅ Responsive + Breathing'); goStep(STEPS.PULSE_PRESENT); }}>
+            <BigButton color="bg-success" pending={narrationBusy} onClick={guard(() => { log('other', '✅ Responsive + Breathing'); goStep(STEPS.PULSE_PRESENT); })}>
               ✅ Responsive + Breathing
             </BigButton>
           </div>
@@ -96,9 +117,10 @@ export default function StepRouter({ step, startMode, scenario, isTraining, narr
             <p>Carotid pulse check ≤10 seconds — if unsure, assume no pulse</p>
           </TrainingHint>
           <div className="text-caption text-text-secondary text-center font-medium mt-3">คลำชีพจรแล้วพบว่า:</div>
+          {waitHintNode}
           <div className="grid grid-cols-2 gap-4 w-full mt-1">
-            <BigButton color="bg-danger" disabled={narrationBusy} onClick={() => { log('other', '❌ No Pulse — Cardiac Arrest'); if (!isRunning) startTimer(); goStep(STEPS.START_CPR); }}>❌ No Pulse</BigButton>
-            <BigButton color="bg-success" disabled={narrationBusy} onClick={() => { log('other', '✅ Pulse Present'); goStep(STEPS.PULSE_PRESENT); }}>✅ Pulse Present</BigButton>
+            <BigButton color="bg-danger" pending={narrationBusy} onClick={guard(() => { log('other', '❌ No Pulse — Cardiac Arrest'); if (!isRunning) startTimer(); goStep(STEPS.START_CPR); })}>❌ No Pulse</BigButton>
+            <BigButton color="bg-success" pending={narrationBusy} onClick={guard(() => { log('other', '✅ Pulse Present'); goStep(STEPS.PULSE_PRESENT); })}>✅ Pulse Present</BigButton>
           </div>
         </StepCard>
       );
@@ -110,13 +132,14 @@ export default function StepRouter({ step, startMode, scenario, isTraining, narr
           subtitle="Assess heart rate and condition"
           instructions={['Check monitor or count pulse for 6 sec × 10', 'If not breathing adequately → Rescue breathing', 'Attach monitor if not done']}>
           <div className="text-caption text-text-secondary text-center font-medium mb-1">ประเมินอัตราการเต้นหัวใจแล้วพบว่า:</div>
+          {waitHintNode}
           <div className="grid grid-cols-1 gap-3 w-full">
-            <BigButton color="bg-info" disabled={narrationBusy} onClick={() => { if (!isRunning) startTimer(); log('other', '🐢 Bradycardia'); goStep(STEPS.PULSE_BRADYCARDIA); }}>🐢 Bradycardia (HR &lt; 50)</BigButton>
-            <BigButton color="bg-success" disabled={narrationBusy} onClick={() => { if (!isRunning) startTimer(); log('other', '✅ Normal rate'); goStep(STEPS.PULSE_NORMAL); }}>✅ Normal (HR 50-150)</BigButton>
-            <BigButton color="bg-danger" disabled={narrationBusy} onClick={() => { if (!isRunning) startTimer(); log('other', '⚡ Tachycardia'); goStep(STEPS.PULSE_TACHYCARDIA); }}>🐇 Tachycardia (HR &gt; 150)</BigButton>
+            <BigButton color="bg-info" pending={narrationBusy} onClick={guard(() => { if (!isRunning) startTimer(); log('other', '🐢 Bradycardia'); goStep(STEPS.PULSE_BRADYCARDIA); })}>🐢 Bradycardia (HR &lt; 50)</BigButton>
+            <BigButton color="bg-success" pending={narrationBusy} onClick={guard(() => { if (!isRunning) startTimer(); log('other', '✅ Normal rate'); goStep(STEPS.PULSE_NORMAL); })}>✅ Normal (HR 50-150)</BigButton>
+            <BigButton color="bg-danger" pending={narrationBusy} onClick={guard(() => { if (!isRunning) startTimer(); log('other', '⚡ Tachycardia'); goStep(STEPS.PULSE_TACHYCARDIA); })}>🐇 Tachycardia (HR &gt; 150)</BigButton>
             <div className="grid grid-cols-2 gap-3">
-              <BigButton color="bg-danger" disabled={narrationBusy} onClick={() => { if (!isRunning) startTimer(); log('other', '🫀 Suspected ACS/MI'); goStep(STEPS.PULSE_MI); }}>🫀 ACS / MI</BigButton>
-              <BigButton color="bg-purple text-white" disabled={narrationBusy} onClick={() => { if (!isRunning) startTimer(); log('other', '🧠 Suspected Stroke'); goStep(STEPS.PULSE_STROKE); }}>🧠 Stroke</BigButton>
+              <BigButton color="bg-danger" pending={narrationBusy} onClick={guard(() => { if (!isRunning) startTimer(); log('other', '🫀 Suspected ACS/MI'); goStep(STEPS.PULSE_MI); })}>🫀 ACS / MI</BigButton>
+              <BigButton color="bg-purple text-white" pending={narrationBusy} onClick={guard(() => { if (!isRunning) startTimer(); log('other', '🧠 Suspected Stroke'); goStep(STEPS.PULSE_STROKE); })}>🧠 Stroke</BigButton>
             </div>
           </div>
         </StepCard>

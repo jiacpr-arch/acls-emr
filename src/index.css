@@ -217,6 +217,9 @@ body {
 }
 .btn-outline-success:hover { background: rgba(5, 150, 105, 0.06); }
 .btn-disabled, .btn:disabled { opacity: 0.45; pointer-events: none; box-shadow: none; }
+/* pending: หรี่ไว้เป็นสัญญาณ "ยังไม่ใช่จังหวะ" แต่ยังกดได้จริง (ไม่ตั้ง pointer-events:none)
+   ต่างจาก .btn-disabled ตรงนี้ — กันปุ่มดูเหมือนค้าง/ไม่ตอบสนองตอนผู้เรียนกดเร็วไป */
+.btn-pending { opacity: 0.7; }
 
 /* btn-action — vertical icon+label tile */
 .btn-action {
