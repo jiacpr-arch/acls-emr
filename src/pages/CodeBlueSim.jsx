@@ -159,7 +159,11 @@ function lockInfo(sc, cleared, pool) {
     const done = basics.filter((s) => cleared.has(s.id)).length;
     return { left: Math.max(0, need - done), inTrack: true };
   }
-  return { left: Math.max(0, BASIC_TO_UNLOCK - clearedBasicCount(cleared, pool)), inTrack: false };
+  // clamp ด้วยจำนวน basic ที่คลังนี้มีจริง เหมือนเกณฑ์รายหมวดข้างบน — คอร์สทักษะเดี่ยว
+  // (airway/defib/iv) มี basic แค่ 1-2 เคส ถ้าไม่ clamp เกณฑ์ 3 จะไม่มีวันครบ
+  // แล้วเคสในหมวดที่ไม่มี basic จะถูกล็อกถาวรเล่นไม่ได้เลย
+  const need = Math.min(BASIC_TO_UNLOCK, pool.filter(isBasic).length);
+  return { left: Math.max(0, need - clearedBasicCount(cleared, pool)), inTrack: false };
 }
 
 const isUnlocked = (sc, cleared, pool) => lockInfo(sc, cleared, pool).left === 0;
