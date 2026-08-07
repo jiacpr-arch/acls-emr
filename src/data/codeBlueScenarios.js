@@ -169,17 +169,31 @@ const DEFIB_TRACK_META = {
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
 };
 
+// เรียงจากงานประจำวันบนหอผู้ป่วย (เปิดเส้น → ให้สารน้ำ → เตรียม/บริหารยา → ภาวะแทรกซ้อน)
+// ไปหางานฉุกเฉิน (IO → ให้ยาตอน CPR) ตามลำดับที่พยาบาลเจอจริงบ่อยไปหาน้อย
 const IV_TRACK_META = {
   peripheral: {
     label: 'Peripheral IV', icon: '💉', order: 0,
     desc: 'เลือกเบอร์เข็ม/ตำแหน่งเส้น · ยืนยัน flashback · bolus สารน้ำ',
   },
+  fluids: {
+    label: 'สารน้ำและอัตราการหยด', icon: '💧', order: 1,
+    desc: 'คำนวณ mL/hr และหยด/นาที · drop factor ของชุดให้สารน้ำ · ปรับอัตรา · จับภาวะน้ำเกินให้ทัน',
+  },
+  meds: {
+    label: 'เตรียมและบริหารยา', icon: '🧪', order: 2,
+    desc: 'หลัก 6 ถูกต้อง · ยาชื่อ/หน้าตาคล้ายกัน · ผสมยาผงและคำนวณความเข้มข้น · double-check ยาเสี่ยงสูง',
+  },
+  safety: {
+    label: 'ภาวะแทรกซ้อนและความปลอดภัย', icon: '🛡', order: 3,
+    desc: 'แยกหลอดเลือดดำอักเสบจากยารั่วออกนอกเส้น · แพ้ยารุนแรงระหว่างหยด · หยุดยาแต่รักษาเส้นไว้',
+  },
   io: {
-    label: 'Intraosseous (IO)', icon: '🦴', order: 1,
+    label: 'Intraosseous (IO)', icon: '🦴', order: 4,
     desc: 'เปลี่ยนไป IO เมื่อ IV ล้มเหลว · ตำแหน่ง proximal tibia · ยืนยันก่อนให้ยา',
   },
   drugs: {
-    label: 'ให้ยาระหว่าง CPR', icon: '💊', order: 2,
+    label: 'ให้ยาระหว่าง CPR', icon: '💊', order: 5,
     desc: 'bolus + flush 20 mL · ยกแขน · รอบเวลาให้ยา · จัดการเส้นที่ infiltrate',
   },
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
