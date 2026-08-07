@@ -371,6 +371,9 @@ export const BACKGROUNDS = {
   ct_room: 'ห้อง CT',
   cath_lab: 'ห้องสวนหัวใจ (Cath Lab)',
   outdoor_street: 'ริมถนน/หน้าตึกแถว',
+  opd_lobby: 'โถงลิฟต์/OPD โรงพยาบาล',
+  ward_bathroom: 'ห้องน้ำผู้ป่วยในหอผู้ป่วย',
+  dialysis_unit: 'หน่วยไตเทียม',
 };
 export const DEFAULT_BACKGROUND = 'er_bay';
 
