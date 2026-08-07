@@ -76,14 +76,19 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
       let existing = sid ? await findStudentByStudentId(sid) : null;
       let restored = null;
 
-      // No local record on this device — check the cloud in case this
-      // student already has progress under this class (different browser,
-      // cleared storage, new phone, LINE in-app browser vs. Safari, etc).
-      // Restores it into local IndexedDB instead of silently starting over.
-      if (!existing && sid && classCode) {
+      // Always check the cloud, not just when this device has no local record.
+      // The old `!existing` gate meant a device that had registered once could
+      // never see work done elsewhere: study on the phone, open the iPad, and
+      // the iPad kept showing its own stale progress forever. hydrateStudentProgress
+      // merges (dupes skipped on [studentId+lessonId] / attempt uuid), so pulling
+      // on top of an existing local record is safe — nothing local is overwritten.
+      if (sid && classCode) {
         const { data } = await rpcGetStudentProgress({ code: classCode, studentId: sid });
         if (data?.student) {
-          existing = {
+          // Keep the local row's id when there is one — local lessonProgress /
+          // quizAttempts rows point at it, and flushStudents() already remaps
+          // to the server pk on the next sync.
+          existing = existing || {
             id: data.student.id,
             studentId: data.student.studentId,
             name: data.student.name,
@@ -103,7 +108,9 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
         ? { ...existing, name: n, phone: tel || null, syncedAt: unchanged ? existing.syncedAt : null }
         : { id: uuidv4(), studentId: sid || null, name: n, phone: tel || null, email: null, createdAt: new Date().toISOString() };
       await upsertStudent(record);
-      if (restored) await hydrateStudentProgress(record.id, restored);
+      // นับเฉพาะแถวที่ "เพิ่มเข้ามาจริง" — เดิม !!restored หมายถึงเครื่องนี้ไม่มี
+      // record มาก่อน แต่ตอนนี้ดึงทุกครั้งแล้ว ต้องแยกว่าได้ของใหม่มาหรือเปล่า
+      const restoredCount = restored ? await hydrateStudentProgress(record.id, restored) : 0;
       // กู้ความคืบหน้าเกม Code Blue ด้วย (เคสที่ผ่าน/เกรด/hi-score) — best-effort:
       // นักเรียนใหม่ที่ยัง sync ไม่เสร็จ server ตอบ unknown_student ก็แค่ข้าม
       if (classCode) {
@@ -114,7 +121,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
       // ใช้ UUID เป็น distinct id — ไม่ส่งชื่อ/เบอร์โทร (PDPA)
       track('student_registered', {
         meta: 'CompleteRegistration',
-        props: { has_student_code: !!sid, is_returning: !!existing, restored: !!restored },
+        props: { has_student_code: !!sid, is_returning: !!existing, restored: restoredCount > 0 },
       });
       identifyStudent(record.id, { student_code: sid || null });
       onConfirm?.(record);

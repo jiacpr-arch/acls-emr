@@ -8,8 +8,11 @@ import { LivePlay } from './RecorderGamePlay';
 import Instructor from '../components/sim/Instructor';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getClassContext } from '../stores/classStore';
-import { rpcSubmitRecorderResult } from '../services/cohortSync';
+import { loadEndlessHiscores, saveEndlessHiscore } from '../utils/recorderGameProgress';
+import { enqueueGameResult } from '../db/database';
+import { scheduleFlush } from '../services/syncEngine';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import GameRulesCard from '../components/recordergame/GameRulesCard';
 import { Shuffle, Heart, Star, ArrowLeft, Play, Trophy, RefreshCw, Home } from 'lucide-react';
 
 // ==========================================
@@ -17,20 +20,9 @@ import { Shuffle, Heart, Star, ArrowLeft, Play, Trophy, RefreshCw, Home } from '
 // สุ่มเคสต่อเนื่อง เก็บคะแนน/เคสที่ผ่านสะสม จบเมื่อพลาดครบ MAX_MISSES
 // hi-score แยกตามหมวดใน localStorage
 // ==========================================
-const HISCORE_KEY = 'acls_recgame_endless';
+// hi-score อยู่ใน utils/recorderGameProgress.js (คีย์ acls_recgame_endless) —
+// ขา restore จาก cloud ต้องเขียนคีย์เดียวกัน จึงเก็บไว้ที่เดียว
 const MAX_MISSES = 3;
-
-function loadHiscores() {
-  try { return JSON.parse(localStorage.getItem(HISCORE_KEY) || '{}'); } catch { return {}; }
-}
-function saveHiscore(cat, score) {
-  const all = loadHiscores();
-  if (score > (all[cat] || 0)) {
-    all[cat] = score;
-    try { localStorage.setItem(HISCORE_KEY, JSON.stringify(all)); } catch { /* full */ }
-  }
-  return all[cat] || 0;
-}
 
 export default function RecorderEndless() {
   const navigate = useNavigate();
@@ -57,7 +49,7 @@ export default function RecorderEndless() {
   }, []);
 
   const pool = category === 'all' ? fullPool : fullPool.filter(c => c.category === category);
-  const hiscores = loadHiscores();
+  const hiscores = loadEndlessHiscores();
 
   const nextCase = useCallback((excludeId) => {
     return pickRandomCase(pool, Math.random() * 1e6, excludeId);
@@ -95,17 +87,19 @@ export default function RecorderEndless() {
     setCleared(newCleared);
 
     if (newMisses >= MAX_MISSES) {
-      saveHiscore(category, newTotal);
+      saveEndlessHiscore(category, newTotal);
+      // เข้าคิวแล้วให้ syncEngine ส่งพร้อม retry — เดิมยิงตรงแล้ว .catch() ทิ้ง
       if (activeStudent?.id) {
-        rpcSubmitRecorderResult({
-          attemptUuid: crypto.randomUUID(),
-          studentPk: activeStudent.id,
-          levelId: `endless:${category}`,
+        enqueueGameResult({
+          kind: 'recorder',
+          studentId: activeStudent.id,
+          refId: `endless:${category}`,
           payload: {
             mode: 'endless', score: newTotal, maxScore: null, stars: null, missCount: newMisses,
             finishedAt: new Date().toISOString(),
           },
-        }).catch(() => {});
+        });
+        scheduleFlush();
       }
       setPhase('done');
       return;
@@ -154,6 +148,11 @@ export default function RecorderEndless() {
             );
           })}
         </div>
+
+        <GameRulesCard type="live" extra={[
+          `พลาดรวม ${MAX_MISSES} ครั้ง = จบรอบ`,
+          'สุ่มเคสต่อเนื่อง เก็บคะแนนสูงสุด',
+        ]} />
 
         <button onClick={requestStart} className="w-full btn btn-danger btn-lg btn-full font-black border-2">
           <Play size={18} strokeWidth={2.4} /> เริ่ม Endless

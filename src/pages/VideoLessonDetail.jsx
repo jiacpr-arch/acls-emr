@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ChevronLeft, ChevronRight, ChevronDown, MapPin, FileText, CheckCircle2,
-  BookOpen, Check, Lock, PlayCircle,
+  BookOpen, Check, Lock, PlayCircle, Clock,
 } from 'lucide-react';
 import { useVideoLessons } from '../hooks/useVideoLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
@@ -91,6 +91,7 @@ export default function VideoLessonDetail() {
   const [quizScore, setQuizScore] = useState(0);
   const [quizCorrect, setQuizCorrect] = useState(0);
   const [retryCooldown, setRetryCooldown] = useState(0);
+  const [dwellSec, setDwellSec] = useState(0); // วินาทีที่อยู่บนสเต็ปวิดีโอจริง ๆ (ประตูเวลาคลิป Drive)
   const [stepIdx, setStepIdx] = useState(0);   // ตำแหน่งใน stepKeys
   const [qIndex, setQIndex] = useState(0);     // ข้อที่กำลังทำในสเต็ปแบบทดสอบ
   const [showReview, setShowReview] = useState(false); // กาง "ทบทวนเฉลย" ในสเต็ปสรุปผล
@@ -117,7 +118,7 @@ export default function VideoLessonDetail() {
   useEffect(() => {
     setAnswers({}); setQuizSubmitted(false); setQuizPassed(false);
     setQuizScore(0); setQuizCorrect(0); setRetryCooldown(0);
-    setStepIdx(0); setQIndex(0); setShowReview(false);
+    setStepIdx(0); setQIndex(0); setShowReview(false); setDwellSec(0);
     startedAtRef.current = new Date().toISOString();
     watchTrackedRef.current = false;
     lockTrackedRef.current = false;
@@ -140,6 +141,23 @@ export default function VideoLessonDetail() {
 
   // เปลี่ยนสเต็ป/เปลี่ยนข้อ = เนื้อหาใหม่ทั้งจอ — เด้งขึ้นบนสุด ไม่งั้นบนมือถือจะโผล่กลางหน้า
   useEffect(() => { window.scrollTo(0, 0); }, [stepIdx, qIndex]);
+
+  // ประตูเวลาของสเต็ปดูวิดีโอ — คลิป Drive จับความคืบหน้าไม่ได้ (ต่างจาก YouTube ที่ player
+  // ยิง onWatched เองเมื่อดูถึง 90%) เดิมจึงกด "ถัดไป" ข้ามได้ทันที ตอนนี้ถ้าคลิปมี durationSec
+  // ปุ่มจะซ่อนไว้จนกว่าจะอยู่บนสเต็ปนี้ครบ 90% ของความยาวคลิป — นับเฉพาะตอนแท็บเปิดอยู่
+  // ไม่ตั้ง durationSec = ไม่มีประตู (พฤติกรรมเดิม); แอดมินข้ามได้เสมอเพื่อพรีวิว
+  const gateSec = !canSeek && clip?.durationSec ? Math.max(5, Math.round(clip.durationSec * 0.9)) : 0;
+  const gateLocked = gateSec > 0 && !isAdmin && !watched && dwellSec < gateSec;
+  const onVideoStep = stepKeys[Math.min(stepIdx, stepKeys.length - 1)] === 'video';
+
+  useEffect(() => {
+    if (!onVideoStep || !gateLocked) return;
+    const t = setInterval(() => {
+      // สลับแท็บ/ปิดจอ = ไม่นับ กันการเปิดค้างไว้เฉย ๆ แล้วไปทำอย่างอื่น
+      if (document.visibilityState === 'visible') setDwellSec(s => s + 1);
+    }, 1000);
+    return () => clearInterval(t);
+  }, [onVideoStep, gateLocked]);
 
   // นับถอยหลัง cooldown สำหรับปุ่ม "ลองใหม่"
   useEffect(() => {
@@ -270,6 +288,8 @@ export default function VideoLessonDetail() {
   const progressPct = Math.round(((safeStep + 1) / stepKeys.length) * 100);
 
   const goNext = () => {
+    // ยังไม่ครบเวลาประตู = ปุ่มยังไม่โผล่ กันเผื่อถูกเรียกจากทางอื่น
+    if (currentStep === 'video' && gateLocked) return;
     // คลิป Drive จับความคืบหน้าไม่ได้ ต้องให้ผู้เรียนรับรองเอง — ให้ปุ่ม "ถัดไป"
     // นับเป็นการรับรองไปในตัว จะได้ไม่ต้องกดสองที แล้วไปตันที่การ์ดแบบทดสอบที่ล็อก
     if (currentStep === 'video' && !canSeek && !watched) handleWatched();
@@ -356,7 +376,10 @@ export default function VideoLessonDetail() {
             </div>
             <div className="text-caption text-text-muted mt-0.5">
               คลิป {clipIndex + 1}/{topicClips.length}
-              {watched ? ' · ดูจบแล้ว ✓' : canSeek ? ' · ดูจนเกือบจบเพื่อนับว่า "ดูครบ"' : ' · ดูจบแล้วกด "ถัดไป"'}
+              {watched ? ' · ดูจบแล้ว ✓'
+                : canSeek ? ' · ดูจนเกือบจบเพื่อนับว่า "ดูครบ"'
+                : gateSec > 0 ? ' · ดูให้จบ ปุ่ม "ถัดไป" จะขึ้นเองเมื่อครบเวลา'
+                : ' · ดูจบแล้วกด "ถัดไป"'}
             </div>
           </div>
 
@@ -534,23 +557,29 @@ export default function VideoLessonDetail() {
             <button
               onClick={goPrev}
               disabled={safeStep === 0 && !(onQuizStep && safeQIndex > 0)}
-              className="btn btn-ghost btn-sm inline-flex items-center gap-1 disabled:opacity-30">
-              <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
+              className="btn btn-ghost inline-flex items-center gap-1 disabled:opacity-30">
+              <ChevronLeft size={15} strokeWidth={2.4} /> ก่อนหน้า
             </button>
             <div className="flex-1" />
-            {onQuizStep && isLastQuestion ? (
+            {currentStep === 'video' && gateLocked ? (
+              // ยังไม่ครบเวลา — ไม่โชว์ปุ่มเลย (ไม่ใช่ปุ่มจาง ๆ) จะได้ไม่มีอะไรให้กดรัว
+              <span className="inline-flex items-center gap-1.5 text-caption font-bold text-text-muted">
+                <Clock size={14} strokeWidth={2.4} />
+                ดูต่ออีก <span className="tabular-nums text-text-secondary">{formatClipTime(gateSec - dwellSec)}</span>
+              </span>
+            ) : onQuizStep && isLastQuestion ? (
               <button
                 onClick={goNext}
                 disabled={!allAnswered}
-                className="btn btn-success btn-sm inline-flex items-center gap-1 disabled:opacity-40">
-                <Check size={14} strokeWidth={2.4} /> ส่งคำตอบ
+                className="btn btn-success inline-flex items-center gap-1 disabled:opacity-40">
+                <Check size={15} strokeWidth={2.4} /> ส่งคำตอบ
               </button>
             ) : (
               <button
                 onClick={goNext}
                 disabled={onQuizStep && answers[currentQ?.id] == null}
-                className="btn btn-primary btn-sm inline-flex items-center gap-1 disabled:opacity-40">
-                ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
+                className="btn btn-primary inline-flex items-center gap-1 disabled:opacity-40">
+                ถัดไป <ChevronRight size={15} strokeWidth={2.4} />
               </button>
             )}
           </div>

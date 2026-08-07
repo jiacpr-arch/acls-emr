@@ -22,6 +22,10 @@ import { blsMonitorAlarmScope } from '../scenarios/blsMonitorAlarmScope';
 import { blsEmsConfinedSpace } from '../scenarios/blsEmsConfinedSpace';
 import { blsChildRespiratory } from '../scenarios/blsChildRespiratory';
 import { blsPregnantArrest } from '../scenarios/blsPregnantArrest';
+import { blsOpdLobby } from '../scenarios/blsOpdLobby';
+import { blsWardBathroom } from '../scenarios/blsWardBathroom';
+import { blsDialysis } from '../scenarios/blsDialysis';
+import { blsStrokeChoking } from '../scenarios/blsStrokeChoking';
 
 export const allScenarios = [
   // ── BLS (MorRoo) ── จัดเรียงตามหมวด BLS และในหมวดเรียงง่าย→ยาก
@@ -29,6 +33,7 @@ export const allScenarios = [
   blsCollapse,
   blsHandsOnly,
   blsAedWet,
+  blsOpdLobby,
   // 🫁 คลำชีพจร & ช่วยหายใจ
   blsOpioid,
   blsRespiratoryArrest,
@@ -41,10 +46,13 @@ export const allScenarios = [
   blsChoking,
   blsInfantChoking,
   blsPregnantChoking,
+  blsStrokeChoking,
   // 🏥 ทีมในโรงพยาบาล & ขอบเขตบทบาท
   blsTeamWard,
   blsMonitorAlarmScope,
   blsEmsConfinedSpace,
+  blsWardBathroom,
   // 🚨 สถานการณ์พิเศษ
   blsPregnantArrest,
+  blsDialysis,
 ];

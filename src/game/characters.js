@@ -242,13 +242,11 @@ export const CHARACTERS = {
   },
 
   // ผู้ป่วยชายวัยกลางคนที่ยังมีสติ — ใช้กับเคสที่ผู้ป่วยพูดได้ (ACS เจ็บอก,
-  // stable brady/tachy, ซักประวัติก่อนทรุด) มีรูปจริงแล้วเฉพาะ idle/talk
-  // (ท่ากุมอก) — pose อื่นยังเป็น placeholder จึงติดธง probeArt ไว้ก่อน
+  // stable brady/tachy, ซักประวัติก่อนทรุด) รูปครบ 5 pose แล้ว
   patient_male: {
     name: 'ผู้ป่วยชาย',
     role: 'Patient',
     plate: ['#7FA3C4', '#4F6E8C'],
-    probeArt: true,
     placeholder(pose) {
       const skin = '#E8B98C', gown = '#A8C8E0', gownD = '#7FA3C4', hair = '#4A4A50', hairL = '#8E8E96';
       return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
@@ -263,6 +261,96 @@ export const CHARACTERS = {
       ${brows(pose, 80, 120, 96)}
       ${eyes(pose, 80, 120, 107, '#33261B')}
       ${mouthGroups(pose, 100, 134)}
+      </svg>`;
+    },
+  },
+
+  // ลุงผู้ป่วยสูงวัย — ใช้ซ้ำได้หลายเคส BLS นอกโรงพยาบาลที่ผู้ป่วยยังพูดได้
+  // (stroke ก่อนหมดสติ, เจ็บอก, น้ำตาลต่ำ, หมดสติกลางตลาดก่อนทรุด) รูปครบ 5 pose แล้ว
+  victim_uncle: {
+    name: 'ลุงผู้ป่วย',
+    role: 'Patient · Bystander',
+    plate: ['#8E4A45', '#5C2E2A'],
+    placeholder(pose) {
+      const skin = '#E8B98C', shirt = '#8E4A45', shirtD = '#5C2E2A', hair = '#5A5A62';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24,250 L24,206 Q24,170 100,168 Q176,170 176,206 L176,250 Z" fill="${shirt}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M74,172 L100,198 L126,172 L118,166 L100,186 L82,166 Z" fill="${shirtD}" stroke="${OUT}" stroke-width="3"/>
+      <rect x="86" y="150" width="28" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M52,104 Q52,48 100,46 Q148,48 148,104 Q148,140 128,152 Q114,160 100,160 Q86,160 72,152 Q52,140 52,104 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M50,96 Q52,44 100,36 Q148,44 150,96 L140,92 Q138,66 120,62 Q104,74 100,64 Q96,74 80,62 Q62,66 60,92 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+      ${brows(pose, 80, 120, 98)}
+      ${eyes(pose, 80, 120, 109, '#33261B')}
+      ${mouthGroups(pose, 100, 136)}
+      </svg>`;
+    },
+  },
+
+  // ผู้ป่วยหญิงผู้ใหญ่ที่ยังมีสติ — คู่กับ patient_male ให้โจทย์ที่ผู้ป่วยเป็นหญิง
+  // (เจ็บอก, หอบหืด, แพ้ยา ฯลฯ) ไม่ต้องยืมชายวัยกลางคนมาแสดงแทน
+  patient_female: {
+    name: 'ผู้ป่วยหญิง',
+    role: 'Patient',
+    plate: ['#C48CA8', '#8E5C77'],
+    placeholder(pose) {
+      const skin = '#F4C9A3', gown = '#E4B0C6', gownD = '#C48CA8', hair = '#3A2E35';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24,250 L24,206 Q24,170 100,168 Q176,170 176,206 L176,250 Z" fill="${gown}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M74,172 L100,198 L126,172 L118,166 L100,186 L82,166 Z" fill="${gownD}" stroke="${OUT}" stroke-width="3"/>
+      <rect x="87" y="150" width="26" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M42,120 Q32,196 46,220 L62,210 Q52,172 58,126 Z" fill="${hair}" stroke="${OUT}" stroke-width="3.6"/>
+      <path d="M158,120 Q168,196 154,220 L138,210 Q148,172 142,126 Z" fill="${hair}" stroke="${OUT}" stroke-width="3.6"/>
+      <path d="M52,102 Q52,44 100,42 Q148,44 148,102 Q148,140 128,152 Q114,160 100,160 Q86,160 72,152 Q52,140 52,102 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M46,112 Q38,44 100,34 Q162,44 154,112 Q152,78 134,68 Q116,84 100,62 Q84,84 66,68 Q48,78 46,112 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+      ${brows(pose, 80, 120, 94)}
+      ${eyes(pose, 80, 120, 106, '#4A3728')}
+      ${mouthGroups(pose, 100, 133)}
+      </svg>`;
+    },
+  },
+
+  // ผู้ป่วยหญิงตั้งครรภ์ — เคสสูติฯ/ครรภ์แก่ (เจ็บครรภ์, สำลัก, arrest ในหญิงท้อง)
+  // ใช้เมื่อบทบอกชัดว่าท้องแก่/เห็นครรภ์ — ครรภ์อ่อนใช้ patient_female ปกติ
+  patient_pregnant: {
+    name: 'ผู้ป่วยตั้งครรภ์',
+    role: 'Patient',
+    plate: ['#AC8CC4', '#7C5C94'],
+    placeholder(pose) {
+      const skin = '#F4C9A3', gown = '#D4BCE4', gownD = '#AC8CC4', hair = '#4A382E';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22,250 L22,208 Q22,172 100,170 Q178,172 178,208 L178,250 Z" fill="${gown}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M48,250 Q42,216 100,212 Q158,216 152,250 Z" fill="${gownD}" stroke="${OUT}" stroke-width="3" opacity=".55"/>
+      <path d="M74,174 L100,198 L126,174 L118,168 L100,188 L82,168 Z" fill="${gownD}" stroke="${OUT}" stroke-width="3"/>
+      <rect x="87" y="150" width="26" height="26" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M46,118 Q40,178 50,200 L64,192 Q56,166 60,124 Z" fill="${hair}" stroke="${OUT}" stroke-width="3.6"/>
+      <path d="M154,118 Q160,178 150,200 L136,192 Q144,166 140,124 Z" fill="${hair}" stroke="${OUT}" stroke-width="3.6"/>
+      <path d="M52,102 Q52,44 100,42 Q148,44 148,102 Q148,140 128,152 Q114,160 100,160 Q86,160 72,152 Q52,140 52,102 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M46,110 Q40,44 100,34 Q160,44 154,110 Q150,76 132,68 Q114,84 100,62 Q86,84 68,68 Q50,76 46,110 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+      ${brows(pose, 80, 120, 94)}
+      ${eyes(pose, 80, 120, 106, '#3E2E22')}
+      ${mouthGroups(pose, 100, 133)}
+      </svg>`;
+    },
+  },
+
+  // ผู้ป่วยเด็ก (ประถม-วัยรุ่นตอนต้น) — เคสเด็กที่ยังพูดได้ (หอบหืด, สำลัก,
+  // ซักประวัติก่อนทรุด) ทารก/เด็กเล็กที่พูดไม่ได้ให้ family_witness เล่าแทน
+  patient_child: {
+    name: 'ผู้ป่วยเด็ก',
+    role: 'Patient',
+    plate: ['#E0A845', '#A87A24'],
+    placeholder(pose) {
+      const skin = '#F6CFA8', shirt = '#F0C048', shirtD = '#C89A2E', hair = '#33291F';
+      return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+      <path d="M38,250 L38,214 Q38,184 100,182 Q162,184 162,214 L162,250 Z" fill="${shirt}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M80,186 L100,204 L120,186 L114,180 L100,192 L86,180 Z" fill="${shirtD}" stroke="${OUT}" stroke-width="3"/>
+      <rect x="89" y="164" width="22" height="24" fill="${skin}" stroke="${OUT}" stroke-width="3.4"/>
+      <path d="M50,110 Q50,48 100,46 Q150,48 150,110 Q150,148 130,161 Q115,170 100,170 Q85,170 70,161 Q50,148 50,110 Z" fill="${skin}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M48,104 Q48,46 100,38 Q152,46 152,104 Q148,74 130,68 Q112,82 100,64 Q88,82 70,68 Q52,74 48,104 Z" fill="${hair}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M92,40 Q98,30 108,34 L104,42 Z" fill="${hair}" stroke="${OUT}" stroke-width="3"/>
+      ${brows(pose, 79, 121, 100)}
+      ${eyes(pose, 79, 121, 113, '#3A2A1A')}
+      ${mouthGroups(pose, 100, 141)}
       </svg>`;
     },
   },

@@ -217,6 +217,9 @@ body {
 }
 .btn-outline-success:hover { background: rgba(5, 150, 105, 0.06); }
 .btn-disabled, .btn:disabled { opacity: 0.45; pointer-events: none; box-shadow: none; }
+/* pending: หรี่ไว้เป็นสัญญาณ "ยังไม่ใช่จังหวะ" แต่ยังกดได้จริง (ไม่ตั้ง pointer-events:none)
+   ต่างจาก .btn-disabled ตรงนี้ — กันปุ่มดูเหมือนค้าง/ไม่ตอบสนองตอนผู้เรียนกดเร็วไป */
+.btn-pending { opacity: 0.7; }
 
 /* btn-action — vertical icon+label tile */
 .btn-action {
@@ -733,6 +736,30 @@ body {
   font-style: italic;
 }
 
+/* กล่อง callout เชิงการสอน (objective/pearl/warning/case/summary)
+   สีต่อประเภทส่งเข้ามาทาง --callout-color (inline style จาก SkillKnowledge) */
+.als-callout {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--callout-color) 30%, var(--color-border));
+  border-left: 3px solid var(--callout-color);
+  border-radius: var(--radius-md);
+  padding: 12px 16px 14px;
+  background: color-mix(in srgb, var(--callout-color) 6%, var(--color-bg-secondary));
+}
+.als-callout-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+/* ในกล่อง callout หัวข้อ (ถ้ามี) ไม่ต้องมีแถบซ้ำกับขอบซ้ายของกล่อง */
+.als-callout .als-section-heading { margin-top: 2px; }
+.als-callout .als-section-bar { display: none; }
+
 /* ===== SECTION HEADER ===== */
 .section-header {
   font-size: 11px;
@@ -842,19 +869,21 @@ body {
 }
 
 /* ===== FIXED ACTION BAR (exam prev/next ฯลฯ) =====
-   Full-width bar pinned just above the flat bottom tab bar — the bar
-   occupies bottom 0→~68px (+safe-area), so anchoring at 68px keeps the
-   buttons visible instead of hidden behind the tab bar. */
+   Full-width bar pinned above the flat bottom tab bar. Anchored to the tab
+   bar's REAL height via --tab-bar-h (measured by BottomTabBar — includes
+   safe-area) + a 10px gap so the "ถัดไป" button never sits flush against
+   the More tab (mis-taps opened the More sheet). Fallback = old constant
+   for the first paint before the measurement lands. */
 .above-tab-bar {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 68px);
+  bottom: calc(var(--tab-bar-h, calc(68px + env(safe-area-inset-bottom, 0px))) + 10px);
   z-index: 40;
 }
-/* Pair with .above-tab-bar: page padding tall enough for tab bar + action bar */
+/* Pair with .above-tab-bar: page padding tall enough for tab bar + gap + action bar */
 .page-with-action-bar {
-  padding-bottom: calc(164px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--tab-bar-h, calc(68px + env(safe-area-inset-bottom, 0px))) + 128px);
 }
 
 /* ===== PANEL WRAPPER (modal/sheet) ===== */

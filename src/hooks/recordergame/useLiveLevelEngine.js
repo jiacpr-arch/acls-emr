@@ -226,5 +226,6 @@ export function useLiveLevelEngine(level, { onFinish } = {}) {
     currentScene, narration, pendingEvent,
     expectedButtonId: pendingEvent?.expect?.buttonId || null,
     handlePress, start, maxScore,
+    pause: clock.pause, resume: clock.resume,
   };
 }

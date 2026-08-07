@@ -11,10 +11,13 @@ import { usePreCourseStore } from '../stores/preCourseStore';
 import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, courseMeta } from '../config/courseMode';
 import { isOpenLeague } from '../config/openLeague';
 import { getClassContext } from '../stores/classStore';
-import { rpcSubmitCodeBlueResult } from '../services/cohortSync';
+import { enqueueGameResult } from '../db/database';
+import { scheduleFlush } from '../services/syncEngine';
+import { subscribeToPull } from '../services/progressPull';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import CharacterSprite, { preloadCharacterImages } from '../game/CharacterSprite';
+import DocReveal from '../game/DocReveal';
 import EcgStrip from '../game/EcgStrip';
 import {
   createInitialState, applyFx, nextNode, recordCorrect, recordWrong,
@@ -264,6 +267,7 @@ export default function CodeBlueSim() {
   }, [preview]);
   const [speaker, setSpeaker] = useState(null); // { who, pose, popN }
   const [plate, setPlate] = useState(null); // { name } override (time-skip)
+  const [docReveal, setDocReveal] = useState(null); // { key, kind, caption } — ผลแล็บ/เอกซเรย์เต็มจอ
   const [dlgSegments, setDlgSegments] = useState([]);
   const [dlgCount, setDlgCount] = useState(0);
   const [typing, setTyping] = useState(false);
@@ -285,6 +289,8 @@ export default function CodeBlueSim() {
   const [tapCoach, setTapCoach] = useState(false);
   const currentChoiceRef = useRef(null);
   const retryChoiceRef = useRef(null);
+  // ข้อที่ตอบผิดไปแล้วของคำถามปัจจุบัน — ขีดฆ่า + ปิดไม่ให้เลือกซ้ำตอนตอบใหม่
+  const wrongPicksRef = useRef(new Set());
   const decisionLeftRef = useRef(0); // เวลาที่เหลือ ณ วินาทีที่กดเลือก (คำนวณโบนัสความไว)
   const comboBreakN = useRef(0);     // key ให้อนิเมชัน COMBO BREAK เล่นซ้ำได้
   const hintUsedRef = useRef(false); // โหมดง่าย: ใบ้ target หลังตอบผิดครั้งแรกของแต่ละจุด
@@ -464,13 +470,15 @@ export default function CodeBlueSim() {
     }
     setFreshAwards(fresh);
     // บันทึกผลขึ้น cloud ให้อาจารย์เห็น — เฉพาะตอนอยู่ในคลาส (มี activeStudent)
-    // และไม่ใช่โหมด preview ของแอดมิน best-effort ล้วน: ไม่มีคลาส/ออฟไลน์/error
-    // ก็แค่ไม่ถูกบันทึก ไม่กระทบการเล่นเกม (เหมือน assessmentService mirror-write)
+    // และไม่ใช่โหมด preview ของแอดมิน เข้าคิวใน IndexedDB แล้วให้ syncEngine
+    // ส่งพร้อม retry/backoff: เดิมยิง RPC ตรงแล้ว .catch() ทิ้ง ผลที่จบตอน
+    // ออฟไลน์/เน็ตสะดุด/นักเรียนยัง sync ไม่เสร็จ จึงหายเงียบ นักเรียนเห็นเหรียญ
+    // ในเครื่องแต่บอร์ดอาจารย์ไม่ขึ้น — enqueue ไม่ throw จึงไม่กระทบหน้า debrief
     if (!preview && activeStudent?.id) {
-      rpcSubmitCodeBlueResult({
-        attemptUuid: crypto.randomUUID(),
-        studentPk: activeStudent.id,
-        scenarioId: sc.id,
+      enqueueGameResult({
+        kind: 'codeblue',
+        studentId: activeStudent.id,
+        refId: sc.id,
         payload: {
           level: sc.level,
           difficulty: st.difficulty,
@@ -482,7 +490,8 @@ export default function CodeBlueSim() {
           finishedAt: new Date().toISOString(),
           fastClear, // ให้ restore ข้ามเครื่องกู้เหรียญ "สายฟ้า" ได้ด้วย
         },
-      }).catch(() => {});
+      });
+      scheduleFlush();
     }
     track('game_completed', {
       props: {
@@ -508,14 +517,17 @@ export default function CodeBlueSim() {
   }
 
   function showChoice(c) {
+    if (currentChoiceRef.current !== c) wrongPicksRef.current = new Set();
     currentChoiceRef.current = c;
     setDrama('white');
+    setDocReveal(null);
     const diff = getDifficulty(S.current.difficulty);
     // โหมดง่าย: หลังพลาดจุดนี้ไปแล้วครั้งนึง ใบ้หมวด target ที่ถูก + dim ตัวที่ผิด
     const hintTgt = diff.hints && hintUsedRef.current
       ? (c.options.find((o) => o.ok)?.tgt || null)
       : null;
-    setChoice({ q: c.q, options: shuffled(c.options), hintTgt });
+    // snapshot ชุดข้อผิดเข้า state — อ่าน ref ระหว่าง render ไม่ได้ (react-hooks/refs)
+    setChoice({ q: c.q, options: shuffled(c.options), hintTgt, tried: new Set(wrongPicksRef.current) });
     sfx(playChoiceAppear); // มีคำถามเด้งขึ้น — เรียกสมาธิ
     setDecisionLeft(diff.decisionTime);
     decisionLeftRef.current = diff.decisionTime;
@@ -556,6 +568,7 @@ export default function CodeBlueSim() {
       applyFx(st, fx);
       pushEtco2(st);
       setDrama(pose === 'panic' ? 'red' : null);
+      setDocReveal(null);
       popCounter.current += 1;
       setSpeaker({ who, pose, popN: popCounter.current });
       setPlate(null);
@@ -565,11 +578,23 @@ export default function CodeBlueSim() {
       return;
     }
 
+    if (node.doc) {
+      setDrama(null);
+      setSpeaker(null); // ตัวละครหายไปชั่วคราว — รูปผลเป็นจุดสนใจเดียวบนจอ
+      setPlate(null);
+      setDocReveal({ key: node.doc.key, kind: node.doc.kind || 'lab', caption: node.doc.caption });
+      setAwaitTap(true);
+      typeText(node.doc.caption ? `📋 ${node.doc.caption}` : '📋 ผลตรวจออกมาแล้ว — แตะจอเพื่อไปต่อ');
+      syncView();
+      return;
+    }
+
     if (node.inter) {
       busyRef.current = true;
       soundForFx(node.fx);
       applyFx(st, node.fx);
       pushEtco2(st);
+      setDocReveal(null);
       if (node.drama) setDrama(node.drama);
       syncView();
       doBigMoment();
@@ -587,6 +612,7 @@ export default function CodeBlueSim() {
     if (node.skip) {
       busyRef.current = true;
       setDrama(null);
+      setDocReveal(null);
       popCounter.current += 1;
       setSpeaker({ who: 'att_dech', pose: 'idle', popN: popCounter.current });
       setPlate({ name: '— เวลาเดินต่อ —' });
@@ -647,6 +673,7 @@ export default function CodeBlueSim() {
     }
     recordWrong(st, option);
     pushEtco2(st);
+    if (option.label) wrongPicksRef.current.add(option.label); // timeout ไม่มี label — ไม่ต้องขีด
     hintUsedRef.current = true; // จุดนี้เคยพลาด — โหมดง่ายจะใบ้ตอนเล่นซ้ำ
     vibrate([60, 40, 60]);
     // เสียงผิดต่ำ / ถ้าสตรีคขาดใช้เสียงไล่โน้ตลงแทน ให้เจ็บกว่า
@@ -679,7 +706,7 @@ export default function CodeBlueSim() {
     retryChoiceRef.current = currentChoiceRef.current;
     setAwaitTap(true);
     typeText(
-      `<span class="cbs-em">ช้าก่อน!</span>${whyText}${option.worsen ? ' — ผู้ป่วยแย่ลง สีผิวคล้ำขึ้น!' : ''}`,
+      `<span class="cbs-em">ช้าก่อน!</span>${whyText}${option.worsen ? ' — ผู้ป่วยแย่ลง สีผิวคล้ำขึ้น!' : ''} แตะจอเพื่อ<span class="cbs-em">ตอบใหม่</span> (ข้อที่ผิดถูกขีดฆ่าไว้แล้ว)`,
     );
   }
 
@@ -713,6 +740,7 @@ export default function CodeBlueSim() {
     setAwaitTap(false);
     currentChoiceRef.current = null;
     retryChoiceRef.current = null;
+    wrongPicksRef.current = new Set();
     hintUsedRef.current = false;
     setResult(null);
     setFreshAwards([]);
@@ -722,6 +750,7 @@ export default function CodeBlueSim() {
     setDrama(null);
     setSpeaker(null);
     setPlate(null);
+    setDocReveal(null);
     setDlgSegments([]);
     setDlgCount(0);
     setScreen('game');
@@ -752,6 +781,19 @@ export default function CodeBlueSim() {
     syncAwards(pool, nextCleared, readGrades());
     setAwardsTick((n) => n + 1);
   }
+
+  // ...และ progressPull ก็ดึงลงมาเป็นระยะด้วย (เล่นบนเครื่องอื่นแล้วกลับมาเปิด
+  // เครื่องนี้) — latest-ref เพราะหน้าเกม re-render ถี่มาก จะได้ไม่ต้อง
+  // subscribe/unsubscribe ใหม่ทุกเฟรม และไม่รีเฟรชระหว่างเล่นอยู่ เพราะ
+  // syncAwards จะไปเด้ง state เหรียญกลางเคส
+  const pullRefreshRef = useRef(null);
+  useEffect(() => {
+    pullRefreshRef.current = () => {
+      if (screen === 'game') return;
+      refreshLocalProgress();
+    };
+  });
+  useEffect(() => subscribeToPull(() => pullRefreshRef.current?.()), []);
 
   function handleIdentityConfirm() {
     setShowIdentity(false);
@@ -1321,20 +1363,30 @@ export default function CodeBlueSim() {
             </div>
           )}
 
+          {docReveal && (
+            <DocReveal docKey={docReveal.key} kind={docReveal.kind} caption={docReveal.caption} />
+          )}
+
           {choice && (
             <div className="cbs-choices">
+              {/* กลับมาตอบใหม่หลังตอบผิด — แบนเนอร์ต้องเห็นแม้ไม่อ่านบทพูด */}
+              {choice.tried && choice.tried.size > 0 && (
+                <div className="cbs-retry-banner">✗ ตอบผิดไปแล้ว {choice.tried.size} ข้อ — เลือกตอบใหม่อีกครั้ง</div>
+              )}
               <div className="cbs-qbanner">⚖ {choice.q}</div>
               {choice.hintTgt && (
                 <div className="cbs-hint">💡 ลองสั่งหมวด <b>{choice.hintTgt}</b> ดูสิ</div>
               )}
               {choice.options.map((o, i) => {
-                const dim = choice.hintTgt && o.tgt !== choice.hintTgt;
+                const tried = choice.tried && choice.tried.has(o.label);
+                const dim = !tried && choice.hintTgt && o.tgt !== choice.hintTgt;
                 const glow = choice.hintTgt && o.tgt === choice.hintTgt;
                 return (
                   <button
                     key={i}
                     type="button"
-                    className={`cbs-choice ${dim ? 'cbs-choice-dim' : ''} ${glow ? 'cbs-choice-hint' : ''}`}
+                    disabled={tried}
+                    className={`cbs-choice ${tried ? 'cbs-choice-tried' : ''} ${dim ? 'cbs-choice-dim' : ''} ${glow ? 'cbs-choice-hint' : ''}`}
                     onClick={(e) => { e.stopPropagation(); pick(o); }}
                   >
                     <span className="cbs-choice-tgt">[สั่ง {o.tgt}]</span> {o.label}

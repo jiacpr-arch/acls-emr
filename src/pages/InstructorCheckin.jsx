@@ -5,7 +5,7 @@ import {
   rpcGetCheckinBoard, rpcCheckinStudent, rpcSetExamResult, rpcAssignExamCase,
 } from '../services/cohortSync';
 import { parseStudentQrPayload } from '../utils/qrPayload';
-import { resolveChecklistForStation } from '../data/checkinStations';
+import { resolveChecklistForStation, isMegacodeExamStation } from '../data/checkinStations';
 import QrScannerView from '../components/checkin/QrScannerView';
 import ScanResultCard from '../components/checkin/ScanResultCard';
 import StationManager from '../components/checkin/StationManager';
@@ -47,6 +47,8 @@ export default function InstructorCheckin() {
   const [busy, setBusy] = useState(false);
   const [examBusy, setExamBusy] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
+  // บล็อกเปิดใบสอบ Megacode ถ้านักเรียนยังเช็คชื่อฐานอื่นไม่ครบ — { station, missing } | null
+  const [examGate, setExamGate] = useState(null);
   // scan-first: สแกนแล้วเปิด sheet ให้เลือกฐานก่อนเช็คชื่อ
   const [pendingScan, setPendingScan] = useState(null); // { studentPk, name, studentId } | null
   // โหมดสแกน: 'ask' = ถามฐานทุกสแกน (default) / 'express' = ครูประจำฐาน —
@@ -114,9 +116,28 @@ export default function InstructorCheckin() {
     return !!(sug && (sug.checklistId || sug.checklistOptions?.length || sug.checklistPool));
   };
 
+  // เปิดใบประเมิน — ฐานสอบ Megacode ต้องเช็คก่อนว่านักเรียนคนนี้เช็คชื่อฐานอื่น
+  // (ที่ไม่ใช่ฐานสอบ Megacode ด้วยกัน) ครบทุกฐานหรือยัง ถ้ายังไม่ครบ บล็อกจริง
+  // ไม่เปิดใบสอบ — ฐานอื่นที่ไม่ใช่ Megacode ไม่มีเงื่อนไขนี้ เปิดได้ตามปกติ
+  const openExamGrading = (target, studentPk) => {
+    if (isMegacodeExamStation(target?.name)) {
+      const row = (board?.rows || []).find(r => r.student.id === studentPk);
+      const checkins = row?.checkins || {};
+      const missing = stations.filter(s => (
+        s.id !== target.id && !isMegacodeExamStation(s.name) && !checkins[s.id]?.checkedInAt
+      ));
+      if (missing.length > 0) {
+        setExamGate({ station: target, missing });
+        return;
+      }
+    }
+    setShowChecklist(true);
+  };
+
   // stationIdArg มาจาก StationPickerSheet (scan-first), activeStationId
   // (แท็บรายชื่อ) หรือฐานที่ล็อกไว้ในโหมด express
   // autoPass (โหมด express): เช็คชื่อเสร็จบันทึก "ผ่าน" ต่อทันที ไม่เปิดใบประเมิน
+  // — ยกเว้นฐานสอบ Megacode ที่ต้องผ่านใบประเมิน/เกตเสมอ ห้ามผ่านอัตโนมัติ
   const doCheckin = async (studentPk, stationIdArg = activeStationId, { autoPass = false } = {}) => {
     const target = stations.find(s => s.id === stationIdArg) || null;
     if (!target || busy) return;
@@ -147,7 +168,7 @@ export default function InstructorCheckin() {
     }, ...r].slice(0, 8));
     // จำฐานที่เพิ่งใช้เป็นฐาน active (ตัวนับ/แท็บรายชื่อ/ป้าย "ล่าสุด" ใน picker ตาม)
     setStationId(target.id);
-    if (autoPass) {
+    if (autoPass && !isMegacodeExamStation(target.name)) {
       // โหมด express: บันทึก "ผ่าน" ต่อทันที (สแกนซ้ำก็ upsert ผ่านซ้ำได้ —
       // idempotent ตรงเจตนา "มาถึงก็ผ่าน") และไม่เปิดใบประเมิน
       const { error: passErr } = await rpcSetExamResult({
@@ -184,14 +205,15 @@ export default function InstructorCheckin() {
     setResult({ status: data.duplicate ? 'duplicate' : 'ok', data });
     navigator.vibrate?.(data.duplicate ? [40, 40, 40] : 80);
     // เช็คชื่อเสร็จเด้งใบประเมินต่อทันที — ทุกฐานที่มีเช็คลิสต์ผูก ไม่ต้องกดหา
-    if (stationHasChecklist(target)) setShowChecklist(true);
+    // (ฐานสอบ Megacode ผ่าน openExamGrading ที่เช็คเงื่อนไขฐานพื้นฐานก่อนเสมอ)
+    if (stationHasChecklist(target)) openExamGrading(target, data.student.id);
     refreshBoard();
   };
 
   // scan-first: สแกนเสร็จไม่เช็คชื่อทันที — เปิด sheet ถามก่อนว่าเข้าฐานไหน
   // ชื่อนักเรียนหาได้จาก board ที่โหลดไว้แล้ว (ไม่ต้องยิง RPC เพิ่ม)
   const handleDecode = (text) => {
-    if (pendingScan || showChecklist) return; // มี sheet เปิดอยู่ — ไม่รับสแกนซ้อน
+    if (pendingScan || showChecklist || examGate) return; // มี sheet/บล็อกเปิดอยู่ — ไม่รับสแกนซ้อน
     const parsed = parseStudentQrPayload(text);
     if (!parsed) {
       setResult({ status: 'error', message: 'QR นี้ไม่ใช่บัตรนักเรียนของระบบ — ให้นักเรียนเปิดหน้า "บัตร QR ของฉัน"' });
@@ -248,14 +270,15 @@ export default function InstructorCheckin() {
     refreshBoard();
   };
 
-  // ฐานสอบแบบสุ่มข้อสอบ: ล็อกเคสที่สุ่มได้กับนักเรียนบน server (เคสแรกชนะ —
-  // force ใช้กับปุ่ม "สุ่มใหม่") คืน case id ที่ติดจริงให้ ChecklistGrader ใช้ต่อ
-  const handleAssignCase = async (caseId, { force = false } = {}) => {
+  // ฐานสอบแบบสุ่มข้อสอบ: ส่งเคสทั้ง pool ให้ server เลือก (เคสที่ใช้น้อยสุดใน
+  // ฐานนี้ก่อนเสมอ) แล้วล็อกกับนักเรียนบน server (เคสแรกชนะ — force ใช้กับปุ่ม
+  // "สุ่มใหม่") คืน case id ที่ติดจริงให้ ChecklistGrader ใช้ต่อ
+  const handleAssignCase = async (caseIds, { force = false } = {}) => {
     if (!result?.data || !activeStationId) return null;
     const { data, error } = await rpcAssignExamCase({
       studentPk: result.data.student.id,
       stationId: activeStationId,
-      caseId,
+      caseIds,
       force,
     });
     if (error || !data) return null;
@@ -438,7 +461,7 @@ export default function InstructorCheckin() {
                     )}
                   </div>
                   <QrScannerView
-                    enabled={!pendingScan && !showChecklist}
+                    enabled={!pendingScan && !showChecklist && !examGate}
                     onDecode={handleDecode}
                   />
                   <p className="text-2xs text-text-muted text-center">
@@ -462,7 +485,7 @@ export default function InstructorCheckin() {
                 result={result}
                 onSetExam={handleSetExam}
                 examBusy={examBusy}
-                onOpenChecklist={result?.data ? () => setShowChecklist(true) : null}
+                onOpenChecklist={result?.data ? () => openExamGrading(station, result.data.student.id) : null}
               />
 
               {recent.length > 0 && (
@@ -526,6 +549,43 @@ export default function InstructorCheckin() {
             <div className="text-2xs text-text-muted">
               หรือแตะนอกกรอบเพื่อปิด (ไม่กดก็หายเองใน 2-3 วิ)
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* บล็อกจริง — ห้ามเปิดใบสอบ Megacode จนกว่านักเรียนจะเช็คชื่อฐานอื่นครบ */}
+      {examGate && (
+        <div
+          onClick={() => setExamGate(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-bg-secondary px-6 py-7 text-center space-y-3 mx-8 w-full max-w-xs animate-slide-up"
+            style={{ borderRadius: 'var(--radius-2xl)', boxShadow: 'var(--shadow-pop)' }}>
+            <div className="w-16 h-16 mx-auto inline-flex items-center justify-center bg-danger/15 text-danger"
+              style={{ borderRadius: 'var(--radius-full)' }}>
+              <AlertTriangle size={32} strokeWidth={2.4} />
+            </div>
+            <div className="text-body-strong text-text-primary">
+              ยังสอบ {examGate.station.name} ไม่ได้
+            </div>
+            <div className="text-caption text-text-secondary">
+              ต้องเช็คชื่อฐานต่อไปนี้ให้ครบก่อน:
+            </div>
+            <ul className="text-caption text-text-primary text-left space-y-1 mx-auto max-w-[220px]">
+              {examGate.missing.map((s) => (
+                <li key={s.id} className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 shrink-0 bg-danger" style={{ borderRadius: 'var(--radius-full)' }} />
+                  {s.name}
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              onClick={() => setExamGate(null)}
+              className="btn btn-primary btn-block">
+              ปิด
+            </button>
           </div>
         </div>
       )}

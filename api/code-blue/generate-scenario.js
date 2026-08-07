@@ -15,6 +15,10 @@ const BUILTIN_CHARACTERS = [
   { key: 'mind_runner', name: 'น้องมายด์', role: 'Runner · Lab & CT' },
   { key: 'family_witness', name: 'ญาติผู้ป่วย', role: 'Family · Witness' },
   { key: 'patient_male', name: 'ผู้ป่วยชาย', role: 'Patient' },
+  { key: 'victim_uncle', name: 'ลุงผู้ป่วย', role: 'Patient · Bystander' },
+  { key: 'patient_female', name: 'ผู้ป่วยหญิง', role: 'Patient' },
+  { key: 'patient_pregnant', name: 'ผู้ป่วยตั้งครรภ์', role: 'Patient' },
+  { key: 'patient_child', name: 'ผู้ป่วยเด็ก', role: 'Patient' },
 ];
 const POSES = ['idle', 'talk', 'panic', 'stern', 'happy'];
 const TARGETS = ['YOU', 'CPR', 'AIRWAY', 'DEFIB', 'DRUG', 'MONITOR', 'IV', 'CT', 'LAB'];
@@ -126,6 +130,9 @@ ${charList}
   (IV = เปิดเส้น/IO, CT = ส่งตรวจภาพ เช่น stroke pathway, LAB = เจาะเลือด/DTX — ใช้เฉพาะเมื่อเข้ากับเคสเท่านั้น)
 - แนวทางเลือกตัวละคร: krit_airway รับบท airway/ใส่ท่อ, pae_ems ใช้เฉพาะเหตุการณ์นอกโรงพยาบาล,
   mind_runner รับบทส่ง CT/LAB, family_witness พูดได้เฉพาะให้ประวัติ/ดราม่า ห้ามยืนยันหัตถการทางคลินิก
+- ตัวละครผู้ป่วยต้องตรงเพศ/วัยของเคสเสมอ: ชายผู้ใหญ่ = patient_male, ชายสูงอายุ = victim_uncle,
+  หญิง (รวมหญิงสูงอายุ) = patient_female, หญิงท้องแก่/เห็นครรภ์ = patient_pregnant (ครรภ์อ่อนใช้ patient_female),
+  เด็กที่พูดได้ = patient_child — ทารก/เด็กเล็กที่พูดไม่ได้ห้ามมีบทพูดผู้ป่วย ให้ family_witness เล่าอาการแทน
 - fx (ผลต่อผู้ป่วย ใส่เฉพาะเมื่อเกิดจริง): {"cpr":true} เริ่มกด, {"firstCPR":true} กดครั้งแรก, {"shock":true} ช็อต, {"epi":true} ให้ Epi, {"alarm":true} ยืนยัน arrest, {"rhythm":"vf"|"flat"|"nsr"}, {"rosc":true} ผู้ป่วยกลับมา
 
 กติกาสำคัญ (ความปลอดภัยผู้ป่วยมาก่อน):

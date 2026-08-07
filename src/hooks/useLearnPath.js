@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { IS_BLS, IS_SKILL_COURSE, IS_DEFIB, courseMeta } from '../config/courseMode';
 import { getLessonProgress, getAttemptsForStudent } from '../db/database';
+import { subscribeToPull } from '../services/progressPull';
 import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/activePreTest';
@@ -44,6 +45,8 @@ export function useLearnPath() {
 
   // Reload the student's progress whenever the caller page mounts, the active
   // student changes, or the tab regains focus after finishing a chapter elsewhere.
+  // The focus listener alone isn't enough for another *device*: the pull engine's
+  // fetch lands after focus, so subscribe to it too.
   useEffect(() => {
     const id = activeStudent?.id;
     if (!id) {
@@ -57,7 +60,11 @@ export function useLearnPath() {
     load();
     const onFocus = () => load();
     window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
+    const unsubscribe = subscribeToPull(load);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      unsubscribe();
+    };
   }, [activeStudent?.id]);
 
   const passedFor = (lessonId) => {

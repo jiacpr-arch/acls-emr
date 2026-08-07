@@ -7,9 +7,12 @@ import { loadProgress, saveResult } from '../utils/recorderGameProgress';
 import { useLiveLevelEngine } from '../hooks/recordergame/useLiveLevelEngine';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getClassContext } from '../stores/classStore';
-import { rpcSubmitRecorderResult } from '../services/cohortSync';
+import { enqueueGameResult } from '../db/database';
+import { scheduleFlush } from '../services/syncEngine';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import LevelIntro from '../components/recordergame/LevelIntro';
+import LiveStartOverlay from '../components/recordergame/LiveStartOverlay';
+import GameRulesCard from '../components/recordergame/GameRulesCard';
 import ResultScreen from '../components/recordergame/ResultScreen';
 import GameCprDashboard from '../components/recordergame/GameCprDashboard';
 import RecorderStageAA from '../components/recordergame/RecorderStageAA';
@@ -56,16 +59,19 @@ export default function RecorderGamePlay() {
     const stars = computeStars(raw.score, raw.maxScore, missCount);
     const isNewHi = raw.score > prior.hiscore;
     saveResult(level.id, { stars, score: raw.score });
+    // เข้าคิวแล้วให้ syncEngine ส่งพร้อม retry — เดิมยิงตรงแล้ว .catch() ทิ้ง
+    // ผลที่จบตอนออฟไลน์/นักเรียนยัง sync ไม่เสร็จจึงหายเงียบ
     if (activeStudent?.id) {
-      rpcSubmitRecorderResult({
-        attemptUuid: crypto.randomUUID(),
-        studentPk: activeStudent.id,
-        levelId: level.id,
+      enqueueGameResult({
+        kind: 'recorder',
+        studentId: activeStudent.id,
+        refId: level.id,
         payload: {
           mode, score: raw.score, maxScore: raw.maxScore ?? null, stars, missCount,
           finishedAt: new Date().toISOString(),
         },
-      }).catch(() => {});
+      });
+      scheduleFlush();
     }
     setResult({ ...raw, mode, stars, isNewHi });
     setPhase('done');
@@ -137,33 +143,66 @@ const ARREST_BUTTONS = [
   { id: 'rosc', label: 'ROSC', sub: 'คืนชีพ', tone: 'success' },
 ];
 
+// ครั้งแรกสุดที่ผู้เล่นเข้าโหมด live (ไม่ว่าทางแคมเปญ/pack/endless) — โชว์คำแนะนำวิธีเล่น
+// ครั้งเดียวแล้วจำไว้ (localStorage) เหมือน pattern TAP_COACH_KEY ของ CodeBlueSim
+const LIVE_COACH_KEY = 'acls_recgame_live_coach';
+const LIVE_COACH_TEXT = 'ฟังเหตุการณ์จากตัวละคร แล้วกดปุ่มบันทึกด้านล่างให้ตรงจังหวะ — ปุ่มที่กะพริบคือปุ่มที่ควรกด บางปุ่มจะเปิดเมนูให้เลือกข้อมูลเพิ่ม (เช่น จังหวะ/ยา/พลังงาน) เวลาจะหยุดรอระหว่างที่เมนูเปิดอยู่ — เลือกแล้วกดยืนยันได้เลย ไม่ต้องรีบ';
+const HINT_EVENT_LIMIT = 3; // ไฮไลต์ปุ่มที่ควรกดให้เฉพาะ 3 เหตุการณ์แรกของรอบแรก
+
 // รองรับทั้งเคส arrest (GameCprDashboard + QuickBar) และ non-arrest (GameActionPad)
 // exported เพื่อให้หน้า Endless และ admin test-play ใช้ซ้ำได้
-export function LivePlay({ level, onFinish }) {
-  const engine = useLiveLevelEngine(level, { onFinish });
+// readyMode='countdown' (ปกติ) โชว์ overlay 3-2-1 ก่อนเริ่ม; 'none' เริ่มทันที (admin test-play)
+export function LivePlay({ level, onFinish, hudLabel, readyMode = 'countdown' }) {
+  const [ready, setReady] = useState(readyMode !== 'countdown');
+  const [firstRun] = useState(() => {
+    try { return localStorage.getItem(LIVE_COACH_KEY) !== '1'; } catch { return false; }
+  });
+  const seenEventTsRef = useRef(new Set());
+  const [seenEventCount, setSeenEventCount] = useState(0);
+
+  const handleFinish = useCallback((raw) => {
+    if (firstRun) {
+      try { localStorage.setItem(LIVE_COACH_KEY, '1'); } catch { /* storage full/unavailable */ }
+    }
+    onFinish?.(raw);
+  }, [firstRun, onFinish]);
+
+  const engine = useLiveLevelEngine(level, { onFinish: handleFinish });
   const [modal, setModal] = useState(null); // { kind, buttonId, options?, energyChoices?, title_th? }
   const isArrest = (level.category || 'cardiac_arrest') === 'cardiac_arrest';
 
-  // เริ่มเกมครั้งเดียวหลัง mount (setTimeout เพื่อไม่ setState ตรงๆ ใน effect body)
-  // deps ต้องเป็น [] — ถ้าใส่ [engine] cleanup จะ clearTimeout ทุก re-render ก่อน start() ทัน (นาฬิกาค้าง 00:00)
+  // เริ่มเกมหลังผู้เล่นผ่าน overlay 3-2-1 (setTimeout เพื่อไม่ setState ตรงๆ ใน effect body)
+  // deps ต้องมีแค่ [ready] — ถ้าใส่ [engine] cleanup จะ clearTimeout ทุก re-render ก่อน start() ทัน (นาฬิกาค้าง 00:00)
   useEffect(() => {
+    if (!ready) return undefined;
     const id = setTimeout(() => engine.start(), 0);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ready]);
+
+  // นับเหตุการณ์ที่เคยเห็นแล้ว (by .t) เพื่อจำกัดคำใบ้ 3 เหตุการณ์แรกของรอบแรก
+  useEffect(() => {
+    const t = engine.pendingEvent?.t;
+    if (t === undefined || t === null || seenEventTsRef.current.has(t)) return;
+    seenEventTsRef.current.add(t);
+    setSeenEventCount(seenEventTsRef.current.size);
+  }, [engine.pendingEvent]);
 
   // ปุ่มบน dashboard/quickbar (arrest) — ใช้ metadata จาก GAME_BUTTONS
+  // ปุ่มที่ต้องเลือกข้อมูลต่อ (needsData) จะหยุดนาฬิกาไว้ระหว่างเปิด sheet กันเวลาไหลไปเงียบๆ
   const onPress = useCallback((buttonId) => {
     const needs = GAME_BUTTONS[buttonId]?.needsData;
-    if (needs) setModal({ kind: needs, buttonId });
+    if (needs) { engine.pause(); setModal({ kind: needs, buttonId }); }
     else engine.handlePress(buttonId);
   }, [engine]);
 
   // ปุ่มบน action pad (non-arrest) — action descriptor พก needsData/options มาเอง
   const onPadPress = useCallback((buttonId, action) => {
     if (action?.needsData === 'choice') {
+      engine.pause();
       setModal({ kind: 'choice', buttonId, options: action.options || [], title_th: action.label_th });
     } else if (action?.needsData === 'energy') {
+      engine.pause();
       setModal({ kind: 'energy', buttonId, energyChoices: action.energyChoices });
     } else {
       engine.handlePress(buttonId);
@@ -172,6 +211,7 @@ export function LivePlay({ level, onFinish }) {
 
   const onSubmit = (data) => {
     if (modal) engine.handlePress(modal.buttonId, data);
+    engine.resume();
     setModal(null);
   };
 
@@ -179,6 +219,9 @@ export function LivePlay({ level, onFinish }) {
     : (CATEGORY_ACTIONS[level.category] || []).map(a => ({ id: a.id, label: a.label_th, tone: a.tone, action: a }));
 
   const onRecord = (id, action) => { if (action) onPadPress(id, action); else onPress(id); };
+
+  const showHint = !!level.showHint || (firstRun && seenEventCount <= HINT_EVENT_LIMIT);
+  const coachText = firstRun ? LIVE_COACH_TEXT : undefined;
 
   return (
     <div className="relative" style={{ height: '100dvh' }}>
@@ -193,10 +236,16 @@ export function LivePlay({ level, onFinish }) {
         streak={engine.streak}
         buttons={buttons}
         onPress={onRecord}
-        showHint={!!level.showHint}
+        showHint={showHint}
+        hudLabel={hudLabel}
+        coachText={coachText}
       />
-      {modal && <DataEntryModal kind={modal.kind} onSubmit={onSubmit} onClose={() => setModal(null)}
+      {modal && <DataEntryModal kind={modal.kind} onSubmit={onSubmit}
+        onClose={() => { engine.resume(); setModal(null); }}
         options={modal.options} energyChoices={modal.energyChoices} title_th={modal.title_th} />}
+      {!ready && (
+        <LiveStartOverlay title={level.title_th} coachText={coachText} onDone={() => setReady(true)} />
+      )}
     </div>
   );
 }
@@ -365,6 +414,7 @@ function PackPlay({ pack, onExit }) {
             </div>
           ))}
         </div>
+        <GameRulesCard type="live" extra={['เล่นหลายเคสต่อกัน — คะแนนรวมสรุปท้ายชุด']} />
         <button onClick={start} className="w-full btn btn-danger btn-lg btn-full font-black border-2">
           เริ่มชุดเคส
         </button>

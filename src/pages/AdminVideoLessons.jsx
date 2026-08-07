@@ -19,7 +19,7 @@ const blankQuestion = () => ({
 const blankForm = (topic) => ({
   topic: topic || VIDEO_TOPICS[0].id,
   title: '', youtubeId: '', orientation: 'portrait',
-  startSec: '', endSec: '', required: true,
+  startSec: '', endSec: '', durationSec: '', required: true,
   keyPoints: '', chapters: [], quiz: [],
   relatedPath: '', relatedLabel: '',
 });
@@ -45,7 +45,7 @@ export default function AdminVideoLessons() {
   const startCreate = (topic) => setEditing(blankForm(topic));
   const startEdit = (item) => setEditing({
     ...blankForm(item.topic), ...item,
-    startSec: item.startSec ?? '', endSec: item.endSec ?? '',
+    startSec: item.startSec ?? '', endSec: item.endSec ?? '', durationSec: item.durationSec ?? '',
   });
 
   const save = async () => {
@@ -53,6 +53,12 @@ export default function AdminVideoLessons() {
     const storedId = toStoredVideoId(f.youtubeId);
     if (!f.title.trim()) return alert('กรุณาใส่ชื่อคลิป');
     if (!storedId) return alert('ลิงก์ไม่ถูกต้อง — รองรับ YouTube (ลิงก์ youtu.be / youtube.com หรือ id 11 ตัว) และ Google Drive (drive.google.com/file/d/…)');
+    // กันบท 2 บทชี้ไฟล์วิดีโอเดียวกัน (ผู้เรียนจะได้ดูคลิปไม่ตรงกับสรุป/ควิซของบทนั้น)
+    const clash = items.find(i => i.id !== f.id && i.youtubeId === storedId);
+    if (clash && !confirm(
+      `วิดีโอนี้ถูกใช้ในคลิป "${clash.title}" (${VIDEO_TOPIC_MAP[clash.topic]?.label || clash.topic}) อยู่แล้ว\n\n` +
+      'ถ้าบันทึกต่อ ผู้เรียนจะเห็นคลิปเดียวกันในสองบท — สรุปประเด็นและควิซจะไม่ตรงกับคลิป\n\nยืนยันบันทึกซ้ำ?'
+    )) return;
     setSaving(true);
     try {
       const payload = { ...f, youtubeId: storedId, chapters: f.chapters.map(c => ({ ...c, t: Number(c.t) || 0 })) };
@@ -69,6 +75,11 @@ export default function AdminVideoLessons() {
     try { await deleteVideoLesson(item.id); await reload(); }
     catch (err) { alert('ลบไม่สำเร็จ: ' + (err?.message || err)); }
   };
+
+  // วิดีโอที่ถูกใช้ซ้ำมากกว่า 1 บท — ขึ้นป้ายเตือนในลิสต์ให้เห็นทันทีว่าบทไหนชี้ไฟล์ผิด
+  const dupVideoIds = new Set(
+    items.map(i => i.youtubeId).filter((id, i, arr) => id && arr.indexOf(id) !== i)
+  );
 
   const move = async (clips, index, dir) => {
     const other = clips[index + dir];
@@ -106,6 +117,9 @@ export default function AdminVideoLessons() {
                     {item.youtubeId} · {item.quiz?.length || 0} ควิซ · {item.chapters?.length || 0} สารบัญ
                     {!item.required && ' · เสริม'}
                   </div>
+                  {dupVideoIds.has(item.youtubeId) && (
+                    <div className="text-2xs text-danger font-bold">⚠ วิดีโอซ้ำกับบทอื่น — ผู้เรียนจะได้ดูคลิปไม่ตรงเนื้อหา</div>
+                  )}
                 </div>
                 <div className="flex flex-col shrink-0">
                   <button onClick={() => move(clips, i, -1)} disabled={i === 0} className="btn btn-ghost btn-sm !p-1 disabled:opacity-30"><ChevronUp size={14} strokeWidth={2.2} /></button>
@@ -287,6 +301,15 @@ function VideoLessonEditor({ form, setForm, onSave, onClose, onReload, saving })
             </select>
           </label>
         </div>
+
+        <label className="block">
+          <span className="text-caption font-bold text-text-secondary">⏱ ความยาวคลิป (นาที:วิ)</span>
+          <TimeInput value={form.durationSec} onChange={v => upd({ durationSec: v })} className={inputCls} style={inputStyle} placeholder="เช่น 1:20" />
+          <span className="block text-2xs text-text-muted">
+            ใส่แล้วปุ่ม "ถัดไป" ในสเต็ปดูวิดีโอจะซ่อนไว้จนผู้เรียนอยู่หน้านั้นครบ 90% ของความยาวคลิป (หยุดนับเมื่อสลับแท็บ) — กันการกดข้ามคลิป
+            {sourceType !== 'drive' && ' · คลิป YouTube วัดการเล่นจริงอยู่แล้ว ไม่ต้องใส่ก็ได้'}
+          </span>
+        </label>
 
         <label className="flex items-center gap-2 cursor-pointer py-1">
           <input type="checkbox" checked={form.required} onChange={e => upd({ required: e.target.checked })} className="w-4 h-4" />

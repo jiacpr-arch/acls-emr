@@ -4,6 +4,8 @@
 //   { say: { who, pose, text, fx? }, t? }   — บทพูด (text เป็น HTML จำกัดแค่ <span class="cbs-em">)
 //   { inter: 'ข้อความ!!', drama?, green?, fx?, t? } — จังหวะตะโกนเต็มจอ
 //   { skip: 'คำบรรยาย', t }                — time-skip (เช่น CPR 2 นาที)
+//   { doc: { key, kind: 'lab'|'xray', caption? }, t? } — เผยผลแล็บ/เอกซเรย์เป็นรูปเต็มจอ
+//     (ตัวละครหายไปชั่วคราว แตะจอไปต่อเหมือน say — ไม่กระทบสถานะผู้ป่วย ไม่มี fx)
 //   { choice: { q, options: [{ tgt, label, ok, why?, worsen?, then?[] }] } }
 //   { end: true }
 // ตอบถูก → node ใน then ของตัวเลือกถูก run ก่อนแล้วไปข้อถัดไป

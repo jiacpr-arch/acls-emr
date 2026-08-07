@@ -5,6 +5,7 @@ import { playBeep, playShockSound, playWarningBeep } from '../utils/sound';
 import ScenarioStage from './scenario/ScenarioStage';
 import { deriveStageState, autoSpeaker } from './scenario/stageState';
 import { useScenarioStageStore } from '../stores/scenarioStageStore';
+import { STEPS } from '../data/recordingSteps';
 
 // SimulationEngine v3 — cinematic stage (Code Blue Sim style) ครอบหน้า Recording จริง
 // - โจทย์แสดงเป็นฉาก: ตัวละคร + จอ ECG + เอฟเฟกต์ (ScenarioStage)
@@ -94,6 +95,10 @@ const CYCLE_GATE_SECONDS = 110;
 function isCycleGatedToken(token) {
   return token === 'defib' || token === 'check_pulse' || token === 'epi_repeat';
 }
+function fmtCountdown(totalSec) {
+  const s = Math.max(0, totalSec);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
 
 // เทียบ event จริงจาก Recording กับ correctActions ของ step — คืน action token ที่ตรง
 // (ไม่ใช่แค่ boolean) เพื่อให้รู้ว่าต้องเช็ค cycle-gate จาก token ไหน
@@ -149,8 +154,12 @@ function matchWrongAction(step, eventType, eventCategory) {
   return null;
 }
 
-export default function SimulationEngine({ scenario, mode, onComplete, onStaffTakeover }) {
+export default function SimulationEngine({ scenario, mode, step: realStep, onComplete, onStaffTakeover, onNarrationBusy }) {
   const isLearning = mode === 'learning';
+  // step จริงจาก Recording.jsx เดินคนละ state กับ currentStepIdx ของ engine นี้ (sync กันแบบ
+  // เดาจาก event log เท่านั้น) — ถ้า wizard จริงไปถึง ROSC/TERMINATED แล้ว engine นี้ต้องเงียบ
+  // ไม่พ่น narration/gate ของ step เก่าที่ค้างอยู่ทับหน้า Post-ROSC ที่นักเรียนทำไปไกลแล้ว
+  const caseIsOver = realStep === STEPS.ROSC || realStep === STEPS.TERMINATED;
   const useCinematic = scenario.visual !== false; // escape hatch ต่อ scenario
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [score, setScore] = useState({ correct: 0, wrong: 0, total: 0, reactions: [], steps: [] });
@@ -174,6 +183,8 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
   const currentStep = scenario.steps[currentStepIdx];
   const maxWrong = 4;
   const events = useCaseStore(s => s.events);
+  // นับถอยหลังรอบ CPR แบบ proactive (โหมดฝึกเท่านั้น) — ให้เห็นล่วงหน้าแทนที่จะรู้ตอนโดนหักคะแนน
+  const [gateRemain, setGateRemain] = useState(null);
 
   // Monitor beep based on patient HR
   useMonitorBeep(patientVitals.hr, soundEnabled);
@@ -189,6 +200,30 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
       if (fx === 'alarm') playWarningBeep();
     }
   }, [currentStepIdx]);
+
+  // "จังหวะอ่านก่อนกด" สั้นๆ ทุกครั้งที่ step เปลี่ยนจริง (ไม่ใช่ทุก re-render) — ให้เวลาผู้เล่น
+  // เห็นบทพูดตัวละครก่อนปุ่มเลือกจะกดได้ ผูกกับ currentStepIdx เท่านั้นเพื่อไม่ให้ทริกเกอร์ซ้ำ
+  // ตอน vitals/teamMessages อัปเดตเฉยๆ — ต้นทาง narrationBusy ทั้งหมด ไม่กระทบการบันทึกจริงนอก scenario
+  useEffect(() => {
+    onNarrationBusy?.(true);
+    const id = setTimeout(() => onNarrationBusy?.(false), 900);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStepIdx]);
+
+  // นับถอยหลังรอบ CPR ให้เห็นล่วงหน้า — เฉพาะ step ที่ติด cycle-gate จริง (ดู isCycleGatedToken)
+  useEffect(() => {
+    const gated = !caseIsOver && isLearning && scenario.category === 'cardiac_arrest'
+      && currentStep?.correctActions?.some(isCycleGatedToken);
+    if (!gated) { setGateRemain(null); return undefined; }
+    const tick = () => {
+      const remain = Math.ceil(CYCLE_GATE_SECONDS - (Date.now() - stepStartTime) / 1000);
+      setGateRemain(remain > 0 ? remain : null);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [caseIsOver, isLearning, scenario.category, currentStep, stepStartTime]);
 
   // publish สถานะฉากลง store (จุด broadcast สำหรับโหมดสองจอในอนาคต)
   useEffect(() => {
@@ -211,6 +246,9 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
   // Listen for real recording events → correct / wrong
   useEffect(() => {
     if (!currentStep || completed) return;
+    // wizard จริงจบเคสไปแล้ว (ROSC/TERMINATED) — engine นี้หยุดจับคู่ correct/wrong ต่อ
+    // กัน currentStepIdx ที่ค้างไปจับคู่กับ event ของ step ที่ผ่านไปแล้วแบบผิดๆ
+    if (caseIsOver) return;
     // init: ไม่นับ events ที่มีอยู่ก่อน scenario เริ่ม
     if (processedCountRef.current === null) {
       processedCountRef.current = events.length;
@@ -343,6 +381,14 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
       if (newWrong >= maxWrong) {
         onStaffTakeover(score);
       }
+      return;
+    }
+
+    // ไม่ตรงทั้ง correct และ wrongActions ที่ประกาศไว้ — ไม่ใช่ก้าวที่ถูกหรือผิดของ step นี้
+    // เฉยๆ (เช่น กดปุ่มของขั้นตอนอื่น) โหมดฝึก: บอกให้รู้ กันคิดว่าแอปค้าง — ไม่หักคะแนน/ไม่นับผิด
+    // โหมดสอบ: เงียบเหมือนเดิม (ไม่ใบ้ว่าปุ่มไหนถูก)
+    if (isLearning) {
+      showReaction({ kind: 'ignored', message: 'ยังไม่ใช่ขั้นตอนนี้ — ดูโจทย์บนฉากแล้วเลือกใหม่ได้เลย', at: Date.now() }, 2000);
     }
   }, [events.length]);
 
@@ -361,6 +407,10 @@ export default function SimulationEngine({ scenario, mode, onComplete, onStaffTa
           soundEnabled={soundEnabled}
           onToggleSound={() => setSoundEnabled(s => !s)}
         />
+        {/* นับถอยหลังรอบ CPR (learning เท่านั้น) — เตือนล่วงหน้าก่อนจะโดนหักคะแนนเพราะกดเร็วไป */}
+        {isLearning && !collapsed && gateRemain != null && (
+          <div className="scn-hint">⏳ รอครบรอบ CPR 2 นาที — อีก {fmtCountdown(gateRemain)} จึงจะบันทึกขั้นต่อไปได้</div>
+        )}
         {/* Score bar (learning only) */}
         {isLearning && !collapsed && (
           <div className="flex items-center justify-center gap-4 px-4 py-1 bg-bg-tertiary/30 text-3xs text-text-muted">

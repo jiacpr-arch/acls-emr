@@ -1,11 +1,24 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { STATION_CHECKLISTS } from '../../data/checklists/stationChecklists';
 import { MEGACODE_CASES, MEGACODE_LEVEL_META, MEGACODE_CORE_ITEMS } from '../../data/checklists/megacodeCases';
 import { CODE_BLUE_EXAM_CASES } from '../../data/checklists/codeBlueExamCases';
 import { PRACTICE_CASES } from '../../data/checklists/practiceCases';
 import { resolveChecklistForStation } from '../../data/checkinStations';
 import { tallyChecklist, suggestPass } from '../../utils/checklistScoring';
-import { X, Shuffle, Check, AlertTriangle, ListChecks, Eraser } from 'lucide-react';
+
+// คู่มือคุมหุ่น + ข้อมูลของมันเป็นข้อความยาว และใช้เฉพาะตอนเปิดใบประเมิน —
+// แยก chunk ไว้ ไม่ให้ bundle หลักโตจนเกินเพดาน precache ของ PWA
+const ManikinSetupPanel = lazy(() => import('./ManikinSetupPanel'));
+import { X, Shuffle, Check, AlertTriangle, ListChecks, Eraser, ArrowRight, ArrowLeft, HeartPulse } from 'lucide-react';
+
+// ใบประเมินสถานี megacode ที่มีคู่มือคุมหุ่นผูกไว้ (ดู manikinSetups.js) — เก็บ
+// เป็นรายชื่อ id คงที่ เพื่อรู้แบบ sync ว่าจะมี "หน้าเตรียมหุ่น" (wizard) ไหม
+// โดยไม่ต้อง import ไฟล์ข้อมูลคู่มือกลับเข้า bundle หลัก (ชนเพดาน precache PWA)
+const SETUP_TEMPLATE_IDS = new Set([
+  'megacodeCardiacArrest', 'megacodeBradycardia', 'megacodeTachycardia', 'megacodePostArrest',
+]);
+// เคสจาก pool (caseData) มีคู่มือคุมหุ่นเสมอ ส่วน template มีเฉพาะ 4 ใบข้างบน
+const templateHasSetup = (id) => SETUP_TEMPLATE_IDS.has(id);
 
 // แถวเช็คลิสต์แบบการ์ดใหญ่เต็มบรรทัด — แตะตรงไหนก็ติ๊กได้ เปลี่ยนเป็นเขียวเมื่อติ๊ก
 // สไตล์อยู่ที่ .cl-row ใน index.css (class เดี่ยว ไม่ใช่ Tailwind utility เพราะ
@@ -79,6 +92,9 @@ export default function ChecklistGrader({
   const [caseData, setCaseData] = useState(null); // สำหรับ pool: เคสที่สุ่ม/ล็อกไว้
   const [checked, setChecked] = useState({}); // { [itemKey]: boolean }
   const [assignState, setAssignState] = useState(null); // null | 'saving' | 'saved' | 'error'
+  // wizard 2 ขั้น: 'setup' = หน้าเตรียมหุ่น/จังหวะ, 'grade' = หน้าติ๊กให้คะแนน
+  // ฐานที่ไม่มีคู่มือคุมหุ่น (airway/BLS/electrical) ข้าม 'setup' ไป 'grade' เลย
+  const [step, setStep] = useState('grade');
   // ตัวกรองระดับความยาก — โชว์เฉพาะ pool ที่เคสติดป้าย level (ธนาคาร 15 เคส
   // ของจุด A/B) 'all' = สุ่มจากทุกระดับ
   const [levelFilter, setLevelFilter] = useState('all');
@@ -89,19 +105,17 @@ export default function ChecklistGrader({
 
   // ล็อกเคสกับนักเรียนบน server แล้วยึดเคสที่ server คืนมาเป็นตัวจริง (อาจไม่ใช่
   // เคสที่เพิ่งสุ่ม ถ้าอาจารย์อีกเครื่องล็อกไปก่อนแล้ว)
-  const persistAssign = async (caseId, force) => {
+  const persistAssign = async (caseIds, force) => {
     setAssignState('saving');
-    const finalId = await onAssignCase(caseId, { force });
+    const finalId = await onAssignCase(caseIds, { force });
     if (!finalId) {
       setAssignState('error');
       return;
     }
-    if (finalId !== caseId) {
-      const c = findCaseById(finalId);
-      if (c) {
-        setCaseData(c);
-        setChecked({});
-      }
+    const c = findCaseById(finalId);
+    if (c) {
+      setCaseData(c);
+      setChecked({});
     }
     setAssignState('saved');
   };
@@ -117,21 +131,29 @@ export default function ChecklistGrader({
         // (หาแบบข้าม pool เผื่อเคสถูกล็อกไว้ก่อนฐานเปลี่ยนธนาคารข้อสอบ)
         setCaseData(existing);
         setAssignState('saved');
+      } else if (poolFixed) {
+        // ยังไม่เคยล็อก — ให้ server เลือกเคสเอง (ใช้น้อยสุดในฐานนี้ก่อน) ไม่สุ่ม
+        // ฝั่ง client อีกต่อไป (กันเคสซ้ำกับเพื่อนในรุ่นเดียวกัน)
+        setCaseData(null);
+        persistAssign(poolCases.map((c) => c.id), false);
       } else {
-        const c = pickRandomCase(poolCases);
-        setCaseData(c);
-        if (poolFixed) persistAssign(c.id, false);
+        setCaseData(pickRandomCase(poolCases));
       }
       setChecklistId(null);
+      setStep('setup'); // เคส pool มีคู่มือคุมหุ่นเสมอ → เริ่มที่หน้าเตรียมหุ่น
     } else if (suggestion?.checklistId) {
       setChecklistId(suggestion.checklistId);
       setCaseData(null);
+      setStep(templateHasSetup(suggestion.checklistId) ? 'setup' : 'grade');
     } else if (suggestion?.checklistOptions?.length) {
       setChecklistId(suggestion.checklistOptions[0]);
       setCaseData(null);
+      setStep(templateHasSetup(suggestion.checklistOptions[0]) ? 'setup' : 'grade');
     } else {
-      setChecklistId(CHECKLIST_OPTIONS[0]?.id ?? null);
+      const firstId = CHECKLIST_OPTIONS[0]?.id ?? null;
+      setChecklistId(firstId);
       setCaseData(null);
+      setStep(firstId && templateHasSetup(firstId) ? 'setup' : 'grade');
     }
     setChecked({});
     // eslint-disable-next-line react-hooks/exhaustive-deps -- สุ่มเคสใหม่ทุกครั้งที่เปิด ไม่ใช่ทุกครั้งที่ station เปลี่ยน prop reference
@@ -151,6 +173,13 @@ export default function ChecklistGrader({
   const { total, checkedCount, criticalDone } = tallyChecklist(flatItems, checked);
   const suggestedPass = template ? suggestPass({ checkedCount, criticalDone }, template.passRule) : null;
 
+  // มีคู่มือคุมหุ่นไหม → ตัดสินว่ามีหน้า "เตรียมหุ่น" (wizard) หรือเข้าเช็คลิสต์ตรงๆ
+  // เคส pool มีเสมอ (เช็คจาก suggestion เพราะฐานสอบแบบล็อกเคสยังไม่มี caseData
+  // ระหว่างรอ server เลือก/ล็อกเคสให้ — ต้องไม่ตกไปหน้าเช็คลิสต์ระหว่างรอ),
+  // template มีเฉพาะ 4 ใบ megacode (คำนวณแบบ sync ไม่ import ข้อมูล)
+  const hasSetup = !!suggestion?.checklistPool || (!!checklistId && templateHasSetup(checklistId));
+  const onSetupStep = hasSetup && step === 'setup';
+
   if (!open) return null;
 
   const toggle = (no) => setChecked((c) => ({ ...c, [no]: !c[no] }));
@@ -160,11 +189,15 @@ export default function ChecklistGrader({
   const clearAll = () => setChecked({});
 
   const reroll = () => {
-    const next = pickRandomCase(levelPool, caseData?.id);
-    setCaseData(next);
     setChecked({});
-    // ฐานสอบแบบล็อกเคส: สุ่มใหม่ = ทับเคสเดิมบน server ด้วย (force)
-    if (poolFixed) persistAssign(next.id, true);
+    setStep('setup'); // เคสใหม่ = ต้องเตรียมหุ่นใหม่ก่อนประเมิน
+    if (poolFixed) {
+      // ฐานสอบแบบล็อกเคส: ให้ server เลือกเคสใหม่ (ใช้น้อยสุด, ไม่ใช่เคสเดิม
+      // ของตัวเอง) แล้วทับเคสเดิมบน server ด้วย (force)
+      persistAssign(levelPool.map((c) => c.id), true);
+      return;
+    }
+    setCaseData(pickRandomCase(levelPool, caseData?.id));
   };
 
   // เปลี่ยนระดับความยาก — ถ้าเคสปัจจุบันไม่อยู่ในระดับที่เลือก สุ่มเคสใหม่ใน
@@ -174,10 +207,21 @@ export default function ChecklistGrader({
     if (lv === 'all' || caseData?.level === lv) return;
     const pool = poolCases.filter((c) => c.level === lv);
     if (!pool.length) return;
-    const next = pickRandomCase(pool, caseData?.id);
-    setCaseData(next);
     setChecked({});
-    if (poolFixed) persistAssign(next.id, true);
+    setStep('setup');
+    if (poolFixed) {
+      persistAssign(pool.map((c) => c.id), true);
+      return;
+    }
+    setCaseData(pickRandomCase(pool, caseData?.id));
+  };
+
+  // เลือกบทประเมิน (จุด B: Brady/Tachy) — บทใหม่มีคู่มือคุมหุ่นของตัวเอง กลับไป
+  // หน้าเตรียมหุ่นก่อนเสมอ
+  const selectChapter = (id) => {
+    setChecklistId(id);
+    setChecked({});
+    setStep(templateHasSetup(id) ? 'setup' : 'grade');
   };
 
   const handleSave = (passed) => {
@@ -198,7 +242,10 @@ export default function ChecklistGrader({
           <div className="flex items-center gap-2">
             <div className="flex-1 min-w-0">
               <div className="text-body-strong text-text-primary">
-                {readOnly ? 'ดูเช็คลิสต์' : 'เช็คลิสต์ให้คะแนน'}
+                {onSetupStep
+                  ? 'เตรียมหุ่น & จังหวะ'
+                  : (readOnly ? 'ดูเช็คลิสต์' : 'เช็คลิสต์ให้คะแนน')}
+                {hasSetup && <span className="text-2xs font-normal text-text-muted"> · ขั้น {onSetupStep ? '1/2' : '2/2'}</span>}
               </div>
               {station && <div className="text-2xs text-text-muted truncate">{station.name}</div>}
             </div>
@@ -224,6 +271,8 @@ export default function ChecklistGrader({
         </div>
 
         <div className="overflow-y-auto p-4 space-y-3 flex-1">
+          {/* ตัวเลือกบท/เช็คลิสต์ — โชว์บนขั้นที่ผู้ใช้อยู่ตอนนี้ (setup ถ้ามี wizard
+              ไม่งั้น grade) เพื่อให้เปลี่ยนบทได้เสมอโดยไม่ทำหน้ายาวทั้งสองขั้น */}
           {suggestion?.checklistOptions?.length > 1 ? (
             /* ฐานที่มีหลายบทให้เลือก (เช่น จุด B: Brady/Tachy) — ปุ่มใหญ่เลือกชัดๆ
                แทน dropdown ตัวเล็ก ตาม feedback หน้างาน */
@@ -236,7 +285,7 @@ export default function ChecklistGrader({
                   <button
                     key={id}
                     type="button"
-                    onClick={() => { setChecklistId(id); setChecked({}); }}
+                    onClick={() => selectChapter(id)}
                     className={`cl-row ${active ? 'is-checked' : ''}`}
                   >
                     <span className="cl-box">{active && <Check size={17} strokeWidth={3.2} />}</span>
@@ -248,149 +297,195 @@ export default function ChecklistGrader({
           ) : !suggestion?.checklistPool && (
             <select
               value={checklistId ?? ''}
-              onChange={(e) => { setChecklistId(e.target.value); setChecked({}); }}
+              onChange={(e) => selectChapter(e.target.value)}
               className="w-full text-caption"
             >
               {CHECKLIST_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
             </select>
           )}
 
-          {/* ตัวเลือกระดับความยาก — เฉพาะ pool ที่เคสติดป้าย level (15 เคสจุด A/B)
-              อาจารย์อยากได้โจทย์ง่ายๆ ก็แตะ "ง่าย" แล้วระบบสุ่มเฉพาะระดับนั้น */}
-          {suggestion?.checklistPool && hasLevels && !readOnly && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-overline text-text-muted">ระดับโจทย์</span>
-              <button type="button" onClick={() => selectLevel('all')}
-                className={`cohort-chip ${levelFilter === 'all' ? 'is-active-info' : ''}`}>
-                ทั้งหมด ({poolCases.length})
-              </button>
-              {Object.entries(MEGACODE_LEVEL_META)
-                .sort(([, a], [, b]) => a.order - b.order)
-                .map(([lv, meta]) => (
-                  <button key={lv} type="button" onClick={() => selectLevel(lv)}
-                    className={`cohort-chip ${levelFilter === lv ? 'is-active-info' : ''}`}>
-                    {meta.label} ({poolCases.filter((c) => c.level === lv).length})
+          {onSetupStep ? (
+            /* ═══ ขั้นที่ 1: เตรียมหุ่น & จังหวะ ═══ */
+            <>
+              {/* ตัวเลือกระดับความยาก — เฉพาะ pool ที่เคสติดป้าย level (15 เคสจุด A/B)
+                  อาจารย์อยากได้โจทย์ง่ายๆ ก็แตะ "ง่าย" แล้วระบบสุ่มเฉพาะระดับนั้น */}
+              {suggestion?.checklistPool && hasLevels && !readOnly && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-overline text-text-muted">ระดับโจทย์</span>
+                  <button type="button" onClick={() => selectLevel('all')}
+                    className={`cohort-chip ${levelFilter === 'all' ? 'is-active-info' : ''}`}>
+                    ทั้งหมด ({poolCases.length})
                   </button>
-                ))}
-            </div>
-          )}
-
-          {suggestion?.checklistPool && caseData && (
-            <div className="flex items-start gap-2">
-              <div className="flex-1 min-w-0 bg-bg-tertiary p-2.5" style={{ borderRadius: 'var(--radius-md)' }}>
-                <div className="text-caption font-bold text-text-primary">
-                  Case {caseData.no}: {caseData.title}
+                  {Object.entries(MEGACODE_LEVEL_META)
+                    .sort(([, a], [, b]) => a.order - b.order)
+                    .map(([lv, meta]) => (
+                      <button key={lv} type="button" onClick={() => selectLevel(lv)}
+                        className={`cohort-chip ${levelFilter === lv ? 'is-active-info' : ''}`}>
+                        {meta.label} ({poolCases.filter((c) => c.level === lv).length})
+                      </button>
+                    ))}
                 </div>
-                <div className="text-2xs text-text-muted">
-                  Algorithm: {caseData.algorithm}
-                  {caseData.level && MEGACODE_LEVEL_META[caseData.level] && (
-                    <> · ระดับ{MEGACODE_LEVEL_META[caseData.level].label}</>
+              )}
+
+              {suggestion?.checklistPool && caseData && (
+                <div className="flex items-start gap-2">
+                  <div className="flex-1 min-w-0 bg-bg-tertiary p-2.5" style={{ borderRadius: 'var(--radius-md)' }}>
+                    <div className="text-caption font-bold text-text-primary">
+                      Case {caseData.no}: {caseData.title}
+                    </div>
+                    <div className="text-2xs text-text-muted">
+                      Algorithm: {caseData.algorithm}
+                      {caseData.level && MEGACODE_LEVEL_META[caseData.level] && (
+                        <> · ระดับ{MEGACODE_LEVEL_META[caseData.level].label}</>
+                      )}
+                    </div>
+                  </div>
+                  {!readOnly && (
+                    <button onClick={reroll} disabled={assignState === 'saving'}
+                      className="btn btn-ghost btn-sm shrink-0 disabled:opacity-40">
+                      <Shuffle size={13} strokeWidth={2.2} /> สุ่มใหม่
+                    </button>
                   )}
                 </div>
-              </div>
-              {!readOnly && (
-                <button onClick={reroll} disabled={assignState === 'saving'}
-                  className="btn btn-ghost btn-sm shrink-0 disabled:opacity-40">
-                  <Shuffle size={13} strokeWidth={2.2} /> สุ่มใหม่
-                </button>
               )}
-            </div>
-          )}
 
-          {/* สถานะการล็อกเคสกับนักเรียน — เฉพาะฐานสอบแบบสุ่มข้อสอบ ให้อาจารย์
-              มั่นใจว่าโจทย์ติดตัวนักเรียนแล้ว สแกนซ้ำก็ได้ข้อเดิม */}
-          {poolFixed && assignState && (
-            <div className={`text-2xs font-bold ${
-              assignState === 'saved' ? 'text-success'
-                : assignState === 'error' ? 'text-danger' : 'text-text-muted'
-            }`}>
-              {assignState === 'saving' && 'กำลังล็อกโจทย์กับนักเรียนคนนี้…'}
-              {assignState === 'saved' && '🔒 ล็อกโจทย์นี้กับนักเรียนแล้ว — สแกนซ้ำ/เปิดใหม่ก็ได้โจทย์เดิม'}
-              {assignState === 'error' && 'ล็อกโจทย์ไม่สำเร็จ — ตรวจอินเทอร์เน็ตแล้วกด "สุ่มใหม่" อีกครั้ง'}
-            </div>
-          )}
-
-          {(template?.scenario || caseData?.scenario) && (
-            <div className="text-2xs text-text-secondary italic">
-              โจทย์: {template?.scenario || caseData?.scenario}
-            </div>
-          )}
-
-          <div className="sticky top-0 bg-bg-secondary py-1 space-y-1.5">
-            <div className="flex items-center justify-between text-caption">
-              <span className="font-bold text-text-primary">ปฏิบัติได้ {checkedCount} / {total} ข้อ</span>
-              {template && (
-                <span className={`inline-flex items-center gap-1 font-bold ${criticalDone ? 'text-success' : 'text-warning'}`}>
-                  {criticalDone
-                    ? <><Check size={12} strokeWidth={2.6} /> ข้อวิกฤตครบ</>
-                    : <><AlertTriangle size={12} strokeWidth={2.4} /> ข้อวิกฤตยังไม่ครบ</>}
-                </span>
-              )}
-            </div>
-            {!readOnly && total > 0 && (
-              <button
-                onClick={allChecked ? clearAll : checkAll}
-                className="btn btn-ghost btn-sm btn-block">
-                {allChecked
-                  ? <><Eraser size={13} strokeWidth={2.2} /> ล้างทั้งหมด</>
-                  : <><ListChecks size={13} strokeWidth={2.2} /> ติ๊กถูกทั้งหมด</>}
-              </button>
-            )}
-          </div>
-
-          {template ? (
-            template.sections.map((sec) => (
-              <div key={sec.title} className="space-y-1.5">
-                <div className="text-overline text-text-muted">{sec.title}</div>
-                {sec.items.map((it) => (
-                  <ChecklistRow
-                    key={it.no}
-                    no={it.no}
-                    text={it.text}
-                    critical={it.critical}
-                    checkedOn={!!checked[it.no]}
-                    disabled={readOnly}
-                    onToggle={() => toggle(it.no)}
-                  />
-                ))}
-              </div>
-            ))
-          ) : caseData ? (
-            <>
-              {/* ข้อแกนกลาง — เหมือนกันทุกเคส ให้นักเรียนทุกคนถูกวัดมาตรฐานเดียวกัน */}
-              <div className="space-y-1.5">
-                <div className="text-overline text-text-muted">
-                  ข้อประเมินแกนกลาง (ทุกเคส — มาตรฐานเดียวกัน)
+              {/* สถานะการล็อกเคสกับนักเรียน — เฉพาะฐานสอบแบบสุ่มข้อสอบ ให้อาจารย์
+                  มั่นใจว่าโจทย์ติดตัวนักเรียนแล้ว สแกนซ้ำก็ได้ข้อเดิม */}
+              {poolFixed && assignState && (
+                <div className={`text-2xs font-bold ${
+                  assignState === 'saved' ? 'text-success'
+                    : assignState === 'error' ? 'text-danger' : 'text-text-muted'
+                }`}>
+                  {assignState === 'saving' && 'กำลังล็อกโจทย์กับนักเรียนคนนี้…'}
+                  {assignState === 'saved' && '🔒 ล็อกโจทย์นี้กับนักเรียนแล้ว — สแกนซ้ำ/เปิดใหม่ก็ได้โจทย์เดิม'}
+                  {assignState === 'error' && 'ล็อกโจทย์ไม่สำเร็จ — ตรวจอินเทอร์เน็ตแล้วกด "สุ่มใหม่" อีกครั้ง'}
                 </div>
-                {MEGACODE_CORE_ITEMS.map((it) => (
-                  <ChecklistRow
-                    key={it.no}
-                    no={it.no}
-                    text={it.text}
-                    checkedOn={!!checked[it.no]}
-                    disabled={readOnly}
-                    onToggle={() => toggle(it.no)}
-                  />
-                ))}
-              </div>
-              <div className="space-y-1.5">
-                <div className="text-overline text-text-muted">เช็คลิสต์เฉพาะเคส</div>
-                {caseData.items.map((it, i) => (
-                  <ChecklistRow
-                    key={i}
-                    no={i + 1}
-                    text={it.text}
-                    checkedOn={!!checked[i + 1]}
-                    disabled={readOnly}
-                    onToggle={() => toggle(i + 1)}
-                  />
-                ))}
-              </div>
+              )}
+
+              {(template?.scenario || caseData?.scenario) && (
+                <div className="text-2xs text-text-secondary italic">
+                  โจทย์: {template?.scenario || caseData?.scenario}
+                </div>
+              )}
+
+              <Suspense fallback={null}>
+                <ManikinSetupPanel target={caseData ?? template} />
+              </Suspense>
             </>
-          ) : null}
+          ) : (
+            /* ═══ ขั้นที่ 2: เช็คลิสต์ให้คะแนน ═══ */
+            <>
+              {/* แถบสรุปเคสบางๆ + ปุ่มกลับหน้าเตรียมหุ่น (เฉพาะฐานที่มี wizard) */}
+              {hasSetup ? (
+                <button type="button" onClick={() => setStep('setup')}
+                  className="w-full flex items-center gap-2 bg-info/8 border border-info/40 p-2.5 text-left"
+                  style={{ borderRadius: 'var(--radius-md)' }}>
+                  <HeartPulse size={14} strokeWidth={2.4} className="text-info shrink-0" />
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-caption font-bold text-text-primary truncate">
+                      {caseData ? `Case ${caseData.no}: ${caseData.title}` : template?.title}
+                    </span>
+                    {caseData?.algorithm && (
+                      <span className="block text-2xs text-text-muted truncate">{caseData.algorithm}</span>
+                    )}
+                  </span>
+                  <span className="inline-flex items-center gap-0.5 text-2xs font-bold text-info shrink-0">
+                    <ArrowLeft size={12} strokeWidth={2.6} /> คุมหุ่น
+                  </span>
+                </button>
+              ) : (template?.scenario && (
+                <div className="text-2xs text-text-secondary italic">
+                  โจทย์: {template.scenario}
+                </div>
+              ))}
+
+              <div className="sticky top-0 bg-bg-secondary py-1 space-y-1.5">
+                <div className="flex items-center justify-between text-caption">
+                  <span className="font-bold text-text-primary">ปฏิบัติได้ {checkedCount} / {total} ข้อ</span>
+                  {template && (
+                    <span className={`inline-flex items-center gap-1 font-bold ${criticalDone ? 'text-success' : 'text-warning'}`}>
+                      {criticalDone
+                        ? <><Check size={12} strokeWidth={2.6} /> ข้อวิกฤตครบ</>
+                        : <><AlertTriangle size={12} strokeWidth={2.4} /> ข้อวิกฤตยังไม่ครบ</>}
+                    </span>
+                  )}
+                </div>
+                {!readOnly && total > 0 && (
+                  <button
+                    onClick={allChecked ? clearAll : checkAll}
+                    className="btn btn-ghost btn-sm btn-block">
+                    {allChecked
+                      ? <><Eraser size={13} strokeWidth={2.2} /> ล้างทั้งหมด</>
+                      : <><ListChecks size={13} strokeWidth={2.2} /> ติ๊กถูกทั้งหมด</>}
+                  </button>
+                )}
+              </div>
+
+              {template ? (
+                template.sections.map((sec) => (
+                  <div key={sec.title} className="space-y-1.5">
+                    <div className="text-overline text-text-muted">{sec.title}</div>
+                    {sec.items.map((it) => (
+                      <ChecklistRow
+                        key={it.no}
+                        no={it.no}
+                        text={it.text}
+                        critical={it.critical}
+                        checkedOn={!!checked[it.no]}
+                        disabled={readOnly}
+                        onToggle={() => toggle(it.no)}
+                      />
+                    ))}
+                  </div>
+                ))
+              ) : caseData ? (
+                <>
+                  {/* ข้อแกนกลาง — เหมือนกันทุกเคส ให้นักเรียนทุกคนถูกวัดมาตรฐานเดียวกัน */}
+                  <div className="space-y-1.5">
+                    <div className="text-overline text-text-muted">
+                      ข้อประเมินแกนกลาง (ทุกเคส — มาตรฐานเดียวกัน)
+                    </div>
+                    {MEGACODE_CORE_ITEMS.map((it) => (
+                      <ChecklistRow
+                        key={it.no}
+                        no={it.no}
+                        text={it.text}
+                        checkedOn={!!checked[it.no]}
+                        disabled={readOnly}
+                        onToggle={() => toggle(it.no)}
+                      />
+                    ))}
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="text-overline text-text-muted">เช็คลิสต์เฉพาะเคส</div>
+                    {caseData.items.map((it, i) => (
+                      <ChecklistRow
+                        key={i}
+                        no={i + 1}
+                        text={it.text}
+                        checkedOn={!!checked[i + 1]}
+                        disabled={readOnly}
+                        onToggle={() => toggle(i + 1)}
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : null}
+            </>
+          )}
         </div>
 
-        {!readOnly && (
+        {onSetupStep ? (
+          /* footer หน้าเตรียมหุ่น — ปุ่มใหญ่ไปหน้าติ๊กคะแนน (readOnly ก็ต้องข้ามได้) */
+          <div className="p-4 border-t border-border shrink-0">
+            <button
+              onClick={() => setStep('grade')}
+              className="btn btn-block bg-info text-white font-bold">
+              {readOnly ? 'ดูเช็คลิสต์' : 'เตรียมหุ่นเสร็จ — เริ่มประเมิน'}
+              <ArrowRight size={15} strokeWidth={2.4} />
+            </button>
+          </div>
+        ) : !readOnly && (
           <div className="p-4 border-t border-border shrink-0 space-y-2">
             {template && (
               <div className="text-2xs text-text-muted text-center">

@@ -5,6 +5,8 @@ import {
   rpcJoinClass,
   rpcUpsertLessonProgress,
   rpcSubmitQuizAttempt,
+  rpcSubmitCodeBlueResult,
+  rpcSubmitRecorderResult,
 } from './cohortSync';
 
 // In-memory flush state — single global engine.
@@ -26,12 +28,13 @@ export function subscribeToSync(fn) {
 }
 
 export async function getPendingCount() {
-  const [s, l, q] = await Promise.all([
+  const [s, l, q, g] = await Promise.all([
     db.students.filter(r => !r.syncedAt).count(),
     db.lessonProgress.filter(r => !r.syncedAt).count(),
     db.quizAttempts.filter(r => !r.syncedAt).count(),
+    db.gameResults.filter(r => !r.syncedAt).count(),
   ]);
-  return s + l + q;
+  return s + l + q + g;
 }
 
 export function scheduleFlush() {
@@ -53,6 +56,8 @@ async function flush() {
     await flushStudents(ctx);
     await flushLessonProgress();
     await flushQuizAttempts();
+    // ผลเกมไปท้ายสุด: ไม่ gate ใบประกาศ จึงไม่ควรไปหน่วงบทเรียน/ควิซที่ gate
+    await flushGameResults();
   } finally {
     flushing = false;
     notify();
@@ -105,11 +110,12 @@ async function flushStudents(ctx) {
     // Server returns the canonical student_pk. If it differs from local id,
     // remap dependent rows so subsequent flushes use the correct PK.
     if (data?.studentPk && data.studentPk !== row.id) {
-      await db.transaction('rw', db.students, db.lessonProgress, db.quizAttempts, async () => {
+      await db.transaction('rw', db.students, db.lessonProgress, db.quizAttempts, db.gameResults, async () => {
         await db.students.delete(row.id);
         await db.students.put({ ...row, id: data.studentPk, syncedAt: new Date().toISOString() });
         await db.lessonProgress.where('studentId').equals(row.id).modify({ studentId: data.studentPk });
         await db.quizAttempts.where('studentId').equals(row.id).modify({ studentId: data.studentPk });
+        await db.gameResults.where('studentId').equals(row.id).modify({ studentId: data.studentPk });
       });
     } else {
       await db.students.update(row.id, { syncedAt: new Date().toISOString() });
@@ -173,6 +179,41 @@ async function flushQuizAttempts() {
       continue;
     }
     await db.quizAttempts.update(row.autoId, { syncedAt: new Date().toISOString() });
+    await clearFailure(gate, row.autoId);
+  }
+}
+
+// ผลเกม Code Blue / Recorder Hero — โครงเดียวกับ flushQuizAttempts เป๊ะ
+// (ข้ามแถวที่นักเรียนยัง sync ไม่เสร็จ, uuid ทำให้ยิงซ้ำได้ปลอดภัย, fail แล้ว
+// เข้า backoff รายแถว) ต่างกันแค่ต้องแยก RPC ตาม kind
+async function flushGameResults() {
+  const rows = await db.gameResults.filter(r => !r.syncedAt).toArray();
+  const gate = await loadFailureGate('gameResults');
+  for (const row of rows) {
+    if (gate.blocked.has(String(row.autoId))) continue;
+    const student = await db.students.get(row.studentId);
+    if (!student?.syncedAt) continue;
+
+    const submit = row.kind === 'recorder'
+      ? () => rpcSubmitRecorderResult({
+          attemptUuid: row.uuid,
+          studentPk: row.studentId,
+          levelId: row.refId,
+          payload: row.payload,
+        })
+      : () => rpcSubmitCodeBlueResult({
+          attemptUuid: row.uuid,
+          studentPk: row.studentId,
+          scenarioId: row.refId,
+          payload: row.payload,
+        });
+
+    const { error } = await submit();
+    if (error) {
+      await recordFailure('gameResults', row.autoId, error);
+      continue;
+    }
+    await db.gameResults.update(row.autoId, { syncedAt: new Date().toISOString() });
     await clearFailure(gate, row.autoId);
   }
 }
