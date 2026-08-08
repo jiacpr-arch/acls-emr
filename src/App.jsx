@@ -314,7 +314,8 @@ function App() {
             }
           />
         )}
-        {IS_ACLS && (
+        {/* จัดการโจทย์เกม Recorder Hero — เปิดทั้ง ACLS/BLS (โจทย์กรองตาม category ของคอร์ส) */}
+        {(IS_ACLS || IS_BLS) && (
           <Route
             path="/admin/recorder-cases"
             element={
@@ -379,6 +380,10 @@ function App() {
         {IS_BLS && <Route path="/drill" element={<DrillTimer />} />}
         {IS_BLS && <Route path="/compare" element={<CaseCompare />} />}
         {IS_BLS && <Route path="/scenarios" element={<ScenarioSelect />} />}
+        {IS_BLS && <Route path="/games" element={<GamesHub />} />}
+        {IS_BLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
+        {IS_BLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
+        {IS_BLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
         {IS_BLS && <Route path="/skill-practice" element={<BLSSkillPractice />} />}
         {IS_BLS && <Route path="/bls/scenario" element={<BLSScenarioHub />} />}
         {IS_BLS && <Route path="/bls/scenario/:stageId" element={<BLSScenario />} />}

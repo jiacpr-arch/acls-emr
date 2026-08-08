@@ -1,4 +1,4 @@
-import { CATEGORY_ACTIONS } from '../../data/recorderCases';
+import { CATEGORY_ACTIONS } from '../../data/activeRecorderCases';
 
 // ==========================================
 // Recorder Hero — แผงปุ่มบันทึกสำหรับเคส non-arrest (peri-arrest/stroke/MI/special)

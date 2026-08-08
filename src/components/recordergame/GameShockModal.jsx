@@ -1,5 +1,5 @@
 import { playShockSound } from '../../utils/sound';
-import { ENERGY_CHOICES } from '../../data/recorderGameLevels';
+import { ENERGY_CHOICES } from '../../data/activeRecorderLevels';
 import { Zap, X } from 'lucide-react';
 
 // ==========================================

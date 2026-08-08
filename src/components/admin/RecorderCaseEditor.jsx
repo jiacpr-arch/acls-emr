@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { GAME_BUTTONS } from '../../data/recorderGameLevels';
-import { CASE_CATEGORIES, CASE_CATEGORY_META, caseToLevel, blankEvent } from '../../data/recorderCases';
+import { GAME_BUTTONS } from '../../data/activeRecorderLevels';
+import { CASE_CATEGORIES, CASE_CATEGORY_META, caseToLevel, blankEvent } from '../../data/activeRecorderCases';
 import {
   createRecorderCase, updateRecorderCase, setRecorderCaseStatus, deleteRecorderCase,
 } from '../../services/recorderCaseAdminService';
