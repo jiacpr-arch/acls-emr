@@ -20,9 +20,9 @@ export default function BLSCourseUpsellCard({ source = 'bls_upsell_card' }) {
         style={{
           borderRadius: 'var(--radius-2xl)',
           background:
-            'linear-gradient(135deg, #10B981 0%, #059669 55%, #047857 100%)',
+            'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
           boxShadow:
-            '0 10px 30px rgba(5, 150, 105, 0.28), 0 2px 6px rgba(15, 26, 46, 0.12)',
+            '0 10px 30px color-mix(in srgb, var(--color-accent) 28%, transparent), 0 2px 6px rgba(15, 26, 46, 0.12)',
         }}
       >
         <div
@@ -99,8 +99,8 @@ export default function BLSCourseUpsellCard({ source = 'bls_upsell_card' }) {
                 meta: ['Contact', 'Lead'],
                 props: { channel: 'phone', source, content_name: 'bls_inperson_course', value: 2500, currency: 'THB' },
               })}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white text-emerald-700 font-extrabold text-[13px] hover:bg-white/95 transition-colors"
-              style={{ borderRadius: 'var(--radius-md)' }}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white font-extrabold text-[13px] hover:bg-white/95 transition-colors"
+              style={{ borderRadius: 'var(--radius-md)', color: 'var(--color-accent-dark)' }}
             >
               <Phone size={15} strokeWidth={2.6} />
               โทร {PHONE_DISPLAY}

@@ -75,7 +75,7 @@ export default function Learn() {
           title: t('learn_practice', lang),
           items: [
             // เหมือนของ ACLS: การ์ดไฮไลต์เกม + โบนัสไม่บังคับ ไม่ใช่ gate ของใบประกาศ
-            { path: '/sim', Icon: Siren, label: t('code_sim', lang), desc: t('code_sim_desc', lang), color: courseMeta.themeColor, game: true },
+            { path: '/sim', Icon: Siren, label: t('code_sim', lang), desc: t('code_sim_desc', lang), color: 'var(--color-accent)', game: true },
           ],
         },
       ]
@@ -95,7 +95,7 @@ export default function Learn() {
           title: t('learn_reference', lang),
           items: [
             { path: '/als',           Icon: BookOpen, label: t('als_knowledge', lang), desc: t('als_knowledge_desc', lang), color: '#2563EB' },
-            { path: '/qa-acls-deep',  Icon: MessageCircle, label: t('qa_deep', lang), desc: t('qa_deep_desc', lang), color: '#0284C7' },
+            { path: '/qa-acls-deep',  Icon: MessageCircle, label: t('qa_deep', lang), desc: t('qa_deep_desc', lang), color: 'var(--color-accent)' },
             { path: '/algorithm',     Icon: GitBranch, label: t('algorithms', lang), desc: t('algorithms_desc', lang), color: '#7C3AED' },
             { path: '/guide',         Icon: Compass, label: t('guide', lang), desc: t('guide_desc', lang), color: '#059669' },
           ],

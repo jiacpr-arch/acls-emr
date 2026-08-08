@@ -5,8 +5,8 @@ import { getActiveSession, clearActiveSession } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
 import { IS_BLS, courseMeta } from '../config/courseMode';
-import ACLSSplash from '../components/newcase/ACLSSplash';
-import ACLSHero from '../components/newcase/ACLSHero';
+import CourseSplash from '../components/newcase/CourseSplash';
+import CourseHero from '../components/newcase/CourseHero';
 import ACLSQuickActions from '../components/newcase/ACLSQuickActions';
 import MorrooAdCard from '../components/MorrooAdCard';
 import NewsCard from '../components/NewsCard';
@@ -124,7 +124,7 @@ export default function NewCase() {
   return (
     <div className="min-h-[100dvh] bg-bg-primary">
       {showSplash && (
-        <ACLSSplash
+        <CourseSplash
           onDismiss={() => { aclsSplashSeen = true; setShowSplash(false); }}
         />
       )}
@@ -133,7 +133,7 @@ export default function NewCase() {
         className="page-container pb-28 flex flex-col gap-4"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
-        <ACLSHero isClinical={isClinical} />
+        <CourseHero isClinical={isClinical} />
 
         {/* Emergency action — the one red accent card (firstaid 1669-card style) */}
         <button onClick={() => handleStart('rrt')} disabled={loading}
