@@ -13,20 +13,25 @@ import {
 /* === Per-chapter visual theme: ไอคอน + สี accent เดี่ยว (จำกัดจานสี) ===
    Keyed by chapter id (bls-ch1..bls-ch9). */
 const CHAPTER_THEMES = {
-  'bls-ch1': { Icon: HeartPulse, accent: '#2563EB' }, // Overview / Chain of Survival
+  'bls-ch1': { Icon: HeartPulse, accent: 'var(--color-accent)' }, // Overview / Chain of Survival
   'bls-ch2': { Icon: Heart,      accent: '#DC2626' }, // HQ-CPR
   'bls-ch3': { Icon: Zap,        accent: '#DC2626' }, // AED
-  'bls-ch4': { Icon: User,       accent: '#2563EB' }, // One-rescuer
+  'bls-ch4': { Icon: User,       accent: 'var(--color-accent)' }, // One-rescuer
   'bls-ch5': { Icon: Users,      accent: '#059669' }, // 2-rescuer / team
-  'bls-ch6': { Icon: Hospital,   accent: '#2563EB' }, // In-hospital
-  'bls-ch7': { Icon: Baby,       accent: '#2563EB' }, // Infant / child
+  'bls-ch6': { Icon: Hospital,   accent: 'var(--color-accent)' }, // In-hospital
+  'bls-ch7': { Icon: Baby,       accent: 'var(--color-accent)' }, // Infant / child
   'bls-ch8': { Icon: Wind,       accent: '#DC2626' }, // FBAO
   'bls-ch9': { Icon: Siren,      accent: '#DC2626' }, // Special situations
 };
-const DEFAULT_THEME = { Icon: BookOpen, accent: '#2563EB' };
+const DEFAULT_THEME = { Icon: BookOpen, accent: 'var(--color-accent)' };
 
 function themeForChapter(ch, index) {
   return CHAPTER_THEMES[ch.id] || CHAPTER_THEMES[`bls-ch${index + 1}`] || DEFAULT_THEME;
+}
+
+// ผสมความโปร่งใสให้สี accent (รองรับทั้ง hex literal และ var(--color-accent))
+function withAlpha(color, percent) {
+  return `color-mix(in srgb, ${color} ${percent}%, transparent)`;
 }
 
 const STORAGE_KEY = 'bls_tips_history';
@@ -134,7 +139,7 @@ export default function BLSKnowledge() {
               <div
                 key={ch.id}
                 className={`chapter-card ${isOpen ? 'is-open' : ''}`}
-                style={isOpen ? { borderColor: `${theme.accent}55` } : undefined}
+                style={isOpen ? { borderColor: withAlpha(theme.accent, 33) } : undefined}
               >
                 <span
                   className="chapter-card-stripe"
@@ -146,7 +151,7 @@ export default function BLSKnowledge() {
                 >
                   <div
                     className="chapter-icon-tile"
-                    style={{ background: `${theme.accent}15`, color: theme.accent }}
+                    style={{ background: withAlpha(theme.accent, 8), color: theme.accent }}
                   >
                     <Icon size={24} strokeWidth={2.2} />
                   </div>
@@ -158,7 +163,7 @@ export default function BLSKnowledge() {
                     <span
                       className="chapter-meta-pill"
                       style={{
-                        background: `${theme.accent}18`,
+                        background: withAlpha(theme.accent, 9),
                         color: theme.accent,
                       }}
                     >

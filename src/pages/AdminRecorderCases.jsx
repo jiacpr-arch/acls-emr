@@ -4,7 +4,7 @@ import {
   ArrowLeft, Sparkles, Plus, Target, RefreshCw, AlertTriangle,
 } from 'lucide-react';
 import { listRecorderCases, generateCaseWithAI } from '../services/recorderCaseAdminService';
-import { CASE_CATEGORIES, CASE_CATEGORY_META, blankCase } from '../data/recorderCases';
+import { CASE_CATEGORIES, CASE_CATEGORY_META, blankCase } from '../data/activeRecorderCases';
 import RecorderCaseEditor from '../components/admin/RecorderCaseEditor';
 
 const STATUS_META = {

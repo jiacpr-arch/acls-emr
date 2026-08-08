@@ -1,12 +1,19 @@
 import { supabase, isSupabaseConfigured } from './supabase';
-import { CASES } from '../data/recorderCases';
+import { CASES, CASE_CATEGORIES } from '../data/activeRecorderCases';
+import { COURSE_MODE } from '../config/courseMode';
 
 // ==========================================
 // Recorder Hero — โหลด "เคสที่เผยแพร่แล้ว" จาก Supabase (public read, status=published)
 // + cache 6 ชม. ใน localStorage + fallback เป็น built-in CASES เมื่อ Supabase ล่ม
 // ผู้เรียนไม่มีวันเห็นเคส draft (RLS กรองที่ status ด้วย)
+//
+// ตาราง recorder_cases ยังไม่มีคอลัมน์ course_mode (ต้อง migration เพิ่มก่อนถึงจะ
+// กรองที่ query ได้ตรงๆ — ดู CLAUDE.md/PR notes) ระหว่างนี้กรองฝั่ง client แทน โดย
+// อาศัยว่า category ของ ACLS (cardiac_arrest/bradycardia/tachycardia/mi/stroke/
+// special) กับของ BLS (bls_arrest/choking/respiratory) เป็นคนละชุดกันโดยเจตนา —
+// เคส DB ของคอร์สหนึ่งจึงไม่มีวัน "หลุด" ไปโผล่อีกคอร์สหนึ่งแม้ query จะดึงมาทั้งหมด
 // ==========================================
-const CACHE_KEY = 'recorder_cases_cache_v1';
+const CACHE_KEY = `recorder_cases_cache_v2_${COURSE_MODE}`;
 const TTL_MS = 6 * 60 * 60 * 1000;
 
 export function invalidateRecorderCasesCache() {
@@ -55,7 +62,9 @@ export async function fetchPublishedCases({ force = false } = {}) {
       .eq('status', 'published')
       .order('sort_order', { ascending: true });
     if (error) throw error;
-    const mapped = (data || []).map(mapCaseRow).filter(c => c.events.length > 0);
+    const mapped = (data || [])
+      .map(mapCaseRow)
+      .filter(c => c.events.length > 0 && CASE_CATEGORIES.includes(c.category));
     writeCache(mapped);
     return mapped;
   } catch {

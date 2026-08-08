@@ -3,7 +3,7 @@ import { useGameClock } from './useGameClock';
 import {
   RATINGS, ratingForDelay, pointsForRating, isDataCorrect, RATING_META,
 } from '../../utils/recorderGameScore';
-import { ERROR_TYPES, getLiveMaxScore } from '../../data/recorderGameLevels';
+import { ERROR_TYPES, getLiveMaxScore } from '../../data/activeRecorderLevels';
 
 // ==========================================
 // Recorder Hero — สมองของโหมด Live Recorder (Mode A)

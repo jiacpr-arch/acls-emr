@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getLevelById, LEVELS, GAME_BUTTONS, ERROR_TYPES } from '../data/recorderGameLevels';
-import { getPackById, getCaseById, caseToLevel, CATEGORY_ACTIONS } from '../data/recorderCases';
+import { getLevelById, LEVELS, GAME_BUTTONS, ERROR_TYPES } from '../data/activeRecorderLevels';
+import { getPackById, getCaseById, caseToLevel, CATEGORY_ACTIONS } from '../data/activeRecorderCases';
 import { computeStars } from '../utils/recorderGameScore';
 import { loadProgress, saveResult } from '../utils/recorderGameProgress';
 import { useLiveLevelEngine } from '../hooks/recordergame/useLiveLevelEngine';

@@ -11,6 +11,7 @@ import NewsCard from '../components/NewsCard';
 import StreakBadge from '../components/StreakBadge';
 import DailyQuiz from '../components/DailyQuiz';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import { IS_BLS } from '../config/courseMode';
 import {
   FileText, HeartPulse, BarChart3, AlertCircle, Plus, Layers,
   Download, Share, Edit, Trash, Play, HelpCircle, Activity, Pill,
@@ -261,6 +262,7 @@ function CaseDetail({ data }) {
   const epiEvents = events.filter(e => e.category === 'drug' && e.type?.includes('Epinephrine') && !e.type?.includes('Infusion'));
   const shockEvents = events.filter(e => e.category === 'shock');
   const firstEpi = epiEvents.length > 0 ? epiEvents[epiEvents.length - 1] : null;
+  const firstShock = shockEvents.length > 0 ? shockEvents[shockEvents.length - 1] : null;
   const lastRhythm = events.find(e => e.category === 'rhythm');
 
   const drugEvents = events.filter(e => e.category === 'drug');
@@ -311,9 +313,16 @@ function CaseDetail({ data }) {
                 (data.ccf || 0) >= 80 ? 'text-success' : (data.ccf || 0) >= 60 ? 'text-warning' : 'text-danger'
               }`}>{data.ccf || 0}% CCF</span>
             } />
-            <DetailStat label="Epinephrine" value={epiEvents.length} unit="doses" extra={
-              firstEpi ? <span className="text-3xs text-text-muted">First: {formatElapsed(firstEpi.elapsed)}</span> : null
-            } />
+            {/* BLS ไม่มีการให้ยา — โชว์จำนวน AED Shocks แทน Epinephrine */}
+            {IS_BLS ? (
+              <DetailStat label="AED Shocks" value={shockEvents.length} unit="ครั้ง" extra={
+                firstShock ? <span className="text-3xs text-text-muted">First: {formatElapsed(firstShock.elapsed)}</span> : null
+              } />
+            ) : (
+              <DetailStat label="Epinephrine" value={epiEvents.length} unit="doses" extra={
+                firstEpi ? <span className="text-3xs text-text-muted">First: {formatElapsed(firstEpi.elapsed)}</span> : null
+              } />
+            )}
             <DetailStat label="Rhythm" value={
               <span className="text-sm">{lastRhythm?.type?.replace('Rhythm: ', '') || data.patient?.initialRhythm || '—'}</span>
             } unit={`Initial: ${data.patient?.initialRhythm || '—'}`} extra={

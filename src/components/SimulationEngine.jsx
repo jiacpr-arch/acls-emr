@@ -91,6 +91,9 @@ function PatientMonitor({ vitals, className = '' }) {
 // rhythm ซ้ำ/ให้ epi ซ้ำ" ถือว่าถูก — กันนักเรียนกดข้ามเร็วกว่าสถานการณ์จริง (เฉพาะเคส
 // cardiac_arrest, ให้ grace 10 วิสำหรับ lag การกดปุ่มจริง)
 const CYCLE_GATE_SECONDS = 110;
+// category ที่ต้องรอครบรอบ CPR จริงก่อน — cardiac_arrest (ACLS) และ pediatric_arrest
+// (BLS: เคสเด็ก/ทารก) เดินจังหวะ 2 นาทีเหมือนกัน
+const ARREST_GATED_CATEGORIES = ['cardiac_arrest', 'pediatric_arrest'];
 // token พวกนี้แทน "รอบถัดไป" เท่านั้น (ไม่ใช่ shock/epi ครั้งแรกซึ่งไม่ต้องรอ)
 function isCycleGatedToken(token) {
   return token === 'defib' || token === 'check_pulse' || token === 'epi_repeat';
@@ -131,6 +134,11 @@ function matchedCorrectAction(step, eventType, eventCategory) {
     if (a.includes('tpa') && eventType.includes('tpa')) return true;
     if (a.includes('post_rosc') && eventType.includes('post-rosc')) return true;
     if (a.includes('switch_compressor') && eventType.includes('switch')) return true;
+    // BLS AED workflow (AEDPanel.jsx) — pads attach + wait-for-verdict beat.
+    // shock/no-shock delivery itself already matches via 'defib' (category==='shock')
+    // and 'resume_cpr' (event text ตรงกับ "cpr" อยู่แล้ว — "Resume CPR (No shock advised)")
+    if (a.includes('aed_attach') && eventType.includes('pads attached')) return true;
+    if (a.includes('aed_analyze') && eventType.includes('advised')) return true;
     return false;
   }) || null;
 }
@@ -213,7 +221,7 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
 
   // นับถอยหลังรอบ CPR ให้เห็นล่วงหน้า — เฉพาะ step ที่ติด cycle-gate จริง (ดู isCycleGatedToken)
   useEffect(() => {
-    const gated = !caseIsOver && isLearning && scenario.category === 'cardiac_arrest'
+    const gated = !caseIsOver && isLearning && ARREST_GATED_CATEGORIES.includes(scenario.category)
       && currentStep?.correctActions?.some(isCycleGatedToken);
     if (!gated) { setGateRemain(null); return undefined; }
     const tick = () => {
@@ -270,7 +278,7 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
     // จริงๆ — ไม่ว่ารอบนี้จะเกิดจาก shock, epi, หรือ resume CPR ก็ตาม) ไม่ผูกกับ timerStore's
     // cycleElapsed โดยตรง เพราะค่านั้น reset เฉพาะตอน shock (resetCycle ใน ShockControls/AEDPanel)
     // จึงไม่ครอบคลุมรอบ non-shockable (asystole/PEA) — stepStartTime ครอบคลุมทุกกรณีสม่ำเสมอกว่า
-    if (matchedAction && scenario.category === 'cardiac_arrest' && isCycleGatedToken(matchedAction)) {
+    if (matchedAction && ARREST_GATED_CATEGORIES.includes(scenario.category) && isCycleGatedToken(matchedAction)) {
       const elapsedSinceCycle = (Date.now() - stepStartTime) / 1000;
       if (elapsedSinceCycle < CYCLE_GATE_SECONDS) {
         const remain = Math.max(1, Math.ceil(CYCLE_GATE_SECONDS - elapsedSinceCycle));
