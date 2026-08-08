@@ -14,6 +14,8 @@ import { ERROR_TYPES, getLiveMaxScore } from '../../data/recorderGameLevels';
 // ==========================================
 const NARRATION_LEAD = 3; // โชว์ narration ก่อนถึงเวลา event 3 วิ
 const END_BUFFER = 2;     // เผื่อเวลาปิดเกมหลัง event สุดท้าย
+const SKIP_MIN_IDLE = 2.5; // ข้ามช่วงว่างเมื่อยาวกว่านี้ (วิ) — hysteresis กัน micro-skip ซ้ำจาก tick 200ms
+const POST_SKIP_IDLE = 2;  // จังหวะหายใจที่เหลือหลังข้าม ก่อน narration ถัดไปโผล่ (วิ)
 
 export function useLiveLevelEngine(level, { onFinish } = {}) {
   const events = useMemo(() => level?.events || [], [level]);
@@ -116,6 +118,18 @@ export function useLiveLevelEngine(level, { onFinish } = {}) {
       flashPopup(RATINGS.MISS, lastMiss?.missFeedback_th || 'พลาด!');
       syncResolved();
     }
+
+    // fast-forward ช่วงว่างที่ไม่มี event ให้กด — event เรียงตามเวลา ตัวแรกที่ยัง
+    // unresolved (หลัง sweep ด้านบนแล้ว) เป็นตัวกำหนดว่า window เปิดหรือยัง
+    const nextIdx = events.findIndex((e, i) => !resolvedRef.current.has(i));
+    if (nextIdx >= 0) {
+      const nextOpen = events[nextIdx].t - NARRATION_LEAD;
+      if (elapsed < nextOpen && nextOpen - elapsed > SKIP_MIN_IDLE) {
+        clock.skipTo(nextOpen - POST_SKIP_IDLE);
+        return; // ให้ tick รอบถัดไปประมวลผลจาก elapsed ใหม่ (กัน double-skip/finish-check ค่าเก่า)
+      }
+    }
+
     const lastT = events.length ? events[events.length - 1].t : 0;
     const lastLate = events.length ? (events[events.length - 1].window?.late ?? 11) : 0;
     if (resolvedRef.current.size >= events.length || elapsed > lastT + lastLate + END_BUFFER) {

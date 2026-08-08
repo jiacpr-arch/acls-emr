@@ -29,10 +29,10 @@ export default function LiveStartOverlay({ title, coachText, onDone }) {
   }, [count, reducedMotion]);
 
   return (
-    <div className="rgaa-startoverlay">
+    <div className="rgaa-startoverlay" style={{ cursor: 'pointer' }} onClick={() => setCount(0)}>
       {title && <div className="rgaa-startoverlay-title">{title}</div>}
       <div key={count} className="rgaa-startoverlay-num">{count > 0 ? count : 'เริ่ม!'}</div>
-      {coachText && <div className="rgaa-startoverlay-coach">{coachText}</div>}
+      <div className="rgaa-startoverlay-coach">{coachText ? `${coachText} (แตะเพื่อเริ่มเลย)` : 'แตะเพื่อเริ่มเลย'}</div>
     </div>
   );
 }

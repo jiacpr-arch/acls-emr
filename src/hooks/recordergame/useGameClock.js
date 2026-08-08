@@ -54,6 +54,15 @@ export function useGameClock(onTick) {
     pause();
   }, [pause]);
 
+  // ข้ามเวลาไปยัง sec ทันที (ใช้ fast-forward ช่วงว่างที่ไม่มี event ให้กด) —
+  // ไม่เรียก onTick ในนี้ กัน recursion เวลาถูกเรียกจากใน handleTick เอง
+  // ปล่อยให้ tick รอบถัดไป (200ms) รับค่าใหม่ไปประมวลผลเอง
+  const skipTo = useCallback((sec) => {
+    baseRef.current = sec;
+    if (startedAtRef.current != null) startedAtRef.current = Date.now();
+    setElapsed(sec);
+  }, []);
+
   const reset = useCallback(() => {
     clearTick();
     baseRef.current = 0;
@@ -64,5 +73,5 @@ export function useGameClock(onTick) {
 
   useEffect(() => () => clearTick(), []);
 
-  return { elapsed, running, start, pause, resume, stop, reset };
+  return { elapsed, running, start, pause, resume, stop, reset, skipTo };
 }
