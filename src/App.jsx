@@ -50,6 +50,7 @@ import RhythmQuiz from './pages/RhythmQuiz';
 import SkillScenarioHub from './pages/SkillScenarioHub';
 import SkillScenario from './pages/SkillScenario';
 import NewsPage from './pages/NewsPage';
+import GoCampaign from './pages/GoCampaign';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import SiteFooter from './components/SiteFooter';
@@ -129,6 +130,8 @@ function App() {
     || /^\/video-lessons\/.+/.test(location.pathname);
   // หน้าฝึก CPR + เกมสถานการณ์ตัดสินใจ — เป็นเครื่องมือฝึกจริง ไม่ใช่หน้าขายคอร์ส
   // ปุ่ม LINE ลอยจะไปบังคำอธิบาย/ปุ่มควบคุมพอดี จึงซ่อนไว้เฉพาะหน้านี้
+  // /go/<slug> เป็นหน้าเปลี่ยนทางชั่วขณะ — ไม่ต้องโชว์ tab bar/footer ให้กระพริบ
+  const isShortlink = location.pathname.startsWith('/go/');
   const isPractice = location.pathname === '/skill-practice'
     || /^\/bls\/scenario\/.+/.test(location.pathname)
     || /^\/scenario\/.+/.test(location.pathname);
@@ -174,6 +177,8 @@ function App() {
         {/* เกม Code Blue เปิดทั้ง ACLS และ BLS/MorRoo — คลังโจทย์กรองตามโหมดเอง */}
         <Route path="/sim" element={<CodeBlueSim />} />
         <Route path="/sim-board" element={<CodeBlueLeaderboard />} />
+        {/* ลิงก์สั้นสำหรับโพสต์โซเชียล — /go/reel เด้งไป /sim พร้อมแนบ utm_* ให้เอง */}
+        <Route path="/go/:campaign" element={<GoCampaign />} />
         {IS_ACLS && <Route path="/games" element={<GamesHub />} />}
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
@@ -388,10 +393,10 @@ function App() {
       </Routes>
       </ErrorBoundary>
       {/* "เว็บในเครือเรา" footer — sibling morroo.com sites, like morroo.com */}
-      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && <SiteFooter />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isShortlink && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin + recorder-game play */}
-      {!isRecording && !isAdmin && !isRecorderGamePlay && <BottomTabBar />}
-      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isPractice && <LineFloatButton />}
+      {!isRecording && !isAdmin && !isRecorderGamePlay && !isShortlink && <BottomTabBar />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isPractice && !isShortlink && <LineFloatButton />}
       <Analytics />
       <MetaPixel />
     </div>
