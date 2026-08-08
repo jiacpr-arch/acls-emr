@@ -370,8 +370,9 @@ function App() {
           }
         />
 
-        {IS_BLS && <Route path="/" element={<PreCourse />} />}
-        {IS_BLS && <Route path="/new-case" element={<NewCase />} />}
+        {/* หน้าแรก BLS ลอกโครง NewCase ของ ACLS มา (Phase B) — /pre-course ยังอยู่ที่เดิม */}
+        {IS_BLS && <Route path="/" element={<NewCase />} />}
+        {IS_BLS && <Route path="/new-case" element={<Navigate to="/" replace />} />}
         {IS_BLS && <Route path="/recording" element={<Recording />} />}
         {IS_BLS && <Route path="/history" element={<Dashboard />} />}
         {IS_BLS && <Route path="/skill-practice" element={<BLSSkillPractice />} />}
