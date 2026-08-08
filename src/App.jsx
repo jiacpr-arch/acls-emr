@@ -2,7 +2,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { useSettingsStore } from './stores/settingsStore';
-import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, IS_DEFIB, courseMeta } from './config/courseMode';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, IS_DEFIB, courseMeta, QA_DEEP_PATH } from './config/courseMode';
 import { useCourseModeInit } from './hooks/useCourseModeInit';
 import Dashboard from './pages/Dashboard';
 import NewCase from './pages/NewCase';
@@ -168,9 +168,11 @@ function App() {
         {IS_ACLS && <Route path="/drill" element={<DrillTimer />} />}
         {IS_ACLS && <Route path="/compare" element={<CaseCompare />} />}
         {IS_ACLS && <Route path="/als" element={<ALSKnowledge />} />}
-        {IS_ACLS && <Route path="/qa-acls-deep" element={<QAAclsDeep />} />}
-        {IS_ACLS && <Route path="/qa-acls-deep/:chapterId" element={<QAAclsDeepCategory />} />}
-        {IS_ACLS && <Route path="/qa-acls-deep/:chapterId/:qNum" element={<QAAclsDeepQuestion />} />}
+        {/* Q&A เชิงลึก — ACLS ที่ /qa-acls-deep (Supabase-backed), BLS ที่ /qa-deep
+            (เนื้อหา static ล้วน — ดู qaDeepService.js) */}
+        {(IS_ACLS || IS_BLS) && <Route path={QA_DEEP_PATH} element={<QAAclsDeep />} />}
+        {(IS_ACLS || IS_BLS) && <Route path={`${QA_DEEP_PATH}/:chapterId`} element={<QAAclsDeepCategory />} />}
+        {(IS_ACLS || IS_BLS) && <Route path={`${QA_DEEP_PATH}/:chapterId/:qNum`} element={<QAAclsDeepQuestion />} />}
         {/* เกม Code Blue เปิดทั้ง ACLS และ BLS/MorRoo — คลังโจทย์กรองตามโหมดเอง */}
         <Route path="/sim" element={<CodeBlueSim />} />
         <Route path="/sim-board" element={<CodeBlueLeaderboard />} />
