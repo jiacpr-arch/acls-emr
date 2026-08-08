@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--
+  ต้นฉบับใบประชาสัมพันธ์คอร์ส ALS/ACLS รพ.รามคำแหง 4-5 ส.ค. 2569 (rama-acls-promo-2569.png)
+  วิธี regenerate:
+  1. ฟอนต์ Sarabun 400/600/700 อยู่ที่ ./fonts/sarabun-{400,600,700}.ttf
+  2. QR ชี้ไปหน้าเว็บ: node -e "require('qrcode').toFile('rama-promo-qr.png',
+     'https://acls.morroo.com', {width:600, margin:1, errorCorrectionLevel:'H'}, console.log)"
+  3. chromium --headless --screenshot=rama-acls-promo-2569.png
+     --window-size=1024,1448 --force-device-scale-factor=2 --hide-scrollbars <ไฟล์นี้>
+  หมายเหตุ: ราคา/จำนวนรับ/กำหนดการละเอียด ยังไม่ระบุ — เพิ่มได้ในกล่อง "สมัคร-สอบถาม"
+-->
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ใบประชาสัมพันธ์ ALS รพ.รามคำแหง 4-5 ส.ค. 2569</title>
+<style>
+  @font-face { font-family: 'Sarabun'; font-weight: 400; src: url('fonts/sarabun-400.ttf'); }
+  @font-face { font-family: 'Sarabun'; font-weight: 600; src: url('fonts/sarabun-600.ttf'); }
+  @font-face { font-family: 'Sarabun'; font-weight: 700; src: url('fonts/sarabun-700.ttf'); }
+  :root {
+    --red: #DC2626; --red-dark: #B91C1C; --red-bg: #FEF2F2;
+    --blue: #2563EB; --blue-dark: #1D4ED8; --blue-bg: #EFF6FF;
+    --green: #059669; --green-bg: #ECFDF5;
+    --yellow-bg: #FFFBEB; --yellow-line: #FDE68A; --amber: #B45309;
+    --ink: #1F2937; --muted: #6B7280; --line: #E5E7EB;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1024px; height: 1448px; font-family: 'Sarabun', sans-serif; color: var(--ink);
+    background: #fff; padding: 0 30px; display: flex; flex-direction: column; gap: 13px; overflow: hidden; }
+
+  /* ── Top ribbon ─────────────────────── */
+  .ribbon { background: linear-gradient(90deg, var(--red-dark), var(--red)); color: #fff;
+    margin: 0 -30px; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center;
+    font-size: 19px; font-weight: 700; letter-spacing: .5px; }
+  .ribbon .beat { font-size: 17px; font-weight: 600; opacity: .95; }
+
+  /* ── Header ─────────────────────────── */
+  .header { display: flex; align-items: center; gap: 24px; margin-top: 6px; }
+  .badge { width: 175px; flex: none; }
+  .badge img { width: 100%; }
+  .header-right { flex: 1; }
+  .open { display: inline-block; background: var(--red); color: #fff; font-size: 22px; font-weight: 700;
+    border-radius: 999px; padding: 5px 26px; margin-bottom: 10px; }
+  h1 { font-size: 46px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+  h1 .red { color: var(--red); }
+  .subtitle { font-size: 24px; color: var(--muted); font-weight: 600; margin-top: 6px; }
+
+  /* ── Date / venue banner ────────────── */
+  .when { background: var(--blue-dark); color: #fff; border-radius: 20px; display: flex;
+    align-items: center; justify-content: space-around; padding: 14px 24px; gap: 18px; }
+  .when .item { display: flex; align-items: center; gap: 14px; }
+  .when .em { font-size: 44px; line-height: 1; }
+  .when .lbl { font-size: 17px; font-weight: 600; opacity: .85; }
+  .when .big { font-size: 30px; font-weight: 700; line-height: 1.25; }
+  .when .divider { width: 2px; height: 64px; background: rgba(255,255,255,.35); border-radius: 2px; }
+
+  /* ── Audience pills ─────────────────── */
+  .who { text-align: center; }
+  .who .t { font-size: 20px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+  .pills { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .pill { border: 2px solid var(--blue); color: var(--blue); font-size: 19px; font-weight: 700;
+    border-radius: 999px; padding: 5px 20px; background: var(--blue-bg); }
+
+  /* ── Highlights ─────────────────────── */
+  .high { border: 2px solid var(--line); border-radius: 20px; padding: 14px 26px 9px; }
+  .high .h-title { display: inline-flex; align-items: center; gap: 10px; background: var(--red); color: #fff;
+    font-size: 21px; font-weight: 700; border-radius: 999px; padding: 6px 24px; margin-bottom: 12px; }
+  .li { display: flex; align-items: center; gap: 14px; padding: 7px 0; border-bottom: 1.5px solid #F3F4F6;
+    font-size: 19.5px; font-weight: 600; line-height: 1.45; }
+  .li:last-child { border-bottom: none; }
+  .li .ic { width: 42px; height: 42px; border-radius: 50%; background: var(--red-bg); display: flex;
+    align-items: center; justify-content: center; font-size: 24px; flex: none; }
+  .li b { color: var(--red-dark); }
+
+  /* ── Stats row ──────────────────────── */
+  .stats { display: flex; gap: 14px; }
+  .stat { flex: 1; border-radius: 18px; padding: 11px 12px 10px; text-align: center; border: 2.5px solid; }
+  .stat .em { font-size: 32px; }
+  .stat .big { font-size: 27px; font-weight: 700; line-height: 1.2; margin: 2px 0; }
+  .stat .sub { font-size: 16.5px; color: var(--muted); font-weight: 600; }
+  .stat.a { background: var(--blue-bg);  border-color: #BFDBFE; } .stat.a .big { color: var(--blue); }
+  .stat.b { background: var(--red-bg);   border-color: #FECACA; } .stat.b .big { color: var(--red); }
+  .stat.c { background: var(--green-bg); border-color: #A7F3D0; } .stat.c .big { color: var(--green); }
+
+  /* ── Contact ────────────────────────── */
+  .contact { background: var(--yellow-bg); border: 2.5px solid var(--yellow-line); border-radius: 20px;
+    display: flex; align-items: center; gap: 24px; padding: 14px 28px; }
+  .contact .info { flex: 1; }
+  .contact .c-title { font-size: 25px; font-weight: 700; color: var(--amber); margin-bottom: 8px; }
+  .contact .row { display: flex; align-items: center; gap: 12px; font-size: 23px; font-weight: 700; padding: 4px 0; }
+  .contact .row .em { font-size: 26px; width: 34px; text-align: center; }
+  .contact .row .val { color: var(--blue-dark); }
+  .contact .note { font-size: 17px; font-weight: 600; color: var(--muted); margin-top: 6px; }
+  .qr-wrap { text-align: center; flex: none; }
+  .qr-wrap img { width: 150px; height: 150px; border: 2px solid var(--line); border-radius: 12px; background: #fff; padding: 6px; }
+  .qr-wrap .q { font-size: 16px; font-weight: 700; color: var(--muted); margin-top: 4px; }
+
+  /* ── Footer ─────────────────────────── */
+  .footer { position: fixed; left: 0; right: 0; bottom: 0; background: var(--blue-dark); color: #fff;
+    text-align: center; font-size: 22px; font-weight: 700; padding: 14px 0; }
+  .footer .sub { font-size: 16px; font-weight: 600; opacity: .85; }
+</style>
+</head>
+<body>
+
+<div class="ribbon">
+  <span>JIA TRAINER CENTER</span>
+  <span class="beat">acls.morroo.com&ensp;·&ensp;โทร 090-979-1212</span>
+</div>
+
+<div class="header">
+  <div class="badge"><img src="../public/images/acls-badge.png" alt="ALS Certified — JIA Trainer Center"></div>
+  <div class="header-right">
+    <div class="open">เปิดรับสมัครแล้ว</div>
+    <h1>หลักสูตรการกู้ชีพขั้นสูง<br><span class="red">ALS / ACLS Provider Course</span></h1>
+    <div class="subtitle">Advanced Cardiovascular Life Support · อบรมเต็มวัน เปิด 2 รอบ</div>
+  </div>
+</div>
+
+<div class="when">
+  <div class="item">
+    <span class="em">📅</span>
+    <div>
+      <div class="lbl">วันอบรม (เลือก 1 รอบ)</div>
+      <div class="big">รอบ 1: อังคาร 4 ส.ค. 2569<br>รอบ 2: พุธ 5 ส.ค. 2569</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="item">
+    <span class="em">🏥</span>
+    <div>
+      <div class="lbl">สถานที่</div>
+      <div class="big">โรงพยาบาลรามคำแหง<br>กรุงเทพมหานคร</div>
+    </div>
+  </div>
+</div>
+
+<div class="who">
+  <div class="t">เหมาะสำหรับ</div>
+  <div class="pills">
+    <span class="pill">แพทย์</span>
+    <span class="pill">พยาบาลวิชาชีพ</span>
+    <span class="pill">นักฉุกเฉินการแพทย์</span>
+    <span class="pill">บุคลากรทางการแพทย์</span>
+  </div>
+</div>
+
+<div class="high">
+  <div class="h-title">✨ จุดเด่นของหลักสูตร</div>
+  <div class="li"><span class="ic">📖</span><span>อิงแนวทางการช่วยชีวิต <b>ฉบับล่าสุด</b> — เนื้อหาอัปเดต ทันสมัย ใช้ได้จริงหน้างาน</span></div>
+  <div class="li"><span class="ic">💻</span><span><b>เรียน Pre-course ออนไลน์ให้จบ และสอบ Post-test ผ่านก่อนวันอบรม</b> ผ่าน acls.morroo.com</span></div>
+  <div class="li"><span class="ic">🫀</span><span>ฝึกปฏิบัติ<b>กลุ่มเล็ก</b>ครบทุกสถานี — CPR คุณภาพสูง · Airway · ยา · คลื่นไฟฟ้าหัวใจ · Defibrillation</span></div>
+  <div class="li"><span class="ic">🚨</span><span>สถานการณ์จำลอง <b>Code Blue</b> เสมือนจริง พร้อมสอบ Megacode รายบุคคล</span></div>
+  <div class="li"><span class="ic">🏆</span><span>ผ่านการอบรมรับ<b>ประกาศนียบัตร</b> พร้อมระบบติดตามผลการเรียนออนไลน์</span></div>
+</div>
+
+<div class="stats">
+  <div class="stat a"><div class="em">💻</div><div class="big">Pre-course</div><div class="sub">เรียนออนไลน์ + สอบ Post-test<br>ให้ผ่านก่อนวันอบรม</div></div>
+  <div class="stat b"><div class="em">🧑‍⚕️</div><div class="big">อบรม 1 วันเต็ม</div><div class="sub">เน้นฝึกปฏิบัติกับทีมวิทยากร<br>เลือกรอบ 4 หรือ 5 ส.ค.</div></div>
+  <div class="stat c"><div class="em">🏆</div><div class="big">Certificate</div><div class="sub">สอบผ่านรับประกาศนียบัตร<br>ALS Provider</div></div>
+</div>
+
+<div class="contact">
+  <div class="info">
+    <div class="c-title">📣 สมัคร / สอบถามรายละเอียด</div>
+    <div class="row"><span class="em">📞</span><span>โทร</span><span class="val">090-979-1212</span></div>
+    <div class="row"><span class="em">🌐</span><span>เว็บไซต์</span><span class="val">acls.morroo.com</span></div>
+    <div class="note">รับรอบละจำนวนจำกัด — สมัครก่อนเลือกรอบก่อน · สมัครแล้วรับรหัสเข้าเรียน Pre-course ออนไลน์ได้ทันที</div>
+  </div>
+  <div class="qr-wrap">
+    <img src="rama-promo-qr.png" alt="QR: acls.morroo.com">
+    <div class="q">สแกนดูรายละเอียด</div>
+  </div>
+</div>
+
+<div class="footer">
+  JIA Trainer Center × โรงพยาบาลรามคำแหง
+  <div class="sub">ALS / ACLS Provider Course · รอบ 4 ส.ค. และรอบ 5 ส.ค. 2569</div>
+</div>
+
+</body>
+</html>
