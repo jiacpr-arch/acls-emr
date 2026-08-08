@@ -17,7 +17,7 @@ import LabsPanel from '../components/LabsPanel';
 import ReversibleCausesPanel from '../components/ReversibleCausesPanel';
 import EKGCapture from '../components/EKGCapture';
 import SimulationEngine, { StaffTakeover, ScenarioComplete } from '../components/SimulationEngine';
-import { getScenarioById } from '../data/scenarios';
+import { getScenarioById } from '../data/activeDrillScenarios';
 import EndCaseModal from '../components/EndCaseModal';
 import CheatSheet from '../components/CheatSheet';
 import SBARHandover from '../components/SBARHandover';

@@ -375,6 +375,7 @@ function App() {
         {IS_BLS && <Route path="/new-case" element={<Navigate to="/" replace />} />}
         {IS_BLS && <Route path="/recording" element={<Recording />} />}
         {IS_BLS && <Route path="/history" element={<Dashboard />} />}
+        {IS_BLS && <Route path="/scenarios" element={<ScenarioSelect />} />}
         {IS_BLS && <Route path="/skill-practice" element={<BLSSkillPractice />} />}
         {IS_BLS && <Route path="/bls/scenario" element={<BLSScenarioHub />} />}
         {IS_BLS && <Route path="/bls/scenario/:stageId" element={<BLSScenario />} />}
