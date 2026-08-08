@@ -292,7 +292,6 @@ export const CHARACTERS = {
     name: 'ผู้ป่วยหญิง',
     role: 'Patient',
     plate: ['#C48CA8', '#8E5C77'],
-    probeArt: true,
     placeholder(pose) {
       const skin = '#F4C9A3', gown = '#E4B0C6', gownD = '#C48CA8', hair = '#3A2E35';
       return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
@@ -316,7 +315,6 @@ export const CHARACTERS = {
     name: 'ผู้ป่วยตั้งครรภ์',
     role: 'Patient',
     plate: ['#AC8CC4', '#7C5C94'],
-    probeArt: true,
     placeholder(pose) {
       const skin = '#F4C9A3', gown = '#D4BCE4', gownD = '#AC8CC4', hair = '#4A382E';
       return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
@@ -341,7 +339,6 @@ export const CHARACTERS = {
     name: 'ผู้ป่วยเด็ก',
     role: 'Patient',
     plate: ['#E0A845', '#A87A24'],
-    probeArt: true,
     placeholder(pose) {
       const skin = '#F6CFA8', shirt = '#F0C048', shirtD = '#C89A2E', hair = '#33291F';
       return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
