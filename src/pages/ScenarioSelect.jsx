@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { scenarios, getScenariosByLevel } from '../data/scenarios';
+import { scenarios, getScenariosByLevel } from '../data/activeDrillScenarios';
 import { useCaseStore } from '../stores/caseStore';
 import { getScenarioGrades } from '../utils/scenarioProgress';
+import { IS_BLS } from '../config/courseMode';
 import {
   Heart, TrendingDown, TrendingUp, Brain, FileText,
-  ChevronRight, X, GraduationCap, Edit,
+  ChevronRight, X, GraduationCap, Edit, HeartPulse, Wind, Sparkles,
 } from '../components/ui/Icon';
 import { Target } from 'lucide-react';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
@@ -20,10 +21,19 @@ const GRADE_TONE = {
 };
 
 const LEVEL_TH = { all: 'ทั้งหมด', basic: 'พื้นฐาน', intermediate: 'กลาง', megacode: 'Megacode' };
-const CATEGORY_TH = {
-  cardiac_arrest: 'หัวใจหยุดเต้น', bradycardia: 'หัวใจเต้นช้า', tachycardia: 'หัวใจเต้นเร็ว',
-  mi: 'หัวใจขาดเลือด', stroke: 'สโตรก',
-};
+// category label/icon แยกชุดกันระหว่าง ACLS (ตามอัลกอริทึม) กับ BLS (ตามกลุ่มผู้ป่วย/ทักษะ)
+const CATEGORY_TH = IS_BLS
+  ? {
+      cardiac_arrest: 'หัวใจหยุดเต้น (ผู้ใหญ่)', pediatric_arrest: 'เด็ก/ทารก',
+      respiratory: 'หยุดหายใจ/Opioid', special: 'สถานการณ์พิเศษ',
+    }
+  : {
+      cardiac_arrest: 'หัวใจหยุดเต้น', bradycardia: 'หัวใจเต้นช้า', tachycardia: 'หัวใจเต้นเร็ว',
+      mi: 'หัวใจขาดเลือด', stroke: 'สโตรก',
+    };
+// category ที่ต้องรอครบรอบ CPR 2 นาทีก่อน shock/เช็คชีพจร/epi ซ้ำ (คู่กับ
+// ARREST_GATED_CATEGORIES ใน SimulationEngine.jsx)
+const CYCLE_GATED_CATEGORIES = ['cardiac_arrest', 'pediatric_arrest'];
 
 export default function ScenarioSelect() {
   const navigate = useNavigate();
@@ -41,13 +51,20 @@ export default function ScenarioSelect() {
     megacode: 'bg-danger/15 text-danger',
   };
 
-  const categoryIcon = {
-    cardiac_arrest: Heart,
-    bradycardia: TrendingDown,
-    tachycardia: TrendingUp,
-    mi: Heart,
-    stroke: Brain,
-  };
+  const categoryIcon = IS_BLS
+    ? {
+        cardiac_arrest: HeartPulse,
+        pediatric_arrest: Heart,
+        respiratory: Wind,
+        special: Sparkles,
+      }
+    : {
+        cardiac_arrest: Heart,
+        bradycardia: TrendingDown,
+        tachycardia: TrendingUp,
+        mi: Heart,
+        stroke: Brain,
+      };
 
   const startScenario = async (scenarioId, chosenMode) => {
     if (loading) return;
@@ -167,10 +184,14 @@ export default function ScenarioSelect() {
               <div className="section-header">วิธีเล่น</div>
               <BriefLine>คุณคือผู้บันทึก (Recorder) ของทีมกู้ชีพ</BriefLine>
               <BriefLine>ตัวละครบนฉากจะเล่าเหตุการณ์ทีละขั้น</BriefLine>
-              <BriefLine>กดบันทึกบนหน้า Recording จริงให้ตรงขั้นตอน ACLS — ทำถูกจึงไปขั้นต่อไป</BriefLine>
+              <BriefLine>กดบันทึกบนหน้า Recording จริงให้ตรงขั้นตอน {IS_BLS ? 'BLS' : 'ACLS'} — ทำถูกจึงไปขั้นต่อไป</BriefLine>
               <BriefLine>ผิดครบ 4 ครั้ง อาจารย์จะเข้ายึดเคส</BriefLine>
-              {briefScenario.category === 'cardiac_arrest' && (
-                <BriefLine tone="warning">⚠ Shock / เช็คชีพจร / Epi ซ้ำ ต้องรอครบรอบ CPR 2 นาทีก่อน</BriefLine>
+              {CYCLE_GATED_CATEGORIES.includes(briefScenario.category) && (
+                <BriefLine tone="warning">
+                  {IS_BLS
+                    ? '⚠ Shock / AED Analyze ซ้ำ ต้องรอครบรอบ CPR 2 นาทีก่อน'
+                    : '⚠ Shock / เช็คชีพจร / Epi ซ้ำ ต้องรอครบรอบ CPR 2 นาทีก่อน'}
+                </BriefLine>
               )}
             </div>
 

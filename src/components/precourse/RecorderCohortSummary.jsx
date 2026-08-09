@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Target, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { rpcGetCohortRecorderSummary } from '../../services/cohortSync';
-import { getLevelById } from '../../data/recorderGameLevels';
-import { getPackById, CASE_CATEGORY_META } from '../../data/recorderCases';
+import { getLevelById } from '../../data/activeRecorderLevels';
+import { getPackById, CASE_CATEGORY_META } from '../../data/activeRecorderCases';
 
 const MODE_LABEL = { hunt: 'รู้จักปุ่ม', live: 'บันทึกสด', audit: 'ตรวจ Log', endless: 'Endless' };
 

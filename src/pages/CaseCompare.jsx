@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAllCases, getFullCase } from '../db/database';
 import { Layers } from 'lucide-react';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import { IS_BLS } from '../config/courseMode';
 
 export default function CaseCompare() {
   const [cases, setCases] = useState([]);
@@ -90,7 +91,8 @@ export default function CaseCompare() {
           <Stat label="CCF %" a={dataA?.ccf ? `${dataA.ccf}%` : '—'} b={dataB?.ccf ? `${dataB.ccf}%` : '—'} better="higher" />
           <Stat label="CPR Cycles" a={dataA?.cycleNumber} b={dataB?.cycleNumber} />
           <Stat label="Shocks" a={getShockCount(dataA)} b={getShockCount(dataB)} />
-          <Stat label="Epi Doses" a={getEpiCount(dataA)} b={getEpiCount(dataB)} />
+          {/* BLS ไม่มีการให้ยา — ซ่อนแถวนี้แทนที่จะโชว์ 0 ทั้งคู่ให้ดูเหมือนบั๊ก */}
+          {!IS_BLS && <Stat label="Epi Doses" a={getEpiCount(dataA)} b={getEpiCount(dataB)} />}
           <Stat label="Events" a={dataA?.events?.length} b={dataB?.events?.length} />
           <Stat label="EtCO₂ readings" a={dataA?.etco2Readings?.length} b={dataB?.etco2Readings?.length} />
           <Stat label="Initial Rhythm" a={dataA?.patient?.initialRhythm} b={dataB?.patient?.initialRhythm} />

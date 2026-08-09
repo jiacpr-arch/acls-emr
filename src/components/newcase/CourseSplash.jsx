@@ -1,10 +1,20 @@
 import { useEffect, useState } from 'react';
 import { HeartPulse, ChevronUp } from 'lucide-react';
 
-// Full-screen "cover" splash that greets users on first landing of the ACLS
-// app. Crimson gradient, EKG-style baseline pulse, expanding rings, big
-// wordmark. Tap anywhere to dismiss with a fade/zoom out.
-export default function ACLSSplash({ onDismiss }) {
+// Full-screen "cover" splash that greets users on first landing of the app.
+// Palette-driven gradient (ACLS = crimson, BLS = sky), EKG-style baseline
+// pulse, expanding rings, big wordmark. Tap anywhere to dismiss with a
+// fade/zoom out. Generalized from the original ACLS-only ACLSSplash so the
+// same visual system can be reused per course with only the palette + copy
+// swapped — the ring/EKG/vignette chrome stays white-based on purpose.
+export default function CourseSplash({
+  onDismiss,
+  palette = { from: '#F97316', mid: '#DC2626', to: '#7F1D1D' },
+  eyebrow = 'Advanced Cardiac Life Support',
+  wordmark = 'ACLS',
+  tagline = 'ระบบบันทึก code blue · สำหรับบุคลากรทางการแพทย์',
+  badge = 'ILCOR 2025',
+}) {
   const [exiting, setExiting] = useState(false);
   const [armed, setArmed] = useState(false);
 
@@ -27,7 +37,7 @@ export default function ACLSSplash({ onDismiss }) {
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden cursor-pointer select-none"
       style={{
         background:
-          'radial-gradient(circle at 30% 20%, #F97316 0%, #DC2626 40%, #7F1D1D 100%)',
+          `radial-gradient(circle at 30% 20%, ${palette.from} 0%, ${palette.mid} 40%, ${palette.to} 100%)`,
         opacity: exiting ? 0 : 1,
         transform: exiting ? 'scale(1.04)' : 'scale(1)',
         transition: 'opacity 0.32s ease, transform 0.32s ease',
@@ -86,16 +96,16 @@ export default function ACLSSplash({ onDismiss }) {
         </div>
 
         <div className="text-xs font-bold uppercase tracking-[0.32em] text-white/80 mb-2">
-          Advanced Cardiac Life Support
+          {eyebrow}
         </div>
         <h1
           className="text-[52px] font-extrabold tracking-tight leading-none drop-shadow-sm"
           style={{ fontFamily: 'inherit' }}
         >
-          ACLS
+          {wordmark}
         </h1>
         <div className="text-center mt-3 text-white/90 text-[15px] font-semibold max-w-[300px]">
-          ระบบบันทึก code blue · สำหรับบุคลากรทางการแพทย์
+          {tagline}
         </div>
         <div
           className="mt-5 inline-flex items-center gap-2 px-4 py-1.5 text-2xs font-bold uppercase tracking-widest text-white"
@@ -105,7 +115,7 @@ export default function ACLSSplash({ onDismiss }) {
             borderRadius: 99,
           }}
         >
-          ILCOR 2025
+          {badge}
         </div>
       </div>
 

@@ -33,12 +33,15 @@ export default function Learn() {
           title: t('learn_practice', lang),
           items: [
             { path: '/skill-practice', Icon: HeartPulse, label: t('cpr_drill', lang), desc: t('cpr_drill_desc', lang), color: '#DC2626' },
+            { path: '/scenarios', Icon: Hospital, label: t('scenarios', lang), desc: t('scenarios_desc', lang), color: '#D97706' },
+            { path: '/games', Icon: Siren, label: t('games', lang), desc: 'เกมกู้ชีพ · ซ้อมมือ Recorder', color: 'var(--color-accent)', game: true },
           ],
         },
         {
           title: t('learn_reference', lang),
           items: [
             { path: '/bls/knowledge', Icon: BookOpen, label: 'คลังความรู้ BLS', desc: 'หนังสือ + Q&A เชิงลึก + AI Tips', color: '#2563EB' },
+            { path: '/qa-deep', Icon: MessageCircle, label: 'Q&A BLS เชิงลึก', desc: 'คำถาม-คำตอบพร้อม infographic', color: 'var(--color-accent)' },
             { path: '/guide', Icon: Compass, label: t('guide', lang), desc: t('guide_desc', lang), color: '#059669' },
           ],
         },
@@ -75,7 +78,7 @@ export default function Learn() {
           title: t('learn_practice', lang),
           items: [
             // เหมือนของ ACLS: การ์ดไฮไลต์เกม + โบนัสไม่บังคับ ไม่ใช่ gate ของใบประกาศ
-            { path: '/sim', Icon: Siren, label: t('code_sim', lang), desc: t('code_sim_desc', lang), color: courseMeta.themeColor, game: true },
+            { path: '/sim', Icon: Siren, label: t('code_sim', lang), desc: t('code_sim_desc', lang), color: 'var(--color-accent)', game: true },
           ],
         },
       ]
@@ -95,7 +98,7 @@ export default function Learn() {
           title: t('learn_reference', lang),
           items: [
             { path: '/als',           Icon: BookOpen, label: t('als_knowledge', lang), desc: t('als_knowledge_desc', lang), color: '#2563EB' },
-            { path: '/qa-acls-deep',  Icon: MessageCircle, label: t('qa_deep', lang), desc: t('qa_deep_desc', lang), color: '#0284C7' },
+            { path: '/qa-acls-deep',  Icon: MessageCircle, label: t('qa_deep', lang), desc: t('qa_deep_desc', lang), color: 'var(--color-accent)' },
             { path: '/algorithm',     Icon: GitBranch, label: t('algorithms', lang), desc: t('algorithms_desc', lang), color: '#7C3AED' },
             { path: '/guide',         Icon: Compass, label: t('guide', lang), desc: t('guide_desc', lang), color: '#059669' },
           ],
