@@ -747,6 +747,19 @@ const lessonDefs = [
   },
 ];
 
+// Per-lesson videos — โครงพร้อมเติม: อัปโหลดวิดีโอแล้ววาง url ลงบทที่ต้องการ
+// แล้วลบ comment ออก (รูปแบบเดียวกับ bls-hcp/lessons.js) — บทที่ไม่มี entry จะไม่แสดงกล่องวิดีโอ
+//
+//   'iv-6': [ { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/XXXX' } ],
+//
+// ใส่ได้หลายคลิปต่อบท (เช่น label 'เลือกเส้น' / 'รัด tourniquet') และถ้าต้องการผูกวิดีโอ
+// เฉพาะขั้น ให้ใส่ videos: [...] ใน read step นั้นโดยตรง:
+//   { type: 'read', heading: '...', body: '...',
+//     videos: [ { platform: 'youtube', label: '...', url: '' } ] }
+//
+// บทที่รอวิดีโอ: iv-1 (เปิดเส้นวิกฤต), iv-2 (IO), iv-3 (ยาระหว่าง CPR), iv-4 (route),
+// iv-5 (สารน้ำ), iv-6 (เลือกเส้น ward), iv-7 (เทคนิคแทง+ยึดตรึง — สำคัญสุด ควรมีคลิปสาธิต),
+// iv-8 (ภาวะแทรกซ้อน/grading), iv-9 (การดูแลระหว่างคาเข็ม)
 const lessonVideos = {};
 
 export const { preCourseLessons, findLessonById, getLessonStepCount, getLessonQuizCount } = buildLessons(lessonDefs, lessonVideos);
