@@ -230,7 +230,8 @@ export default function RecorderEndless() {
   return (
     <div className="relative">
       <LivePlay key={current.id} level={caseToLevel(current)} onFinish={handleCaseFinish}
-        hudLabel={`เคส ${cleared + 1} · ❤×${livesLeft}`} />
+        hudLabel={`เคส ${cleared + 1} · ❤×${livesLeft}`}
+        readyMode={cleared > 0 ? 'none' : 'countdown'} />
     </div>
   );
 }

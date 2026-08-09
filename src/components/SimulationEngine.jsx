@@ -154,7 +154,7 @@ function matchWrongAction(step, eventType, eventCategory) {
   return null;
 }
 
-export default function SimulationEngine({ scenario, mode, step: realStep, onComplete, onStaffTakeover, onNarrationBusy }) {
+export default function SimulationEngine({ scenario, mode, step: realStep, onComplete, onStaffTakeover }) {
   const isLearning = mode === 'learning';
   // step จริงจาก Recording.jsx เดินคนละ state กับ currentStepIdx ของ engine นี้ (sync กันแบบ
   // เดาจาก event log เท่านั้น) — ถ้า wizard จริงไปถึง ROSC/TERMINATED แล้ว engine นี้ต้องเงียบ
@@ -164,7 +164,7 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [score, setScore] = useState({ correct: 0, wrong: 0, total: 0, reactions: [], steps: [] });
   const [wrongCount, setWrongCount] = useState(0);
-  const [stepStartTime, setStepStartTime] = useState(Date.now());
+  const [stepStartTime, setStepStartTime] = useState(() => Date.now());
   const [feedback, setFeedback] = useState(null);
   const [teamMessages, setTeamMessages] = useState([]);
   const [patientVitals, setPatientVitals] = useState(scenario.steps[0]?.vitals || { hr: 0, bp: '0/0', spo2: 0, etco2: 0 });
@@ -179,6 +179,9 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
   const reactionTimerRef = useRef(null);
   // กัน effect (key ด้วย events.length) ประมวลผล event เดิมซ้ำตอน re-render
   const processedCountRef = useRef(null);
+  // วินาทีที่ข้าม cycle-gate สะสมของ step ปัจจุบัน (ปุ่ม "ข้ามเวลารอ") — หักออกจาก
+  // reactionTime กัน avg reaction ในแถบคะแนนบวมเทียมตามเวลาที่ข้ามไป
+  const skipAdjustRef = useRef(0);
 
   const currentStep = scenario.steps[currentStepIdx];
   const maxWrong = 4;
@@ -192,6 +195,7 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
   // Update vitals when step changes + เสียง alarm ตอนเจอ rhythm วิกฤตใหม่
   useEffect(() => {
     if (currentStep?.vitals) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPatientVitals(prev => ({ ...prev, ...currentStep.vitals }));
     }
     if (useCinematic && soundEnabled && currentStepIdx > 0) {
@@ -201,20 +205,11 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
     }
   }, [currentStepIdx]);
 
-  // "จังหวะอ่านก่อนกด" สั้นๆ ทุกครั้งที่ step เปลี่ยนจริง (ไม่ใช่ทุก re-render) — ให้เวลาผู้เล่น
-  // เห็นบทพูดตัวละครก่อนปุ่มเลือกจะกดได้ ผูกกับ currentStepIdx เท่านั้นเพื่อไม่ให้ทริกเกอร์ซ้ำ
-  // ตอน vitals/teamMessages อัปเดตเฉยๆ — ต้นทาง narrationBusy ทั้งหมด ไม่กระทบการบันทึกจริงนอก scenario
-  useEffect(() => {
-    onNarrationBusy?.(true);
-    const id = setTimeout(() => onNarrationBusy?.(false), 900);
-    return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStepIdx]);
-
   // นับถอยหลังรอบ CPR ให้เห็นล่วงหน้า — เฉพาะ step ที่ติด cycle-gate จริง (ดู isCycleGatedToken)
   useEffect(() => {
     const gated = !caseIsOver && isLearning && scenario.category === 'cardiac_arrest'
       && currentStep?.correctActions?.some(isCycleGatedToken);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!gated) { setGateRemain(null); return undefined; }
     const tick = () => {
       const remain = Math.ceil(CYCLE_GATE_SECONDS - (Date.now() - stepStartTime) / 1000);
@@ -241,6 +236,18 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
     if (reactionTimerRef.current) clearTimeout(reactionTimerRef.current);
     setLastResult(result);
     reactionTimerRef.current = setTimeout(() => setLastResult(null), holdMs);
+  };
+
+  // ปุ่ม "ข้ามเวลารอ" ในแถบนับถอยหลัง (โหมดฝึกเท่านั้น — ดู render ด้านล่าง) — ย้อน
+  // stepStartTime ให้ cycle-gate check ในตัว event listener effect ด้านล่างผ่านทันที
+  // โน้ต: วงแหวน 2 นาทีของ TimerBar เป็นนาฬิกาคนละตัว ไม่เชื่อมกับ gate นี้เลย (ดู
+  // คอมเมนต์อธิบายเหตุผลใน effect เดียวกัน) หลังข้ามแล้ววงแหวนจะไม่ตรงกับ gate อีก
+  // ต่อไป — เป็น cosmetic เท่านั้น ไม่แก้
+  const skipCycleGate = () => {
+    const remainMs = Math.max(0, CYCLE_GATE_SECONDS * 1000 - (Date.now() - stepStartTime));
+    if (remainMs <= 0) return; // กัน double-tap
+    skipAdjustRef.current += remainMs / 1000;
+    setStepStartTime(prev => prev - remainMs);
   };
 
   // Listen for real recording events → correct / wrong
@@ -275,6 +282,7 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
       if (elapsedSinceCycle < CYCLE_GATE_SECONDS) {
         const remain = Math.max(1, Math.ceil(CYCLE_GATE_SECONDS - elapsedSinceCycle));
         const newWrong = wrongCount + 1;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setWrongCount(newWrong);
         setScore(prev => ({
           ...prev,
@@ -300,7 +308,7 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
     }
 
     if (matchedAction) {
-      const reactionTime = (Date.now() - stepStartTime) / 1000;
+      const reactionTime = Math.max(0, (Date.now() - stepStartTime) / 1000 - skipAdjustRef.current);
       const isShock = eventCategory === 'shock';
 
       // Update vitals — patient improves
@@ -336,7 +344,7 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
         pose: currentStep.onCorrect?.pose || 'happy',
         fx: isShock ? 'shock' : null,
         at: Date.now(),
-      }, isLearning ? 1800 : 900);
+      }, isLearning ? 1000 : 900);
 
       if (isLearning) {
         setFeedback({ correct: true, message: currentStep.hint_th || 'Correct!' });
@@ -346,6 +354,7 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
       if (currentStepIdx < scenario.steps.length - 1) {
         setCurrentStepIdx(prev => prev + 1);
         setStepStartTime(Date.now());
+        skipAdjustRef.current = 0;
       } else {
         setCompleted(true);
         onComplete(score);
@@ -407,9 +416,16 @@ export default function SimulationEngine({ scenario, mode, step: realStep, onCom
           soundEnabled={soundEnabled}
           onToggleSound={() => setSoundEnabled(s => !s)}
         />
-        {/* นับถอยหลังรอบ CPR (learning เท่านั้น) — เตือนล่วงหน้าก่อนจะโดนหักคะแนนเพราะกดเร็วไป */}
+        {/* นับถอยหลังรอบ CPR (learning เท่านั้น) — เตือนล่วงหน้าก่อนจะโดนหักคะแนนเพราะกดเร็วไป
+            + ปุ่มข้ามเวลารอ (โหมดฝึกเท่านั้น — โหมดสอบยังคงบังคับรอเต็มเวลาเหมือนเดิม) */}
         {isLearning && !collapsed && gateRemain != null && (
-          <div className="scn-hint">⏳ รอครบรอบ CPR 2 นาที — อีก {fmtCountdown(gateRemain)} จึงจะบันทึกขั้นต่อไปได้</div>
+          <div className="scn-hint flex items-center justify-between gap-2">
+            <span>⏳ รอครบรอบ CPR 2 นาที — อีก {fmtCountdown(gateRemain)} จึงจะบันทึกขั้นต่อไปได้</span>
+            <button type="button" onClick={skipCycleGate}
+              className="shrink-0 text-3xs font-bold underline decoration-dotted underline-offset-2">
+              ข้ามเวลารอ (โหมดฝึก)
+            </button>
+          </div>
         )}
         {/* Score bar (learning only) */}
         {isLearning && !collapsed && (
