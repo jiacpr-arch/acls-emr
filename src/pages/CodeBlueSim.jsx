@@ -136,6 +136,14 @@ function readPreviewScenario() {
   } catch { return null; }
 }
 
+// ?autostart=1 — ข้ามจอเลือกเคส/title เข้าเกมทันที ใช้กับทราฟฟิกจาก Games Hub
+// (game.morroo.com) ให้คนกดการ์ดแล้วเล่นได้เลยไม่ต้องเลือก/กดเริ่มเอง
+// (แพทเทิร์นเดียวกับ ?start=1 ของ SimRunner/ResusRunner ฝั่ง morroo)
+function readAutostart() {
+  if (typeof window === 'undefined') return false;
+  return new URLSearchParams(window.location.search).get('autostart') === '1';
+}
+
 // ปลดล็อกราย "หมวด" (track): เคสยากของหมวดปลดเมื่อผ่าน basic ของหมวดนั้นก่อน
 // — บังคับลำดับการเรียนให้ไต่ทีละ algorithm แทนปลดทั้งคลังพร้อมกัน
 const TRACK_BASIC_TO_UNLOCK = 2; // ต้องผ่าน basic ของหมวดอย่างน้อยเท่านี้ (หรือเท่าที่หมวดมี)
@@ -170,6 +178,19 @@ const isUnlocked = (sc, cleared, pool) => lockInfo(sc, cleared, pool).left === 0
 
 // สุ่มเคสให้ปุ่ม 🎲 — แยกไว้นอก component (react-hooks/purity ไม่ให้เรียก Math.random ใน render)
 const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
+
+// เคสแรกที่แนะนำให้เล่น — หมวดเรียงตาม TRACK_META.order, ในหมวดเรียงง่าย→ยาก
+// ตาม LEVEL_META.order (ลอกการจัดเรียง "orderedAll" ของหน้าเลือกเคส) เคสแรก
+// ที่ได้เป็นเคสพื้นฐานของหมวดแรกเสมอ จึงปลดล็อกให้ผู้เล่นใหม่เล่นได้ทันที —
+// ใช้ตอน autostart เลือกเคสให้อัตโนมัติแทนที่จะให้ผู้เล่นเลือกเอง
+function firstRecommendedCase(pool) {
+  const tracks = [...new Set(pool.map(trackOf))]
+    .sort((a, b) => (TRACK_META[a]?.order ?? 9) - (TRACK_META[b]?.order ?? 9));
+  const ordered = tracks.flatMap((tk) => pool
+    .filter((c) => trackOf(c) === tk)
+    .sort((a, b) => (LEVEL_META[a.level]?.order ?? 0) - (LEVEL_META[b.level]?.order ?? 0)));
+  return ordered[0] || pool[0];
+}
 
 export default function CodeBlueSim() {
   const navigate = useNavigate();
@@ -210,13 +231,18 @@ export default function CodeBlueSim() {
   const [view, setView] = useState(() => snapshot(createInitialState(DEFAULT_DIFFICULTY)));
 
   const [preview] = useState(readPreviewScenario);
+  // preview (admin ทดลองเล่น) ตั้งใจให้กดเริ่มเอง ไม่ผสมกับ autostart
+  const [autostart] = useState(() => readAutostart() && !readPreviewScenario());
   const initialPool = preview ? [preview] : builtInScenarios;
   // คลังโจทย์ = built-in ก่อน แล้ว merge โจทย์ published จาก Supabase เมื่อโหลดเสร็จ
   const [pool, setPool] = useState(initialPool);
-  // เลือกเคส: ถ้ามีเคสเดียวข้ามหน้าเลือกไปหน้า title เลย
-  const [sc, setSc] = useState(initialPool[0]);
+  // เลือกเคส: autostart เลือกเคสแนะนำให้เลย, ไม่งั้นถ้ามีเคสเดียวข้ามหน้าเลือกไปหน้า title เลย
+  const [sc, setSc] = useState(() => (autostart ? firstRecommendedCase(initialPool) : initialPool[0]));
   const [cleared, setCleared] = useState(readCleared);
-  const [screen, setScreen] = useState(initialPool.length > 1 ? 'select' : 'title'); // select | title | game | debrief
+  // autostart ข้ามหน้าเลือกเคสไปที่ title เลย (เอฟเฟกต์ด้านล่างจะกดเริ่มให้เองอีกที)
+  const [screen, setScreen] = useState(
+    autostart ? 'title' : (initialPool.length > 1 ? 'select' : 'title'),
+  ); // select | title | game | debrief
   const [selectFilter, setSelectFilter] = useState('all'); // all | <level id>
   const [quitMenu, setQuitMenu] = useState(false); // เมนูออก/เล่นใหม่ ระหว่างเล่น
   const [freshAwards, setFreshAwards] = useState([]); // เหรียญที่เพิ่งปลดล็อก (โชว์ใน debrief)
@@ -318,6 +344,18 @@ export default function CodeBlueSim() {
     t.type = null; t.dec = null; t.metronome = null; t.misc = [];
   }, []);
   useEffect(() => clearAllTimers, [clearAllTimers]);
+
+  // ทราฟฟิกจาก Games Hub: กดเริ่มให้อัตโนมัติโดยไม่ต้องรอผู้เล่นกดเอง — ยิงครั้ง
+  // เดียวตอน mount, requestStart/startGame เป็น function declaration จึง hoist
+  // ขึ้นมาใช้ได้ (แพทเทิร์นเดียวกับ autostart ของ SimRunner ฝั่ง morroo) ผ่าน
+  // requestStart แทน startGame ตรงๆ ให้ยังเจอ gate ชื่อนักเรียนถ้าอยู่ในคลาส
+  const autostartedRef = useRef(false);
+  useEffect(() => {
+    if (!autostart || autostartedRef.current) return;
+    autostartedRef.current = true;
+    requestStart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autostart]);
 
   // เลเยอร์ความกดดัน: เสียงหัวใจเต้น "ตุบ-ตุบ" พื้นหลังระหว่างเล่น
   // คำนวณ "ความตึงเครียด" ใหม่ทุกจังหวะเต้น จาก HP + ภาวะผู้ป่วย + นาทีบีบคั้นตอนตัดสินใจ
