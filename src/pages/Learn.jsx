@@ -118,10 +118,15 @@ export default function Learn() {
   // ขั้นถัดไป + progress ของเส้นทางหลัก มาจาก hook (แชร์กับการ์ดเรียนต่อหน้าแรก)
   const nextStepPath = next?.path ?? null;
   const prepProgress = total > 0 ? { done, total } : null;
+  // learn_subtitle เดิม hardcode คำว่า "ACLS" ในดิกชันนารีกลาง (ใช้ร่วมทุกคอร์ส) —
+  // สร้าง desc ที่นี่แทนเพื่อสลับชื่อคอร์สให้ถูกต้องทุกโหมด
+  const learnSubtitle = lang === 'th'
+    ? `เรียนรู้ ฝึกซ้อม และติดตามความก้าวหน้า ${courseMeta.shortName}`
+    : `Study, practice, and track your ${courseMeta.shortName} progress`;
 
   return (
     <div className="page-container flex flex-col gap-4 pb-24">
-      <PageHero title={t('learn', lang)} desc={t('learn_subtitle', lang)} />
+      <PageHero title={t('learn', lang)} desc={learnSubtitle} />
 
       {sections.map(section => {
         const isPrep = section.title === t('learn_prepare', lang);

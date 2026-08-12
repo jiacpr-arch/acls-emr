@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Play, Award, ClipboardCheck, User, UserCheck, RefreshCw } from 'lucide-react';
 import { courseMeta } from '../../config/courseMode';
 
-// At-a-glance progress + next-step CTA for ACLS pre-course flow.
+// At-a-glance progress + next-step CTA for the pre-course flow — shared by
+// ACLS and BLS (name kept from when BLS had its own separate card).
 // Decides what the student should do next:
 // identify → pre-test → first lesson → continue → post-test → certificate.
-// Mirrors BLSProgressCard but adds the Pre-test step that exists only in ACLS.
 export default function ACLSProgressCard({
   activeStudent,
   preTestPassed,
