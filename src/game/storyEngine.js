@@ -1,15 +1,25 @@
 // Story engine — ส่วน logic ล้วนของเกมตัดสินใจ (ไม่มี DOM/React)
 //
 // โจทย์ (story) เป็น array ของ node:
-//   { say: { who, pose, text, fx? }, t? }   — บทพูด (text เป็น HTML จำกัดแค่ <span class="cbs-em">)
-//   { inter: 'ข้อความ!!', drama?, green?, fx?, t? } — จังหวะตะโกนเต็มจอ
+//   { say: { who, pose, text, fx? }, evid?, t? }   — บทพูด (text เป็น HTML จำกัดแค่ <span class="cbs-em">)
+//   { inter: 'ข้อความ!!', who?, pose?, drama?, green?, fx?, t? } — จังหวะตะโกนเต็มจอ
+//     (มี who = charId → render เป็น AA cut-in ตัวละครพุ่งเข้าจอ; ไม่มี who = burst ธรรมดาเหมือนเดิม)
 //   { skip: 'คำบรรยาย', t }                — time-skip (เช่น CPR 2 นาที)
-//   { doc: { key, kind: 'lab'|'xray', caption? }, t? } — เผยผลแล็บ/เอกซเรย์เป็นรูปเต็มจอ
+//   { doc: { key, kind: 'lab'|'xray', caption? }, evid?, t? } — เผยผลแล็บ/เอกซเรย์เป็นรูปเต็มจอ
 //     (ตัวละครหายไปชั่วคราว แตะจอไปต่อเหมือน say — ไม่กระทบสถานะผู้ป่วย ไม่มี fx)
 //   { choice: { q, options: [{ tgt, label, ok, why?, worsen?, then?[] }] } }
+//   { present: { q, correct: evidId | [evidId], hint?, why?: { [evidId]: text, '*'?: fallback }, worsen?, then?[] } }
+//     — "ชี้หลักฐาน!" แบบ AA: engine สังเคราะห์ options จากแฟ้มหลักฐานที่ผู้เล่นเก็บมา
+//     (state.evidence) แทนตัวเลือกข้อความคงที่ — ตอบถูก/ผิด/timer/retry ใช้กลไกเดียวกับ choice
 //   { end: true }
 // ตอบถูก → node ใน then ของตัวเลือกถูก run ก่อนแล้วไปข้อถัดไป
 // ตอบผิด → หัก stability, เล่นจุดตัดสินใจเดิมซ้ำ (สภาพแย่ลงแล้ว)
+//
+// หลักฐาน (evidence, "แฟ้มหลักฐาน"): field `evid: { id, name, desc?, icon?, docKey?, kind? }`
+// วางเป็น sibling ระดับ node ของ say/doc (เหมือน fx) — say ที่มี evid เก็บหลักฐานแบบคำให้การ,
+// doc ที่ไม่มี evid ก็ auto-collect จาก key/caption/kind ของมันเอง, มี evid บน doc จะ merge ทับ
+// ชื่อ (evid.name) ต้อง unique ในเคสเดียวกัน — ใช้เป็น option label ตอน present (เหมือนสมมติฐาน
+// เดิมที่ label ของ choice ต้อง unique เพื่อ track wrongPicks)
 
 // ระดับความยาก — คุมเวลาตัดสินใจ, จำนวน HP, การใบ้/เฉลย, และความเข้มของ grade
 export const DIFFICULTY = {
@@ -63,7 +73,53 @@ export function createInitialState(difficultyId = DEFAULT_DIFFICULTY) {
     speedCount: 0,  // จำนวนจุดตัดสินใจที่ตอบถูก (ใช้หารเป็นค่าเฉลี่ย)
     combo: 0,       // สตรีคปัจจุบัน — ตอบถูกติดกันกี่ครั้ง (รีเซ็ตเมื่อผิด)
     maxCombo: 0,    // สตรีคยาวสุดในเคส (ใช้คิดตัวคูณคะแนน + โชว์ debrief)
+    evidence: [],   // แฟ้มหลักฐานที่เก็บมาในเคสนี้ — [{ id, name, desc, icon, docKey, kind }]
   };
+}
+
+// เก็บหลักฐานเข้าแฟ้ม (dedupe ด้วย id) — return true เมื่อเก็บได้ใหม่จริง (ไว้ยิง toast)
+export function collectEvidence(state, ev) {
+  if (!ev?.id) return false;
+  if (state.evidence.some((e) => e.id === ev.id)) return false;
+  state.evidence.push({
+    id: ev.id,
+    name: ev.name || ev.id,
+    desc: ev.desc || '',
+    icon: ev.icon,
+    docKey: ev.docKey,
+    kind: ev.kind,
+  });
+  return true;
+}
+
+// สร้าง entry หลักฐานจาก node doc — ถ้า node มี evid ของตัวเองด้วย จะ merge ทับ (evid ชนะ)
+export function evidenceFromDoc(doc, evid) {
+  const derived = { id: doc?.key, name: doc?.caption || 'ผลตรวจ', docKey: doc?.key, kind: doc?.kind || 'lab' };
+  return evid ? { ...derived, ...evid } : derived;
+}
+
+// สังเคราะห์ตัวเลือกของ node present จากแฟ้มหลักฐานที่ผู้เล่นมี — คืน null ถ้าเล่นไม่ได้
+// (แฟ้มว่าง หรือไม่มีหลักฐานที่ถูกต้องอยู่ในแฟ้มเลย — กันเคสข้อมูลพัง เช่นเขียน id ผิด)
+export function presentOptions(state, present) {
+  if (!state.evidence.length) return null;
+  const correctIds = Array.isArray(present.correct) ? present.correct : [present.correct];
+  if (!state.evidence.some((e) => correctIds.includes(e.id))) return null;
+  return state.evidence.map((ev) => {
+    const ok = correctIds.includes(ev.id);
+    return {
+      tgt: 'EVID',
+      evId: ev.id,
+      label: ev.name,
+      docKey: ev.docKey,
+      kind: ev.kind,
+      icon: ev.icon,
+      ok,
+      why: ok ? undefined : (present.why?.[ev.id] || present.why?.['*']
+        || 'หลักฐานนี้ไม่ได้ชี้คำตอบโดยตรง — ลองดูอีกครั้งว่าอะไรอธิบายอาการได้ทั้งหมด'),
+      worsen: !!present.worsen && !ok,
+      then: ok ? present.then : undefined,
+    };
+  });
 }
 
 // EtCO2 (mmHg) สะท้อนคุณภาพ CPR: 0 ก่อนเริ่มกด, ~15 ระหว่าง CPR (ตกเมื่อพลาด),
