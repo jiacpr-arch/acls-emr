@@ -8,7 +8,7 @@ export const vfArrest = {
   hiddenCause: null,
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์!! คนไข้เตียง 2 ล้มลงค่ะ!! เมื่อกี้ยังนั่งคุยอยู่เลย!' }, t: 5 },
-    { inter: 'CODE BLUE!!', drama: 'red', t: 0 },
+    { inter: 'CODE BLUE!!', who: 'nurse_mint', pose: 'panic', drama: 'red', t: 0 },
     { say: { who: 'att_dech', pose: 'stern', text: 'ทั้งห้องหันมาที่คุณ… <span class="cbs-em">คุณคือ Team Leader</span> — คำสั่งแรกของคุณจะกำหนดทุกอย่าง' }, t: 5 },
     {
       choice: {
@@ -60,7 +60,7 @@ export const vfArrest = {
           {
             tgt: 'MONITOR', label: 'แปะ pads ดู rhythm — หยุดกดให้สั้นที่สุด', ok: true,
             then: [
-              { inter: 'VF — SHOCKABLE!!', drama: 'red', t: 8, fx: { rhythm: 'vf' } },
+              { inter: 'VF — SHOCKABLE!!', who: 'fon_defib', pose: 'panic', drama: 'red', t: 8, fx: { rhythm: 'vf' } },
               { say: { who: 'fon_defib', pose: 'panic', text: 'จอขึ้น <span class="cbs-em">Ventricular Fibrillation!</span> หัวใจสั่นพลิ้ว ไม่บีบเลือดเลยค่ะ!' }, t: 4 },
             ],
           },
@@ -161,7 +161,7 @@ export const vfArrest = {
           {
             tgt: 'YOU', label: 'ROSC! หยุด CPR — post-arrest care + 12-lead ด่วน', ok: true,
             then: [
-              { inter: 'ROSC!!', green: true, t: 5, fx: { rosc: true } },
+              { inter: 'ROSC!!', who: 'att_dech', pose: 'happy', green: true, t: 5, fx: { rosc: true } },
               { say: { who: 'att_dech', pose: 'happy', text: 'BP 110/70 กลับมาแล้ว… ทั้งห้องถอนหายใจพร้อมกัน <span class="cbs-em">ส่งต่อ Cath lab — เคสนี้เป็นของคุณ</span>' }, t: 5 },
             ],
           },

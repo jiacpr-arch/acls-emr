@@ -19,18 +19,20 @@ import ClassGateModal from '../components/precourse/ClassGateModal';
 import CharacterSprite, { preloadCharacterImages } from '../game/CharacterSprite';
 import DocReveal from '../game/DocReveal';
 import EcgStrip from '../game/EcgStrip';
+import EvidenceFile, { EvidenceThumb } from '../game/EvidenceFile';
 import {
   createInitialState, applyFx, nextNode, recordCorrect, recordWrong,
   gradeFor, fmtTime, shuffled, getDifficulty, pushEtco2, wasArrest, correctCount,
   scoreFor, speedBonus, avgSpeed, FAST_FRACTION, comboMultiplier,
   DIFFICULTY, DEFAULT_DIFFICULTY,
+  collectEvidence, evidenceFromDoc, presentOptions,
 } from '../game/storyEngine';
 import {
   initAudio, playShockSound, playROSCSound, playWarningBeep,
   playMetronomeClick, playBeep, setSfxVolume, playTapSound, playTypeBlip,
   playChoiceAppear, playTickSound, playCorrectSound, playComboBreakSound,
   playWinJingle, playLoseSound, playAchievementSound, playImpactSound,
-  playHeartbeatThump,
+  playHeartbeatThump, playShoutStinger,
 } from '../utils/sound';
 import { track } from '../services/analytics';
 import {
@@ -95,7 +97,7 @@ function DlgText({ segments, count }) {
 
 // สำเนาสถานะ engine สำหรับ render (render ห้ามอ่าน ref ตรงๆ)
 function snapshot(st) {
-  return { ...st, timeline: [...st.timeline], etco2Trace: [...st.etco2Trace] };
+  return { ...st, timeline: [...st.timeline], etco2Trace: [...st.etco2Trace], evidence: [...st.evidence] };
 }
 
 const RHYTHM_NAMES = {
@@ -278,7 +280,15 @@ export default function CodeBlueSim() {
             preloadCharacterImages(beat.say.who, beat.say.pose || 'idle');
           }
         }
+        if (beat?.inter && beat.who) {
+          const key = `${beat.who}/${beat.pose || 'talk'}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            preloadCharacterImages(beat.who, beat.pose || 'talk');
+          }
+        }
         (beat?.choice?.options || []).forEach((opt) => walk(opt.then));
+        walk(beat?.present?.then);
       });
     };
     walk(sc.story);
@@ -301,16 +311,19 @@ export default function CodeBlueSim() {
   const [dlgSegments, setDlgSegments] = useState([]);
   const [dlgCount, setDlgCount] = useState(0);
   const [typing, setTyping] = useState(false);
-  const [choice, setChoice] = useState(null); // { q, options, hintTgt }
+  const [choice, setChoice] = useState(null); // { q, options, hintTgt, hintText, present }
   const [decisionLeft, setDecisionLeft] = useState(getDifficulty(difficulty).decisionTime);
   const [drama, setDrama] = useState(null); // null | 'red' | 'white'
-  const [inter, setInter] = useState(null); // { text, green }
+  const [inter, setInter] = useState(null); // { text, green, who?, pose? }
   const [flashN, setFlashN] = useState(0);
   const [redN, setRedN] = useState(0);
   const [shaking, setShaking] = useState(false);
   const [comboBreak, setComboBreak] = useState(null); // { n, k } โชว์ตอนคอมโบขาด
   const [result, setResult] = useState(null); // { won, grade, score, isHiscore }
   const [hiscore, setHiscore] = useState(() => Number(localStorage.getItem(hiscoreKey(difficulty)) || 0));
+  const [evidOpen, setEvidOpen] = useState(false); // เปิดแฟ้มหลักฐานอยู่ไหม
+  const [evidToast, setEvidToast] = useState(null); // { name, k } — ป้ายลอยตอนเก็บหลักฐานใหม่
+  const evidToastN = useRef(0);
 
   const timers = useRef({ type: null, dec: null, misc: [], metronome: null });
   const busyRef = useRef(false);
@@ -482,6 +495,13 @@ export default function CodeBlueSim() {
     }
   }
 
+  // ป้ายลอย "เก็บหลักฐาน" — โผล่แล้วหายเองตามคีย์เฟรม cbs-evid-toast (1.6s)
+  function showEvidToast(name) {
+    evidToastN.current += 1;
+    setEvidToast({ name, k: evidToastN.current });
+    later(() => setEvidToast(null), 1600);
+  }
+
   function endCase(won) {
     clearAllTimers();
     const st = S.current;
@@ -565,11 +585,17 @@ export default function CodeBlueSim() {
     setDocReveal(null);
     const diff = getDifficulty(S.current.difficulty);
     // โหมดง่าย: หลังพลาดจุดนี้ไปแล้วครั้งนึง ใบ้หมวด target ที่ถูก + dim ตัวที่ผิด
-    const hintTgt = diff.hints && hintUsedRef.current
+    // (โหมด present ทุก option เป็น tgt:'EVID' เหมือนกันหมด — glow จะสปอยล์คำตอบ
+    // ใช้ข้อความใบ้ที่ผู้แต่งเขียนไว้แทน)
+    const hintTgt = !c.present && diff.hints && hintUsedRef.current
       ? (c.options.find((o) => o.ok)?.tgt || null)
       : null;
+    const hintText = c.present && diff.hints && hintUsedRef.current ? c.hintText : null;
     // snapshot ชุดข้อผิดเข้า state — อ่าน ref ระหว่าง render ไม่ได้ (react-hooks/refs)
-    setChoice({ q: c.q, options: shuffled(c.options), hintTgt, tried: new Set(wrongPicksRef.current) });
+    setChoice({
+      q: c.q, options: shuffled(c.options), hintTgt, hintText, present: !!c.present,
+      tried: new Set(wrongPicksRef.current),
+    });
     sfx(playChoiceAppear); // มีคำถามเด้งขึ้น — เรียกสมาธิ
     setDecisionLeft(diff.decisionTime);
     decisionLeftRef.current = diff.decisionTime;
@@ -609,6 +635,7 @@ export default function CodeBlueSim() {
       soundForFx(fx);
       applyFx(st, fx);
       pushEtco2(st);
+      if (node.evid && collectEvidence(st, node.evid)) showEvidToast(node.evid.name);
       setDrama(pose === 'panic' ? 'red' : null);
       setDocReveal(null);
       popCounter.current += 1;
@@ -626,6 +653,8 @@ export default function CodeBlueSim() {
       setPlate(null);
       setDocReveal({ key: node.doc.key, kind: node.doc.kind || 'lab', caption: node.doc.caption });
       setAwaitTap(true);
+      const ev = evidenceFromDoc(node.doc, node.evid);
+      if (collectEvidence(st, ev)) showEvidToast(ev.name);
       typeText(node.doc.caption ? `📋 ${node.doc.caption}` : '📋 ผลตรวจออกมาแล้ว — แตะจอเพื่อไปต่อ');
       syncView();
       return;
@@ -640,14 +669,32 @@ export default function CodeBlueSim() {
       if (node.drama) setDrama(node.drama);
       syncView();
       doBigMoment();
-      // ป้ายเด้ง: เหตุดี = โน้ตชื่นชม, เหตุวิกฤต = เสียงตุบกระแทก
-      sfx(node.green ? playCorrectSound : playImpactSound);
-      setInter({ text: node.inter, green: !!node.green });
+      // ป้ายเด้ง: มี who = ตะโกนแบบ AA cut-in (เสียงเฉพาะ), ไม่งั้นเดิม —
+      // เหตุดี = โน้ตชื่นชม, เหตุวิกฤต = เสียงตุบกระแทก
+      if (node.who) sfx(playShoutStinger);
+      else sfx(node.green ? playCorrectSound : playImpactSound);
+      setInter({ text: node.inter, green: !!node.green, who: node.who, pose: node.pose });
       later(() => {
         setInter(null);
         busyRef.current = false;
         advance();
-      }, reducedMotion ? 350 : 1050);
+      }, reducedMotion ? 350 : (node.who ? 1400 : 1050));
+      return;
+    }
+
+    if (node.present) {
+      const options = presentOptions(st, node.present);
+      if (!options) {
+        // ข้อมูลเคสพัง (แฟ้มว่าง/ไม่มีหลักฐานที่ถูกต้องเคยเก็บมา) — ข้าม node นี้แทนที่จะค้าง
+        // แต่ยังรัน then ต่อ (อาจมี fx สำคัญเช่น rosc) เพื่อไม่ให้เนื้อเรื่องขาดตอน
+        console.warn('[cbs] present node เล่นไม่ได้ (ไม่มีหลักฐานที่ถูกต้องในแฟ้ม) — ข้าม', node.present);
+        st.queue.push(...(node.present.then || []));
+        advance();
+        return;
+      }
+      showChoice({
+        q: node.present.q, options, present: true, hintText: node.present.hint || null,
+      });
       return;
     }
 
@@ -690,6 +737,7 @@ export default function CodeBlueSim() {
   function pick(option) {
     if (timers.current.dec) { clearInterval(timers.current.dec); timers.current.dec = null; }
     setChoice(null);
+    setEvidOpen(false);
     const st = S.current;
 
     if (option.ok) {
@@ -728,7 +776,9 @@ export default function CodeBlueSim() {
     syncView();
 
     popCounter.current += 1;
-    setSpeaker({ who: 'att_dech', pose: 'stern', popN: popCounter.current });
+    setSpeaker({
+      who: 'att_dech', pose: 'stern', popN: popCounter.current, hit: !reducedMotion,
+    });
     setPlate(null);
     setDrama('red');
 
@@ -795,6 +845,8 @@ export default function CodeBlueSim() {
     setDocReveal(null);
     setDlgSegments([]);
     setDlgCount(0);
+    setEvidOpen(false);
+    setEvidToast(null);
     setScreen('game');
     // สอนเฉพาะคนที่ไม่เคยเล่น — คนเล่นซ้ำไม่ต้องเจอซ้ำ
     try { setTapCoach(localStorage.getItem(TAP_COACH_KEY) !== '1'); } catch { setTapCoach(false); }
@@ -1371,6 +1423,17 @@ export default function CodeBlueSim() {
                 </div>
               </div>
               <div className="cbs-timechip">{fmtTime(st.simTime)}</div>
+              {/* แฟ้มหลักฐาน — ปิดไว้ระหว่างมีคำถามค้าง เหมือนปุ่ม ☰ (กันกดพลาด/ปิด
+                  z-index ทับ .cbs-choices; ตอน present หลักฐานอยู่บนจอเป็นตัวเลือกอยู่แล้ว) */}
+              {st.evidence.length > 0 && !choice && (
+                <button
+                  type="button"
+                  className="cbs-evid-btn"
+                  onClick={(e) => { e.stopPropagation(); setEvidOpen(true); }}
+                >
+                  📁 แฟ้มหลักฐาน <span className="cbs-evid-count">{st.evidence.length}</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -1400,7 +1463,10 @@ export default function CodeBlueSim() {
           )}
 
           {speaker && (
-            <div className={`cbs-sprite ${reducedMotion ? '' : 'cbs-pop'}`} key={`sp-${speaker.popN}-${charsReady}`}>
+            <div
+              className={`cbs-sprite ${reducedMotion ? '' : (speaker.hit ? 'cbs-sprite-damage' : 'cbs-pop')}`}
+              key={`sp-${speaker.popN}-${charsReady}`}
+            >
               <CharacterSprite charId={speaker.who} pose={speaker.pose} talking={typing} />
             </div>
           )}
@@ -1415,14 +1481,36 @@ export default function CodeBlueSim() {
               {choice.tried && choice.tried.size > 0 && (
                 <div className="cbs-retry-banner">✗ ตอบผิดไปแล้ว {choice.tried.size} ข้อ — เลือกตอบใหม่อีกครั้ง</div>
               )}
-              <div className="cbs-qbanner">⚖ {choice.q}</div>
+              <div className={`cbs-qbanner ${choice.present ? 'cbs-qbanner-present' : ''}`}>
+                {choice.present ? '☝ ชี้หลักฐาน!' : '⚖'} {choice.q}
+              </div>
               {choice.hintTgt && (
                 <div className="cbs-hint">💡 ลองสั่งหมวด <b>{choice.hintTgt}</b> ดูสิ</div>
+              )}
+              {choice.hintText && (
+                <div className="cbs-hint">💡 {choice.hintText}</div>
               )}
               {choice.options.map((o, i) => {
                 const tried = choice.tried && choice.tried.has(o.label);
                 const dim = !tried && choice.hintTgt && o.tgt !== choice.hintTgt;
                 const glow = choice.hintTgt && o.tgt === choice.hintTgt;
+                if (choice.present) {
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      disabled={tried}
+                      className={`cbs-choice cbs-choice-evid ${tried ? 'cbs-choice-tried' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); pick(o); }}
+                    >
+                      <EvidenceThumb docKey={o.docKey} kind={o.kind} icon={o.icon} />
+                      <span>
+                        <span className="cbs-choice-tgt">[หลักฐาน]</span>
+                        {o.label}
+                      </span>
+                    </button>
+                  );
+                }
                 return (
                   <button
                     key={i}
@@ -1520,16 +1608,32 @@ export default function CodeBlueSim() {
         </div>
       )}
 
-      {inter && (
+      {inter && (inter.who ? (
+        <div className="cbs-inter cbs-cutin">
+          <div className="cbs-cutin-lines" />
+          <div className="cbs-cutin-sprite">
+            <CharacterSprite charId={inter.who} pose={inter.pose || 'talk'} />
+          </div>
+          <div className={`cbs-inter-bubble cbs-cutin-bubble ${inter.green ? 'cbs-green-bubble' : ''}`}>
+            <span className="cbs-inter-text">{inter.text}</span>
+          </div>
+        </div>
+      ) : (
         <div className="cbs-inter">
           <div className="cbs-inter-burst" />
           <div className={`cbs-inter-bubble ${inter.green ? 'cbs-green-bubble' : ''}`}>
             <span className="cbs-inter-text">{inter.text}</span>
           </div>
         </div>
-      )}
+      ))}
       {flashN > 0 && <div key={`fl-${flashN}`} className="cbs-flash cbs-go" />}
       {redN > 0 && <div key={`rf-${redN}`} className="cbs-redflash cbs-go" />}
+      {evidOpen && <EvidenceFile items={st.evidence} onClose={() => setEvidOpen(false)} />}
+      {evidToast && (
+        <div key={`evt-${evidToast.k}`} className="cbs-evid-toast">
+          🔎 เก็บหลักฐาน — {evidToast.name}
+        </div>
+      )}
       {/* ลงทะเบียนกลางเกมได้จากเมนู ☰ — เคสที่จบหลังจากนี้จะถูกบันทึกถึงอาจารย์ */}
       <StudentIdentityModal
         open={showIdentity}

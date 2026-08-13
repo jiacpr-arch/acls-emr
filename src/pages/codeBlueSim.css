@@ -327,6 +327,15 @@
   width: min(105vw, 445px);
 }
 .cbs-sprite.cbs-pop { animation: cbs-pop .22s ease; }
+/* ตอบผิด — ตัวละครกระตุกรับความเสียหายแบบเดียวกับเกมต่อสู้ */
+.cbs-sprite.cbs-sprite-damage { animation: cbs-sprite-damage .4s ease both; }
+@keyframes cbs-sprite-damage {
+  0% { transform: translateX(0); filter: brightness(2) saturate(.4) drop-shadow(0 0 12px rgba(229, 72, 77, .8)); }
+  20% { transform: translateX(-12px); }
+  40% { transform: translateX(9px); }
+  60% { transform: translateX(-5px); }
+  100% { transform: none; filter: none; }
+}
 .cbs-sprite svg, .cbs-sprite-img {
   width: 100%; display: block;
   filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .45));
@@ -418,6 +427,59 @@
   background: rgba(4, 8, 18, .82); border: 2px solid #33406E; border-radius: 6px;
   padding: 4px 9px;
 }
+
+/* ปุ่มแฟ้มหลักฐาน — อยู่ใน .cbs-hud-right ที่ pointer-events: none จากพ่อ ต้องเปิดเอง */
+.cbs-evid-btn {
+  pointer-events: auto; appearance: none; cursor: pointer;
+  font-family: var(--cbs-body); font-size: 11px; font-weight: 800;
+  background: rgba(4, 8, 18, .82); border: 2px solid #33406E; border-radius: 6px;
+  color: var(--cbs-gold); padding: 4px 9px;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.cbs-evid-btn:hover { border-color: #4B5A8F; }
+.cbs-evid-btn:focus-visible { outline: 3px solid var(--cbs-gold); outline-offset: 2px; }
+.cbs-evid-count { font-family: var(--cbs-mono); }
+
+/* ป้ายลอย "เก็บหลักฐาน" ตอนได้ของใหม่ */
+.cbs-evid-toast {
+  position: fixed; top: calc(64px + env(safe-area-inset-top)); left: 50%;
+  transform: translateX(-50%); z-index: 39;
+  background: rgba(242, 193, 78, .95); color: #10182F; font-weight: 800; font-size: 13px;
+  border: 2px solid #fff; border-radius: 999px; padding: 6px 16px;
+  animation: cbs-evid-toast 1.6s ease both; pointer-events: none;
+  white-space: nowrap; max-width: 88vw; overflow: hidden; text-overflow: ellipsis;
+}
+@keyframes cbs-evid-toast {
+  0% { transform: translate(-50%, -12px); opacity: 0; }
+  12%, 80% { transform: translate(-50%, 0); opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* แฟ้มหลักฐานเต็มจอ (Court Record) — โครงตาม .cbs-quit */
+.cbs-evid-overlay {
+  position: fixed; inset: 0; z-index: 42;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; background: rgba(6, 10, 24, .78); backdrop-filter: blur(3px);
+}
+.cbs-evid-panel {
+  width: 100%; max-width: 380px; max-height: 80vh;
+  display: flex; flex-direction: column; gap: 12px;
+  border: 3px solid #fff; border-radius: 12px;
+  background: linear-gradient(180deg, var(--cbs-box-hi), var(--cbs-box-lo));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .6);
+  padding: 20px 18px;
+}
+.cbs-evid-title { font-size: 16px; font-weight: 900; text-align: center; }
+.cbs-evid-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+.cbs-evid-card {
+  display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: center;
+  border: 2px solid #33406E; border-radius: 8px; background: rgba(10, 16, 36, .7);
+  padding: 8px 10px; text-align: left;
+}
+.cbs-evid-thumb-img { width: 52px; height: 52px; object-fit: cover; border-radius: 6px; background: #fff; }
+.cbs-evid-thumb-icon { font-size: 30px; text-align: center; display: block; }
+.cbs-evid-name { font-size: 13.5px; font-weight: 800; color: var(--cbs-ink); }
+.cbs-evid-desc { font-size: 11.5px; color: var(--cbs-dim); line-height: 1.4; margin-top: 2px; }
 
 /* ปุ่มเมนูระหว่างเล่น (มุมล่างซ้ายของ stage) */
 .cbs-menu-btn {
@@ -588,6 +650,16 @@
 }
 .cbs-choice-timer-fill.cbs-low { background: var(--cbs-red); }
 
+/* "ชี้หลักฐาน!" — present node แปลงหลักฐานที่เก็บมาเป็นตัวเลือก */
+.cbs-qbanner-present { background: var(--cbs-red); color: #fff; }
+.cbs-choice-evid {
+  display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center;
+  text-align: left;
+}
+.cbs-choice-evid .cbs-evid-thumb-img { width: 44px; height: 44px; }
+.cbs-choice-evid .cbs-evid-thumb-icon { font-size: 26px; }
+.cbs-choice-evid .cbs-choice-tgt { display: block; font-size: 11px; margin-bottom: 2px; }
+
 /* Interjection (OBJECTION! moment) */
 .cbs-inter {
   position: fixed; inset: 0; z-index: 40;
@@ -613,6 +685,28 @@
 .cbs-inter-bubble.cbs-green-bubble .cbs-inter-text {
   color: #1F9E57; -webkit-text-stroke-color: #115C31;
   text-shadow: 3px 3px 0 rgba(17, 92, 49, .3);
+}
+
+/* Character shout cut-in (inter node ที่มี who) — ตัวละครพุ่งเข้าจอ + bubble เอียง */
+.cbs-cutin-lines {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(105deg, rgba(255, 255, 255, .14) 0 3px, transparent 3px 26px);
+  animation: cbs-cutin-lines .25s linear infinite;
+}
+@keyframes cbs-cutin-lines { to { background-position: 90px 0; } }
+.cbs-cutin-sprite {
+  position: absolute; left: 0; bottom: 0; width: min(72vw, 340px);
+  animation: cbs-cutin-slam .22s cubic-bezier(.2, 1.6, .4, 1) both;
+  filter: drop-shadow(6px 0 0 rgba(229, 72, 77, .35)) drop-shadow(0 10px 24px rgba(0, 0, 0, .45));
+}
+@keyframes cbs-cutin-slam {
+  0% { transform: translateX(-80%); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+.cbs-cutin-bubble {
+  position: absolute; right: 4vw; top: 22%;
+  transform: rotate(-4deg);
+  animation-delay: .08s;
 }
 
 .cbs-flash { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 38; }
@@ -688,7 +782,9 @@
   .cbs-title::before, .cbs-stage.cbs-drama::before, .cbs-stage.cbs-drama-red::before,
   .cbs-inter-burst, .cbs-adv-caret, .cbs-choice, .cbs-sprite.cbs-pop,
   .cbs-inter-bubble, .cbs-stamp, .cbs-tap-coach-ring, .cbs-sprite-talking,
-  .cbs-retry-banner, .cbs-docframe {
+  .cbs-retry-banner, .cbs-docframe,
+  .cbs-cutin-lines, .cbs-cutin-sprite, .cbs-cutin-bubble,
+  .cbs-evid-toast, .cbs-sprite.cbs-sprite-damage {
     animation: none !important;
   }
   /* วงแหวนไม่กะพริบแล้ว ต้องคงให้เห็นอยู่ ไม่งั้นคำใบ้หายไปครึ่งหนึ่ง */
