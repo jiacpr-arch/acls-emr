@@ -5,6 +5,7 @@ import { ekgQuestions, rhythmLabels, shuffleOptions, quizCategories, EKG_TEST_PA
 import EKGWaveform from '../components/EKGWaveform';
 import QASection from '../components/QASection';
 import PageHero from '../components/PageHero';
+import GameLearnCta from '../components/GameLearnCta';
 import {
   BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock, Activity, Check, X, RotateCcw,
@@ -489,6 +490,8 @@ export default function ALSKnowledge() {
               </button>
             </div>
           )}
+
+          {quizDone && <GameLearnCta source="ekg_quiz" />}
 
           <div className="text-2xs text-text-muted text-center">
             ภาพ EKG เป็นภาพประกอบเพื่อการเรียนรู้ — การวินิจฉัยจริงต้องใช้ EKG 12 leads

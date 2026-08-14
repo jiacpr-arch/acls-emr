@@ -3,6 +3,7 @@ import { ERROR_TYPES, ERROR_TYPE_META } from '../../data/activeRecorderLevels';
 import { RATINGS, RATING_META } from '../../utils/recorderGameScore';
 import CharacterSprite from '../../game/CharacterSprite';
 import { Star, Trophy, RefreshCw, ChevronRight, Home } from 'lucide-react';
+import GameLearnCta from '../GameLearnCta';
 
 // ==========================================
 // Recorder Hero — หน้าสรุปผล (ทั้ง live + audit)
@@ -161,6 +162,8 @@ export default function ResultScreen({
           <ChevronRight size={16} strokeWidth={2} className="text-text-muted shrink-0" />
         </button>
       )}
+
+      <GameLearnCta source="recorder_result" won={stars >= 1} />
     </div>
   );
 }

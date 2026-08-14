@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { playMetronomeClick, playBeep, initAudio } from '../utils/sound';
 import { getStageById, saveStageProgress, DEFAULT_TIME_LIMIT_SEC } from '../data/blsScenarios';
+import GameLearnCta from '../components/GameLearnCta';
 
 const CPR_DRILL_SEC = 30;
 const CPR_BPM = 110;
@@ -233,6 +234,8 @@ export default function BLSScenario() {
               กลับไปเลือกด่าน
             </button>
           </div>
+
+          <GameLearnCta source="bls_step_game" won={passed} />
         </div>
       </div>
     );
