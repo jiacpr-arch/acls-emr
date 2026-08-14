@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  DAY_META, DAY_BLOCKS, STATIONS, PASS_RULES, CONTINGENCIES,
+  DAY_VARIANTS, STATIONS, PASS_RULES, CONTINGENCIES,
   toMinutes, findCurrentBlock,
-} from '../data/blsDaySchedule';
+} from '../data/activeDaySchedule';
 import {
   ChevronLeft, ScanLine, Clock, Coffee, Wrench, ClipboardCheck,
   AlertTriangle, ChevronDown,
@@ -11,7 +11,8 @@ import {
 
 // หน้า "ตารางวันนี้" สำหรับอาจารย์เปิดบนมือถือระหว่างคุมฐาน — ไฮไลต์ช่วงที่
 // กำลังดำเนินอยู่ตามนาฬิกาเครื่อง แล้วเลื่อนดูรายละเอียดฐาน/แผนสำรองได้
-// ข้อมูลทั้งหมดเป็น static (src/data/blsDaySchedule.js) จึงเปิดได้แม้เน็ตล่ม
+// ข้อมูลทั้งหมดเป็น static (activeDaySchedule สลับ BLS/ACLS ตาม course mode)
+// จึงเปิดได้แม้เน็ตล่ม · คอร์สที่มีหลายรูปแบบสถานที่ (ACLS) จะมี toggle เลือก
 const KIND_META = {
   prep:  { label: 'เตรียมงาน', Icon: Wrench, cls: 'text-warning' },
   teach: { label: 'สอน', Icon: Clock, cls: 'text-info' },
@@ -19,8 +20,22 @@ const KIND_META = {
   exam:  { label: 'สอบ', Icon: ClipboardCheck, cls: 'text-danger' },
 };
 
+const VARIANT_STORAGE_KEY = 'acls-day-schedule-variant';
+
 export default function DaySchedule() {
   const navigate = useNavigate();
+
+  // รูปแบบสถานที่ (เฉพาะคอร์สที่มี >1 variant) — จำข้ามรีเฟรชไว้ใช้ทั้งวันงาน
+  const [variantKey, setVariantKeyState] = useState(() => {
+    try { return localStorage.getItem(VARIANT_STORAGE_KEY) || DAY_VARIANTS[0].key; }
+    catch { return DAY_VARIANTS[0].key; }
+  });
+  const setVariantKey = (k) => {
+    setVariantKeyState(k);
+    try { localStorage.setItem(VARIANT_STORAGE_KEY, k); } catch { /* private mode */ }
+  };
+  const variant = DAY_VARIANTS.find(v => v.key === variantKey) || DAY_VARIANTS[0];
+  const { meta, blocks } = variant;
 
   // นาทีจากเที่ยงคืนของเครื่อง — อัปเดตทุก 30 วินาทีเพื่อให้ไฮไลต์ขยับเอง
   const [nowMin, setNowMin] = useState(() => {
@@ -35,11 +50,11 @@ export default function DaySchedule() {
     return () => clearInterval(t);
   }, []);
 
-  const currentIdx = useMemo(() => findCurrentBlock(nowMin), [nowMin]);
-  const current = currentIdx >= 0 ? DAY_BLOCKS[currentIdx] : null;
+  const currentIdx = findCurrentBlock(nowMin, blocks);
+  const current = currentIdx >= 0 ? blocks[currentIdx] : null;
   const next = currentIdx >= 0
-    ? DAY_BLOCKS[currentIdx + 1]
-    : DAY_BLOCKS.find(b => toMinutes(b.start) > nowMin);
+    ? blocks[currentIdx + 1]
+    : blocks.find(b => toMinutes(b.start) > nowMin);
 
   const minsLeft = current ? toMinutes(current.end) - nowMin : null;
 
@@ -53,12 +68,29 @@ export default function DaySchedule() {
       </button>
 
       <div>
-        <h1 className="text-title text-text-primary">{DAY_META.title}</h1>
-        <p className="text-caption text-text-muted">{DAY_META.subtitle}</p>
+        <h1 className="text-title text-text-primary">{meta.title}</h1>
+        <p className="text-caption text-text-muted">{meta.subtitle}</p>
       </div>
 
+      {DAY_VARIANTS.length > 1 && (
+        <div className="flex gap-2">
+          {DAY_VARIANTS.map(v => {
+            const active = v.key === variant.key;
+            return (
+              <button key={v.key} onClick={() => setVariantKey(v.key)}
+                className={`btn btn-sm flex-1 ${active ? 'btn-primary' : 'btn-ghost'}`}>
+                {v.label}
+                <span className={`text-2xs ${active ? 'opacity-80' : 'text-text-muted'}`}>
+                  {v.sublabel}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 dash-card !p-3">
-        {DAY_META.facts.map(f => (
+        {meta.facts.map(f => (
           <div key={f.label} className="text-center">
             <div className="text-body-strong text-text-primary leading-tight">{f.value}</div>
             <div className="text-2xs text-text-muted leading-tight">{f.label}</div>
@@ -104,8 +136,8 @@ export default function DaySchedule() {
       <div className="space-y-2">
         <div className="text-overline px-1">ลำดับวัน</div>
         <div className="dash-card !p-0 overflow-hidden">
-          {DAY_BLOCKS.map((b, i) => {
-            const meta = KIND_META[b.kind];
+          {blocks.map((b, i) => {
+            const kindMeta = KIND_META[b.kind];
             const done = nowMin >= toMinutes(b.end);
             const isNow = i === currentIdx;
             return (
@@ -121,7 +153,7 @@ export default function DaySchedule() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <meta.Icon size={13} strokeWidth={2.2} className={meta.cls} />
+                    <kindMeta.Icon size={13} strokeWidth={2.2} className={kindMeta.cls} />
                     <span className={`text-body-strong ${isNow ? 'text-info' : 'text-text-primary'}`}>
                       {b.title}
                     </span>
@@ -139,9 +171,9 @@ export default function DaySchedule() {
         </div>
       </div>
 
-      {/* ฐานฝึก — พับไว้ กดเปิดเฉพาะฐานที่ตัวเองคุม */}
+      {/* ฐานฝึก — พับไว้ กดเปิดเฉพาะฐานที่กำลังสอน */}
       <div className="space-y-2">
-        <div className="text-overline px-1">ฐานฝึก 4 ฐาน · ฐานละ 35 นาที</div>
+        <div className="text-overline px-1">รายละเอียดฐาน</div>
         <div className="space-y-2">
           {STATIONS.map(s => {
             const open = openStation === s.key;
@@ -171,7 +203,7 @@ export default function DaySchedule() {
 
                     {s.subPlan && (
                       <div className="bg-bg-tertiary rounded-lg p-2.5 space-y-1">
-                        <div className="text-overline">แบ่งเวลาในฐาน (นาทีที่)</div>
+                        <div className="text-overline">คุมเวลา</div>
                         {s.subPlan.map(row => (
                           <div key={row.at} className="flex gap-2 text-caption">
                             <span className="text-numeric text-text-muted shrink-0" style={{ width: 44 }}>
@@ -188,7 +220,7 @@ export default function DaySchedule() {
                     )}
 
                     <div className="border-t border-border pt-2">
-                      <div className="text-overline">ต้องเห็นก่อนออกจากฐาน</div>
+                      <div className="text-overline">เกณฑ์ผ่านฐานนี้</div>
                       <p className="text-caption text-text-primary font-semibold">{s.gate}</p>
                     </div>
                   </div>
@@ -217,7 +249,7 @@ export default function DaySchedule() {
           ))}
         </div>
         <p className="text-caption text-text-muted px-1">
-          ครบทั้ง 4 บรรทัด ระบบจะออกใบประกาศนียบัตรฉบับสมบูรณ์ (อายุ 24 เดือน) ให้ดาวน์โหลดเองได้ทันที
+          ครบทุกบรรทัด ระบบจะออกใบประกาศนียบัตรฉบับสมบูรณ์ (อายุ 24 เดือน) ให้ดาวน์โหลดเองได้ทันที
         </p>
       </div>
 
@@ -238,7 +270,7 @@ export default function DaySchedule() {
       </div>
 
       <p className="text-2xs text-text-muted px-1">
-        ตารางนี้เก็บอยู่ในแอป เปิดได้แม้ไม่มีเน็ต · ต้นฉบับฉบับเต็มอยู่ที่ docs/bls-teaching-schedule.md
+        ตารางนี้เก็บอยู่ในแอป เปิดได้แม้ไม่มีเน็ต · ต้นฉบับฉบับเต็มอยู่ที่ docs/ ของโปรเจกต์
       </p>
     </div>
   );
