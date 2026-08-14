@@ -14,9 +14,10 @@ import ChecklistGrader from '../components/checkin/ChecklistGrader';
 import StationPickerSheet from '../components/checkin/StationPickerSheet';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import { track } from '../services/analytics';
+import { IS_BLS } from '../config/courseMode';
 import {
   ChevronLeft, ScanLine, Settings2, KeyRound, Award,
-  ClipboardCheck, Camera, List, Check, AlertTriangle, FileText,
+  ClipboardCheck, Camera, List, Check, AlertTriangle, FileText, CalendarClock,
 } from 'lucide-react';
 
 const timeStr = (iso) => (iso ? new Date(iso).toLocaleTimeString('th-TH', {
@@ -315,9 +316,17 @@ export default function InstructorCheckin() {
 
   return (
     <div className="page-container space-y-5">
-      <button onClick={() => navigate('/pre-course/cohort')} className="btn btn-ghost btn-sm">
-        <ChevronLeft size={14} strokeWidth={2.2} /> กลับหน้ารวมผล
-      </button>
+      <div className="flex items-center gap-2">
+        <button onClick={() => navigate('/pre-course/cohort')} className="btn btn-ghost btn-sm">
+          <ChevronLeft size={14} strokeWidth={2.2} /> กลับหน้ารวมผล
+        </button>
+        <div className="flex-1" />
+        {IS_BLS && (
+          <button onClick={() => navigate('/pre-course/schedule')} className="btn btn-ghost btn-sm">
+            <CalendarClock size={14} strokeWidth={2.2} /> ตารางวันนี้
+          </button>
+        )}
+      </div>
 
       <div className="flex items-center gap-3">
         <div className="w-11 h-11 inline-flex items-center justify-center bg-info/15 text-info"
