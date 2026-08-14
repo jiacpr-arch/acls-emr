@@ -12,6 +12,8 @@ export const jiacprCourse = {
 };
 
 // Full catalogue advertised on the ACLS build, one course shown per render.
+// hubKey = key ของคอร์สในระบบจองกลาง class.morroo.com (เฉพาะคอร์สที่เปิดจองออนไลน์) —
+// แบนเนอร์ใช้ดึงรอบเรียนจริง + ปุ่มจองออนไลน์; คอร์สที่ไม่มี hubKey ยังจองผ่าน LINE/โทรตามเดิม
 export const jiaCourses = [
   // ACLS — หลักสูตรขั้นสูง
   {
@@ -21,6 +23,7 @@ export const jiaCourses = [
     titleTh: 'การช่วยฟื้นคืนชีวิตขั้นสูง',
     desc: 'หลักสูตร ACLS ครบวงจร — BLS, Airway, ECG, Drug, Defib, Megacode พร้อมสอบปฏิบัติ',
     meta: '2 วัน (16 ชม.) · 6-8 คน/รอบ · 9,900 บาท',
+    hubKey: 'ACLS-FULL',
   },
   {
     id: 'acls-drug',
@@ -63,6 +66,7 @@ export const jiaCourses = [
     titleTh: 'จัดการทางเดินหายใจ',
     desc: 'OPA, NPA, Bag-Mask, Intubation, LMA — ฝึกจริงทุกเทคนิค',
     meta: '4 ชม. · 6-12 คน/รอบ · 2,900 บาท',
+    hubKey: 'AIRWAY',
   },
   {
     id: 'defib',
@@ -71,6 +75,7 @@ export const jiaCourses = [
     titleTh: 'ใช้เครื่องกระตุกหัวใจ',
     desc: 'AED + Manual Defib + Sync Cardioversion + Pacing',
     meta: '4 ชม. · 6-12 คน/รอบ · 3,500 บาท',
+    hubKey: 'DEFIB',
   },
   {
     id: 'vascular',
@@ -79,6 +84,7 @@ export const jiaCourses = [
     titleTh: 'เปิดเส้นเลือดฉุกเฉิน',
     desc: 'ฝึกเปิดเส้น IV + IO Access + เตรียมยา',
     meta: '3 ชม. · 6-12 คน/รอบ · 2,500 บาท',
+    hubKey: 'VASCULAR',
   },
 
   // BLS / CPR & AED

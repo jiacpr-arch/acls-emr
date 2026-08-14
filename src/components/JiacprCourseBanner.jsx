@@ -1,8 +1,9 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { GraduationCap, MessageSquare, Phone } from './ui/Icon';
+import { GraduationCap, MessageSquare, Phone, Calendar } from './ui/Icon';
 import { jiacprCourse, pickJiaCourse, jiaCourses } from '../data/jiacprCourse';
 import { IS_BLS } from '../config/courseMode';
 import { track } from '../services/analytics';
+import { fetchUpcoming, nextClassFor, bookingUrl, thShortDate, UTM_SOURCE } from '../services/jiaBooking';
 
 // สลับการ์ดทุก ~5 วิ ให้เห็นคอร์สหลายตัวแบบไม่รบกวน
 const ROTATE_MS = 5000;
@@ -26,6 +27,15 @@ export default function JiacprCourseBanner({ courseId, group }) {
   const [index, setIndex] = useState(0);
   const paused = useRef(false);
 
+  // รอบเรียนจริงจากระบบจองกลาง class.morroo.com — โหลดไม่ได้ (เช่นใน sandbox) = null
+  // แล้วแบนเนอร์แสดงแบบเดิม (LINE/โทร) เป๊ะ ไม่มีอะไรเพิ่ม
+  const [upcoming, setUpcoming] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    fetchUpcoming().then(classes => { if (alive) setUpcoming(classes); });
+    return () => { alive = false; };
+  }, []);
+
   // หมุนเองเฉพาะเมื่อมีหลายใบ และผู้ใช้ไม่ได้ตั้งค่า reduce motion
   useEffect(() => {
     if (count <= 1) return undefined;
@@ -38,6 +48,7 @@ export default function JiacprCourseBanner({ courseId, group }) {
   }, [count]);
 
   const course = pool[Math.min(index, count - 1)] ?? pool[0];
+  const nextClass = nextClassFor(upcoming, course?.hubKey);
 
   return (
     <div
@@ -108,6 +119,24 @@ export default function JiacprCourseBanner({ courseId, group }) {
             />
           ))}
         </div>
+      )}
+
+      {/* คอร์สที่เปิดจองออนไลน์ + มีรอบว่างจริงในระบบจองกลาง → ปุ่มจองตรงที่ class.morroo.com */}
+      {nextClass && (
+        <a
+          href={bookingUrl(course.hubKey, nextClass.class_id)}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => track('booking_click', {
+            meta: 'Booking',
+            props: { source: 'jiacpr_banner', course_id: course.id, hub_key: course.hubKey, utm_source: UTM_SOURCE },
+          })}
+          className="btn btn-primary btn-block no-underline mt-3"
+          style={{ textDecoration: 'none' }}
+        >
+          <Calendar size={16} strokeWidth={2.4} />
+          จองออนไลน์ · รอบ {thShortDate(nextClass.date)} (เหลือ {nextClass.seats_left} ที่)
+        </a>
       )}
 
       <div className="text-caption text-text-muted mt-3">
