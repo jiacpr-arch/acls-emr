@@ -777,6 +777,14 @@
 .cbs-tl-note { color: #8B99C4; font-size: 12.5px; display: block; }
 .cbs-debrief-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 
+/* ชวนเรียนคอร์สจริงท้ายเกม — ตัวการ์ด (JiacprCourseBanner) ใช้ design tokens
+   ของแอปตามเดิม จงใจให้ดูเป็น "ใบปลิว" สว่างตัดกับธีมมืดของเกม จะได้สะดุดตา */
+.cbs-course-cta { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.cbs-course-cta-sub {
+  font-size: 13.5px; color: var(--cbs-dim); line-height: 1.65;
+  margin: 0 0 2px; text-wrap: balance;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cbs-shake, .cbs-flash.cbs-go, .cbs-redflash.cbs-go,
   .cbs-title::before, .cbs-stage.cbs-drama::before, .cbs-stage.cbs-drama-red::before,

@@ -10,8 +10,9 @@ const ROTATE_MS = 5000;
 
 // courseId: บังคับโชว์คอร์สที่ตรงบริบทหน้า (เช่น หน้าคำนวณยา → acls-drug) — กรณีนี้ไม่หมุน
 // group: กรองกลุ่มคอร์ส — ค่า default โหมด BLS โชว์เฉพาะกลุ่ม BLS/CPR
+// source: ระบุจุดวางแบนเนอร์ใน event tracking (เช่น 'sim_debrief' ท้ายเกม) เพื่อวัดว่า lead มาจากไหน
 // ถ้ามีหลายคอร์สในกลุ่ม จะกลายเป็น carousel หมุนสไลด์เองอัตโนมัติ
-export default function JiacprCourseBanner({ courseId, group }) {
+export default function JiacprCourseBanner({ courseId, group, source = 'jiacpr_banner' }) {
   const pool = useMemo(() => {
     // หน้าที่ล็อกคอร์สตามบริบท → โชว์ตัวเดียว ไม่หมุน
     if (courseId) {
@@ -129,7 +130,7 @@ export default function JiacprCourseBanner({ courseId, group }) {
           rel="noopener noreferrer"
           onClick={() => track('booking_click', {
             meta: 'Booking',
-            props: { source: 'jiacpr_banner', course_id: course.id, hub_key: course.hubKey, utm_source: UTM_SOURCE },
+            props: { source, course_id: course.id, hub_key: course.hubKey, utm_source: UTM_SOURCE },
           })}
           className="btn btn-primary btn-block no-underline mt-3"
           style={{ textDecoration: 'none' }}
@@ -150,7 +151,7 @@ export default function JiacprCourseBanner({ courseId, group }) {
           rel="noopener noreferrer"
           onClick={() => track('contact_click', {
             meta: 'Contact',
-            props: { channel: 'line', source: 'jiacpr_banner', course_id: course.id, value: 2500, currency: 'THB' },
+            props: { channel: 'line', source, course_id: course.id, value: 2500, currency: 'THB' },
           })}
           className="btn btn-success btn-block no-underline"
           style={{ textDecoration: 'none' }}
@@ -161,7 +162,7 @@ export default function JiacprCourseBanner({ courseId, group }) {
           href={`tel:${jiacprCourse.phone}`}
           onClick={() => track('contact_click', {
             meta: 'Contact',
-            props: { channel: 'phone', source: 'jiacpr_banner', course_id: course.id, value: 2500, currency: 'THB' },
+            props: { channel: 'phone', source, course_id: course.id, value: 2500, currency: 'THB' },
           })}
           className="btn btn-info btn-block no-underline"
           style={{ textDecoration: 'none' }}
@@ -176,7 +177,7 @@ export default function JiacprCourseBanner({ courseId, group }) {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => track('course_page_click', {
-            props: { source: 'jiacpr_banner', course_id: course.id },
+            props: { source, course_id: course.id },
           })}
           className="text-caption text-text-muted underline"
         >
