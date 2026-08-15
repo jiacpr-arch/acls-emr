@@ -10,7 +10,6 @@ import { usePreCourseStore } from '../stores/preCourseStore';
 import { getClassContext } from '../stores/classStore';
 import { loadEndlessHiscores, saveEndlessHiscore } from '../utils/recorderGameProgress';
 import { enqueueGameResult } from '../db/database';
-import GameLearnCta from '../components/GameLearnCta';
 import { scheduleFlush } from '../services/syncEngine';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import GameRulesCard from '../components/recordergame/GameRulesCard';
@@ -201,7 +200,6 @@ export default function RecorderEndless() {
             <Home size={16} strokeWidth={2.4} /> กลับ Hub
           </button>
         </div>
-        <GameLearnCta source="recorder_endless" />
       </div>
     );
   }

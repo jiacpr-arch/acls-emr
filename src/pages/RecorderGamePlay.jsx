@@ -10,7 +10,6 @@ import { getClassContext } from '../stores/classStore';
 import { enqueueGameResult } from '../db/database';
 import { scheduleFlush } from '../services/syncEngine';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
-import GameLearnCta from '../components/GameLearnCta';
 import LevelIntro from '../components/recordergame/LevelIntro';
 import LiveStartOverlay from '../components/recordergame/LiveStartOverlay';
 import GameRulesCard from '../components/recordergame/GameRulesCard';
@@ -447,7 +446,6 @@ function PackPlay({ pack, onExit }) {
             <Home size={16} strokeWidth={2.4} /> กลับ Hub
           </button>
         </div>
-        <GameLearnCta source="recorder_pack" />
       </div>
     );
   }

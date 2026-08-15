@@ -4,7 +4,6 @@ import {
   ChevronLeft, Check, X, RotateCcw, ArrowRight, HeartPulse, Trophy, Clock,
 } from 'lucide-react';
 import { getStageById, saveStageProgress, DEFAULT_TIME_LIMIT_SEC } from '../data/activeSkillContent';
-import GameLearnCta from '../components/GameLearnCta';
 
 // Scenario play page shared by the three skill courses (airway / defib / iv).
 // Modeled on BLSScenario.jsx but without the embedded CPR metronome drill —
@@ -180,8 +179,6 @@ export default function SkillScenario() {
               กลับไปเลือกด่าน
             </button>
           </div>
-
-          <GameLearnCta source="skill_step_game" won={passed} />
         </div>
       </div>
     );

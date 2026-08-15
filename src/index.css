@@ -590,22 +590,6 @@ body {
   box-shadow: var(--shadow-1);
 }
 
-/* ===== GameLearnCta — ปุ่มทองชวนเรียนต่อฟรีท้ายเกมทุกเกม =====
-   โทนเดียวกับปุ่ม .cbs-btn-learn ในจอ debrief ของ /sim ให้จำได้ว่าเป็นปุ่มเดียวกัน
-   สีทอง + ตัวหนังสือเข้มคงที่ อ่านชัดทั้ง light/dark โดยไม่ต้องแยกธีม */
-.game-learn-cta { margin-top: 4px; }
-.game-learn-btn {
-  appearance: none; width: 100%; cursor: pointer;
-  border: 3px solid #fff; border-radius: var(--radius-md, 8px);
-  background: linear-gradient(180deg, #F2C14E, #D99A1F);
-  color: #241804; font-family: inherit; font-size: 16px; font-weight: 900;
-  padding: 14px 12px; letter-spacing: .02em;
-  box-shadow: 0 5px 0 #a8801f, 0 12px 24px rgba(242, 193, 78, .28);
-  transition: transform .08s ease, box-shadow .08s ease;
-}
-.game-learn-btn:hover { box-shadow: 0 6px 0 #a8801f, 0 14px 28px rgba(242, 193, 78, .4); }
-.game-learn-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #a8801f; }
-
 /* ===== Lesson reader: Next button highlight =====
    Gently pulses the primary next button once the student has answered,
    so the next action stays obvious without being aggressive. */

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useCaseStore } from '../stores/caseStore';
 import { useTimerStore } from '../stores/timerStore';
 import { saveScenarioGrade } from '../utils/scenarioProgress';
-import GameLearnCta from './GameLearnCta';
 import {
   GraduationCap, Edit, Activity, Lightbulb, Check, X, Trophy,
   Hospital, RefreshCw, ChevronRight, ChevronLeft, PartyPopper,
@@ -248,8 +247,6 @@ export function StaffTakeover({ scenario, score, onRetry, onViewAnswer, onNext }
             Next Scenario <ChevronRight size={14} strokeWidth={2.2} />
           </button>
         </div>
-
-        <GameLearnCta source="emr_drill" won={false} />
       </div>
     </div>
   );
@@ -327,8 +324,6 @@ export function ScenarioComplete({ scenario, score, mode, onRetry, onNext, onDas
             <ChevronLeft size={14} strokeWidth={2.2} /> Dashboard
           </button>
         </div>
-
-        <GameLearnCta source="emr_drill" won={pct >= 70} />
       </div>
     </div>
   );

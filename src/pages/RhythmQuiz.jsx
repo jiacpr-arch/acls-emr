@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import EKGWaveform from '../components/EKGWaveform';
 import PageHero from '../components/PageHero';
-import GameLearnCta from '../components/GameLearnCta';
 import {
   rhythmQuizQuestions, DECISION_LABELS, DECISION_OPTIONS,
   RHYTHM_QUIZ_PASS_PERCENT, RHYTHM_QUIZ_PASSED_KEY,
@@ -160,8 +159,6 @@ export default function RhythmQuiz() {
             </button>
           </div>
         )}
-
-        {done && <GameLearnCta source="rhythm_quiz" won={passed} />}
 
         <div className="text-2xs text-text-muted text-center">
           ภาพ EKG เป็นภาพประกอบเพื่อการเรียนรู้ — การตัดสินใจจริงต้องดูอาการผู้ป่วยประกอบเสมอ ไม่ใช่ดูจอมอนิเตอร์อย่างเดียว
