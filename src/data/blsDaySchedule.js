@@ -161,6 +161,12 @@ export const CONTINGENCIES = [
   { when: 'เน็ตห้างล่ม', then: 'จดผลลงกระดาษแล้วกรอกเข้าระบบเมื่อเน็ตกลับมา — ระบบเช็คชื่อไม่มีคิว offline' },
 ];
 
+// รูปแบบเดียวกับ aclsDaySchedule — BLS มีสถานที่เดียวจึงมี variant เดียว
+// (หน้า DaySchedule แสดง toggle เฉพาะเมื่อมีมากกว่า 1 variant)
+export const DAY_VARIANTS = [
+  { key: 'street', label: 'The Street', sublabel: 'เริ่ม 11:00', meta: DAY_META, blocks: DAY_BLOCKS },
+];
+
 // "HH:MM" → นาทีนับจากเที่ยงคืน
 export function toMinutes(hhmm) {
   const [h, m] = hhmm.split(':').map(Number);
