@@ -59,11 +59,12 @@ export default function Learn() {
           items: [
             { path: '/pre-course/pre-test',  Icon: ClipboardList, label: t('pre_test', lang), desc: t('pre_test_desc', lang), color: '#7C3AED', step: 1, featured: true, progressKey: 'preTest' },
             { path: '/pre-course',           Icon: GraduationCap, label: t('pre_course', lang), desc: t('pre_course_desc', lang), color: '#2563EB', step: 2, featured: true, progressKey: 'lessons' },
+            { path: '/video-lessons',        Icon: Play, label: 'วิดีโอบทเรียน', desc: 'คลิปสั้น + สรุป + ควิซ', color: '#7C3AED', step: 3, featured: true, progressKey: 'video' },
             ...(IS_DEFIB
-              ? [{ path: '/rhythm-quiz', Icon: Activity, label: 'Rhythm Quiz', desc: 'ดูจอมอนิเตอร์ เลือกหัตถการไฟฟ้าที่ถูกต้อง', color: '#DC2626', step: 3, featured: true, progressKey: 'rhythmQuiz' }]
+              ? [{ path: '/rhythm-quiz', Icon: Activity, label: 'Rhythm Quiz', desc: 'ดูจอมอนิเตอร์ เลือกหัตถการไฟฟ้าที่ถูกต้อง', color: '#DC2626', step: 4, featured: true, progressKey: 'rhythmQuiz' }]
               : []),
-            { path: '/scenario',             Icon: Brain, label: 'เกมลำดับขั้น', desc: 'เดินตามลำดับขั้นตัดสินใจแบบมีเวลา', color: '#DC2626', step: IS_DEFIB ? 4 : 3, featured: true, progressKey: 'scenario' },
-            { path: '/pre-course/post-test', Icon: Trophy, label: t('post_test', lang), desc: t('post_test_desc', lang), color: '#EA580C', step: IS_DEFIB ? 5 : 4, featured: true, progressKey: 'postTest' },
+            { path: '/scenario',             Icon: Brain, label: 'เกมลำดับขั้น', desc: 'เดินตามลำดับขั้นตัดสินใจแบบมีเวลา', color: '#DC2626', step: IS_DEFIB ? 5 : 4, featured: true, progressKey: 'scenario' },
+            { path: '/pre-course/post-test', Icon: Trophy, label: t('post_test', lang), desc: t('post_test_desc', lang), color: '#EA580C', step: IS_DEFIB ? 6 : 5, featured: true, progressKey: 'postTest' },
             { path: '/certification',        Icon: Award, label: t('cert', lang), desc: t('cert_desc', lang), color: '#D97706', featured: true, progressKey: 'cert' },
           ],
         },

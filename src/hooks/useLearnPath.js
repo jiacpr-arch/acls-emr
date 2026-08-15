@@ -26,6 +26,7 @@ const PATH_STEPS = IS_BLS
   ? [
       { key: 'preTest', path: '/pre-course/pre-test', label: 'Pre-test' },
       { key: 'lessons', path: '/pre-course', label: 'บทเรียน + Quiz' },
+      { key: 'video', path: '/video-lessons', label: 'วิดีโอบทเรียน' },
       ...(IS_DEFIB ? [{ key: 'rhythmQuiz', path: '/rhythm-quiz', label: 'Rhythm Quiz' }] : []),
       { key: 'scenario', path: '/scenario', label: 'เกมลำดับขั้น' },
       { key: 'postTest', path: '/pre-course/post-test', label: 'Post-test' },
@@ -106,7 +107,10 @@ export function useLearnPath() {
       case 'rhythmQuiz':
         return { complete: rhythmQuizDone };
       case 'video':
-        if (videoComp.total === 0) return { complete: false };
+        // ยังไม่มีวิดีโอเผยแพร่ในคอร์สนี้ (หรือโหลดไม่สำเร็จ) — ไม่นับเป็นขั้น
+        // ที่ต้องผ่าน จะได้ไม่ค้างเป็น "ขั้นถัดไป" ที่ทำอย่างไรก็ไม่เสร็จ
+        // (เงื่อนไขใบเซอร์ก็ข้ามให้อยู่แล้วเมื่อไม่มีวิดีโอ — ดู videoGateActive)
+        if (videoComp.total === 0) return null;
         return { complete: videoComp.allDone, done: videoComp.done, total: videoComp.total };
       case 'postTest':
         return { complete: passedFor(POST_TEST_LESSON_ID) };

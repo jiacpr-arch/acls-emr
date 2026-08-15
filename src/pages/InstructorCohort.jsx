@@ -11,7 +11,7 @@ import {
 import {
   POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT,
 } from '../data/activePostTest';
-import { IS_ACLS, IS_BLS, IS_SKILL_COURSE } from '../config/courseMode';
+import { IS_ACLS, IS_BLS, IS_IV, IS_SKILL_COURSE } from '../config/courseMode';
 
 // ACLS และ 3 คอร์สทักษะเดี่ยว (airway/defib/iv) มี pre-test — มีแค่ BLS เท่านั้นที่ไม่มี
 const HAS_PRE_TEST = IS_ACLS || IS_SKILL_COURSE;
@@ -371,7 +371,7 @@ export default function InstructorCohort() {
           <ChevronLeft size={14} strokeWidth={2.2} /> กลับไป Pre-course
         </button>
         <div className="flex-1" />
-        {(IS_BLS || IS_ACLS) && (
+        {(IS_BLS || IS_ACLS || IS_IV) && (
           <button onClick={() => navigate('/pre-course/schedule')}
             className="btn btn-ghost btn-sm">
             <CalendarClock size={14} strokeWidth={2.2} /> ตารางวันนี้
