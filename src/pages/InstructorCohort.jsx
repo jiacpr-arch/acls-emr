@@ -371,7 +371,7 @@ export default function InstructorCohort() {
           <ChevronLeft size={14} strokeWidth={2.2} /> กลับไป Pre-course
         </button>
         <div className="flex-1" />
-        {IS_BLS && (
+        {(IS_BLS || IS_ACLS) && (
           <button onClick={() => navigate('/pre-course/schedule')}
             className="btn btn-ghost btn-sm">
             <CalendarClock size={14} strokeWidth={2.2} /> ตารางวันนี้

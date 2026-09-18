@@ -152,7 +152,7 @@ function App() {
         <Route path="/pre-course" element={<PreCourse />} />
         <Route path="/pre-course/cohort" element={<InstructorCohort />} />
         <Route path="/pre-course/checkin" element={<InstructorCheckin />} />
-        {IS_BLS && <Route path="/pre-course/schedule" element={<DaySchedule />} />}
+        {(IS_BLS || IS_ACLS) && <Route path="/pre-course/schedule" element={<DaySchedule />} />}
         <Route path="/pre-course/my-qr" element={<StudentQrCard />} />
         <Route path="/pre-course/pre-test" element={<PreTestExam />} />
         <Route path="/pre-course/post-test" element={<PostTestExam />} />
