@@ -14,7 +14,7 @@ import ChecklistGrader from '../components/checkin/ChecklistGrader';
 import StationPickerSheet from '../components/checkin/StationPickerSheet';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import { track } from '../services/analytics';
-import { IS_BLS, IS_ACLS } from '../config/courseMode';
+import { IS_BLS, IS_ACLS, IS_IV } from '../config/courseMode';
 import {
   ChevronLeft, ScanLine, Settings2, KeyRound, Award,
   ClipboardCheck, Camera, List, Check, AlertTriangle, FileText, CalendarClock,
@@ -321,7 +321,7 @@ export default function InstructorCheckin() {
           <ChevronLeft size={14} strokeWidth={2.2} /> กลับหน้ารวมผล
         </button>
         <div className="flex-1" />
-        {(IS_BLS || IS_ACLS) && (
+        {(IS_BLS || IS_ACLS || IS_IV) && (
           <button onClick={() => navigate('/pre-course/schedule')} className="btn btn-ghost btn-sm">
             <CalendarClock size={14} strokeWidth={2.2} /> ตารางวันนี้
           </button>
