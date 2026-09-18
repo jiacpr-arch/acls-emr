@@ -5,6 +5,7 @@ import { getPackById, getCaseById, caseToLevel, CATEGORY_ACTIONS } from '../data
 import { computeStars } from '../utils/recorderGameScore';
 import { loadProgress, saveResult } from '../utils/recorderGameProgress';
 import { useLiveLevelEngine } from '../hooks/recordergame/useLiveLevelEngine';
+import { primeSpeech } from '../utils/speech';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getClassContext } from '../stores/classStore';
 import { enqueueGameResult } from '../db/database';
@@ -78,6 +79,7 @@ export default function RecorderGamePlay() {
   };
 
   const requestStart = () => {
+    primeSpeech(); // ปลดล็อก TTS ภายใน user gesture — จำเป็นบน iOS
     if (inClass && !activeStudent?.id) {
       startAfterIdentityRef.current = true;
       setShowIdentity(true);
@@ -381,7 +383,10 @@ function PackPlay({ pack, onExit }) {
   const missRef = useRef(0);
   const [summary, setSummary] = useState(null);
 
-  const start = () => { totalRef.current = 0; missRef.current = 0; setIdx(0); setPhase('playing'); };
+  const start = () => {
+    primeSpeech(); // ปลดล็อก TTS ภายใน user gesture — จำเป็นบน iOS
+    totalRef.current = 0; missRef.current = 0; setIdx(0); setPhase('playing');
+  };
 
   const handleFinish = useCallback((raw) => {
     totalRef.current += raw.score || 0;
