@@ -18,41 +18,18 @@ export const preCourseVideos = [
   },
 ];
 
-// Per-lesson videos — แต่ละบทมีวีดีโอเฉพาะของตัวเอง
-// TODO: แทนที่ url ด้วยลิงก์วีดีโอ specific ของแต่ละบทเมื่อพร้อม
+// Per-lesson videos — ย้ายออกจากหน้าบทอ่านทั้งหมดไปอยู่ที่ฟีเจอร์ "วิดีโอบทเรียน"
+// (/video-lessons, ตาราง Supabase video_lessons, course_mode='bls') แล้ว เพื่อแยก
+// เนื้อหาบทอ่าน (ข้อความ + รูป) ออกจากวิดีโอให้ขาดจากกันเหมือน ACLS — คลิปเดิมทั้ง
+// 10 รายการ (bls-1..bls-7 + bls-1r) ถูก insert เข้า video_lessons ไปแล้ว คง object
+// ว่างนี้ไว้เผื่อ author เพิ่มสื่อเฉพาะบทแบบ hardcode ในอนาคต (ไม่แนะนำ — ใช้ระบบ
+// วิดีโอบทเรียนหรือ per-step media ผ่าน /admin/precourse-images แทน)
 //
-// นอกจากวิดีโอระดับบทด้านล่างนี้ read step แต่ละอันก็ใส่สื่อเฉพาะขั้นได้เช่นกัน:
+// read step แต่ละอันยังใส่สื่อเฉพาะขั้นได้เหมือนเดิม (รูปภาพ/วิดีโอสาธิตขั้นนั้นๆ):
 //   { type: 'read', heading: '...', body: '...',
 //     images: [ { src: '/images/bls/lessons/bls-1/r0-1.webp', alt: '', caption: '' } ],
 //     videos: [ { platform: 'youtube', label: '...', url: '' } ] }
-const lessonVideos = {
-  'bls-1': [
-    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/7RrA-X0vhq0' },
-  ],
-  'bls-2': [
-    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/IbvE4PnW_80' },
-  ],
-  'bls-3': [
-    { platform: 'youtube', label: 'ผู้ใหญ่ (YouTube)', url: 'https://youtu.be/dtIswl6Od2I' },
-    { platform: 'youtube', label: 'เด็ก (YouTube)', url: 'https://youtu.be/lCbImOmcrNA' },
-  ],
-  'bls-4': [
-    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/dQ9TcHdhIr0' },
-  ],
-  'bls-5': [
-    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/0kaOCefb-xc' },
-  ],
-  'bls-6': [
-    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/fu65-_ENCLo' },
-  ],
-  'bls-7': [
-    { platform: 'youtube', label: 'ผู้ใหญ่ (YouTube)', url: 'https://youtu.be/t3WnWOOVh2c' },
-    { platform: 'youtube', label: 'เด็ก (YouTube)', url: 'https://youtu.be/pCgxwQUzph0' },
-  ],
-  'bls-1r': [
-    { platform: 'youtube', label: 'ดูบน YouTube', url: 'https://youtu.be/ayov6IVgW7w' },
-  ],
-};
+const lessonVideos = {};
 
 const lessonDefs = [
   // ===================== บทที่ 1 =====================

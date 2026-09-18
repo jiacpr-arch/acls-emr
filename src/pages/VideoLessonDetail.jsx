@@ -10,7 +10,7 @@ import { useAuth } from '../hooks/useAuth';
 import {
   markLessonRead, saveQuizAttempt, getLessonProgress, getAttemptsForStudent,
 } from '../db/database';
-import { videoLessonKey, VIDEO_TOPIC_MAP } from '../data/videoTopics';
+import { videoLessonKey, VIDEO_TOPICS, VIDEO_TOPIC_MAP } from '../data/videoTopics';
 import { buildProgressSets, clipUnlocked } from '../utils/videoProgress';
 import { courseMeta } from '../config/courseMode';
 import { formatClipTime } from '../utils/youtube';
@@ -75,6 +75,19 @@ export default function VideoLessonDetail() {
   const clipIndex = clip ? topicClips.findIndex(c => c.id === clip.id) : -1;
   const nextClip = clipIndex >= 0 ? topicClips[clipIndex + 1] : null;
   const topicMeta = clip ? VIDEO_TOPIC_MAP[clip.topic] : null;
+  // จบคลิปสุดท้ายของหมวดแล้วต้องไปต่อวิดีโอหมวดถัดไปได้เลย — ไม่งั้นทางไปต่อเดียว
+  // ที่เหลือคือการ์ด "อ่านต่อในบทเรียน" ซึ่งพาออกไปหน้าบทอ่าน ไม่ใช่วิดีโอ
+  const nextTopicClip = useMemo(() => {
+    if (!clip || nextClip) return null;
+    const idx = VIDEO_TOPICS.findIndex(t => t.id === clip.topic);
+    if (idx < 0) return null;
+    for (const tpc of VIDEO_TOPICS.slice(idx + 1)) {
+      const clips = byTopic[tpc.id];
+      if (clips?.length) return clips[0];
+    }
+    return null;
+  }, [clip, nextClip, byTopic]);
+  const nextTopicMeta = nextTopicClip ? VIDEO_TOPIC_MAP[nextTopicClip.topic] : null;
   // youtube_id เก็บได้ทั้ง id YouTube 11 ตัว และ "drive:<file_id>" — Drive เล่นผ่าน iframe /preview
   // ซึ่งไม่มี API จับความคืบหน้า/seek จึงใช้ปุ่มยืนยันดูจบแทน และสารบัญกดกระโดดเวลาไม่ได้
   const videoSource = clip ? parseStoredVideoId(clip.youtubeId) : null;
@@ -511,6 +524,39 @@ export default function VideoLessonDetail() {
             </div>
           )}
 
+          {/* next — วิดีโอต้องเป็นทางไปต่อหลัก จึงอยู่เหนือการ์ดบทอ่าน: จบหมวดแล้ว
+              ไหลต่อไปคลิปแรกของหมวดถัดไปได้เลย ไม่ใช่เด้งไปหน้าบทอ่านที่เป็นรูปภาพ */}
+          {(nextClip || nextTopicClip) && (() => {
+            const target = nextClip || nextTopicClip;
+            const label = nextClip
+              ? `คลิปถัดไป: ${target.title}`
+              : `หัวข้อถัดไป ${nextTopicMeta ? `${nextTopicMeta.emoji} ${nextTopicMeta.label}` : ''}: ${target.title}`;
+            return canAdvance ? (
+              <button onClick={() => navigate(`/video-lessons/${target.id}`)} className="btn btn-primary btn-block">
+                {label} <ChevronRight size={16} strokeWidth={2.4} />
+              </button>
+            ) : (
+              <div className="dash-card !p-3 text-center space-y-1">
+                <button disabled className="btn btn-primary btn-block opacity-40 cursor-not-allowed">
+                  <Lock size={14} strokeWidth={2.4} /> {label}
+                </button>
+                <div className="text-2xs text-text-muted">
+                  {quiz.length > 0 && !quizPassed ? 'ทำควิซให้ผ่านก่อนเพื่อไปคลิปถัดไป' : 'ดูวิดีโอให้จบก่อนเพื่อไปคลิปถัดไป'}
+                </div>
+              </div>
+            );
+          })()}
+          {!nextClip && !nextTopicClip && done && (
+            <div className="dash-card !p-3 text-center space-y-2">
+              <div className="text-caption text-success font-bold inline-flex items-center justify-center gap-1.5 w-full">
+                <Check size={15} strokeWidth={2.6} /> เรียนครบทุกหัวข้อแล้ว
+              </div>
+              <button onClick={() => navigate('/video-lessons')} className="btn btn-ghost btn-sm">
+                กลับไปไลบรารีวิดีโอ
+              </button>
+            </div>
+          )}
+
           {/* อ่านต่อในบทเรียน */}
           {clip.relatedPath && (
             <Link to={clip.relatedPath}
@@ -519,29 +565,6 @@ export default function VideoLessonDetail() {
               <span className="flex-1 text-caption font-bold text-info">{clip.relatedLabel || 'อ่านต่อในบทเรียน'}</span>
               <ChevronRight size={16} strokeWidth={2.2} className="text-info shrink-0" />
             </Link>
-          )}
-
-          {/* next */}
-          {nextClip && (
-            canAdvance ? (
-              <button onClick={() => navigate(`/video-lessons/${nextClip.id}`)} className="btn btn-primary btn-block">
-                คลิปถัดไป: {nextClip.title} <ChevronRight size={16} strokeWidth={2.4} />
-              </button>
-            ) : (
-              <div className="dash-card !p-3 text-center space-y-1">
-                <button disabled className="btn btn-primary btn-block opacity-40 cursor-not-allowed">
-                  <Lock size={14} strokeWidth={2.4} /> คลิปถัดไป: {nextClip.title}
-                </button>
-                <div className="text-2xs text-text-muted">
-                  {quiz.length > 0 && !quizPassed ? 'ทำควิซให้ผ่านก่อนเพื่อไปคลิปถัดไป' : 'ดูวิดีโอให้จบก่อนเพื่อไปคลิปถัดไป'}
-                </div>
-              </div>
-            )
-          )}
-          {!nextClip && done && (
-            <div className="dash-card !p-3 text-center text-caption text-success font-bold inline-flex items-center justify-center gap-1.5 w-full">
-              <Check size={15} strokeWidth={2.6} /> จบหัวข้อนี้แล้ว
-            </div>
           )}
 
           <button onClick={goPrev} className="btn btn-ghost btn-sm !mt-2">
