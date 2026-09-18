@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, BookOpen, Home } from 'lucide-react';
 import QASection from '../components/QASection';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
+import { QA_DEEP_PATH } from '../config/courseMode';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   chapterPaletteAt,
@@ -62,7 +63,7 @@ export default function QAAclsDeepQuestion() {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [chapterId, qNum]);
 
-  const listHref = `/qa-acls-deep/${encodeURIComponent(chapterId)}`;
+  const listHref = `${QA_DEEP_PATH}/${encodeURIComponent(chapterId)}`;
   const qa = item
     ? [{ q: item.question, a: item.answer, cover: item.cover ?? null, images: item.infographics ?? [] }]
     : [];
@@ -75,7 +76,7 @@ export default function QAAclsDeepQuestion() {
         className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-xs text-text-muted"
         aria-label="เส้นทางหน้า"
       >
-        <Link to="/qa-acls-deep" className="inline-flex items-center gap-1 hover:text-info">
+        <Link to={QA_DEEP_PATH} className="inline-flex items-center gap-1 hover:text-info">
           <Home size={12} strokeWidth={2.4} />
           หน้าแรก Q&A
         </Link>

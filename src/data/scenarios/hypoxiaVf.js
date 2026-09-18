@@ -41,6 +41,7 @@ export const hypoxiaVf = {
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'nurse_mint', pose: 'talk', text: 'กดต่อเลยค่ะ! <span class="cbs-em">IV เปิดได้แล้ว</span> พร้อมให้ยา', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบ 2 นาที! <span class="cbs-em">ขอสลับคนกด</span> — เปลี่ยนไวๆ หยุดกดไม่เกิน 10 วิครับ!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… <span class="cbs-em">ยัง VF ค่ะ!</span> ดื้อไฟ' }, t: 6 },
             ],
           },
@@ -94,6 +95,7 @@ export const hypoxiaVf = {
             tgt: 'MONITOR', label: 'เช็ค oxygenation/airway: ดู SpO₂ + คลำ/ฟังการระบายอากาศ', ok: true,
             then: [
               { say: { who: 'fon_defib', pose: 'panic', text: '<span class="cbs-em">SpO₂ วัดไม่ขึ้น</span> ริมฝีปากเขียว! ในปากมี<span class="cbs-em">เสมหะ/สารคัดหลั่งอุดอยู่เต็มเลยค่ะ!</span>' }, t: 8 },
+              { say: { who: 'krit_airway', pose: 'stern', text: 'นี่ไงครับ… <span class="cbs-em">ทางเดินหายใจอุดตัน — หัวใจที่ขาดออกซิเจน ยิงไฟกี่ครั้งก็ไม่กลับ</span> ขอ suction กับ laryngoscope ผมจัดการเอง' }, t: 5 },
               { inter: 'HYPOXIA!', drama: 'red', t: 4 },
             ],
           },
@@ -110,6 +112,7 @@ export const hypoxiaVf = {
             tgt: 'AIRWAY', label: 'Suction ทางเดินหายใจ + ใส่ ET tube ให้ oxygenation — กดต่อเนื่อง ไม่หยุดนาน', ok: true,
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: 'Suction ออกเยอะเลยค่ะ! ใส่ท่อสำเร็จ <span class="cbs-em">SpO₂ เริ่มขึ้น ตัวเริ่มชมพู</span>', fx: { cpr: true } }, t: 8 },
+              { say: { who: 'krit_airway', pose: 'talk', text: 'เห็น cords แล้ว… <span class="cbs-em">tube ผ่าน</span> — ฟังปอดเข้าเท่ากันสองข้าง EtCO₂ ขึ้นสวยครับ ทีนี้หัวใจได้ออกซิเจนแล้ว' }, t: 5 },
               { say: { who: 'att_dech', pose: 'stern', text: 'ดี — และ<span class="cbs-em">ห่มผ้าให้อุ่น keep warm ไว้</span> กัน hypothermia ซ้ำเติม' }, t: 5 },
             ],
           },
@@ -127,6 +130,7 @@ export const hypoxiaVf = {
             then: [
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Amio 150 in!"</span> โดสซ้ำ 150 มิลลิกรัมค่ะ', fx: { cpr: true } }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'ตัวเริ่มชมพูแล้ว — รอบนี้แหละครับ! <span class="cbs-em">recoil สุดทุกครั้ง</span> กลับมาเถอะ!' }, t: 4 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… จอเปลี่ยน! <span class="cbs-em">คลื่นเป็นระเบียบสม่ำเสมอ — organized rhythm… คลำชีพจรได้แล้วค่ะ!!</span>' }, t: 6 },
             ],

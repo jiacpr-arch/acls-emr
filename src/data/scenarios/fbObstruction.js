@@ -71,8 +71,10 @@ export const fbObstruction = {
           {
             tgt: 'AIRWAY', label: 'ส่อง laryngoscope + คีบด้วย Magill forceps ภายใต้การมองเห็น', ok: true,
             then: [
+              { say: { who: 'krit_airway', pose: 'talk', text: 'ผมส่องเองครับ… blade เข้า เปิด epiglottis… <span class="cbs-em">เห็นก้อนอาหารแล้ว</span> — Magill ครับ ส่งมา' }, t: 5 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'ส่องเห็นแล้วค่ะ! เศษอาหารก้อนใหญ่อุดกล่องเสียง… <span class="cbs-em">คีบออกได้แล้ว!</span>' }, t: 8 },
               { inter: 'AIRWAY โล่ง!', green: true, t: 4 },
+              { say: { who: 'krit_airway', pose: 'stern', text: 'เห็นด้วยตา แล้วค่อยคีบ — <span class="cbs-em">ห้ามล้วงสุ่มเด็ดขาด</span> ทางเดินหายใจโล่งแล้วครับ' }, t: 4 },
               { say: { who: 'boy_compressor', pose: 'talk', text: 'อากาศเข้าปอดสองข้างเท่ากันแล้วครับ! กดต่อ…', fx: { cpr: true } }, t: 5 },
             ],
           },

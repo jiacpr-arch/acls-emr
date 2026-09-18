@@ -204,7 +204,7 @@ export default function Algorithm() {
   return (
     <div className="page-container space-y-5">
       <div>
-        <h1 className="text-title text-text-primary">ACLS Algorithms</h1>
+        <h1 className="text-display text-text-primary">ACLS Algorithms</h1>
         <p className="text-caption text-text-muted mt-0.5">Evidence-based decision flowcharts</p>
       </div>
 

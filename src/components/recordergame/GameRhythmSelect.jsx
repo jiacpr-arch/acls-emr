@@ -7,8 +7,10 @@ import { Activity, X } from 'lucide-react';
 // ==========================================
 export default function GameRhythmSelect({ onSelect, onClose }) {
   const arrestRhythms = getRhythmsByCategory('cardiac_arrest');
+  // z-[70]: ต้องสูงกว่า .cbs-app (position:fixed, z-index:60 — root ของ RecorderStageAA)
+  // ไม่งั้น sheet นี้จะ render ทับใต้ฉากเกม มองไม่เห็นและกดไม่ได้เลย
   return (
-    <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
+    <div className="absolute inset-0 z-[70] flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
       onClick={onClose}>
       <div className="w-full max-w-md bg-bg-secondary p-4 space-y-3 animate-slide-up"
         onClick={e => e.stopPropagation()}

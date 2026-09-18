@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { invalidateVideoLessonsCache, mapVideoLessonRow } from './videoLessonService';
 import { authedPost } from './adminApi';
+import { COURSE_MODE } from '../config/courseMode';
 
 // CRUD วิดีโอบทเรียน สำหรับหน้าแอดมิน — เขียนผ่าน client ที่ล็อกอินแอดมินแล้ว (RLS คุมสิทธิ์)
 // รูปแบบเดียวกับ alsAdminService.js (insert/update/delete ตรงไปที่ตาราง)
@@ -8,12 +9,14 @@ import { authedPost } from './adminApi';
 // payload (camelCase) → row (snake_case)
 function toRow(p) {
   const row = {
+    course_mode: COURSE_MODE,
     topic: p.topic,
     title: (p.title || '').trim(),
     youtube_id: (p.youtubeId || '').trim(),
     orientation: p.orientation || 'portrait',
     start_sec: p.startSec === '' || p.startSec == null ? null : Number(p.startSec),
     end_sec: p.endSec === '' || p.endSec == null ? null : Number(p.endSec),
+    duration_sec: p.durationSec === '' || p.durationSec == null ? null : Number(p.durationSec),
     required: p.required !== false,
     key_points: p.keyPoints || '',
     chapters: Array.isArray(p.chapters) ? p.chapters : [],
@@ -29,6 +32,7 @@ export async function listVideoLessonsAdmin() {
   const { data, error } = await supabase
     .from('video_lessons')
     .select('*')
+    .eq('course_mode', COURSE_MODE)
     .order('topic', { ascending: true })
     .order('sort_order', { ascending: true });
   if (error) throw error;
@@ -36,10 +40,11 @@ export async function listVideoLessonsAdmin() {
 }
 
 export async function createVideoLesson(payload) {
-  // next sort_order ภายใน topic
+  // next sort_order ภายใน topic (เฉพาะโหมดเดียวกัน)
   const { data: existing, error: cErr } = await supabase
     .from('video_lessons')
     .select('sort_order')
+    .eq('course_mode', COURSE_MODE)
     .eq('topic', payload.topic)
     .order('sort_order', { ascending: false })
     .limit(1);

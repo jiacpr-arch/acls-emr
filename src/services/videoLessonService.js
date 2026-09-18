@@ -1,7 +1,9 @@
 import { supabase } from './supabase';
+import { COURSE_MODE } from '../config/courseMode';
 
 // อ่าน "วิดีโอบทเรียน" จาก Supabase (public read) + cache 6 ชม. เลียนแบบ precourseImageService
-const CACHE_KEY = 'video_lessons_cache_v1';
+// video_lessons เก็บทุกคอร์สร่วมตารางเดียวกัน แยกด้วย course_mode — ต้องกรองทุก query
+const CACHE_KEY = `video_lessons_cache_v1:${COURSE_MODE}`;
 const TTL_MS = 6 * 60 * 60 * 1000;
 
 export function invalidateVideoLessonsCache() {
@@ -32,6 +34,7 @@ export function mapVideoLessonRow(row) {
     orientation: row.orientation || 'portrait',
     startSec: row.start_sec ?? null,
     endSec: row.end_sec ?? null,
+    durationSec: row.duration_sec ?? null,
     required: row.required !== false,
     keyPoints: row.key_points || '',
     chapters: Array.isArray(row.chapters) ? row.chapters : [],
@@ -52,6 +55,7 @@ export async function fetchVideoLessons({ force = false } = {}) {
   const { data, error } = await supabase
     .from('video_lessons')
     .select('*')
+    .eq('course_mode', COURSE_MODE)
     .order('topic', { ascending: true })
     .order('sort_order', { ascending: true });
   if (error) throw error;

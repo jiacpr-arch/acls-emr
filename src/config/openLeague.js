@@ -3,7 +3,16 @@ import { COURSE_MODE } from './courseMode';
 // "ลีกออนไลน์" — คลาสกลางสำหรับผู้เรียนด้วยตนเองที่ไม่มีรหัสจากอาจารย์
 // เป็นคลาสจริงใน cohort_classes (สร้างโดย supabase-cleanup/open-online-league.sql)
 // จึงใช้ pipeline เดิมได้ทั้งหมด: บันทึกผลเกม, อันดับเหรียญ, กู้ความคืบหน้าข้ามเครื่อง
-export const OPEN_LEAGUE_CODE = COURSE_MODE === 'bls' ? 'ONLINEBLS' : 'ONLINE';
+//
+// airway/defib/iv ยังไม่มีคลาสลีกออนไลน์จริงใน cohort_classes (ต้องสร้างด้วย
+// SQL script แยกต่างหากก่อนใช้งานจริง) — โค้ดฝั่งนี้พร้อมรับรหัสแล้ว เผื่อไว้
+const OPEN_LEAGUE_CODES = {
+  bls: 'ONLINEBLS',
+  airway: 'ONLINEAW',
+  defib: 'ONLINEDF',
+  iv: 'ONLINEIV',
+};
+export const OPEN_LEAGUE_CODE = OPEN_LEAGUE_CODES[COURSE_MODE] ?? 'ONLINE';
 
 export const isOpenLeague = (code) =>
   !!code && code.toUpperCase() === OPEN_LEAGUE_CODE;

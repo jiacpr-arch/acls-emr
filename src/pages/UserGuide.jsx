@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { guideSections } from '../data/guideContent';
 import {
-  BookOpen, Plus, HeartPulse, GitBranch, Sparkles, HelpCircle,
+  Plus, HeartPulse, GitBranch, Sparkles, HelpCircle,
   Search, X, ChevronDown, MessageSquare, FileText,
 } from 'lucide-react';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import PageHero from '../components/PageHero';
 
 const quickLinks = [
   { Icon: Plus, label: 'เริ่มเคส', sectionId: 'newcase' },
@@ -38,22 +39,8 @@ export default function UserGuide() {
   };
 
   return (
-    <div className="page-container space-y-5">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div
-          className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark) 100%)',
-            borderRadius: 'var(--radius-2xl)',
-            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)',
-          }}
-        >
-          <BookOpen size={28} strokeWidth={2.2} className="text-white" />
-        </div>
-        <h1 className="text-title text-text-primary">คู่มือการใช้งาน</h1>
-        <p className="text-caption text-text-muted">ACLS EMR v2.0 — User Guide</p>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero title="คู่มือการใช้งาน" desc="ACLS EMR v2.0 — User Guide" />
 
       {/* Quick Links */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">

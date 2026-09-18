@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { BookOpen, ChevronRight, Home } from 'lucide-react';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
+import { QA_DEEP_PATH } from '../config/courseMode';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   chapterPaletteAt,
@@ -52,7 +53,7 @@ export default function QAAclsDeepCategory() {
     return chapterPaletteAt(chapters.findIndex(c => c.id === chapterId));
   }, [chapters, chapterId]);
 
-  const listBase = `/qa-acls-deep/${encodeURIComponent(chapterId)}`;
+  const listBase = `${QA_DEEP_PATH}/${encodeURIComponent(chapterId)}`;
 
   return (
     <div className="page-container space-y-6">
@@ -61,7 +62,7 @@ export default function QAAclsDeepCategory() {
         className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-xs text-text-muted"
         aria-label="เส้นทางหน้า"
       >
-        <Link to="/qa-acls-deep" className="inline-flex items-center gap-1 hover:text-info">
+        <Link to={QA_DEEP_PATH} className="inline-flex items-center gap-1 hover:text-info">
           <Home size={12} strokeWidth={2.4} />
           หน้าแรก Q&A
         </Link>
@@ -119,7 +120,7 @@ export default function QAAclsDeepCategory() {
                   minWidth: 32,
                   height: 28,
                   padding: '0 8px',
-                  background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)`,
+                  background: palette.accent,
                   borderRadius: 999,
                   letterSpacing: '0.02em',
                   marginTop: 1,

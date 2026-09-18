@@ -13,6 +13,7 @@ export const bradyOverdose = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! คนไข้เตียง 3 ซึมลงมากค่ะ ญาติบอกว่า<span class="cbs-em">กินยาความดันไปเยอะมาก</span> ชีพจรช้าจนน่ากลัว!' }, t: 5 },
     { inter: 'CODE BLUE!!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'หมอคะ! ฉันเจอ<span class="cbs-em">ขวดยาเปล่าสองขวดตกอยู่ข้างเตียง</span> — ยาลดความดันกับยาหัวใจของแกเองค่ะ <span class="cbs-em">เพิ่งรับมาเมื่อวานยังเต็มขวด</span> ตอนนี้เกลี้ยงหมดเลย!' }, t: 7 },
     { say: { who: 'att_dech', pose: 'stern', text: 'เคสนี้มี "ต้นเหตุ" ชัด… <span class="cbs-em">ยาเกินขนาด</span> คุณคือ Team Leader — ค่อยๆ คิดให้ทัน' }, t: 5 },
     {
       choice: {

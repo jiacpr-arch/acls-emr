@@ -105,6 +105,7 @@ export const traumaArrest = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: 'เลือดชุดแรกเข้าแล้วค่ะ! <span class="cbs-em">รัด pelvic binder + ดาม femur</span> เลือดออกภายนอกกดห้ามแล้ว', fx: { cpr: true } }, t: 8 },
               { skip: 'CPR + resuscitation ต่อเนื่อง — 2 นาที', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบ 2 นาที <span class="cbs-em">ขอสลับคนกด!</span> — เลือดเข้าไปแล้ว กดแล้วรู้สึกอกเด้งกลับดีขึ้นครับ!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">จอเปลี่ยนเป็น VF ค่ะ!</span> สั่นพลิ้วแล้ว!' }, t: 6 },
               { inter: 'VF — SHOCKABLE!!', drama: 'red', t: 4, fx: { rhythm: 'vf' } },
             ],
@@ -137,6 +138,7 @@ export const traumaArrest = {
           {
             tgt: 'DRUG', label: 'ใส่ ET tube ระหว่างกด + Amiodarone 300 mg IV', ok: true,
             then: [
+              { say: { who: 'krit_airway', pose: 'talk', text: 'Trauma ห้ามแหงนคอ — ผมใส่แบบ <span class="cbs-em">manual in-line stabilization</span> คอนิ่งสนิท… เห็น cords แล้ว… tube ผ่านครับ' }, t: 5 },
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Amio 300 in!"</span> ท่อช่วยหายใจเข้าที่แล้ว เลือดยังเดินต่อเนื่องค่ะ', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">คลื่นเป็นจังหวะ… คลำชีพจรได้แล้วค่ะ!!</span>' }, t: 6 },

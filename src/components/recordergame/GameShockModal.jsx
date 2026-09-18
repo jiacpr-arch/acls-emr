@@ -1,5 +1,5 @@
 import { playShockSound } from '../../utils/sound';
-import { ENERGY_CHOICES } from '../../data/recorderGameLevels';
+import { ENERGY_CHOICES } from '../../data/activeRecorderLevels';
 import { Zap, X } from 'lucide-react';
 
 // ==========================================
@@ -12,8 +12,9 @@ export default function GameShockModal({ onDeliver, onClose, energyChoices }) {
     playShockSound();
     onDeliver(energy);
   };
+  // z-[70]: ต้องสูงกว่า .cbs-app (z-index:60) ไม่งั้น sheet นี้จะโดนฉากเกมบังจนกดไม่ได้
   return (
-    <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
+    <div className="absolute inset-0 z-[70] flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
       onClick={onClose}>
       <div className="w-full max-w-md bg-white rounded-t-2xl border-t border-bg-tertiary p-4 space-y-3 animate-slide-up"
         onClick={e => e.stopPropagation()}

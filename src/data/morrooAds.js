@@ -1,6 +1,6 @@
 // Cross-promo ads for sibling morroo.com tools.
 // Shown as a single rotating card on non-clinical pages.
-import { IS_BLS } from '../config/courseMode';
+import { COURSE_MODE } from '../config/courseMode';
 
 const allAds = [
   {
@@ -110,8 +110,9 @@ const allAds = [
 ];
 
 // Never advertise the site to its own visitors — drop the ad matching the
-// current build (bls.morroo.com vs acls.morroo.com).
-const selfId = IS_BLS ? 'bls' : 'acls';
+// current build. No-op for courses without a self-ad entry above
+// (airway/defib/iv don't have one yet).
+const selfId = COURSE_MODE;
 
 export const morrooAds = allAds.filter(a => a.id !== selfId);
 

@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, Search, Shuffle, MessageCircleQuestion, ChevronRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Search, Shuffle, MessageCircleQuestion, ChevronRight, BookOpen, Bookmark } from 'lucide-react';
 import { loadQaDeep, loadQaDeepChapters } from '../services/qaDeepService';
 import StudentQuestionForm from '../components/StudentQuestionForm';
 import { CHAPTER_PALETTE, UNCATEGORIZED_PALETTE, parseChapterTitle } from '../utils/qaChapters';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import PageHero from '../components/PageHero';
+import { IS_ACLS, IS_BLS, QA_DEEP_PATH } from '../config/courseMode';
 
 export default function QAAclsDeep() {
-  const [page, setPage] = useState({ title: 'Q&A ACLS เชิงลึก', intro: '', coverImage: null });
+  const [page, setPage] = useState({ title: IS_BLS ? 'Q&A BLS เชิงลึก' : 'Q&A ACLS เชิงลึก', intro: '', coverImage: null });
   const [items, setItems] = useState([]);
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,60 +96,48 @@ export default function QAAclsDeep() {
     ? (() => {
         const anchor = itemAnchor.get(featured);
         const key = anchor?.chapterKey || featured.chapterId || '_uncategorized';
-        return `/qa-acls-deep/${encodeURIComponent(key)}${anchor ? `/${anchor.num}` : ''}`;
+        return `${QA_DEEP_PATH}/${encodeURIComponent(key)}${anchor ? `/${anchor.num}` : ''}`;
       })()
     : null;
 
   return (
-    <div className="page-container space-y-5">
-      <div className="text-center space-y-2">
-        {page.coverImage ? (
-          <img
-            src={page.coverImage}
-            alt={page.title}
-            className="w-full max-h-56 object-cover border border-border mx-auto"
-            style={{ borderRadius: 'var(--radius-2xl)' }}
-          />
-        ) : (
-          <div
-            className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
-              borderRadius: 'var(--radius-2xl)',
-              boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)',
-            }}
-          >
-            <Sparkles size={28} strokeWidth={2.2} className="text-white" />
-          </div>
-        )}
-        <h1 className="text-title text-text-primary">{page.title}</h1>
-        {page.intro && (
-          <p className="text-caption text-text-muted whitespace-pre-line">{page.intro}</p>
-        )}
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      {page.coverImage ? (
+        <img
+          src={page.coverImage}
+          alt={page.title}
+          className="w-full max-h-56 object-cover border border-border mx-auto"
+          style={{ borderRadius: 'var(--radius-2xl)' }}
+        />
+      ) : (
+        <PageHero title={page.title} desc={page.intro} />
+      )}
 
       <JiacprCourseBanner />
 
-      <button
-        type="button"
-        onClick={() => setAskOpen(true)}
-        className="dash-card !p-0 w-full flex items-center gap-3 px-4 py-3 hover:bg-bg-tertiary/50 transition-colors text-left border-l-4 border-l-info"
-      >
-        <div
-          className="w-9 h-9 inline-flex items-center justify-center shrink-0"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark, #1d4ed8) 100%)',
-            borderRadius: 'var(--radius-md)',
-          }}
+      {/* ส่งคำถามเข้าคิวให้อาจารย์ตรวจ — เขียนเข้า acls_student_questions ที่ยังไม่มี
+          course_mode และหน้า admin ตรวจคำถาม (/admin/student-questions) ยังเปิดแค่
+          ACLS จึงซ่อนไว้ก่อนฝั่ง BLS กันคำถามหายเข้ากลีบเมฆ (ไม่มีใครเห็น/ตอบ) */}
+      {IS_ACLS && (
+        <button
+          type="button"
+          onClick={() => setAskOpen(true)}
+          className="card card-hover w-full flex items-center gap-3"
+          style={{ textAlign: 'left', justifyContent: 'flex-start' }}
         >
-          <MessageCircleQuestion size={18} strokeWidth={2.2} className="text-white" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-body-strong text-text-primary">ถามคำถามของคุณ</div>
-          <div className="text-2xs text-text-muted">AI ตอบเชิงลึก + จัดหมวด · อาจารย์ตรวจก่อนเผยแพร่</div>
-        </div>
-        <ArrowRight size={16} strokeWidth={2.2} className="text-info shrink-0" />
-      </button>
+          <div
+            className="w-9 h-9 inline-flex items-center justify-center shrink-0 bg-info/12 text-info"
+            style={{ borderRadius: 'var(--radius-md)' }}
+          >
+            <MessageCircleQuestion size={18} strokeWidth={2.2} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-body-strong text-text-primary">ถามคำถามของคุณ</div>
+            <div className="text-2xs text-text-muted">AI ตอบเชิงลึก + จัดหมวด · อาจารย์ตรวจก่อนเผยแพร่</div>
+          </div>
+          <ArrowRight size={16} strokeWidth={2.2} className="text-info shrink-0" />
+        </button>
+      )}
 
       {askOpen && <StudentQuestionForm onClose={() => setAskOpen(false)} />}
 
@@ -243,7 +233,7 @@ export default function QAAclsDeep() {
           {matchedItems.map((it, idx) => {
             const anchor = itemAnchor.get(it);
             const ch = it.chapterId ? chapterById.get(it.chapterId) : null;
-            const href = `/qa-acls-deep/${encodeURIComponent(anchor?.chapterKey || '_uncategorized')}${anchor ? `/${anchor.num}` : ''}`;
+            const href = `${QA_DEEP_PATH}/${encodeURIComponent(anchor?.chapterKey || '_uncategorized')}${anchor ? `/${anchor.num}` : ''}`;
             return (
               <Link
                 key={it.id ?? `m-${idx}`}
@@ -291,19 +281,23 @@ export default function QAAclsDeep() {
               return (
                 <Link
                   key={ch.id}
-                  to={`/qa-acls-deep/${encodeURIComponent(ch.id)}`}
+                  to={`${QA_DEEP_PATH}/${encodeURIComponent(ch.id)}`}
                   className="chapter-card block"
                 >
                   <span
                     className="chapter-card-stripe"
-                    style={{ background: `linear-gradient(180deg, ${palette.from} 0%, ${palette.to} 100%)` }}
+                    style={{ background: palette.accent }}
                   />
                   <div className="chapter-card-button">
                     <div
                       className="chapter-icon-tile"
-                      style={{ background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.to} 100%)` }}
+                      style={{ background: `${palette.accent}15` }}
                     >
-                      <span className="leading-none" style={{ fontSize: 26 }}>{ch.icon || '📘'}</span>
+                      {ch.icon ? (
+                        <span className="leading-none" style={{ fontSize: 26 }}>{ch.icon}</span>
+                      ) : (
+                        <BookOpen size={24} strokeWidth={2.2} style={{ color: palette.accent }} />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       {num && (
@@ -329,17 +323,17 @@ export default function QAAclsDeep() {
             })}
 
             {counts.uncategorized > 0 && (
-              <Link to="/qa-acls-deep/_uncategorized" className="chapter-card block">
+              <Link to={`${QA_DEEP_PATH}/_uncategorized`} className="chapter-card block">
                 <span
                   className="chapter-card-stripe"
-                  style={{ background: `linear-gradient(180deg, ${UNCATEGORIZED_PALETTE.from} 0%, ${UNCATEGORIZED_PALETTE.to} 100%)` }}
+                  style={{ background: UNCATEGORIZED_PALETTE.accent }}
                 />
                 <div className="chapter-card-button">
                   <div
                     className="chapter-icon-tile"
-                    style={{ background: `linear-gradient(135deg, ${UNCATEGORIZED_PALETTE.from} 0%, ${UNCATEGORIZED_PALETTE.to} 100%)` }}
+                    style={{ background: `${UNCATEGORIZED_PALETTE.accent}15` }}
                   >
-                    <span className="leading-none" style={{ fontSize: 24 }}>📌</span>
+                    <Bookmark size={22} strokeWidth={2.2} style={{ color: UNCATEGORIZED_PALETTE.accent }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="chapter-num-tag" style={{ color: UNCATEGORIZED_PALETTE.accent }}>

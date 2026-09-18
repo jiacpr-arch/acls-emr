@@ -78,7 +78,8 @@ export default function VoucherCard({ onOpen }) {
 
   return (
     <button onClick={onOpen}
-      className="dash-card w-full flex items-center gap-3 text-left hover:bg-bg-tertiary/50 transition-colors">
+      className="dash-card w-full flex items-center gap-3 hover:bg-bg-tertiary/50 transition-colors"
+      style={{ textAlign: 'left', justifyContent: 'flex-start' }}>
       <div className="w-10 h-10 inline-flex items-center justify-center bg-info/12 text-info shrink-0"
         style={{ borderRadius: 'var(--radius-md)' }}>
         <Ticket size={18} strokeWidth={2.2} />

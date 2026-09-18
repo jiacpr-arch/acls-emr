@@ -7,7 +7,8 @@
 // แต่ละเคสมี field:
 //   id, title, subtitle, level ('basic'|'intermediate'|'megacode'),
 //   track (หมวดในหน้าเลือกเคส — key ของ TRACK_META, ไม่ระบุ = 'other'),
-//   course ('acls'|'bls' — ไม่ระบุ = ตามได้ทั้งสองโหมด), hiddenCause, story[]
+//   course ('acls'|'bls' — ไม่ระบุ = ตามได้ทั้งสองโหมด), hiddenCause, story[],
+//   bg (ฉากพื้นหลังบนเวที — key ของ BACKGROUNDS, ไม่ระบุ = ห้องฉุกเฉิน er_bay)
 //
 // คลังกรองตาม COURSE_MODE: acls.morroo.com เห็นเคส ACLS,
 // bls.morroo.com (MorRoo) เห็นเคส BLS — engine เดียวกัน คนละชุดโจทย์
@@ -16,120 +17,11 @@
 // หน้าตาแบบเดียวกันนี้ลง Supabase แล้ว merge เข้าคลังได้เลย
 
 import { COURSE_MODE } from '../config/courseMode';
-import { vfArrest } from './scenarios/vfArrest';
-import { peaHyperK } from './scenarios/peaHyperK';
-import { blsCollapse } from './scenarios/blsCollapse';
-import { blsChoking } from './scenarios/blsChoking';
-// BLS pack (MorRoo) — เคสสำหรับ bls.morroo.com จัดหมวดแบบ BLS (ผู้ใหญ่/เด็ก/สำลัก/พิเศษ)
-import { blsHandsOnly } from './scenarios/blsHandsOnly';
-import { blsAedWet } from './scenarios/blsAedWet';
-import { blsTeamWard } from './scenarios/blsTeamWard';
-import { blsChildDrowning } from './scenarios/blsChildDrowning';
-import { blsInfantCpr } from './scenarios/blsInfantCpr';
-import { blsInfantChoking } from './scenarios/blsInfantChoking';
-import { blsPregnantChoking } from './scenarios/blsPregnantChoking';
-import { blsOpioid } from './scenarios/blsOpioid';
-// ACLS basic pack — เคสเดี่ยว ทีละ algorithm/แขนงย่อย ให้ฝึกก่อนไป megacode
-import { peaAsystoleBasic } from './scenarios/peaAsystoleBasic';
-import { bradycardiaBasic } from './scenarios/bradycardiaBasic';
-import { bradycardiaStableBasic } from './scenarios/bradycardiaStableBasic';
-import { tachycardiaBasic } from './scenarios/tachycardiaBasic';
-import { tachyAfibBasic } from './scenarios/tachyAfibBasic';
-import { tachyWideVtBasic } from './scenarios/tachyWideVtBasic';
-import { tachyUnstableBasic } from './scenarios/tachyUnstableBasic';
-import { acsBasic } from './scenarios/acsBasic';
-import { acsNstemiBasic } from './scenarios/acsNstemiBasic';
-import { strokeIschemicBasic } from './scenarios/strokeIschemicBasic';
-import { strokeMimicHypo } from './scenarios/strokeMimicHypo';
-import { strokeHemorrhagic } from './scenarios/strokeHemorrhagic';
-import { strokeTia } from './scenarios/strokeTia';
-import { strokeLvoWakeup } from './scenarios/strokeLvoWakeup';
-import { strokeBasilar } from './scenarios/strokeBasilar';
-import { strokePostTpaIch } from './scenarios/strokePostTpaIch';
-// ACLS megacode pack (ชุดโจทย์ megacode หลายสถานการณ์)
-import { traumaArrest } from './scenarios/traumaArrest';
-import { copdDope } from './scenarios/copdDope';
-import { pregChoking } from './scenarios/pregChoking';
-import { hypoxiaVf } from './scenarios/hypoxiaVf';
-import { refractoryVfAcs } from './scenarios/refractoryVfAcs';
-import { vfPeaVfAcs } from './scenarios/vfPeaVfAcs';
-import { fbObstruction } from './scenarios/fbObstruction';
-import { alcoholHypo } from './scenarios/alcoholHypo';
-import { aaaRupture } from './scenarios/aaaRupture';
-import { preeclampsia } from './scenarios/preeclampsia';
-import { tensionPneumo } from './scenarios/tensionPneumo';
-import { tamponade } from './scenarios/tamponade';
-import { pulmonaryEmbolism } from './scenarios/pulmonaryEmbolism';
-import { hypothermiaVf } from './scenarios/hypothermiaVf';
-import { bradyOverdose } from './scenarios/bradyOverdose';
-import { completeHeartBlock } from './scenarios/completeHeartBlock';
-import { mobitz2Vf } from './scenarios/mobitz2Vf';
-import { svtCascade } from './scenarios/svtCascade';
-import { pvtHandover } from './scenarios/pvtHandover';
-
-// เคสทั้งหมดในระบบ (built-in) — จัดเรียงตามหมวด (track) และในหมวดเรียงง่าย→ยาก
-// ลำดับในนี้คือ "บันได" ของแต่ละหมวดบนหน้าเลือกเคส + ลำดับเคสแนะนำถัดไป
-const allScenarios = [
-  // ── 🫀 Cardiac Arrest หลัก ── วนลูป CPR-Shock-ยา ให้เป็นอัตโนมัติ
-  vfArrest,
-  peaAsystoleBasic,
-  vfPeaVfAcs,
-  refractoryVfAcs,
-  pvtHandover,
-  hypoxiaVf,
-  // ── 🐢 Bradycardia ──
-  bradycardiaStableBasic,
-  bradycardiaBasic,
-  mobitz2Vf,
-  completeHeartBlock,
-  bradyOverdose,
-  // ── ⚡ Tachycardia ──
-  tachycardiaBasic,
-  tachyAfibBasic,
-  tachyWideVtBasic,
-  tachyUnstableBasic,
-  svtCascade,
-  // ── 💔 ACS ──
-  acsBasic,
-  acsNstemiBasic,
-  // ── 🧠 Stroke ── FAST · DTX · CT · tPA window — แข่งกับเวลา
-  strokeIschemicBasic,
-  strokeMimicHypo,
-  strokeHemorrhagic,
-  strokeTia,
-  strokeLvoWakeup,
-  strokeBasilar,
-  strokePostTpaIch,
-  // ── 🔍 สืบหาสาเหตุ (H's & T's) ── arrest ที่ต้องแก้สาเหตุถึงจะรอด
-  peaHyperK,
-  alcoholHypo,
-  copdDope,
-  tensionPneumo,
-  tamponade,
-  pulmonaryEmbolism,
-  hypothermiaVf,
-  aaaRupture,
-  // ── 🚨 สถานการณ์พิเศษ ── ตั้งครรภ์ / trauma / สำลัก
-  fbObstruction,
-  pregChoking,
-  preeclampsia,
-  traumaArrest,
-  // ── BLS (MorRoo) ── จัดเรียงตามหมวด BLS และในหมวดเรียงง่าย→ยาก
-  // 🫀 ผู้ใหญ่: CPR + AED
-  blsCollapse,
-  blsHandsOnly,
-  blsAedWet,
-  blsTeamWard,
-  // 👶 เด็กและทารก
-  blsChildDrowning,
-  blsInfantCpr,
-  // 🌬 สำลัก
-  blsChoking,
-  blsInfantChoking,
-  blsPregnantChoking,
-  // 🚨 สถานการณ์พิเศษ
-  blsOpioid,
-];
+// เคสของแต่ละคอร์สแยกไฟล์ต่างหากใน scenarioPacks/ แล้ว resolve ผ่าน Vite alias
+// '@scenario-pack' (ดู vite.config.js) — แต่ละ build จึงมีแค่เคสของคอร์สตัวเองอยู่ใน
+// module graph จริงๆ ไม่ใช่ import ทั้ง 60 ไฟล์มาแล้วค่อย .filter() ตอน runtime
+// (แบบเดิม Rollup ตัดสาขาที่ไม่ใช้ทิ้งไม่ได้ เพราะทุก branch ถูกอ้างถึงใน array เดียวกัน)
+import { allScenarios } from '@scenario-pack';
 
 // เคสที่ไม่ระบุ course ถือว่าเป็น acls (ค่าเริ่มต้นเดิม)
 function courseOf(s) {
@@ -172,10 +64,12 @@ export function simGameStatus() {
 }
 
 // ระดับความยากของเคส — โหมด BLS ไม่มีคำว่า megacode ใช้ป้าย "ทีมกู้ชีพ" แทน (key เดิม)
+// คอร์สทักษะเดี่ยว (airway/defib/iv) ก็ไม่ใช่ megacode จริง — ใช้ "ขั้นสูง" แทน
+const MEGACODE_LABEL = { bls: 'ทีมกู้ชีพ', airway: 'ขั้นสูง', defib: 'ขั้นสูง', iv: 'ขั้นสูง' };
 export const LEVEL_META = {
   basic: { label: 'พื้นฐาน', order: 0 },
   intermediate: { label: 'ปานกลาง', order: 1 },
-  megacode: { label: COURSE_MODE === 'bls' ? 'ทีมกู้ชีพ' : 'Megacode', order: 2 },
+  megacode: { label: MEGACODE_LABEL[COURSE_MODE] || 'Megacode', order: 2 },
 };
 
 // หมวดของเคส (track) — ACLS จัดตาม algorithm, BLS จัดตามกลุ่มผู้ป่วย/สถานการณ์
@@ -212,29 +106,137 @@ const ACLS_TRACK_META = {
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
 };
 
+// BLS ของ MorRoo เป็นหลักสูตร "สำหรับบุคลากรทางการแพทย์" — หมวดจึงจัดตามทักษะที่ผู้ปฏิบัติ
+// ระดับ BLS ต้องทำได้จริง (ประเมิน · คลำชีพจร · ช่วยหายใจ · AED · ทำงานเป็นทีม) ไม่ใช่หมวดแบบผู้พบเหตุทั่วไป
 const BLS_TRACK_META = {
   adult: {
-    label: 'ผู้ใหญ่: CPR + AED', icon: '🫀', order: 0,
-    desc: 'ห่วงโซ่การรอดชีวิต — เรียกช่วย · กดหน้าอกคุณภาพสูง · ใช้ AED ให้ไว',
+    label: 'ผู้ใหญ่: BLS Survey · CPR · AED', icon: '🫀', order: 0,
+    desc: 'ประเมิน–เรียกช่วย–คลำชีพจร ≤10 วิ · กดลึก 5-6 ซม. เร็ว 100-120 · ใช้ AED ให้ไว',
+  },
+  breathing: {
+    label: 'คลำชีพจร & ช่วยหายใจ', icon: '🫁', order: 1,
+    desc: 'มีชีพจรแต่ไม่หายใจต้องทำอะไร — ผู้ใหญ่ 1 ครั้ง/6 วิ · เด็ก 1 ครั้ง/2-3 วิ · OPA + bag-mask',
   },
   child: {
-    label: 'เด็กและทารก', icon: '👶', order: 1,
-    desc: 'เทคนิคเฉพาะวัย — ความลึก 1/3 อก, ชีพจร brachial, 15:2 เมื่อช่วยสองคน',
+    label: 'เด็กและทารก', icon: '👶', order: 2,
+    desc: 'ตัวเลขคนละชุด — ลึก 1/3 อก · ทารกคลำต้นแขน เด็กคลำคอ/ขาหนีบ · ชีพจร <60 ก็เริ่มกด · 15:2 เมื่อสองคน',
   },
   choking: {
-    label: 'สำลัก', icon: '🌬', order: 2,
-    desc: 'ผู้ใหญ่ thrust ท้อง · คนท้องกระแทกอก · ทารกตบหลัง 5 สลับกระแทกอก 5',
+    label: 'สำลัก', icon: '🌬', order: 3,
+    desc: 'ผู้ใหญ่ตบหลังสลับกระทุ้งท้อง · คนท้อง/อ้วนมากใช้กระแทกอก · ทารกตบหลัง 5 สลับกระแทกอก 5',
+  },
+  team: {
+    label: 'ทีมในโรงพยาบาล & ขอบเขตบทบาท', icon: '🏥', order: 4,
+    desc: 'Code Blue · สื่อสารแบบทวนคำสั่ง · ส่งเวรแบบ SBAR — และเส้นแบ่งว่าอะไรต้องรอทีมขั้นสูง',
   },
   special: {
-    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 3,
-    desc: 'จมน้ำ · opioid เกินขนาด — สถานการณ์ที่ขั้นตอนพื้นฐานต้องปรับ',
+    label: 'สถานการณ์พิเศษ', icon: '🚨', order: 5,
+    desc: 'ตั้งครรภ์ · จมน้ำ · ยาเกินขนาด — สถานการณ์ที่ขั้นตอนพื้นฐานต้องปรับ',
   },
   other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
 };
 
-export const TRACK_META = COURSE_MODE === 'bls' ? BLS_TRACK_META : ACLS_TRACK_META;
+// คอร์สทักษะเดี่ยว — แต่ละ track ผูกตรงกับหนึ่งทักษะย่อยของคอร์สนั้น (ไม่ปนกับ track ของ ACLS/BLS)
+const AIRWAY_TRACK_META = {
+  basicAirway: {
+    label: 'เปิดทางเดินหายใจ + OPA/NPA', icon: '🫁', order: 0,
+    desc: 'head-tilt–chin-lift · เลือก OPA/NPA ตาม gag reflex · วัดขนาด · เทคนิคใส่',
+  },
+  ventilation: {
+    label: 'Bag-Mask Ventilation', icon: '💨', order: 1,
+    desc: 'E-C clamp คนเดียว · seal ที่ดี · จังหวะบีบไม่ให้ลมเข้ากระเพาะ',
+  },
+  advanced: {
+    label: 'ทางเดินหายใจขั้นสูง', icon: '🔬', order: 2,
+    desc: 'SGA ระหว่าง CPR ไม่หยุดกด · waveform capnography · จับสัญญาณ ROSC',
+  },
+  other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
+};
+
+const DEFIB_TRACK_META = {
+  aed: {
+    label: 'AED สำหรับ VF', icon: '⚡', order: 0,
+    desc: 'เริ่ม CPR ระหว่างรอเครื่อง · แปะ pads ถูกตำแหน่ง · ช็อกอย่างปลอดภัย',
+  },
+  manual: {
+    label: 'Manual Defibrillator', icon: '🔋', order: 1,
+    desc: 'ตั้งพลังงาน · ลด peri-shock pause · ช็อกซ้ำตามรอบพร้อมยา',
+  },
+  electrical: {
+    label: 'Cardioversion & Pacing', icon: '📟', order: 2,
+    desc: 'Synchronized cardioversion สำหรับ unstable tachycardia · โหมด Sync',
+  },
+  other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
+};
+
+// เรียงจากงานประจำวันบนหอผู้ป่วย (เปิดเส้น → ให้สารน้ำ → เตรียม/บริหารยา → ภาวะแทรกซ้อน)
+// ไปหางานฉุกเฉิน (IO → ให้ยาตอน CPR) ตามลำดับที่พยาบาลเจอจริงบ่อยไปหาน้อย
+const IV_TRACK_META = {
+  peripheral: {
+    label: 'Peripheral IV', icon: '💉', order: 0,
+    desc: 'เลือกเบอร์เข็ม/ตำแหน่งเส้น · ยืนยัน flashback · bolus สารน้ำ',
+  },
+  fluids: {
+    label: 'สารน้ำและอัตราการหยด', icon: '💧', order: 1,
+    desc: 'คำนวณ mL/hr และหยด/นาที · drop factor ของชุดให้สารน้ำ · ปรับอัตรา · จับภาวะน้ำเกินให้ทัน',
+  },
+  meds: {
+    label: 'เตรียมและบริหารยา', icon: '🧪', order: 2,
+    desc: 'หลัก 6 ถูกต้อง · ยาชื่อ/หน้าตาคล้ายกัน · ผสมยาผงและคำนวณความเข้มข้น · double-check ยาเสี่ยงสูง',
+  },
+  safety: {
+    label: 'ภาวะแทรกซ้อนและความปลอดภัย', icon: '🛡', order: 3,
+    desc: 'แยกหลอดเลือดดำอักเสบจากยารั่วออกนอกเส้น · แพ้ยารุนแรงระหว่างหยด · หยุดยาแต่รักษาเส้นไว้',
+  },
+  io: {
+    label: 'Intraosseous (IO)', icon: '🦴', order: 4,
+    desc: 'เปลี่ยนไป IO เมื่อ IV ล้มเหลว · ตำแหน่ง proximal tibia · ยืนยันก่อนให้ยา',
+  },
+  drugs: {
+    label: 'ให้ยาระหว่าง CPR', icon: '💊', order: 5,
+    desc: 'bolus + flush 20 mL · ยกแขน · รอบเวลาให้ยา · จัดการเส้นที่ infiltrate',
+  },
+  other: { label: 'เคสอื่นๆ', icon: '📋', order: 9, desc: '' },
+};
+
+const TRACK_META_BY_MODE = {
+  bls: BLS_TRACK_META,
+  airway: AIRWAY_TRACK_META,
+  defib: DEFIB_TRACK_META,
+  iv: IV_TRACK_META,
+};
+
+export const TRACK_META = TRACK_META_BY_MODE[COURSE_MODE] || ACLS_TRACK_META;
 
 // เคสที่ไม่ระบุ track (เช่น โจทย์เก่าจาก Supabase) ตกหมวด 'other'
 export function trackOf(s) {
   return TRACK_META[s.track] ? s.track : 'other';
+}
+
+// ── ฉากพื้นหลังบนเวที ──────────────────────────────────────────────────
+// ไฟล์อยู่ที่ public/images/backgrounds/{key}.webp — ดูสเปกและ prompt สร้างภาพใน docs/backgrounds.md
+// ฉากใช้ร่วมกันหลายเคส (ไม่ใช่ฉากละเคส) เคสที่ไม่ระบุ bg ใช้ er_bay เหมือนเดิม
+export const BACKGROUNDS = {
+  er_bay: 'ห้องฉุกเฉิน (ค่าเริ่มต้น)',
+  ward_night: 'หอผู้ป่วยกลางดึก',
+  public_indoor: 'ที่สาธารณะในร่ม (ห้าง/โรงอาหาร)',
+  home_room: 'บ้าน/ห้องพัก',
+  poolside: 'ริมสระว่ายน้ำ/ริมน้ำกลางแจ้ง',
+  pediatric: 'ห้องตรวจกุมารเวช',
+  delivery_room: 'ห้องคลอด',
+  ambulance: 'ในรถกู้ชีพ',
+  ct_room: 'ห้อง CT',
+  cath_lab: 'ห้องสวนหัวใจ (Cath Lab)',
+  outdoor_street: 'ริมถนน/หน้าตึกแถว',
+  opd_lobby: 'โถงลิฟต์/OPD โรงพยาบาล',
+  ward_bathroom: 'ห้องน้ำผู้ป่วยในหอผู้ป่วย',
+  dialysis_unit: 'หน่วยไตเทียม',
+};
+export const DEFAULT_BACKGROUND = 'er_bay';
+
+// URL พื้นหลังของเคส — key ที่ไม่รู้จัก (เช่นโจทย์จาก Supabase ที่พิมพ์ผิด) ตกไปใช้ค่าเริ่มต้น
+// จึงไม่มีทางได้เวทีที่ภาพหาย
+export function backgroundUrl(s) {
+  const key = s && BACKGROUNDS[s.bg] ? s.bg : DEFAULT_BACKGROUND;
+  return `/images/backgrounds/${key}.webp`;
 }

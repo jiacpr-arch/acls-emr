@@ -89,6 +89,7 @@ export const acsNstemiBasic = {
             tgt: 'DRUG', label: 'ส่ง serial troponin, พิจารณายาต้านเกล็ดเลือดตัวที่สอง + anticoagulant ตามแนวทาง, nitroglycerin สำหรับเจ็บอก (หลังเช็ค BP/RV/PDE5), admit monitor', ok: true,
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: 'ส่ง troponin ครั้งแรกแล้วค่ะ นัดซ้ำเป็นชุด <span class="cbs-em">BP/RV/PDE5 เช็คผ่าน</span> เริ่ม nitrate อาการเจ็บทุเลาลง เตรียมยาต้านเกล็ดเลือด/anticoagulant รอปรึกษา' }, t: 8 },
+              { say: { who: 'mind_runner', pose: 'talk', text: 'หลอด troponin อยู่ในมือมายด์แล้วค่ะ วิ่งไปแลปเดี๋ยวนี้เลย — <span class="cbs-em">ผลรอบแรกไม่เกิน 1 ชั่วโมง</span> ส่วนรอบซ้ำมายด์จะเกาะติดให้เองค่ะ!' }, t: 6 },
               { say: { who: 'att_dech', pose: 'stern', text: 'ครบถ้วน — <span class="cbs-em">serial troponin</span> สำคัญมาก ค่าเดียวปกติตัด ACS ไม่ได้ ต้องดูแนวโน้ม รับไว้ใน monitor เฝ้าอาการต่อ' }, t: 5 },
             ],
           },

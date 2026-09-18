@@ -58,6 +58,7 @@ export const copdDope = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> IV เปิดได้แล้วค่ะ', fx: { epi: true, cpr: true } }, t: 6 },
               { say: { who: 'att_dech', pose: 'stern', text: 'ดี — asystole ให้ Epi ทุก 3-5 นาที ไม่มี shock… ทีนี้ <span class="cbs-em">ไปหาว่าทำไมท่อทำให้เขาทรุด</span>' }, t: 5 },
+              { say: { who: 'krit_airway', pose: 'talk', text: 'ใจเย็นๆ ครับ… คนใส่ท่อที่ทรุดเฉียบพลัน ไล่ทีละตัว <span class="cbs-em">D-O-P-E</span> — ท่อนี่ผมดูเองครับ' }, t: 5 },
             ],
           },
           { tgt: 'DEFIB', label: 'Charge 200 J แล้ว shock', ok: false, why: 'Asystole เป็น non-shockable! การ shock ไม่ช่วยและเสียเวลากด', worsen: true },
@@ -72,6 +73,7 @@ export const copdDope = {
           {
             tgt: 'AIRWAY', label: 'เช็ค DOPE: ตำแหน่งท่อ/EtCO₂/ฟังปอด 2 ข้าง + ดูดเสมหะ + ประเมิน pneumothorax + เช็คสายเครื่อง', ok: true,
             then: [
+              { say: { who: 'krit_airway', pose: 'talk', text: 'ความลึกท่อเท่าเดิม… ดูดเสมหะแล้ว ไม่มีอะไรอุด — <span class="cbs-em">Displacement กับ Obstruction ตัดออก</span> ฟังปอดต่อครับ' }, t: 5 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'ฟังปอด… <span class="cbs-em">ข้างขวาไม่มีลมเข้าเลยค่ะ!</span> เคาะโปร่ง หลอดลมเบนไปซ้าย!' }, t: 8 },
               { inter: 'TENSION PNEUMOTHORAX!', drama: 'red', t: 4 },
               { say: { who: 'att_dech', pose: 'stern', text: 'นี่แหละตัว P ใน DOPE — <span class="cbs-em">Pneumothorax จาก positive pressure ในปอด COPD</span>' }, t: 5 },

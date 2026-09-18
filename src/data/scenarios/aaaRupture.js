@@ -56,6 +56,7 @@ export const aaaRupture = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> เปิด IV ได้แล้วค่ะ', fx: { epi: true, cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'สองนาทีแรกครบครับ! <span class="cbs-em">สลับมือ!</span> คนใหม่วางมือกลางอกกดต่อทันที — จังหวะห้ามขาด!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… ยัง PEA เหมือนเดิมค่ะ' }, t: 6 },
             ],
           },
@@ -91,6 +92,7 @@ export const aaaRupture = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"เลือดมาแล้ว!"</span> PRC + FFP + platelet เปิดเต็มที่ผ่านเส้นใหญ่ค่ะ', fx: { cpr: true } }, t: 8 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'แขนเริ่มสั่นแล้วครับ… สลับอีกรอบ! <span class="cbs-em">เลือดที่เติมเข้าไปต้องมีมือเราปั๊มส่ง</span> — ลึกเท่าเดิม ห้ามตก!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'ให้เลือดไปหลายถุงแล้ว… แต่ <span class="cbs-em">ยังเสียเลือดออกไม่หยุด</span> ค่ะ' }, t: 6 },
             ],
           },

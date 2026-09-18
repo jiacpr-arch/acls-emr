@@ -1,7 +1,7 @@
 import { VAPID_PUBLIC_KEY } from '../config/push';
-import { IS_BLS } from '../config/courseMode';
+import { COURSE_MODE } from '../config/courseMode';
 
-const COURSE = IS_BLS ? 'bls' : 'acls';
+const COURSE = COURSE_MODE;
 
 export function isPushSupported() {
   return typeof window !== 'undefined'

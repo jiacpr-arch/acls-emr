@@ -40,6 +40,7 @@ export default function RecorderStageAA({
   scene = {}, narration, pendingEvent, expectedButtonId, popup,
   elapsed = 0, score = 0, streak = 0,
   buttons = [], onPress, showHint = false,
+  hudLabel, coachText,
 }) {
   const reducedMotion = useMemo(
     () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
@@ -90,6 +91,7 @@ export default function RecorderStageAA({
             <EcgStrip rhythm={ecgRhythm(rhythm)} cpr={!!scene.compressorActive} width={140} height={26} />
           </div>
           <div className="cbs-hud-right">
+            {hudLabel && <span className="cbs-timechip">{hudLabel}</span>}
             <span className="rgaa-scorechip">★ {score}</span>
             <div className="cbs-gauge">
               <span className="cbs-gauge-label">COMBO ×{streak}</span>
@@ -130,7 +132,9 @@ export default function RecorderStageAA({
 
       {/* แถบปุ่มบันทึก (persistent) */}
       <div className="rgaa-bararea">
-        <div className="rgaa-bar-label">แตะเพื่อบันทึกเหตุการณ์</div>
+        {coachText
+          ? <div className="rgaa-bar-coach">{coachText}</div>
+          : <div className="rgaa-bar-label">แตะเพื่อบันทึกเหตุการณ์</div>}
         <div className="rgaa-bar">
           {buttons.map(b => {
             const hint = showHint && expectedButtonId === b.id;

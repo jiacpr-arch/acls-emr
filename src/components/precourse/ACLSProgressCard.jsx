@@ -1,11 +1,12 @@
 import { Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play, Award, ClipboardCheck, User, UserCheck, RefreshCw } from 'lucide-react';
+import { courseMeta } from '../../config/courseMode';
 
-// At-a-glance progress + next-step CTA for ACLS pre-course flow.
+// At-a-glance progress + next-step CTA for the pre-course flow — shared by
+// ACLS and BLS (name kept from when BLS had its own separate card).
 // Decides what the student should do next:
 // identify → pre-test → first lesson → continue → post-test → certificate.
-// Mirrors BLSProgressCard but adds the Pre-test step that exists only in ACLS.
 export default function ACLSProgressCard({
   activeStudent,
   preTestPassed,
@@ -105,15 +106,7 @@ export default function ACLSProgressCard({
     <>
       {/* Active-student status — its own card so identity reads as a
           separate concern from progress */}
-      <div
-        className="dash-card flex items-center gap-3"
-        style={{
-          borderRadius: 'var(--radius-xl)',
-          boxShadow: 'var(--shadow-2)',
-          padding: 20,
-          borderColor: 'var(--color-border-strong)',
-        }}
-      >
+      <div className="dash-card flex items-center gap-3">
         {activeStudent ? (
           <>
             <div
@@ -132,8 +125,8 @@ export default function ACLSProgressCard({
             </div>
             <button
               onClick={onChangeStudent}
-              className="text-2xs font-bold inline-flex items-center gap-1 px-2.5 py-1.5 text-text-secondary bg-bg-tertiary"
-              style={{ borderRadius: 99 }}
+              className="text-2xs font-bold inline-flex items-center gap-1 px-2.5 py-1.5 text-text-secondary"
+              style={{ borderRadius: 99, background: 'var(--color-bg-tertiary)' }}
             >
               <RefreshCw size={11} strokeWidth={2.4} /> เปลี่ยน
             </button>
@@ -156,8 +149,8 @@ export default function ACLSProgressCard({
             </div>
             <button
               onClick={onIdentify}
-              className="text-2xs font-bold px-3 py-1.5 bg-info text-white"
-              style={{ borderRadius: 99 }}
+              className="text-2xs font-bold px-3 py-1.5 text-white"
+              style={{ borderRadius: 99, background: 'var(--color-info)' }}
             >
               ระบุตัวตน
             </button>
@@ -166,20 +159,12 @@ export default function ACLSProgressCard({
       </div>
 
       {/* Progress + primary CTA */}
-      <div
-        className="dash-card"
-        style={{
-          borderRadius: 'var(--radius-xl)',
-          boxShadow: 'var(--shadow-2)',
-          padding: 20,
-          borderColor: 'var(--color-border-strong)',
-        }}
-      >
+      <div className="dash-card">
         <div className="flex items-center gap-4">
           <ProgressRing percent={percent} />
           <div className="flex-1 min-w-0">
             <div className="text-2xs font-bold uppercase tracking-wider text-text-muted">
-              ความคืบหน้า ACLS
+              ความคืบหน้า {courseMeta.shortName}
             </div>
             <div className="text-xl font-extrabold text-text-primary leading-tight tabular-nums">
               {lessonsPassed}<span className="text-text-muted text-sm font-bold">/{totalLessons}</span>
@@ -201,7 +186,6 @@ export default function ACLSProgressCard({
         <button
           onClick={cta.onClick}
           className={`btn btn-xl btn-full mt-4 ${ctaClass}`}
-          style={{ boxShadow: '0 6px 16px rgba(37, 99, 235, 0.28)' }}
         >
           <CtaIcon size={20} strokeWidth={2.4} />
           {cta.label}
@@ -288,19 +272,13 @@ function ProgressRing({ percent }) {
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="url(#acls-ring-grad)"
+          stroke="var(--color-info)"
           strokeWidth={stroke}
           strokeDasharray={c}
           strokeDashoffset={offset}
           strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 0.4s ease' }}
         />
-        <defs>
-          <linearGradient id="acls-ring-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#0EA5E9" />
-            <stop offset="100%" stopColor="#2563EB" />
-          </linearGradient>
-        </defs>
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <span className="text-sm font-extrabold text-info tabular-nums">{percent}%</span>

@@ -5,10 +5,12 @@ import { enforceRateLimit } from '../_lib/rateLimit.js';
 export const config = { maxDuration: 10 };
 
 const MAX_NAME_LEN = 80;
-// Client generates cert ids as `${JIA-ACLS|JIA-BLS}-${Date.now().toString(36).toUpperCase()}`
-// (src/pages/Certification.jsx) — reject anything else so this public endpoint
+const COURSE_MODES = ['acls', 'bls', 'airway', 'defib', 'iv'];
+// Client generates cert ids as `${certConfig.certIdPrefix}-${Date.now().toString(36).toUpperCase()}`
+// (src/pages/Certification.jsx, prefixes from src/config/courseMode.js +
+// src/courses/*/cert.js) — reject anything else so this public endpoint
 // can't be used to stuff arbitrary ids into the certificates table.
-const CERT_ID_RE = /^JIA-(ACLS|BLS)-[0-9A-Z]{6,16}$/;
+const CERT_ID_RE = /^JIA-(ACLS|BLS|AW|DF|IV)-[0-9A-Z]{6,16}$/;
 
 // Public endpoint: the student's browser calls this right after generating a
 // certificate so the admin LINE OA gets an alert. The cert itself is created
@@ -26,7 +28,7 @@ export default async function handler(req, res) {
   const studentPhone = String(body.studentPhone || '').trim().slice(0, 20);
   const studentEmail = String(body.studentEmail || '').trim().slice(0, 120);
   const certId = String(body.certId || '').trim().slice(0, 60);
-  const course = body.course === 'bls' ? 'bls' : 'acls';
+  const course = COURSE_MODES.includes(body.course) ? body.course : 'acls';
   const preTestScore = numOrNull(body.preTestScore);
   const postTestScore = numOrNull(body.postTestScore);
   const ekgPassed = !!body.ekgPassed;
