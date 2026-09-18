@@ -46,6 +46,28 @@ test('accepts the owner email included in the default allowlist', async () => {
   assert.equal(user.email, 'jiacpr@gmail.com');
 });
 
+// A deploy with no service role key must not look like an auth failure —
+// otherwise the admin UI tells the user their login expired (see #390).
+test('reports a deployment missing the service role key as 503, not 401', async (t) => {
+  const keys = ['SUPABASE_URL', 'VITE_SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
+  const prev = keys.map((k) => [k, process.env[k]]);
+  keys.forEach((k) => delete process.env[k]);
+  t.mock.method(console, 'error', () => {});
+  t.after(() => {
+    for (const [k, v] of prev) {
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
+  });
+
+  // No getUser injected → the real getSupabaseAdmin path runs and fails on env.
+  await assert.rejects(requireAdmin(reqWith('Bearer tok')), (err) => {
+    assert.equal(err.status, 503);
+    assert.doesNotMatch(err.message, /SERVICE_ROLE_KEY/, 'internal env detail should stay server-side');
+    return true;
+  });
+});
+
 test('ADMIN_EMAILS env overrides the allowlist', async (t) => {
   const prev = process.env.ADMIN_EMAILS;
   process.env.ADMIN_EMAILS = 'boss@example.com, second@example.com';

@@ -70,6 +70,7 @@ export const peaAsystoleBasic = {
             then: [
               { say: { who: 'boy_compressor', pose: 'talk', text: 'ทางเดินหายใจโล่งดีครับ ให้ออกซิเจนเต็มที่แล้ว ไม่มีประวัติเสียเลือดหรือขาดน้ำ อุณหภูมิตัวปกติ ไม่มียาที่น่าสงสัยครับ' }, t: 8 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบ 2 นาที! <span class="cbs-em">ขอสลับคนกด</span> — เปลี่ยนไวๆ หยุดกดไม่เกิน 10 วิครับ!' }, t: 4 },
               { inter: 'ASYSTOLE — เส้นเรียบ!', drama: 'red', t: 4, fx: { rhythm: 'flat' } },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… เส้นเรียบสนิทเลยค่ะ ยัง non-shockable' }, t: 5 },
             ],
@@ -87,6 +88,7 @@ export const peaAsystoleBasic = {
             tgt: 'DRUG', label: 'CPR ต่อ + Epinephrine 1 mg IV ซ้ำ (ครบ 3-5 นาทีจากโดสแรก) — ยังห้าม shock', ok: true,
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi โดสสองให้แล้วค่ะ!"</span>', fx: { epi: true, cpr: true } }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'Non-shockable ยิ่งต้องพึ่งมือเรา — <span class="cbs-em">ลึก 5-6 ซม. ปล่อยให้อก recoil สุดทุกครั้ง!</span> ห้ามตกครับ!' }, t: 4 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'เดี๋ยวนะ… จอเริ่มมีคลื่นสม่ำเสมอ… <span class="cbs-em">คลำชีพจรได้แล้วค่ะ!!</span>' }, t: 6 },
             ],

@@ -99,7 +99,7 @@ export default function BLSChokingRelief() {
           <Wind size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-title text-text-primary">ช่วยเหลือคนสำลัก</h1>
+          <h1 className="text-display text-text-primary">ช่วยเหลือคนสำลัก</h1>
           <p className="text-caption text-text-muted">Choking Relief — Foreign-Body Airway Obstruction</p>
         </div>
       </div>

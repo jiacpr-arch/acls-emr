@@ -13,6 +13,7 @@ export const strokeLvoWakeup = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! หญิง 70 ปี AF กิน Warfarin — สามีตื่นมา 06:00 พบ<span class="cbs-em">พูดไม่ได้ + แขนขาซ้ายอ่อนแรงสนิท</span>! BP 168/92 HR 96 ไม่สม่ำเสมอ SpO₂ 95%', fx: { rhythm: 'afib' } }, t: 6 },
     { inter: 'STROKE ALERT!!', drama: 'red', t: 0 },
+    { say: { who: 'family_witness', pose: 'panic', text: 'หมอครับ! เมื่อคืน<span class="cbs-em">เข้านอนสี่ทุ่ม เธอยังคุยปกติทุกอย่าง</span>ครับ… ตื่นมาหกโมงเช้าก็เป็นแบบนี้แล้ว ผมไม่รู้เลยว่าเกิดขึ้นตอนไหนของคืน!' }, t: 7 },
     { say: { who: 'att_dech', pose: 'stern', text: 'Wake-up stroke — เจอตอนตื่น… คำถามแรกที่ชี้ชะตาทั้งเคส: <span class="cbs-em">"เวลา onset" ของผู้ป่วยรายนี้คือกี่โมง?</span>' }, t: 5 },
     {
       choice: {
@@ -52,7 +53,9 @@ export const strokeLvoWakeup = {
           {
             tgt: 'CT', label: 'NIHSS + CT Brain + CTA (ดูเส้นเลือดใหญ่) ด่วน', ok: true,
             then: [
+              { say: { who: 'mind_runner', pose: 'talk', text: 'เปลพร้อมค่ะ! แจ้งห้อง CT แล้วว่า<span class="cbs-em">ขอ CTA ต่อเลยในรอบเดียว</span> — เคลียร์ทางให้แล้ว ไปค่ะ!' }, t: 5 },
               { skip: '— CT + CTA ด่วน —', t: 10 },
+              { say: { who: 'mind_runner', pose: 'talk', text: '<span class="cbs-em">Door-to-CT 16 นาทีค่ะ!</span> ภาพกำลังขึ้นจอค่ะอาจารย์!' }, t: 5 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'NIHSS = <span class="cbs-em">22 (Severe)</span> — CT: ไม่มีเลือดออก <span class="cbs-em">ASPECTS 9</span> (เนื้อสมองส่วนใหญ่ยังไม่ตาย!) — CTA: <span class="cbs-em">M1 occlusion ฝั่งขวา — LVO ยืนยัน!</span>' }, t: 9 },
               { inter: 'LVO CONFIRMED!!', drama: 'red', t: 0 },
             ],

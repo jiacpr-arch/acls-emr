@@ -16,6 +16,7 @@ function toRow(p) {
     orientation: p.orientation || 'portrait',
     start_sec: p.startSec === '' || p.startSec == null ? null : Number(p.startSec),
     end_sec: p.endSec === '' || p.endSec == null ? null : Number(p.endSec),
+    duration_sec: p.durationSec === '' || p.durationSec == null ? null : Number(p.durationSec),
     required: p.required !== false,
     key_points: p.keyPoints || '',
     chapters: Array.isArray(p.chapters) ? p.chapters : [],

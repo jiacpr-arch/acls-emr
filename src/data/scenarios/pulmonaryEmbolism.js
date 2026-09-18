@@ -87,7 +87,9 @@ export const pulmonaryEmbolism = {
             then: [
               { inter: 'ให้ยาละลายลิ่มเลือด!', drama: 'red', t: 6 },
               { say: { who: 'att_dech', pose: 'stern', text: 'ตัดสินใจถูก — <span class="cbs-em">PE ที่ยืนยันหรือสงสัยชัด ให้ยาละลายลิ่มได้ระหว่าง CPR</span> แล้วต้องกดต่อให้ยาออกฤทธิ์', fx: { cpr: true } }, t: 8 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'รับทราบครับ กดยาวแน่นอน! <span class="cbs-em">จัดคิวสลับทุก 2 นาที</span> — ใครว่างต่อแถวหลังผมเลยครับ!' }, t: 4 },
               { skip: 'CPR ต่อเนื่องหลังให้ยา — หลายนาที', t: 240 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'สลับมาสามรอบแล้ว… เหงื่อท่วมหลังครับ แต่<span class="cbs-em">ยาละลายลิ่มต้องการเวลา — มือเราห้ามหยุด</span>!' }, t: 4 },
               { say: { who: 'nurse_mint', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">คลำชีพจรได้แล้วค่ะ!!</span> ความดันเริ่มกลับมา!' }, t: 6 },
             ],
           },

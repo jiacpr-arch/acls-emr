@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { preCourseLessons, preCourseVideos } from '../data/activeLessons';
 import { usePreCourseStore } from '../stores/preCourseStore';
@@ -15,26 +15,19 @@ import { useClassStore } from '../stores/classStore';
 import { useVoucherStore } from '../stores/voucherStore';
 import { validateVoucher } from '../config/vouchers';
 import { track } from '../services/analytics';
+import { subscribeToPull } from '../services/progressPull';
 import FeaturedVideo from '../components/precourse/FeaturedVideo';
 import MyScoreCard from '../components/precourse/MyScoreCard';
-import BLSHero from '../components/precourse/BLSHero';
-import BLSProgressCard from '../components/precourse/BLSProgressCard';
-import BLSQuickActions from '../components/precourse/BLSQuickActions';
-import BLSSplash from '../components/precourse/BLSSplash';
 import ACLSProgressCard from '../components/precourse/ACLSProgressCard';
 import NewsCard from '../components/NewsCard';
 import StreakBadge from '../components/StreakBadge';
 import { POST_TEST_LESSON_ID } from '../data/activePostTest';
 import { PRE_TEST_LESSON_ID } from '../data/activePreTest';
-import { IS_BLS, courseMeta } from '../config/courseMode';
+import { courseMeta } from '../config/courseMode';
 import {
   GraduationCap, Users, FileText,
-  Cloud, CloudOff, ChevronDown, QrCode,
+  Cloud, CloudOff, QrCode,
 } from 'lucide-react';
-
-// Module-level flag — splash shows once per full page load, not on every
-// in-app navigation back to /. Resets when the user reloads the tab.
-let blsSplashSeen = false;
 
 export default function PreCourse() {
   const navigate = useNavigate();
@@ -48,9 +41,6 @@ export default function PreCourse() {
   // student straight into the exam once they've entered their name — removes the
   // extra tap that used to sit between registering and actually starting.
   const [identityNext, setIdentityNext] = useState(null); // 'pretest' | null
-  const [lessonsOpen, setLessonsOpen] = useState(false);
-  const [showSplash, setShowSplash] = useState(IS_BLS && !blsSplashSeen);
-  const lessonsRef = useRef(null);
   const classCode = useClassStore(s => s.classCode);
   const className = useClassStore(s => s.className);
   const clearClass = useClassStore(s => s.clearClass);
@@ -96,10 +86,13 @@ export default function PreCourse() {
       Promise.resolve().then(() => { setProgress([]); setAttempts([]); });
       return;
     }
-    Promise.all([
+    const load = () => Promise.all([
       getLessonProgress(id),
       getAttemptsForStudent(id),
     ]).then(([p, a]) => { setProgress(p); setAttempts(a); });
+    load();
+    // ผลที่เรียนมาจากอีกเครื่องเพิ่งลงมาถึง — โหลดใหม่ ไม่ต้องรอ remount
+    return subscribeToPull(load);
   }, [activeStudent?.id]);
 
   const lessonState = (lessonId) => {
@@ -140,13 +133,6 @@ export default function PreCourse() {
     if (next === 'pretest') navigate('/pre-course/pre-test');
   };
   const closeIdentity = () => { setIdentityNext(null); setShowIdentity(false); };
-
-  const scrollToLessons = () => {
-    setLessonsOpen(true);
-    requestAnimationFrame(() => {
-      lessonsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  };
 
   const classBanner = (
     <div className="dash-card flex items-center gap-3">
@@ -199,131 +185,14 @@ export default function PreCourse() {
   const preTestPassed = preTestBest?.passed ?? false;
   const preTestAttempted = preTestAttempts.length > 0;
 
-  if (IS_BLS) {
-    return (
-      <div className="page-container flex flex-col gap-2">
-        {showSplash && (
-          <BLSSplash
-            onDismiss={() => { blsSplashSeen = true; setShowSplash(false); }}
-          />
-        )}
-        <BLSHero />
-
-        <BLSProgressCard
-          activeStudent={activeStudent}
-          lessonsPassed={lessonsPassed}
-          totalLessons={totalLessons}
-          nextLesson={nextLesson}
-          postTestPassed={postTestPassed}
-          postTestUnlocked={postTestUnlocked}
-          onIdentify={() => setShowIdentity(true)}
-          onChangeStudent={() => { clearActiveStudent(); setShowIdentity(true); }}
-        />
-
-        {classBanner}
-
-        <VoucherCard onOpen={() => setShowVoucher(true)} />
-
-        {/* คะแนนของฉัน — นักเรียนเห็นผลตัวเองครบในที่เดียว (แสดงเมื่อลงชื่อแล้ว) */}
-        {activeStudent && <MyScoreCard student={activeStudent} />}
-
-        <BLSQuickActions
-          lessonsPassed={lessonsPassed}
-          totalLessons={totalLessons}
-          postTestPassed={postTestPassed}
-          postTestUnlocked={postTestUnlocked}
-          onScrollToLessons={scrollToLessons}
-        />
-
-        {courseMeta.featuredVideo && <FeaturedVideo video={courseMeta.featuredVideo} />}
-
-        {/* Pre-test — แบบวัดพื้นฐานก่อนเริ่มอ่านบทเรียน (ไม่ใช่เงื่อนไขใบประกาศ) */}
-        <div className="space-y-2">
-          <div className="text-overline text-text-muted px-1">ข้อสอบก่อนเรียน</div>
-          <PreTestCard
-            bestScore={preTestBest?.score ?? null}
-            passed={preTestPassed}
-            attemptCount={preTestAttempts.length}
-          />
-        </div>
-
-        {/* Collapsible lessons section */}
-        <div ref={lessonsRef}>
-          <button
-            onClick={() => setLessonsOpen(o => !o)}
-            className="w-full flex items-center justify-between px-1 py-2 text-left"
-          >
-            <div className="text-overline text-text-muted">
-              บทเรียนทั้งหมด · {lessonsPassed}/{totalLessons} ผ่าน
-            </div>
-            <ChevronDown
-              size={16}
-              strokeWidth={2.4}
-              className="text-text-muted transition-transform"
-              style={{ transform: lessonsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-            />
-          </button>
-          {lessonsOpen && (
-            <div className="space-y-3 mt-3 animate-slide-up">
-              {preCourseLessons.map(l => {
-                const st = lessonState(l.id);
-                return <LessonCard key={l.id} lesson={l} {...st} />;
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Post-test card — visible so students always see the goal */}
-        <div className="space-y-2">
-          <div className="text-overline text-text-muted px-1">ข้อสอบหลังเรียน</div>
-          <PostTestCard
-            unlocked={postTestUnlocked}
-            bestScore={postBest?.score ?? null}
-            passed={postTestPassed}
-            attemptCount={postAttempts.length}
-            lessonCount={totalLessons}
-          />
-        </div>
-
-        <VideoLinksPanel videos={preCourseVideos} />
-
-        <div className="flex justify-end px-1 pt-1">
-          <button onClick={() => navigate('/pre-course/cohort')}
-            className="btn btn-ghost btn-sm">
-            <Users size={14} strokeWidth={2.4} /> สำหรับอาจารย์
-          </button>
-        </div>
-
-        <ClassGateModal
-          open={showClassGate}
-          initialMode={gateInitialMode}
-          initialCode={joinParam}
-          onClose={() => setShowClassGate(false)}
-        />
-
-        <StudentIdentityModal
-          open={showIdentity}
-          onClose={() => setShowIdentity(false)}
-          onConfirm={() => setShowIdentity(false)}
-        />
-
-        <VoucherModal
-          open={showVoucher}
-          initialCode={voucherInitialCode}
-          onClose={() => { setShowVoucher(false); setVoucherInitialCode(''); }}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="page-container space-y-5">
       <div className="text-center space-y-2">
         <div className="w-16 h-16 mx-auto inline-flex items-center justify-center"
           style={{
-            background: 'linear-gradient(135deg, var(--color-info) 0%, var(--color-primary) 100%)',
+            background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
             borderRadius: 'var(--radius-2xl)',
-            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)',
+            boxShadow: '0 8px 20px color-mix(in srgb, var(--color-accent) 28%, transparent)',
           }}>
           <GraduationCap size={28} strokeWidth={2.2} className="text-white" />
         </div>

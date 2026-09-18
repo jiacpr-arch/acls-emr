@@ -8,7 +8,7 @@ export const vfArrest = {
   hiddenCause: null,
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์!! คนไข้เตียง 2 ล้มลงค่ะ!! เมื่อกี้ยังนั่งคุยอยู่เลย!' }, t: 5 },
-    { inter: 'CODE BLUE!!', drama: 'red', t: 0 },
+    { inter: 'CODE BLUE!!', who: 'nurse_mint', pose: 'panic', drama: 'red', t: 0 },
     { say: { who: 'att_dech', pose: 'stern', text: 'ทั้งห้องหันมาที่คุณ… <span class="cbs-em">คุณคือ Team Leader</span> — คำสั่งแรกของคุณจะกำหนดทุกอย่าง' }, t: 5 },
     {
       choice: {
@@ -60,7 +60,7 @@ export const vfArrest = {
           {
             tgt: 'MONITOR', label: 'แปะ pads ดู rhythm — หยุดกดให้สั้นที่สุด', ok: true,
             then: [
-              { inter: 'VF — SHOCKABLE!!', drama: 'red', t: 8, fx: { rhythm: 'vf' } },
+              { inter: 'VF — SHOCKABLE!!', who: 'fon_defib', pose: 'panic', drama: 'red', t: 8, fx: { rhythm: 'vf' } },
               { say: { who: 'fon_defib', pose: 'panic', text: 'จอขึ้น <span class="cbs-em">Ventricular Fibrillation!</span> หัวใจสั่นพลิ้ว ไม่บีบเลือดเลยค่ะ!' }, t: 4 },
             ],
           },
@@ -107,6 +107,7 @@ export const vfArrest = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: 'IV ได้แล้วค่ะ! <span class="cbs-em">เส้นพร้อมให้ยา!</span>', fx: { cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบ 2 นาที! <span class="cbs-em">ขอสลับคนกด</span> — เปลี่ยนไวๆ หยุดกดไม่เกิน 10 วิ!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">ยัง VF ค่ะ!</span> ดื้อไฟ!' }, t: 6 },
             ],
           },
@@ -126,6 +127,7 @@ export const vfArrest = {
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> เสียงขานยาดังทั่วห้อง — เข็มที่สองพร้อม', fx: { epi: true, cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… ยัง VF! พี่บอยเหงื่อหยดลงพื้นแล้วค่ะ' }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'panic', text: 'ยังไหวครับ!! แต่เตรียมคนสลับไว้เลย — <span class="cbs-em">กดต้องลึก 5-6 ซม. ห้ามตก</span> แม้แขนจะล้า!' }, t: 4 },
             ],
           },
           { tgt: 'DRUG', label: 'Atropine 1 mg', ok: false, why: 'Atropine ไม่มีที่ใน VF — ใช้ใน bradycardia' },
@@ -142,6 +144,7 @@ export const vfArrest = {
             then: [
               { inter: 'SHOCK!!', t: 5, fx: { shock: true } },
               { say: { who: 'nurse_mint', pose: 'talk', text: '"Amio 300 in!" — สลับคนกด <span class="cbs-em">คุณภาพการกดต้องไม่ตก</span>', fx: { cpr: true } }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'สลับแล้วครับ! ปล่อยให้อก <span class="cbs-em">recoil สุดทุกครั้ง</span> — ไปต่อ!' }, t: 4 },
               { skip: 'CPR ต่อเนื่อง — 2 นาทีผ่านไป', t: 110 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'Rhythm check… เดี๋ยวนะ… จอเปลี่ยน… <span class="cbs-em">คลื่นเป็นระเบียบสม่ำเสมอ — organized rhythm… มีชีพจรค่ะ!!</span>' }, t: 6 },
             ],
@@ -158,7 +161,7 @@ export const vfArrest = {
           {
             tgt: 'YOU', label: 'ROSC! หยุด CPR — post-arrest care + 12-lead ด่วน', ok: true,
             then: [
-              { inter: 'ROSC!!', green: true, t: 5, fx: { rosc: true } },
+              { inter: 'ROSC!!', who: 'att_dech', pose: 'happy', green: true, t: 5, fx: { rosc: true } },
               { say: { who: 'att_dech', pose: 'happy', text: 'BP 110/70 กลับมาแล้ว… ทั้งห้องถอนหายใจพร้อมกัน <span class="cbs-em">ส่งต่อ Cath lab — เคสนี้เป็นของคุณ</span>' }, t: 5 },
             ],
           },

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { GAME_BUTTONS } from '../../data/recorderGameLevels';
-import { CASE_CATEGORIES, CASE_CATEGORY_META, caseToLevel, blankEvent } from '../../data/recorderCases';
+import { GAME_BUTTONS } from '../../data/activeRecorderLevels';
+import { CASE_CATEGORIES, CASE_CATEGORY_META, caseToLevel, blankEvent } from '../../data/activeRecorderCases';
 import {
   createRecorderCase, updateRecorderCase, setRecorderCaseStatus, deleteRecorderCase,
 } from '../../services/recorderCaseAdminService';
@@ -123,7 +123,7 @@ export default function RecorderCaseEditor({ item, onClose, onSaved }) {
     const level = caseToLevel({ ...buildPayload(), id: id || 'preview' });
     return (
       <div className="fixed inset-0 z-[60] bg-bg-primary">
-        <LivePlay key={'test_' + Date.now()} level={level} onFinish={() => setTesting(false)} />
+        <LivePlay key={'test_' + Date.now()} level={level} onFinish={() => setTesting(false)} readyMode="none" />
         <button onClick={() => setTesting(false)}
           className="absolute top-2 right-2 z-[70] btn btn-danger btn-sm">
           <X size={14} strokeWidth={2.4} /> ปิดทดลอง

@@ -4,31 +4,33 @@ import { useAlsChapters } from '../hooks/useAlsChapters';
 import { ekgQuestions, rhythmLabels, shuffleOptions, quizCategories, EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
 import EKGWaveform from '../components/EKGWaveform';
 import QASection from '../components/QASection';
+import PageHero from '../components/PageHero';
 import {
-  GraduationCap, BookOpen, Lightbulb, Bookmark, ChevronDown,
+  BookOpen, Lightbulb, Bookmark, ChevronDown,
   Sparkles, AlertCircle, Trash, Clock, Activity, Check, X, RotateCcw,
   ArrowRight, Heart, HeartPulse, Brain, Stethoscope, Shield, ShieldCheck,
   Users, Wind, Zap, Pill, Play, Pause,
 } from 'lucide-react';
 
-/* === Per-chapter visual theme: icon + gradient + accent ===
+/* === Per-chapter visual theme: ไอคอน + สี accent เดี่ยว ===
+   เดิมมี from/to สำหรับ gradient — ตัดออกให้เหลือสีแบนเดียวต่อบท (จำกัดจานสี)
    Keyed by chapter id (ch1..ch13) with title-based fallback. */
 const CHAPTER_THEMES = {
-  ch1:  { Icon: HeartPulse,   from: '#3B82F6', to: '#2563EB', accent: '#2563EB' }, // Overview / Chain of Survival
-  ch2:  { Icon: Stethoscope,  from: '#06B6D4', to: '#0891B2', accent: '#0891B2' }, // Systematic assessment
-  ch3:  { Icon: ShieldCheck,  from: '#A78BFA', to: '#7C3AED', accent: '#7C3AED' }, // Prevention / RRT / Code Blue
-  ch4:  { Icon: HeartPulse,   from: '#F87171', to: '#DC2626', accent: '#DC2626' }, // ACS
-  ch5:  { Icon: Brain,        from: '#C084FC', to: '#9333EA', accent: '#9333EA' }, // Stroke
-  ch6:  { Icon: Activity,     from: '#FBBF24', to: '#D97706', accent: '#D97706' }, // Bradycardia
-  ch7:  { Icon: Zap,          from: '#FB923C', to: '#EA580C', accent: '#EA580C' }, // Tachycardia
-  ch8:  { Icon: Users,        from: '#34D399', to: '#059669', accent: '#059669' }, // High-perf team / CPR Coach
-  ch9:  { Icon: Wind,         from: '#60A5FA', to: '#2563EB', accent: '#2563EB' }, // Airway
-  ch10: { Icon: Zap,          from: '#F87171', to: '#B91C1C', accent: '#B91C1C' }, // VF/pVT
-  ch11: { Icon: AlertCircle,  from: '#94A3B8', to: '#475569', accent: '#475569' }, // PEA/Asystole
-  ch12: { Icon: Heart,        from: '#34D399', to: '#047857', accent: '#047857' }, // Post-arrest
-  ch13: { Icon: Pill,         from: '#A78BFA', to: '#6D28D9', accent: '#6D28D9' }, // Pharmacology
+  ch1:  { Icon: HeartPulse,   accent: '#2563EB' }, // Overview / Chain of Survival
+  ch2:  { Icon: Stethoscope,  accent: '#2563EB' }, // Systematic assessment
+  ch3:  { Icon: ShieldCheck,  accent: '#2563EB' }, // Prevention / RRT / Code Blue
+  ch4:  { Icon: HeartPulse,   accent: '#DC2626' }, // ACS
+  ch5:  { Icon: Brain,        accent: '#DC2626' }, // Stroke
+  ch6:  { Icon: Activity,     accent: '#2563EB' }, // Bradycardia
+  ch7:  { Icon: Zap,          accent: '#2563EB' }, // Tachycardia
+  ch8:  { Icon: Users,        accent: '#059669' }, // High-perf team / CPR Coach
+  ch9:  { Icon: Wind,         accent: '#2563EB' }, // Airway
+  ch10: { Icon: Zap,          accent: '#DC2626' }, // VF/pVT
+  ch11: { Icon: AlertCircle,  accent: '#DC2626' }, // PEA/Asystole
+  ch12: { Icon: Heart,        accent: '#059669' }, // Post-arrest
+  ch13: { Icon: Pill,         accent: '#2563EB' }, // Pharmacology
 };
-const DEFAULT_THEME = { Icon: BookOpen, from: '#94A3B8', to: '#475569', accent: '#475569' };
+const DEFAULT_THEME = { Icon: BookOpen, accent: '#2563EB' };
 
 function themeForChapter(ch, index) {
   if (CHAPTER_THEMES[ch.id]) return CHAPTER_THEMES[ch.id];
@@ -171,21 +173,8 @@ export default function ALSKnowledge() {
   };
 
   return (
-    <div className="page-container space-y-5">
-      <div className="text-center space-y-2">
-        <div
-          className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%)',
-            borderRadius: 'var(--radius-2xl)',
-            boxShadow: '0 8px 20px rgba(220, 38, 38, 0.28)',
-          }}
-        >
-          <GraduationCap size={28} strokeWidth={2.2} className="text-white" />
-        </div>
-        <h1 className="text-title text-text-primary">คลังความรู้ ALS</h1>
-        <p className="text-caption text-text-muted">Advanced Life Support Knowledge Base</p>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero title="คลังความรู้ ALS" desc="Advanced Life Support Knowledge Base" />
 
       <div className="tab-group">
         <button onClick={() => setTab('book')} className={`tab-item ${tab === 'book' ? 'active' : ''}`}>
@@ -238,7 +227,7 @@ export default function ALSKnowledge() {
               >
                 <span
                   className="chapter-card-stripe"
-                  style={{ background: `linear-gradient(180deg, ${theme.from} 0%, ${theme.to} 100%)` }}
+                  style={{ background: theme.accent }}
                 />
                 <button
                   onClick={() => setOpenCh(isOpen ? null : ch.id)}
@@ -246,7 +235,7 @@ export default function ALSKnowledge() {
                 >
                   <div
                     className="chapter-icon-tile"
-                    style={{ background: `linear-gradient(135deg, ${theme.from} 0%, ${theme.to} 100%)` }}
+                    style={{ background: `${theme.accent}15`, color: theme.accent }}
                   >
                     <Icon size={24} strokeWidth={2.2} />
                   </div>

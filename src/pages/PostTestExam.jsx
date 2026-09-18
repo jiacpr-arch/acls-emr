@@ -295,22 +295,22 @@ export default function PostTestExam() {
           <button
             onClick={() => setPostTestIndex(Math.max(0, safeIndex - 1))}
             disabled={safeIndex === 0}
-            className="btn btn-ghost btn-sm inline-flex items-center gap-1 disabled:opacity-30">
-            <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
+            className="btn btn-ghost inline-flex items-center gap-1 disabled:opacity-30">
+            <ChevronLeft size={15} strokeWidth={2.4} /> ก่อนหน้า
           </button>
           <div className="flex-1" />
           {isLastQuestion ? (
             <button
               onClick={() => setShowConfirmSubmit(true)}
               disabled={submitting}
-              className="btn btn-success btn-sm inline-flex items-center gap-1 disabled:opacity-40">
-              <Send size={14} strokeWidth={2.4} /> ส่งคำตอบ
+              className="btn btn-success inline-flex items-center gap-1 disabled:opacity-40">
+              <Send size={15} strokeWidth={2.4} /> ส่งคำตอบ
             </button>
           ) : (
             <button
               onClick={() => setPostTestIndex(Math.min(questions.length - 1, safeIndex + 1))}
-              className="btn btn-primary btn-sm inline-flex items-center gap-1">
-              ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
+              className="btn btn-primary inline-flex items-center gap-1">
+              ถัดไป <ChevronRight size={15} strokeWidth={2.4} />
             </button>
           )}
         </div>

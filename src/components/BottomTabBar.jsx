@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
@@ -15,13 +15,29 @@ export default function BottomTabBar() {
   const location = useLocation();
   const lang = useSettingsStore(s => s.language) || 'en';
   const [showMore, setShowMore] = useState(false);
+  const barRef = useRef(null);
+
+  // รายงานความสูงจริงของ tab bar ผ่าน --tab-bar-h ให้ .above-tab-bar ใช้ยึดตำแหน่ง
+  // ความสูงจริงต่างกันตามเครื่อง (font scale, safe-area, ป้ายไทยตัดบรรทัด) —
+  // ค่า hard-code 68px เคยทำให้แถบปุ่ม "ถัดไป" ซ้อนทับปุ่ม More บนบางเครื่อง
+  useLayoutEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const update = () => root.style.setProperty('--tab-bar-h', `${el.offsetHeight}px`);
+    update();
+    const ro = new ResizeObserver(update);
+    // ต้อง border-box: safe-area inset มากับ padding ของ bar ซึ่ง content-box มองไม่เห็น
+    ro.observe(el, { box: 'border-box' });
+    return () => { ro.disconnect(); root.style.removeProperty('--tab-bar-h'); };
+  }, []);
 
   const tabs = IS_BLS
     ? [
-        { path: '/', Icon: GraduationCap, label: 'เรียน' },
-        { path: '/new-case', Icon: HeartPulse, label: 'ฝึก code' },
+        { path: '/', Icon: HeartPulse, label: 'Home' },
         { path: '/history', Icon: FileText, label: 'ประวัติ' },
-        { path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร' },
+        { path: '/learn', Icon: GraduationCap, label: 'เรียน' },
+        { path: '/games', Icon: Gamepad2, label: 'เกมส์' },
         { key: 'more', Icon: Menu, label: 'More' },
       ]
     : IS_SKILL_COURSE
@@ -29,7 +45,7 @@ export default function BottomTabBar() {
         { path: '/', Icon: GraduationCap, label: 'เรียน' },
         { path: '/knowledge', Icon: Brain, label: 'คลังความรู้' },
         { path: '/scenario', Icon: Gamepad2, label: 'เกม' },
-        { path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร' },
+        { path: '/certification', Icon: Award, label: 'ใบเซอร์' },
         { key: 'more', Icon: Menu, label: 'More' },
       ]
     : [
@@ -48,7 +64,10 @@ export default function BottomTabBar() {
         { path: '/bls/choking', Icon: Wind, label: 'สำลัก' },
         { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR Metronome' },
         { path: '/bls/scenario', Icon: Brain, label: 'เกมลำดับขั้น' },
-        { path: '/sim', Icon: Gamepad2, label: 'เกมกู้ชีพ' },
+        { path: '/scenarios', Icon: FileText, label: 'สอบสนามจริง' },
+        { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
+        { path: '/compare', Icon: BarChart3, label: 'Compare' },
+        { path: '/certification', Icon: Award, label: 'ใบเซอร์' },
         { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
         { path: '/news', Icon: Bell, label: 'ข่าว' },
         { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
@@ -75,7 +94,7 @@ export default function BottomTabBar() {
 
   return (
     <>
-      <div className="bottom-pill-bar">
+      <div className="bottom-pill-bar" ref={barRef}>
         {tabs.map((tab) => {
           if (tab.key === 'more') {
             const TabIcon = tab.Icon;

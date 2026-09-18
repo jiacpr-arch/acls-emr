@@ -75,7 +75,9 @@ export const pregChoking = {
           {
             tgt: 'AIRWAY', label: 'Direct laryngoscopy — ใช้ Magill forceps คีบสิ่งแปลกปลอมออก แล้วใส่ ET tube', ok: true,
             then: [
+              { say: { who: 'krit_airway', pose: 'talk', text: 'คนท้อง desaturate เร็ว ผมส่องเองครับ… blade เข้า… <span class="cbs-em">เห็น cords แล้ว</span> ก้อนข้าวอยู่หน้า glottis — Magill ครับ' }, t: 5 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'เห็นแล้วค่ะ! <span class="cbs-em">ก้อนข้าวอุดที่ glottis</span> — คีบออกได้! ทางเดินหายใจโล่งแล้ว!' }, t: 8 },
+              { say: { who: 'krit_airway', pose: 'talk', text: 'Tube ผ่าน cords ด้วยตาผมเองครับ… capno ขึ้นคลื่นทุกจังหวะ — <span class="cbs-em">ตำแหน่งมั่นใจได้</span>' }, t: 4 },
               { say: { who: 'nurse_mint', pose: 'talk', text: 'ใส่ท่อสำเร็จ ยืนยันตำแหน่งด้วย ETCO₂ — <span class="cbs-em">ปอดขยายทั้งสองข้างแล้วค่ะ</span>' }, t: 6 },
               { inter: 'AIRWAY CLEARED!', green: true, t: 4 },
             ],

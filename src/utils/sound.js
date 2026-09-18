@@ -173,6 +173,50 @@ export function playImpactSound() {
   }
 }
 
+// ตะโกนแบบ AA cut-in (ตัวละครพุ่งเข้าจอ) — thump + brass stab กวาดลง + accent แหลม
+export function playShoutStinger() {
+  try {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+
+    // ฐาน: white-noise thump ผ่าน lowpass (แบบเดียวกับ playImpactSound)
+    const len = Math.floor(ctx.sampleRate * 0.15);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i += 1) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 650;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.4 * sfxVolume, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    src.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    src.start(now);
+
+    // brass stab — sawtooth กวาดลง 196 → 98 Hz
+    const brass = ctx.createOscillator();
+    const brassGain = ctx.createGain();
+    brass.connect(brassGain);
+    brassGain.connect(ctx.destination);
+    brass.type = 'sawtooth';
+    brass.frequency.setValueAtTime(196, now);
+    brass.frequency.exponentialRampToValueAtTime(98, now + 0.28);
+    brassGain.gain.setValueAtTime(0.35 * sfxVolume, now);
+    brassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    brass.start(now);
+    brass.stop(now + 0.3);
+
+    // accent แหลมสั้นๆ ตามหลังนิดหน่อย
+    setTimeout(() => playBeep(1300, 0.06, 0.18), 40);
+  } catch {
+    // Audio not available
+  }
+}
+
 // จังหวะ "ตุบ" เดี่ยวของเสียงหัวใจ — sine กวาดลงต่ำ ให้ได้ยินบนลำโพงมือถือ
 function heartThump(ctx, at, vol) {
   const osc = ctx.createOscillator();

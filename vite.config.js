@@ -73,6 +73,16 @@ const manifest = {
 }
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      // Points at the scenario pack for the course being built, so a single-course
+      // build's module graph never even sees the other courses' Code Blue Sim
+      // scenario files (a `COURSE_MODE ? x : y` runtime filter can't stop Rollup
+      // from bundling every branch — this alias makes the unused branches
+      // unreachable at the module-resolution level instead).
+      '@scenario-pack': path.resolve(__dirname, `src/data/scenarioPacks/${mode}.js`),
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -85,7 +95,10 @@ export default defineConfig({
       manifest,
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}'],
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        // เนื้อหาบทเรียน/คลังความรู้ทั้งหมดถูก bundle รวมใน main chunk เดียว
+        // เมื่อเพิ่มเนื้อหาเชิงลึกมากขึ้น chunk จึงโตเกิน 4 MiB — ยกเพดานเป็น 8 MiB
+        // เพื่อให้ PWA precache ได้ครบ (ยังต่ำกว่าขนาดจริงพอสมควร)
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
       },
     })
   ],

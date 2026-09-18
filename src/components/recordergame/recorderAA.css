@@ -8,6 +8,16 @@
 .rgaa-app { display: flex; flex-direction: column; height: 100dvh; }
 .rgaa-stage { flex: 1 1 auto; min-height: 40dvh; }
 
+/* ปุ่มเปิด/ปิดเสียงพูด (TTS) — อยู่ใน .cbs-hud ที่ pointer-events:none จึงต้องเปิดเอง */
+.rgaa-voicebtn {
+  pointer-events: auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  color: var(--cbs-ink);
+  background: rgba(4, 8, 18, .82); border: 2px solid #33406E; border-radius: 6px;
+}
+.rgaa-voicebtn.is-off { color: #8896A6; }
+
 /* HUD ขวา: score chip + combo gauge + clock */
 .rgaa-scorechip {
   font-family: var(--cbs-mono); font-weight: 800; font-size: 12px;
@@ -28,6 +38,11 @@
 .rgaa-bar-label {
   font-family: var(--cbs-mono); font-size: 9px; letter-spacing: .18em;
   color: #8B99C4; margin-bottom: 6px; text-align: center;
+}
+/* คำแนะนำโค้ชครั้งแรก — แทนที่ label ปกติ ให้เด่นกว่าเดิม */
+.rgaa-bar-coach {
+  font-size: 11.5px; font-weight: 700; line-height: 1.4;
+  color: var(--cbs-gold); margin-bottom: 6px; text-align: center;
 }
 .rgaa-bar {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px;
@@ -56,6 +71,32 @@
 .rgaa-btn.t-info    { background: linear-gradient(180deg, #2E6FC0, #1B4788); }
 /* ปุ่มที่ควรกด (โหมดง่าย) */
 .rgaa-btn.is-hint { border-color: var(--cbs-gold); box-shadow: 0 4px 0 #0B1130, 0 0 16px rgba(242, 193, 78, .6); animation: cbs-blink 1s steps(2) infinite; }
+
+/* ===== overlay เริ่มเกม (countdown 3-2-1 / โค้ชครั้งแรก) ===== */
+/* z-index ต้องสูงกว่า .cbs-app (z-index:60) ไม่งั้น overlay นี้จะโดนฉากเกมบังจนมองไม่เห็นเลย */
+.rgaa-startoverlay {
+  position: absolute; inset: 0; z-index: 70;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; padding: 24px; text-align: center;
+  background: rgba(4, 8, 18, .82);
+}
+.rgaa-startoverlay-title {
+  font-family: var(--cbs-display); font-size: clamp(18px, 5vw, 24px); font-weight: 900;
+  color: var(--cbs-ink); text-shadow: 0 2px 10px rgba(0, 0, 0, .6);
+}
+.rgaa-startoverlay-num {
+  font-family: var(--cbs-display); font-size: clamp(56px, 18vw, 88px); font-weight: 900;
+  color: var(--cbs-gold); text-shadow: 0 4px 0 rgba(0, 0, 0, .4);
+  animation: cbs-slam .3s cubic-bezier(.2, 2.2, .4, 1) both;
+}
+.rgaa-startoverlay-coach {
+  max-width: 320px; font-size: 14px; font-weight: 600; line-height: 1.5;
+  color: var(--cbs-ink); background: rgba(242, 193, 78, .14); border: 1.5px solid var(--cbs-gold);
+  border-radius: 10px; padding: 10px 14px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rgaa-startoverlay-num { animation: none; }
+}
 
 /* ===== popup คะแนน (ไม่บล็อกจอ ต่างจาก .cbs-inter) ===== */
 .rgaa-popup {

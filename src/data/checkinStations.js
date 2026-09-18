@@ -39,10 +39,12 @@ export const DEFAULT_STATIONS = {
     { name: 'ฐานสอบปฏิบัติ Electrical Therapy', kind: 'exam', checklistId: 'electricalTherapy' },
   ],
   iv: [
-    // ยังไม่มีใบประเมิน IV/IO เฉพาะใน stationChecklists.js — อาจารย์เลือก
-    // checklist ที่ใช้จริงตอนให้คะแนนได้เสมอผ่าน dropdown เต็มรายการ
-    { name: 'ฐาน IV / IO Access', kind: 'practice' },
-    { name: 'ฐานสอบปฏิบัติ IV / IO', kind: 'exam' },
+    // 4 ฐานตามตารางวันฝึก (ivDaySchedule.js) + ฐานสอบใช้ใบประเมิน ivOsce
+    { name: 'ฐาน 1: ประเมินและเลือกหลอดเลือด', kind: 'practice', checklistId: 'ivOsce' },
+    { name: 'ฐาน 2: Aseptic + แทงเข็ม', kind: 'practice', checklistId: 'ivOsce' },
+    { name: 'ฐาน 3: ยึดตรึง + Flush/Lock + บันทึก', kind: 'practice', checklistId: 'ivOsce' },
+    { name: 'ฐาน 4: ภาวะแทรกซ้อน + การสอนผู้ป่วย', kind: 'practice', checklistId: 'ivOsce' },
+    { name: 'สอบ OSCE แทงเข็ม IV', kind: 'exam', checklistId: 'ivOsce' },
   ],
 };
 
@@ -50,6 +52,15 @@ export const STATION_KIND_META = {
   practice: { label: 'เช็คชื่อ' },
   exam: { label: 'สอบ' },
 };
+
+// ฐานสอบ Megacode (จับด้วยชื่อ ไม่ใช่ kind — ครอบคลุมทั้งจุด A/B และฐานสุ่ม
+// ข้อสอบ) ใช้เป็นเงื่อนไข "ต้องผ่านฐานพื้นฐานอื่นครบก่อนถึงจะสอบได้" ใน
+// InstructorCheckin — กันนักเรียนข้ามไปสอบก่อนฝึกฐานอื่น
+export function isMegacodeExamStation(name) {
+  if (!name) return false;
+  const n = name.trim();
+  return n.startsWith('Megacode') || n.startsWith('สอบ Megacode');
+}
 
 // จับคู่ชื่อฐาน (ที่สร้างจาก DEFAULT_STATIONS) กับคำแนะนำ checklist — คืน null
 // ถ้าเป็นฐานที่ตั้งชื่อเอง/เปลี่ยนชื่อแล้วจำไม่ได้ (ผู้ใช้เลือกจาก dropdown เต็ม

@@ -6,8 +6,9 @@ import { Syringe, X } from 'lucide-react';
 // Epi ปุ่มม่วงใหญ่ + Amiodarone 300 + QUICK_DRUGS grid (ข้อมูลจริง)
 // ==========================================
 export default function GameDrugMenu({ onSelect, onClose }) {
+  // z-[70]: ต้องสูงกว่า .cbs-app (z-index:60) ไม่งั้น sheet นี้จะโดนฉากเกมบังจนกดไม่ได้
   return (
-    <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
+    <div className="absolute inset-0 z-[70] flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
       onClick={onClose}>
       <div className="w-full max-w-md bg-bg-secondary p-4 space-y-3 animate-slide-up"
         onClick={e => e.stopPropagation()}
