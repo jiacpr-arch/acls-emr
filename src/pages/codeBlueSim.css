@@ -777,13 +777,25 @@
 .cbs-tl-note { color: #8B99C4; font-size: 12.5px; display: block; }
 .cbs-debrief-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 
-/* ชวนเรียนคอร์สจริงท้ายเกม — ตัวการ์ด (JiacprCourseBanner) ใช้ design tokens
-   ของแอปตามเดิม จงใจให้ดูเป็น "ใบปลิว" สว่างตัดกับธีมมืดของเกม จะได้สะดุดตา */
-.cbs-course-cta { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+/* ชวนเรียนต่อท้ายเกม — soft CTA เข้าบทเรียนฟรี: ปุ่มทองตัดกับปุ่มแดง/น้ำเงิน
+   ของเกม ให้เป็นทางเลือกที่เด่นสุดในจอ debrief โดยไม่ต้องตะโกนขายคอร์ส */
+.cbs-course-cta { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
 .cbs-course-cta-sub {
   font-size: 13.5px; color: var(--cbs-dim); line-height: 1.65;
   margin: 0 0 2px; text-wrap: balance;
 }
+.cbs-btn-learn {
+  appearance: none; border: 3px solid #fff; cursor: pointer;
+  background: linear-gradient(180deg, #F2C14E, #D99A1F);
+  color: #241804; font-family: inherit; font-size: 16.5px; font-weight: 900;
+  padding: 16px 12px; letter-spacing: .02em; border-radius: 6px;
+  box-shadow: 0 6px 0 #a8801f, 0 14px 30px rgba(242, 193, 78, .3);
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.cbs-btn-learn:hover { box-shadow: 0 7px 0 #a8801f, 0 16px 34px rgba(242, 193, 78, .42); }
+.cbs-btn-learn:active { transform: translateY(4px); box-shadow: 0 2px 0 #a8801f; }
+.cbs-line-hint { text-align: center; font-size: 12.5px; color: #8B99C4; }
+.cbs-line-hint a { color: var(--cbs-green); font-weight: 700; }
 
 @media (prefers-reduced-motion: reduce) {
   .cbs-shake, .cbs-flash.cbs-go, .cbs-redflash.cbs-go,
