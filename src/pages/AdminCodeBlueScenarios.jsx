@@ -104,6 +104,8 @@ export default function AdminCodeBlueScenarios() {
           <Sparkles size={14} strokeWidth={2.4} className="text-info" /> ให้ AI ร่างโจทย์
         </div>
         <div className="grid grid-cols-2 gap-2">
+          {/* AI ร่างโจทย์รองรับแค่ acls/bls ที่ api/code-blue/generate-scenario.js —
+              airway/defib/iv ยังไม่มี prompt scope ของตัวเอง ต้องสร้างโจทย์เองด้านล่างแทน */}
           <select value={aiCourse} onChange={e => setAiCourse(e.target.value)}
             className="px-2 py-2 border border-border rounded text-sm">
             <option value="acls">ACLS</option>
@@ -263,6 +265,9 @@ function ScenarioEditor({ item, onClose, navigate, allowedChars = [] }) {
           <select value={course} onChange={e => setCourse(e.target.value)} className="px-2 py-2 border border-border rounded text-sm">
             <option value="acls">ACLS</option>
             <option value="bls">BLS (MorRoo)</option>
+            <option value="airway">Airway</option>
+            <option value="defib">Defib</option>
+            <option value="iv">IV/IO</option>
           </select>
           <select value={level} onChange={e => setLevel(e.target.value)} className="px-2 py-2 border border-border rounded text-sm">
             <option value="basic">พื้นฐาน</option>
@@ -283,7 +288,7 @@ function ScenarioEditor({ item, onClose, navigate, allowedChars = [] }) {
           className="w-full px-3 py-2 border border-border rounded text-3xs font-mono" />
         {jsonErr && <div className="text-3xs text-danger">{jsonErr}</div>}
         <div className="text-3xs text-text-muted">
-          node: say / inter / skip / choice / end · ตัวละคร: {allowedChars.join(', ')} · เป้าหมาย: YOU/CPR/AIRWAY/DEFIB/DRUG/MONITOR
+          node: say / inter / skip / doc / present / choice / end · ตัวละคร: {allowedChars.join(', ')} · เป้าหมาย: YOU/CPR/AIRWAY/DEFIB/DRUG/MONITOR
         </div>
       </div>
 

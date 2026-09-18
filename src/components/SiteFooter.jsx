@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
+import { Globe } from 'lucide-react';
 import {
   Hospital, BookOpen, FlaskConical, FileText, MessageSquare, HeartPulse,
   Heart, Stethoscope, Bandage, Pill, TestTube, GraduationCap, ChevronRight,
@@ -75,7 +76,7 @@ export default function SiteFooter() {
         style={{ borderColor: 'var(--color-border)' }}
       >
         <div className="flex items-center justify-center gap-1.5 mb-4">
-          <span aria-hidden="true">🌐</span>
+          <Globe size={16} strokeWidth={2.2} className="text-text-muted" aria-hidden="true" />
           <span className="text-headline text-text-primary">เว็บในเครือเรา</span>
         </div>
 

@@ -71,6 +71,7 @@ export const alcoholHypo = {
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> IV เปิดได้แล้วค่ะ', fx: { epi: true, cpr: true } }, t: 6 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ครบสองนาทีพอดีครับ! <span class="cbs-em">เปลี่ยนคนกด</span> — นับต่อจากผมได้เลย อย่าให้จังหวะสะดุด!' }, t: 4 },
               { say: { who: 'fon_defib', pose: 'stern', text: 'Rhythm check… ยัง PEA เหมือนเดิมค่ะ' }, t: 6 },
             ],
           },
@@ -105,6 +106,7 @@ export const alcoholHypo = {
             tgt: 'DRUG', label: 'Thiamine ก่อน/พร้อมกัน แล้วให้ Dextrose (D50W) IV', ok: true,
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Thiamine + D50W in!"</span> ให้ตามลำดับแล้วค่ะ CPR ต่อเนื่อง', fx: { cpr: true } }, t: 8 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'น้ำตาลเข้าเส้นแล้วนะครับ! <span class="cbs-em">มือเรานี่แหละพายาไปถึงหัวใจ</span> — กดเต็มลึก ปล่อยอกคืนตัวสุดครับ!' }, t: 4 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
               { say: { who: 'fon_defib', pose: 'panic', text: 'จอเปลี่ยนแล้ว… <span class="cbs-em">คลำชีพจรได้แล้วค่ะ!!</span>' }, t: 6 },
             ],

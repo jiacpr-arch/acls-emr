@@ -7,7 +7,16 @@
 // เหรียญนิยามเป็น "ข้อมูล" ล้วน (check() รับ stats ที่คำนวณจาก pool/cleared/grades)
 // engine เกมไม่ผูกกับตัวเลขในนี้ — เพิ่ม/แก้เหรียญได้โดยไม่แตะ logic เกม
 
-import { IS_BLS } from '../config/courseMode';
+import { COURSE_MODE } from '../config/courseMode';
+
+// ป้ายเหรียญระดับสูงสุด — ACLS/BLS เป็นทีมกู้ชีพเต็มรูปแบบ ส่วนคอร์สทักษะเดี่ยว
+// (airway/defib/iv) เป็นแค่ผู้เชี่ยวชาญทักษะนั้น ไม่ใช่ "Megacode" จริง
+const MEGACODE_AWARD = {
+  bls: { title: 'สุดยอดทีมกู้ชีพ', desc: 'ผ่านเคสระดับทีมกู้ชีพครบทุกเคส' },
+  airway: { title: 'สุดยอดผู้เชี่ยวชาญทางเดินหายใจ', desc: 'ผ่านเคสระดับขั้นสูงครบทุกเคส' },
+  defib: { title: 'สุดยอดผู้เชี่ยวชาญช็อกไฟฟ้า', desc: 'ผ่านเคสระดับขั้นสูงครบทุกเคส' },
+  iv: { title: 'สุดยอดผู้เชี่ยวชาญ IV/IO', desc: 'ผ่านเคสระดับขั้นสูงครบทุกเคส' },
+};
 
 const GRADES_KEY = 'acls_codeblue_grades';
 const AWARDS_KEY = 'acls_codeblue_awards';
@@ -64,9 +73,9 @@ export const ACHIEVEMENTS = [
   },
   {
     id: 'megacode_all', icon: '🏅',
-    // โหมด BLS ไม่มีคำว่า megacode — level key เดิมแต่ป้ายเป็น "ทีมกู้ชีพ"
-    title: IS_BLS ? 'สุดยอดทีมกู้ชีพ' : 'Megacode Master',
-    desc: IS_BLS ? 'ผ่านเคสระดับทีมกู้ชีพครบทุกเคส' : 'ผ่านเคสระดับ megacode ครบทุกเคส',
+    // level key เดิม ('megacode') ทุกโหมด — แค่ป้ายที่โชว์ปรับตามคอร์ส
+    title: MEGACODE_AWARD[COURSE_MODE]?.title || 'Megacode Master',
+    desc: MEGACODE_AWARD[COURSE_MODE]?.desc || 'ผ่านเคสระดับ megacode ครบทุกเคส',
     check: (c) => c.megaTotal > 0 && c.megaCleared >= c.megaTotal,
   },
   {

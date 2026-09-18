@@ -12,7 +12,8 @@
 // เหรียญ (awards) ไม่แตะที่นี่ — ผู้เรียกคำนวณใหม่ด้วย syncAwards(pool, ...)
 // เพราะต้องรู้คลังเคสปัจจุบัน
 
-import { rpcGetMyCodeBlueProgress } from '../services/cohortSync';
+import { rpcGetMyCodeBlueProgress, rpcGetMyRecorderProgress } from '../services/cohortSync';
+import { mergeCloudProgress } from '../utils/recorderGameProgress';
 import { recordGrade } from './achievements';
 
 const CLEARED_KEY = 'acls_codeblue_cleared';
@@ -55,4 +56,16 @@ export async function restoreCodeBlueProgress(studentPk) {
   }
 
   return restored;
+}
+
+// Recorder Hero — ขาลงแบบเดียวกัน แต่โมเดลง่ายกว่า (ไม่มีเหรียญให้คำนวณใหม่)
+// merge logic อยู่ใน utils/recorderGameProgress.js เพราะที่นั่นเป็นเจ้าของคีย์
+// localStorage ทั้งสองตัว (acls_recgame_progress / acls_recgame_endless)
+export async function restoreRecorderProgress(studentPk) {
+  const { data, error } = await rpcGetMyRecorderProgress({ studentPk });
+  if (error || !data) return false;
+  return mergeCloudProgress({
+    levels: data.levels && typeof data.levels === 'object' ? data.levels : {},
+    endless: data.endless && typeof data.endless === 'object' ? data.endless : {},
+  });
 }

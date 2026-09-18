@@ -20,7 +20,7 @@ import {
 import { submitAttempt as submitRemoteAttempt } from '../services/assessmentService';
 import { scheduleFlush } from '../services/syncEngine';
 import { track } from '../services/analytics';
-import { IS_ACLS } from '../config/courseMode';
+import { IS_ACLS, courseMeta } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import LoadingCard from '../components/ui/LoadingCard';
@@ -295,22 +295,22 @@ export default function PostTestExam() {
           <button
             onClick={() => setPostTestIndex(Math.max(0, safeIndex - 1))}
             disabled={safeIndex === 0}
-            className="btn btn-ghost btn-sm inline-flex items-center gap-1 disabled:opacity-30">
-            <ChevronLeft size={14} strokeWidth={2.4} /> ก่อนหน้า
+            className="btn btn-ghost inline-flex items-center gap-1 disabled:opacity-30">
+            <ChevronLeft size={15} strokeWidth={2.4} /> ก่อนหน้า
           </button>
           <div className="flex-1" />
           {isLastQuestion ? (
             <button
               onClick={() => setShowConfirmSubmit(true)}
               disabled={submitting}
-              className="btn btn-success btn-sm inline-flex items-center gap-1 disabled:opacity-40">
-              <Send size={14} strokeWidth={2.4} /> ส่งคำตอบ
+              className="btn btn-success inline-flex items-center gap-1 disabled:opacity-40">
+              <Send size={15} strokeWidth={2.4} /> ส่งคำตอบ
             </button>
           ) : (
             <button
               onClick={() => setPostTestIndex(Math.min(questions.length - 1, safeIndex + 1))}
-              className="btn btn-primary btn-sm inline-flex items-center gap-1">
-              ถัดไป <ChevronRight size={14} strokeWidth={2.4} />
+              className="btn btn-primary inline-flex items-center gap-1">
+              ถัดไป <ChevronRight size={15} strokeWidth={2.4} />
             </button>
           )}
         </div>
@@ -354,8 +354,8 @@ function Header({ subtitle }) {
         <Award size={22} strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
-        <h1 className="text-title text-text-primary">Post-test Exam</h1>
-        <p className="text-2xs text-text-muted">{subtitle ?? `${POST_TEST_QUESTION_COUNT} ข้อ · ครอบคลุม ACLS ทั้งหมด`}</p>
+        <h1 className="text-title text-text-primary">Post-test {courseMeta.shortName}</h1>
+        <p className="text-2xs text-text-muted">{subtitle ?? `${POST_TEST_QUESTION_COUNT} ข้อ · ครอบคลุม ${courseMeta.shortName} ทั้งหมด`}</p>
       </div>
     </div>
   );

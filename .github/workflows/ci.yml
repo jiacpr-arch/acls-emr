@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # lint ไม่บังคับ: โค้ดเดิมมี error ค้าง ~200 รายการ — เอาไว้ดูเป็นข้อมูล อย่าให้บล็อก PR
+      - name: Lint (non-blocking)
+        run: npm run lint
+        continue-on-error: true
+      - run: npm test
+      - run: npm run build

@@ -11,6 +11,7 @@ export const strokeTia = {
   hiddenCause: null,
   story: [
     { say: { who: 'nurse_mint', pose: 'talk', text: 'อาจารย์คะ ชาย 68 ปี ญาติเล่าว่า 1 ชั่วโมงก่อน <span class="cbs-em">แขนซ้ายอ่อนแรง + พูดไม่ชัด อยู่ ~20 นาทีแล้วหายเอง</span> — ตอนนี้อาการ<span class="cbs-em">ปกติทุกอย่าง</span>ค่ะ BP 158/90 HR 84 SpO₂ 98%' }, t: 6, fx: { rhythm: 'nsr' } },
+    { say: { who: 'family_witness', pose: 'talk', text: 'ตอนนั่งกินกาแฟอยู่ดีๆ <span class="cbs-em">แก้วหล่นจากมือซ้าย พูดอ้อแอ้ฟังไม่รู้เรื่อง</span>อยู่เกือบ 20 นาทีค่ะ… แต่ตอนนี้เขา<span class="cbs-em">หายเป็นปกติแล้ว</span> ไม่เป็นไรแล้วใช่ไหมคะหมอ?' }, t: 6 },
     { say: { who: 'boy_compressor', pose: 'talk', text: 'คนไข้บอก "หายแล้วหมอ กลับบ้านได้ยัง" ครับ ญาติก็อยากพากลับแล้ว…' }, t: 5 },
     { say: { who: 'att_dech', pose: 'stern', text: 'นี่แหละจุดที่หมอหลายคนพลาด — อาการหายสนิทต่อหน้าต่อตา <span class="cbs-em">คุณจะทำยังไง Leader?</span>' }, t: 5 },
     {
@@ -67,6 +68,7 @@ export const strokeTia = {
           {
             tgt: 'CT', label: 'CT Brain — TIA วินิจฉัยได้ต่อเมื่อ imaging ไม่พบ infarct', ok: true,
             then: [
+              { say: { who: 'mind_runner', pose: 'talk', text: 'เปลพร้อมค่ะ! ห้อง CT รับคิวแล้ว — <span class="cbs-em">เดี๋ยวฉันเข็นไปเอง</span> ขานเวลาให้ด้วยค่ะ!' }, t: 5 },
               { skip: '— ส่ง CT Brain —', t: 8 },
               { say: { who: 'fon_defib', pose: 'talk', text: 'CT Brain: <span class="cbs-em">ปกติ ไม่มี infarct ไม่มี hemorrhage</span> ค่ะ — เข้าได้กับ TIA' }, t: 7 },
             ],

@@ -55,6 +55,7 @@ export const tamponade = {
             tgt: 'DRUG', label: 'CPR ต่อ + Epinephrine 1 mg IV (non-shockable)', ok: true,
             then: [
               { say: { who: 'nurse_mint', pose: 'talk', text: '<span class="cbs-em">"Epi 1 mg in!"</span> IV เปิดได้แล้วค่ะ', fx: { epi: true, cpr: true } }, t: 6 },
+              { say: { who: 'boy_compressor', pose: 'stern', text: 'อาจารย์ครับ อกคนไข้<span class="cbs-em">แน่นแข็ง กดแล้วเด้งสู้มือแปลกๆ</span> — เหมือนแรงกดส่งไปไม่ถึงหัวใจเลยครับ!' }, t: 4 },
             ],
           },
           { tgt: 'DEFIB', label: 'Charge 200 J แล้ว shock', ok: false, why: 'PEA เป็น non-shockable! การ shock ไม่ช่วยและเสียเวลากด', worsen: true },
@@ -88,6 +89,7 @@ export const tamponade = {
             then: [
               { inter: 'ระบายน้ำออก 60 มล.!', drama: 'red', t: 6 },
               { say: { who: 'fon_defib', pose: 'talk', text: 'ดูดออกมาเป็นเลือดเก่าค่ะ! <span class="cbs-em">ห้องหัวใจเริ่มขยายได้ปกติแล้ว</span>', fx: { cpr: true } }, t: 8 },
+              { say: { who: 'boy_compressor', pose: 'talk', text: 'ต่างกันชัดเลยครับ! <span class="cbs-em">ตอนนี้กดแล้วอกยุบลงเต็มมือ</span> — ระบายน้ำออกแล้ว CPR ถึงได้ผลจริง ไปต่อครับ!' }, t: 4 },
               { skip: 'CPR ต่อเนื่อง — 2 นาที', t: 110 },
               { say: { who: 'nurse_mint', pose: 'panic', text: 'Rhythm check… <span class="cbs-em">คลำชีพจรได้แล้วค่ะ!!</span> ความดัน 95/60!' }, t: 6 },
             ],

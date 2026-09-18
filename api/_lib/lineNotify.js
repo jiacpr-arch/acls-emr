@@ -14,18 +14,24 @@ const MAX_ID_LEN = 60;
 // Build the admin alert text. Pure function (no I/O) so it's unit-testable.
 // payload: { studentName, studentPhone, course, courseTitle, certId, completedAt,
 //            preTestScore, postTestScore, ekgPassed }
+const COURSE_TITLES = { acls: 'ACLS', bls: 'BLS', airway: 'Airway', defib: 'Defib', iv: 'IV/IO' };
+
 export function buildCertMessage(payload = {}) {
   const name = String(payload.studentName || '').trim().slice(0, MAX_NAME_LEN) || '(ไม่ระบุชื่อ)';
   const phone = String(payload.studentPhone || '').trim().slice(0, 20);
   const isBls = payload.course === 'bls';
-  const title = String(payload.courseTitle || (isBls ? 'BLS' : 'ACLS')).trim();
+  // Only the ACLS cert gates on EKG test — BLS and the airway/defib/iv skill
+  // courses don't have that concept. Pre-test, on the other hand, is a gate
+  // for everything except BLS.
+  const hasEkg = payload.course === 'acls';
+  const title = String(payload.courseTitle || COURSE_TITLES[payload.course] || 'ACLS').trim();
   const certId = String(payload.certId || '').trim().slice(0, MAX_ID_LEN) || '—';
   const date = formatThaiDate(payload.completedAt);
 
   const scoreParts = [];
   if (!isBls && payload.preTestScore != null) scoreParts.push(`Pre-test ${payload.preTestScore}%`);
   if (payload.postTestScore != null) scoreParts.push(`Post-test ${payload.postTestScore}%`);
-  if (!isBls) scoreParts.push(`EKG ${payload.ekgPassed ? 'ผ่าน' : '—'}`);
+  if (hasEkg) scoreParts.push(`EKG ${payload.ekgPassed ? 'ผ่าน' : '—'}`);
 
   const lines = [
     '🎓 มีนักเรียนได้รับใบประกาศนียบัตรใหม่',

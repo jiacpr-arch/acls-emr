@@ -1,0 +1,185 @@
+import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { chapters } from '../data/activeSkillContent';
+import { courseMeta } from '../config/courseMode';
+import QASection from '../components/QASection';
+import { mdComponents, Figure } from '../components/markdownComponents';
+import PageHero from '../components/PageHero';
+import {
+  BookOpen, ChevronDown, Target, Lightbulb, AlertTriangle,
+  Stethoscope, ClipboardCheck, BookMarked,
+} from 'lucide-react';
+
+// กล่อง callout เชิงการสอน — section ที่มี `kind` จะ render เป็นกล่องสีแยกประเภท
+// (section ปกติที่ไม่มี kind ยังใช้ als-section-card เดิม → backward-compatible)
+// สี case ใช้ธีมของคอร์ส ที่เหลืออิง semantic token ใน index.css
+const CALLOUT = {
+  objective: { label: 'วัตถุประสงค์การเรียนรู้', Icon: Target, color: 'var(--color-info)' },
+  pearl: { label: 'Clinical Pearl', Icon: Lightbulb, color: 'var(--color-success)' },
+  warning: { label: 'กับดัก / ข้อควรระวัง', Icon: AlertTriangle, color: 'var(--color-warning)' },
+  case: { label: 'กรณีศึกษา', Icon: Stethoscope, color: 'var(--color-accent)' },
+  summary: { label: 'สรุปประเด็นสำคัญ', Icon: ClipboardCheck, color: 'var(--color-danger)' },
+  evidence: { label: 'หลักฐาน / แนวทาง', Icon: BookMarked, color: '#7C3AED' },
+};
+
+// Knowledge-base page shared by the three skill courses (airway / defib / iv).
+// Modeled on BLSKnowledge.jsx's "book" tab but without the AI-tips tab (that
+// needs its own API route per course) or the Supabase media admin hookup
+// (deferred — see plan §4, acls_images_parent_type_check). Reading is the
+// same schema as ALSKnowledge/BLSKnowledge: chapter.sections[].{heading,body,qa}.
+// เนื้อหาหนึ่ง section — render markdown body + รูป + Q&A ร่วมกัน
+// ถ้า section มี `kind` → ห่อด้วยกล่อง callout สี + ป้ายประเภท, ไม่งั้นใช้การ์ดปกติ
+function SectionInner({ s, accent }) {
+  return (
+    <>
+      {s.heading && (
+        <h3 className="als-section-heading">
+          <span className="als-section-bar" style={accent ? { background: accent } : undefined} />
+          {s.heading}
+        </h3>
+      )}
+      {s.body && (
+        <div className="als-section-body">
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+            {s.body}
+          </ReactMarkdown>
+        </div>
+      )}
+      {s.images?.length > 0 && (
+        <div className={`space-y-3 ${s.heading || s.body ? 'mt-3' : ''}`}>
+          {s.images.map((img, j) => (
+            <Figure key={j} img={img} fallbackAlt={s.heading} />
+          ))}
+        </div>
+      )}
+      {s.qa?.length > 0 && (
+        <div className={s.heading || s.body || s.images?.length ? 'mt-3' : ''}>
+          <QASection qa={s.qa} accent={accent || 'var(--color-accent)'} />
+        </div>
+      )}
+    </>
+  );
+}
+
+// ผสมความโปร่งใสให้สี accent (รองรับทั้ง hex literal และ var(--color-accent))
+function withAlpha(color, percent) {
+  return `color-mix(in srgb, ${color} ${percent}%, transparent)`;
+}
+
+function Section({ s }) {
+  const callout = s.kind ? CALLOUT[s.kind] : null;
+  if (!callout) {
+    return (
+      <article className="als-section-card">
+        <SectionInner s={s} />
+      </article>
+    );
+  }
+  const { label, Icon, color } = callout;
+  return (
+    <article className="als-callout" style={{ '--callout-color': color }}>
+      <div className="als-callout-chip" style={{ color }}>
+        <Icon size={13} strokeWidth={2.6} />
+        {label}
+      </div>
+      <SectionInner s={s} accent={color} />
+    </article>
+  );
+}
+
+export default function SkillKnowledge() {
+  // เปิด "บทแรก" ค้างไว้ตั้งแต่เข้าหน้า เพื่อให้ผู้ใช้เห็นว่ามีเนื้อหาจริงทันที
+  // (เดิม default = ยุบทุกบท ทำให้ดูเหมือนหน้าว่าง). เก็บเป็น Set ของ id ที่เปิด
+  // เพื่อรองรับปุ่ม "ขยายทุกบท / ยุบทุกบท"
+  const [openIds, setOpenIds] = useState(() => new Set(chapters[0] ? [chapters[0].id] : []));
+  const allOpen = openIds.size === chapters.length;
+
+  const toggleCh = (id) => setOpenIds((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+  const toggleAll = () => setOpenIds(allOpen ? new Set() : new Set(chapters.map((c) => c.id)));
+
+  return (
+    <div className="page-container flex flex-col gap-4">
+      <PageHero
+        title={`คลังความรู้ ${courseMeta.shortName}`}
+        desc={`${courseMeta.title} Knowledge Base`}
+      />
+
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm text-text-secondary">
+          {chapters.length} บท · แตะที่บทเพื่ออ่านเนื้อหาเต็ม
+        </span>
+        <button
+          onClick={toggleAll}
+          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold"
+          style={{ background: withAlpha('var(--color-accent)', 9), color: 'var(--color-accent)' }}
+        >
+          <ChevronDown
+            size={15}
+            strokeWidth={2.6}
+            style={{ transform: allOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}
+          />
+          {allOpen ? 'ยุบทุกบท' : 'ขยายทุกบท'}
+        </button>
+      </div>
+
+      <div className="space-y-2.5">
+        {chapters.map((ch, idx) => {
+          const isOpen = openIds.has(ch.id);
+          const chapterNum = String(idx + 1).padStart(2, '0');
+          const cleanTitle = ch.title.replace(/^บทที่\s*\d+\s*:?\s*/u, '').trim() || ch.title;
+          return (
+            <div
+              key={ch.id}
+              className={`chapter-card ${isOpen ? 'is-open' : ''}`}
+              style={isOpen ? { borderColor: withAlpha('var(--color-accent)', 33) } : undefined}
+            >
+              <span
+                className="chapter-card-stripe"
+                style={{ background: 'var(--color-accent)' }}
+              />
+              <button
+                onClick={() => toggleCh(ch.id)}
+                className="chapter-card-button"
+              >
+                <div
+                  className="chapter-icon-tile text-2xl"
+                  style={{ background: withAlpha('var(--color-accent)', 8) }}
+                >
+                  {ch.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="chapter-num-tag" style={{ color: 'var(--color-accent)' }}>
+                    บทที่ {chapterNum}
+                  </div>
+                  <span className="chapter-title">{cleanTitle}</span>
+                  <span
+                    className="chapter-meta-pill"
+                    style={{ background: withAlpha('var(--color-accent)', 9), color: 'var(--color-accent)' }}
+                  >
+                    <BookOpen size={11} strokeWidth={2.4} />
+                    {ch.sections.length} หัวข้อ
+                  </span>
+                </div>
+                <span className="chapter-chevron">
+                  <ChevronDown size={16} strokeWidth={2.4} />
+                </span>
+              </button>
+              {isOpen && (
+                <div className="px-3 pb-4 pt-3 space-y-3 animate-slide-up bg-bg-tertiary/30 border-t border-border">
+                  {ch.sections.map((s, i) => (
+                    <Section key={i} s={s} />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

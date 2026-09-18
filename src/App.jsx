@@ -2,7 +2,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { useSettingsStore } from './stores/settingsStore';
-import { IS_BLS, IS_ACLS, courseMeta } from './config/courseMode';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, IS_DEFIB, courseMeta, QA_DEEP_PATH } from './config/courseMode';
 import { useCourseModeInit } from './hooks/useCourseModeInit';
 import Dashboard from './pages/Dashboard';
 import NewCase from './pages/NewCase';
@@ -35,6 +35,7 @@ import LessonReader from './pages/LessonReader';
 import QuizResults from './pages/QuizResults';
 import InstructorCohort from './pages/InstructorCohort';
 import InstructorCheckin from './pages/InstructorCheckin';
+import DaySchedule from './pages/DaySchedule';
 import StudentQrCard from './pages/StudentQrCard';
 import PostTestExam from './pages/PostTestExam';
 import PreTestExam from './pages/PreTestExam';
@@ -45,6 +46,10 @@ import BLSAlgorithm from './pages/BLSAlgorithm';
 import BLSAedGuide from './pages/BLSAedGuide';
 import BLSChokingRelief from './pages/BLSChokingRelief';
 import BLSKnowledge from './pages/BLSKnowledge';
+import SkillKnowledge from './pages/SkillKnowledge';
+import RhythmQuiz from './pages/RhythmQuiz';
+import SkillScenarioHub from './pages/SkillScenarioHub';
+import SkillScenario from './pages/SkillScenario';
 import NewsPage from './pages/NewsPage';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
@@ -55,6 +60,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import InAppBrowserGuard from './components/InAppBrowserGuard';
 import MetaPixel from './components/MetaPixel';
 import { useSyncEngine } from './services/syncEngine';
+import { usePullEngine } from './services/progressPull';
 
 // Admin pages are code-split — keep the main bundle below the workbox precache limit
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -101,7 +107,8 @@ function App() {
   }, []);
 
   useCourseModeInit();
-  useSyncEngine();
+  useSyncEngine();   // ขาขึ้น: ผลในเครื่อง → cloud
+  usePullEngine();   // ขาลง: cloud → เครื่องนี้ (เล่นหลายเครื่องแล้วตามกันทัน)
 
   // Recording page has its own nav (QuickBar + FloatingStatus)
   // Admin pages also hide the bottom tab bar
@@ -124,7 +131,8 @@ function App() {
   // หน้าฝึก CPR + เกมสถานการณ์ตัดสินใจ — เป็นเครื่องมือฝึกจริง ไม่ใช่หน้าขายคอร์ส
   // ปุ่ม LINE ลอยจะไปบังคำอธิบาย/ปุ่มควบคุมพอดี จึงซ่อนไว้เฉพาะหน้านี้
   const isPractice = location.pathname === '/skill-practice'
-    || /^\/bls\/scenario\/.+/.test(location.pathname);
+    || /^\/bls\/scenario\/.+/.test(location.pathname)
+    || /^\/scenario\/.+/.test(location.pathname);
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -144,6 +152,7 @@ function App() {
         <Route path="/pre-course" element={<PreCourse />} />
         <Route path="/pre-course/cohort" element={<InstructorCohort />} />
         <Route path="/pre-course/checkin" element={<InstructorCheckin />} />
+        {(IS_BLS || IS_ACLS) && <Route path="/pre-course/schedule" element={<DaySchedule />} />}
         <Route path="/pre-course/my-qr" element={<StudentQrCard />} />
         <Route path="/pre-course/pre-test" element={<PreTestExam />} />
         <Route path="/pre-course/post-test" element={<PostTestExam />} />
@@ -161,9 +170,11 @@ function App() {
         {IS_ACLS && <Route path="/drill" element={<DrillTimer />} />}
         {IS_ACLS && <Route path="/compare" element={<CaseCompare />} />}
         {IS_ACLS && <Route path="/als" element={<ALSKnowledge />} />}
-        {IS_ACLS && <Route path="/qa-acls-deep" element={<QAAclsDeep />} />}
-        {IS_ACLS && <Route path="/qa-acls-deep/:chapterId" element={<QAAclsDeepCategory />} />}
-        {IS_ACLS && <Route path="/qa-acls-deep/:chapterId/:qNum" element={<QAAclsDeepQuestion />} />}
+        {/* Q&A เชิงลึก — ACLS ที่ /qa-acls-deep (Supabase-backed), BLS ที่ /qa-deep
+            (เนื้อหา static ล้วน — ดู qaDeepService.js) */}
+        {(IS_ACLS || IS_BLS) && <Route path={QA_DEEP_PATH} element={<QAAclsDeep />} />}
+        {(IS_ACLS || IS_BLS) && <Route path={`${QA_DEEP_PATH}/:chapterId`} element={<QAAclsDeepCategory />} />}
+        {(IS_ACLS || IS_BLS) && <Route path={`${QA_DEEP_PATH}/:chapterId/:qNum`} element={<QAAclsDeepQuestion />} />}
         {/* เกม Code Blue เปิดทั้ง ACLS และ BLS/MorRoo — คลังโจทย์กรองตามโหมดเอง */}
         <Route path="/sim" element={<CodeBlueSim />} />
         <Route path="/sim-board" element={<CodeBlueLeaderboard />} />
@@ -171,8 +182,16 @@ function App() {
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
         {IS_ACLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
-        {(IS_ACLS || IS_BLS) && <Route path="/video-lessons" element={<VideoLessons />} />}
-        {(IS_ACLS || IS_BLS) && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
+        {(IS_ACLS || IS_BLS || IS_SKILL_COURSE) && <Route path="/video-lessons" element={<VideoLessons />} />}
+        {(IS_ACLS || IS_BLS || IS_SKILL_COURSE) && <Route path="/video-lessons/:id" element={<VideoLessonDetail />} />}
+
+        {/* Airway / Defibrillation / IV·IO skill courses — theory-only, one
+            lesson track + knowledge base + scenario game each (see plan). */}
+        {IS_SKILL_COURSE && <Route path="/" element={<PreCourse />} />}
+        {IS_SKILL_COURSE && <Route path="/knowledge" element={<SkillKnowledge />} />}
+        {IS_DEFIB && <Route path="/rhythm-quiz" element={<RhythmQuiz />} />}
+        {IS_SKILL_COURSE && <Route path="/scenario" element={<SkillScenarioHub />} />}
+        {IS_SKILL_COURSE && <Route path="/scenario/:stageId" element={<SkillScenario />} />}
         {/* เข้าถึงได้ทั้ง ACLS/BLS — เมนูใน AdminDashboard กรองตามโหมดเอง */}
         <Route
           path="/admin/login"
@@ -287,7 +306,7 @@ function App() {
             }
           />
         )}
-        {(IS_ACLS || IS_BLS) && (
+        {(IS_ACLS || IS_BLS || IS_SKILL_COURSE) && (
           <Route
             path="/admin/video-lessons"
             element={
@@ -299,7 +318,8 @@ function App() {
             }
           />
         )}
-        {IS_ACLS && (
+        {/* จัดการโจทย์เกม Recorder Hero — เปิดทั้ง ACLS/BLS (โจทย์กรองตาม category ของคอร์ส) */}
+        {(IS_ACLS || IS_BLS) && (
           <Route
             path="/admin/recorder-cases"
             element={
@@ -355,10 +375,19 @@ function App() {
           }
         />
 
-        {IS_BLS && <Route path="/" element={<PreCourse />} />}
-        {IS_BLS && <Route path="/new-case" element={<NewCase />} />}
+        {/* หน้าแรก BLS ลอกโครง NewCase ของ ACLS มา (Phase B) — /pre-course ยังอยู่ที่เดิม */}
+        {IS_BLS && <Route path="/" element={<NewCase />} />}
+        {IS_BLS && <Route path="/new-case" element={<Navigate to="/" replace />} />}
         {IS_BLS && <Route path="/recording" element={<Recording />} />}
         {IS_BLS && <Route path="/history" element={<Dashboard />} />}
+        {IS_BLS && <Route path="/statistics" element={<Statistics />} />}
+        {IS_BLS && <Route path="/drill" element={<DrillTimer />} />}
+        {IS_BLS && <Route path="/compare" element={<CaseCompare />} />}
+        {IS_BLS && <Route path="/scenarios" element={<ScenarioSelect />} />}
+        {IS_BLS && <Route path="/games" element={<GamesHub />} />}
+        {IS_BLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
+        {IS_BLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
+        {IS_BLS && <Route path="/recorder-game/:levelId" element={<RecorderGamePlay />} />}
         {IS_BLS && <Route path="/skill-practice" element={<BLSSkillPractice />} />}
         {IS_BLS && <Route path="/bls/scenario" element={<BLSScenarioHub />} />}
         {IS_BLS && <Route path="/bls/scenario/:stageId" element={<BLSScenario />} />}

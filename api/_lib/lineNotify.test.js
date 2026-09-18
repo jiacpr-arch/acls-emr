@@ -34,6 +34,21 @@ test('buildCertMessage — BLS omits pre-test and EKG', () => {
   assert.match(msg, /Post-test 88%/);
 });
 
+test('buildCertMessage — skill course (airway) includes pre-test but omits EKG', () => {
+  const msg = buildCertMessage({
+    studentName: 'Somsak',
+    course: 'airway',
+    courseTitle: 'Airway Management Certification',
+    certId: 'JIA-AW-ABC',
+    preTestScore: 80,
+    postTestScore: 90,
+    ekgPassed: null,
+  });
+  assert.match(msg, /Pre-test 80%/);
+  assert.match(msg, /Post-test 90%/);
+  assert.doesNotMatch(msg, /EKG/);
+});
+
 test('buildCertMessage — missing name falls back', () => {
   const msg = buildCertMessage({ course: 'acls', certId: 'X' });
   assert.match(msg, /\(ไม่ระบุชื่อ\)/);

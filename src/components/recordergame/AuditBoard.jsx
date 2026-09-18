@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ERROR_TYPES, ERROR_TYPE_META, getAuditErrorCount } from '../../data/recorderGameLevels';
+import { ERROR_TYPES, ERROR_TYPE_META, getAuditErrorCount } from '../../data/activeRecorderLevels';
 import { Check, X, AlertTriangle, Search } from 'lucide-react';
 
 // ==========================================

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Brain } from 'lucide-react';
 import BLSScenarioStageGrid from '../components/precourse/BLSScenarioStageGrid';
 
 // Stage-select hub (standalone page, e.g. for direct links/bookmarks) — the
@@ -20,7 +20,9 @@ export default function BLSScenarioHub() {
             style={{ borderRadius: 'var(--radius-full)' }} aria-label="Back">
             <ChevronLeft size={20} />
           </button>
-          <div className="text-headline">🧠 เกมลำดับขั้น BLS</div>
+          <div className="text-headline inline-flex items-center gap-1.5">
+            <Brain size={18} strokeWidth={2.2} className="text-info" /> เกมลำดับขั้น BLS
+          </div>
         </div>
       </div>
 

@@ -29,7 +29,8 @@ export function preloadCharacterImages(charId, pose) {
  * แล้ว (commit เข้า repo พร้อมกันทีเดียว) — เรนเดอร์ <img> ตรงๆ ไม่ต้อง probe
  * เลย กัน SVG โผล่วาบได้เด็ดขาดแม้เน็ตช้า/จังหวะบีบสุดขั้ว
  *
- * ตัวละคร custom ที่แอดมินสร้างผ่าน Supabase อาจยังอัปรูปไม่ครบทุก pose —
+ * ยกเว้น built-in ที่ติดธง probeArt (รูปจริงยังไม่ถูก generate) กับตัวละคร
+ * custom ที่แอดมินสร้างผ่าน Supabase ซึ่งอาจยังอัปรูปไม่ครบทุก pose —
  * ต้อง probe ก่อนเสมอ ไม่งั้นจะพังถ้ารูปยังไม่มี:
  *   1. probe /images/characters/{charId}/{pose}.webp (หรือ URL จาก DB)
  *      + ถ้ามี {pose}_talk.webp จะสลับ 2 เฟรมตอน talking
@@ -37,7 +38,7 @@ export function preloadCharacterImages(charId, pose) {
  */
 export default function CharacterSprite({ charId, pose = 'idle', talking = false }) {
   const char = getCharacter(charId);
-  const isCustom = !!char?.custom;
+  const needsProbe = !!char?.custom || !!char?.probeArt;
   const probeKey = `${charId}/${pose}`;
   // เก็บผล probe คู่กับ key — key ไม่ตรง = ยัง probing (แทนการ reset ด้วย setState ใน effect)
   const [probe, setProbe] = useState({ key: null, result: null });
@@ -45,7 +46,7 @@ export default function CharacterSprite({ charId, pose = 'idle', talking = false
   const svgRef = useRef(null);
 
   useEffect(() => {
-    if (!char || !isCustom) return undefined; // built-in ไม่ต้อง probe เลย
+    if (!char || !needsProbe) return undefined; // built-in ที่มีรูปครบ ไม่ต้อง probe เลย
     let alive = true;
     const baseUrl = characterImageUrl(charId, pose);
     const talkUrl = characterImageUrl(charId, pose, true);
@@ -57,7 +58,7 @@ export default function CharacterSprite({ charId, pose = 'idle', talking = false
       });
     });
     return () => { alive = false; };
-  }, [charId, pose, char, isCustom]);
+  }, [charId, pose, char, needsProbe]);
 
   const imgState = probe.key === probeKey ? probe.result : null; // null=probing | {base,talk} | false
 
@@ -81,21 +82,33 @@ export default function CharacterSprite({ charId, pose = 'idle', talking = false
 
   if (!char) return null;
 
-  // built-in — รูปจริงมีครบเสมอ ไม่มีสถานะ "กำลัง probe" ให้ race เลย
-  if (!isCustom) {
+  // built-in ที่มีรูปครบ — ไม่มีสถานะ "กำลัง probe" ให้ race เลย
+  // แต่ละท่าเป็นภาพนิ่งภาพเดียว ไม่มีเฟรมปากอ้าคู่ให้สลับ — ใช้การขยับตัวเบาๆ (bob)
+  // แทนตอนกำลังพิมพ์บทพูด กันตัวละครดูนิ่งค้างทั้งฉาก
+  if (!needsProbe) {
     return (
       <img
         src={characterImageUrl(charId, pose)}
         alt={char.name}
-        className="cbs-sprite-img"
+        className={`cbs-sprite-img${talking ? ' cbs-sprite-talking' : ''}`}
         draggable="false"
       />
     );
   }
 
   if (imgState && imgState !== false) {
-    const src = talking && frame === 1 && imgState.talk ? imgState.talk : imgState.base;
-    return <img src={src} alt={char.name} className="cbs-sprite-img" draggable="false" />;
+    const hasTalkFrame = !!imgState.talk;
+    const src = talking && frame === 1 && hasTalkFrame ? imgState.talk : imgState.base;
+    // ไม่มีเฟรมปากอ้าของตัวละคร custom ตัวนี้ — bob แทนเหมือนกัน
+    const bobbing = talking && !hasTalkFrame;
+    return (
+      <img
+        src={src}
+        alt={char.name}
+        className={`cbs-sprite-img${bobbing ? ' cbs-sprite-talking' : ''}`}
+        draggable="false"
+      />
+    );
   }
 
   // probing (สั้นมาก) หรือไม่มีรูปจริง → SVG placeholder

@@ -227,6 +227,21 @@ export async function rpcSubmitRecorderResult({ attemptUuid, studentPk, levelId,
   return error ? { error } : { data: true };
 }
 
+// ความคืบหน้า Recorder Hero "ของตัวเอง" — คู่กับ rpcGetMyCodeBlueProgress
+// server สรุปจากผลที่เคยส่งขึ้นไป: ดาว+hi-score ต่อด่าน และ hi-score ต่อหมวด
+// ของ Endless ใช้ hydrate กลับลง localStorage ตอนเปิดแอปบนเครื่องอื่น
+// (ต้องรัน supabase-cleanup/recorder-progress-restore.sql ก่อน ไม่งั้น server
+// ตอบ 404 ซึ่ง progressPull กลืนไว้อยู่แล้ว — แค่ไม่มีอะไรถูกกู้)
+export async function rpcGetMyRecorderProgress({ studentPk }) {
+  const { classCode } = getClassContext();
+  if (!classCode || !studentPk) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_my_recorder_progress', {
+    p_code: classCode,
+    p_student_pk: studentPk,
+  });
+  return error ? { error } : { data };
+}
+
 export async function rpcGetCohortRecorderSummary() {
   const code = instructorAccessCode();
   if (!code) return { error: new Error('no_class') };
@@ -306,17 +321,20 @@ export async function rpcSetExamResult({
   return error ? { error } : { data: true };
 }
 
-// ล็อกเคสสอบ Megacode กับนักเรียนที่ฐานสอบแบบสุ่มข้อสอบ — server ใช้กติกา
-// "เคสแรกชนะ" (atomic): ถ้านักเรียนถูกล็อกเคสไว้แล้วและไม่ force จะคืนเคสเดิม
-// force=true ใช้กับปุ่ม "สุ่มใหม่" เพื่อทับเคสเดิม คืนค่า data = case id ที่ติดจริง
-export async function rpcAssignExamCase({ studentPk, stationId, caseId, force = false }) {
+// ล็อกเคสสอบ Megacode กับนักเรียนที่ฐานสอบแบบสุ่มข้อสอบ — ส่งเคสทั้ง pool
+// (caseIds) ให้ server เลือกเอง (เลือกเคสที่ถูกใช้น้อยที่สุดในฐานนี้ก่อนเสมอ —
+// กระจายเคสทั่วรุ่น กันนักเรียนจำโจทย์เพื่อนได้) server ใช้กติกา "เคสแรกชนะ"
+// (atomic): ถ้านักเรียนถูกล็อกเคสไว้แล้วและไม่ force จะคืนเคสเดิม
+// force=true ใช้กับปุ่ม "สุ่มใหม่" เพื่อเลือกเคสใหม่ทับเคสเดิม คืนค่า data =
+// case id ที่ติดจริง
+export async function rpcAssignExamCase({ studentPk, stationId, caseIds, force = false }) {
   const code = instructorAccessCode();
   if (!code) return { error: new Error('no_class') };
   const { data, error } = await supabase.rpc('assign_exam_case', {
     p_code: code,
     p_student_pk: studentPk,
     p_station_id: stationId,
-    p_case_id: caseId,
+    p_case_ids: caseIds,
     p_force: force,
   });
   return error ? { error } : { data };

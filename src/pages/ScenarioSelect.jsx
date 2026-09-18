@@ -1,13 +1,16 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { scenarios, getScenariosByLevel } from '../data/scenarios';
+import { scenarios, getScenariosByLevel } from '../data/activeDrillScenarios';
 import { useCaseStore } from '../stores/caseStore';
 import { getScenarioGrades } from '../utils/scenarioProgress';
+import { IS_BLS } from '../config/courseMode';
 import {
-  Heart, TrendingDown, TrendingUp, Brain, FileText, GraduationCap, Edit,
-  Sparkles, ChevronRight, X,
+  Heart, TrendingDown, TrendingUp, Brain, FileText,
+  ChevronRight, X, GraduationCap, Edit, HeartPulse, Wind, Sparkles,
 } from '../components/ui/Icon';
+import { Target } from 'lucide-react';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import PageHero from '../components/PageHero';
 
 const GRADE_TONE = {
   A: 'bg-success/15 text-success',
@@ -17,11 +20,25 @@ const GRADE_TONE = {
   F: 'bg-danger/15 text-danger',
 };
 
+const LEVEL_TH = { all: 'ทั้งหมด', basic: 'พื้นฐาน', intermediate: 'กลาง', megacode: 'Megacode' };
+// category label/icon แยกชุดกันระหว่าง ACLS (ตามอัลกอริทึม) กับ BLS (ตามกลุ่มผู้ป่วย/ทักษะ)
+const CATEGORY_TH = IS_BLS
+  ? {
+      cardiac_arrest: 'หัวใจหยุดเต้น (ผู้ใหญ่)', pediatric_arrest: 'เด็ก/ทารก',
+      respiratory: 'หยุดหายใจ/Opioid', special: 'สถานการณ์พิเศษ',
+    }
+  : {
+      cardiac_arrest: 'หัวใจหยุดเต้น', bradycardia: 'หัวใจเต้นช้า', tachycardia: 'หัวใจเต้นเร็ว',
+      mi: 'หัวใจขาดเลือด', stroke: 'สโตรก',
+    };
+// category ที่ต้องรอครบรอบ CPR 2 นาทีก่อน shock/เช็คชีพจร/epi ซ้ำ (คู่กับ
+// ARREST_GATED_CATEGORIES ใน SimulationEngine.jsx)
+const CYCLE_GATED_CATEGORIES = ['cardiac_arrest', 'pediatric_arrest'];
+
 export default function ScenarioSelect() {
   const navigate = useNavigate();
   const createCase = useCaseStore(s => s.createCase);
   const [filterLevel, setFilterLevel] = useState('all');
-  const [mode, setMode] = useState('learning');
   const [loading, setLoading] = useState(false);
   const [briefScenario, setBriefScenario] = useState(null);
   const grades = useMemo(() => getScenarioGrades(), []);
@@ -34,35 +51,46 @@ export default function ScenarioSelect() {
     megacode: 'bg-danger/15 text-danger',
   };
 
-  const categoryIcon = {
-    cardiac_arrest: Heart,
-    bradycardia: TrendingDown,
-    tachycardia: TrendingUp,
-    mi: Heart,
-    stroke: Brain,
-  };
+  const categoryIcon = IS_BLS
+    ? {
+        cardiac_arrest: HeartPulse,
+        pediatric_arrest: Heart,
+        respiratory: Wind,
+        special: Sparkles,
+      }
+    : {
+        cardiac_arrest: Heart,
+        bradycardia: TrendingDown,
+        tachycardia: TrendingUp,
+        mi: Heart,
+        stroke: Brain,
+      };
 
-  const startScenario = async (scenarioId) => {
+  const startScenario = async (scenarioId, chosenMode) => {
     if (loading) return;
     setLoading(true);
     await createCase('training');
-    navigate(`/recording?start=bls&scenario=${scenarioId}&mode=${mode}`);
+    navigate(`/recording?start=bls&scenario=${scenarioId}&mode=${chosenMode}`);
   };
 
   return (
-    <div className="page-container space-y-5">
-      <div>
-        <div className="text-overline text-purple">เส้นทางฝึกผู้บันทึก · ขั้น 2/2</div>
-        <h1 className="text-title text-text-primary">สอบสนามจริง</h1>
-        <p className="text-caption text-text-muted mt-0.5">Training Scenarios — ทำโจทย์บนหน้า Recording จริง</p>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero
+        eyebrow="เส้นทางฝึกผู้บันทึก · ขั้น 2/2"
+        title="สอบสนามจริง"
+        desc="Training Scenarios — ทำโจทย์บนหน้า Recording จริง"
+      />
 
       <JiacprCourseBanner />
 
       {/* ขั้น 1 ของเส้นทาง: ซ้อมมือกับปุ่มจำลองก่อน */}
       <button onClick={() => navigate('/recorder-game')}
-        className="w-full dash-card !p-3 text-left hover:bg-bg-tertiary transition-colors flex items-center gap-3">
-        <span className="text-2xl shrink-0">🎯</span>
+        className="card card-hover w-full flex items-center gap-3"
+        style={{ textAlign: 'left', justifyContent: 'flex-start' }}>
+        <div className="flex items-center justify-center shrink-0"
+          style={{ width: 44, height: 44, borderRadius: 12, background: '#2563EB15', color: '#2563EB' }}>
+          <Target size={22} strokeWidth={2.2} />
+        </div>
         <div className="flex-1 min-w-0">
           <div className="text-body-strong text-text-primary">ยังไม่คุ้นปุ่มบันทึก?</div>
           <div className="text-caption text-text-muted">กลับไปขั้น 1 · ซ้อมมือ Recorder — ฝึกจำปุ่ม + จับผิด log ก่อน แล้วค่อยมาสอบจริงที่นี่</div>
@@ -70,35 +98,12 @@ export default function ScenarioSelect() {
         <ChevronRight size={16} strokeWidth={2} className="text-text-muted shrink-0" />
       </button>
 
-      {/* Mode selection */}
-      <div>
-        <div className="section-header">Mode</div>
-        <div className="grid grid-cols-2 gap-2">
-          <ModeChoice
-            active={mode === 'learning'}
-            onClick={() => setMode('learning')}
-            tone="info"
-            Icon={GraduationCap}
-            title="Learning"
-            sub="Hints + instant feedback"
-          />
-          <ModeChoice
-            active={mode === 'exam'}
-            onClick={() => setMode('exam')}
-            tone="purple"
-            Icon={Edit}
-            title="Exam"
-            sub="No hints + score at end"
-          />
-        </div>
-      </div>
-
       {/* Level filter */}
       <div className="tab-group">
         {['all', 'basic', 'intermediate', 'megacode'].map(l => (
           <button key={l} onClick={() => setFilterLevel(l)}
             className={`tab-item ${filterLevel === l ? 'active' : ''}`}>
-            {l === 'all' ? 'All' : l.charAt(0).toUpperCase() + l.slice(1)}
+            {LEVEL_TH[l]}
           </button>
         ))}
       </div>
@@ -118,9 +123,9 @@ export default function ScenarioSelect() {
                 <div className="text-body-strong text-text-primary truncate">{s.title_th}</div>
                 <div className="text-caption text-text-muted truncate">{s.description_th}</div>
                 <div className="flex items-center gap-2 text-2xs text-text-muted mt-0.5 font-mono">
-                  <span>{s.steps.length} steps</span>
+                  <span>{s.steps.length} ขั้นตอน</span>
                   <span>·</span>
-                  <span>{s.category}</span>
+                  <span>{CATEGORY_TH[s.category] || s.category}</span>
                 </div>
               </div>
               {grades[s.id]?.grade && (
@@ -129,7 +134,7 @@ export default function ScenarioSelect() {
                   {grades[s.id].grade}{grades[s.id].examPassed ? ' ✓' : ''}
                 </span>
               )}
-              <span className={`badge ${levelTone[s.level]}`}>{s.level}</span>
+              <span className={`badge ${levelTone[s.level]}`}>{LEVEL_TH[s.level] || s.level}</span>
               <ChevronRight size={16} strokeWidth={2} className="text-text-muted shrink-0" />
             </button>
           );
@@ -137,14 +142,14 @@ export default function ScenarioSelect() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-10 text-text-muted text-caption">No scenarios found</div>
+        <div className="text-center py-10 text-text-muted text-caption">ไม่พบสถานการณ์</div>
       )}
 
-      {/* Brief modal */}
+      {/* Brief modal: อธิบายวิธีเล่น + เลือกโหมด */}
       {briefScenario && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in"
           onClick={() => setBriefScenario(null)}>
-          <div className="w-full max-w-sm bg-bg-secondary p-5 space-y-4 animate-slide-up"
+          <div className="w-full max-w-sm max-h-[85dvh] overflow-y-auto bg-bg-secondary p-5 space-y-4 animate-slide-up"
             onClick={e => e.stopPropagation()}
             style={{ borderRadius: 'var(--radius-2xl)', boxShadow: 'var(--shadow-pop)' }}>
             <div className="flex items-start justify-between">
@@ -159,7 +164,7 @@ export default function ScenarioSelect() {
                 <div>
                   <h2 className="text-headline text-text-primary">{briefScenario.title_th}</h2>
                   <span className={`badge mt-1 inline-flex ${levelTone[briefScenario.level]}`}>
-                    {briefScenario.level}
+                    {LEVEL_TH[briefScenario.level] || briefScenario.level}
                   </span>
                 </div>
               </div>
@@ -172,29 +177,33 @@ export default function ScenarioSelect() {
 
             <div className="bg-bg-primary p-3 border border-border" style={{ borderRadius: 'var(--radius-md)' }}>
               <div className="text-caption text-text-secondary">{briefScenario.description_th}</div>
-              <div className="text-2xs text-text-muted mt-2 font-mono">Steps: {briefScenario.steps.length} · Mode: {mode}</div>
+              <div className="text-2xs text-text-muted mt-2 font-mono">ทั้งหมด {briefScenario.steps.length} ขั้นตอน</div>
             </div>
 
-            <div className="bg-bg-primary p-3 border border-border" style={{ borderRadius: 'var(--radius-md)' }}>
-              <div className="section-header">You will practice</div>
-              <div className="space-y-1">
-                {briefScenario.steps.slice(0, 4).map((s, i) => (
-                  <div key={i} className="text-2xs text-text-secondary flex items-start gap-1.5">
-                    <span className="text-info shrink-0 mt-1">•</span>
-                    <span>{s.correctActions?.join(', ')}</span>
-                  </div>
-                ))}
-                {briefScenario.steps.length > 4 && (
-                  <div className="text-2xs text-text-muted">+ {briefScenario.steps.length - 4} more…</div>
-                )}
-              </div>
+            <div className="bg-bg-primary p-3 border border-border space-y-1.5" style={{ borderRadius: 'var(--radius-md)' }}>
+              <div className="section-header">วิธีเล่น</div>
+              <BriefLine>คุณคือผู้บันทึก (Recorder) ของทีมกู้ชีพ</BriefLine>
+              <BriefLine>ตัวละครบนฉากจะเล่าเหตุการณ์ทีละขั้น</BriefLine>
+              <BriefLine>กดบันทึกบนหน้า Recording จริงให้ตรงขั้นตอน {IS_BLS ? 'BLS' : 'ACLS'} — ทำถูกจึงไปขั้นต่อไป</BriefLine>
+              <BriefLine>ผิดครบ 4 ครั้ง อาจารย์จะเข้ายึดเคส</BriefLine>
+              {CYCLE_GATED_CATEGORIES.includes(briefScenario.category) && (
+                <BriefLine tone="warning">
+                  {IS_BLS
+                    ? '⚠ Shock / AED Analyze ซ้ำ ต้องรอครบรอบ CPR 2 นาทีก่อน'
+                    : '⚠ Shock / เช็คชีพจร / Epi ซ้ำ ต้องรอครบรอบ CPR 2 นาทีก่อน'}
+                </BriefLine>
+              )}
             </div>
 
-            <button onClick={() => startScenario(briefScenario.id)} disabled={loading}
-              className="btn btn-success btn-lg btn-block disabled:opacity-50">
-              <Sparkles size={16} strokeWidth={2.4} /> {loading ? 'Loading…' : 'Start Scenario'}
+            <button onClick={() => startScenario(briefScenario.id, 'learning')} disabled={loading}
+              className="btn btn-info btn-lg btn-block disabled:opacity-50">
+              <GraduationCap size={16} strokeWidth={2.4} /> {loading ? 'กำลังโหลด…' : 'เริ่มโหมดฝึก — มีคำใบ้ทุกขั้น'}
             </button>
-            <button onClick={() => setBriefScenario(null)} className="btn btn-ghost btn-sm btn-block">Cancel</button>
+            <button onClick={() => startScenario(briefScenario.id, 'exam')} disabled={loading}
+              className="btn btn-lg btn-block disabled:opacity-50 border border-purple text-purple">
+              <Edit size={16} strokeWidth={2.4} /> {loading ? 'กำลังโหลด…' : 'เริ่มโหมดสอบ — ไม่มีคำใบ้ เก็บคะแนน'}
+            </button>
+            <button onClick={() => setBriefScenario(null)} className="btn btn-ghost btn-sm btn-block">ปิด</button>
           </div>
         </div>
       )}
@@ -202,18 +211,11 @@ export default function ScenarioSelect() {
   );
 }
 
-function ModeChoice({ active, onClick, tone, Icon, title, sub }) {
-  const tones = {
-    info: active ? 'bg-info/10 text-info border-info/40' : 'bg-bg-secondary text-text-primary border-border',
-    purple: active ? 'bg-purple/10 text-purple border-purple/40' : 'bg-bg-secondary text-text-primary border-border',
-  };
+function BriefLine({ children, tone }) {
   return (
-    <button onClick={onClick}
-      className={`flex flex-col items-start gap-1 p-3 border transition-colors text-left ${tones[tone]}`}
-      style={{ borderRadius: 'var(--radius-md)' }}>
-      <Icon size={20} strokeWidth={2.2} />
-      <div className="text-body-strong mt-1">{title}</div>
-      <div className="text-caption opacity-70">{sub}</div>
-    </button>
+    <div className={`text-2xs flex items-start gap-1.5 ${tone === 'warning' ? 'text-warning font-bold' : 'text-text-secondary'}`}>
+      <span className={`shrink-0 mt-1 ${tone === 'warning' ? 'text-warning' : 'text-info'}`}>•</span>
+      <span>{children}</span>
+    </div>
   );
 }

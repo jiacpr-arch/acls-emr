@@ -1,9 +1,7 @@
 import { supabase } from './supabase';
 import { invalidateVideoLessonsCache, mapVideoLessonRow } from './videoLessonService';
 import { authedPost } from './adminApi';
-import { IS_BLS } from '../config/courseMode';
-
-const COURSE_MODE = IS_BLS ? 'bls' : 'acls';
+import { COURSE_MODE } from '../config/courseMode';
 
 // CRUD วิดีโอบทเรียน สำหรับหน้าแอดมิน — เขียนผ่าน client ที่ล็อกอินแอดมินแล้ว (RLS คุมสิทธิ์)
 // รูปแบบเดียวกับ alsAdminService.js (insert/update/delete ตรงไปที่ตาราง)
@@ -18,6 +16,7 @@ function toRow(p) {
     orientation: p.orientation || 'portrait',
     start_sec: p.startSec === '' || p.startSec == null ? null : Number(p.startSec),
     end_sec: p.endSec === '' || p.endSec == null ? null : Number(p.endSec),
+    duration_sec: p.durationSec === '' || p.durationSec == null ? null : Number(p.durationSec),
     required: p.required !== false,
     key_points: p.keyPoints || '',
     chapters: Array.isArray(p.chapters) ? p.chapters : [],

@@ -4,29 +4,31 @@ import { getLessonProgress, getAttemptsForStudent, upsertStudent } from '../db/d
 import { scheduleFlush } from '../services/syncEngine';
 import { preCourseLessons } from '../data/activeLessons';
 import { POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT } from '../data/activePostTest';
-import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/assessment';
+import { PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT } from '../data/activePreTest';
 import { EKG_TEST_PASS_PERCENT, EKG_TEST_PASSED_KEY } from '../data/ekgQuiz';
-import { getScenarioGameStatus } from '../data/blsScenarios';
-import { simGameStatus } from '../data/codeBlueScenarios';
+import { RHYTHM_QUIZ_PASS_PERCENT, RHYTHM_QUIZ_PASSED_KEY } from '../data/rhythmDecisionQuiz';
+import { getScenarioGameStatus as getSkillScenarioGameStatus } from '../data/activeSkillContent';
 import { certConfig } from '../data/activeCert';
-import { IS_BLS, courseMeta } from '../config/courseMode';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, IS_DEFIB, COURSE_MODE, courseMeta } from '../config/courseMode';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';
 import { rpcJoinClass, rpcGetMyPracticalStatus } from '../services/cohortSync';
 import { exportCertificatePDF } from '../utils/exportCertificate';
-import { simCertHighlights } from '../game/achievements';
+import { simCertHighlights, ACHIEVEMENTS } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
 import {
   Trophy, BookOpen, Sparkles, Activity, Video,
   Check, Circle, ClipboardCheck, Download, MapPin, ChevronRight, Shield, MessageCircle, AlertCircle,
+  Medal, PartyPopper, Siren,
 } from 'lucide-react';
 import { useVideoLessons } from '../hooks/useVideoLessons';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { computeVideoCompletion } from '../utils/videoProgress';
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import PageHero from '../components/PageHero';
 import LoadingCard from '../components/ui/LoadingCard';
 import ErrorCard from '../components/ui/ErrorCard';
 
@@ -58,6 +60,7 @@ export default function Certification() {
   // Soft gate: ปลดล็อกปุ่มดาวน์โหลดเมื่อกดเพิ่มเพื่อน LINE OA (หรือกดข้าม) — จำค่าไว้ข้าม refresh
   const [lineUnlocked, setLineUnlocked] = useState(!!certData.lineFollowed);
   const ekgTestDone = localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
+  const rhythmQuizDone = localStorage.getItem(RHYTHM_QUIZ_PASSED_KEY) === 'true';
   const classCode = useClassStore(s => s.classCode);
 
   // สถานะภาคปฏิบัติจากระบบเช็คชื่อ QR (วันเรียนจริง) — เข้าครบทุกฐาน + สอบ
@@ -111,7 +114,7 @@ export default function Certification() {
   useEffect(() => {
     if (certData.certId && !lineUnlocked) {
       track('cert_line_gate_view', {
-        props: { source: 'cert_gate', course: IS_BLS ? 'bls' : 'acls' },
+        props: { source: 'cert_gate', course: COURSE_MODE },
       });
     }
   }, [certData.certId, lineUnlocked]);
@@ -138,18 +141,18 @@ export default function Certification() {
   const videoComp = computeVideoCompletion(videoLessons, preCourseProgress, preCourseAttempts);
   const videoGateActive = videoComp.total > 0;
 
-  // BLS ขั้นที่ 2 (ฝึก CPR): วัดผลจากเกมลำดับขั้นตัดสินใจ 8 ด่าน + ข้อสอบรวม
-  // ที่ฝังอยู่ในหน้า skill-practice — อ่านสดจาก localStorage ทุก render
-  // เหมือน EKG test ของ ACLS
-  const scenarioGame = IS_BLS ? getScenarioGameStatus() : null;
-  // BLS: เกม BLS Rescue (/sim) ก็เป็นเงื่อนไขบังคับ — ต้องผ่านครบทุกเคส built-in
-  // (ฝั่ง ACLS เกม sim ยังเป็นโบนัสไม่บังคับเหมือนเดิม)
-  const simGame = IS_BLS ? simGameStatus() : null;
+  // Airway/Defib/IV skill courses: เกมลำดับขั้นของคอร์สนั้น ๆ (ดูส่วนที่ 3 ของแผน)
+  // เป็นเงื่อนไขบังคับเหมือน BLS แต่ไม่มีเกม BLS Rescue/Code Blue Sim ผูกด้วย
+  const skillScenarioGame = IS_SKILL_COURSE ? getSkillScenarioGameStatus() : null;
 
-  // BLS: 4 requirements mirroring the landing journey (บทเรียน → ฝึก CPR →
-  // เกม BLS Rescue → Post-test). ACLS: online theory certification — the four
-  // knowledge gates only (pre-test, pre-course, post-test, EKG test). Hands-on
-  // skills are completed separately at a training center.
+  // BLS: knowledge gates only, mirroring ACLS (pre-test → pre-course →
+  // วิดีโอบทเรียน → post-test) — Code Blue Sim (เกม BLS Rescue) เป็นแค่โบนัส
+  // ไม่บังคับ เหมือน ACLS (ดู simHighlights/teaser card ด้านล่าง) ไม่ใช่เงื่อนไข
+  // ใบประกาศอีกต่อไป. Skill courses (airway/defib/iv): pre-test → pre-course →
+  // เกมลำดับขั้น → post-test (ไม่มี EKG test — เป็นแนวคิดเฉพาะ ACLS). ACLS: online
+  // theory certification — the four knowledge gates only (pre-test, pre-course,
+  // post-test, EKG test). Hands-on skills are completed separately at a
+  // training center.
   // Once a student has an attempt on record, tapping the requirement should
   // show that result again rather than always forcing a retake — this is the
   // only way back to a past pre-test/post-test result in the app.
@@ -158,13 +161,25 @@ export default function Certification() {
 
   const requirements = IS_BLS
     ? [
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
         ...(videoGateActive
           ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
           : []),
-        { label: `ผ่านฝึก CPR — เกมลำดับขั้น 8 ด่าน + ข้อสอบรวม (${scenarioGame.done}/${scenarioGame.total})`, done: scenarioGame.allPassed, Icon: Activity, to: '/skill-practice' },
-        { label: `ผ่านเกม BLS Rescue ครบทุกเคส (${simGame.done}/${simGame.total})`, done: simGame.allPassed, Icon: Sparkles, to: '/sim' },
         { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+      ]
+    : IS_SKILL_COURSE
+    ? [
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
+        { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
+        ...(IS_DEFIB
+          ? [{ label: `ผ่าน Rhythm Quiz ≥ ${RHYTHM_QUIZ_PASS_PERCENT}%`, done: rhythmQuizDone, Icon: Activity, to: '/rhythm-quiz' }]
+          : []),
+        { label: `ผ่านเกมลำดับขั้น ${skillScenarioGame.total - 1} ด่าน + ข้อสอบรวม (${skillScenarioGame.done}/${skillScenarioGame.total})`, done: skillScenarioGame.allPassed, Icon: Activity, to: '/scenario' },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+        ...(videoGateActive
+          ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
+          : []),
       ]
     : [
         { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
@@ -210,9 +225,10 @@ export default function Certification() {
       studentPhone: tel,
       studentEmail: mail,
       completedAt: new Date().toISOString(),
-      preTestScore: IS_BLS ? null : (preTestBest?.score ?? null),
+      preTestScore: preTestBest?.score ?? null,
       postTestScore: postTestBest?.score ?? null,
-      ekgPassed: IS_BLS ? null : ekgTestDone,
+      ekgPassed: (IS_BLS || IS_SKILL_COURSE) ? null : ekgTestDone,
+      rhythmQuizPassed: IS_DEFIB ? rhythmQuizDone : null,
       videoCompleted: videoGateActive ? videoComp.allDone : null,
       theoryOnly: !!certConfig.theoryOnly,
       // eslint-disable-next-line react-hooks/purity -- รันใน event handler (กดปุ่มออกใบ) ไม่ใช่ตอน render
@@ -242,7 +258,7 @@ export default function Certification() {
     setLineUnlocked(true);
     if (via === 'skip') {
       track('cert_line_skip', {
-        props: { source: 'cert_gate', course: IS_BLS ? 'bls' : 'acls' },
+        props: { source: 'cert_gate', course: COURSE_MODE },
       });
     }
   };
@@ -254,7 +270,7 @@ export default function Certification() {
       meta: ['Contact', 'Lead'],
       props: {
         channel: 'line', source: 'cert_gate',
-        course: IS_BLS ? 'bls' : 'acls', value: 2500, currency: 'THB',
+        course: COURSE_MODE, value: 2500, currency: 'THB',
       },
     });
     unlockDownload('line');
@@ -262,7 +278,7 @@ export default function Certification() {
 
   const downloadPDF = async () => {
     track('cert_download', {
-      props: { source: 'cert_card', course: IS_BLS ? 'bls' : 'acls' },
+      props: { source: 'cert_card', course: COURSE_MODE },
     });
     setDownloadError('');
     try {
@@ -276,26 +292,22 @@ export default function Certification() {
     }
   };
 
-  // ผลงาน Code Blue Sim สำหรับใบ cert (ACLS เท่านั้น) — null = ไม่เคยผ่านเคส
-  // อ่านสดจาก localStorage ทุก render เพื่อให้เก็บเหรียญเพิ่มแล้วกลับมาหน้านี้เห็นทันที
-  const simHighlights = !IS_BLS ? simCertHighlights() : null;
+  // ผลงาน Code Blue Sim สำหรับใบ cert (ทุกคอร์ส รวม BLS — เป็นโบนัสไม่บังคับ
+  // เหมือน ACLS) — null = ไม่เคยผ่านเคส อ่านสดจาก localStorage ทุก render
+  // เพื่อให้เก็บเหรียญเพิ่มแล้วกลับมาหน้านี้เห็นทันที
+  const simHighlights = simCertHighlights();
+  const megacodeAwardTitle = ACHIEVEMENTS.find((a) => a.id === 'megacode_all')?.title || 'MEGACODE MASTER';
 
   const issuedDate = certData.completedAt ? new Date(certData.completedAt) : null;
   const expiresDate = issuedDate ? new Date(issuedDate) : null;
   if (expiresDate) expiresDate.setMonth(expiresDate.getMonth() + (certConfig.validityMonths || 24));
 
   return (
-    <div className="page-container space-y-5">
-      <div className="flex items-center gap-3">
-        <div className="w-11 h-11 inline-flex items-center justify-center bg-warning/15 text-warning"
-          style={{ borderRadius: 'var(--radius-md)' }}>
-          <Trophy size={22} strokeWidth={2.2} />
-        </div>
-        <div>
-          <h1 className="text-title text-text-primary">{certConfig.title}</h1>
-          <p className="text-caption text-text-muted">Track your {courseMeta.shortName} training progress</p>
-        </div>
-      </div>
+    <div className="page-container flex flex-col gap-4">
+      <PageHero
+        title={certConfig.title}
+        desc={`Track your ${courseMeta.shortName} training progress`}
+      />
 
       <JiacprCourseBanner />
 
@@ -325,8 +337,8 @@ export default function Certification() {
       {/* Progress */}
       <div className="dash-card text-center">
         <div className={`text-numeric text-5xl ${allDone ? 'text-success' : 'text-warning'}`}>{progress}%</div>
-        <div className="text-caption text-text-muted mt-1">
-          {allDone ? '🎉 All requirements met!' : 'Complete requirements to earn certificate'}
+        <div className="text-caption text-text-muted mt-1 inline-flex items-center gap-1">
+          {allDone && <PartyPopper size={13} strokeWidth={2.4} />} {allDone ? 'All requirements met!' : 'Complete requirements to earn certificate'}
         </div>
         <div className="progress-track !h-2 mt-3">
           <div className={`progress-fill ${allDone ? 'bg-success' : 'bg-info'}`} style={{ width: `${progress}%` }} />
@@ -386,59 +398,38 @@ export default function Certification() {
         </div>
       )}
 
-      {/* Stats — ACLS only (BLS has no scenarios) */}
-      {!IS_BLS && (
-        <div className="grid grid-cols-3 gap-2">
-          <div className="stat-box">
-            <div className={`stat-value text-lg ${preTestDone ? 'text-success' : 'text-warning'}`}>
-              {preTestBest ? `${preTestBest.score}%` : '—'}
-            </div>
-            <div className="stat-label">Pre-test</div>
+      {/* Stats — 3rd tile is course-specific: ACLS shows EKG test, Defib shows
+          Rhythm Quiz, BLS/Airway/IV have neither so the grid drops to 2 columns. */}
+      <div className={`grid ${(IS_ACLS || IS_DEFIB) ? 'grid-cols-3' : 'grid-cols-2'} gap-2`}>
+        <div className="stat-box">
+          <div className={`stat-value text-lg ${preTestDone ? 'text-success' : 'text-warning'}`}>
+            {preTestBest ? `${preTestBest.score}%` : '—'}
           </div>
-          <div className="stat-box">
-            <div className={`stat-value text-lg ${postTestDone ? 'text-success' : 'text-warning'}`}>
-              {postTestBest ? `${postTestBest.score}%` : '—'}
-            </div>
-            <div className="stat-label">Post-test</div>
+          <div className="stat-label">Pre-test</div>
+        </div>
+        <div className="stat-box">
+          <div className={`stat-value text-lg ${postTestDone ? 'text-success' : 'text-warning'}`}>
+            {postTestBest ? `${postTestBest.score}%` : '—'}
           </div>
+          <div className="stat-label">Post-test</div>
+        </div>
+        {IS_ACLS && (
           <div className="stat-box">
             <div className={`stat-value text-lg ${ekgTestDone ? 'text-success' : 'text-warning'}`}>
               {ekgTestDone ? 'ผ่าน' : '—'}
             </div>
             <div className="stat-label">EKG test</div>
           </div>
-        </div>
-      )}
-
-      {/* BLS stat — post-test best */}
-      {IS_BLS && postTestBest && (
-        <div className="grid grid-cols-2 gap-2">
+        )}
+        {IS_DEFIB && (
           <div className="stat-box">
-            <div className="stat-value text-lg text-text-primary">
-              {preCourseStatus.filter(s => s.passed).length}/{preCourseStatus.length}
+            <div className={`stat-value text-lg ${rhythmQuizDone ? 'text-success' : 'text-warning'}`}>
+              {rhythmQuizDone ? 'ผ่าน' : '—'}
             </div>
-            <div className="stat-label">Lessons passed</div>
+            <div className="stat-label">Rhythm Quiz</div>
           </div>
-          <div className="stat-box">
-            <div className={`stat-value text-lg ${scenarioGame.allPassed ? 'text-success' : 'text-warning'}`}>
-              {scenarioGame.done}/{scenarioGame.total}
-            </div>
-            <div className="stat-label">ฝึก CPR (เกม)</div>
-          </div>
-          <div className="stat-box">
-            <div className={`stat-value text-lg ${postTestBest.score >= POST_TEST_PASS_PERCENT ? 'text-success' : 'text-warning'}`}>
-              {postTestBest.score}%
-            </div>
-            <div className="stat-label">Post-test best</div>
-          </div>
-          <div className="stat-box">
-            <div className={`stat-value text-lg ${simGame.allPassed ? 'text-success' : 'text-warning'}`}>
-              {simGame.done}/{simGame.total}
-            </div>
-            <div className="stat-label">BLS Rescue</div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ภาคปฏิบัติ (วันเรียนจริง) — จากระบบเช็คชื่อ QR: ครบทุกฐาน + สอบผ่านครบ
           = ใบประกาศเป็นฉบับสมบูรณ์ (แสดงเฉพาะเมื่อเชื่อมต่อคลาส + โหลดสถานะได้) */}
@@ -485,16 +476,16 @@ export default function Certification() {
         </div>
       )}
 
-      {/* Code Blue Sim bonus teaser (ACLS เท่านั้น) — ชวนเล่นแบบไม่บังคับ ก่อนออกใบ
-          หรือหลังออกใบแต่ยังไม่เคยเล่น (การ์ด cert ด้านล่างโชว์ผลงานจริงอยู่แล้วถ้าเคยเล่น) */}
-      {!IS_BLS && !(certData.certId && simHighlights) && (
+      {/* Code Blue Sim bonus teaser (ทุกคอร์ส รวม BLS) — ชวนเล่นแบบไม่บังคับ
+          ก่อนออกใบ หรือหลังออกใบแต่ยังไม่เคยเล่น (การ์ด cert ด้านล่างโชว์ผลงานจริงอยู่แล้วถ้าเคยเล่น) */}
+      {!(certData.certId && simHighlights) && (
         <div className="dash-card !p-3 bg-warning/10 border border-warning/30 flex items-start gap-2">
           <Sparkles size={16} strokeWidth={2.4} className="text-warning shrink-0 mt-0.5" />
           <div className="text-caption text-text-secondary flex-1">
             <span className="font-bold text-warning">โบนัสพิเศษบนใบประกาศ (ไม่บังคับ)</span>
             <div className="mt-0.5">
               เล่น Code Blue Sim แล้วเคสที่ผ่าน + เกรด S จะโชว์บนใบประกาศ —
-              ผ่านเคส megacode ครบทุกเคส รับตราทอง MEGACODE MASTER บนใบด้วย
+              ผ่านเคสระดับสูงสุดครบทุกเคส รับตราทอง{megacodeAwardTitle} บนใบด้วย
               ไม่เล่นก็รับใบประกาศได้ตามปกติ
             </div>
             {simHighlights && (
@@ -505,19 +496,14 @@ export default function Certification() {
             )}
             {simHighlights?.megacodeMaster ? (
               <div
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 text-2xs font-extrabold"
-                style={{
-                  borderRadius: 'var(--radius-full)',
-                  color: '#7A5210',
-                  background: 'linear-gradient(135deg, #F8DC90 0%, #F2C14E 100%)',
-                  boxShadow: '0 2px 8px rgba(242, 193, 78, 0.4)',
-                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 text-2xs font-extrabold bg-warning/12 text-warning"
+                style={{ borderRadius: 'var(--radius-full)' }}
               >
-                🏅 MEGACODE MASTER — จะแสดงบนใบประกาศ
+                <Medal size={14} strokeWidth={2.4} /> {megacodeAwardTitle} — จะแสดงบนใบประกาศ
               </div>
             ) : (
               <Link to="/sim" className="inline-flex items-center gap-1 mt-1.5 text-caption font-bold text-warning">
-                🚨 ไปเล่น Code Blue Sim <ChevronRight size={14} strokeWidth={2.4} />
+                <Siren size={14} strokeWidth={2.4} /> ไปเล่น Code Blue Sim <ChevronRight size={14} strokeWidth={2.4} />
               </Link>
             )}
           </div>
@@ -573,14 +559,10 @@ export default function Certification() {
         <div className="dash-card !p-6 text-center space-y-3"
           style={{ borderColor: 'rgba(5, 150, 105, 0.4)', borderWidth: 2 }}>
           <div
-            className="w-16 h-16 mx-auto inline-flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%)',
-              borderRadius: 'var(--radius-2xl)',
-              boxShadow: '0 8px 20px rgba(217, 119, 6, 0.28)',
-            }}
+            className="w-16 h-16 mx-auto inline-flex items-center justify-center bg-warning/12 text-warning"
+            style={{ borderRadius: 'var(--radius-2xl)' }}
           >
-            <Trophy size={28} strokeWidth={2.4} className="text-white" />
+            <Trophy size={28} strokeWidth={2.4} />
           </div>
           <img
             src={certConfig.logoUrl || '/images/logo-morroo.png'}
@@ -615,15 +597,10 @@ export default function Certification() {
           )}
           {simHighlights?.megacodeMaster && (
             <div
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-2xs font-extrabold"
-              style={{
-                borderRadius: 'var(--radius-full)',
-                color: '#7A5210',
-                background: 'linear-gradient(135deg, #F8DC90 0%, #F2C14E 100%)',
-                boxShadow: '0 2px 8px rgba(242, 193, 78, 0.4)',
-              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-2xs font-extrabold bg-warning/12 text-warning"
+              style={{ borderRadius: 'var(--radius-full)' }}
             >
-              🏅 MEGACODE MASTER
+              <Medal size={14} strokeWidth={2.4} /> MEGACODE MASTER
             </div>
           )}
           {IS_BLS && certData.postTestScore != null && (

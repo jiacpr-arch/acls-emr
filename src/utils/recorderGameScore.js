@@ -2,7 +2,7 @@
 // Recorder Hero — pure scoring helpers
 // ไม่มี side-effect / ไม่แตะ store — ทดสอบง่าย
 // ==========================================
-import { ERROR_TYPES } from '../data/recorderGameLevels';
+import { ERROR_TYPES } from '../data/activeRecorderLevels';
 
 export const RATINGS = {
   PERFECT: 'perfect',

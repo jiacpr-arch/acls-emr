@@ -88,6 +88,12 @@ export default function PostROSCChecklist({ onDone, isTraining, onBrady, onTachy
       <div className="text-2xs font-extrabold uppercase tracking-[0.2em] text-success">Post-ROSC Care</div>
       <h1 className="text-xl font-black text-text-primary">💚 ROSC — Complete Checklist</h1>
 
+      {/* หน้านี้เปลี่ยนโหมดจาก "ตัวละครบอกเหตุการณ์ → เลือกปุ่ม" เป็น "ประเมินเอง → บันทึกเอง"
+          ไม่มีตัวเลขให้จากที่ไหน ผู้เรียนต้องเลื่อนตัวเลขให้ตรงกับที่ประเมิน/วัดได้เอง แล้วติ๊กยืนยัน */}
+      <div className="text-caption text-text-secondary text-left bg-bg-tertiary/60 rounded-lg p-2.5">
+        💡 จากนี้คุณประเมินและบันทึกเอง — เลื่อนตัวเลขแต่ละค่าให้ตรงกับสิ่งที่คุณประเมิน/วัดได้จากผู้ป่วย แล้วติ๊กช่องเมื่อทำหรือประเมินข้อนั้นเสร็จ (ไม่มีคำตอบตายตัว)
+      </div>
+
       {/* Progress bar */}
       <div className="glass-card !p-2">
         <div className="flex items-center justify-between mb-1">

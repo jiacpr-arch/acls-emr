@@ -30,6 +30,16 @@
   --color-shock: #EA580C;
   --color-shock-dark: #C2410C;
 
+  /* === Course accent ===
+     Structural/brand chrome only (bottom nav active tab, in-page tab switcher,
+     hero gradients) — NOT semantic action buttons (those stay on --color-info/
+     -danger/-success/etc. so "primary action" never accidentally looks like
+     "destructive action" just because a course's brand color happens to be red).
+     Overridden per course at runtime in src/utils/applyCourseAccent.js from
+     courseMeta.themeColor — this default is only what shows before that JS runs. */
+  --color-accent: var(--color-info);
+  --color-accent-dark: var(--color-info-dark);
+
   /* === Borders === */
   --color-border: #E2E8F0;
   --color-border-strong: #CBD5E1;
@@ -44,14 +54,14 @@
   --text-3xs: 0.625rem; /* 10px */
   --text-3xs--line-height: 1.4;
 
-  /* === Radii (re-enabled, soft medical-tool feel) === */
+  /* === Radii (firstaid scale — soft, rounded-rect feel) === */
   --radius-sm: 6px;
-  --radius: 8px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
-  --radius-xl: 14px;
-  --radius-2xl: 18px;
-  --radius-3xl: 22px;
+  --radius: 10px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
+  --radius-3xl: 26px;
   --radius-full: 9999px;
 
   /* === Elevation === */
@@ -61,11 +71,13 @@
   --shadow-pop: 0 8px 24px rgba(15, 26, 46, 0.12), 0 24px 48px rgba(15, 26, 46, 0.08);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* หมายเหตุ: ห้ามใส่ universal reset (*{margin:0}) ที่นี่ — CSS นอก @layer จะชนะ
+   utility ของ Tailwind (อยู่ใน @layer utilities) ทำให้ m-*/p-* ใช้ไม่ได้ทั้งแอป
+   Tailwind preflight รีเซ็ต margin/padding/box-sizing ให้อยู่แล้ว */
 
 body {
   font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   min-height: 100vh;
@@ -74,8 +86,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   overscroll-behavior: none;
-  line-height: 1.5;
-  letter-spacing: -0.005em;
+  line-height: 1.55;
 }
 
 /* Tabular numbers for clinical readouts */
@@ -86,35 +97,45 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-:focus-visible {
-  outline: 2px solid var(--color-info);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
+/* @layer base: ให้ Tailwind utility (อยู่ใน @layer utilities) ชนะ reset พวกนี้
+   เมื่อ property ชนกัน — เดิมกฎเหล่านี้ unlayered จึงชนะทุก utility เสมอ ทำให้
+   ปุ่มที่ใส่ bg-*/text-left/border-* กลายเป็นล่องหน (ดู PR ประวัติ commit นี้) */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-info);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  button:focus { outline: none; }
 }
-button:focus { outline: none; }
 
-/* ===== TYPOGRAPHY ===== */
-.text-display { font-size: 28px; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
-.text-title { font-size: 22px; font-weight: 700; line-height: 1.25; letter-spacing: -0.015em; }
-.text-headline { font-size: 17px; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; }
-.text-body { font-size: 14px; font-weight: 400; line-height: 1.5; }
-.text-body-strong { font-size: 14px; font-weight: 600; line-height: 1.45; }
-.text-caption { font-size: 12px; font-weight: 500; line-height: 1.4; }
+/* ===== TYPOGRAPHY (firstaid scale) ===== */
+.text-display { font-size: 30px; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
+@media (min-width: 768px) {
+  .text-display { font-size: 36px; }
+}
+.text-title { font-size: 22px; font-weight: 700; line-height: 1.25; }
+.text-headline { font-size: 18px; font-weight: 700; line-height: 1.3; }
+.text-body { font-size: 15px; font-weight: 400; line-height: 1.55; }
+.text-body-strong { font-size: 15px; font-weight: 600; line-height: 1.45; }
+.text-caption { font-size: 13px; font-weight: 500; line-height: 1.4; }
 .text-overline { font-size: 10px; font-weight: 700; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); }
 .text-numeric { font-family: 'SF Mono', 'JetBrains Mono', 'Menlo', monospace; font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: -0.01em; }
 
 /* ===== BUTTON SYSTEM ===== */
-button, [role="button"] {
-  cursor: pointer;
-  touch-action: manipulation;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border: 1px solid transparent;
-  background: none;
-  line-height: 1.3;
-  font-family: inherit;
+@layer base {
+  button, [role="button"] {
+    cursor: pointer;
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid transparent;
+    background: none;
+    line-height: 1.3;
+    font-family: inherit;
+  }
 }
 
 .btn {
@@ -128,7 +149,7 @@ button, [role="button"] {
   font-size: 14px;
   line-height: 1.3;
   letter-spacing: -0.005em;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius);
   border: 1px solid transparent;
   min-width: 46px;
   transition: transform 0.12s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.18s ease, background 0.18s ease, opacity 0.15s ease;
@@ -136,13 +157,13 @@ button, [role="button"] {
 }
 .btn:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
 .btn:active { transform: translateY(0) scale(0.97); box-shadow: var(--shadow-1); }
-.btn-sm { min-height: 34px; font-size: 13px; padding: 5px 14px; gap: 6px; border-radius: var(--radius-full); }
-.btn-lg { min-height: 52px; font-size: 15px; padding: 8px 24px; border-radius: var(--radius-full); }
-.btn-xl { min-height: 60px; font-size: 17px; padding: 10px 28px; border-radius: var(--radius-full); gap: 10px; }
+.btn-sm { min-height: 34px; font-size: 13px; padding: 5px 14px; gap: 6px; border-radius: var(--radius); }
+.btn-lg { min-height: 52px; font-size: 15px; padding: 8px 24px; border-radius: var(--radius-md); }
+.btn-xl { min-height: 60px; font-size: 17px; padding: 10px 28px; border-radius: var(--radius-md); gap: 10px; }
 .btn-full, .btn-block { width: 100%; }
 
 /* Square icon-only button — pairs with .btn .btn-ghost (e.g. modal ✕ close) */
-.btn-icon { padding: 0; width: 46px; min-width: 46px; }
+.btn-icon { padding: 0; width: 46px; min-width: 46px; border-radius: var(--radius-full); }
 .btn-icon.btn-sm { width: 34px; min-width: 34px; }
 
 /* ===== CTA with built-in arrow → (roodee style) =====
@@ -347,12 +368,22 @@ button, [role="button"] {
 }
 
 /* ===== CARD ===== */
+/* .card = firstaid-compatible alias of .glass-card */
+.card,
 .glass-card {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1);
   padding: 16px;
+}
+/* opt-in: การ์ดที่กดได้ ยกตัวนิด ๆ ตอน hover ให้รู้ว่า interactive */
+.card-hover {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
 }
 .glass-card-elevated {
   background: var(--color-bg-secondary);
@@ -383,7 +414,7 @@ button, [role="button"] {
 }
 .tab-item.active {
   background: var(--color-bg-secondary);
-  color: var(--color-info);
+  color: var(--color-accent);
   box-shadow: var(--shadow-1);
 }
 
@@ -559,63 +590,12 @@ button, [role="button"] {
   box-shadow: var(--shadow-1);
 }
 
-/* ===== LEARN PAGE CARD ===== */
-.learn-card {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  box-shadow:
-    0 1px 2px rgba(15, 26, 46, 0.04),
-    0 8px 20px -10px rgba(15, 26, 46, 0.12);
-  transition: transform 0.22s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.22s ease, border-color 0.22s ease;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.learn-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--color-border-strong);
-  box-shadow:
-    0 2px 4px rgba(15, 26, 46, 0.06),
-    0 16px 32px -12px rgba(15, 26, 46, 0.20);
-}
-.learn-card:active { transform: translateY(0) scale(0.985); }
-
-/* Last lone card in a 2-col grid spans full width — no awkward empty slot */
-.learn-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
-
-.dark .learn-card {
-  background: var(--color-bg-elevated);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.3),
-    0 8px 20px -10px rgba(0, 0, 0, 0.45);
-}
-.dark .learn-card:hover {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.4),
-    0 16px 32px -12px rgba(0, 0, 0, 0.55);
-}
-
-/* Tinted backgrounds per tone — keeps card clean but visually distinct */
-.learn-card.tone-info    { background: color-mix(in srgb, var(--color-info)    9%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-info)    22%, var(--color-border)); }
-.learn-card.tone-purple  { background: color-mix(in srgb, var(--color-purple)  9%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-purple)  22%, var(--color-border)); }
-.learn-card.tone-success { background: color-mix(in srgb, var(--color-success) 9%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-success) 22%, var(--color-border)); }
-.learn-card.tone-warning { background: color-mix(in srgb, var(--color-warning) 10%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-warning) 22%, var(--color-border)); }
-.learn-card.tone-danger  { background: color-mix(in srgb, var(--color-danger)  8%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-danger)  22%, var(--color-border)); }
-.learn-card.tone-shock   { background: color-mix(in srgb, var(--color-shock)   9%, var(--color-bg-secondary)); border-color: color-mix(in srgb, var(--color-shock)   22%, var(--color-border)); }
-
-.dark .learn-card.tone-info    { background: color-mix(in srgb, var(--color-info)    18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-info)    28%, var(--color-border)); }
-.dark .learn-card.tone-purple  { background: color-mix(in srgb, var(--color-purple)  18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-purple)  28%, var(--color-border)); }
-.dark .learn-card.tone-success { background: color-mix(in srgb, var(--color-success) 18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-success) 28%, var(--color-border)); }
-.dark .learn-card.tone-warning { background: color-mix(in srgb, var(--color-warning) 18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-warning) 28%, var(--color-border)); }
-.dark .learn-card.tone-danger  { background: color-mix(in srgb, var(--color-danger)  18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-danger)  28%, var(--color-border)); }
-.dark .learn-card.tone-shock   { background: color-mix(in srgb, var(--color-shock)   18%, var(--color-bg-elevated)); border-color: color-mix(in srgb, var(--color-shock)   28%, var(--color-border)); }
-
 /* ===== Lesson reader: Next button highlight =====
    Gently pulses the primary next button once the student has answered,
    so the next action stays obvious without being aggressive. */
 @keyframes lesson-next-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-info) 45%, transparent); }
-  50%      { box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-info) 0%, transparent); }
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 45%, transparent); }
+  50%      { box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-accent) 0%, transparent); }
 }
 .lesson-next-ready {
   animation: lesson-next-pulse 1.8s ease-out infinite;
@@ -662,23 +642,14 @@ button, [role="button"] {
   transition: width 0.18s ease;
 }
 .chapter-card:hover .chapter-card-stripe { width: 7px; }
+/* tile บทเรียน — พื้นสีอ่อน `${accent}15` + ไอคอนสี accent ทึบ (ตั้งค่าผ่าน
+   inline style ที่จุดใช้งาน) แทนของเดิมที่เป็น gradient + gloss + เงา */
 .chapter-icon-tile {
   width: 52px; height: 52px;
   display: inline-flex;
   align-items: center; justify-content: center;
   border-radius: var(--radius-lg);
-  color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  position: relative;
-}
-.chapter-icon-tile::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 55%);
-  pointer-events: none;
 }
 .chapter-num-tag {
   font-size: 10px;
@@ -762,6 +733,30 @@ button, [role="button"] {
   font-style: italic;
 }
 
+/* กล่อง callout เชิงการสอน (objective/pearl/warning/case/summary)
+   สีต่อประเภทส่งเข้ามาทาง --callout-color (inline style จาก SkillKnowledge) */
+.als-callout {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--callout-color) 30%, var(--color-border));
+  border-left: 3px solid var(--callout-color);
+  border-radius: var(--radius-md);
+  padding: 12px 16px 14px;
+  background: color-mix(in srgb, var(--callout-color) 6%, var(--color-bg-secondary));
+}
+.als-callout-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+/* ในกล่อง callout หัวข้อ (ถ้ามี) ไม่ต้องมีแถบซ้ำกับขอบซ้ายของกล่อง */
+.als-callout .als-section-heading { margin-top: 2px; }
+.als-callout .als-section-bar { display: none; }
+
 /* ===== SECTION HEADER ===== */
 .section-header {
   font-size: 11px;
@@ -772,28 +767,19 @@ button, [role="button"] {
   color: var(--color-text-muted);
 }
 
-/* ===== BOTTOM TAB BAR — floating glass pill (roodee-style) ===== */
+/* ===== BOTTOM TAB BAR — flat full-width bar (firstaid-style) ===== */
 .bottom-pill-bar {
   position: fixed;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: stretch;
-  gap: 2px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.6) inset,
-    0 6px 16px rgba(15, 26, 46, 0.10),
-    0 18px 36px rgba(15, 26, 46, 0.10);
+  justify-content: space-around;
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
   z-index: 40;
-  width: calc(100% - 20px);
-  max-width: calc(32rem - 20px);
-  border: 1px solid rgba(15, 26, 46, 0.06);
-  border-radius: var(--radius-full);
-  padding: 6px;
 }
 .bottom-pill-bar button {
   position: relative;
@@ -803,16 +789,15 @@ button, [role="button"] {
   justify-content: center;
   gap: 2px;
   flex: 1;
-  height: 52px;
+  padding: 6px 6px;
   color: var(--color-text-muted);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: -0.005em;
+  font-size: 11px;
+  font-weight: 500;
   border: none;
   background: none;
   transition: color 0.18s ease, background 0.18s ease, transform 0.08s ease;
   min-width: 0;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius);
 }
 .bottom-pill-bar button .tab-icon {
   font-size: 20px;
@@ -823,8 +808,8 @@ button, [role="button"] {
   height: 22px;
 }
 .bottom-pill-bar button.active {
-  color: var(--color-info);
-  background: rgba(37, 99, 235, 0.10);
+  color: var(--color-accent);
+  font-weight: 700;
 }
 .bottom-pill-bar button:hover:not(.active) {
   background: rgba(15, 26, 46, 0.04);
@@ -867,30 +852,35 @@ button, [role="button"] {
   transition: stroke-dashoffset 0.5s ease;
 }
 
-/* ===== PAGE CONTAINER ===== */
+/* ===== PAGE CONTAINER (firstaid width) ===== */
 .page-container {
-  max-width: 32rem;
+  max-width: 720px;
   margin: 0 auto;
   padding: 16px;
-  /* Clears the floating pill tab bar (≈76px) and the LINE float button
+  /* Clears the flat bottom tab bar (≈68px) and the LINE float button
      that sits above it (ends ≈118px up) + safe-area inset + breathing room */
   padding-bottom: calc(128px + env(safe-area-inset-bottom, 0px));
 }
+@media (min-width: 768px) {
+  .page-container { padding-left: 24px; padding-right: 24px; }
+}
 
 /* ===== FIXED ACTION BAR (exam prev/next ฯลฯ) =====
-   Full-width bar pinned just above the floating pill tab bar — the pill bar
-   occupies bottom 10px→~76px (+safe-area), so anchoring at 84px keeps the
-   buttons visible instead of hidden behind the tab bar. */
+   Full-width bar pinned above the flat bottom tab bar. Anchored to the tab
+   bar's REAL height via --tab-bar-h (measured by BottomTabBar — includes
+   safe-area) + a 10px gap so the "ถัดไป" button never sits flush against
+   the More tab (mis-taps opened the More sheet). Fallback = old constant
+   for the first paint before the measurement lands. */
 .above-tab-bar {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+  bottom: calc(var(--tab-bar-h, calc(68px + env(safe-area-inset-bottom, 0px))) + 10px);
   z-index: 40;
 }
-/* Pair with .above-tab-bar: page padding tall enough for tab bar + action bar */
+/* Pair with .above-tab-bar: page padding tall enough for tab bar + gap + action bar */
 .page-with-action-bar {
-  padding-bottom: calc(176px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--tab-bar-h, calc(68px + env(safe-area-inset-bottom, 0px))) + 128px);
 }
 
 /* ===== PANEL WRAPPER (modal/sheet) ===== */
@@ -942,22 +932,24 @@ button, [role="button"] {
 
 
 /* ===== INPUTS ===== */
-input, textarea, select {
-  font-family: inherit;
-  font-size: 14px;
-  border-radius: var(--radius);
-}
-input[type="text"], input[type="number"], input[type="email"], input[type="tel"], textarea, select {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  padding: 10px 12px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  color: var(--color-text-primary);
-}
-input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="tel"]:focus, textarea:focus, select:focus {
-  outline: none;
-  border-color: var(--color-info);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+@layer base {
+  input, textarea, select {
+    font-family: inherit;
+    font-size: 15px;
+    border-radius: var(--radius);
+  }
+  input[type="text"], input[type="number"], input[type="email"], input[type="tel"], textarea, select {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    padding: 10px 12px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    color: var(--color-text-primary);
+  }
+  input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="tel"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--color-info);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
 }
 
 /* ===== RESPONSIVE ===== */
@@ -975,7 +967,6 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
   .btn:not(.btn-sm):not(.btn-lg):not(.btn-xl):not(.btn-icon) { font-size: 15px; }
   .btn-action { font-size: 13px; }
   .grid-responsive { grid-template-columns: repeat(3, 1fr); }
-  .bottom-pill-bar button { font-size: 11px; }
 }
 @media (min-width: 1024px) {
   .btn:not(.btn-sm):not(.btn-lg):not(.btn-xl):not(.btn-icon) { min-height: 50px; font-size: 15px; }
@@ -1016,6 +1007,7 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
   --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.6), 0 24px 48px rgba(0, 0, 0, 0.4);
 }
 .dark body { background: var(--color-bg-primary); }
+.dark .card,
 .dark .glass-card,
 .dark .dash-card,
 .dark .stat-box { background: var(--color-bg-secondary); border-color: var(--color-border); }
@@ -1028,14 +1020,9 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
 .dark .tab-group { background: var(--color-bg-tertiary); }
 .dark .tab-item.active { background: var(--color-bg-secondary); }
 .dark .bottom-pill-bar {
-  background: rgba(10, 15, 26, 0.85);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 6px 16px rgba(0, 0, 0, 0.30),
-    0 18px 36px rgba(0, 0, 0, 0.36);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
 }
-.dark .bottom-pill-bar button.active { background: rgba(96, 165, 250, 0.14); }
 .dark .bottom-pill-bar button:hover:not(.active) { background: rgba(255, 255, 255, 0.05); }
 .dark input[type="range"] { background: transparent; }
 .dark input[type="text"], .dark input[type="number"], .dark input[type="email"], .dark input[type="tel"], .dark textarea, .dark select {

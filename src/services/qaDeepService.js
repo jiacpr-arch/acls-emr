@@ -1,8 +1,14 @@
 import { supabase, isSupabaseConfigured } from './supabase';
-import { qaDeepPage as staticPage, qaDeepItems as staticItems } from '../data/qaDeepContent';
+import { qaDeepPage as staticPage, qaDeepItems as staticItems, qaDeepChapters as staticChapters } from '../data/activeQaDeepContent';
+import { IS_ACLS, COURSE_MODE } from '../config/courseMode';
 
-const CACHE_KEY = 'acls_qa_deep_cache_v2';
-const CHAPTERS_CACHE_KEY = 'acls_qa_deep_chapters_cache_v1';
+// ตาราง acls_qa_deep_page/items/images และ acls_chapters ยังไม่มีคอลัมน์
+// course_mode (ต้อง migration เพิ่มก่อน — ดู PR notes) และเก็บเนื้อหา ACLS ล้วน
+// ฝั่ง BLS (และ skill courses ถ้ามีวันเปิดหน้านี้ให้) จึงใช้เนื้อหา static
+// (src/courses/bls-hcp/qaDeepContent.js) ตรง ๆ โดยไม่ query Supabase เลย — กัน
+// เนื้อหา ACLS หลุดมาโผล่ฝั่ง BLS โดยไม่มีทางแยกได้ว่าแถวไหนเป็นของคอร์สไหน
+const CACHE_KEY = `acls_qa_deep_cache_v2_${COURSE_MODE}`;
+const CHAPTERS_CACHE_KEY = `acls_qa_deep_chapters_cache_v1_${COURSE_MODE}`;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 6;
 
 function readCache(key) {
@@ -109,6 +115,7 @@ export async function fetchQaDeepChapters() {
 }
 
 export async function loadQaDeep() {
+  if (!IS_ACLS) return { source: 'static', page: staticPage, items: staticItems };
   const cached = readCache(CACHE_KEY);
   if (cached) {
     refreshInBackground();
@@ -124,6 +131,7 @@ export async function loadQaDeep() {
 }
 
 export async function loadQaDeepChapters() {
+  if (!IS_ACLS) return staticChapters;
   const cached = readCache(CHAPTERS_CACHE_KEY);
   if (cached) {
     refreshChaptersInBackground();

@@ -21,6 +21,21 @@ import DrugStep from './DrugStep';
 import TerminatedStep from './TerminatedStep';
 import { ShockStep } from './ShockControls';
 
+// AED verdict สำหรับ scenario ที่สคริปต์ไว้ล่วงหน้า (BLS drill) — รองรับทั้ง
+// `aedVerdict` เดี่ยว (ใช้ค่าเดียวกันทุกครั้งที่วิเคราะห์ — พฤติกรรมเดิม) และ
+// `aedPlan` แบบ array (ผลแต่ละรอบวิเคราะห์ต่างกันได้ เช่น shock รอบแรก แล้ว
+// no_shock รอบถัดไปจนกว่าจะ ROSC) นับจำนวนครั้งที่วิเคราะห์ไปแล้วจาก event
+// log จริง (ทุก verdict event มี "AED:" ในข้อความ) เพื่อเลือก index ที่ถูกต้อง
+function resolveAedVerdict(scenario) {
+  if (!scenario) return null;
+  const { aedPlan, aedVerdict } = scenario;
+  if (Array.isArray(aedPlan) && aedPlan.length > 0) {
+    const analyzed = useCaseStore.getState().events.filter(e => e.type?.includes('AED:')).length;
+    return aedPlan[Math.min(analyzed, aedPlan.length - 1)] ?? aedVerdict ?? null;
+  }
+  return aedVerdict ?? null;
+}
+
 // The wizard: renders the current step of the resuscitation state machine.
 // All transitions go through onGoStep/onEndCase owned by Recording.
 export default function StepRouter({ step, startMode, scenario, isTraining, onGoStep, onLog, onEndCase, onShock, onOpenLabs, onNavigateHistory }) {
@@ -51,6 +66,7 @@ export default function StepRouter({ step, startMode, scenario, isTraining, onGo
             <p>Normal breathing = has pulse → assess further</p>
             <p>Gasping or no breathing → check pulse → may need CPR</p>
           </TrainingHint>
+          <div className="text-caption text-text-secondary text-center font-medium mb-1">ประเมินผู้ป่วยแล้วพบว่า:</div>
           <div className="grid grid-cols-1 gap-3 w-full">
             <BigButton color="bg-danger" onClick={() => { log('other', '❌ Unresponsive + Not Breathing'); goStep(STEPS.CALL_FOR_HELP); }}>
               ❌ Unresponsive + Not Breathing
@@ -94,7 +110,8 @@ export default function StepRouter({ step, startMode, scenario, isTraining, onGo
           <TrainingHint show={isTraining}>
             <p>Carotid pulse check ≤10 seconds — if unsure, assume no pulse</p>
           </TrainingHint>
-          <div className="grid grid-cols-2 gap-4 w-full mt-4">
+          <div className="text-caption text-text-secondary text-center font-medium mt-3">คลำชีพจรแล้วพบว่า:</div>
+          <div className="grid grid-cols-2 gap-4 w-full mt-1">
             <BigButton color="bg-danger" onClick={() => { log('other', '❌ No Pulse — Cardiac Arrest'); if (!isRunning) startTimer(); goStep(STEPS.START_CPR); }}>❌ No Pulse</BigButton>
             <BigButton color="bg-success" onClick={() => { log('other', '✅ Pulse Present'); goStep(STEPS.PULSE_PRESENT); }}>✅ Pulse Present</BigButton>
           </div>
@@ -107,6 +124,7 @@ export default function StepRouter({ step, startMode, scenario, isTraining, onGo
         <StepCard phase="Assessment" phaseColor="text-success" icon={HeartPulse} title="Pulse Present"
           subtitle="Assess heart rate and condition"
           instructions={['Check monitor or count pulse for 6 sec × 10', 'If not breathing adequately → Rescue breathing', 'Attach monitor if not done']}>
+          <div className="text-caption text-text-secondary text-center font-medium mb-1">ประเมินอัตราการเต้นหัวใจแล้วพบว่า:</div>
           <div className="grid grid-cols-1 gap-3 w-full">
             <BigButton color="bg-info" onClick={() => { if (!isRunning) startTimer(); log('other', '🐢 Bradycardia'); goStep(STEPS.PULSE_BRADYCARDIA); }}>🐢 Bradycardia (HR &lt; 50)</BigButton>
             <BigButton color="bg-success" onClick={() => { if (!isRunning) startTimer(); log('other', '✅ Normal rate'); goStep(STEPS.PULSE_NORMAL); }}>✅ Normal (HR 50-150)</BigButton>
@@ -162,7 +180,7 @@ export default function StepRouter({ step, startMode, scenario, isTraining, onGo
       if (IS_BLS) {
         return <AEDPanel
           mode="initial"
-          scenarioVerdict={scenario?.aedVerdict || null}
+          scenarioVerdict={resolveAedVerdict(scenario)}
           onShockDelivered={() => goStep(STEPS.CPR_CYCLE)}
           onNoShock={() => goStep(STEPS.CPR_CYCLE)}
           onROSC={() => onEndCase('ROSC')}
@@ -196,7 +214,7 @@ export default function StepRouter({ step, startMode, scenario, isTraining, onGo
       if (IS_BLS) {
         return <AEDPanel
           mode="recheck"
-          scenarioVerdict={scenario?.aedVerdict || null}
+          scenarioVerdict={resolveAedVerdict(scenario)}
           onShockDelivered={() => goStep(STEPS.CPR_CYCLE)}
           onNoShock={() => goStep(STEPS.CPR_CYCLE)}
           onROSC={() => onEndCase('ROSC')}
