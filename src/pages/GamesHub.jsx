@@ -5,6 +5,7 @@ import { useSettingsStore } from '../stores/settingsStore';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';
 import { t } from '../utils/i18n';
+import { IS_BLS } from '../config/courseMode';
 import PageHero from '../components/PageHero';
 import GameHighlightCard from '../components/GameHighlightCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
@@ -26,7 +27,7 @@ export default function GamesHub() {
 
   return (
     <div className="page-container flex flex-col gap-4 pb-24">
-      <PageHero title={t('games', lang)} desc={t('games_subtitle', lang)} />
+      <PageHero title={t('games', lang)} desc={IS_BLS ? 'เรียน BLS แบบสนุก — เล่นเกม ฝึกซ้อม แข่งอันดับ' : t('games_subtitle', lang)} />
 
       {/* อยู่ในคลาส: บอกว่ากำลังบันทึกผลในชื่อใคร — เกมนอกคลาสไม่มี leaderboard ให้บันทึก
           จึงไม่ต้องกวนนักเรียนที่เล่นเดี่ยว/ออฟไลน์ให้ลงทะเบียน */}

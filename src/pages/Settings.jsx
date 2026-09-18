@@ -7,13 +7,14 @@ import {
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import PageHero from '../components/PageHero';
+import { courseMeta } from '../config/courseMode';
 
 export default function Settings() {
   const settings = useSettingsStore();
 
   return (
     <div className="page-container flex flex-col gap-4">
-      <PageHero title="Settings" desc="Personalise your ACLS recorder" />
+      <PageHero title="Settings" desc={`Personalise your ${courseMeta.shortName} recorder`} />
 
       {/* Mode */}
       <SettingSection title="Mode">

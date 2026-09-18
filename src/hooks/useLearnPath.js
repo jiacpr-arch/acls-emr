@@ -16,8 +16,11 @@ import { useVideoLessons } from './useVideoLessons';
 // และการ์ด "เรียนต่อ" บนหน้าแรก (NewCase) จะได้ไม่มี logic ซ้ำสองที่
 const PATH_STEPS = IS_BLS
   ? [
+      { key: 'preTest', path: '/pre-course/pre-test', label: 'Pre-test' },
       { key: 'lessons', path: '/pre-course', label: 'บทเรียน + Quiz' },
       { key: 'video', path: '/video-lessons', label: 'วิดีโอบทเรียน' },
+      { key: 'postTest', path: '/pre-course/post-test', label: 'Post-test' },
+      { key: 'cert', path: '/certification', label: 'รับใบประกาศนียบัตร' },
     ]
   : IS_SKILL_COURSE
   ? [

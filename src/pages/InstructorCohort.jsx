@@ -11,7 +11,7 @@ import {
 import {
   POST_TEST_LESSON_ID, POST_TEST_PASS_PERCENT,
 } from '../data/activePostTest';
-import { IS_ACLS, IS_SKILL_COURSE } from '../config/courseMode';
+import { IS_ACLS, IS_BLS, IS_SKILL_COURSE } from '../config/courseMode';
 
 // ACLS และ 3 คอร์สทักษะเดี่ยว (airway/defib/iv) มี pre-test — มีแค่ BLS เท่านั้นที่ไม่มี
 const HAS_PRE_TEST = IS_ACLS || IS_SKILL_COURSE;
@@ -30,7 +30,7 @@ import {
 import {
   ChevronLeft, ChevronDown, Users, Download, FileText, Trash, Sparkles, Award,
   Cloud, CloudOff, RefreshCw, Copy, Check, Plus, KeyRound,
-  Link as LinkIcon, Eye, EyeOff, ShieldCheck, Maximize2,
+  Link as LinkIcon, Eye, EyeOff, ShieldCheck, Maximize2, CalendarClock,
 } from 'lucide-react';
 
 // หน้ายาวมากจนอาจารย์เลื่อนหาไม่ไหวหน้างานจริง — แบ่งเป็นแท็บ โดยเนื้อหาแท็บ
@@ -365,10 +365,19 @@ export default function InstructorCohort() {
 
   return (
     <div className="page-container space-y-4">
-      <button onClick={() => navigate('/pre-course')}
-        className="btn btn-ghost btn-sm">
-        <ChevronLeft size={14} strokeWidth={2.2} /> กลับไป Pre-course
-      </button>
+      <div className="flex items-center gap-2">
+        <button onClick={() => navigate('/pre-course')}
+          className="btn btn-ghost btn-sm">
+          <ChevronLeft size={14} strokeWidth={2.2} /> กลับไป Pre-course
+        </button>
+        <div className="flex-1" />
+        {(IS_BLS || IS_ACLS) && (
+          <button onClick={() => navigate('/pre-course/schedule')}
+            className="btn btn-ghost btn-sm">
+            <CalendarClock size={14} strokeWidth={2.2} /> ตารางวันนี้
+          </button>
+        )}
+      </div>
 
       <div className="flex items-center gap-3">
         <div className="w-11 h-11 inline-flex items-center justify-center bg-info/15 text-info"

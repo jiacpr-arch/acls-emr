@@ -34,7 +34,7 @@ export async function requireAdmin(req, { getUser } = {}) {
     throw err;
   }
   const token = auth.slice('Bearer '.length).trim();
-  const resolveUser = getUser || ((t) => getSupabaseAdmin().auth.getUser(t));
+  const resolveUser = getUser || defaultResolveUser();
   const { data, error } = await resolveUser(token);
   if (error || !data?.user) {
     const err = new Error('Invalid or expired session');
@@ -48,4 +48,26 @@ export async function requireAdmin(req, { getUser } = {}) {
     throw err;
   }
   return data.user;
+}
+
+// A deployment missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY is a config
+// problem, not a rejected login. getSupabaseAdmin throws a plain Error (no
+// `.status`), so handlers doing `res.status(err.status || 401)` would report a
+// misconfigured deploy as 401 and echo the raw internal message to the browser
+// — which reads as "your session is bad" and sends the admin chasing the wrong
+// thing. Tag it 503 with an actionable message instead; the detail stays in the
+// server log.
+function defaultResolveUser() {
+  let admin;
+  try {
+    admin = getSupabaseAdmin();
+  } catch (err) {
+    console.error('requireAdmin:', err.message);
+    const e = new Error(
+      'เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า Supabase service role key — ผู้ดูแลระบบต้องเพิ่ม env var ให้ deployment นี้'
+    );
+    e.status = 503;
+    throw e;
+  }
+  return (t) => admin.auth.getUser(t);
 }

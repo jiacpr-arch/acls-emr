@@ -11,7 +11,11 @@ export const peaHyperK = {
   story: [
     { say: { who: 'nurse_mint', pose: 'panic', text: 'อาจารย์! ป้าเตียง 5 เรียกไม่รู้สึกตัวแล้วค่ะ! เมื่อกี้ยังบ่นเหนื่อยอยู่เลย!' }, t: 5 },
     { inter: 'CODE BLUE!!', drama: 'red', t: 0 },
-    { say: { who: 'att_dech', pose: 'stern', text: 'เคสนี้ไม่ธรรมดา… <span class="cbs-em">ป้าเป็น CKD</span> คุณคือ Team Leader — เริ่มได้' }, t: 5 },
+    {
+      say: { who: 'att_dech', pose: 'stern', text: 'เคสนี้ไม่ธรรมดา… <span class="cbs-em">ป้าเป็น CKD</span> คุณคือ Team Leader — เริ่มได้' },
+      evid: { id: 'hx_ckd', name: 'ประวัติ: CKD ระยะสุดท้าย', icon: '📋', desc: 'ไตวายเรื้อรังระยะสุดท้าย ต้องฟอกไตประจำ' },
+      t: 5,
+    },
     {
       choice: {
         q: 'คำสั่งแรก',
@@ -72,13 +76,46 @@ export const peaHyperK = {
           {
             tgt: 'YOU', label: 'ถามญาติ + ส่ง POCT: โพแทสเซียม/gas ด่วน', ok: true,
             then: [
-              { say: { who: 'nurse_mint', pose: 'talk', text: 'ญาติบอกว่า… <span class="cbs-em">"ป้าไม่ได้ไปฟอกไตมาอาทิตย์นึงแล้วค่ะ"</span>' }, t: 8 },
-              { say: { who: 'fon_defib', pose: 'panic', text: 'POCT ออกแล้ว! <span class="cbs-em">K = 7.8 mEq/L</span> — และ ECG เก่ามี peaked T, QRS กว้าง!' }, t: 6 },
-              { inter: 'HYPERKALEMIA!', drama: 'red', t: 4 },
+              {
+                say: { who: 'nurse_mint', pose: 'talk', text: 'ญาติบอกว่า… <span class="cbs-em">"ป้าไม่ได้ไปฟอกไตมาอาทิตย์นึงแล้วค่ะ"</span>' },
+                evid: { id: 'hx_no_hd', name: 'คำบอกเล่าญาติ: ขาดฟอกไต 1 สัปดาห์', icon: '🗣', desc: '"ป้าไม่ได้ไปฟอกไตมาอาทิตย์นึงแล้ว" — ของเสียและโพแทสเซียมคั่งสะสม' },
+                t: 8,
+              },
+              { say: { who: 'fon_defib', pose: 'panic', text: 'POCT ออกแล้วค่ะ! อาจารย์ต้องดูค่านี้เดี๋ยวนี้!' }, t: 4 },
+              {
+                doc: { key: 'poct_k_high', kind: 'lab', caption: 'POCT: K = 7.8 mEq/L' },
+                evid: { id: 'poct_k', name: 'POCT: K = 7.8 mEq/L', icon: '🧪', desc: 'โพแทสเซียมสูงวิกฤต — เข้าได้กับ CKD ที่ขาดฟอกไต หัวใจหยุดเต้นได้จากค่านี้โดยตรง' },
+                t: 6,
+              },
+              {
+                say: { who: 'fon_defib', pose: 'stern', text: 'และ ECG เก่าในแฟ้ม… <span class="cbs-em">peaked T สูงแหลม QRS กว้าง</span>!' },
+                evid: { id: 'ecg_peaked_t', name: 'ECG เก่า: peaked T + QRS กว้าง', icon: '📈', desc: 'ลายเซ็นของ hyperkalemia บนคลื่นไฟฟ้าหัวใจ' },
+                t: 4,
+              },
             ],
           },
           { tgt: 'DEFIB', label: 'ลอง shock ดูสักครั้งเผื่อได้ผล', ok: false, why: 'PEA ยัง non-shockable — และยังไม่ได้หาสาเหตุ', worsen: true },
           { tgt: 'DRUG', label: 'ให้ Epi 5 mg เพิ่มขนาดให้แรง', ok: false, why: 'ขนาดผิด (Epi 1 mg เสมอ) และไม่แก้ต้นเหตุ' },
+        ],
+      },
+    },
+    {
+      say: { who: 'att_dech', pose: 'stern', text: 'หลักฐานทั้งหมดอยู่ในมือคุณแล้ว… <span class="cbs-em">อะไรคือสาเหตุที่หยุดหัวใจป้า</span> — เปิดแฟ้ม แล้วชี้มา!' },
+      t: 4,
+    },
+    {
+      present: {
+        q: 'หลักฐานไหนชี้สาเหตุของ arrest ครั้งนี้?',
+        correct: 'poct_k',
+        hint: 'สาเหตุต้องเป็นสิ่งที่ "ยืนยันได้เป็นตัวเลข" — ค่าที่เพิ่งออกจากเครื่อง',
+        why: {
+          hx_ckd: 'CKD คือพื้นหลังของเรื่อง — แต่ยังไม่บอกว่า "วันนี้" อะไรหยุดหัวใจป้า',
+          hx_no_hd: 'ใบ้ทางถูกแล้ว! แต่คำบอกเล่ายังไม่ใช่หลักฐานยืนยัน — หาตัวเลขมาชี้',
+          ecg_peaked_t: 'เข้าเค้า hyperK มาก — แต่ ECG เก่าเป็นแค่เงา ตัวจริงคือผลเลือดที่เพิ่งออก',
+        },
+        then: [
+          { inter: 'HYPERKALEMIA!', who: 'att_dech', pose: 'stern', drama: 'red', t: 4 },
+          { say: { who: 'att_dech', pose: 'happy', text: 'ใช่! <span class="cbs-em">K 7.8 ในคน CKD ที่ขาดฟอกไต</span> — นี่แหละสาเหตุที่ต้องแก้ ไม่งั้นกดทั้งวันก็ไม่กลับมา' }, t: 4 },
         ],
       },
     },

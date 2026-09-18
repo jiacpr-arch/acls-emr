@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LEVELS } from '../data/recorderGameLevels';
-import { CASE_PACKS } from '../data/recorderCases';
+import { LEVELS } from '../data/activeRecorderLevels';
+import { CASE_PACKS } from '../data/activeRecorderCases';
 import { loadProgress, isUnlocked, getTotalStars } from '../utils/recorderGameProgress';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { useClassStore } from '../stores/classStore';

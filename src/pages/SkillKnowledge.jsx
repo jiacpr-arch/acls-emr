@@ -18,7 +18,7 @@ const CALLOUT = {
   objective: { label: 'วัตถุประสงค์การเรียนรู้', Icon: Target, color: 'var(--color-info)' },
   pearl: { label: 'Clinical Pearl', Icon: Lightbulb, color: 'var(--color-success)' },
   warning: { label: 'กับดัก / ข้อควรระวัง', Icon: AlertTriangle, color: 'var(--color-warning)' },
-  case: { label: 'กรณีศึกษา', Icon: Stethoscope, color: courseMeta.themeColor },
+  case: { label: 'กรณีศึกษา', Icon: Stethoscope, color: 'var(--color-accent)' },
   summary: { label: 'สรุปประเด็นสำคัญ', Icon: ClipboardCheck, color: 'var(--color-danger)' },
   evidence: { label: 'หลักฐาน / แนวทาง', Icon: BookMarked, color: '#7C3AED' },
 };
@@ -55,11 +55,16 @@ function SectionInner({ s, accent }) {
       )}
       {s.qa?.length > 0 && (
         <div className={s.heading || s.body || s.images?.length ? 'mt-3' : ''}>
-          <QASection qa={s.qa} accent={accent || courseMeta.themeColor} />
+          <QASection qa={s.qa} accent={accent || 'var(--color-accent)'} />
         </div>
       )}
     </>
   );
+}
+
+// ผสมความโปร่งใสให้สี accent (รองรับทั้ง hex literal และ var(--color-accent))
+function withAlpha(color, percent) {
+  return `color-mix(in srgb, ${color} ${percent}%, transparent)`;
 }
 
 function Section({ s }) {
@@ -111,7 +116,7 @@ export default function SkillKnowledge() {
         <button
           onClick={toggleAll}
           className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold"
-          style={{ background: `${courseMeta.themeColor}18`, color: courseMeta.themeColor }}
+          style={{ background: withAlpha('var(--color-accent)', 9), color: 'var(--color-accent)' }}
         >
           <ChevronDown
             size={15}
@@ -131,11 +136,11 @@ export default function SkillKnowledge() {
             <div
               key={ch.id}
               className={`chapter-card ${isOpen ? 'is-open' : ''}`}
-              style={isOpen ? { borderColor: `${courseMeta.themeColor}55` } : undefined}
+              style={isOpen ? { borderColor: withAlpha('var(--color-accent)', 33) } : undefined}
             >
               <span
                 className="chapter-card-stripe"
-                style={{ background: courseMeta.themeColor }}
+                style={{ background: 'var(--color-accent)' }}
               />
               <button
                 onClick={() => toggleCh(ch.id)}
@@ -143,18 +148,18 @@ export default function SkillKnowledge() {
               >
                 <div
                   className="chapter-icon-tile text-2xl"
-                  style={{ background: `${courseMeta.themeColor}15` }}
+                  style={{ background: withAlpha('var(--color-accent)', 8) }}
                 >
                   {ch.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="chapter-num-tag" style={{ color: courseMeta.themeColor }}>
+                  <div className="chapter-num-tag" style={{ color: 'var(--color-accent)' }}>
                     บทที่ {chapterNum}
                   </div>
                   <span className="chapter-title">{cleanTitle}</span>
                   <span
                     className="chapter-meta-pill"
-                    style={{ background: `${courseMeta.themeColor}18`, color: courseMeta.themeColor }}
+                    style={{ background: withAlpha('var(--color-accent)', 9), color: 'var(--color-accent)' }}
                   >
                     <BookOpen size={11} strokeWidth={2.4} />
                     {ch.sections.length} หัวข้อ

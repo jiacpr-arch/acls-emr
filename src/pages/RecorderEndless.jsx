@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CASE_CATEGORY_META, CASES, pickRandomCase, caseToLevel,
-} from '../data/recorderCases';
+} from '../data/activeRecorderCases';
 import { loadPlayablePool } from '../services/recorderCaseService';
 import { LivePlay } from './RecorderGamePlay';
 import Instructor from '../components/sim/Instructor';
@@ -232,7 +232,8 @@ export default function RecorderEndless() {
   return (
     <div className="relative">
       <LivePlay key={current.id} level={caseToLevel(current)} onFinish={handleCaseFinish}
-        hudLabel={`เคส ${cleared + 1} · ❤×${livesLeft}`} />
+        hudLabel={`เคส ${cleared + 1} · ❤×${livesLeft}`}
+        readyMode={cleared > 0 ? 'none' : 'countdown'} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ERROR_TYPES, ERROR_TYPE_META } from '../../data/recorderGameLevels';
+import { ERROR_TYPES, ERROR_TYPE_META } from '../../data/activeRecorderLevels';
 import { RATINGS, RATING_META } from '../../utils/recorderGameScore';
 import CharacterSprite from '../../game/CharacterSprite';
 import { Star, Trophy, RefreshCw, ChevronRight, Home } from 'lucide-react';

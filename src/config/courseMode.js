@@ -111,6 +111,10 @@ const COURSE_META = {
 
 export const courseMeta = COURSE_META[MODE];
 
+// เส้นทางหน้า Q&A เชิงลึก — /qa-acls-deep (ACLS, path เดิม) กับ /qa-deep (BLS,
+// เนื้อหา static — ดู src/services/qaDeepService.js) เป็นคนละ route กัน
+export const QA_DEEP_PATH = IS_BLS ? '/qa-deep' : '/qa-acls-deep';
+
 // Explicit N-way switch — used at new call sites instead of chained ternaries.
 // Throws at build/run time if a branch is missing, instead of silently
 // falling through to the ACLS branch the way `IS_BLS ? x : y` does.
