@@ -12,7 +12,7 @@ import { track } from '../services/analytics';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
 import LessonVideos from '../components/precourse/LessonVideos';
-import LessonImages from '../components/precourse/LessonImages';
+import LessonImages, { Figure } from '../components/precourse/LessonImages';
 import ReadBody from '../components/precourse/ReadBody';
 import { fetchPreCourseMedia } from '../services/precourseImageService';
 import {
@@ -225,14 +225,19 @@ export default function LessonReader() {
 
       {/* Current step */}
       {!isOnSummary && step?.type === 'read' && (() => {
-        const stepImages = [...(step.images ?? []), ...(imagesByStep[step.id] ?? [])];
+        const stepImages = [...(step.images ?? []), ...(imagesByStep[step.id] ?? [])]
+          .filter(img => img.src);
         const stepVideos = [...(step.videos ?? []), ...(videosByStep[step.id] ?? [])];
+        // รูปแรก (hero) ขึ้นก่อนเนื้อหาเป็น advance organizer — ช่วยให้นักเรียนเห็นภาพรวม
+        // ก่อนอ่าน (Eitel & Scheiter, 2015); รูปที่เหลือยังอยู่ท้ายเนื้อหาเหมือนเดิม
+        const [heroImage, ...restImages] = stepImages;
         return (
           <section className="dash-card space-y-3 !p-5">
             <div className="text-headline text-info">{step.heading}</div>
+            {heroImage && <Figure img={heroImage} fallbackAlt={step.heading} />}
             <ReadBody body={step.body} />
-            {stepImages.length > 0 && (
-              <LessonImages images={stepImages} fallbackAlt={step.heading} />
+            {restImages.length > 0 && (
+              <LessonImages images={restImages} fallbackAlt={step.heading} />
             )}
             {stepVideos.length > 0 && (
               <div className="pt-1">

@@ -9,7 +9,7 @@ import { fetchPreCourseMedia, addPreCourseVideo } from '../services/precourseIma
 import ImageManager from '../components/admin/ImageManager';
 import VideoManager from '../components/admin/VideoManager';
 import ReadBody from '../components/precourse/ReadBody';
-import LessonImages from '../components/precourse/LessonImages';
+import LessonImages, { Figure } from '../components/precourse/LessonImages';
 import LessonVideos from '../components/precourse/LessonVideos';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 
@@ -148,16 +148,21 @@ export default function AdminPreCourseImages() {
           </div>
 
           {/* read step — preview เหมือนนักเรียน + แผงจัดการสื่อ */}
-          {step?.type === 'read' && (
+          {step?.type === 'read' && (() => {
+            const stepImages = (imagesByStep[step.id] ?? []).filter(img => img.src);
+            // รูปแรก (hero) ขึ้นก่อนเนื้อหา — ต้องตรงกับลำดับใน LessonReader ให้เป๊ะ
+            const [heroImage, ...restImages] = stepImages;
+            return (
             <>
               <section className="dash-card space-y-3 !p-5">
                 <div className="inline-flex items-center gap-1.5 text-2xs font-bold text-text-muted">
                   <Eye size={12} strokeWidth={2.2} /> มุมมองนักเรียน
                 </div>
                 <div className="text-headline text-info">{step.heading}</div>
+                {heroImage && <Figure img={heroImage} fallbackAlt={step.heading} />}
                 <ReadBody body={step.body} />
-                {imagesByStep[step.id]?.length > 0 && (
-                  <LessonImages images={imagesByStep[step.id]} fallbackAlt={step.heading} />
+                {restImages.length > 0 && (
+                  <LessonImages images={restImages} fallbackAlt={step.heading} />
                 )}
                 {videosByStep[step.id]?.length > 0 && (
                   <div className="pt-1">
@@ -184,7 +189,8 @@ export default function AdminPreCourseImages() {
                 />
               </section>
             </>
-          )}
+            );
+          })()}
 
           {/* quiz step — โชว์คำถามให้เห็นบริบท (อ่านอย่างเดียว ไม่มีสื่อ) */}
           {step?.type === 'quiz' && (

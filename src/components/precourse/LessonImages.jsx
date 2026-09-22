@@ -2,7 +2,8 @@ import { Download, ImageIcon } from 'lucide-react';
 import { useLongPressDownload } from '../../hooks/useLongPressDownload';
 
 // รูปประกอบใต้เนื้อหา read step — ใช้แพตเทิร์น Figure เดียวกับ QASection (lazy + caption + กดค้างดาวน์โหลด)
-function Figure({ img, fallbackAlt }) {
+// export ไว้ให้ใช้เดี่ยว ๆ ได้ (เช่น hero image ก่อนเนื้อหา ใน LessonReader/AdminPreCourseImages)
+export function Figure({ img, fallbackAlt }) {
   const press = useLongPressDownload(img.src, img.alt || fallbackAlt);
   const { style, ...handlers } = press;
   return (
