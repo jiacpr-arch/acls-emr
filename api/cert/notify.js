@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
 import { sendCertNotification } from '../_lib/lineNotify.js';
 import { enforceRateLimit } from '../_lib/rateLimit.js';
+import { passportConfig, readPassport } from '../_lib/passportSession.js';
 
 export const config = { maxDuration: 10 };
 
@@ -24,7 +25,17 @@ export default async function handler(req, res) {
 
   const body = typeof req.body === 'string' ? safeJson(req.body) : (req.body || {});
 
-  const studentName = String(body.studentName || '').trim().slice(0, MAX_NAME_LEN);
+  // Optional JIA account (Hub passport cookie, see api/_lib/passportSession.js): tie the record to
+  // the real person and use the Hub's name — but only when the browser says this cert belongs to
+  // that same account (hubSub), so a passport left logged in on a shared device never lands on
+  // someone else's certificate. Never required: old cached bundles send no hubSub and work as before.
+  const claims = typeof body.hubSub === 'string' && body.hubSub
+    ? await readPassport(req, passportConfig())
+    : null;
+  const hubUserId = claims && claims.sub === body.hubSub ? claims.sub : null;
+  const verifiedName = hubUserId ? String(claims.name_th || '').trim().slice(0, MAX_NAME_LEN) : '';
+
+  const studentName = verifiedName || String(body.studentName || '').trim().slice(0, MAX_NAME_LEN);
   const studentPhone = String(body.studentPhone || '').trim().slice(0, 20);
   const studentEmail = String(body.studentEmail || '').trim().slice(0, 120);
   const certId = String(body.certId || '').trim().slice(0, 60);
@@ -48,18 +59,23 @@ export default async function handler(req, res) {
   let recorded = false;
   try {
     const supabase = getSupabaseAdmin();
-    const { error } = await supabase
-      .from('certificates')
-      .upsert({
-        cert_id: certId,
-        student_name: studentName,
-        student_phone: studentPhone || null,
-        student_email: studentEmail || null,
-        course_mode: course,
-        pre_test_score: preTestScore,
-        post_test_score: postTestScore,
-        ekg_passed: ekgPassed,
-      }, { onConflict: 'cert_id', ignoreDuplicates: true });
+    const row = {
+      cert_id: certId,
+      student_name: studentName,
+      student_phone: studentPhone || null,
+      student_email: studentEmail || null,
+      course_mode: course,
+      pre_test_score: preTestScore,
+      post_test_score: postTestScore,
+      ekg_passed: ekgPassed,
+    };
+    const insert = (r) => supabase.from('certificates').upsert(r, { onConflict: 'cert_id', ignoreDuplicates: true });
+    let { error } = await insert(hubUserId ? { ...row, hub_user_id: hubUserId } : row);
+    // hub_user_id arrives with supabase-cleanup/hub-passport.sql — until that is applied, still
+    // record the certificate itself rather than dropping it.
+    if (error && hubUserId && (error.code === '42703' || error.code === 'PGRST204')) {
+      ({ error } = await insert(row));
+    }
     recorded = !error;
   } catch { /* Supabase not configured — skip silently */ }
 
@@ -77,7 +93,7 @@ export default async function handler(req, res) {
 
   // Best-effort: even if LINE/Supabase isn't configured or fails, the cert was
   // still issued client-side — don't surface a hard error to the student.
-  return res.status(200).json({ ...result, recorded });
+  return res.status(200).json({ ...result, recorded, verified: !!hubUserId });
 }
 
 function numOrNull(v) {

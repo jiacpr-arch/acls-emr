@@ -8,6 +8,7 @@ import {
   rpcSubmitCodeBlueResult,
   rpcSubmitRecorderResult,
 } from './cohortSync';
+import { getPassportState, loadPassport, bindPassportStudent } from './passport';
 
 // In-memory flush state — single global engine.
 let flushing = false;
@@ -54,6 +55,7 @@ async function flush() {
   flushing = true;
   try {
     await flushStudents(ctx);
+    await flushPassportBinds(ctx);
     await flushLessonProgress();
     await flushQuizAttempts();
     // ผลเกมไปท้ายสุด: ไม่ gate ใบประกาศ จึงไม่ควรไปหน่วงบทเรียน/ควิซที่ gate
@@ -121,6 +123,32 @@ async function flushStudents(ctx) {
       await db.students.update(row.id, { syncedAt: new Date().toISOString() });
     }
     await clearFailure(gate, row.id);
+  }
+}
+
+// Optional JIA account: a student who confirmed it in StudentIdentityModal has hubSub on their
+// record; once the record is on the server, link it there (api/passport/bind). Only rows of the
+// account logged in on this device right now — the server re-checks that (expectedSub), so a
+// passport someone else left on a shared device is never bound to this student.
+const PERMANENT_BIND_ERRORS = new Set(['bound_to_other', 'account_in_use', 'not_synced', 'class_not_found', 'bad_request']);
+async function flushPassportBinds(ctx) {
+  const rows = await db.students.filter(r => !!r.hubSub && !r.hubBoundAt && !r.hubBindError && !!r.syncedAt).toArray();
+  if (!rows.length) return;
+  const passport = getPassportState().loaded ? getPassportState() : await loadPassport();
+  if (!passport.loggedIn) return;
+  const gate = await loadFailureGate('passportBind');
+  for (const row of rows) {
+    if (row.hubSub !== passport.profile.sub || gate.blocked.has(String(row.id))) continue;
+    const res = await bindPassportStudent({ classCode: ctx.classCode, studentPk: row.id, expectedSub: row.hubSub });
+    if (res.ok) {
+      await db.students.update(row.id, { hubBoundAt: new Date().toISOString() });
+      await clearFailure(gate, row.id);
+    } else if (PERMANENT_BIND_ERRORS.has(res.reason)) {
+      await db.students.update(row.id, { hubBindError: res.reason });
+      await clearFailure(gate, row.id);
+    } else {
+      await recordFailure('passportBind', row.id, new Error(res.reason || 'bind_failed'));
+    }
   }
 }
 

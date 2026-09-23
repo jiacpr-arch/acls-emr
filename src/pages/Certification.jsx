@@ -16,6 +16,7 @@ import { rpcJoinClass, rpcGetMyPracticalStatus } from '../services/cohortSync';
 import { exportCertificatePDF } from '../utils/exportCertificate';
 import { simCertHighlights, ACHIEVEMENTS } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
+import { usePassport } from '../hooks/usePassport';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
 import {
@@ -57,6 +58,12 @@ export default function Certification() {
   const [studentEmail, setStudentEmail] = useState(certData.studentEmail || activeStudent?.email || '');
   const [formError, setFormError] = useState('');
   const [downloadError, setDownloadError] = useState('');
+  // Optional JIA account: when this student confirmed their JIA login (StudentIdentityModal →
+  // hubSub) and that same account is still logged in, the certificate uses the Hub's name as-is.
+  const passport = usePassport();
+  const verified = passport.loggedIn && activeStudent?.hubSub && activeStudent.hubSub === passport.profile?.sub
+    ? passport.profile : null;
+  const verifiedName = (verified?.nameTh || '').trim();
   // Soft gate: ปลดล็อกปุ่มดาวน์โหลดเมื่อกดเพิ่มเพื่อน LINE OA (หรือกดข้าม) — จำค่าไว้ข้าม refresh
   const [lineUnlocked, setLineUnlocked] = useState(!!certData.lineFollowed);
   const ekgTestDone = localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
@@ -201,7 +208,7 @@ export default function Certification() {
   const progress = Math.round((requirements.filter(r => r.done).length / requirements.length) * 100);
 
   const generateCertificate = async () => {
-    const name = studentName.trim();
+    const name = verifiedName || studentName.trim();
     const tel = studentPhone.trim();
     const mail = studentEmail.trim().toLowerCase();
     if (!name) { setFormError('กรุณากรอกชื่อ'); return; }
@@ -247,6 +254,7 @@ export default function Certification() {
       preTestScore: data.preTestScore,
       postTestScore: data.postTestScore,
       ekgPassed: data.ekgPassed,
+      hubSub: verified?.sub || null,
     });
   };
 
@@ -521,10 +529,16 @@ export default function Certification() {
           </p>
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">ชื่อ–นามสกุล (บนใบประกาศ)</span>
-            <input type="text" value={studentName}
+            <input type="text" value={verifiedName || studentName}
               onChange={e => setStudentName(e.target.value)}
+              readOnly={!!verifiedName}
               placeholder="เช่น อนันต์ ใจดี"
-              className="w-full text-body mt-1" />
+              className={`w-full text-body mt-1${verifiedName ? ' opacity-80' : ''}`} />
+            {verifiedName && (
+              <span className="text-2xs text-text-muted inline-flex items-center gap-1 mt-1">
+                <Shield size={12} strokeWidth={2.4} /> ชื่อจากบัญชี JIA{verified.cardNo ? ` (บัตร ${verified.cardNo})` : ''} — แก้ไขได้ที่ class.jiacpr.com/account
+              </span>
+            )}
           </label>
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">เบอร์โทร</span>
@@ -547,7 +561,7 @@ export default function Certification() {
             </div>
           )}
           <button onClick={generateCertificate}
-            disabled={!studentName.trim() || !studentPhone.trim() || !studentEmail.trim()}
+            disabled={!(verifiedName || studentName.trim()) || !studentPhone.trim() || !studentEmail.trim()}
             className="btn btn-success btn-lg btn-block disabled:opacity-40">
             <Trophy size={16} strokeWidth={2.4} /> ออกใบประกาศนียบัตร
           </button>

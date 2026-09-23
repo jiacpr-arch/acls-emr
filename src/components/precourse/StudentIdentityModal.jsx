@@ -8,7 +8,9 @@ import { scheduleFlush } from '../../services/syncEngine';
 import { rpcGetStudentProgress } from '../../services/cohortSync';
 import { restoreCodeBlueProgress } from '../../game/progressSync';
 import { track, identifyStudent } from '../../services/analytics';
-import { User, X, Check, AlertCircle } from 'lucide-react';
+import { usePassport } from '../../hooks/usePassport';
+import { startPassportLogin, logoutPassport, clearPassportReturnFlag } from '../../services/passport';
+import { User, X, Check, AlertCircle, ShieldCheck, LogIn } from 'lucide-react';
 
 export default function StudentIdentityModal({ open, onClose, onConfirm }) {
   const setActiveStudent = usePreCourseStore(s => s.setActiveStudent);
@@ -25,6 +27,11 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  // Optional JIA account (Hub). Logged in → the name comes from the Hub (verified, not editable
+  // here) and the record gets hubSub, which the sync engine binds to the server roster row.
+  const passport = usePassport();
+  const verified = passport.loggedIn ? passport.profile : null;
+  const verifiedName = (verified?.nameTh || '').trim();
 
   // เปิด modal ครั้งใหม่: เติมค่าจากคนที่ลงทะเบียนไว้แล้ว (ปุ่ม "เปลี่ยน") —
   // ไม่งั้นฟอร์มว่างแล้วผู้ใช้กดยืนยันจะกลายเป็นสร้างคนใหม่ซ้อนคนเดิม
@@ -44,7 +51,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
 
   const submit = async (e) => {
     e?.preventDefault();
-    const n = name.trim();
+    const n = verifiedName || name.trim();
     // ลีกออนไลน์: ใช้รหัสผู้เล่นเดิมที่กรอกมา (เล่นต่อจากเครื่องอื่น)
     // หรือสุ่มรหัสใหม่ให้เลย — ไม่มีการกรอกรหัสนักเรียนเอง
     const enteredSid = studentId.trim().toUpperCase();
@@ -104,9 +111,14 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
       // Email is no longer collected here — it's gathered later at the
       // certificate step. Preserve any value a returning student already had.
       const unchanged = existing && existing.name === n && existing.phone === (tel || null);
+      // A new/different JIA account on this record (or a retry after a failed bind) → (re)bind on
+      // the next sync. Not logged in now keeps whatever the record already had.
+      const hubFields = verified && (existing?.hubSub !== verified.sub || existing?.hubBindError)
+        ? { hubSub: verified.sub, hubBoundAt: null, hubBindError: null }
+        : {};
       const record = existing
-        ? { ...existing, name: n, phone: tel || null, syncedAt: unchanged ? existing.syncedAt : null }
-        : { id: uuidv4(), studentId: sid || null, name: n, phone: tel || null, email: null, createdAt: new Date().toISOString() };
+        ? { ...existing, name: n, phone: tel || null, syncedAt: unchanged ? existing.syncedAt : null, ...hubFields }
+        : { id: uuidv4(), studentId: sid || null, name: n, phone: tel || null, email: null, createdAt: new Date().toISOString(), ...hubFields };
       await upsertStudent(record);
       // นับเฉพาะแถวที่ "เพิ่มเข้ามาจริง" — เดิม !!restored หมายถึงเครื่องนี้ไม่มี
       // record มาก่อน แต่ตอนนี้ดึงทุกครั้งแล้ว ต้องแยกว่าได้ของใหม่มาหรือเปล่า
@@ -121,7 +133,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
       // ใช้ UUID เป็น distinct id — ไม่ส่งชื่อ/เบอร์โทร (PDPA)
       track('student_registered', {
         meta: 'CompleteRegistration',
-        props: { has_student_code: !!sid, is_returning: !!existing, restored: restoredCount > 0 },
+        props: { has_student_code: !!sid, is_returning: !!existing, restored: restoredCount > 0, jia_account: !!verified },
       });
       identifyStudent(record.id, { student_code: sid || null });
       onConfirm?.(record);
@@ -161,14 +173,54 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
           )}
         </div>
 
+        {passport.configured && (verified ? (
+          <div className="bg-success/8 border border-success/30 p-3 flex items-start gap-2"
+            style={{ borderRadius: 'var(--radius-md)' }} data-testid="jia-account-verified">
+            <ShieldCheck size={18} strokeWidth={2.2} className="text-success shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <div className="text-caption font-semibold">เข้าสู่ระบบบัญชี JIA แล้ว</div>
+              <div className="text-2xs text-text-muted">
+                {verified.cardNo ? `บัตรนักเรียน ${verified.cardNo}` : 'บัญชี JIA'}
+                {verified.verifyLevel === 'instructor' ? ' · ครูตรวจบัตรแล้ว' : ''}
+              </div>
+            </div>
+            <button type="button" onClick={() => logoutPassport()}
+              className="text-2xs font-semibold text-text-muted underline shrink-0">
+              ไม่ใช่ฉัน
+            </button>
+          </div>
+        ) : (
+          <div className="bg-bg-tertiary p-3 space-y-2" style={{ borderRadius: 'var(--radius-md)' }}>
+            <button type="button" onClick={() => startPassportLogin()}
+              className="btn btn-ghost btn-block" data-testid="jia-account-login">
+              <LogIn size={16} strokeWidth={2.4} /> เข้าสู่ระบบด้วยบัญชี JIA
+            </button>
+            <p className="text-2xs text-text-muted text-center">
+              ไม่บังคับ — ใช้บัญชีเดียวกับ class.jiacpr.com (LINE หรืออีเมล) ชื่อบนใบประกาศจะตรงกับบัตรนักเรียน
+            </p>
+          </div>
+        ))}
+        {passport.returnFlag === 'error' && !verified && (
+          <div className="bg-warning/10 border border-warning/30 p-2 text-caption inline-flex items-center gap-2 w-full"
+            style={{ borderRadius: 'var(--radius-md)' }}>
+            <AlertCircle size={14} strokeWidth={2.2} />
+            <span className="flex-1">เข้าสู่ระบบบัญชี JIA ไม่สำเร็จ — ลองใหม่ หรือกรอกชื่อเองด้านล่างได้เลย</span>
+            <button type="button" onClick={clearPassportReturnFlag} aria-label="ปิด"><X size={14} /></button>
+          </div>
+        )}
+
         <div className="space-y-3">
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">ชื่อ–นามสกุล</span>
             <input
-              type="text" autoFocus value={name}
+              type="text" autoFocus={!verifiedName} value={verifiedName || name}
               onChange={e => setName(e.target.value)}
+              readOnly={!!verifiedName}
               placeholder="เช่น อนันต์ ใจดี"
-              className="w-full text-body mt-1" />
+              className={`w-full text-body mt-1${verifiedName ? ' opacity-80' : ''}`} />
+            {verifiedName && (
+              <span className="text-2xs text-text-muted">ชื่อจากบัญชี JIA — แก้ไขได้ที่ class.jiacpr.com/account</span>
+            )}
           </label>
           {requireStudentId && (
             <label className="block">

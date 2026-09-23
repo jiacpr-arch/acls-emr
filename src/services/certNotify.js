@@ -5,7 +5,7 @@ import { COURSE_MODE } from '../config/courseMode';
 // student's "Generate Certificate" flow.
 export async function notifyCertIssued({
   studentName, studentPhone, studentEmail, courseTitle, certId, completedAt,
-  preTestScore, postTestScore, ekgPassed,
+  preTestScore, postTestScore, ekgPassed, hubSub,
 }) {
   try {
     await fetch('/api/cert/notify', {
@@ -22,6 +22,9 @@ export async function notifyCertIssued({
         preTestScore: preTestScore ?? null,
         postTestScore: postTestScore ?? null,
         ekgPassed: !!ekgPassed,
+        // The JIA account this student confirmed; the server only trusts it when the passport
+        // cookie sent with this request is that same account.
+        hubSub: hubSub || null,
       }),
     });
   } catch {
