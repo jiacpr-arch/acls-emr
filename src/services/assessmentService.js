@@ -124,7 +124,9 @@ export async function loadExamForBank(bankId, { excludeSetId = null } = {}) {
   return { bank, set: chosen, questions: ordered };
 }
 
-export async function loadExamForSet(setId) {
+// questionIds: resume an exam already in progress — the same questions in the same order, when
+// every one of them is still in the set (otherwise a normal fresh draw).
+export async function loadExamForSet(setId, { questionIds = null } = {}) {
   const { data: setRow, error: setErr } = await supabase
     .from(TBL_SET)
     .select('id, bank_id, title, sort_order, active, selection_mode, selection_config')
@@ -133,6 +135,12 @@ export async function loadExamForSet(setId) {
   if (setErr) throw setErr;
   const bank = await fetchBank(setRow.bank_id);
   const questions = await fetchQuestions(setId);
+  if (Array.isArray(questionIds) && questionIds.length) {
+    const byId = new Map(questions.map(q => [q.id, q]));
+    if (questionIds.every(id => byId.has(id))) {
+      return { bank, set: setRow, questions: questionIds.map(id => byId.get(id)) };
+    }
+  }
   const ordered = orderQuestionsForBank(bank, setRow, questions);
   return { bank, set: setRow, questions: ordered };
 }

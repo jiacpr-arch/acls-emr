@@ -8,8 +8,9 @@ import {
   loadActivePreTestExam,
 } from '../data/activePreTest';
 import { usePreCourseStore } from '../stores/preCourseStore';
-import { getAttemptCount, saveQuizAttempt } from '../db/database';
+import { getAttemptById, getAttemptCount, saveQuizAttempt } from '../db/database';
 import { scheduleFlush } from '../services/syncEngine';
+import { gradeExamAttempt } from '../services/examGrade';
 import { track } from '../services/analytics';
 import { submitAttempt as submitRemoteAttempt } from '../services/assessmentService';
 import { IS_ACLS, courseMeta } from '../config/courseMode';
@@ -44,11 +45,13 @@ export default function PreTestExam() {
     let cancelled = false;
     (async () => {
       try {
-        const loaded = await loadActivePreTestExam();
+        // Resume the exam already in progress (same set + questions) — a fresh draw on reload
+        // would silently drop every answer given so far.
+        const loaded = await loadActivePreTestExam(currentPreTest?.setId ? { setId: currentPreTest.setId, questionIds: currentPreTest.questionIds } : null);
         if (cancelled) return;
         setExam(loaded);
         if (!currentPreTest || currentPreTest.setId !== loaded.set.id) {
-          startPreTest(loaded.set.id);
+          startPreTest(loaded.set.id, loaded.questions.map(q => q.id));
         }
       } catch (err) {
         if (!cancelled) setLoadError(err.message || 'โหลดข้อสอบไม่สำเร็จ');
@@ -140,6 +143,12 @@ export default function PreTestExam() {
         attemptNumber,
         passPercent,
       });
+      // Server grading is what counts for the certificate: try it now (≤6 s) so an online student
+      // sees the confirmed result immediately; offline, the results page shows "รอตรวจ" and the
+      // sync engine grades it once back online.
+      try {
+        await gradeExamAttempt(await getAttemptById(attemptId), { timeoutMs: 6000 });
+      } catch { /* retried by the sync engine */ }
       scheduleFlush();
       track('pre_test_completed', {
         props: { score, passed, attempt_number: attemptNumber },

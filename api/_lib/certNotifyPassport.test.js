@@ -24,6 +24,7 @@ let savedEnv;
 let savedFetch;
 let inserts;
 let missingColumn;
+let gradeRows;
 
 beforeEach(() => {
   savedEnv = Object.fromEntries(ENV_KEYS.map((k) => [k, process.env[k]]));
@@ -34,10 +35,15 @@ beforeEach(() => {
   });
   inserts = [];
   missingColumn = false;
+  gradeRows = [];
   savedFetch = globalThis.fetch;
   globalThis.fetch = async (url, init = {}) => {
     const u = String(url);
     if (u.endsWith('/.well-known/jwks.json')) return new Response(JSON.stringify(jwks), { headers: { 'content-type': 'application/json' } });
+    if (u.startsWith('https://db.example/rest/v1/exam_grades')) {
+      const wanted = decodeURIComponent(new URL(u).searchParams.get('attempt_uuid') || '').replace(/^in\.\(|\)$/g, '').split(',');
+      return new Response(JSON.stringify(gradeRows.filter((r) => wanted.includes(r.attempt_uuid))), { headers: { 'content-type': 'application/json' } });
+    }
     if (u.startsWith('https://db.example/rest/v1/certificates')) {
       const row = JSON.parse(init.body);
       inserts.push(row);
@@ -102,4 +108,34 @@ test('before hub-passport.sql is applied: retries without hub_user_id so the cer
   assert.equal(inserts.length, 2);
   assert.equal(inserts[1].hub_user_id, undefined);
   assert.equal(inserts[1].student_name, 'ชื่อ จากฮับ');
+});
+
+const PRE = '11111111-1111-4111-8111-111111111111';
+const POST = '22222222-2222-4222-8222-222222222222';
+
+test('exam-verified: server-graded pre + post passes of this course → exam_verified + server scores', async () => {
+  gradeRows = [
+    { attempt_uuid: PRE, course_mode: 'acls', exam_kind: 'pre', score: 75, passed: true },
+    { attempt_uuid: POST, course_mode: 'acls', exam_kind: 'post', score: 88, passed: true },
+  ];
+  const res = await call({ ...base, preTestScore: 100, postTestScore: 100, examGradeUuids: [PRE, POST] });
+  assert.equal(res.body.examVerified, true);
+  assert.equal(inserts[0].exam_verified, true);
+  assert.deepEqual(inserts[0].exam_grade_uuids, [PRE, POST]);
+  assert.deepEqual([inserts[0].pre_test_score, inserts[0].post_test_score], [75, 88], 'server scores, not the client\'s 100s');
+});
+
+test('not exam-verified: a failed post, another course, or only one exam', async () => {
+  for (const rows of [
+    [{ attempt_uuid: PRE, course_mode: 'acls', exam_kind: 'pre', score: 75, passed: true }, { attempt_uuid: POST, course_mode: 'acls', exam_kind: 'post', score: 60, passed: false }],
+    [{ attempt_uuid: PRE, course_mode: 'bls', exam_kind: 'pre', score: 75, passed: true }, { attempt_uuid: POST, course_mode: 'bls', exam_kind: 'post', score: 90, passed: true }],
+    [{ attempt_uuid: POST, course_mode: 'acls', exam_kind: 'post', score: 90, passed: true }],
+  ]) {
+    gradeRows = rows;
+    inserts = [];
+    const res = await call({ ...base, preTestScore: 100, postTestScore: 100, examGradeUuids: [PRE, POST] });
+    assert.equal(res.body.examVerified, false);
+    assert.equal('exam_verified' in inserts[0], false);
+    assert.equal(inserts[0].post_test_score, 100, 'client score kept, but unverified');
+  }
 });

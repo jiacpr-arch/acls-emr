@@ -17,6 +17,7 @@ import { exportCertificatePDF } from '../utils/exportCertificate';
 import { simCertHighlights, ACHIEVEMENTS } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
 import { usePassport } from '../hooks/usePassport';
+import { serverPassed, gradePending, flushExamGrades } from '../services/examGrade';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
 import {
@@ -134,13 +135,35 @@ export default function Certification() {
   });
   const preCourseDone = !!activeStudent && preCourseStatus.length > 0 && preCourseStatus.every(s => s.passed);
 
-  const postTestAttempts = preCourseAttempts.filter(a => a.lessonId === POST_TEST_LESSON_ID);
-  const postTestBest = postTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-  const postTestDone = !!postTestBest?.passed;
+  // Pre/post-test count only once the server has graded them a pass (api/exam/grade.js) — a
+  // pass scored on this device alone is "รอตรวจ" until then (offline attempts grade on sync).
+  const bestOf = (list, score) => list.reduce((b, a) => (score(a) > (b ? score(b) : -1) ? a : b), null);
+  const examStatus = (lessonId) => {
+    const attempts = preCourseAttempts.filter(a => a.lessonId === lessonId);
+    const verified = bestOf(attempts.filter(serverPassed), a => a.serverGrade.score);
+    return {
+      best: verified || bestOf(attempts, a => a.score),
+      verified,
+      done: !!verified,
+      pending: !verified && attempts.some(a => a.passed && gradePending(a)),
+    };
+  };
+  const postExam = examStatus(POST_TEST_LESSON_ID);
+  const postTestBest = postExam.best;
+  const postTestDone = postExam.done;
 
-  const preTestAttempts = preCourseAttempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
-  const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-  const preTestDone = !!preTestBest?.passed;
+  const preExam = examStatus(PRE_TEST_LESSON_ID);
+  const preTestBest = preExam.best;
+  const preTestDone = preExam.done;
+  const examPending = preExam.pending || postExam.pending;
+  const [gradingNow, setGradingNow] = useState(false);
+  const gradeExamsNow = async () => {
+    setGradingNow(true);
+    try { await flushExamGrades({ source: 'online' }); } catch { /* shown as still pending */ }
+    setGradingNow(false);
+    reloadProgress();
+  };
+  const pendingNote = (pending) => (pending ? ' — รอระบบตรวจยืนยัน' : '');
 
   // เงื่อนไขบทเรียนวิดีโอ — ดูครบ + ผ่านควิซ ทุกหัวข้อ required (ทั้ง ACLS/BLS แยกชุดกันด้วย course_mode)
   // ถ้ายังไม่มีวิดีโอ (total = 0) จะไม่เพิ่มเป็นเงื่อนไข เพื่อไม่บล็อกใบประกาศนียบัตรช่วงเปลี่ยนผ่าน
@@ -168,30 +191,30 @@ export default function Certification() {
 
   const requirements = IS_BLS
     ? [
-        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%${pendingNote(preExam.pending)}`, done: preTestDone, Icon: Sparkles, to: preTestTo },
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
         ...(videoGateActive
           ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
           : []),
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%${pendingNote(postExam.pending)}`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
       ]
     : IS_SKILL_COURSE
     ? [
-        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%${pendingNote(preExam.pending)}`, done: preTestDone, Icon: Sparkles, to: preTestTo },
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
         ...(IS_DEFIB
           ? [{ label: `ผ่าน Rhythm Quiz ≥ ${RHYTHM_QUIZ_PASS_PERCENT}%`, done: rhythmQuizDone, Icon: Activity, to: '/rhythm-quiz' }]
           : []),
         { label: `ผ่านเกมลำดับขั้น ${skillScenarioGame.total - 1} ด่าน + ข้อสอบรวม (${skillScenarioGame.done}/${skillScenarioGame.total})`, done: skillScenarioGame.allPassed, Icon: Activity, to: '/scenario' },
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%${pendingNote(postExam.pending)}`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
         ...(videoGateActive
           ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
           : []),
       ]
     : [
-        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%${pendingNote(preExam.pending)}`, done: preTestDone, Icon: Sparkles, to: preTestTo },
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%${pendingNote(postExam.pending)}`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
         { label: `ผ่าน EKG test ≥ ${EKG_TEST_PASS_PERCENT}%`, done: ekgTestDone, Icon: Activity, to: '/als?tab=ekg' },
         ...(videoGateActive
           ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
@@ -232,8 +255,8 @@ export default function Certification() {
       studentPhone: tel,
       studentEmail: mail,
       completedAt: new Date().toISOString(),
-      preTestScore: preTestBest?.score ?? null,
-      postTestScore: postTestBest?.score ?? null,
+      preTestScore: preExam.verified?.serverGrade.score ?? preTestBest?.score ?? null,
+      postTestScore: postExam.verified?.serverGrade.score ?? postTestBest?.score ?? null,
       ekgPassed: (IS_BLS || IS_SKILL_COURSE) ? null : ekgTestDone,
       rhythmQuizPassed: IS_DEFIB ? rhythmQuizDone : null,
       videoCompleted: videoGateActive ? videoComp.allDone : null,
@@ -255,6 +278,7 @@ export default function Certification() {
       postTestScore: data.postTestScore,
       ekgPassed: data.ekgPassed,
       hubSub: verified?.sub || null,
+      examGradeUuids: [preExam.verified?.uuid, postExam.verified?.uuid].filter(Boolean),
     });
   };
 
@@ -352,6 +376,18 @@ export default function Certification() {
           <div className={`progress-fill ${allDone ? 'bg-success' : 'bg-info'}`} style={{ width: `${progress}%` }} />
         </div>
       </div>
+
+      {examPending && (
+        <div className="dash-card !p-3 space-y-2 text-caption" data-testid="exam-grade-pending-cert">
+          <div className="inline-flex items-start gap-2">
+            <AlertCircle size={16} strokeWidth={2.2} className="text-warning shrink-0 mt-0.5" />
+            <span>ผลสอบที่ผ่านในเครื่องนี้ยังรอระบบตรวจยืนยัน — ต้องเชื่อมต่ออินเทอร์เน็ตให้ระบบตรวจก่อนจึงจะออกใบประกาศได้</span>
+          </div>
+          <button type="button" onClick={gradeExamsNow} disabled={gradingNow} className="btn btn-ghost btn-sm">
+            {gradingNow ? 'กำลังตรวจ…' : 'ตรวจผลสอบตอนนี้'}
+          </button>
+        </div>
+      )}
 
       {/* Requirements */}
       <div className="space-y-3">
