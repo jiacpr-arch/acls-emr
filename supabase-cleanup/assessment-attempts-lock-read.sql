@@ -1,6 +1,8 @@
 -- =====================================================
 -- Migration: assessment_attempts_lock_read
 -- Target project: elyyijlcjfvhxbpzscnv (emr-ai-clinic) — shared by acls-emr and bls-hcp-app
+-- Applied: 24 ก.ย. 2569 (migration assessment_attempts_lock_read). Verified live as anon inside a
+-- rolled-back block: 0 rows readable, INSERT ... RETURNING id still works, get_student_roster refused.
 --
 -- Problem (found 24 ก.ย. 2569 while planning server-side grading): policy "anon read attempts"
 -- was `for select to anon, authenticated using (true)` — anyone holding the public anon key
