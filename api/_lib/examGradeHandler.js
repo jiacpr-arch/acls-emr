@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from './supabaseAdmin.js';
 import { enforceRateLimit } from './rateLimit.js';
-import { passportConfig, readPassport, sameOrigin } from './passportSession.js';
+import { passportConfig, readPassport, readPassportToken, sameOrigin } from './passportSession.js';
+import { forwardGradesToHub } from './hubResults.js';
 import { gradeAnswers, loadExamKey } from './examGrader.js';
 import { EXAM_COURSES } from './examKeys.js';
 
@@ -9,7 +10,9 @@ import { EXAM_COURSES } from './examKeys.js';
 //   { attemptUuid, course, kind, setId, answers, studentLocalId, classCode?, studentPk?,
 //     startedAt?, finishedAt?, source?, hubSub? }  → grade it (once) and store it
 // The client-side score is never read. A uuid that was already graded returns the stored row
-// unchanged, so retries, the sync queue and a second device all agree.
+// unchanged, so retries, the sync queue and a second device all agree. A new grade made with the
+// learner's own passport also goes to the Hub's central exam record (api/_lib/hubResults.js).
+const HUB_FORWARD_TIMEOUT_MS = 2500; // the app waits ≤6s for this response; the Hub is a bonus here
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CLASS_CODE_RE = /^[A-Z0-9-]{3,40}$/;
@@ -129,6 +132,11 @@ export function createExamGradeHandler({
       if (insErr) throw new Error(insErr.message);
       // Re-read: a concurrent retry of the same uuid may have won — its row is the answer.
       const saved = await stored();
+      if (hubUserId) {
+        await forwardGradesToHub(config(), readPassportToken(req), [{
+          ...row, correct_count: saved?.correct_count ?? row.correct_count, total_questions: saved?.total_questions ?? row.total_questions,
+        }], { fetcher, timeoutMs: HUB_FORWARD_TIMEOUT_MS });
+      }
       return res.status(200).json({ ok: true, grade: publicGrade(saved || { ...row, graded_at: new Date(now()).toISOString() }) });
     } catch (err) {
       console.error('exam grade failed:', err.message);

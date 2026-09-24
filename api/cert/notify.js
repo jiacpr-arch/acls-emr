@@ -1,7 +1,8 @@
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
 import { sendCertNotification } from '../_lib/lineNotify.js';
 import { enforceRateLimit } from '../_lib/rateLimit.js';
-import { passportConfig, readPassport } from '../_lib/passportSession.js';
+import { passportConfig, readPassport, readPassportToken } from '../_lib/passportSession.js';
+import { forwardGradesToHub } from '../_lib/hubResults.js';
 
 export const config = { maxDuration: 10 };
 
@@ -22,14 +23,14 @@ export async function verifyExamGrades(supabase, course, uuids) {
   if (!ids.length) return { verified: false };
   const { data, error } = await supabase
     .from('exam_grades')
-    .select('attempt_uuid, course_mode, exam_kind, score, passed')
+    .select('attempt_uuid, course_mode, exam_kind, score, passed, correct_count, total_questions, finished_at')
     .in('attempt_uuid', ids);
   if (error || !Array.isArray(data)) return { verified: false };
   const ok = data.filter((r) => r.passed && r.course_mode === course);
   const pre = ok.find((r) => r.exam_kind === 'pre');
   const post = ok.find((r) => r.exam_kind === 'post');
   if (!pre || !post) return { verified: false };
-  return { verified: true, preScore: Number(pre.score), postScore: Number(post.score), uuids: [pre.attempt_uuid, post.attempt_uuid] };
+  return { verified: true, preScore: Number(pre.score), postScore: Number(post.score), uuids: [pre.attempt_uuid, post.attempt_uuid], rows: [pre, post] };
 }
 
 // Public endpoint: the student's browser calls this right after generating a
@@ -107,6 +108,10 @@ export default async function handler(req, res) {
       ({ error } = await insert(row));
     }
     recorded = !error;
+    // Second chance for the Hub's central exam record: the pre/post results this certificate rests
+    // on, sent with the learner's own passport (a no-op at the Hub if grading already sent them).
+    // ≤2s per result so a slow Hub can't push the LINE alert past this function's 10s limit.
+    if (hubUserId && examVerified) await forwardGradesToHub(passportConfig(), readPassportToken(req), exams.rows, { timeoutMs: 2000 });
   } catch { /* Supabase not configured — skip silently */ }
 
   const result = await sendCertNotification({

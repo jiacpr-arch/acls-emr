@@ -57,13 +57,15 @@
     ('iv','IV (iv.morroo.com)','passport',array['https://iv.morroo.com/api/passport/callback'],
      extensions.crypt('<secret ของ iv>',extensions.gen_salt('bf',10)),array['iv']);
    ```
-   (`redirect_uris` ต้องตรงเป๊ะกับโดเมนจริงของแต่ละ deployment; Hub รับเฉพาะ `https://`)
+   (`redirect_uris` ต้องตรงเป๊ะกับโดเมนจริงของแต่ละ deployment; Hub รับเฉพาะ `https://`;
+   `allowed_courses` = id คอร์สของ Hub ที่ deployment นั้นส่งผลสอบเข้าได้ — ACLS คือ `als` ดูหัวข้อ "ผลสอบกลาง")
 4. **Vercel แต่ละ deployment**: `HUB_PASSPORT_CLIENT_ID` (= `client_id` ด้านบน) และ
    `HUB_PASSPORT_CLIENT_SECRET` (= secret ตัวที่ใช้สร้าง `secret_hash`) — ฝั่ง server เท่านั้น ห้าม `VITE_`
    ตั้งแค่ deployment ไหน ปุ่มก็โผล่เฉพาะที่นั่น
 
 ตัวแปรอื่น (มีค่า default แล้ว ไม่ต้องตั้ง): `HUB_PASSPORT_REDIRECT_URI`, `HUB_SSO_URL`,
-`HUB_SSO_AUTH_URL`, `HUB_JWKS_URL`, `HUB_PASSPORT_ISSUER`, `HUB_SUPABASE_ANON_KEY`
+`HUB_SSO_AUTH_URL`, `HUB_JWKS_URL`, `HUB_PASSPORT_ISSUER`, `HUB_SUPABASE_ANON_KEY`,
+`HUB_RESULTS_URL` (ค่าเริ่มต้น = `results-ingest` ข้างๆ `sso-auth`)
 
 ## ทดสอบบน production/preview
 
@@ -81,3 +83,15 @@
   ดู log ของ function `api/passport/callback`)
 - นักเรียนผูกผิดบัญชี: `update cohort_students set hub_user_id=null, hub_bound_at=null where id='<id>';`
   แล้วให้นักเรียนเปิดหน้าต่างระบุตัว → ยืนยันอีกครั้งตอน login บัญชีที่ถูก
+
+## ผลสอบกลาง (ส่งผลสอบเข้า Hub) — 24 ก.ย. 2569
+
+ผลสอบ pre/post ที่ `/api/exam/grade` ตรวจแล้ว ถูกส่งเข้า "ผลสอบกลาง" ของ Hub (`learning_hub.exam_results`) ผ่าน Edge Function
+`results-ingest` ของ Hub — `api/_lib/hubResults.js`:
+- **เฉพาะเมื่อผู้เรียน login บัญชี JIA อยู่** (cookie บัตรผ่านตรงกับ `hubSub`) — ส่ง `{clientId, clientSecret, passport, result:{courseId,
+  kind, correct, total, attemptRef: uuid ของ attempt}}`; Hub ตรวจบัตร + secret + ledger + `allowed_courses` แล้วคิดคะแนน/ผ่านเอง
+- ส่ง 2 จังหวะ: ตอนตรวจครั้งแรก (รอ ≤2.5 วิ ไม่ให้การตรวจช้า) และตอนออกใบประกาศ (`/api/cert/notify` ส่ง pre+post ที่ใบนั้นใช้อีกรอบ
+  — Hub ตัดซ้ำด้วย uuid เดิม); Hub ล่ม/ปฏิเสธ แค่ log ไม่กระทบการตรวจหรือใบประกาศ
+- id คอร์สที่ Hub: `acls`→`als`, นอกนั้นเท่าเดิม — แถว `sso_clients` ของแต่ละ deployment ต้องมี `allowed_courses` ตรงนี้
+  (ถ้ายังใช้ build BLS ของ repo นี้ (`VITE_COURSE_MODE=bls`) บนโดเมนไหนอยู่ ต้องมีแถวของ deployment นั้นที่มี `array['bls']` ด้วย)
+- ผู้เรียนที่สอบตอนไม่ได้ login: ผลอยู่ใน `exam_grades` ของแอปนี้ตามเดิม แต่ไม่เข้า Hub (Hub ต้องรู้ว่าเป็นของใคร)

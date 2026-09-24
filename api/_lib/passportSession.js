@@ -23,6 +23,9 @@ export function passportConfig(env = process.env) {
     redirectUri: (env.HUB_PASSPORT_REDIRECT_URI || '').trim(),
     ssoUrl: env.HUB_SSO_URL || 'https://class.jiacpr.com/sso',
     ssoAuthUrl: env.HUB_SSO_AUTH_URL || 'https://tpoiyykbgsgnrdwzgzvn.supabase.co/functions/v1/sso-auth',
+    // The Hub's central exam record (its results-ingest Edge Function sits next to sso-auth).
+    resultsUrl: env.HUB_RESULTS_URL
+      || (env.HUB_SSO_AUTH_URL || 'https://tpoiyykbgsgnrdwzgzvn.supabase.co/functions/v1/sso-auth').replace(/\/sso-auth$/, '/results-ingest'),
     jwksUrl: env.HUB_JWKS_URL || DEFAULT_JWKS_URL,
     issuer: env.HUB_PASSPORT_ISSUER || DEFAULT_ISSUER,
     hubAnonKey: (env.HUB_SUPABASE_ANON_KEY || '').trim(),
@@ -136,6 +139,11 @@ export async function exchangeCode(cfg, { code, verifier, redirectUri }, { fetch
   if (!res.ok || !body?.ok) throw new Error(body?.error || `sso-auth ${res.status}`);
   if (body.kind !== 'passport' || typeof body.passport !== 'string') throw new Error('sso-auth returned no passport');
   return body.passport;
+}
+
+/** The raw passport JWT from the request's httpOnly cookie ('' if none) — only ever sent on to the Hub. */
+export function readPassportToken(req) {
+  return parseCookies(req.headers.cookie)[PASSPORT_COOKIE] || '';
 }
 
 /** The verified passport claims from the request's cookie, or null (missing/expired/forged). */

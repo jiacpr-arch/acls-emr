@@ -114,3 +114,65 @@ test('cross-site POST refused; 503 when Supabase is not configured', async () =>
   await createExamGradeHandler({ getAdmin: () => { throw new Error('no env'); } })({ method: 'POST', headers: {}, body: base() }, res);
   assert.equal(res.statusCode, 503);
 });
+
+// --- Hub central exam record (api/_lib/hubResults.js) ---
+import { generateKeyPairSync, sign as signJwt } from 'node:crypto';
+import { _resetJwksCache } from './hubPassport.js';
+
+const hubKeys = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+const HUB_SUB = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+function mintPassport(aud = 'bls-hcp-app') {
+  const t = Math.floor(Date.now() / 1000);
+  const enc = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const h = enc({ alg: 'ES256', typ: 'jia-passport+jwt', kid: 'k' });
+  const p = enc({ iss: 'https://class.jiacpr.com', aud, sub: HUB_SUB, iat: t, nbf: t, exp: t + 600, jti: '33333333-3333-4333-8333-333333333333' });
+  return `${h}.${p}.${signJwt('sha256', Buffer.from(`${h}.${p}`), { key: hubKeys.privateKey, dsaEncoding: 'ieee-p1363' }).toString('base64url')}`;
+}
+const hubCfg = passportConfig({ HUB_PASSPORT_CLIENT_ID: 'bls-hcp-app', HUB_PASSPORT_CLIENT_SECRET: 'sek' });
+async function callWithHub(admin, body, { cookie, hub = async () => new Response('{"ok":true}') } = {}) {
+  const hubCalls = [];
+  const fetcher = async (url, init) => {
+    if (String(url).endsWith('/.well-known/jwks.json')) return new Response(JSON.stringify({ keys: [{ ...hubKeys.publicKey.export({ format: 'jwk' }), kid: 'k', alg: 'ES256' }] }));
+    if (url === hubCfg.resultsUrl) { hubCalls.push(JSON.parse(init.body)); return hub(); }
+    throw new Error(`unexpected fetch ${url}`);
+  };
+  _resetJwksCache();
+  const res = fakeRes();
+  await createExamGradeHandler({ getAdmin: () => admin, config: () => hubCfg, fetcher })(
+    { method: 'POST', headers: { host: 'bls.morroo.com', ...(cookie ? { cookie } : {}) }, body }, res);
+  return { res, hubCalls };
+}
+
+test('a new grade made with the learner\'s own passport goes to the Hub (raw counts + the passport itself)', async () => {
+  const token = mintPassport();
+  const { res, hubCalls } = await callWithHub(fakeAdmin(), base({ hubSub: HUB_SUB, finishedAt: '2026-09-24T05:00:00Z' }), { cookie: `jia_passport=${token}` });
+  assert.equal(res.statusCode, 200);
+  assert.equal(hubCalls.length, 1);
+  assert.deepEqual(hubCalls[0], {
+    clientId: 'bls-hcp-app', clientSecret: 'sek', passport: token,
+    result: { courseId: 'bls', kind: 'pre', correct: set.questions.length, total: set.questions.length, attemptRef: UUID, finishedAt: '2026-09-24T05:00:00.000Z' },
+  });
+});
+
+test('no Hub call without a matching passport; Hub failure never changes the grade', async () => {
+  let r = await callWithHub(fakeAdmin(), base({ hubSub: HUB_SUB }));
+  assert.equal(r.hubCalls.length, 0, 'no cookie');
+  r = await callWithHub(fakeAdmin(), base({ hubSub: '99999999-8888-4777-8666-555555555555' }), { cookie: `jia_passport=${mintPassport()}` });
+  assert.equal(r.hubCalls.length, 0, 'passport of someone else (shared device)');
+  r = await callWithHub(fakeAdmin(), base(), { cookie: `jia_passport=${mintPassport()}` });
+  assert.equal(r.hubCalls.length, 0, 'no hubSub (old bundle)');
+  for (const hub of [async () => new Response('{"error":"x"}', { status: 422 }), async () => { throw new Error('down'); }]) {
+    r = await callWithHub(fakeAdmin(), base({ hubSub: HUB_SUB }), { cookie: `jia_passport=${mintPassport()}`, hub });
+    assert.equal(r.res.statusCode, 200);
+    assert.equal(r.res.body.grade.score, 100);
+    assert.equal(r.hubCalls.length, 1);
+  }
+});
+
+test('an already-graded uuid is not re-sent (the first grading did it)', async () => {
+  const admin = fakeAdmin();
+  await callWithHub(admin, base({ hubSub: HUB_SUB }), { cookie: `jia_passport=${mintPassport()}` });
+  const again = await callWithHub(admin, base({ hubSub: HUB_SUB }), { cookie: `jia_passport=${mintPassport()}` });
+  assert.equal(again.res.statusCode, 200);
+  assert.equal(again.hubCalls.length, 0);
+});

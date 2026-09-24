@@ -25,6 +25,7 @@ let savedFetch;
 let inserts;
 let missingColumn;
 let gradeRows;
+let hubCalls;
 
 beforeEach(() => {
   savedEnv = Object.fromEntries(ENV_KEYS.map((k) => [k, process.env[k]]));
@@ -36,6 +37,7 @@ beforeEach(() => {
   inserts = [];
   missingColumn = false;
   gradeRows = [];
+  hubCalls = [];
   savedFetch = globalThis.fetch;
   globalThis.fetch = async (url, init = {}) => {
     const u = String(url);
@@ -43,6 +45,10 @@ beforeEach(() => {
     if (u.startsWith('https://db.example/rest/v1/exam_grades')) {
       const wanted = decodeURIComponent(new URL(u).searchParams.get('attempt_uuid') || '').replace(/^in\.\(|\)$/g, '').split(',');
       return new Response(JSON.stringify(gradeRows.filter((r) => wanted.includes(r.attempt_uuid))), { headers: { 'content-type': 'application/json' } });
+    }
+    if (u === 'https://tpoiyykbgsgnrdwzgzvn.supabase.co/functions/v1/results-ingest') {
+      hubCalls.push(JSON.parse(init.body));
+      return new Response('{"ok":true}', { status: 200 });
     }
     if (u.startsWith('https://db.example/rest/v1/certificates')) {
       const row = JSON.parse(init.body);
@@ -138,4 +144,29 @@ test('not exam-verified: a failed post, another course, or only one exam', async
     assert.equal('exam_verified' in inserts[0], false);
     assert.equal(inserts[0].post_test_score, 100, 'client score kept, but unverified');
   }
+});
+
+test('exam-verified with the learner\'s passport: the pre + post it rests on also go to the Hub', async () => {
+  gradeRows = [
+    { attempt_uuid: PRE, course_mode: 'acls', exam_kind: 'pre', score: 75, passed: true, correct_count: 15, total_questions: 20, finished_at: '2026-09-20T05:00:00Z' },
+    { attempt_uuid: POST, course_mode: 'acls', exam_kind: 'post', score: 88, passed: true, correct_count: 44, total_questions: 50, finished_at: '2026-09-24T05:00:00Z' },
+  ];
+  const token = mint();
+  const res = await call({ ...base, hubSub: SUB, examGradeUuids: [PRE, POST] }, `jia_passport=${token}`);
+  assert.equal(res.body.examVerified, true);
+  assert.deepEqual(hubCalls.map((c) => [c.clientId, c.passport, c.result.courseId, c.result.kind, c.result.correct, c.result.total, c.result.attemptRef]), [
+    ['acls', token, 'als', 'pre', 15, 20, PRE],
+    ['acls', token, 'als', 'post', 44, 50, POST],
+  ]);
+});
+
+test('no Hub call for a certificate without the learner\'s passport or without verified exams', async () => {
+  gradeRows = [
+    { attempt_uuid: PRE, course_mode: 'acls', exam_kind: 'pre', score: 75, passed: true, correct_count: 15, total_questions: 20 },
+    { attempt_uuid: POST, course_mode: 'acls', exam_kind: 'post', score: 88, passed: true, correct_count: 44, total_questions: 50 },
+  ];
+  await call({ ...base, examGradeUuids: [PRE, POST] }, `jia_passport=${mint()}`);
+  await call({ ...base, hubSub: SUB, examGradeUuids: [PRE, POST] });
+  await call({ ...base, hubSub: SUB }, `jia_passport=${mint()}`);
+  assert.equal(hubCalls.length, 0);
 });
