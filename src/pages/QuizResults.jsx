@@ -9,6 +9,7 @@ import {
   getPostTestSetById,
 } from '../data/activePostTest';
 import ResultsSummary from '../components/precourse/ResultsSummary';
+import ExamGradeStatus from '../components/precourse/ExamGradeStatus';
 import { exportStudentResultPDF } from '../utils/exportPreCourse';
 import { ChevronLeft, ChevronRight, Download, RotateCcw, Trophy, AlertCircle } from 'lucide-react';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
@@ -133,6 +134,8 @@ export default function QuizResults() {
       </div>
 
       <ResultsSummary attempt={attempt} lesson={lesson} student={student} />
+
+      <ExamGradeStatus attempt={attempt} onUpdated={setAttempt} />
 
       {/* จังหวะทอง: สอบผ่าน = พร้อมต่อยอดคอร์สจริงที่สุด */}
       {attempt.passed ? (

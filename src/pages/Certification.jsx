@@ -16,6 +16,11 @@ import { rpcJoinClass, rpcGetMyPracticalStatus } from '../services/cohortSync';
 import { exportCertificatePDF } from '../utils/exportCertificate';
 import { simCertHighlights, ACHIEVEMENTS } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
+import { usePassport } from '../hooks/usePassport';
+import HubCertificateCard from '../components/precourse/HubCertificateCard';
+import HubLoginGate from '../components/precourse/HubLoginGate';
+import { useHubLoginGate } from '../hooks/useHubLoginGate';
+import { serverPassed, gradePending, flushExamGrades } from '../services/examGrade';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
 import {
@@ -57,6 +62,13 @@ export default function Certification() {
   const [studentEmail, setStudentEmail] = useState(certData.studentEmail || activeStudent?.email || '');
   const [formError, setFormError] = useState('');
   const [downloadError, setDownloadError] = useState('');
+  // Optional JIA account: when this student confirmed their JIA login (StudentIdentityModal →
+  // hubSub) and that same account is still logged in, the certificate uses the Hub's name as-is.
+  const passport = usePassport();
+  const hubGate = useHubLoginGate();
+  const verified = passport.loggedIn && activeStudent?.hubSub && activeStudent.hubSub === passport.profile?.sub
+    ? passport.profile : null;
+  const verifiedName = (verified?.nameTh || '').trim();
   // Soft gate: ปลดล็อกปุ่มดาวน์โหลดเมื่อกดเพิ่มเพื่อน LINE OA (หรือกดข้าม) — จำค่าไว้ข้าม refresh
   const [lineUnlocked, setLineUnlocked] = useState(!!certData.lineFollowed);
   const ekgTestDone = localStorage.getItem(EKG_TEST_PASSED_KEY) === 'true';
@@ -127,13 +139,35 @@ export default function Certification() {
   });
   const preCourseDone = !!activeStudent && preCourseStatus.length > 0 && preCourseStatus.every(s => s.passed);
 
-  const postTestAttempts = preCourseAttempts.filter(a => a.lessonId === POST_TEST_LESSON_ID);
-  const postTestBest = postTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-  const postTestDone = !!postTestBest?.passed;
+  // Pre/post-test count only once the server has graded them a pass (api/exam/grade.js) — a
+  // pass scored on this device alone is "รอตรวจ" until then (offline attempts grade on sync).
+  const bestOf = (list, score) => list.reduce((b, a) => (score(a) > (b ? score(b) : -1) ? a : b), null);
+  const examStatus = (lessonId) => {
+    const attempts = preCourseAttempts.filter(a => a.lessonId === lessonId);
+    const verified = bestOf(attempts.filter(serverPassed), a => a.serverGrade.score);
+    return {
+      best: verified || bestOf(attempts, a => a.score),
+      verified,
+      done: !!verified,
+      pending: !verified && attempts.some(a => a.passed && gradePending(a)),
+    };
+  };
+  const postExam = examStatus(POST_TEST_LESSON_ID);
+  const postTestBest = postExam.best;
+  const postTestDone = postExam.done;
 
-  const preTestAttempts = preCourseAttempts.filter(a => a.lessonId === PRE_TEST_LESSON_ID);
-  const preTestBest = preTestAttempts.reduce((b, a) => (a.score > (b?.score ?? -1) ? a : b), null);
-  const preTestDone = !!preTestBest?.passed;
+  const preExam = examStatus(PRE_TEST_LESSON_ID);
+  const preTestBest = preExam.best;
+  const preTestDone = preExam.done;
+  const examPending = preExam.pending || postExam.pending;
+  const [gradingNow, setGradingNow] = useState(false);
+  const gradeExamsNow = async () => {
+    setGradingNow(true);
+    try { await flushExamGrades({ source: 'online' }); } catch { /* shown as still pending */ }
+    setGradingNow(false);
+    reloadProgress();
+  };
+  const pendingNote = (pending) => (pending ? ' — รอระบบตรวจยืนยัน' : '');
 
   // เงื่อนไขบทเรียนวิดีโอ — ดูครบ + ผ่านควิซ ทุกหัวข้อ required (ทั้ง ACLS/BLS แยกชุดกันด้วย course_mode)
   // ถ้ายังไม่มีวิดีโอ (total = 0) จะไม่เพิ่มเป็นเงื่อนไข เพื่อไม่บล็อกใบประกาศนียบัตรช่วงเปลี่ยนผ่าน
@@ -161,30 +195,30 @@ export default function Certification() {
 
   const requirements = IS_BLS
     ? [
-        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%${pendingNote(preExam.pending)}`, done: preTestDone, Icon: Sparkles, to: preTestTo },
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
         ...(videoGateActive
           ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
           : []),
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%${pendingNote(postExam.pending)}`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
       ]
     : IS_SKILL_COURSE
     ? [
-        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%${pendingNote(preExam.pending)}`, done: preTestDone, Icon: Sparkles, to: preTestTo },
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
         ...(IS_DEFIB
           ? [{ label: `ผ่าน Rhythm Quiz ≥ ${RHYTHM_QUIZ_PASS_PERCENT}%`, done: rhythmQuizDone, Icon: Activity, to: '/rhythm-quiz' }]
           : []),
         { label: `ผ่านเกมลำดับขั้น ${skillScenarioGame.total - 1} ด่าน + ข้อสอบรวม (${skillScenarioGame.done}/${skillScenarioGame.total})`, done: skillScenarioGame.allPassed, Icon: Activity, to: '/scenario' },
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%${pendingNote(postExam.pending)}`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
         ...(videoGateActive
           ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
           : []),
       ]
     : [
-        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%`, done: preTestDone, Icon: Sparkles, to: preTestTo },
+        { label: `ผ่าน Pre-test ≥ ${PRE_TEST_PASS_PERCENT}%${pendingNote(preExam.pending)}`, done: preTestDone, Icon: Sparkles, to: preTestTo },
         { label: 'ผ่าน Pre-course (อ่าน + ทำแบบทดสอบผ่านทุกบท)', done: preCourseDone, Icon: BookOpen, to: '/pre-course' },
-        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
+        { label: `ผ่าน Post-test exam ≥ ${POST_TEST_PASS_PERCENT}%${pendingNote(postExam.pending)}`, done: postTestDone, Icon: ClipboardCheck, to: postTestTo },
         { label: `ผ่าน EKG test ≥ ${EKG_TEST_PASS_PERCENT}%`, done: ekgTestDone, Icon: Activity, to: '/als?tab=ekg' },
         ...(videoGateActive
           ? [{ label: `ผ่านบทเรียนวิดีโอ (${videoComp.done}/${videoComp.total})`, done: videoComp.allDone, Icon: Video, to: '/video-lessons' }]
@@ -201,7 +235,7 @@ export default function Certification() {
   const progress = Math.round((requirements.filter(r => r.done).length / requirements.length) * 100);
 
   const generateCertificate = async () => {
-    const name = studentName.trim();
+    const name = verifiedName || studentName.trim();
     const tel = studentPhone.trim();
     const mail = studentEmail.trim().toLowerCase();
     if (!name) { setFormError('กรุณากรอกชื่อ'); return; }
@@ -225,8 +259,8 @@ export default function Certification() {
       studentPhone: tel,
       studentEmail: mail,
       completedAt: new Date().toISOString(),
-      preTestScore: preTestBest?.score ?? null,
-      postTestScore: postTestBest?.score ?? null,
+      preTestScore: preExam.verified?.serverGrade.score ?? preTestBest?.score ?? null,
+      postTestScore: postExam.verified?.serverGrade.score ?? postTestBest?.score ?? null,
       ekgPassed: (IS_BLS || IS_SKILL_COURSE) ? null : ekgTestDone,
       rhythmQuizPassed: IS_DEFIB ? rhythmQuizDone : null,
       videoCompleted: videoGateActive ? videoComp.allDone : null,
@@ -247,6 +281,8 @@ export default function Certification() {
       preTestScore: data.preTestScore,
       postTestScore: data.postTestScore,
       ekgPassed: data.ekgPassed,
+      hubSub: verified?.sub || null,
+      examGradeUuids: [preExam.verified?.uuid, postExam.verified?.uuid].filter(Boolean),
     });
   };
 
@@ -323,6 +359,10 @@ export default function Certification() {
 
       <MorrooAdCard />
 
+      {/* The Hub's central online certificate, alongside this app's own (nothing until there is one).
+          Outside the progress gate: it comes from the Hub, not from this device's records. */}
+      {verified && <HubCertificateCard sub={passport.profile.sub} />}
+
       {/* Progress + Requirements — gated on the data they're computed from */}
       {requirementsLoading && <LoadingCard label="กำลังตรวจสอบความคืบหน้า..." />}
       {!requirementsLoading && requirementsError && (
@@ -344,6 +384,18 @@ export default function Certification() {
           <div className={`progress-fill ${allDone ? 'bg-success' : 'bg-info'}`} style={{ width: `${progress}%` }} />
         </div>
       </div>
+
+      {examPending && (
+        <div className="dash-card !p-3 space-y-2 text-caption" data-testid="exam-grade-pending-cert">
+          <div className="inline-flex items-start gap-2">
+            <AlertCircle size={16} strokeWidth={2.2} className="text-warning shrink-0 mt-0.5" />
+            <span>ผลสอบที่ผ่านในเครื่องนี้ยังรอระบบตรวจยืนยัน — ต้องเชื่อมต่ออินเทอร์เน็ตให้ระบบตรวจก่อนจึงจะออกใบประกาศได้</span>
+          </div>
+          <button type="button" onClick={gradeExamsNow} disabled={gradingNow} className="btn btn-ghost btn-sm">
+            {gradingNow ? 'กำลังตรวจ…' : 'ตรวจผลสอบตอนนี้'}
+          </button>
+        </div>
+      )}
 
       {/* Requirements */}
       <div className="space-y-3">
@@ -510,8 +562,11 @@ export default function Certification() {
         </div>
       )}
 
+      {/* The class requires the JIA account before the certificate (teacher's rule, hooks/useHubLoginGate.js) */}
+      {allDone && !certData.certId && hubGate.blocked && <HubLoginGate gate={hubGate} action="รับใบประกาศ" />}
+
       {/* Student details + Generate — full contact set required at this step */}
-      {allDone && !certData.certId && (
+      {allDone && !certData.certId && !hubGate.blocked && (
         <div className="dash-card space-y-3">
           <div className="text-headline text-success text-center inline-flex items-center justify-center gap-2 w-full">
             <Trophy size={18} strokeWidth={2.4} /> ยินดีด้วย! กรอกข้อมูลเพื่อรับใบประกาศ
@@ -521,10 +576,16 @@ export default function Certification() {
           </p>
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">ชื่อ–นามสกุล (บนใบประกาศ)</span>
-            <input type="text" value={studentName}
+            <input type="text" value={verifiedName || studentName}
               onChange={e => setStudentName(e.target.value)}
+              readOnly={!!verifiedName}
               placeholder="เช่น อนันต์ ใจดี"
-              className="w-full text-body mt-1" />
+              className={`w-full text-body mt-1${verifiedName ? ' opacity-80' : ''}`} />
+            {verifiedName && (
+              <span className="text-2xs text-text-muted inline-flex items-center gap-1 mt-1">
+                <Shield size={12} strokeWidth={2.4} /> ชื่อจากบัญชี JIA{verified.cardNo ? ` (บัตร ${verified.cardNo})` : ''} — แก้ไขได้ที่ class.jiacpr.com/account
+              </span>
+            )}
           </label>
           <label className="block">
             <span className="text-caption font-semibold text-text-secondary">เบอร์โทร</span>
@@ -547,7 +608,7 @@ export default function Certification() {
             </div>
           )}
           <button onClick={generateCertificate}
-            disabled={!studentName.trim() || !studentPhone.trim() || !studentEmail.trim()}
+            disabled={!(verifiedName || studentName.trim()) || !studentPhone.trim() || !studentEmail.trim()}
             className="btn btn-success btn-lg btn-block disabled:opacity-40">
             <Trophy size={16} strokeWidth={2.4} /> ออกใบประกาศนียบัตร
           </button>

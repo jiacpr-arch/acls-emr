@@ -42,9 +42,12 @@ export const usePreCourseStore = create(
       clearAttempt: () => set({ currentAttempt: null }),
 
       // --- Posttest ---
-      startPostTest: (setId) => set({
+      // questionIds: the exact questions served (ACLS pool draws / shuffled order), so a reload
+      // mid-exam gets the same exam back instead of a fresh draw that drops the answers.
+      startPostTest: (setId, questionIds = null) => set({
         currentPostTest: {
           setId,
+          questionIds,
           answers: {},
           currentIndex: 0,
           startedAt: new Date().toISOString(),
@@ -63,9 +66,12 @@ export const usePreCourseStore = create(
       clearPostTest: () => set({ currentPostTest: blankExam() }),
 
       // --- Pretest ---
-      startPreTest: (setId) => set({
+      // questionIds: the exact questions served (ACLS pool draws / shuffled order), so a reload
+      // mid-exam gets the same exam back instead of a fresh draw that drops the answers.
+      startPreTest: (setId, questionIds = null) => set({
         currentPreTest: {
           setId,
+          questionIds,
           answers: {},
           currentIndex: 0,
           startedAt: new Date().toISOString(),

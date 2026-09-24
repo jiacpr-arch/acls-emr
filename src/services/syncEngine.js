@@ -8,6 +8,8 @@ import {
   rpcSubmitCodeBlueResult,
   rpcSubmitRecorderResult,
 } from './cohortSync';
+import { getPassportState, loadPassport, bindPassportStudent } from './passport';
+import { flushExamGrades } from './examGrade';
 
 // In-memory flush state — single global engine.
 let flushing = false;
@@ -44,7 +46,6 @@ export function scheduleFlush() {
 
 async function flush() {
   const ctx = getClassContext();
-  if (!ctx.classCode || ctx.syncDisabled) return;
   // หมายเหตุ: ห้ามใส่ gate navigator.onLine ตรงนี้ — ค่านี้เชื่อถือไม่ได้
   // (false ทั้งที่เน็ตใช้ได้จริง บน captive-portal WiFi / บาง in-app WebView)
   // เคยทำข้อมูลบทเรียน/ควิซของนักเรียนหายเงียบๆ ทั้ง session (นักเรียนสอบผ่าน
@@ -53,7 +54,16 @@ async function flush() {
 
   flushing = true;
   try {
+    // ผลสอบ pre/post ต้องให้ server ตรวจทุกคน (ใบประกาศรอผลนี้) — มีคลาสหรือไม่มี, โหมดออฟไลน์ก็ตาม
+    // (ส่งแค่คำตอบ + local id). ส่วนที่เหลือ sync เฉพาะคนที่อยู่ในคลาส
+    if (!ctx.classCode || ctx.syncDisabled) {
+      await flushExamGrades().catch(err => console.error('exam grading flush failed:', err));
+      return;
+    }
     await flushStudents(ctx);
+    await flushPassportBinds(ctx);
+    // หลัง flushStudents (ได้ server pk ไว้ผูกคลาส) และก่อน flushQuizAttempts (ให้ roster ของครูได้คะแนนที่ server ตรวจ)
+    await flushExamGrades().catch(err => console.error('exam grading flush failed:', err));
     await flushLessonProgress();
     await flushQuizAttempts();
     // ผลเกมไปท้ายสุด: ไม่ gate ใบประกาศ จึงไม่ควรไปหน่วงบทเรียน/ควิซที่ gate
@@ -124,6 +134,32 @@ async function flushStudents(ctx) {
   }
 }
 
+// Optional JIA account: a student who confirmed it in StudentIdentityModal has hubSub on their
+// record; once the record is on the server, link it there (api/passport/bind). Only rows of the
+// account logged in on this device right now — the server re-checks that (expectedSub), so a
+// passport someone else left on a shared device is never bound to this student.
+const PERMANENT_BIND_ERRORS = new Set(['bound_to_other', 'account_in_use', 'not_synced', 'class_not_found', 'bad_request']);
+async function flushPassportBinds(ctx) {
+  const rows = await db.students.filter(r => !!r.hubSub && !r.hubBoundAt && !r.hubBindError && !!r.syncedAt).toArray();
+  if (!rows.length) return;
+  const passport = getPassportState().loaded ? getPassportState() : await loadPassport();
+  if (!passport.loggedIn) return;
+  const gate = await loadFailureGate('passportBind');
+  for (const row of rows) {
+    if (row.hubSub !== passport.profile.sub || gate.blocked.has(String(row.id))) continue;
+    const res = await bindPassportStudent({ classCode: ctx.classCode, studentPk: row.id, expectedSub: row.hubSub });
+    if (res.ok) {
+      await db.students.update(row.id, { hubBoundAt: new Date().toISOString() });
+      await clearFailure(gate, row.id);
+    } else if (PERMANENT_BIND_ERRORS.has(res.reason)) {
+      await db.students.update(row.id, { hubBindError: res.reason });
+      await clearFailure(gate, row.id);
+    } else {
+      await recordFailure('passportBind', row.id, new Error(res.reason || 'bind_failed'));
+    }
+  }
+}
+
 async function flushLessonProgress() {
   const rows = await db.lessonProgress.filter(r => !r.syncedAt).toArray();
   const gate = await loadFailureGate('lessonProgress');
@@ -158,14 +194,16 @@ async function flushQuizAttempts() {
       // Old row without uuid — should have been backfilled in v3 upgrade
       continue;
     }
+    // pre/post ที่ server ตรวจแล้ว: ส่งคะแนนของ server แทนของเครื่อง
+    const graded = row.serverGrade?.status === 'graded' ? row.serverGrade : null;
     const payload = {
-      score: row.score,
-      totalQuestions: row.totalQuestions,
-      correctCount: row.correctCount,
+      score: graded ? graded.score : row.score,
+      totalQuestions: graded ? graded.total : row.totalQuestions,
+      correctCount: graded ? graded.correctCount : row.correctCount,
       answers: row.answers ?? [],
       startedAt: row.startedAt,
       finishedAt: row.finishedAt,
-      passed: row.passed,
+      passed: graded ? graded.passed : row.passed,
       attemptNumber: row.attemptNumber ?? 1,
     };
     const { error } = await rpcSubmitQuizAttempt({

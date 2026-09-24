@@ -15,13 +15,17 @@ export const useClassStore = create(
       className: null,
       courseMode: null,    // 'bls' | 'acls'
       syncDisabled: false, // true = user opted into pure offline mode
+      // Teacher's rule "log in with the JIA account before the exam" — last value read from the
+      // server (hooks/useHubLoginGate.js), kept here so it still applies offline.
+      requireHubLogin: false,
 
       setClass: ({ classId, classCode, instructorCode = null, className, courseMode }) => set({
-        classId, classCode, instructorCode, className, courseMode, syncDisabled: false,
+        classId, classCode, instructorCode, className, courseMode, syncDisabled: false, requireHubLogin: false,
       }),
       clearClass: () => set({
-        classId: null, classCode: null, instructorCode: null, className: null, courseMode: null,
+        classId: null, classCode: null, instructorCode: null, className: null, courseMode: null, requireHubLogin: false,
       }),
+      setRequireHubLogin: (requireHubLogin) => set({ requireHubLogin: !!requireHubLogin }),
       setInstructorCode: (instructorCode) => set({ instructorCode }),
       disableSync: () => set({ syncDisabled: true }),
       enableSync: () => set({ syncDisabled: false }),

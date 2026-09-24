@@ -15,7 +15,7 @@ import {
   PRE_TEST_PASS_PERCENT as ACLS_PRE_TEST_PASS_PERCENT,
   PRE_TEST_QUESTION_COUNT as ACLS_PRE_TEST_QUESTION_COUNT,
 } from './assessment';
-import { loadExamForBank } from '../services/assessmentService';
+import { loadExamForBank, loadExamForSet } from '../services/assessmentService';
 
 // Local (non-Supabase) course, or null when the active course uses Supabase (ACLS).
 const localCourse = IS_BLS ? bls
@@ -33,9 +33,11 @@ export const PRE_TEST_QUESTION_COUNT = localCourse ? localCourse.PRE_TEST_QUESTI
 //   bank.pass_percent / bank.question_count match the active course
 //   set:  { id, title }
 //   questions: [{ id, question, choices, correctId, explanation, topic? }]
-export async function loadActivePreTestExam() {
+// resume: { setId, questionIds } of an exam already in progress (see preCourseStore) — the same
+// set/questions come back so a reload mid-exam keeps the answers.
+export async function loadActivePreTestExam(resume = null) {
   if (localCourse) {
-    const set = localCourse.pickRandomPreTestSet();
+    const set = (resume?.setId && localCourse.getPreTestSetById(resume.setId)) || localCourse.pickRandomPreTestSet();
     return {
       bank: {
         pass_percent: localCourse.PRE_TEST_PASS_PERCENT,
@@ -45,6 +47,11 @@ export async function loadActivePreTestExam() {
       set: { id: set.id, title: set.title },
       questions: set.questions,
     };
+  }
+  if (resume?.setId) {
+    try {
+      return await loadExamForSet(resume.setId, { questionIds: resume.questionIds });
+    } catch { /* set retired since — fall back to a fresh draw */ }
   }
   return loadExamForBank(ACLS_PRE_TEST_BANK_ID);
 }
