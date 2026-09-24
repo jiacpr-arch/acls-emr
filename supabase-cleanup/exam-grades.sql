@@ -1,7 +1,7 @@
 -- =====================================================
 -- Migration: exam_grades
 -- Target project: elyyijlcjfvhxbpzscnv (emr-ai-clinic) — shared by acls-emr and bls-hcp-app
--- Status: NOT YET APPLIED — apply before deploying the /api/exam/grade route of either app
+-- Status: APPLIED 24 ก.ย. 2569 (migration exam_grades) — verified: RLS on, no policies, anon reads 0 rows
 --
 -- Server-graded pre/post-test results. Until now every exam was scored in the browser and the
 -- server stored whatever score/passed the client sent (submit_quiz_attempt, the direct insert

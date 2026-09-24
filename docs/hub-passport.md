@@ -43,7 +43,7 @@
 
 1. **Hub** (`jia-learning-hub`): apply migration ชุด unified-identity + deploy `sso-auth` + ตั้งคีย์เซ็น
    (`HUB_PASSPORT_PRIVATE_JWK`/`HUB_PASSPORT_KID`) ตามเช็คลิสต์ใน `docs/unified-identity.md` ของ repo นั้น
-2. **Supabase ของแอปนี้** (`elyyijlcjfvhxbpzscnv`): รัน `supabase-cleanup/hub-passport.sql`
+2. **Supabase ของแอปนี้** (`elyyijlcjfvhxbpzscnv`): ~~รัน `supabase-cleanup/hub-passport.sql`~~ — **apply แล้ว 24 ก.ย. 2569**
    (เพิ่มคอลัมน์ nullable อย่างเดียว ของเดิมไม่กระทบ — ใช้ร่วมกับ bls-hcp-app)
 3. **ลงทะเบียนแอปที่ Hub** — 1 แถวต่อ deployment, secret คนละตัว (สุ่มยาวๆ เช่น `openssl rand -base64 32`):
    ```sql

@@ -1,7 +1,7 @@
 -- =====================================================
 -- Migration: hub_passport_link
 -- Target project: elyyijlcjfvhxbpzscnv (emr-ai-clinic) — shared by acls-emr and bls-hcp-app
--- Status: NOT YET APPLIED — apply before setting HUB_PASSPORT_CLIENT_ID/SECRET on any deployment
+-- Status: APPLIED 24 ก.ย. 2569 (migration hub_passport_link) — verified: columns present, existing rows untouched
 --
 -- Optional "log in with a JIA account" (the Hub, class.jiacpr.com — repo jia-learning-hub,
 -- docs/unified-identity.md). A student who logs in there gets a signed passport; the app's own

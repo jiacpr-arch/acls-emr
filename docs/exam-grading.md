@@ -26,7 +26,7 @@
 
 ## ตั้งค่า
 
-1. รัน `supabase-cleanup/exam-grades.sql` บน `elyyijlcjfvhxbpzscnv` (ใช้ร่วมกับ bls-hcp-app) **ก่อน** deploy
+1. ~~รัน `supabase-cleanup/exam-grades.sql` บน `elyyijlcjfvhxbpzscnv`~~ — **apply แล้ว 24 ก.ย. 2569** (ใช้ร่วมกับ bls-hcp-app)
 2. ไม่มี env ใหม่ (ใช้ `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` เดิม)
 
 ถ้า deploy ก่อนรัน SQL: การตรวจจะ error (500) → ผลสอบค้าง "รอตรวจ" (ไม่หาย) จนกว่าจะรัน SQL แล้ว sync รอบถัดไปตรวจให้เอง
