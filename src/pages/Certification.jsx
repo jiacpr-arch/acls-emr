@@ -18,6 +18,8 @@ import { simCertHighlights, ACHIEVEMENTS } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
 import { usePassport } from '../hooks/usePassport';
 import HubCertificateCard from '../components/precourse/HubCertificateCard';
+import HubLoginGate from '../components/precourse/HubLoginGate';
+import { useHubLoginGate } from '../hooks/useHubLoginGate';
 import { serverPassed, gradePending, flushExamGrades } from '../services/examGrade';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
@@ -63,6 +65,7 @@ export default function Certification() {
   // Optional JIA account: when this student confirmed their JIA login (StudentIdentityModal →
   // hubSub) and that same account is still logged in, the certificate uses the Hub's name as-is.
   const passport = usePassport();
+  const hubGate = useHubLoginGate();
   const verified = passport.loggedIn && activeStudent?.hubSub && activeStudent.hubSub === passport.profile?.sub
     ? passport.profile : null;
   const verifiedName = (verified?.nameTh || '').trim();
@@ -559,8 +562,11 @@ export default function Certification() {
         </div>
       )}
 
+      {/* The class requires the JIA account before the certificate (teacher's rule, hooks/useHubLoginGate.js) */}
+      {allDone && !certData.certId && hubGate.blocked && <HubLoginGate gate={hubGate} action="รับใบประกาศ" />}
+
       {/* Student details + Generate — full contact set required at this step */}
-      {allDone && !certData.certId && (
+      {allDone && !certData.certId && !hubGate.blocked && (
         <div className="dash-card space-y-3">
           <div className="text-headline text-success text-center inline-flex items-center justify-center gap-2 w-full">
             <Trophy size={18} strokeWidth={2.4} /> ยินดีด้วย! กรอกข้อมูลเพื่อรับใบประกาศ

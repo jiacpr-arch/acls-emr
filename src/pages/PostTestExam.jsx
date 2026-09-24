@@ -24,6 +24,8 @@ import { gradeExamAttempt } from '../services/examGrade';
 import { track } from '../services/analytics';
 import { IS_ACLS, courseMeta } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import HubLoginGate from '../components/precourse/HubLoginGate';
+import { useHubLoginGate } from '../hooks/useHubLoginGate';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import LoadingCard from '../components/ui/LoadingCard';
 import ErrorCard from '../components/ui/ErrorCard';
@@ -44,6 +46,7 @@ export default function PostTestExam() {
   const voucherActive = useVoucherStore(s => !!(s.voucher?.lineConfirmed && validateVoucher(s.voucher.code)));
 
   const [showIdentity, setShowIdentity] = useState(false);
+  const hubGate = useHubLoginGate();
   const [gateChecked, setGateChecked] = useState(false);
   const [gatePassed, setGatePassed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -145,6 +148,15 @@ export default function PostTestExam() {
             <BookOpen size={16} strokeWidth={2.4} /> กลับไปบทเรียน
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (hubGate.blocked) {
+    return (
+      <div className="page-container space-y-5">
+        <Header />
+        <HubLoginGate gate={hubGate} action="สอบหลังเรียน" />
       </div>
     );
   }

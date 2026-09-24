@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { preCourseLessons } from '../data/activeLessons';
 import { getCohortSummary, deleteStudent } from '../db/database';
 import { useClassStore } from '../stores/classStore';
-import { rpcGetCohortSummary, rpcDeleteCohortStudent } from '../services/cohortSync';
+import { rpcGetCohortSummary, rpcDeleteCohortStudent, rpcGetCohortHubLinks } from '../services/cohortSync';
 import { scheduleFlush, getPendingCount, subscribeToSync } from '../services/syncEngine';
 import {
   PRE_TEST_LESSON_ID, PRE_TEST_PASS_PERCENT,
@@ -21,6 +21,7 @@ import AwardSummaryCard from '../components/precourse/AwardSummaryCard';
 import CodeBlueCohortSummary from '../components/precourse/CodeBlueCohortSummary';
 import RecorderCohortSummary from '../components/precourse/RecorderCohortSummary';
 import ClassGateModal from '../components/precourse/ClassGateModal';
+import ClassHubLoginSwitch from '../components/precourse/ClassHubLoginSwitch';
 import QrFullscreenOverlay from '../components/precourse/QrFullscreenOverlay';
 import { track } from '../services/analytics';
 import {
@@ -86,6 +87,7 @@ export default function InstructorCohort() {
   const [tab, setTab] = useState(readSavedTab);
   const [selectedId, setSelectedId] = useState(preCourseLessons[0]?.id ?? assessmentEntries[0]?.id);
   const [summary, setSummary] = useState([]);   // [{ student, lessons: {lid: {...}} }]
+  const [hubLinked, setHubLinked] = useState(() => new Set()); // roster pks linked to a JIA account (cloud only)
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
   const [source, setSource] = useState('local');  // 'cloud' | 'local'
@@ -132,6 +134,9 @@ export default function InstructorCohort() {
         const { data, error } = await rpcGetCohortSummary(ids);
         if (!cancelled && !error) {
           setSummary(data);
+          rpcGetCohortHubLinks()
+            .then(({ data: links }) => { if (!cancelled) setHubLinked(new Set(links || [])); })
+            .catch(() => {});
           setSource('cloud');
           setNeedInstructorCode(false);
           setLoading(false);
@@ -147,6 +152,7 @@ export default function InstructorCohort() {
       const local = await getCohortSummary(ids);
       if (!cancelled) {
         setSummary(local);
+        setHubLinked(new Set());
         setSource('local');
         setLoading(false);
       }
@@ -539,6 +545,8 @@ export default function InstructorCohort() {
                     </div>
                   )}
 
+                  {!syncDisabled && <ClassHubLoginSwitch />}
+
                   {needInstructorCode && (
                     <div className="bg-warning/8 border border-warning/30 p-3 space-y-2"
                       style={{ borderRadius: 'var(--radius-md)' }}>
@@ -645,6 +653,12 @@ export default function InstructorCohort() {
                             <td className="px-3 py-2 text-text-primary">
                               <span className="inline-flex items-center gap-1">
                                 {r.name}
+                                {hubLinked.has(r.id) && (
+                                  <span className="text-2xs font-bold text-info inline-flex items-center gap-0.5"
+                                    title="ผูกบัญชี JIA แล้ว" data-testid="hub-linked">
+                                    <ShieldCheck size={11} strokeWidth={2.4} /> JIA
+                                  </span>
+                                )}
                                 <ChevronDown size={12} strokeWidth={2.2}
                                   className={`text-text-muted shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`} />
                               </span>

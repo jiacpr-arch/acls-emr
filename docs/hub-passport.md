@@ -126,3 +126,18 @@
 - Hub แสดงใบพวกนี้เป็น **"บันทึกเดิม ยังไม่ได้ตรวจสอบ"** (ออกใบใน browser, `/api/cert/notify` ไม่มี auth) เว้นแต่ `exam_verified`
   (ใบที่ออกหลัง Phase 9 ที่ server ตรวจ pre/post แล้ว)
 
+
+## คลาสที่ "ต้องเข้าสู่ระบบบัญชี JIA ก่อนสอบ" (Phase 14) — 24 ก.ย. 2569
+
+ครูเปิดได้เองที่หน้าอาจารย์ (`/pre-course/cohort` → แท็บ "คลาส/QR" → สวิตช์ "ต้องเข้าสู่ระบบบัญชี JIA ก่อนสอบ") — ค่าเริ่มต้นปิดทุกคลาส
+- DB (`supabase-cleanup/class-hub-login.sql`, **apply บน `elyy…` แล้ว 24 ก.ย. 2569**): คอลัมน์ `cohort_classes.require_hub_login`
+  (default `false`) + RPC ใหม่ 3 ตัว: `get_class_exam_policy(code)` (รหัสเข้าคลาสหรือรหัสอาจารย์), `set_class_require_hub_login(code, value)`
+  และ `get_cohort_hub_links(code)` (รหัสอาจารย์ — คลาสเก่าที่ไม่มีรหัสอาจารย์ใช้รหัสเข้าคลาส เหมือน RPC อาจารย์ตัวอื่น) ไม่แก้ RPC/ตารางเดิม
+- ฝั่งนักเรียน (`src/hooks/useHubLoginGate.js`, `src/components/precourse/HubLoginGate.jsx`): pre-test, post-test และฟอร์มออกใบประกาศ
+  แสดงการ์ด "คลาสนี้ต้องเข้าสู่ระบบบัญชี JIA ก่อน…" จนกว่าจะ login บัญชี JIA **และ**ยืนยันบัญชีนั้นกับผู้เรียนในเครื่อง (`hubSub` ของ
+  student record — ผลสอบ/ใบประกาศถึงจะผูก `hub_user_id` และเข้า Hub) ใบที่ออกไปแล้วยังแสดงเหมือนเดิม
+- อ่านกฎใหม่ทุกครั้งที่ออนไลน์ และเก็บค่าล่าสุดใน class context (`acls-class-context` field ใหม่ `requireHubLogin` — key เดิม) ไว้ใช้ตอนออฟไลน์
+- **ไม่ล็อกคลาสจนสอบไม่ได้**: deployment ที่ยังไม่ตั้ง `HUB_PASSPORT_*` (หรือออฟไลน์จน `/api/passport/me` ตอบไม่ได้) ไม่บล็อก —
+  หน้าอาจารย์บอกว่า "เว็บนี้ยังไม่ได้เปิดระบบบัญชี JIA"
+- เป็นกฎของคลาสในแอป ไม่ใช่การกันฝั่ง server — นักเรียนที่ออกจากคลาสก็สอบแบบไม่มีคลาสได้ แต่ผลจะไม่อยู่ในคลาสนั้น; หน้าอาจารย์
+  แท็บ "ภาพรวม" มีป้าย **JIA** ที่นักเรียนที่ผูกบัญชีแล้ว (`get_cohort_hub_links`) ให้ครูเห็นว่าใครยังไม่ login

@@ -15,6 +15,8 @@ import { track } from '../services/analytics';
 import { submitAttempt as submitRemoteAttempt } from '../services/assessmentService';
 import { IS_ACLS, courseMeta } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import HubLoginGate from '../components/precourse/HubLoginGate';
+import { useHubLoginGate } from '../hooks/useHubLoginGate';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import LoadingCard from '../components/ui/LoadingCard';
 import ErrorCard from '../components/ui/ErrorCard';
@@ -31,6 +33,7 @@ export default function PreTestExam() {
   const setPreTestIndex = usePreCourseStore(s => s.setPreTestIndex);
   const answerPreTest = usePreCourseStore(s => s.answerPreTest);
   const clearPreTest = usePreCourseStore(s => s.clearPreTest);
+  const hubGate = useHubLoginGate();
 
   const [showIdentity, setShowIdentity] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -84,6 +87,15 @@ export default function PreTestExam() {
           <button onClick={() => setShowIdentity(true)} className="btn btn-primary btn-md">ระบุตัวตน</button>
         </div>
         <StudentIdentityModal open={showIdentity} onClose={() => setShowIdentity(false)} onConfirm={() => setShowIdentity(false)} />
+      </div>
+    );
+  }
+
+  if (hubGate.blocked) {
+    return (
+      <div className="page-container space-y-5">
+        <Header />
+        <HubLoginGate gate={hubGate} action="ทำแบบทดสอบก่อนเรียน" />
       </div>
     );
   }
