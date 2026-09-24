@@ -42,24 +42,28 @@
 
 ## ตั้งค่าก่อนใช้งานจริง
 
-1. **Hub** (`jia-learning-hub`): apply migration ชุด unified-identity + deploy `sso-auth` + ตั้งคีย์เซ็น
-   (`HUB_PASSPORT_PRIVATE_JWK`/`HUB_PASSPORT_KID`) ตามเช็คลิสต์ใน `docs/unified-identity.md` ของ repo นั้น
+1. **Hub** (`jia-learning-hub`): ~~apply migration + deploy `sso-auth`/`results-ingest` + ตั้งคีย์เซ็น~~ — **ขึ้นจริงแล้ว 24 ก.ย. 2569**
+   (สถานะเต็มอยู่หัวข้อ "สถานะใช้งานจริง" ใน `docs/unified-identity.md` ของ repo นั้น)
 2. **Supabase ของแอปนี้** (`elyyijlcjfvhxbpzscnv`): ~~รัน `supabase-cleanup/hub-passport.sql`~~ — **apply แล้ว 24 ก.ย. 2569**
    (เพิ่มคอลัมน์ nullable อย่างเดียว ของเดิมไม่กระทบ — ใช้ร่วมกับ bls-hcp-app)
-3. **ลงทะเบียนแอปที่ Hub** — 1 แถวต่อ deployment, secret คนละตัว (สุ่มยาวๆ เช่น `openssl rand -base64 32`):
+3. **ลงทะเบียนแอปที่ Hub** — **ใส่แล้ว 24 ก.ย. 2569** 1 แถวต่อ deployment, secret คนละตัว (Hub เก็บแค่ bcrypt hash):
+
+   | `client_id` | โดเมน / Vercel project | `allowed_courses` |
+   |---|---|---|
+   | `acls` | acls.morroo.com (`acls-emr-urjm`) | `als` |
+   | `bls` | bls.morroo.com — build `VITE_COURSE_MODE=bls` ของ repo นี้ (`bls-morroo`) | `bls` |
+   | `airway` | airway.morroo.com (`acls-emr`) | `airway` |
+   | `defib` | defib.morroo.com (`acls-emr-defib`) | `defib` |
+   | `iv` | iv.morroo.com (`acls-emr-iv`) | `iv` |
+   | `bls-hcp-app` | bls.jiacpr.com — repo `bls-hcp-app` | `bls` |
+
+   redirect ของทุกแถว = `https://<โดเมน>/api/passport/callback` ตรงเป๊ะ (Hub รับเฉพาะ `https://`). เพิ่ม deployment ใหม่:
    ```sql
    insert into learning_hub.sso_clients(client_id,name,kind,redirect_uris,secret_hash,allowed_courses) values
-    ('acls','ACLS (acls.morroo.com)','passport',array['https://acls.morroo.com/api/passport/callback'],
-     extensions.crypt('<secret ของ acls>',extensions.gen_salt('bf',10)),array['als']),
-    ('airway','Airway (airway.morroo.com)','passport',array['https://airway.morroo.com/api/passport/callback'],
-     extensions.crypt('<secret ของ airway>',extensions.gen_salt('bf',10)),array['airway']),
-    ('defib','Defib (defib.morroo.com)','passport',array['https://defib.morroo.com/api/passport/callback'],
-     extensions.crypt('<secret ของ defib>',extensions.gen_salt('bf',10)),array['defib']),
-    ('iv','IV (iv.morroo.com)','passport',array['https://iv.morroo.com/api/passport/callback'],
-     extensions.crypt('<secret ของ iv>',extensions.gen_salt('bf',10)),array['iv']);
+    ('<id>','<ชื่อ>','passport',array['https://<โดเมน>/api/passport/callback'],
+     extensions.crypt('<secret สุ่มยาว เช่น openssl rand -base64 32>',extensions.gen_salt('bf',10)),array['<คอร์สของ Hub>']);
    ```
-   (`redirect_uris` ต้องตรงเป๊ะกับโดเมนจริงของแต่ละ deployment; Hub รับเฉพาะ `https://`;
-   `allowed_courses` = id คอร์สของ Hub ที่ deployment นั้นส่งผลสอบเข้าได้ — ACLS คือ `als` ดูหัวข้อ "ผลสอบกลาง")
+   (`allowed_courses` = id คอร์สของ Hub ที่ deployment นั้นส่งผลสอบเข้าได้ — ACLS คือ `als` ดูหัวข้อ "ผลสอบกลาง")
 4. **Vercel แต่ละ deployment**: `HUB_PASSPORT_CLIENT_ID` (= `client_id` ด้านบน) และ
    `HUB_PASSPORT_CLIENT_SECRET` (= secret ตัวที่ใช้สร้าง `secret_hash`) — ฝั่ง server เท่านั้น ห้าม `VITE_`
    ตั้งแค่ deployment ไหน ปุ่มก็โผล่เฉพาะที่นั่น
@@ -109,3 +113,16 @@
   `/portal?verify=<uuid>` บนโดเมนของ Hub เท่านั้น
 - Hub ล่ม/ปฏิเสธ → ตอบ `certificates: []` (+ `unavailable: true`) ไม่ error — หน้าเว็บแค่ไม่แสดงการ์ด
 - ผู้เรียนกด "ขอรับใบประกาศ" ได้ที่ `class.jiacpr.com/my-certificates` (ถ้า Hub ยังไม่ได้ออกให้อัตโนมัติ เช่น ตอนรับรองผลยังไม่มีชื่อบนบัตร)
+
+## ค้นใบเก่าจากหน้าตรวจสอบของ Hub — `POST /api/cert/lookup` (24 ก.ย. 2569)
+
+ใบที่แอปนี้ (และ bls-hcp-app ซึ่งใช้ตาราง `certificates` เดียวกัน) ออกก่อนมีระบบกลาง ค้นได้ที่หน้าตรวจสอบของ Hub
+(`class.jiacpr.com/portal?verify=…` → กล่อง "ค้นหาใบประกาศเดิมด้วยเลขที่ใบ") — Hub เรียก `https://acls.morroo.com/api/cert/lookup`
+ฝั่ง server ด้วย `{number, name}` (`api/_lib/legacyCertLookup.js`):
+- เลขต้องเป็นรูปแบบเดิม `JIA-(ACLS|BLS|AW|DF|IV)-…` และต้องกรอก **ชื่อตามที่พิมพ์บนใบ** คู่กัน — เลขใบเป็น base36 ของเวลา
+  (`src/pages/Certification.jsx`) เดาได้ จึงตอบ `404 {found:false}` เหมือนกันทุกไบต์ทั้งเลขไม่มีและชื่อผิด
+- เทียบชื่อแบบตัดคำนำหน้าไทย/อังกฤษ ช่องว่าง ตัวพิมพ์ และจุด; ตอบแค่ `number, course, name, issuedAt, examVerified`
+  (ไม่มีเบอร์/อีเมล/คะแนน); จำกัด 20 ครั้ง/นาที/IP; ต้องมี `SUPABASE_SERVICE_ROLE_KEY` (ตาราง `certificates` เปิด RLS ไม่มี policy)
+- Hub แสดงใบพวกนี้เป็น **"บันทึกเดิม ยังไม่ได้ตรวจสอบ"** (ออกใบใน browser, `/api/cert/notify` ไม่มี auth) เว้นแต่ `exam_verified`
+  (ใบที่ออกหลัง Phase 9 ที่ server ตรวจ pre/post แล้ว)
+
