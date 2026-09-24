@@ -64,6 +64,11 @@
      extensions.crypt('<secret สุ่มยาว เช่น openssl rand -base64 32>',extensions.gen_salt('bf',10)),array['<คอร์สของ Hub>']);
    ```
    (`allowed_courses` = id คอร์สของ Hub ที่ deployment นั้นส่งผลสอบเข้าได้ — ACLS คือ `als` ดูหัวข้อ "ผลสอบกลาง")
+0. **ก่อน merge PR นี้ — ทุก deployment ต้องมี `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`** (ของ `elyy…`, ฝั่ง server เท่านั้น):
+   การตรวจข้อสอบฝั่ง server (`/api/exam/grade`) และหน้าใบประกาศใช้ผลจาก server เท่านั้น — deployment ที่ไม่มี key ผลสอบจะค้าง
+   "รอระบบตรวจ" และออกใบไม่ได้. ตรวจจากภายนอกได้โดยไม่เห็นค่า: `GET https://<โดเมน>/api/admin/stats` พร้อม
+   `Authorization: Bearer x` → `401 Invalid or expired session` = ตั้งแล้ว, `503 …service role key…` = ยังไม่ตั้ง
+   (24 ก.ย. 2569: ตั้งแล้วเฉพาะ acls.morroo.com — bls.morroo.com/airway/defib/iv ยังไม่ตั้ง)
 4. **Vercel แต่ละ deployment**: `HUB_PASSPORT_CLIENT_ID` (= `client_id` ด้านบน) และ
    `HUB_PASSPORT_CLIENT_SECRET` (= secret ตัวที่ใช้สร้าง `secret_hash`) — ฝั่ง server เท่านั้น ห้าม `VITE_`
    ตั้งแค่ deployment ไหน ปุ่มก็โผล่เฉพาะที่นั่น
