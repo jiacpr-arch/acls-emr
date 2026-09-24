@@ -4,7 +4,7 @@ import { verifyHubPassport, publicPassportProfile } from './hubPassport.js';
 import {
   passportConfig, redirectUriFor, createPkce, safeReturnTo, withQuery, pkceCookie, clearPkceCookie,
   readPkceCookie, passportCookie, clearPassportCookie, statesMatch, hubLoginUrl, exchangeCode,
-  readPassport, readPassportToken, sameOrigin,
+  readPassport, readPassportToken, sameOrigin, hubLogoutUrl,
 } from './passportSession.js';
 import { fetchHubCertificates } from './hubResults.js';
 
@@ -106,13 +106,20 @@ export function createCertificatesHandler({ config = () => passportConfig(), fet
   };
 }
 
-export function createLogoutHandler() {
+// POST { everywhere?, returnTo? } — always drops this app's passport cookie. With `everywhere`, also
+// answers the Hub's logout URL (app/sso/logout there) for the browser to visit next, so the JIA
+// session ends too and the next person on a shared device is asked to log in again.
+export function createLogoutHandler({ config = () => passportConfig() } = {}) {
   return async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     if (!sameOrigin(req)) return res.status(403).json({ error: 'forbidden' });
     res.setHeader('Set-Cookie', clearPassportCookie());
     res.setHeader('Cache-Control', 'no-store');
-    return res.status(200).json({ ok: true });
+    const body = parseBody(req);
+    const cfg = config();
+    const redirectUri = body.everywhere === true && cfg.configured ? redirectUriFor(req, cfg) : '';
+    if (!redirectUri) return res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true, hubLogoutUrl: hubLogoutUrl(cfg, { redirectUri, returnPath: body.returnTo }) });
   };
 }
 

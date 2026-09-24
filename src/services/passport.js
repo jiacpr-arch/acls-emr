@@ -72,11 +72,23 @@ export function startPassportLogin(returnTo) {
   window.location.assign(`/api/passport/login?returnTo=${encodeURIComponent(target)}`);
 }
 
-export async function logoutPassport() {
+// Drops this app's passport. `everywhere` also ends the JIA session at the Hub (its /sso/logout page
+// brings the browser back to `returnTo` here) — what "log out" and "not me" use, so the next person
+// on a shared device is asked to log in instead of landing in the previous account.
+export async function logoutPassport({ everywhere = false, returnTo } = {}) {
+  let next = null;
   try {
-    await fetch('/api/passport/logout', { method: 'POST', credentials: 'same-origin' });
+    const res = await fetch('/api/passport/logout', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ everywhere, returnTo: returnTo || `${window.location.pathname}${window.location.search}` }),
+    });
+    const body = res.ok ? await res.json().catch(() => ({})) : {};
+    next = everywhere && typeof body.hubLogoutUrl === 'string' ? body.hubLogoutUrl : null;
   } catch { /* the cookie also expires on its own */ }
   setState({ loggedIn: false, profile: null, returnFlag: null });
+  if (next) window.location.assign(next);
 }
 
 // Links the confirmed JIA account to this student's roster row on the server.
