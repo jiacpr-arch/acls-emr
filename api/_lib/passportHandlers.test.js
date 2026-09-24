@@ -200,6 +200,29 @@ test('logout: clears the cookie; refuses a cross-site POST', async () => {
   assert.match(setCookies(res)[0], /^jia_passport=; Path=\/; SameSite=Lax; Max-Age=0/);
 });
 
+test('logout everywhere: also answers the Hub logout URL for this client and its own callback', async () => {
+  let res = fakeRes();
+  await createLogoutHandler({ config: cfgOn })(req({ method: 'POST', body: { everywhere: true, returnTo: '/pre-course' }, headers: { origin: 'https://acls.morroo.com' } }), res);
+  assert.equal(res.statusCode, 200);
+  assert.match(setCookies(res)[0], /^jia_passport=; /);
+  const u = new URL(res.body.hubLogoutUrl);
+  assert.equal(`${u.origin}${u.pathname}`, 'https://class.jiacpr.com/sso/logout');
+  assert.equal(u.searchParams.get('client_id'), 'acls');
+  assert.equal(u.searchParams.get('redirect_uri'), 'https://acls.morroo.com/api/passport/callback');
+  assert.equal(u.searchParams.get('return_path'), '/pre-course');
+  // a hostile returnTo never becomes an absolute URL
+  res = fakeRes();
+  await createLogoutHandler({ config: cfgOn })(req({ method: 'POST', body: { everywhere: true, returnTo: '//evil.com' }, headers: { origin: 'https://acls.morroo.com' } }), res);
+  assert.equal(new URL(res.body.hubLogoutUrl).searchParams.get('return_path'), '/');
+  // plain logout (the old bundles' call) and a site without JIA login: cookie only
+  res = fakeRes();
+  await createLogoutHandler({ config: cfgOn })(req({ method: 'POST', headers: { origin: 'https://acls.morroo.com' } }), res);
+  assert.deepEqual(res.body, { ok: true });
+  res = fakeRes();
+  await createLogoutHandler({ config: cfgOff })(req({ method: 'POST', body: { everywhere: true }, headers: { origin: 'https://acls.morroo.com' } }), res);
+  assert.deepEqual(res.body, { ok: true });
+});
+
 function bindReq(body, { cookie = `jia_passport=${mint()}`, origin = 'https://acls.morroo.com' } = {}) {
   return req({ method: 'POST', body, headers: { cookie, origin } });
 }

@@ -18,6 +18,7 @@ import { simCertHighlights, ACHIEVEMENTS } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
 import { usePassport } from '../hooks/usePassport';
 import HubCertificateCard from '../components/precourse/HubCertificateCard';
+import JiaAccountCard from '../components/precourse/JiaAccountCard';
 import HubLoginGate from '../components/precourse/HubLoginGate';
 import { useHubLoginGate } from '../hooks/useHubLoginGate';
 import { serverPassed, gradePending, flushExamGrades } from '../services/examGrade';
@@ -358,6 +359,8 @@ export default function Certification() {
       )}
 
       <MorrooAdCard />
+
+      <JiaAccountCard />
 
       {/* The Hub's central online certificate, alongside this app's own (nothing until there is one).
           Outside the progress gate: it comes from the Hub, not from this device's records. */}

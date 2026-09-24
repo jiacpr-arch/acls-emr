@@ -184,7 +184,7 @@ export default function StudentIdentityModal({ open, onClose, onConfirm }) {
                 {verified.verifyLevel === 'instructor' ? ' · ครูตรวจบัตรแล้ว' : ''}
               </div>
             </div>
-            <button type="button" onClick={() => logoutPassport()}
+            <button type="button" onClick={() => logoutPassport({ everywhere: true })}
               className="text-2xs font-semibold text-text-muted underline shrink-0">
               ไม่ใช่ฉัน
             </button>

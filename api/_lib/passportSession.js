@@ -115,6 +115,18 @@ export function statesMatch(a, b) {
   return x.length > 0 && x.length === y.length && timingSafeEqual(x, y);
 }
 
+// The Hub's "log out everywhere" page (jia-learning-hub app/sso/logout): ends the JIA session there
+// and sends the browser back to this app's origin + returnPath — only for this client's registered
+// redirect_uri, so the Hub never redirects anywhere else.
+export function hubLogoutUrl(cfg, { redirectUri, returnPath }) {
+  const url = new URL(cfg.ssoUrl);
+  url.pathname = `${url.pathname.replace(/\/+$/, '')}/logout`;
+  url.searchParams.set('client_id', cfg.clientId);
+  url.searchParams.set('redirect_uri', redirectUri);
+  url.searchParams.set('return_path', safeReturnTo(returnPath));
+  return url.toString();
+}
+
 export function hubLoginUrl(cfg, { redirectUri, state, challenge }) {
   const url = new URL(cfg.ssoUrl);
   url.searchParams.set('client_id', cfg.clientId);
