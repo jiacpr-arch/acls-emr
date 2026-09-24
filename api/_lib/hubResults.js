@@ -47,3 +47,38 @@ export async function forwardGradesToHub(cfg, passport, grades, { fetcher = fetc
   }
   return out;
 }
+
+// The Hub's public origin (for the verification link), taken from the configured /sso URL.
+export function hubOrigin(cfg) {
+  try { return new URL(cfg.ssoUrl).origin; } catch { return 'https://class.jiacpr.com'; }
+}
+
+// The learner's central online certificates at the Hub (learning_hub.person_certificates), fetched
+// with their own passport through results-ingest's 'certificates' action — the Hub only returns
+// courses this deployment's client may report. Throws on any Hub error (callers show nothing).
+export async function fetchHubCertificates(cfg, passport, { fetcher = fetch, timeoutMs = 5000 } = {}) {
+  if (!cfg?.configured || !cfg.resultsUrl || !passport) return [];
+  const headers = { 'Content-Type': 'application/json' };
+  if (cfg.hubAnonKey) headers.apikey = cfg.hubAnonKey;
+  const res = await fetcher(cfg.resultsUrl, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ clientId: cfg.clientId, clientSecret: cfg.clientSecret, passport, action: 'certificates' }),
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok || !Array.isArray(body?.certificates)) throw new Error(`hub certificates ${res.status}`);
+  const origin = hubOrigin(cfg);
+  // /portal?verify= is the Hub's live verify page (the bare /?verify= follows the Hub's JIA_MODE).
+  const safePath = (p) => typeof p === 'string' && /^\/portal\?verify=[0-9a-f-]{36}$/i.test(p);
+  return body.certificates.map((c) => ({
+    number: String(c.number || ''),
+    courseId: String(c.courseId || ''),
+    courseTitle: String(c.courseTitle || ''),
+    issuedAt: c.issuedAt || null,
+    expiresAt: c.expiresAt || null,
+    status: String(c.status || ''),
+    nameVerified: c.nameVerified === true,
+    verifyUrl: safePath(c.verifyPath) ? origin + c.verifyPath : null,
+  }));
+}

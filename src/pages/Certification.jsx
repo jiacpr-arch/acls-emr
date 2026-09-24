@@ -17,6 +17,7 @@ import { exportCertificatePDF } from '../utils/exportCertificate';
 import { simCertHighlights, ACHIEVEMENTS } from '../game/achievements';
 import { notifyCertIssued } from '../services/certNotify';
 import { usePassport } from '../hooks/usePassport';
+import HubCertificateCard from '../components/precourse/HubCertificateCard';
 import { serverPassed, gradePending, flushExamGrades } from '../services/examGrade';
 import { track } from '../services/analytics';
 import { jiacprCourse } from '../data/jiacprCourse';
@@ -354,6 +355,10 @@ export default function Certification() {
       )}
 
       <MorrooAdCard />
+
+      {/* The Hub's central online certificate, alongside this app's own (nothing until there is one).
+          Outside the progress gate: it comes from the Hub, not from this device's records. */}
+      {verified && <HubCertificateCard sub={passport.profile.sub} />}
 
       {/* Progress + Requirements — gated on the data they're computed from */}
       {requirementsLoading && <LoadingCard label="กำลังตรวจสอบความคืบหน้า..." />}

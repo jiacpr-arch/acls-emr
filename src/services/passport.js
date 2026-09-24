@@ -96,3 +96,16 @@ export async function bindPassportStudent({ classCode, studentPk, expectedSub })
     return { ok: false, status: 0, reason: 'network' };
   }
 }
+
+// The logged-in learner's central online certificates at the Hub (api/passport/certificates —
+// the server asks the Hub with the httpOnly passport). Never throws.
+export async function fetchHubCertificates() {
+  try {
+    const res = await fetch('/api/passport/certificates', { cache: 'no-store', credentials: 'same-origin' });
+    if (!res.ok) return { loggedIn: false, certificates: [] };
+    const data = await res.json();
+    return { loggedIn: !!data.loggedIn, sub: data.sub || null, certificates: Array.isArray(data.certificates) ? data.certificates : [] };
+  } catch {
+    return { loggedIn: false, certificates: [] };
+  }
+}

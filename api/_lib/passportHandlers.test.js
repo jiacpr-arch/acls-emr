@@ -2,7 +2,7 @@ import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { generateKeyPairSync, sign } from 'node:crypto';
 import {
-  createLoginHandler, createCallbackHandler, createMeHandler, createLogoutHandler, createBindHandler,
+  createLoginHandler, createCallbackHandler, createMeHandler, createLogoutHandler, createBindHandler, createCertificatesHandler,
 } from './passportHandlers.js';
 import { passportConfig, parseCookies } from './passportSession.js';
 import { _resetJwksCache } from './hubPassport.js';
@@ -270,4 +270,43 @@ test('bind: dark (503) until configured', async () => {
   const res = fakeRes();
   await createBindHandler({ config: cfgOff, getAdmin: () => { throw new Error('unused'); } })(bindReq({}), res);
   assert.equal(res.statusCode, 503);
+});
+
+test('certificates: the logged-in learner\'s Hub certificates; empty (never an error) otherwise', async () => {
+  const cert = { number: 'JIA-ALS-ONL-2026-0123456789', courseId: 'als', courseTitle: 'ACLS', status: 'issued', nameVerified: false,
+    issuedAt: '2026-09-24T05:00:00Z', expiresAt: '2028-09-24T05:00:00Z', verifyPath: '/portal?verify=3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c' };
+  const passport = mint();
+  const calls = [];
+  const fetcher = (hub) => async (url, init = {}) => {
+    if (String(url).endsWith('/jwks.json')) return { ok: true, async json() { return { keys: [jwk] }; } };
+    calls.push({ url, body: JSON.parse(init.body) });
+    return hub();
+  };
+  const ok = fetcher(() => new Response(JSON.stringify({ ok: true, certificates: [cert] }), { status: 200 }));
+  const run = async (handler, r) => { const res = fakeRes(); await handler(r, res); return res; };
+
+  let res = await run(createCertificatesHandler({ config: cfgOff, fetcher: ok }), req());
+  assert.deepEqual(res.body, { configured: false, loggedIn: false, certificates: [] });
+  res = await run(createCertificatesHandler({ config: cfgOn, fetcher: ok, now: () => NOW }), req());
+  assert.deepEqual(res.body, { configured: true, loggedIn: false, certificates: [] });
+  assert.equal(calls.length, 0);
+
+  res = await run(createCertificatesHandler({ config: cfgOn, fetcher: ok, now: () => NOW }), req({ headers: { cookie: `jia_passport=${passport}` } }));
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.headers['cache-control'], 'no-store');
+  assert.equal(res.body.sub, SUB);
+  assert.equal(res.body.certificates[0].verifyUrl, `https://class.jiacpr.com${cert.verifyPath}`);
+  assert.deepEqual(calls[0].body, { clientId: 'acls', clientSecret: 'sek', passport, action: 'certificates' });
+
+  // an expired passport is not sent to the Hub
+  res = await run(createCertificatesHandler({ config: cfgOn, fetcher: ok, now: () => NOW + 3 * 3600 * 1000 }), req({ headers: { cookie: `jia_passport=${passport}` } }));
+  assert.equal(res.body.loggedIn, false);
+  assert.equal(calls.length, 1);
+
+  const down = fetcher(() => new Response('{"error":"บัตรผ่านไม่ถูกต้องหรือหมดอายุ"}', { status: 422 }));
+  res = await run(createCertificatesHandler({ config: cfgOn, fetcher: down, now: () => NOW }), req({ headers: { cookie: `jia_passport=${passport}` } }));
+  assert.deepEqual(res.body, { configured: true, loggedIn: true, sub: SUB, certificates: [], unavailable: true });
+
+  res = await run(createCertificatesHandler({ config: cfgOn, fetcher: ok }), req({ method: 'POST' }));
+  assert.equal(res.statusCode, 405);
 });

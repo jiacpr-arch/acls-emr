@@ -4,8 +4,9 @@ import { verifyHubPassport, publicPassportProfile } from './hubPassport.js';
 import {
   passportConfig, redirectUriFor, createPkce, safeReturnTo, withQuery, pkceCookie, clearPkceCookie,
   readPkceCookie, passportCookie, clearPassportCookie, statesMatch, hubLoginUrl, exchangeCode,
-  readPassport, sameOrigin,
+  readPassport, readPassportToken, sameOrigin,
 } from './passportSession.js';
+import { fetchHubCertificates } from './hubResults.js';
 
 // Route handlers for /api/passport/* (optional "log in with a JIA account"). Factories so tests
 // can inject config/fetch/Supabase; the files under api/passport/ just export the defaults.
@@ -81,6 +82,27 @@ export function createMeHandler({ config = () => passportConfig(), fetcher = fet
     const claims = await readPassport(req, cfg, { fetcher, now: now() });
     if (!claims) return res.status(200).json({ configured: true, loggedIn: false, profile: null });
     return res.status(200).json({ configured: true, loggedIn: true, profile: publicPassportProfile(claims) });
+  };
+}
+
+// GET /api/passport/certificates — the logged-in learner's central online certificates at the Hub
+// (number, expiry, verification link), shown next to this app's own certificate. Never an error
+// page: no passport, not configured, or the Hub unreachable all answer with an empty list.
+export function createCertificatesHandler({ config = () => passportConfig(), fetcher = fetch, now = () => Date.now() } = {}) {
+  return async function handler(req, res) {
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+    res.setHeader('Cache-Control', 'no-store');
+    const cfg = config();
+    if (!cfg.configured) return res.status(200).json({ configured: false, loggedIn: false, certificates: [] });
+    const claims = await readPassport(req, cfg, { fetcher, now: now() });
+    if (!claims) return res.status(200).json({ configured: true, loggedIn: false, certificates: [] });
+    try {
+      const certificates = await fetchHubCertificates(cfg, readPassportToken(req), { fetcher });
+      return res.status(200).json({ configured: true, loggedIn: true, sub: claims.sub, certificates });
+    } catch (err) {
+      console.warn('hub certificates unavailable (non-fatal):', err?.message || err);
+      return res.status(200).json({ configured: true, loggedIn: true, sub: claims.sub, certificates: [], unavailable: true });
+    }
   };
 }
 

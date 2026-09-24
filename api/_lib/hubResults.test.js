@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { forwardGradesToHub, hubResultFromGrade, HUB_COURSE_FOR } from './hubResults.js';
+import { fetchHubCertificates, forwardGradesToHub, hubOrigin, hubResultFromGrade, HUB_COURSE_FOR } from './hubResults.js';
 import { passportConfig } from './passportSession.js';
 
 const grade = { attempt_uuid: '0b1c2d3e-4f50-4617-8293-a4b5c6d7e8f9', course_mode: 'acls', exam_kind: 'post', correct_count: 45, total_questions: 50, score: 90, passed: true, finished_at: '2026-09-24T05:00:00.000Z' };
@@ -42,4 +42,40 @@ test('skips without a configured client or a passport; never throws on Hub error
   assert.deepEqual(await forwardGradesToHub(cfg, 'jwt', [grade], { fetcher: refusing }), { sent: 0, failed: 1, skipped: 0 });
   const down = async () => { throw new Error('fetch failed'); };
   assert.deepEqual(await forwardGradesToHub(cfg, 'jwt', [grade, grade], { fetcher: down }), { sent: 0, failed: 2, skipped: 0 });
+});
+
+const TOKEN = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';
+const hubCert = { id: 'x', kind: 'online', token: TOKEN, number: 'JIA-ALS-ONL-2026-0123456789', courseId: 'als', courseTitle: 'ACLS',
+  name: 'สมหญิง ตั้งใจ', cardNo: 'JIA-000777', score: 90, nameVerified: true, issuedAt: '2026-09-24T05:00:00Z',
+  expiresAt: '2028-09-24T05:00:00Z', status: 'issued', verifyPath: `/portal?verify=${TOKEN}` };
+
+test('certificates: asks results-ingest with the passport + client credentials, keeps only display fields', async () => {
+  const calls = [];
+  const fetcher = async (url, init) => { calls.push({ url, init }); return new Response(JSON.stringify({ ok: true, certificates: [hubCert] }), { status: 200 }); };
+  const list = await fetchHubCertificates(cfg, 'jwt.token.sig', { fetcher });
+  assert.equal(calls[0].url, cfg.resultsUrl);
+  assert.equal(calls[0].init.headers.apikey, 'anon');
+  assert.deepEqual(JSON.parse(calls[0].init.body), { clientId: 'acls', clientSecret: 'sek', passport: 'jwt.token.sig', action: 'certificates' });
+  assert.deepEqual(list, [{ number: hubCert.number, courseId: 'als', courseTitle: 'ACLS', issuedAt: hubCert.issuedAt, expiresAt: hubCert.expiresAt,
+    status: 'issued', nameVerified: true, verifyUrl: `https://class.jiacpr.com/portal?verify=${TOKEN}` }]);
+  // the certificate token, card number and score stay at the server
+  assert.equal(JSON.stringify(list).includes('JIA-000777'), false);
+});
+
+test('certificates: the verification link only ever points at the Hub verify page', async () => {
+  const reply = (verifyPath) => async () => new Response(JSON.stringify({ certificates: [{ ...hubCert, verifyPath }] }), { status: 200 });
+  for (const bad of [`/?verify=${TOKEN}`, '//evil.example/portal?verify=' + TOKEN, 'https://evil.example/?verify=' + TOKEN, `/portal?verify=${TOKEN}&x=1`, '/admin', null]) {
+    assert.equal((await fetchHubCertificates(cfg, 'jwt', { fetcher: reply(bad) }))[0].verifyUrl, null, String(bad));
+  }
+  assert.equal(hubOrigin(passportConfig({ HUB_SSO_URL: 'http://127.0.0.1:9/sso' })), 'http://127.0.0.1:9');
+  assert.equal(hubOrigin({ ssoUrl: 'not a url' }), 'https://class.jiacpr.com');
+});
+
+test('certificates: nothing to ask without a client or passport; a Hub error throws', async () => {
+  const never = async () => { throw new Error('should not be called'); };
+  assert.deepEqual(await fetchHubCertificates(passportConfig({}), 'jwt', { fetcher: never }), []);
+  assert.deepEqual(await fetchHubCertificates(cfg, '', { fetcher: never }), []);
+  await assert.rejects(fetchHubCertificates(cfg, 'jwt', { fetcher: async () => new Response('{"error":"x"}', { status: 401 }) }));
+  await assert.rejects(fetchHubCertificates(cfg, 'jwt', { fetcher: async () => new Response('{"ok":true}', { status: 200 }) }));
+  await assert.rejects(fetchHubCertificates(cfg, 'jwt', { fetcher: async () => { throw new Error('fetch failed'); } }));
 });

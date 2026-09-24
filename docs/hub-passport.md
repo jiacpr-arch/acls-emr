@@ -26,6 +26,7 @@
 | `POST /api/passport/bind` — ผูก roster row กับบัญชี (service role เท่านั้น) | `api/passport/bind.js` |
 | sync engine เรียก bind หลัง sync นักเรียนเสร็จ (เฉพาะบัญชีที่ login อยู่ตอนนี้) | `src/services/syncEngine.js` (`flushPassportBinds`) |
 | ใบประกาศ: ชื่อจาก Hub + `hub_user_id` | `src/pages/Certification.jsx`, `api/cert/notify.js` |
+| `GET /api/passport/certificates` — ใบประกาศออนไลน์กลางของผู้เรียนจาก Hub (ดูหัวข้อ "ใบประกาศออนไลน์กลาง") | `api/passport/certificates.js`, `src/components/precourse/HubCertificateCard.jsx` |
 | ตัวตรวจ JWT (บังคับ `alg=ES256`, `typ`, `kid` ใน JWKS, `iss`, `aud`=client ของแอปนี้, `exp/nbf` ±60 วิ) | `api/_lib/hubPassport.js` |
 
 กันอะไรไว้บ้าง:
@@ -95,3 +96,16 @@
 - id คอร์สที่ Hub: `acls`→`als`, นอกนั้นเท่าเดิม — แถว `sso_clients` ของแต่ละ deployment ต้องมี `allowed_courses` ตรงนี้
   (ถ้ายังใช้ build BLS ของ repo นี้ (`VITE_COURSE_MODE=bls`) บนโดเมนไหนอยู่ ต้องมีแถวของ deployment นั้นที่มี `array['bls']` ด้วย)
 - ผู้เรียนที่สอบตอนไม่ได้ login: ผลอยู่ใน `exam_grades` ของแอปนี้ตามเดิม แต่ไม่เข้า Hub (Hub ต้องรู้ว่าเป็นของใคร)
+
+## ใบประกาศออนไลน์กลาง (Hub) — 24 ก.ย. 2569
+
+เมื่อผล post-test ที่ส่งเข้า Hub ผ่านเกณฑ์และเจ้าหน้าที่รับรอง Hub จะออก "ใบประกาศออนไลน์กลาง JIA" (`learning_hub.person_certificates`,
+เลข `JIA-ALS-ONL-<ปี>-<hex>`, อายุ 24 เดือน) — ใบประกาศเดิมของแอปนี้ **ยังออกเหมือนเดิมทุกอย่าง** ส่วนนี้แค่โชว์ใบกลางเพิ่ม:
+- หน้า `/certification` แสดงการ์ด "ใบประกาศออนไลน์กลาง JIA" (เลขที่ + วันหมดอายุ + ลิงก์ตรวจสอบที่ `class.jiacpr.com/portal?verify=…`)
+  **เฉพาะเมื่อ** นักเรียนคนนี้ยืนยันบัญชี JIA ไว้ (`hubSub`) และบัญชีเดียวกันยัง login อยู่ — ยังไม่มีใบ/ใบหมดอายุ/ถูกเพิกถอน = ไม่แสดงอะไร
+- `GET /api/passport/certificates` (server) ถาม `results-ingest` ด้วย `{clientId, clientSecret, passport, action:'certificates'}` — Hub
+  ตรวจบัตร + secret + ledger แบบเดียวกับตอนส่งผลสอบ แล้วคืนเฉพาะคอร์สใน `allowed_courses` ของ deployment นี้; route ส่งต่อให้ browser
+  แค่ เลข/คอร์ส/วันออก/วันหมดอายุ/สถานะ/สถานะชื่อ/ลิงก์ตรวจสอบ (token ของใบ, เลขบัตรนักเรียน, คะแนน ไม่ออกจาก server) และลิงก์ต้องเป็น
+  `/portal?verify=<uuid>` บนโดเมนของ Hub เท่านั้น
+- Hub ล่ม/ปฏิเสธ → ตอบ `certificates: []` (+ `unavailable: true`) ไม่ error — หน้าเว็บแค่ไม่แสดงการ์ด
+- ผู้เรียนกด "ขอรับใบประกาศ" ได้ที่ `class.jiacpr.com/my-certificates` (ถ้า Hub ยังไม่ได้ออกให้อัตโนมัติ เช่น ตอนรับรองผลยังไม่มีชื่อบนบัตร)
