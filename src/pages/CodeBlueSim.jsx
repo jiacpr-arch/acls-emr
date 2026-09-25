@@ -45,6 +45,10 @@ import './codeBlueSim.css';
 const GAME_NAME = IS_BLS ? 'BLS RESCUE' : 'CODE BLUE';
 const GAME_EYEBROW = IS_BLS ? 'BLS Rescue' : 'Code Blue';
 
+// ปุ่มทองท้ายเกม: เว็บ BLS ส่งต่อคอร์ส CPR & AED ออนไลน์ (เสียเงิน ห้ามใช้คำว่า "ฟรี")
+// เว็บอื่นเข้าบทเรียนฟรีในแอป — เนื้อหา cpr.morroo.com ไม่ตรงกับคอร์สเหล่านั้น
+const CPR_ONLINE_URL = 'https://cpr.morroo.com/?utm_source=bls-app&utm_medium=referral&utm_campaign=sim_debrief';
+
 const HISCORE_PREFIX = 'acls_codeblue_hiscore';
 const MUTE_KEY = 'acls_codeblue_muted';
 const SFX_VOLUME_KEY = 'acls_codeblue_sfx_volume';
@@ -1360,28 +1364,43 @@ export default function CodeBlueSim() {
               </div>
             ))}
           </div>
-          {/* soft CTA เข้าบทเรียนฟรีเป็นหลัก — การขายคอร์สจริงปล่อยให้แบนเนอร์
-              ในหน้าบทเรียนรับช่วงต่อตอนผู้เรียนอุ่นเครื่องแล้ว เหลือแค่ลิงก์ LINE เบาๆ */}
+          {/* soft CTA ต่อยอดการเรียน (BLS → คอร์สออนไลน์ cpr.morroo.com, เว็บอื่น → บทเรียนฟรีในแอป)
+              การขายคอร์สอบรมจริงปล่อยให้ปลายทางรับช่วงต่อ เหลือแค่ลิงก์ LINE เบาๆ */}
           <div className="cbs-course-cta">
             <div className="cbs-tl-title">NEXT LEVEL — ต่อยอดจากเกมสู่ของจริง</div>
             <p className="cbs-course-cta-sub">
               {result.won
-                ? 'ในเกมคุณทำได้แล้ว — เก็บความรู้ให้แน่นด้วยบทเรียนฟรี แล้วไปให้สุดกับการฝึกมือจริง'
+                ? `ในเกมคุณทำได้แล้ว — เก็บความรู้ให้แน่นด้วย${IS_BLS ? 'คอร์สออนไลน์' : 'บทเรียนฟรี'} แล้วไปให้สุดกับการฝึกมือจริง`
                 : 'ในเกมพลาดได้ แต่ชีวิตจริงพลาดไม่ได้ — เก็บบทเรียนให้แน่น แล้วกลับมาแก้มือ'}
             </p>
-            <button
-              type="button"
-              className="cbs-btn-learn"
-              onClick={() => {
-                track('learn_cta_click', {
+            {IS_BLS ? (
+              <a
+                href={CPR_ONLINE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cbs-btn-learn"
+                onClick={() => track('learn_cta_click', {
                   metaCustom: 'SimDebriefLearn',
-                  props: { source: 'sim_debrief', won: result.won, scenario_id: sc.id },
-                });
-                navigate('/pre-course');
-              }}
-            >
-              📖 เรียน {courseMeta.shortName} ต่อฟรี — จบแล้วสอบรับใบเซอร์
-            </button>
+                  props: { source: 'sim_debrief', destination: 'cpr_online', won: result.won, scenario_id: sc.id },
+                })}
+              >
+                📖 เรียน CPR & AED ออนไลน์ต่อ — จบแล้วรับใบเซอร์
+              </a>
+            ) : (
+              <button
+                type="button"
+                className="cbs-btn-learn"
+                onClick={() => {
+                  track('learn_cta_click', {
+                    metaCustom: 'SimDebriefLearn',
+                    props: { source: 'sim_debrief', destination: 'pre_course', won: result.won, scenario_id: sc.id },
+                  });
+                  navigate('/pre-course');
+                }}
+              >
+                📖 เรียน {courseMeta.shortName} ต่อฟรี — จบแล้วสอบรับใบเซอร์
+              </button>
+            )}
             <div className="cbs-line-hint">
               สนใจคอร์สอบรมกับอาจารย์ตัวจริง?{' '}
               <a

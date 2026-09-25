@@ -794,6 +794,8 @@
 }
 .cbs-btn-learn:hover { box-shadow: 0 7px 0 #a8801f, 0 16px 34px rgba(242, 193, 78, .42); }
 .cbs-btn-learn:active { transform: translateY(4px); box-shadow: 0 2px 0 #a8801f; }
+/* เว็บ BLS ใช้เป็นลิงก์ออกไป cpr.morroo.com — ให้หน้าตาเหมือนปุ่ม */
+a.cbs-btn-learn { display: block; text-align: center; text-decoration: none; }
 .cbs-line-hint { text-align: center; font-size: 12.5px; color: #8B99C4; }
 .cbs-line-hint a { color: var(--cbs-green); font-weight: 700; }
 
