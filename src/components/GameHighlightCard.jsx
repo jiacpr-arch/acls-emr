@@ -1,38 +1,31 @@
 import { useNavigate } from 'react-router-dom';
-import { Gamepad2, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
-// การ์ดไฮไลต์เกม — idiom เดียวกับ GamePromoCard ของ firstaid: พื้นเข้ม navy
-// + ตัวหนังสือทอง ให้ทางเข้าเกมโดดออกจากการ์ดขาวทั้งหน้าแบบตั้งใจ
-// (นี่คือ gradient เดียวที่อนุญาตในภาษาดีไซน์ชุดนี้)
-export default function GameHighlightCard({ to, onClick, title, desc, Icon = Gamepad2, style }) {
+// การ์ดไฮไลต์เกม — ดีไซน์ "Monitor": พื้นจอมอนิเตอร์เข้ม + เส้น trace สีเขียว
+// ให้ทางเข้าเกมโดดออกจากการ์ดขาวทั้งหน้าแบบตั้งใจ (เข้มเหมือนกันทั้งสองธีม)
+// (prop `Icon` ของ call site เดิมไม่ได้ใช้แล้ว — เส้น trace ทำหน้าที่แทนไอคอน)
+export default function GameHighlightCard({ to, onClick, title, desc, eyebrow = 'Code Blue Sim', style }) {
   const navigate = useNavigate();
   const handleClick = () => {
     if (onClick) onClick();
     if (to) navigate(to);
   };
   return (
-    <button
-      onClick={handleClick}
-      className="card card-hover w-full flex items-center gap-3.5"
-      style={{
-        background: 'linear-gradient(135deg, #1B2340, #2A1B40)',
-        border: '1.5px solid #4A3D7A',
-        textAlign: 'left',
-        justifyContent: 'flex-start',
-        ...style,
-      }}
-    >
-      <div
-        className="flex items-center justify-center shrink-0"
-        style={{ width: 44, height: 44, borderRadius: 12, background: '#DB277725', color: '#F2C14E' }}
-      >
-        <Icon size={22} strokeWidth={2.2} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-headline" style={{ color: '#F2C14E' }}>{title}</div>
-        {desc && <div className="text-caption" style={{ color: '#B8C2E0' }}>{desc}</div>}
-      </div>
-      <ArrowRight size={18} color="#F2C14E" className="shrink-0" />
+    <button onClick={handleClick} className="monitor-card" style={style}>
+      <span className="font-mono text-2xs font-semibold uppercase" style={{ letterSpacing: '0.08em', color: 'var(--color-trace)' }}>
+        ● {eyebrow}
+      </span>
+      <svg className="monitor-trace" viewBox="0 0 356 34" preserveAspectRatio="none" width="100%" height="34" fill="none" aria-hidden="true">
+        <path d="M0 18 h30 l4 -8 l4 14 l5 -18 l4 22 l5 -12 l6 6 l5 -6 l4 10 l5 -14 l4 12 l6 -4 h20 l4 -9 l4 15 l5 -20 l4 22 l5 -10 l6 4 l5 -8 l4 10 l5 -12 l4 10 l6 -4 h22 l4 -8 l4 14 l5 -18 l4 22 l5 -12 l6 6 l5 -6 l4 10 l5 -14 l4 12 l6 -4 H356"
+          strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <span className="flex items-center gap-3">
+        <span className="flex-1 min-w-0 flex flex-col">
+          <span className="text-headline" style={{ fontSize: 17, color: '#E9EFEC' }}>{title}</span>
+          {desc && <span className="text-caption" style={{ color: '#9FB0A9' }}>{desc}</span>}
+        </span>
+        <ArrowRight size={20} strokeWidth={2.2} className="shrink-0" style={{ color: 'var(--color-trace)' }} />
+      </span>
     </button>
   );
 }

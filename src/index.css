@@ -4,31 +4,37 @@
 
 @theme {
   /* === Surfaces === */
-  --color-bg-primary: #F4F6FA;
+  /* "Monitor" — พื้นเทาอมเขียวแบบจอมอนิเตอร์ แยกชั้นด้วยเส้นขอบบางแทนเงา */
+  --color-bg-primary: #F2F4F3;
   --color-bg-secondary: #FFFFFF;
-  --color-bg-tertiary: #EDF1F7;
+  --color-bg-tertiary: #E8ECEA;
   --color-bg-elevated: #FFFFFF;
 
   /* === Text === */
-  --color-text-primary: #0F1A2E;
-  --color-text-secondary: #4A5568;
-  --color-text-muted: #7A8699;
+  --color-text-primary: #0E1513;
+  --color-text-secondary: #3E4945;
+  --color-text-muted: #5E6965;
 
   /* === Brand / status === */
-  --color-danger: #DC2626;
-  --color-danger-dark: #B91C1C;
-  --color-info: #2563EB;
-  --color-info-dark: #1D4ED8;
-  --color-primary: #4F46E5;
-  --color-primary-dark: #4338CA;
-  --color-success: #059669;
-  --color-success-dark: #047857;
-  --color-warning: #D97706;
-  --color-warning-dark: #B45309;
-  --color-purple: #7C3AED;
-  --color-purple-dark: #6D28D9;
-  --color-shock: #EA580C;
-  --color-shock-dark: #C2410C;
+  --color-danger: #C8102E;
+  --color-danger-dark: #A00D25;
+  --color-info: #1B5FD0;
+  --color-info-dark: #144BA8;
+  --color-primary: #1B5FD0;
+  --color-primary-dark: #144BA8;
+  --color-success: #0B7A55;
+  --color-success-dark: #086043;
+  --color-warning: #B26A00;
+  --color-warning-dark: #8A5200;
+  --color-purple: #5B45C4;
+  --color-purple-dark: #4835A3;
+  --color-shock: #D4540B;
+  --color-shock-dark: #B04508;
+
+  /* จอ monitor (การ์ดเกม Code Blue Sim) — เข้มเสมอทั้งสองธีม */
+  --color-monitor: #0B1411;
+  --color-monitor-line: #1E2B27;
+  --color-trace: #3DD39A;
 
   /* === Course accent ===
      Structural/brand chrome only (bottom nav active tab, in-page tab switcher,
@@ -41,8 +47,8 @@
   --color-accent-dark: var(--color-info-dark);
 
   /* === Borders === */
-  --color-border: #E2E8F0;
-  --color-border-strong: #CBD5E1;
+  --color-border: #DCE2DF;
+  --color-border-strong: #C3CCC8;
 
   /* === Type scale extension ===
      text-2xs — micro label ขั้นต่ำที่ยังอ่านออกบนมือถือ ใช้แทน
@@ -54,21 +60,25 @@
   --text-3xs: 0.625rem; /* 10px */
   --text-3xs--line-height: 1.4;
 
-  /* === Radii (firstaid scale — soft, rounded-rect feel) === */
+  /* === Radii (Monitor — แน่นขึ้นแบบเครื่องมือ) === */
   --radius-sm: 6px;
   --radius: 10px;
-  --radius-md: 12px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
-  --radius-2xl: 22px;
-  --radius-3xl: 26px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
   --radius-full: 9999px;
 
   /* === Elevation === */
-  --shadow-1: 0 1px 2px rgba(15, 26, 46, 0.04), 0 1px 1px rgba(15, 26, 46, 0.03);
-  --shadow-2: 0 1px 3px rgba(15, 26, 46, 0.06), 0 4px 8px rgba(15, 26, 46, 0.04);
-  --shadow-3: 0 4px 12px rgba(15, 26, 46, 0.08), 0 12px 24px rgba(15, 26, 46, 0.06);
-  --shadow-pop: 0 8px 24px rgba(15, 26, 46, 0.12), 0 24px 48px rgba(15, 26, 46, 0.08);
+  --shadow-1: 0 1px 2px rgba(14, 21, 19, 0.05);
+  --shadow-2: 0 1px 3px rgba(14, 21, 19, 0.07), 0 4px 10px rgba(14, 21, 19, 0.05);
+  --shadow-3: 0 4px 12px rgba(14, 21, 19, 0.09), 0 12px 24px rgba(14, 21, 19, 0.06);
+  --shadow-pop: 0 8px 24px rgba(14, 21, 19, 0.13), 0 24px 48px rgba(14, 21, 19, 0.08);
+
+  /* === Fonts === */
+  --font-sans: 'IBM Plex Sans Thai', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', 'JetBrains Mono', Menlo, monospace;
 }
 
 /* หมายเหตุ: ห้ามใส่ universal reset (*{margin:0}) ที่นี่ — CSS นอก @layer จะชนะ
@@ -76,7 +86,7 @@
    Tailwind preflight รีเซ็ต margin/padding/box-sizing ให้อยู่แล้ว */
 
 body {
-  font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 15px;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
@@ -119,8 +129,8 @@ body {
 .text-body { font-size: 15px; font-weight: 400; line-height: 1.55; }
 .text-body-strong { font-size: 15px; font-weight: 600; line-height: 1.45; }
 .text-caption { font-size: 13px; font-weight: 500; line-height: 1.4; }
-.text-overline { font-size: 10px; font-weight: 700; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); }
-.text-numeric { font-family: 'SF Mono', 'JetBrains Mono', 'Menlo', monospace; font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: -0.01em; }
+.text-overline { font-family: var(--font-mono); font-size: 11px; font-weight: 600; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); }
+.text-numeric { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; letter-spacing: -0.01em; }
 
 /* ===== BUTTON SYSTEM ===== */
 @layer base {
@@ -143,27 +153,25 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 46px;
-  padding: 7px 22px;
+  min-height: 48px;
+  padding: 7px 20px;
   font-weight: 600;
   font-size: 14px;
   line-height: 1.3;
   letter-spacing: -0.005em;
   border-radius: var(--radius);
   border: 1px solid transparent;
-  min-width: 46px;
-  transition: transform 0.12s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.18s ease, background 0.18s ease, opacity 0.15s ease;
-  box-shadow: var(--shadow-1);
+  min-width: 48px;
+  transition: transform 0.12s cubic-bezier(0.32, 0.72, 0, 1), background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
-.btn:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
-.btn:active { transform: translateY(0) scale(0.97); box-shadow: var(--shadow-1); }
+.btn:active { transform: scale(0.98); }
 .btn-sm { min-height: 34px; font-size: 13px; padding: 5px 14px; gap: 6px; border-radius: var(--radius); }
 .btn-lg { min-height: 52px; font-size: 15px; padding: 8px 24px; border-radius: var(--radius-md); }
 .btn-xl { min-height: 60px; font-size: 17px; padding: 10px 28px; border-radius: var(--radius-md); gap: 10px; }
 .btn-full, .btn-block { width: 100%; }
 
 /* Square icon-only button — pairs with .btn .btn-ghost (e.g. modal ✕ close) */
-.btn-icon { padding: 0; width: 46px; min-width: 46px; border-radius: var(--radius-full); }
+.btn-icon { padding: 0; width: 48px; min-width: 48px; border-radius: var(--radius-full); }
 .btn-icon.btn-sm { width: 34px; min-width: 34px; }
 
 /* ===== CTA with built-in arrow → (roodee style) =====
@@ -195,9 +203,8 @@ body {
 
 .btn-ghost {
   background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   color: var(--color-text-primary);
-  box-shadow: var(--shadow-1);
 }
 .btn-ghost:hover { background: var(--color-bg-tertiary); border-color: var(--color-border-strong); }
 .btn-ghost:active { background: var(--color-bg-tertiary); }
@@ -374,17 +381,14 @@ body {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-1);
   padding: 16px;
 }
 /* opt-in: การ์ดที่กดได้ ยกตัวนิด ๆ ตอน hover ให้รู้ว่า interactive */
 .card-hover {
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition: transform 120ms ease, border-color 120ms ease;
 }
-.card-hover:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-2);
-}
+.card-hover:hover { border-color: var(--color-border-strong); }
+.card-hover:active { transform: scale(0.99); }
 .glass-card-elevated {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
@@ -414,7 +418,7 @@ body {
 }
 .tab-item.active {
   background: var(--color-bg-secondary);
-  color: var(--color-accent);
+  color: var(--color-text-primary);
   box-shadow: var(--shadow-1);
 }
 
@@ -587,7 +591,6 @@ body {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 16px;
-  box-shadow: var(--shadow-1);
 }
 
 /* ===== Lesson reader: Next button highlight =====
@@ -976,30 +979,33 @@ body {
 
 /* ===== DARK MODE ===== */
 .dark {
-  --color-bg-primary: #0A0F1A;
-  --color-bg-secondary: #131B2C;
-  --color-bg-tertiary: #1E293B;
-  --color-bg-elevated: #1A2332;
-  --color-text-primary: #F1F5F9;
-  --color-text-secondary: #CBD5E1;
-  --color-text-muted: #94A3B8;
-  --color-border: #1E293B;
-  --color-border-strong: #334155;
+  --color-bg-primary: #0B0F0E;
+  --color-bg-secondary: #131A18;
+  --color-bg-tertiary: #1B2421;
+  --color-bg-elevated: #18201E;
+  --color-text-primary: #E9EFEC;
+  --color-text-secondary: #B9C4BF;
+  --color-text-muted: #8C9893;
+  --color-border: #222C29;
+  --color-border-strong: #33403C;
 
-  --color-danger: #F87171;
-  --color-danger-dark: #EF4444;
-  --color-info: #60A5FA;
-  --color-info-dark: #3B82F6;
-  --color-primary: #818CF8;
-  --color-primary-dark: #6366F1;
-  --color-success: #34D399;
-  --color-success-dark: #10B981;
-  --color-warning: #FBBF24;
-  --color-warning-dark: #F59E0B;
-  --color-purple: #A78BFA;
-  --color-purple-dark: #8B5CF6;
-  --color-shock: #FB923C;
-  --color-shock-dark: #F97316;
+  --color-danger: #FF5A6A;
+  --color-danger-dark: #E0243F;
+  --color-info: #6EA2FF;
+  --color-info-dark: #4A86F0;
+  --color-primary: #6EA2FF;
+  --color-primary-dark: #4A86F0;
+  --color-success: #3DD39A;
+  --color-success-dark: #1FB57D;
+  --color-warning: #F2B54A;
+  --color-warning-dark: #E09A20;
+  --color-purple: #A392FF;
+  --color-purple-dark: #8672F5;
+  --color-shock: #FF8A4C;
+  --color-shock-dark: #F26C24;
+
+  --color-monitor: #050908;
+  --color-monitor-line: #1A2522;
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-2: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -1051,3 +1057,60 @@ body {
   }
   .print-hide { display: none !important; }
 }
+
+/* ===== HOME (Monitor) ===== */
+.btn-ink { background: var(--color-text-primary); color: var(--color-bg-primary); }
+.btn-ink:hover { opacity: 0.9; }
+.home-emergency {
+  min-height: 84px;
+  padding: 16px;
+  border-radius: var(--radius-xl);
+  background: var(--color-danger);
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+.home-emergency:hover { background: var(--color-danger-dark); }
+.home-emergency:active { transform: scale(0.99); }
+.dark .home-emergency { background: var(--color-danger-dark); color: #fff; }
+.dark .home-emergency:hover { background: #C8102E; }
+.home-emergency-icon {
+  width: 48px; height: 48px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.16);
+}
+.home-menu-row {
+  width: 100%;
+  min-height: 64px;
+  display: flex; align-items: center; justify-content: flex-start; gap: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  border-radius: 0;
+  transition: background 0.12s ease;
+}
+.home-menu-row + .home-menu-row { border-top: 1px solid var(--color-border); }
+.home-menu-row:hover { background: var(--color-bg-tertiary); }
+.home-menu-tile {
+  width: 36px; height: 36px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+.home-ecg { display: block; width: 100%; height: 36px; color: var(--color-accent); }
+.monitor-card {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: stretch; gap: 10px;
+  padding: 16px;
+  text-align: left;
+  border-radius: var(--radius-lg);
+  background: var(--color-monitor);
+  border: 1px solid var(--color-monitor-line);
+  color: #E9EFEC;
+  overflow: hidden;
+}
+.monitor-card:active { transform: scale(0.99); }
+.monitor-trace path { stroke: var(--color-trace); }
+@media (prefers-reduced-motion: no-preference) {
+  .monitor-trace path { stroke-dasharray: 900; animation: monitor-sweep 3.6s linear infinite; }
+}
+@keyframes monitor-sweep { from { stroke-dashoffset: 900; } to { stroke-dashoffset: 0; } }

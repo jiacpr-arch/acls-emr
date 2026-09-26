@@ -161,6 +161,7 @@ export default function Learn() {
                       title={item.label}
                       desc={item.desc}
                       Icon={Icon}
+                      eyebrow={item.path === '/games' ? 'Games' : 'Code Blue Sim'}
                     />
                   );
                 }
