@@ -11,14 +11,14 @@ import ACLSQuickActions from '../components/newcase/ACLSQuickActions';
 import BLSHomeQuickActions from '../components/newcase/BLSHomeQuickActions';
 import MorrooAdCard from '../components/MorrooAdCard';
 import NewsCard from '../components/NewsCard';
-import StreakBadge from '../components/StreakBadge';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   AlertTriangle, Hospital,
   BookOpen, MessageSquare, Play, GraduationCap,
-  Gamepad2, HelpCircle, ChevronRight, Award,
+  Gamepad2, HelpCircle,
 } from '../components/ui/Icon';
 import GameHighlightCard from '../components/GameHighlightCard';
+import { EmergencyCTA, LearnPathCard, MenuList } from '../components/newcase/HomeBlocks';
 import { useLearnPath } from '../hooks/useLearnPath';
 
 // Module-level flag — splash shows once per full page load, not on every
@@ -91,80 +91,43 @@ export default function NewCase() {
             meta="ILCOR 2025 · CPR + AED Recording"
           />
 
-          {/* Emergency action — การ์ดสีแดงจุดเดียว (semantic, ไม่ใช่สีแบรนด์) */}
-          <button onClick={() => handleStart('bls')} disabled={loading}
-            className="card card-hover w-full flex items-center gap-3 disabled:opacity-50"
-            style={{ background: '#FEF2F2', border: '1.5px solid #FCA5A5', textAlign: 'left', justifyContent: 'flex-start' }}>
-            <div className="flex items-center justify-center text-white shrink-0"
-              style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--color-danger)' }}>
-              <AlertTriangle size={22} strokeWidth={2.2} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-headline" style={{ color: '#991B1B' }}>พบคนหมดสติ — เริ่มบันทึกทันที</div>
-              <div className="text-caption" style={{ color: '#7F1D1D' }}>BLS First Responder · CPR + AED</div>
-            </div>
-            <ChevronRight size={18} style={{ color: '#991B1B' }} className="shrink-0" />
-          </button>
+          <EmergencyCTA
+            Icon={AlertTriangle}
+            title="พบคนหมดสติ — เริ่มบันทึกทันที"
+            desc="BLS First Responder · CPR + AED"
+            hint="แตะแล้วนาฬิกาเริ่มนับทันที"
+            onClick={() => handleStart('bls')}
+            disabled={loading}
+          />
 
           {/* การ์ดนำทางนักเรียน — โครง/ตรรกะเดียวกับ ACLS (useLearnPath) */}
           {learnPath.next ? (
-            <button onClick={() => navigate(learnPath.next.path)}
-              className="card card-hover w-full flex items-center gap-3"
-              style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', textAlign: 'left', justifyContent: 'flex-start' }}>
-              <div className="flex items-center justify-center shrink-0"
-                style={{ width: 48, height: 48, borderRadius: 12, background: '#2563EB20', color: '#2563EB' }}>
-                <BookOpen size={22} strokeWidth={2.2} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-headline" style={{ color: '#1D4ED8' }}>
-                  เรียนต่อ — ขั้นที่ {learnPath.next.index}: {learnPath.next.label}
-                </div>
-                <div className="text-caption" style={{ color: '#1E40AF', marginBottom: 6 }}>
-                  ผ่านแล้ว {learnPath.done}/{learnPath.total} ขั้น
-                </div>
-                <div style={{ height: 5, borderRadius: 99, background: '#BFDBFE', overflow: 'hidden' }}>
-                  <div style={{
-                    height: '100%',
-                    width: `${learnPath.total ? Math.round((learnPath.done / learnPath.total) * 100) : 0}%`,
-                    background: '#2563EB',
-                    borderRadius: 99,
-                    transition: 'width 0.3s ease',
-                  }} />
-                </div>
-              </div>
-              <ChevronRight size={18} style={{ color: '#2563EB' }} className="shrink-0" />
-            </button>
-          ) : learnPath.activeStudent && learnPath.total > 0 ? (
-            <button onClick={() => navigate('/certification')}
-              className="card card-hover w-full flex items-center gap-3"
-              style={{ background: '#F0FDF4', border: '1.5px solid #BBF7D0', textAlign: 'left', justifyContent: 'flex-start' }}>
-              <div className="flex items-center justify-center shrink-0"
-                style={{ width: 48, height: 48, borderRadius: 12, background: '#05966920', color: '#059669' }}>
-                <Award size={22} strokeWidth={2.2} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-headline" style={{ color: '#047857' }}>เรียนครบทุกขั้นแล้ว 🎓</div>
-                <div className="text-caption" style={{ color: '#065F46' }}>ดูใบประกาศนียบัตรของคุณ</div>
-              </div>
-              <ChevronRight size={18} style={{ color: '#059669' }} className="shrink-0" />
-            </button>
-          ) : (
-            <button onClick={() => navigate('/learn')}
-              className="card card-hover w-full flex items-center gap-3"
-              style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', textAlign: 'left', justifyContent: 'flex-start' }}>
-              <div className="flex items-center justify-center shrink-0"
-                style={{ width: 48, height: 48, borderRadius: 12, background: '#2563EB20', color: '#2563EB' }}>
-                <BookOpen size={22} strokeWidth={2.2} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-headline" style={{ color: '#1D4ED8' }}>เริ่มเรียน BLS — 5 ขั้นสู่ใบประกาศนียบัตร</div>
-                <div className="text-caption" style={{ color: '#1E40AF' }}>เริ่มจาก Pre-test · ระบุตัวผู้เรียนเพื่อบันทึกผล</div>
-              </div>
-              <ChevronRight size={18} style={{ color: '#2563EB' }} className="shrink-0" />
-            </button>
-          )}
-
-          <StreakBadge />
+          <LearnPathCard
+            done={learnPath.done}
+            total={learnPath.total}
+            title={`เรียนต่อ — ขั้นที่ ${learnPath.next.index}: ${learnPath.next.label}`}
+            cta={`ไปที่ ${learnPath.next.label}`}
+            onClick={() => navigate(learnPath.next.path)}
+          />
+        ) : learnPath.activeStudent && learnPath.total > 0 ? (
+          <LearnPathCard
+            done={learnPath.total}
+            total={learnPath.total}
+            title="เรียนครบทุกขั้นแล้ว"
+            desc="ใบประกาศนียบัตรของคุณพร้อมแล้ว"
+            cta="ดูใบประกาศนียบัตร"
+            onClick={() => navigate('/certification')}
+          />
+        ) : (
+          <LearnPathCard
+            done={0}
+            total={learnPath.total}
+            title="เริ่มเรียน BLS — 5 ขั้นสู่ใบประกาศนียบัตร"
+            desc="เริ่มจาก Pre-test · ระบุตัวผู้เรียนเพื่อบันทึกผล"
+            cta="เริ่ม Pre-test"
+            onClick={() => navigate('/learn')}
+          />
+        )}
 
           {/* Resume active session */}
           {activeSession && (
@@ -202,37 +165,15 @@ export default function NewCase() {
               desc={t('code_sim_desc', lang)}
               Icon={Gamepad2}
             />
-            {[
-              {
-                icon: GraduationCap, to: '/learn',
-                label: 'โหมดเรียน', desc: 'บทเรียน · เกมลำดับขั้น · ใบประกาศนียบัตร',
-                bg: '#F0FDF4', bd: '#BBF7D0', fg: '#047857', tile: '#059669',
-              },
-              {
-                icon: Play, to: '/video-lessons',
-                label: 'วิดีโอบทเรียน', desc: 'คลิปสอนเชิงลึกทุกหัวข้อ',
-                bg: '#F5F3FF', bd: '#DDD6FE', fg: '#5B21B6', tile: '#7C3AED',
-              },
-              {
-                icon: HelpCircle, to: '/qa-deep',
-                label: 'Q&A BLS เชิงลึก', desc: 'คำถาม-คำตอบพร้อม infographic',
-                bg: '#F0F9FF', bd: '#BAE6FD', fg: '#075985', tile: 'var(--color-accent)',
-              },
-            ].map(({ icon: RowIcon, to, label, desc, bg, bd, fg, tile }) => (
-              <button key={to} onClick={() => navigate(to)}
-                className="card card-hover w-full flex items-center gap-3.5"
-                style={{ background: bg, border: `1.5px solid ${bd}`, textAlign: 'left', justifyContent: 'flex-start' }}>
-                <div className="flex items-center justify-center shrink-0"
-                  style={{ width: 44, height: 44, borderRadius: 12, background: `color-mix(in srgb, ${tile} 9%, transparent)`, color: tile }}>
-                  <RowIcon size={22} strokeWidth={2.2} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-headline" style={{ color: fg }}>{label}</div>
-                  <div className="text-caption text-text-muted">{desc}</div>
-                </div>
-                <ChevronRight size={18} style={{ color: tile }} className="shrink-0" />
-              </button>
-            ))}
+            <MenuList title="เรียนรู้" items={[
+
+              { Icon: GraduationCap, to: '/learn', label: 'โหมดเรียน', desc: 'บทเรียน · เกมลำดับขั้น · ใบประกาศนียบัตร' },
+
+              { Icon: Play, to: '/video-lessons', label: 'วิดีโอบทเรียน', desc: 'คลิปสอนเชิงลึกทุกหัวข้อ' },
+
+              { Icon: HelpCircle, to: '/qa-deep', label: 'Q&A BLS เชิงลึก', desc: 'คำถาม-คำตอบพร้อม infographic' },
+
+            ]} />
           </div>
 
           {/* Quick-start templates */}
@@ -283,80 +224,43 @@ export default function NewCase() {
       >
         <CourseHero isClinical={isClinical} />
 
-        {/* Emergency action — the one red accent card (firstaid 1669-card style) */}
-        <button onClick={() => handleStart('rrt')} disabled={loading}
-          className="card card-hover w-full flex items-center gap-3 disabled:opacity-50"
-          style={{ background: '#FEF2F2', border: '1.5px solid #FCA5A5', textAlign: 'left', justifyContent: 'flex-start' }}>
-          <div className="flex items-center justify-center text-white shrink-0"
-            style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--color-danger)' }}>
-            <Hospital size={22} strokeWidth={2.2} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-headline" style={{ color: '#991B1B' }}>CODE BLUE / CODE 8</div>
-            <div className="text-caption" style={{ color: '#7F1D1D' }}>MET / RRT Team · เริ่มบันทึกเหตุการณ์ทันที</div>
-          </div>
-          <ChevronRight size={18} style={{ color: '#991B1B' }} className="shrink-0" />
-        </button>
+        <EmergencyCTA
+          Icon={Hospital}
+          title="CODE BLUE / CODE 8"
+          desc="MET / RRT Team · เริ่มบันทึกเหตุการณ์ทันที"
+          hint="แตะแล้วนาฬิกาเริ่มนับทันที"
+          onClick={() => handleStart('rrt')}
+          disabled={loading}
+        />
 
         {/* การ์ดนำทางนักเรียน — บอกขั้นถัดไปที่ต้องเรียน (สีน้ำเงิน = โหมดเรียนต่อ) */}
         {learnPath.next ? (
-          <button onClick={() => navigate(learnPath.next.path)}
-            className="card card-hover w-full flex items-center gap-3"
-            style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', textAlign: 'left', justifyContent: 'flex-start' }}>
-            <div className="flex items-center justify-center shrink-0"
-              style={{ width: 48, height: 48, borderRadius: 12, background: '#2563EB20', color: '#2563EB' }}>
-              <BookOpen size={22} strokeWidth={2.2} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-headline" style={{ color: '#1D4ED8' }}>
-                เรียนต่อ — ขั้นที่ {learnPath.next.index}: {learnPath.next.label}
-              </div>
-              <div className="text-caption" style={{ color: '#1E40AF', marginBottom: 6 }}>
-                ผ่านแล้ว {learnPath.done}/{learnPath.total} ขั้น
-              </div>
-              <div style={{ height: 5, borderRadius: 99, background: '#BFDBFE', overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%',
-                  width: `${learnPath.total ? Math.round((learnPath.done / learnPath.total) * 100) : 0}%`,
-                  background: '#2563EB',
-                  borderRadius: 99,
-                  transition: 'width 0.3s ease',
-                }} />
-              </div>
-            </div>
-            <ChevronRight size={18} style={{ color: '#2563EB' }} className="shrink-0" />
-          </button>
+          <LearnPathCard
+            done={learnPath.done}
+            total={learnPath.total}
+            title={`เรียนต่อ — ขั้นที่ ${learnPath.next.index}: ${learnPath.next.label}`}
+            cta={`ไปที่ ${learnPath.next.label}`}
+            onClick={() => navigate(learnPath.next.path)}
+          />
         ) : learnPath.activeStudent && learnPath.total > 0 ? (
-          <button onClick={() => navigate('/certification')}
-            className="card card-hover w-full flex items-center gap-3"
-            style={{ background: '#F0FDF4', border: '1.5px solid #BBF7D0', textAlign: 'left', justifyContent: 'flex-start' }}>
-            <div className="flex items-center justify-center shrink-0"
-              style={{ width: 48, height: 48, borderRadius: 12, background: '#05966920', color: '#059669' }}>
-              <Award size={22} strokeWidth={2.2} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-headline" style={{ color: '#047857' }}>เรียนครบทุกขั้นแล้ว 🎓</div>
-              <div className="text-caption" style={{ color: '#065F46' }}>ดูใบประกาศนียบัตรของคุณ</div>
-            </div>
-            <ChevronRight size={18} style={{ color: '#059669' }} className="shrink-0" />
-          </button>
+          <LearnPathCard
+            done={learnPath.total}
+            total={learnPath.total}
+            title="เรียนครบทุกขั้นแล้ว"
+            desc="ใบประกาศนียบัตรของคุณพร้อมแล้ว"
+            cta="ดูใบประกาศนียบัตร"
+            onClick={() => navigate('/certification')}
+          />
         ) : (
-          <button onClick={() => navigate('/learn')}
-            className="card card-hover w-full flex items-center gap-3"
-            style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', textAlign: 'left', justifyContent: 'flex-start' }}>
-            <div className="flex items-center justify-center shrink-0"
-              style={{ width: 48, height: 48, borderRadius: 12, background: '#2563EB20', color: '#2563EB' }}>
-              <BookOpen size={22} strokeWidth={2.2} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-headline" style={{ color: '#1D4ED8' }}>เริ่มเรียน ACLS — 6 ขั้นสู่ใบประกาศนียบัตร</div>
-              <div className="text-caption" style={{ color: '#1E40AF' }}>เริ่มจาก Pre-test · ระบุตัวผู้เรียนเพื่อบันทึกผล</div>
-            </div>
-            <ChevronRight size={18} style={{ color: '#2563EB' }} className="shrink-0" />
-          </button>
+          <LearnPathCard
+            done={0}
+            total={learnPath.total}
+            title="เริ่มเรียน ACLS — 6 ขั้นสู่ใบประกาศนียบัตร"
+            desc="เริ่มจาก Pre-test · ระบุตัวผู้เรียนเพื่อบันทึกผล"
+            cta="เริ่ม Pre-test"
+            onClick={() => navigate('/learn')}
+          />
         )}
-
-        <StreakBadge />
 
         {/* Resume active session — keeps the warning border accent */}
         {activeSession && (
@@ -395,37 +299,15 @@ export default function NewCase() {
             desc={t('code_sim_desc', lang)}
             Icon={Gamepad2}
           />
-          {[
-            {
-              icon: GraduationCap, to: '/learn',
-              label: 'โหมดเรียน', desc: 'บทเรียน · scenarios · ใบประกาศนียบัตร',
-              bg: '#F0FDF4', bd: '#BBF7D0', fg: '#047857', tile: '#059669',
-            },
-            {
-              icon: Play, to: '/video-lessons',
-              label: 'วิดีโอบทเรียน', desc: 'คลิปสอนเชิงลึกทุกหัวข้อ',
-              bg: '#F5F3FF', bd: '#DDD6FE', fg: '#5B21B6', tile: '#7C3AED',
-            },
-            {
-              icon: HelpCircle, to: '/qa-acls-deep',
-              label: 'Q&A ACLS เชิงลึก', desc: '13 หมวด พร้อม infographic',
-              bg: '#F0F9FF', bd: '#BAE6FD', fg: '#075985', tile: '#0284C7',
-            },
-          ].map(({ icon: RowIcon, to, label, desc, bg, bd, fg, tile }) => (
-            <button key={to} onClick={() => navigate(to)}
-              className="card card-hover w-full flex items-center gap-3.5"
-              style={{ background: bg, border: `1.5px solid ${bd}`, textAlign: 'left', justifyContent: 'flex-start' }}>
-              <div className="flex items-center justify-center shrink-0"
-                style={{ width: 44, height: 44, borderRadius: 12, background: `${tile}18`, color: tile }}>
-                <RowIcon size={22} strokeWidth={2.2} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-headline" style={{ color: fg }}>{label}</div>
-                <div className="text-caption text-text-muted">{desc}</div>
-              </div>
-              <ChevronRight size={18} style={{ color: tile }} className="shrink-0" />
-            </button>
-          ))}
+          <MenuList title="เรียนรู้" items={[
+
+            { Icon: GraduationCap, to: '/learn', label: 'โหมดเรียน', desc: 'บทเรียน · scenarios · ใบประกาศนียบัตร' },
+
+            { Icon: Play, to: '/video-lessons', label: 'วิดีโอบทเรียน', desc: 'คลิปสอนเชิงลึกทุกหัวข้อ' },
+
+            { Icon: HelpCircle, to: '/qa-acls-deep', label: 'Q&A ACLS เชิงลึก', desc: '13 หมวด พร้อม infographic' },
+
+          ]} />
         </div>
 
         {/* Quick-start templates */}

@@ -12,7 +12,7 @@ const TILES = [
     Icon: HeartPulse,
     label: 'เริ่มบันทึก CPR',
     sub: 'พบคนหมดสติ — เริ่มทันที',
-    color: '#DC2626',
+    color: 'var(--color-danger)',
     action: 'start',
   },
   {
@@ -20,7 +20,7 @@ const TILES = [
     Icon: Activity,
     label: 'ฝึก CPR Metronome',
     sub: 'จังหวะกดหน้าอก 100-120/min',
-    color: '#0EA5E9',
+    color: 'var(--color-accent)',
     action: 'nav',
     to: '/skill-practice',
   },
@@ -29,7 +29,7 @@ const TILES = [
     Icon: Zap,
     label: 'การใช้ AED',
     sub: 'ขั้นตอนแปะแผ่น · วิเคราะห์จังหวะ',
-    color: '#D97706',
+    color: 'var(--color-warning)',
     action: 'nav',
     to: '/bls/aed',
   },
@@ -38,7 +38,7 @@ const TILES = [
     Icon: Wind,
     label: 'สำลัก / Choking',
     sub: 'ผู้ใหญ่ · เด็ก · ทารก',
-    color: '#7C3AED',
+    color: 'var(--color-purple)',
     action: 'nav',
     to: '/bls/choking',
   },
@@ -67,16 +67,16 @@ export default function BLSHomeQuickActions({ onStart, disabled }) {
             <div
               className="inline-flex items-center justify-center"
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                background: `color-mix(in srgb, ${tile.color} 15%, transparent)`,
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: 'var(--color-bg-tertiary)',
                 color: tile.color,
               }}
             >
-              <Icon size={22} strokeWidth={2.2} />
+              <Icon size={20} strokeWidth={2} />
             </div>
-            <div className="text-headline mt-3 leading-tight" style={{ color: tile.color }}>
+            <div className="text-body-strong text-text-primary mt-3 leading-tight">
               {tile.label}
             </div>
             <div className="text-caption text-text-muted mt-0.5">{tile.sub}</div>

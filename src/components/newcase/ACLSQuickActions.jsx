@@ -10,28 +10,28 @@ const TILES = [
     Icon: HeartPulse,
     label: 'Cardiac Arrest',
     sub: 'VF / pVT / Asystole / PEA',
-    color: '#DC2626',
+    color: 'var(--color-danger)',
   },
   {
     key: 'pulse',
     Icon: Activity,
     label: 'Brady / Tachy',
     sub: 'Pulse + arrhythmia',
-    color: '#D97706',
+    color: 'var(--color-warning)',
   },
   {
     key: 'mi',
     Icon: Heart,
     label: 'MI / ACS',
     sub: 'STEMI · NSTE-ACS',
-    color: '#DB2777',
+    color: '#BE185D',
   },
   {
     key: 'stroke',
     Icon: Brain,
     label: 'Stroke',
     sub: 'NIHSS · Door-to-CT',
-    color: '#7C3AED',
+    color: 'var(--color-purple)',
   },
 ];
 
@@ -58,16 +58,16 @@ export default function ACLSQuickActions({ onStart, disabled }) {
             <div
               className="inline-flex items-center justify-center"
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                background: `${t.color}15`,
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: 'var(--color-bg-tertiary)',
                 color: t.color,
               }}
             >
-              <Icon size={22} strokeWidth={2.2} />
+              <Icon size={20} strokeWidth={2} />
             </div>
-            <div className="text-headline mt-3 leading-tight" style={{ color: t.color }}>
+            <div className="text-body-strong text-text-primary mt-3 leading-tight">
               {t.label}
             </div>
             <div className="text-caption text-text-muted mt-0.5">{t.sub}</div>
