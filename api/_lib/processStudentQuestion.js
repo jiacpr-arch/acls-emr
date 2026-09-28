@@ -11,8 +11,10 @@ const OPENAI_IMAGE_URL = 'https://api.openai.com/v1/images/generations';
  * Runs the full pipeline for one student question:
  *   AI answer  →  AI classify chapter  →  OpenAI image  →  upload  →  save
  * (AI = Local AI or DeepSeek — see llmChat.js)
- * Updates the row in acls_student_questions in-place. Throws on hard failure
- * (the caller is responsible for writing status='failed' + error_message).
+ * Updates the row in acls_student_questions in-place and returns { answer }
+ * so the caller can show the unreviewed draft to the student right away.
+ * Throws on hard failure (the caller is responsible for writing
+ * status='failed' + error_message).
  */
 export async function processStudentQuestion(rowId, { force = false } = {}) {
   const supabase = getSupabaseAdmin();
@@ -91,6 +93,7 @@ export async function processStudentQuestion(rowId, { force = false } = {}) {
     .update(update)
     .eq('id', rowId);
   if (upErr) throw upErr;
+  return { answer };
 }
 
 // ───────────────────────── AI answer ─────────────────────────

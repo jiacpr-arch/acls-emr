@@ -56,6 +56,7 @@ import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import SiteFooter from './components/SiteFooter';
 import LineFloatButton from './components/LineFloatButton';
+import AskQuestionFab from './components/AskQuestionFab';
 import OfflineIndicator from './components/OfflineIndicator';
 import ErrorBoundary from './components/ErrorBoundary';
 import InAppBrowserGuard from './components/InAppBrowserGuard';
@@ -129,6 +130,18 @@ function App() {
   const isStudying = (/^\/pre-course\/[^/]+(\/quiz)?$/.test(location.pathname)
     && location.pathname !== '/pre-course/cohort')
     || /^\/video-lessons\/.+/.test(location.pathname);
+  // ปุ่มลอย "ถามคำถาม" — เฉพาะหน้าเนื้อหาที่นักเรียนอ่าน/ดูแล้วอาจสงสัย (ไม่ใช่หน้าทำข้อสอบ)
+  // คำถามเข้า acls_student_questions ที่หน้า admin ตรวจรองรับแค่ ACLS จึงเปิดเฉพาะ ACLS
+  const PRE_COURSE_NON_LESSON = ['cohort', 'checkin', 'schedule', 'my-qr', 'pre-test', 'post-test'];
+  const lessonMatch = location.pathname.match(/^\/pre-course\/([^/]+)$/);
+  const isVideoLesson = /^\/video-lessons\/.+/.test(location.pathname);
+  const showAskFab = IS_ACLS && (
+    (lessonMatch && !PRE_COURSE_NON_LESSON.includes(lessonMatch[1]))
+    || isVideoLesson
+    || location.pathname === '/als'
+    || location.pathname === '/algorithm'
+    || /^\/qa-acls-deep\/.+/.test(location.pathname)
+  );
   // หน้าฝึก CPR + เกมสถานการณ์ตัดสินใจ — เป็นเครื่องมือฝึกจริง ไม่ใช่หน้าขายคอร์ส
   // ปุ่ม LINE ลอยจะไปบังคำอธิบาย/ปุ่มควบคุมพอดี จึงซ่อนไว้เฉพาะหน้านี้
   // /go/<slug> เป็นหน้าเปลี่ยนทางชั่วขณะ — ไม่ต้องโชว์ tab bar/footer ให้กระพริบ
@@ -411,6 +424,7 @@ function App() {
       {/* Bottom pill bar on all pages except recording + admin + recorder-game play */}
       {!isRecording && !isAdmin && !isRecorderGamePlay && !isShortlink && <BottomTabBar />}
       {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isPractice && !isShortlink && <LineFloatButton />}
+      {showAskFab && <AskQuestionFab raised={isVideoLesson} />}
       <Analytics />
       <MetaPixel />
     </div>

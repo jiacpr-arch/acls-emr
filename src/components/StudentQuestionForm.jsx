@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { MessageCircleQuestion, Send, Loader2, CheckCircle2, AlertTriangle, X } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { submitStudentQuestion } from '../services/studentQuestionService';
+import { mdComponents } from './markdownComponents';
+import { normalizeAnswerMarkdown } from '../utils/normalizeAnswerMarkdown';
 
 const STAGES = [
   'กำลังบันทึกคำถาม…',
-  'กำลังให้ DeepSeek ตอบคำถามเชิงลึก…',
+  'กำลังให้ AI ตอบคำถามเชิงลึก…',
   'กำลังจัดหมวดและสร้างรูปประกอบ…',
   'เกือบเสร็จแล้ว…',
 ];
@@ -163,7 +167,7 @@ export default function StudentQuestionForm({ onClose }) {
               </button>
 
               <p className="text-2xs text-text-muted text-center">
-                คำตอบที่ได้เป็นการสร้างจาก AI — อาจารย์จะตรวจสอบก่อนนำขึ้นแสดงในหน้า Q&A
+                คุณจะเห็นคำตอบจาก AI ทันที (ยังไม่ผ่านการตรวจ) — อาจารย์จะตรวจก่อนนำขึ้นหน้า Q&A
               </p>
             </form>
           )}
@@ -175,6 +179,7 @@ export default function StudentQuestionForm({ onClose }) {
 
 function ResultPanel({ result, onClose, onReset }) {
   const isFailed = result.status === 'failed';
+  const answer = !isFailed && result.answer ? String(result.answer) : '';
   return (
     <div className="space-y-3 py-2">
       <div className={`dash-card border-l-4 ${isFailed ? 'border-l-warning' : 'border-l-success'} flex items-start gap-2 py-3`}>
@@ -195,6 +200,22 @@ function ResultPanel({ result, onClose, onReset }) {
           </div>
         </div>
       </div>
+      {answer && (
+        <div className="space-y-2">
+          <div className="dash-card border-l-4 border-l-warning flex items-start gap-2 py-2">
+            <AlertTriangle size={14} strokeWidth={2.2} className="text-warning shrink-0 mt-0.5" />
+            <div className="text-2xs text-text-secondary leading-relaxed">
+              <span className="font-bold text-text-primary">คำตอบจาก AI — ยังไม่ผ่านการตรวจโดยอาจารย์</span>
+              {' '}อาจมีข้อผิดพลาด ใช้ประกอบการเรียนเท่านั้น ห้ามใช้แทนแนวทาง AHA หรือคำแนะนำของอาจารย์
+            </div>
+          </div>
+          <div className="text-body text-text-primary">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+              {normalizeAnswerMarkdown(answer)}
+            </ReactMarkdown>
+          </div>
+        </div>
+      )}
       <div className="flex gap-2">
         <button onClick={onReset} className="btn btn-ghost flex-1">ถามคำถามใหม่</button>
         <button onClick={onClose} className="btn btn-primary flex-1">ปิด</button>
