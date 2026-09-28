@@ -134,3 +134,53 @@ test('throws when DEEPSEEK_API_KEY is missing', async () => {
     if (prev !== undefined) process.env.DEEPSEEK_API_KEY = prev;
   }
 });
+
+test('uses Local AI (OpenAI-compatible) when LOCAL_AI_BASE_URL is set', async () => {
+  const keys = ['LOCAL_AI_BASE_URL', 'LOCAL_AI_MODEL', 'LOCAL_AI_API_KEY'];
+  const prev = Object.fromEntries(keys.map(k => [k, process.env[k]]));
+  const prevFetch = globalThis.fetch;
+  process.env.LOCAL_AI_BASE_URL = 'https://ai.example.com/v1/';
+  process.env.LOCAL_AI_MODEL = 'qwen2.5:14b';
+  delete process.env.LOCAL_AI_API_KEY;
+  let seen;
+  globalThis.fetch = async (url, init) => {
+    seen = { url, headers: init.headers, body: JSON.parse(init.body) };
+    return {
+      ok: true,
+      // reasoning model: <think> block + JSON wrapped in prose
+      json: async () => ({
+        choices: [{ message: { content: '<think>hmm {"x":1}</think>Sure: {"chapterId": "ch3", "reason": "tachy"}' } }],
+      }),
+    };
+  };
+  try {
+    const r = await classifyChapter({ question: 'q', answer: 'a', chapters: CHAPTERS });
+    assert.equal(r.chapterId, 'ch3');
+    assert.equal(seen.url, 'https://ai.example.com/v1/chat/completions');
+    assert.equal(seen.body.model, 'qwen2.5:14b');
+    assert.equal(seen.headers.Authorization, undefined);
+  } finally {
+    globalThis.fetch = prevFetch;
+    for (const k of keys) {
+      if (prev[k] === undefined) delete process.env[k];
+      else process.env[k] = prev[k];
+    }
+  }
+});
+
+test('throws when LOCAL_AI_BASE_URL is set without LOCAL_AI_MODEL', async () => {
+  const prevBase = process.env.LOCAL_AI_BASE_URL;
+  const prevModel = process.env.LOCAL_AI_MODEL;
+  process.env.LOCAL_AI_BASE_URL = 'https://ai.example.com/v1';
+  delete process.env.LOCAL_AI_MODEL;
+  try {
+    await assert.rejects(
+      () => classifyChapter({ question: 'q', answer: 'a', chapters: CHAPTERS }),
+      /LOCAL_AI_MODEL/,
+    );
+  } finally {
+    if (prevBase === undefined) delete process.env.LOCAL_AI_BASE_URL;
+    else process.env.LOCAL_AI_BASE_URL = prevBase;
+    if (prevModel !== undefined) process.env.LOCAL_AI_MODEL = prevModel;
+  }
+});
