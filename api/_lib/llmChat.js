@@ -5,27 +5,34 @@ const DEEPSEEK_MODEL = 'deepseek-chat';
  * Pick the chat model used by the student-question pipeline (answer + classify).
  *
  * Local AI (preferred) — any OpenAI-compatible server (Ollama, LM Studio, vLLM,
- * LocalAI, llama.cpp server …) reachable from Vercel, e.g. via a tunnel:
- *   LOCAL_AI_BASE_URL  e.g. https://ai.example.com/v1  (required to enable)
- *   LOCAL_AI_MODEL     e.g. qwen2.5:14b                 (required)
- *   LOCAL_AI_API_KEY   sent as Bearer token             (optional)
- * Falls back to DeepSeek (DEEPSEEK_API_KEY) when LOCAL_AI_BASE_URL is unset.
+ * LocalAI, llama.cpp server …) reachable from Vercel, e.g. via a tunnel.
+ * Set as Vercel Shared Environment Variables (names matched case-insensitively):
+ *   AI_BASE_URL  e.g. https://ai.example.com/v1  (required to enable)
+ *   AI_MODEL     e.g. qwen2.5:14b                 (required)
+ *   AI_API_KEY   sent as Bearer token             (optional)
+ * Falls back to DeepSeek (DEEPSEEK_API_KEY) when AI_BASE_URL is unset.
  */
 export function resolveLlm() {
-  const base = process.env.LOCAL_AI_BASE_URL?.trim();
+  const base = readEnv('AI_BASE_URL');
   if (base) {
-    const model = process.env.LOCAL_AI_MODEL?.trim();
-    if (!model) throw new Error('LOCAL_AI_MODEL not configured');
+    const model = readEnv('AI_MODEL');
+    if (!model) throw new Error('AI_MODEL not configured');
     return {
       name: 'Local AI',
       url: `${base.replace(/\/+$/, '')}/chat/completions`,
-      key: process.env.LOCAL_AI_API_KEY?.trim() || null,
+      key: readEnv('AI_API_KEY') || null,
       model,
     };
   }
   const key = process.env.DEEPSEEK_API_KEY;
-  if (!key) throw new Error('No AI configured — set LOCAL_AI_BASE_URL or DEEPSEEK_API_KEY');
+  if (!key) throw new Error('No AI configured — set AI_BASE_URL or DEEPSEEK_API_KEY');
   return { name: 'DeepSeek', url: DEEPSEEK_URL, key, model: DEEPSEEK_MODEL };
+}
+
+// Env var names are case-sensitive; accept any casing (e.g. "Ai_base_url").
+function readEnv(name) {
+  const key = Object.keys(process.env).find(k => k.toUpperCase() === name);
+  return key ? process.env[key]?.trim() : undefined;
 }
 
 /**

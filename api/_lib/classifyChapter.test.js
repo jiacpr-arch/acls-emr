@@ -135,13 +135,14 @@ test('throws when DEEPSEEK_API_KEY is missing', async () => {
   }
 });
 
-test('uses Local AI (OpenAI-compatible) when LOCAL_AI_BASE_URL is set', async () => {
-  const keys = ['LOCAL_AI_BASE_URL', 'LOCAL_AI_MODEL', 'LOCAL_AI_API_KEY'];
+test('uses Local AI (OpenAI-compatible) when AI_BASE_URL is set, any casing', async () => {
+  // mixed-case names, as set in Vercel
+  const keys = ['Ai_base_url', 'AI_MODEL', 'Ai_API_Key'];
   const prev = Object.fromEntries(keys.map(k => [k, process.env[k]]));
   const prevFetch = globalThis.fetch;
-  process.env.LOCAL_AI_BASE_URL = 'https://ai.example.com/v1/';
-  process.env.LOCAL_AI_MODEL = 'qwen2.5:14b';
-  delete process.env.LOCAL_AI_API_KEY;
+  process.env.Ai_base_url = 'https://ai.example.com/v1/';
+  process.env.AI_MODEL = 'qwen2.5:14b';
+  process.env.Ai_API_Key = 'secret';
   let seen;
   globalThis.fetch = async (url, init) => {
     seen = { url, headers: init.headers, body: JSON.parse(init.body) };
@@ -158,7 +159,7 @@ test('uses Local AI (OpenAI-compatible) when LOCAL_AI_BASE_URL is set', async ()
     assert.equal(r.chapterId, 'ch3');
     assert.equal(seen.url, 'https://ai.example.com/v1/chat/completions');
     assert.equal(seen.body.model, 'qwen2.5:14b');
-    assert.equal(seen.headers.Authorization, undefined);
+    assert.equal(seen.headers.Authorization, 'Bearer secret');
   } finally {
     globalThis.fetch = prevFetch;
     for (const k of keys) {
@@ -168,19 +169,19 @@ test('uses Local AI (OpenAI-compatible) when LOCAL_AI_BASE_URL is set', async ()
   }
 });
 
-test('throws when LOCAL_AI_BASE_URL is set without LOCAL_AI_MODEL', async () => {
-  const prevBase = process.env.LOCAL_AI_BASE_URL;
-  const prevModel = process.env.LOCAL_AI_MODEL;
-  process.env.LOCAL_AI_BASE_URL = 'https://ai.example.com/v1';
-  delete process.env.LOCAL_AI_MODEL;
+test('throws when AI_BASE_URL is set without AI_MODEL', async () => {
+  const prevBase = process.env.AI_BASE_URL;
+  const prevModel = process.env.AI_MODEL;
+  process.env.AI_BASE_URL = 'https://ai.example.com/v1';
+  delete process.env.AI_MODEL;
   try {
     await assert.rejects(
       () => classifyChapter({ question: 'q', answer: 'a', chapters: CHAPTERS }),
-      /LOCAL_AI_MODEL/,
+      /AI_MODEL/,
     );
   } finally {
-    if (prevBase === undefined) delete process.env.LOCAL_AI_BASE_URL;
-    else process.env.LOCAL_AI_BASE_URL = prevBase;
-    if (prevModel !== undefined) process.env.LOCAL_AI_MODEL = prevModel;
+    if (prevBase === undefined) delete process.env.AI_BASE_URL;
+    else process.env.AI_BASE_URL = prevBase;
+    if (prevModel !== undefined) process.env.AI_MODEL = prevModel;
   }
 });
