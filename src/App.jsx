@@ -52,6 +52,7 @@ import SkillScenarioHub from './pages/SkillScenarioHub';
 import SkillScenario from './pages/SkillScenario';
 import NewsPage from './pages/NewsPage';
 import GoCampaign from './pages/GoCampaign';
+import Premium from './pages/Premium';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import SiteFooter from './components/SiteFooter';
@@ -194,6 +195,7 @@ function App() {
         {/* เกม Code Blue เปิดทั้ง ACLS และ BLS/MorRoo — คลังโจทย์กรองตามโหมดเอง */}
         <Route path="/sim" element={<CodeBlueSim />} />
         <Route path="/sim-board" element={<CodeBlueLeaderboard />} />
+        <Route path="/premium" element={<Premium />} />
         {/* ลิงก์สั้นสำหรับโพสต์โซเชียล — /go/reel เด้งไป /sim พร้อมแนบ utm_* ให้เอง */}
         <Route path="/go/:campaign" element={<GoCampaign />} />
         {IS_ACLS && <Route path="/games" element={<GamesHub />} />}

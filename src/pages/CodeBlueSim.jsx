@@ -12,6 +12,9 @@ import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, courseMeta } from '../config/courseMo
 import { jiacprCourse } from '../data/jiacprCourse';
 import { isOpenLeague } from '../config/openLeague';
 import { getClassContext } from '../stores/classStore';
+import { isPremiumCase } from '../config/premiumPlans';
+import { usePremium } from '../hooks/usePremium';
+import PremiumModal from '../components/PremiumModal';
 import { enqueueGameResult } from '../db/database';
 import { scheduleFlush } from '../services/syncEngine';
 import { subscribeToPull } from '../services/progressPull';
@@ -224,6 +227,13 @@ export default function CodeBlueSim() {
   // อยู่ในคลาสไหม — ใช้โชว์ปุ่มอันดับเหรียญ + ชิปลงทะเบียน
   // (เป็น state เพราะตอนนี้เข้าคลาสได้จากในเกมเอง ผ่าน ClassGateModal ด้านล่าง)
   const [inClass, setInClass] = useState(() => !!getClassContext().classCode);
+  // Prep Pass: เคสปานกลาง/Megacode ต้องมี Pass — ยกเว้นนักเรียนในคลาสของอาจารย์ (ลีกออนไลน์ไม่นับ)
+  const premium = usePremium({ inCourse: inClass && !isOpenLeague(getClassContext().classCode) });
+  // กลับจากหน้าจ่ายเงิน Stripe (?premium=success|cancel) → เปิดป๊อปอัปไว้ให้เห็นสถานะ Pass
+  const [premiumOpen, setPremiumOpen] = useState(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('premium'),
+  );
+  const needsPass = (c) => premium.locked && isPremiumCase(c);
   // ในคลาส: ก่อนรับเคสครั้งแรกต้องรู้ว่าใครเล่น ไม่งั้นผลจะไม่ถูกบันทึกให้ครูเห็น
   // (rpcSubmitCodeBlueResult ต้องมี studentPk เสมอ) — startAfterIdentityRef จำไว้ว่า
   // เปิด modal มาเพื่อ "รับเคส" ต่อ ไม่ใช่แค่แก้ชื่อจากชิปสถานะ
@@ -1046,11 +1056,11 @@ export default function CodeBlueSim() {
       .sort((a, b) => (LEVEL_META[a.level]?.order ?? 0) - (LEVEL_META[b.level]?.order ?? 0));
     const orderedAll = tracksInPool.flatMap(casesInTrack);
     // เคสแนะนำถัดไป: เคสแรก (ตามลำดับหมวด+ความยาก) ที่ปลดแล้วแต่ยังไม่ผ่าน — กดปุ่มเดียวเล่นต่อได้เลย
-    const nextCase = orderedAll.find((c) => !cleared.has(c.id) && isUnlocked(c, cleared, pool));
+    const nextCase = orderedAll.find((c) => !cleared.has(c.id) && isUnlocked(c, cleared, pool) && !needsPass(c));
 
     // สุ่มเคสจากที่ปลดล็อกแล้ว (เอาเคสที่ยังไม่ผ่านก่อน) — โหมดทบทวนไม่ต้องเลือกเอง
     const randomCase = () => {
-      const unlockedAll = orderedAll.filter((c) => isUnlocked(c, cleared, pool));
+      const unlockedAll = orderedAll.filter((c) => isUnlocked(c, cleared, pool) && !needsPass(c));
       const fresh = unlockedAll.filter((c) => !cleared.has(c.id));
       const src = fresh.length ? fresh : unlockedAll;
       if (src.length) pickScenario(pickRandom(src));
@@ -1059,13 +1069,18 @@ export default function CodeBlueSim() {
     const renderCase = (c) => {
       const { left, inTrack } = lockInfo(c, cleared, pool);
       const unlocked = left === 0;
+      const passLocked = unlocked && needsPass(c);
       const done = cleared.has(c.id);
       return (
         <button
           key={c.id}
           type="button"
-          className={`cbs-case ${unlocked ? '' : 'cbs-case-locked'}`}
-          onClick={() => unlocked && pickScenario(c)}
+          className={`cbs-case ${unlocked && !passLocked ? '' : 'cbs-case-locked'}`}
+          onClick={() => {
+            if (!unlocked) return;
+            if (passLocked) { track('premium_paywall_view', { props: { case: c.id } }); setPremiumOpen(true); return; }
+            pickScenario(c);
+          }}
           disabled={!unlocked}
         >
           <div className="cbs-case-top">
@@ -1074,6 +1089,7 @@ export default function CodeBlueSim() {
             {!unlocked && (
               <span className="cbs-case-lock">🔒 ผ่านพื้นฐาน{inTrack ? 'หมวดนี้' : ''}อีก {left} เคส</span>
             )}
+            {passLocked && <span className="cbs-case-lock">⭐ Prep Pass</span>}
           </div>
           <div className="cbs-case-name">{c.title}</div>
           <div className="cbs-case-desc">{c.subtitle}</div>
@@ -1163,6 +1179,11 @@ export default function CodeBlueSim() {
               ผ่านเคสระดับสูงสุดครบทุกเคส รับตราทองพิเศษ (ไม่บังคับ ไม่มีผลต่อการออกใบ)
             </div>
           )}
+          {premium.locked && (
+            <button type="button" className="cbs-btn-ghost" onClick={() => setPremiumOpen(true)}>
+              ⭐ ปลดล็อกเคสยากทั้งหมดด้วย Prep Pass
+            </button>
+          )}
           <button type="button" className="cbs-btn-ghost" onClick={() => { setScreen('awards'); window.scrollTo(0, 0); }}>
             🏅 รางวัลของฉัน ({badgeList.filter((b) => b.earned).length}/{badgeList.length})
           </button>
@@ -1183,6 +1204,7 @@ export default function CodeBlueSim() {
           onConfirm={handleIdentityConfirm}
         />
         <ClassGateModal open={showClassGate} onClose={handleClassGateClose} initialMode="join" openLeague />
+        <PremiumModal open={premiumOpen} onClose={() => setPremiumOpen(false)} returnTo="/sim" />
       </div>
     );
   }
