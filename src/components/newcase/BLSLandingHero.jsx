@@ -16,7 +16,7 @@ export default function BLSLandingHero({ isClinical, learnPath }) {
       <section className="bls-hero" aria-labelledby="bls-welcome">
         <div className="bls-hero-copy">
           <p className="bls-eyebrow"><span /> BASIC LIFE SUPPORT · สำหรับบุคลากรทางการแพทย์</p>
-          <h1 id="bls-welcome">เรียนรู้การช่วยชีวิต<br /><em>ฝึกให้มั่นใจ</em><br />พร้อมลงมือจริง</h1>
+          <h1 id="bls-welcome"><span className="bls-course-wordmark">BLS</span><span className="bls-course-name">BASIC LIFE SUPPORT</span>เรียนรู้การช่วยชีวิต<br /><em>พร้อมลงมืออย่างมั่นใจ</em></h1>
           <p className="bls-intro">ทบทวนการช่วยชีวิตขั้นพื้นฐาน ตั้งแต่ CPR และการใช้ AED ไปจนถึงการทำงานเป็นทีม ผ่านบทเรียนและสถานการณ์จำลอง</p>
           <div className="bls-hero-buttons">
             <Link to={destination} className="bls-primary"><BookOpen size={19} />{next ? 'เรียนต่อจากครั้งล่าสุด' : complete ? 'ดูใบประกาศนียบัตร' : 'เริ่มเรียน BLS'}<ArrowRight size={18} /></Link>
