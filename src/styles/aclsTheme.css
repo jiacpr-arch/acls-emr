@@ -133,7 +133,7 @@ html[data-course="acls"] .acls-surface [aria-disabled="true"] {
 html[data-course="acls"] .acls-surface [aria-busy="true"] { cursor:progress; }
 html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),textarea,select) {
   background:var(--color-bg-secondary); color:var(--color-text-primary);
-  border:1px solid var(--color-border-strong); border-radius:12px;
+  border:1.5px solid var(--acls-control-border); border-radius:12px;
   min-height:46px; padding:11px 13px; font:inherit; font-size:16px;
   transition:border-color .15s,box-shadow .15s;
 }
@@ -191,3 +191,69 @@ html[data-course="acls"] .game-highlight-card .monitor-trace { height:20px; opac
  html[data-course="acls"] .acls-page-chrome > div { min-height:54px; }
  html[data-course="acls"] .page-container > div.flex:has(h1) { padding:7px 0 15px; }
 }
+
+/* Clearly bounded controls: neutral cards stay quiet, actions remain visible.
+   These tokens are ACLS-only; live clinical controls keep their own palette. */
+html[data-course="acls"] {
+  --acls-control-bg: #FFF1F3;
+  --acls-control-border: #8E6C77;
+  --acls-control-hover: #FFE1E5;
+  --acls-control-active: #FFD0D7;
+  --acls-control-primary: #B9141C;
+  --acls-control-primary-hover: #961017;
+  --acls-control-primary-active: #7C0D13;
+  --acls-control-on-primary: #FFFFFF;
+  --acls-control-disabled-bg: #E6E0E3;
+  --acls-control-disabled-text: #6D6268;
+}
+html[data-course="acls"].dark {
+  --acls-control-bg: #34232D;
+  --acls-control-border: #AD8B9E;
+  --acls-control-hover: #492E3B;
+  --acls-control-active: #603748;
+  --acls-control-primary: #FF8A91;
+  --acls-control-primary-hover: #FFA6AB;
+  --acls-control-primary-active: #FFC0C4;
+  --acls-control-on-primary: #21171B;
+  --acls-control-disabled-bg: #3B343B;
+  --acls-control-disabled-text: #AEA1AA;
+}
+html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(.btn-ghost,.acls-learn-row,.tab-item),
+html[data-course="acls"] .acls-menu-group button {
+  min-height:44px; min-width:44px;
+  border:1.5px solid var(--acls-control-border);
+  background:var(--acls-control-bg); color:var(--color-text-primary);
+}
+html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(.btn-ghost,.acls-learn-row,.tab-item):hover,
+html[data-course="acls"] .acls-menu-group button:hover {
+  background:var(--acls-control-hover); border-color:var(--acls-control-border); color:var(--color-text-primary);
+}
+html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(.btn-ghost,.acls-learn-row,.tab-item):active,
+html[data-course="acls"] .acls-menu-group button:active {
+  background:var(--acls-control-active); border-color:var(--acls-control-border);
+}
+html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(.btn-primary,.learning-lesson-action,.learning-progress-card .btn-info) {
+  background:var(--acls-control-primary) !important; color:var(--acls-control-on-primary) !important;
+  border:1.5px solid var(--acls-control-primary); box-shadow:none;
+}
+html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(.btn-primary,.learning-lesson-action,.learning-progress-card .btn-info):hover {
+  background:var(--acls-control-primary-hover) !important; border-color:var(--acls-control-primary-hover);
+}
+html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(.btn-primary,.learning-lesson-action,.learning-progress-card .btn-info):active {
+  background:var(--acls-control-primary-active) !important;
+}
+html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(button.btn:disabled,button.acls-home-action:disabled,[aria-disabled="true"].btn,.btn-disabled) {
+  background:var(--acls-control-disabled-bg) !important; color:var(--acls-control-disabled-text) !important;
+  border:1.5px dashed var(--acls-control-disabled-text) !important;
+  opacity:1; box-shadow:none; cursor:not-allowed; transform:none;
+}
+html[data-course="acls"] .acls-surface:not(.acls-clinical) [aria-busy="true"] { cursor:progress; }
+html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),textarea,select) { border-color:var(--acls-control-border); }
+html[data-course="acls"] .acls-surface:not(.acls-clinical) :is(button,a,input,textarea,select,summary):focus-visible,
+html[data-course="acls"] .acls-more-sheet button:focus-visible { outline:3px solid var(--acls-control-primary); outline-offset:3px; }
+html[data-course="acls"] .acls-menu-group button.is-active { border:2px solid var(--acls-control-primary); background:var(--acls-control-hover); font-weight:700; }
+html[data-course="acls"] .acls-page-home { padding:9px 12px; border:1.5px solid var(--acls-control-border); background:var(--acls-control-bg); }
+html[data-course="acls"] .acls-more-sheet button[aria-label="Close"] { border:1.5px solid var(--acls-control-border); background:var(--acls-control-bg); color:var(--color-text-primary); }
+html[data-course="acls"] .bottom-pill-bar button.active .tab-icon { background:var(--acls-control-primary); color:var(--acls-control-on-primary); }
+/* Keep blue clinical actions blue; use readable ink on their lighter dark-theme blue. */
+html[data-course="acls"].dark .acls-clinical .btn-primary { color:#111827; }
