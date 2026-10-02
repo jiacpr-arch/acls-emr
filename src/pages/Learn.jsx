@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
-import { IS_BLS, IS_SKILL_COURSE, IS_DEFIB, courseMeta } from '../config/courseMode';
+import { IS_ACLS, IS_BLS, IS_SKILL_COURSE, IS_DEFIB, courseMeta } from '../config/courseMode';
 import PageHero from '../components/PageHero';
 import GameHighlightCard from '../components/GameHighlightCard';
 import { useLearnPath } from '../hooks/useLearnPath';
@@ -149,7 +149,8 @@ export default function Learn() {
               {section.items.map(item => {
                 const status = statusFor(item.progressKey);
                 const isNext = item.path === nextStepPath;
-                const { Icon, color } = item;
+                const { Icon } = item;
+                const color = IS_ACLS ? (item.progressKey === 'cert' ? '#B9770E' : '#D71920') : item.color;
 
                 // ทางเข้าเกม — การ์ดไฮไลต์พื้นเข้ม โดดจากการ์ดขาวรอบตัว
                 if (item.game) {
@@ -196,7 +197,7 @@ export default function Learn() {
                   >
                     <div
                       className="flex items-center justify-center shrink-0"
-                      style={{ width: 44, height: 44, borderRadius: 12, background: `${color}15`, color }}
+                      style={{ width: 44, height: 44, borderRadius: 12, background: IS_ACLS ? 'var(--acls-brand-soft)' : `${color}15`, color }}
                     >
                       <Icon size={22} strokeWidth={2.2} />
                     </div>

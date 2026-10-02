@@ -1,4 +1,4 @@
-import { courseMeta } from '../config/courseMode';
+import { courseMeta, COURSE_MODE } from '../config/courseMode';
 
 // Sets the per-course brand accent (bottom nav active tab, in-page tab
 // switcher, hero gradients) so each of the 5 course builds — different
@@ -10,6 +10,7 @@ import { courseMeta } from '../config/courseMode';
 // to be red (ACLS).
 export function applyCourseAccent() {
   const root = document.documentElement;
+  root.dataset.course = COURSE_MODE;
   root.style.setProperty('--color-accent', courseMeta.themeColor);
   root.style.setProperty('--color-accent-dark', courseMeta.themeColorDark);
 }

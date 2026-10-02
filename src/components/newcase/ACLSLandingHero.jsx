@@ -22,7 +22,7 @@ export default function ACLSLandingHero({ isClinical, learnPath, onStart, loadin
           <div className="acls-home-meta"><span>ACLS EMR</span><span className={isClinical ? 'acls-mode-clinical' : ''}>โหมด {isClinical ? 'Clinical' : 'Training'}</span></div>
         </div>
         <figure className="acls-home-visual">
-          <img src="/images/acls-training-hero.webp" width="1536" height="1024" alt="ภาพประกอบห้องจำลองการฝึก ACLS พร้อมหุ่นฝึกและอุปกรณ์" fetchPriority="high" />
+          <img src="/images/acls-training-hero-red.webp" width="1536" height="1024" alt="ภาพประกอบห้องจำลองการฝึก ACLS พร้อมหุ่นฝึกและอุปกรณ์" fetchPriority="high" />
           <figcaption><span><HeartPulse size={19} /></span><div><strong>จากความรู้ สู่การฝึกสถานการณ์</strong><small>เรียน · ทบทวน · ฝึกตัดสินใจ</small></div></figcaption>
           <span className="acls-image-note">ภาพประกอบสร้างด้วย AI</span>
         </figure>

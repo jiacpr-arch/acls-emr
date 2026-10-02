@@ -1,0 +1,114 @@
+/* ACLS-only identity. Semantic clinical tokens deliberately stay unchanged.
+   Course attribute is applied before React's first paint. Other course builds
+   retain their palettes, dimensions and typography. */
+html[data-course="acls"] {
+  --acls-brand: #D71920;
+  --acls-brand-dark: #AD1017;
+  --acls-brand-soft: #FFF0F1;
+  --color-bg-primary: #FAF9F9;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-tertiary: #F3F0F1;
+  --color-bg-elevated: #FFFFFF;
+  --color-text-primary: #24262B;
+  --color-text-secondary: #52515A;
+  --color-text-muted: #6D6670;
+  --color-border: #E8E2E5;
+  --color-border-strong: #CBC2C7;
+  --color-primary: var(--acls-brand);
+  --color-primary-dark: var(--acls-brand-dark);
+  --shadow-1: 0 2px 5px #29212A05;
+  --shadow-2: 0 4px 18px #29212A0A;
+  --shadow-3: 0 8px 30px #29212A10;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+html[data-course="acls"].dark {
+  --acls-brand: #FF6B72;
+  --acls-brand-dark: #FF8D92;
+  --acls-brand-soft: #3A2029;
+  --color-bg-primary: #171419;
+  --color-bg-secondary: #211D24;
+  --color-bg-tertiary: #302A33;
+  --color-bg-elevated: #29232C;
+  --color-text-primary: #FAF6F8;
+  --color-text-secondary: #D5CAD2;
+  --color-text-muted: #B7A9B3;
+  --color-border: #3D323B;
+  --color-border-strong: #5A4856;
+}
+html[data-course="acls"] .page-hero {
+  padding: 24px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-left: 5px solid var(--acls-brand);
+  border-radius: 18px;
+  box-shadow: var(--shadow-1);
+}
+html[data-course="acls"] .page-hero-eyebrow {
+  color: var(--acls-brand-dark);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  margin-bottom: 9px;
+}
+html[data-course="acls"] .page-hero h1 { line-height:1.35; letter-spacing:-.025em; }
+html[data-course="acls"] .page-hero .text-body { margin-top:9px !important; line-height:1.7; max-width:60ch; }
+html[data-course="acls"] .page-container { padding-top:24px; }
+html[data-course="acls"] .section-header { color:var(--color-text-secondary); letter-spacing:.06em; }
+html[data-course="acls"] .card, html[data-course="acls"] .dash-card, html[data-course="acls"] .glass-card { box-shadow:var(--shadow-1); }
+html[data-course="acls"] .card-hover:hover { border-color:var(--color-border-strong); box-shadow:var(--shadow-2); }
+/* Brand CTAs in learning/admin screens, never live clinical controls. */
+html[data-course="acls"] .acls-surface:not(.acls-clinical) .btn-primary { background:var(--acls-brand); color:#fff; }
+html[data-course="acls"] .acls-surface:not(.acls-clinical) .btn-primary:hover { background:var(--acls-brand-dark); }
+html[data-course="acls"].dark .acls-surface:not(.acls-clinical) .btn-primary { color:#21171B; }
+html[data-course="acls"] .bottom-pill-bar { background:var(--color-bg-secondary); border-top-color:var(--color-border); box-shadow:0 -5px 20px #24132205; }
+html[data-course="acls"] .bottom-pill-bar button.active .tab-icon { background:var(--acls-brand-soft); border-radius:10px; padding:5px 14px; }
+html[data-course="acls"] .tab-item.active { box-shadow:0 2px 5px #2915260A; font-weight:750; }
+html[data-course="acls"] .progress-track { background:var(--color-bg-tertiary); }
+html[data-course="acls"] input:focus-visible, html[data-course="acls"] textarea:focus-visible, html[data-course="acls"] select:focus-visible, html[data-course="acls"] button:focus-visible, html[data-course="acls"] a:focus-visible { outline:3px solid var(--acls-brand); outline-offset:3px; }
+html[data-course="acls"] .game-highlight-card { background:var(--color-bg-secondary) !important; border-color:var(--color-border) !important; border-left:4px solid var(--acls-brand) !important; }
+html[data-course="acls"] .game-highlight-card > div:first-child { background:var(--acls-brand-soft) !important; color:var(--acls-brand) !important; }
+html[data-course="acls"] .game-highlight-card .text-headline { color:var(--color-text-primary) !important; }
+html[data-course="acls"] .game-highlight-card .text-caption { color:var(--color-text-muted) !important; }
+html[data-course="acls"] .game-highlight-card > svg { color:var(--acls-brand); }
+/* Recorder: red identity on the frame; monitor/vital colors stay medical. */
+html[data-course="acls"] .rgaa-bararea { border-top-color:var(--acls-brand); }
+html[data-course="acls"] .rgaa-scorechip { border-color:#8B343D; }
+html[data-course="acls"] .rg-scene { border-color:#8B343D; }
+@media(min-width:1000px) { html[data-course="acls"] .page-container:not(.acls-home-container):not(.page-with-action-bar) { max-width:900px; } }
+@media(max-width:480px) { html[data-course="acls"] .page-hero { padding:20px; border-radius:15px; } html[data-course="acls"] .page-hero h1 { font-size:29px; } }
+@media(prefers-reduced-motion:reduce) { html[data-course="acls"] .card-hover, html[data-course="acls"] .btn { transition:none; } }
+.acls-page-chrome { background:var(--color-bg-secondary); border-bottom:1px solid var(--color-border); }
+.acls-page-chrome > div { max-width:900px; margin:auto; display:flex; align-items:center; justify-content:space-between; min-height:64px; padding:10px 24px; }
+.acls-page-brand { display:flex; gap:9px; align-items:center; color:var(--acls-brand); text-decoration:none; }
+.acls-page-brand strong { color:var(--color-text-primary); font-size:19px; letter-spacing:-.4px; }
+.acls-page-brand span { font-size:11px; font-weight:500; margin-left:7px; color:var(--color-text-muted); letter-spacing:0; }
+.acls-page-home { display:flex; align-items:center; gap:7px; color:var(--color-text-secondary); font-size:12px; text-decoration:none; padding:7px 10px; border-radius:8px; }
+.acls-page-home:hover { background:var(--acls-brand-soft); color:var(--acls-brand-dark); }
+html[data-course="acls"] .acls-games-hub .card > div:first-child:not(.flex-1) { color:var(--acls-brand) !important; background:var(--acls-brand-soft) !important; }
+html[data-course="acls"] .acls-games-hub .card > .flex:first-child { background:transparent !important; }
+html[data-course="acls"] .acls-games-hub .text-info { color:var(--acls-brand); }
+html[data-course="acls"] .rg-actor.is-active .rg-actor-label { background:var(--acls-brand); border-color:var(--acls-brand-dark); }
+@media(max-width:480px) { .acls-page-chrome > div { min-height:54px; padding:8px 18px; } }
+html[data-course="acls"] .learning-icon { color:var(--acls-brand); background:var(--acls-brand-soft); }
+html[data-course="acls"] .learning-progress-chip, html[data-course="acls"] .learning-progress-fill { background:var(--acls-brand); border-color:var(--acls-brand); }
+html[data-course="acls"].dark .learning-progress-chip { color:#21171B; }
+html[data-course="acls"] .learning-section-title { color:var(--color-text-primary); border-left:3px solid var(--acls-brand); padding-left:12px; line-height:1.6; }
+html[data-course="acls"] .learning-progress-card { --color-info:var(--acls-brand); }
+/* Pages with a bespoke title row share the same card treatment as PageHero. */
+html[data-course="acls"] .page-container > div:has(> h1):not(.page-hero),
+html[data-course="acls"] .page-container > div.flex:has(h1) {
+  padding:22px; border:1px solid var(--color-border); border-left:4px solid var(--acls-brand);
+  border-radius:18px; background:var(--color-bg-secondary); box-shadow:var(--shadow-1);
+}
+html[data-course="acls"] .page-container > div.flex:has(h1) > .text-info { background:var(--acls-brand-soft); color:var(--acls-brand); }
+html[data-course="acls"] .learning-progress-card .btn-info { background:var(--acls-brand); color:white; }
+@media(max-width:600px) {
+ html[data-course="acls"] .page-container > .flex.items-end:has(h1) { flex-wrap:wrap; gap:15px; }
+ html[data-course="acls"] .page-container > div.flex:has(h1) { padding:18px; }
+ html[data-course="acls"] .page-container > div.flex:has(h1) > div { min-width:0; }
+ html[data-course="acls"] .page-container > div.flex:has(h1) h1 { overflow-wrap:anywhere; }
+}
+
+html[data-course="acls"] .learning-lesson-action { background:var(--acls-brand) !important; }
+html[data-course="acls"].dark .learning-lesson-action { color:#21171B; }

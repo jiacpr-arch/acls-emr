@@ -13,7 +13,7 @@ export default function GameHighlightCard({ to, onClick, title, desc, Icon = Gam
   return (
     <button
       onClick={handleClick}
-      className="card card-hover w-full flex items-center gap-3.5"
+      className="game-highlight-card card card-hover w-full flex items-center gap-3.5"
       style={{
         background: 'linear-gradient(135deg, #1B2340, #2A1B40)',
         border: '1.5px solid #4A3D7A',

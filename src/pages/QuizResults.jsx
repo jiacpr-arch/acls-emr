@@ -21,11 +21,14 @@ export default function QuizResults() {
   const [attempt, setAttempt] = useState(null);
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const a = await getAttemptById(attemptId);
+      const numericId = Number(attemptId);
+      const a = await (Number.isSafeInteger(numericId) && numericId > 0
+        ? getAttemptById(numericId) : Promise.resolve(null));
       if (cancelled) return;
       setAttempt(a || null);
       if (a) {
@@ -33,19 +36,23 @@ export default function QuizResults() {
         if (!cancelled) setStudent(s || null);
       }
       setLoading(false);
-    })();
+    })().catch(() => {
+      if (cancelled) return;
+      setLoadError(true);
+      setLoading(false);
+    });
     return () => { cancelled = true; };
   }, [attemptId]);
 
   if (loading) {
     return <div className="page-container text-center text-text-muted text-caption py-10">กำลังโหลด…</div>;
   }
-  if (!attempt) {
+  if (!attempt || loadError) {
     return (
       <div className="page-container">
         <div className="dash-card text-center !p-6">
           <AlertCircle size={28} strokeWidth={2.2} className="mx-auto text-warning" />
-          <div className="text-body mt-2">ไม่พบผลการทำ Quiz</div>
+          <div className="text-body mt-2" role="status">{loadError ? 'เปิดผลการทำ Quiz ไม่สำเร็จ กรุณาลองอีกครั้ง' : 'ไม่พบผลการทำ Quiz'}</div>
           <button onClick={() => navigate('/pre-course')} className="btn btn-primary btn-sm mt-3">
             กลับไปรายการบทเรียน
           </button>

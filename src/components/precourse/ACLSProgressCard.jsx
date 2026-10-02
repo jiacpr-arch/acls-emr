@@ -106,7 +106,7 @@ export default function ACLSProgressCard({
     <>
       {/* Active-student status — its own card so identity reads as a
           separate concern from progress */}
-      <div className="dash-card flex items-center gap-3">
+      <div className="learning-progress-card dash-card flex items-center gap-3">
         {activeStudent ? (
           <>
             <div
@@ -159,7 +159,7 @@ export default function ACLSProgressCard({
       </div>
 
       {/* Progress + primary CTA */}
-      <div className="dash-card">
+      <div className="learning-progress-card dash-card">
         <div className="flex items-center gap-4">
           <ProgressRing percent={percent} />
           <div className="flex-1 min-w-0">

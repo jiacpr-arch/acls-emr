@@ -293,29 +293,29 @@ export default function NewCase() {
         {learnPath.next ? (
           <button onClick={() => navigate(learnPath.next.path)}
             className="card card-hover w-full flex items-center gap-3"
-            style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', textAlign: 'left', justifyContent: 'flex-start' }}>
+            style={{ background: 'var(--acls-brand-soft)', border: '1.5px solid #F1C9CD', textAlign: 'left', justifyContent: 'flex-start' }}>
             <div className="flex items-center justify-center shrink-0"
-              style={{ width: 48, height: 48, borderRadius: 12, background: '#2563EB20', color: '#2563EB' }}>
+              style={{ width: 48, height: 48, borderRadius: 12, background: '#D7192020', color: '#D71920' }}>
               <BookOpen size={22} strokeWidth={2.2} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-headline" style={{ color: '#1D4ED8' }}>
+              <div className="text-headline" style={{ color: '#AD1017' }}>
                 เรียนต่อ — ขั้นที่ {learnPath.next.index}: {learnPath.next.label}
               </div>
-              <div className="text-caption" style={{ color: '#1E40AF', marginBottom: 6 }}>
+              <div className="text-caption" style={{ color: '#862029', marginBottom: 6 }}>
                 ผ่านแล้ว {learnPath.done}/{learnPath.total} ขั้น
               </div>
-              <div style={{ height: 5, borderRadius: 99, background: '#BFDBFE', overflow: 'hidden' }}>
+              <div style={{ height: 5, borderRadius: 99, background: '#F1C9CD', overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
                   width: `${learnPath.total ? Math.round((learnPath.done / learnPath.total) * 100) : 0}%`,
-                  background: '#2563EB',
+                  background: '#D71920',
                   borderRadius: 99,
                   transition: 'width 0.3s ease',
                 }} />
               </div>
             </div>
-            <ChevronRight size={18} style={{ color: '#2563EB' }} className="shrink-0" />
+            <ChevronRight size={18} style={{ color: '#D71920' }} className="shrink-0" />
           </button>
         ) : learnPath.activeStudent && learnPath.total > 0 ? (
           <button onClick={() => navigate('/certification')}
@@ -334,16 +334,16 @@ export default function NewCase() {
         ) : (
           <button onClick={() => navigate('/learn')}
             className="card card-hover w-full flex items-center gap-3"
-            style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', textAlign: 'left', justifyContent: 'flex-start' }}>
+            style={{ background: 'var(--acls-brand-soft)', border: '1.5px solid #F1C9CD', textAlign: 'left', justifyContent: 'flex-start' }}>
             <div className="flex items-center justify-center shrink-0"
-              style={{ width: 48, height: 48, borderRadius: 12, background: '#2563EB20', color: '#2563EB' }}>
+              style={{ width: 48, height: 48, borderRadius: 12, background: '#D7192020', color: '#D71920' }}>
               <BookOpen size={22} strokeWidth={2.2} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-headline" style={{ color: '#1D4ED8' }}>เริ่มเรียน ACLS — 6 ขั้นสู่ใบประกาศนียบัตร</div>
-              <div className="text-caption" style={{ color: '#1E40AF' }}>เริ่มจาก Pre-test · ระบุตัวผู้เรียนเพื่อบันทึกผล</div>
+              <div className="text-headline" style={{ color: '#AD1017' }}>เริ่มเรียน ACLS — 6 ขั้นสู่ใบประกาศนียบัตร</div>
+              <div className="text-caption" style={{ color: '#862029' }}>เริ่มจาก Pre-test · ระบุตัวผู้เรียนเพื่อบันทึกผล</div>
             </div>
-            <ChevronRight size={18} style={{ color: '#2563EB' }} className="shrink-0" />
+            <ChevronRight size={18} style={{ color: '#D71920' }} className="shrink-0" />
           </button>
         )}
 
@@ -390,17 +390,17 @@ export default function NewCase() {
             {
               icon: GraduationCap, to: '/learn',
               label: 'โหมดเรียน', desc: 'บทเรียน · scenarios · ใบประกาศนียบัตร',
-              bg: '#F0FDF4', bd: '#BBF7D0', fg: '#047857', tile: '#059669',
+              bg: 'var(--color-bg-secondary)', bd: '#E8E2E5', fg: 'var(--color-text-primary)', tile: '#D71920',
             },
             {
               icon: Play, to: '/video-lessons',
               label: 'วิดีโอบทเรียน', desc: 'คลิปสอนเชิงลึกทุกหัวข้อ',
-              bg: '#F5F3FF', bd: '#DDD6FE', fg: '#5B21B6', tile: '#7C3AED',
+              bg: 'var(--color-bg-secondary)', bd: '#E8E2E5', fg: 'var(--color-text-primary)', tile: '#D71920',
             },
             {
               icon: HelpCircle, to: '/qa-acls-deep',
               label: 'Q&A ACLS เชิงลึก', desc: '13 หมวด พร้อม infographic',
-              bg: '#F0F9FF', bd: '#BAE6FD', fg: '#075985', tile: '#0284C7',
+              bg: 'var(--color-bg-secondary)', bd: '#E8E2E5', fg: 'var(--color-text-primary)', tile: '#D71920',
             },
           ].map(({ icon: RowIcon, to, label, desc, bg, bd, fg, tile }) => (
             <button key={to} onClick={() => navigate(to)}

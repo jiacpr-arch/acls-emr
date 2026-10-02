@@ -26,7 +26,7 @@ export default function GamesHub() {
   ];
 
   return (
-    <div className="page-container flex flex-col gap-4 pb-24">
+    <div className="acls-games-hub page-container flex flex-col gap-4 pb-24">
       <PageHero title={t('games', lang)} desc={IS_BLS ? 'เรียน BLS แบบสนุก — เล่นเกม ฝึกซ้อม แข่งอันดับ' : t('games_subtitle', lang)} />
 
       {/* อยู่ในคลาส: บอกว่ากำลังบันทึกผลในชื่อใคร — เกมนอกคลาสไม่มี leaderboard ให้บันทึก
