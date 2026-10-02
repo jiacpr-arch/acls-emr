@@ -20,7 +20,7 @@ export default function BottomTabBar() {
   const closeMenuRef = useRef(null);
 
   useLayoutEffect(() => {
-    if (!IS_ACLS || !showMore) return;
+    if (!(IS_ACLS || IS_BLS) || !showMore) return;
     const trigger = moreTriggerRef.current;
     closeMenuRef.current?.focus();
     return () => trigger?.focus();
@@ -51,11 +51,11 @@ export default function BottomTabBar() {
       ]
     : IS_BLS
     ? [
-        { path: '/', Icon: HeartPulse, label: 'Home' },
-        { path: '/history', Icon: FileText, label: 'ประวัติ' },
+        { path: '/', Icon: HeartPulse, label: 'หน้าแรก' },
         { path: '/learn', Icon: GraduationCap, label: 'เรียน' },
-        { path: '/games', Icon: Gamepad2, label: 'เกมส์' },
-        { key: 'more', Icon: Menu, label: 'More' },
+        { path: '/games', Icon: Gamepad2, label: 'ฝึกและเกม' },
+        { path: '/history', Icon: FileText, label: 'ประวัติ' },
+        { key: 'more', Icon: Menu, label: 'เมนู' },
       ]
     : IS_SKILL_COURSE
     ? [
@@ -95,20 +95,28 @@ export default function BottomTabBar() {
       ]
     : IS_BLS
     ? [
-        { path: '/bls/knowledge', Icon: GraduationCap, label: 'คลังความรู้ BLS' },
-        { path: '/bls/algorithm', Icon: GitBranch, label: 'Algorithm' },
-        { path: '/bls/aed', Icon: Zap, label: 'การใช้ AED' },
-        { path: '/bls/choking', Icon: Wind, label: 'สำลัก' },
-        { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR Metronome' },
-        { path: '/bls/scenario', Icon: Brain, label: 'เกมลำดับขั้น' },
-        { path: '/scenarios', Icon: FileText, label: 'สอบสนามจริง' },
-        { path: '/statistics', Icon: BarChart3, label: t('statistics', lang) },
-        { path: '/compare', Icon: BarChart3, label: 'Compare' },
-        { path: '/certification', Icon: Award, label: 'ใบเซอร์' },
-        { path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
-        { path: '/news', Icon: Bell, label: 'ข่าว' },
-        { path: '/feedback', Icon: MessageSquare, label: t('feedback', lang) },
-        { path: '/settings', Icon: Settings, label: t('settings', lang) },
+        { group: 'เรียนรู้', path: '/learn', Icon: GraduationCap, label: 'เส้นทางเรียน' },
+        { group: 'เรียนรู้', path: '/pre-course', Icon: GraduationCap, label: 'บทเรียน BLS' },
+        { group: 'เรียนรู้', path: '/video-lessons', Icon: Play, label: 'วิดีโอบทเรียน' },
+        { group: 'เรียนรู้', path: '/bls/knowledge', Icon: Brain, label: 'คลังความรู้ BLS' },
+        { group: 'เรียนรู้', path: '/qa-deep', Icon: MessageSquare, label: 'ถามตอบเชิงลึก' },
+        { group: 'เรียนรู้', path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร' },
+        { group: 'ฝึกทักษะ', path: '/games', Icon: Gamepad2, label: 'รวมการฝึกและเกม' },
+        { group: 'ฝึกทักษะ', path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR' },
+        { group: 'ฝึกทักษะ', path: '/bls/scenario', Icon: Brain, label: 'เกมลำดับขั้น' },
+        { group: 'ฝึกทักษะ', path: '/recorder-game', Icon: FileText, label: 'ฝึกบันทึกเคส' },
+        { group: 'ฝึกทักษะ', path: '/scenarios', Icon: FileText, label: 'สอบสนามจริง' },
+        { group: 'เครื่องมือ', path: '/bls/algorithm', Icon: GitBranch, label: 'ผังช่วยชีวิต' },
+        { group: 'เครื่องมือ', path: '/bls/aed', Icon: Zap, label: 'การใช้ AED' },
+        { group: 'เครื่องมือ', path: '/bls/choking', Icon: Wind, label: 'ช่วยผู้สำลัก' },
+        { group: 'เครื่องมือ', path: '/drill', Icon: Zap, label: 'จับเวลาฝึก' },
+        { group: 'เครื่องมือ', path: '/statistics', Icon: BarChart3, label: 'สถิติเคส' },
+        { group: 'เครื่องมือ', path: '/compare', Icon: BarChart3, label: 'เปรียบเทียบเคส' },
+        { group: 'จัดการ', path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
+        { group: 'จัดการ', path: '/guide', Icon: FileText, label: 'คู่มือใช้งาน' },
+        { group: 'จัดการ', path: '/news', Icon: Bell, label: 'ข่าวสาร' },
+        { group: 'จัดการ', path: '/feedback', Icon: MessageSquare, label: 'ความคิดเห็น' },
+        { group: 'จัดการ', path: '/settings', Icon: Settings, label: 'ตั้งค่า' },
       ]
     : IS_SKILL_COURSE
     ? [
@@ -136,16 +144,20 @@ export default function BottomTabBar() {
           if (tab.key === 'more') {
             const TabIcon = tab.Icon;
             return (
-              <button key="more" ref={moreTriggerRef} onClick={() => setShowMore(true)} className={showMore ? 'active' : ''}>
+              <button key="more" ref={moreTriggerRef} aria-expanded={showMore} onClick={() => setShowMore(true)} className={showMore ? 'active' : ''}>
                 <span className="tab-icon"><TabIcon size={20} strokeWidth={2} /></span>
                 <span>{tab.label}</span>
               </button>
             );
           }
-          const isActive = location.pathname === tab.path;
+          const path = location.pathname;
+          const isActive = path === tab.path || (IS_BLS && (
+            (tab.path === '/learn' && ['/pre-course', '/video-lessons', '/qa-deep', '/certification', '/bls/knowledge'].some(prefix => path === prefix || path.startsWith(prefix + '/'))) ||
+            (tab.path === '/games' && ['/skill-practice', '/bls/scenario', '/recorder-game', '/scenarios', '/drill', '/sim-board'].some(prefix => path === prefix || path.startsWith(prefix + '/')))
+          ));
           const TabIcon = tab.Icon;
           return (
-            <button key={tab.path} onClick={() => navigate(tab.path)} className={isActive ? 'active' : ''}>
+            <button key={tab.path} aria-current={isActive ? 'page' : undefined} onClick={() => navigate(tab.path)} className={isActive ? 'active' : ''}>
               <span className="tab-icon"><TabIcon size={20} strokeWidth={isActive ? 2.4 : 2} /></span>
               <span>{tab.label}</span>
             </button>
@@ -158,11 +170,11 @@ export default function BottomTabBar() {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
           onClick={() => setShowMore(false)}>
           <div
-            className={`w-full max-w-lg bg-bg-secondary animate-slide-up ${IS_ACLS ? 'acls-more-sheet' : ''}`}
-            role={IS_ACLS ? 'dialog' : undefined}
-            aria-modal={IS_ACLS ? true : undefined}
-            aria-labelledby={IS_ACLS ? 'acls-menu-title' : undefined}
-            onKeyDown={IS_ACLS ? e => {
+            className={`w-full max-w-lg bg-bg-secondary animate-slide-up ${IS_ACLS ? 'acls-more-sheet' : IS_BLS ? 'bls-more-sheet' : ''}`}
+            role={IS_ACLS || IS_BLS ? 'dialog' : undefined}
+            aria-modal={IS_ACLS || IS_BLS ? true : undefined}
+            aria-labelledby={IS_ACLS || IS_BLS ? 'acls-menu-title' : undefined}
+            onKeyDown={IS_ACLS || IS_BLS ? e => {
               if (e.key === 'Escape') { e.preventDefault(); setShowMore(false); }
               if (e.key === 'Tab') {
                 const buttons = e.currentTarget.querySelectorAll('button:not([disabled])');
@@ -183,7 +195,7 @@ export default function BottomTabBar() {
             {/* Drag handle */}
             <div className="w-10 h-1 bg-bg-tertiary mx-auto mt-3 mb-1" style={{ borderRadius: 99 }} />
             <div className="flex items-center justify-between px-5 pt-3 pb-2">
-              <div id="acls-menu-title" className="text-headline">{IS_ACLS ? 'เมนู ACLS' : 'More'}</div>
+              <div id="acls-menu-title" className="text-headline">{IS_ACLS ? 'เมนู ACLS' : IS_BLS ? 'เมนู BLS' : 'More'}</div>
               <button ref={closeMenuRef} onClick={() => setShowMore(false)}
                 className="w-8 h-8 flex items-center justify-center text-text-muted hover:bg-bg-tertiary"
                 style={{ borderRadius: 'var(--radius-full)' }}
@@ -191,7 +203,7 @@ export default function BottomTabBar() {
                 <X size={18} strokeWidth={2.2} />
               </button>
             </div>
-            {IS_ACLS ? (
+            {IS_ACLS || IS_BLS ? (
               <div className="acls-more-body">
                 {['เรียนรู้', 'ฝึกทักษะ', 'เครื่องมือ', 'จัดการ'].map(group => (
                   <section key={group} className="acls-menu-group" aria-label={group}>

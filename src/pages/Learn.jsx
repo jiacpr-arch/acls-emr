@@ -22,33 +22,29 @@ export default function Learn() {
   const sections = IS_BLS
     ? [
         {
-          title: t('learn_prepare', lang),
+          title: 'เรียนตามลำดับ',
           items: [
-            { path: '/pre-course/pre-test', Icon: ClipboardList, label: 'Pre-test', desc: 'วัดพื้นฐานก่อนเริ่มเรียน', color: '#7C3AED' },
-            { path: '/pre-course', Icon: GraduationCap, label: t('pre_course', lang), desc: t('pre_course_desc', lang), color: '#2563EB', progressKey: 'lessons' },
-            { path: '/video-lessons', Icon: Play, label: 'วิดีโอบทเรียน', desc: 'คลิปสั้น + สรุป + ควิซ', color: '#7C3AED', progressKey: 'video' },
+            { path: '/pre-course/pre-test', Icon: ClipboardList, label: 'ทดสอบก่อนเรียน', desc: 'วัดพื้นฐานก่อนเริ่มเรียน', color: '#2563EB', step: 1, progressKey: 'preTest' },
+            { path: '/pre-course', Icon: GraduationCap, label: 'บทเรียน BLS', desc: 'เรียนทีละบทพร้อมแบบฝึกหัด', color: '#2563EB', step: 2, progressKey: 'lessons' },
+            { path: '/video-lessons', Icon: Play, label: 'วิดีโอบทเรียน', desc: 'คลิปสั้น + สรุป + ควิซ', color: '#2563EB', step: 3, progressKey: 'video' },
+            { path: '/pre-course/post-test', Icon: Trophy, label: 'ทดสอบหลังเรียน', desc: 'ประเมินความรู้หลังจบบทเรียน', color: '#2563EB', step: 4, progressKey: 'postTest' },
+            { path: '/certification', Icon: Award, label: 'ใบประกาศนียบัตร', desc: 'ตรวจความก้าวหน้าและเงื่อนไขการรับใบประกาศ', color: '#2563EB', step: 5, progressKey: 'cert' },
           ],
         },
         {
-          title: t('learn_practice', lang),
+          title: 'ฝึกทักษะเพิ่มเติม',
           items: [
-            { path: '/skill-practice', Icon: HeartPulse, label: t('cpr_drill', lang), desc: t('cpr_drill_desc', lang), color: '#DC2626' },
-            { path: '/scenarios', Icon: Hospital, label: t('scenarios', lang), desc: t('scenarios_desc', lang), color: '#D97706' },
-            { path: '/games', Icon: Siren, label: t('games', lang), desc: 'เกมกู้ชีพ · ซ้อมมือ Recorder', color: 'var(--color-accent)', game: true },
+            { path: '/skill-practice', Icon: HeartPulse, label: 'ฝึก CPR', desc: 'ฝึกจังหวะกดหน้าอกและจับเวลา', color: '#DC2626' },
+            { path: '/scenarios', Icon: Hospital, label: 'สอบสนามจริง', desc: 'ฝึกสถานการณ์บนหน้าบันทึกเคส', color: '#D97706' },
+            { path: '/games', Icon: Siren, label: 'รวมการฝึกและเกม', desc: 'เลือกฝึกพื้นฐาน สถานการณ์ และการบันทึก', color: 'var(--color-accent)', game: true },
           ],
         },
         {
-          title: t('learn_reference', lang),
+          title: 'ทบทวนและค้นความรู้',
           items: [
             { path: '/bls/knowledge', Icon: BookOpen, label: 'คลังความรู้ BLS', desc: 'หนังสือ + Q&A เชิงลึก + AI Tips', color: '#2563EB' },
             { path: '/qa-deep', Icon: MessageCircle, label: 'Q&A BLS เชิงลึก', desc: 'คำถาม-คำตอบพร้อม infographic', color: 'var(--color-accent)' },
             { path: '/guide', Icon: Compass, label: t('guide', lang), desc: t('guide_desc', lang), color: '#059669' },
-          ],
-        },
-        {
-          title: t('learn_progress', lang),
-          items: [
-            { path: '/certification', Icon: Award, label: t('cert', lang), desc: t('cert_desc', lang), color: '#D97706', progressKey: 'cert' },
           ],
         },
       ]
@@ -126,11 +122,11 @@ export default function Learn() {
     : `Study, practice, and track your ${courseMeta.shortName} progress`;
 
   return (
-    <div className={`page-container flex flex-col gap-4 pb-24 ${IS_ACLS ? 'acls-learn-page' : ''}`}>
-      <PageHero title={t('learn', lang)} desc={learnSubtitle} />
+    <div className={`page-container flex flex-col gap-4 pb-24 ${IS_ACLS ? 'acls-learn-page' : IS_BLS ? 'bls-learn-page' : ''}`}>
+      <PageHero title={IS_BLS ? 'เส้นทางเรียน BLS' : t('learn', lang)} desc={IS_BLS ? 'เรียนตามลำดับ ติดตามความก้าวหน้า แล้วฝึกทักษะให้มั่นใจ' : learnSubtitle} />
 
       {sections.map(section => {
-        const isPrep = section.title === t('learn_prepare', lang);
+        const isPrep = section.title === 'เรียนตามลำดับ' || section.title === t('learn_prepare', lang);
         return (
           <div key={section.title} className="space-y-2">
             <div className="flex items-center justify-between px-1">
@@ -143,7 +139,7 @@ export default function Learn() {
             </div>
             {isPrep && !activeStudent && (
               <div className="text-caption text-text-muted px-1 -mt-1">
-                {t('learn_identify_hint', lang)}
+                {IS_BLS ? 'ลงทะเบียนในหน้าบทเรียนเพื่อบันทึกความก้าวหน้าของคุณ' : t('learn_identify_hint', lang)}
               </div>
             )}
             <div className="grid gap-2.5">
@@ -193,13 +189,13 @@ export default function Learn() {
                       textAlign: 'left',
                       justifyContent: 'flex-start',
                       ...(isNext && !status?.complete
-                        ? { border: `1.5px solid ${color}`, boxShadow: `0 0 0 3px ${color}20` }
+                        ? { border: `1.5px solid ${color}`, boxShadow: `0 0 0 3px color-mix(in srgb, ${color} 15%, transparent)` }
                         : null),
                     }}
                   >
                     <div
                       className="flex items-center justify-center shrink-0"
-                      style={{ width: 44, height: 44, borderRadius: 12, background: IS_ACLS ? 'var(--acls-brand-soft)' : `${color}15`, color }}
+                      style={{ width: 44, height: 44, borderRadius: 12, background: IS_ACLS ? 'var(--acls-brand-soft)' : `color-mix(in srgb, ${color} 10%, transparent)`, color }}
                     >
                       <Icon size={22} strokeWidth={2.2} />
                     </div>

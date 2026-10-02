@@ -82,7 +82,7 @@
 }
 
 /* หมายเหตุ: ห้ามใส่ universal reset (*{margin:0}) ที่นี่ — CSS นอก @layer จะชนะ
-   utility ของ Tailwind (อยู่ใน @layer utilities) ทำให้ m-*/p-* ใช้ไม่ได้ทั้งแอป
+   utility ของ Tailwind (อยู่ใน @layer utilities) ทำให้ margin/padding utilities ใช้ไม่ได้ทั้งแอป
    Tailwind preflight รีเซ็ต margin/padding/box-sizing ให้อยู่แล้ว */
 
 body {
@@ -109,7 +109,7 @@ body {
 
 /* @layer base: ให้ Tailwind utility (อยู่ใน @layer utilities) ชนะ reset พวกนี้
    เมื่อ property ชนกัน — เดิมกฎเหล่านี้ unlayered จึงชนะทุก utility เสมอ ทำให้
-   ปุ่มที่ใส่ bg-*/text-left/border-* กลายเป็นล่องหน (ดู PR ประวัติ commit นี้) */
+   ปุ่มที่ใส่ background/text/border utilities กลายเป็นล่องหน (ดู PR ประวัติ commit นี้) */
 @layer base {
   :focus-visible {
     outline: 2px solid var(--color-info);

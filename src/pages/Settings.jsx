@@ -7,14 +7,14 @@ import {
 import MorrooAdCard from '../components/MorrooAdCard';
 import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import PageHero from '../components/PageHero';
-import { courseMeta } from '../config/courseMode';
+import { courseMeta, IS_BLS } from '../config/courseMode';
 
 export default function Settings() {
   const settings = useSettingsStore();
 
   return (
     <div className="page-container flex flex-col gap-4">
-      <PageHero title="Settings" desc={`Personalise your ${courseMeta.shortName} recorder`} />
+      <PageHero title={IS_BLS ? 'ตั้งค่า' : 'Settings'} desc={IS_BLS ? 'ปรับภาษา รูปแบบหน้าจอ และการบันทึกให้เหมาะกับคุณ' : `Personalise your ${courseMeta.shortName} recorder`} />
 
       {/* Mode */}
       <SettingSection title="Mode">
@@ -133,8 +133,8 @@ export default function Settings() {
         >
           <HeartPulse size={28} strokeWidth={2.4} />
         </div>
-        <div className="text-headline text-text-primary">ACLS EMR</div>
-        <div className="text-caption text-text-secondary">Advanced Cardiac Life Support Recording</div>
+        <div className="text-headline text-text-primary">{courseMeta.shortName} EMR</div>
+        <div className="text-caption text-text-secondary">{IS_BLS ? 'Basic Life Support — เรียน ฝึก และบันทึกการช่วยชีวิต' : 'Advanced Cardiac Life Support Recording'}</div>
         <div className="font-mono text-2xs text-text-muted mt-1">v2.0.0 · PWA Offline-First</div>
         <div className="text-text-muted text-2xs">JIA Trainer Center · jia1669.com</div>
       </div>

@@ -55,6 +55,7 @@ import GoCampaign from './pages/GoCampaign';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import ACLSPageChrome from './components/ACLSPageChrome';
+import BLSPageChrome from './components/BLSPageChrome';
 import SiteFooter from './components/SiteFooter';
 import LineFloatButton from './components/LineFloatButton';
 import AskQuestionFab from './components/AskQuestionFab';
@@ -152,7 +153,8 @@ function App() {
     || /^\/scenario\/.+/.test(location.pathname);
 
   return (
-    <div className={`min-h-screen bg-bg-primary text-text-primary ${IS_ACLS ? `acls-surface${location.pathname === '/recording' || isRecorderGamePlay ? ' acls-clinical' : ''}` : ''}`}>
+    <div className={`min-h-screen bg-bg-primary text-text-primary ${IS_ACLS ? `acls-surface${location.pathname === '/recording' || isRecorderGamePlay ? ' acls-clinical' : ''}` : IS_BLS ? `bls-surface${isRecording || isRecorderGamePlay ? ' bls-clinical' : ''}` : ''}`}>
+      {IS_BLS && location.pathname !== '/' && !isRecording && !isRecorderGamePlay && !isShortlink && <BLSPageChrome />}
       {IS_ACLS && location.pathname !== '/' && !isRecording && !isRecorderGamePlay && <ACLSPageChrome />}
       <OfflineIndicator />
       <InAppBrowserGuard />
