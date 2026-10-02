@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useCaseStore } from '../stores/caseStore';
 import { getActiveSession, clearActiveSession } from '../stores/caseStore';
 import { useSettingsStore } from '../stores/settingsStore';
-import { t } from '../utils/i18n';
 import { IS_BLS } from '../config/courseMode';
-import CourseSplash from '../components/newcase/CourseSplash';
-import CourseHero from '../components/newcase/CourseHero';
+import BLSLandingHero from '../components/newcase/BLSLandingHero';
+import './blsHome.css';
 import ACLSLandingHero from '../components/newcase/ACLSLandingHero';
 import './aclsHome.css';
 import ACLSQuickActions from '../components/newcase/ACLSQuickActions';
@@ -23,20 +22,13 @@ import GameHighlightCard from '../components/GameHighlightCard';
 import { EmergencyCTA, LearnPathCard, MenuList } from '../components/newcase/HomeBlocks';
 import { useLearnPath } from '../hooks/useLearnPath';
 
-// Module-level flag — splash shows once per full page load, not on every
-// in-app navigation back to /. Resets when the user reloads the tab.
-// Shared by both ACLS and BLS builds (each build only ever renders one branch).
-let homeSplashSeen = false;
-
 export default function NewCase() {
   const navigate = useNavigate();
   const createCase = useCaseStore(s => s.createCase);
   const restoreSession = useCaseStore(s => s.restoreSession);
   const mode = useSettingsStore(s => s.mode);
-  const lang = useSettingsStore(s => s.language) || 'en';
   const [loading, setLoading] = useState(false);
   const [activeSession, setActiveSession] = useState(() => getActiveSession());
-  const [showSplash, setShowSplash] = useState(!homeSplashSeen);
   // เส้นทางเรียนของนักเรียน (logic เดียวกับหน้า Learn) — ใช้กับการ์ด "เรียนต่อ"
   const learnPath = useLearnPath();
 
@@ -62,32 +54,13 @@ export default function NewCase() {
 
   const isClinical = mode === 'clinical';
 
-  // ===== BLS — home ลอกโครง ACLS (Phase B) สีเปลี่ยนเป็นฟ้า Sky ผ่าน accent token =====
+  // BLS learning home, styled to match the FirstAid course.
   if (IS_BLS) {
     return (
-      <div className="min-h-[100dvh] bg-bg-primary">
-        {showSplash && (
-          <CourseSplash
-            onDismiss={() => { homeSplashSeen = true; setShowSplash(false); }}
-            palette={{ from: '#7DD3FC', mid: '#0EA5E9', to: '#0C4A6E' }}
-            eyebrow="Basic Life Support"
-            wordmark="BLS"
-            tagline="CPR + AED สำหรับบุคลากรทางการแพทย์"
-            badge="ILCOR 2025"
-          />
-        )}
-
-        <div
-          className="page-container pb-28 flex flex-col gap-4"
-          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
-        >
-          <CourseHero
-            isClinical={isClinical}
-            eyebrow="Basic Life Support"
-            title="BLS Rescue"
-            meta="ILCOR 2025 · CPR + AED Recording"
-          />
-
+      <div className="bls-home min-h-[100dvh]">
+        <div className="bls-home-container page-container pb-28 flex flex-col gap-4">
+          <BLSLandingHero isClinical={isClinical} learnPath={learnPath} />
+          <div className="bls-recording-entry">
           <EmergencyCTA
             Icon={AlertTriangle}
             title="พบคนหมดสติ — เริ่มบันทึกทันที"
@@ -96,6 +69,8 @@ export default function NewCase() {
             onClick={() => handleStart('bls')}
             disabled={loading}
           />
+
+          </div>
 
           {/* การ์ดนำทางนักเรียน — โครง/ตรรกะเดียวกับ ACLS (useLearnPath) */}
           {learnPath.next ? (
@@ -155,11 +130,11 @@ export default function NewCase() {
           )}
 
           {/* Main menu */}
-          <div className="grid gap-2.5">
+          <div className="bls-learning-grid grid gap-2.5">
             <GameHighlightCard
               to="/sim"
-              title={t('code_sim', lang)}
-              desc={t('code_sim_desc', lang)}
+              title="ฝึกตัดสินใจในสถานการณ์จำลอง"
+              desc="Code Blue Sim · ลองฝึกก่อนลงมือจริง"
               Icon={Gamepad2}
             />
             <MenuList title="เรียนรู้" items={[
@@ -175,7 +150,7 @@ export default function NewCase() {
 
           {/* Quick-start templates */}
           <div className="space-y-3">
-            <div className="text-overline text-text-muted px-1">เริ่มเร็วตาม pathway</div>
+            <div className="bls-section-heading"><span>ฝึกให้มั่นใจ ทีละทักษะ</span><h2>พร้อมช่วยชีวิตในทุกขั้นตอน</h2></div>
             <BLSHomeQuickActions onStart={handleStart} disabled={loading} />
           </div>
 
