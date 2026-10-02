@@ -1,3 +1,4 @@
+import { IS_BLS } from '../config/courseMode';
 import { useState, useEffect, useRef } from 'react';
 import { playMetronomeClick, playBeep } from '../utils/sound';
 import CircularTimer from '../components/CircularTimer';
@@ -48,7 +49,7 @@ export default function DrillTimer() {
             <Activity size={22} strokeWidth={2.2} />
           </div>
           <div>
-            <h1 className="text-display text-text-primary">Drill Timer</h1>
+            <h1 className="text-display text-text-primary">{IS_BLS ? 'จับเวลาฝึก' : 'Drill Timer'}</h1>
             <p className="text-caption text-text-muted">Practice CPR skills without a case</p>
           </div>
         </div>

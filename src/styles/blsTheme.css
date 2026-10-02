@@ -1,0 +1,56 @@
+/* One BLS palette across learning, practice, tools and administration. */
+html[data-course="bls"] {
+  --color-bg-primary:#F3F6FB; --color-bg-secondary:#FFFFFF;
+  --color-bg-tertiary:#EAF0F8; --color-bg-elevated:#FFFFFF;
+  --color-text-primary:#142C50; --color-text-secondary:#394E6B; --color-text-muted:#586C88;
+  --color-info:#2563EB; --color-info-dark:#1D4ED8;
+  --color-primary:#2563EB; --color-primary-dark:#1D4ED8;
+  --color-border:#D7E1EE; --color-border-strong:#9BACBF;
+  --color-monitor:#102A4D; --color-monitor-line:#284568; --color-trace:#74BDFF;
+  --bls-soft:#EAF1FF; --bls-ink:#1D4ED8;
+  --acls-brand-dark:var(--bls-ink); --acls-brand-soft:var(--bls-soft); --acls-brand:#2563EB;
+}
+html[data-course="bls"].dark {
+  --color-bg-primary:#0C1729; --color-bg-secondary:#14243C; --color-bg-tertiary:#203451; --color-bg-elevated:#1B2F4C;
+  --color-text-primary:#EDF4FF; --color-text-secondary:#CFDCEE; --color-text-muted:#AABDD5;
+  --color-border:#334B6A; --color-border-strong:#6782A5;
+  --color-info:#82B4FF; --color-info-dark:#A7CAFF; --bls-ink:#A7CAFF; --bls-soft:#203A60;
+}
+html[data-course="bls"] .bls-page-chrome { background:#102A4D; color:white; border-bottom:3px solid #2563EB; }
+.bls-page-chrome > div { max-width:720px; margin:auto; padding:12px 24px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.bls-page-brand { display:flex; gap:9px; align-items:center; color:white; text-decoration:none; }
+.bls-page-brand strong { font-size:22px; letter-spacing:.03em; }
+.bls-page-brand span { font-size:12px; font-weight:500; color:#BED3EF; }
+.bls-page-home { display:flex; align-items:center; gap:6px; padding:10px; min-height:44px; border:1px solid #6783A5; border-radius:10px; color:white; font-size:13px; }
+html[data-course="bls"] .page-hero { padding:10px 0 18px; border-bottom:1px solid var(--color-border); }
+html[data-course="bls"] .page-hero h1 { font-size:32px; line-height:1.35; letter-spacing:-.025em; }
+html[data-course="bls"] .page-hero .text-body { line-height:1.75; max-width:60ch; margin-top:8px !important; }
+html[data-course="bls"] .card { border:1px solid var(--color-border); border-radius:16px; }
+html[data-course="bls"] .card-hover:hover { border-color:var(--bls-ink); background:var(--bls-soft); }
+html[data-course="bls"] .bls-surface:not(.bls-clinical) .btn { min-height:44px; border-radius:12px; font-weight:600; }
+html[data-course="bls"] .bls-surface:not(.bls-clinical) .btn-ghost { background:var(--color-bg-secondary); border:1px solid var(--color-border-strong); color:var(--color-text-primary); }
+html[data-course="bls"] .btn-primary { background:#2563EB; color:white; }
+html[data-course="bls"] .btn-primary:hover { background:#1D4ED8; }
+html[data-course="bls"] .bls-surface:not(.bls-clinical) :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),textarea,select) { border:1.5px solid var(--color-border-strong); border-radius:10px; min-height:44px; background:var(--color-bg-secondary); color:var(--color-text-primary); font-size:16px; }
+html[data-course="bls"] :is(button,a,input,textarea,select,summary):focus-visible { outline:3px solid var(--color-info); outline-offset:3px; }
+html[data-course="bls"] button:disabled { cursor:not-allowed; opacity:.55; }
+html[data-course="bls"] .bottom-pill-bar { border-top:1px solid var(--color-border); }
+html[data-course="bls"] .bottom-pill-bar button { min-height:48px; }
+html[data-course="bls"] .bottom-pill-bar button.active { color:var(--bls-ink); }
+html[data-course="bls"] .bottom-pill-bar button.active .tab-icon { background:var(--bls-soft); border-radius:12px; }
+html[data-course="bls"] .bls-more-sheet { max-height:88dvh; display:flex; flex-direction:column; }
+html[data-course="bls"] .bls-more-sheet button[aria-label="Close"] { width:44px; height:44px; border:1px solid var(--color-border-strong); }
+html[data-course="bls"] .acls-menu-group h2 { font-size:14px; font-weight:700; color:var(--color-text-primary); }
+html[data-course="bls"] .acls-menu-group button { font-size:13px; min-height:50px; }
+html[data-course="bls"] .bls-games-section { display:grid; gap:10px; }
+html[data-course="bls"] .bls-games-section h2 { font-size:16px; font-weight:700; padding:8px 0 0; }
+html[data-course="bls"] .bls-game-row { display:flex; align-items:center; gap:14px; text-align:left; width:100%; padding:18px; }
+.bls-game-row > svg:first-child { color:var(--bls-ink); flex-shrink:0; }
+.bls-game-row > span { flex:1; min-width:0; }
+.bls-game-row strong,.bls-game-row small { display:block; }
+.bls-game-row strong { font-size:16px; }
+.bls-game-row small { color:var(--color-text-muted); font-size:13px; line-height:1.7; margin-top:4px; }
+@media(max-width:600px) { .bls-page-chrome > div { padding:9px 16px; } html[data-course="bls"] .page-hero h1 { font-size:28px; } }
+html[data-course="bls"] .page-container > .flex.items-end:has(h1) { flex-wrap:wrap; gap:16px; padding:8px 0 18px; border-bottom:1px solid var(--color-border); }
+html[data-course="bls"] .page-container > .flex.items-end:has(h1) > div:first-child { flex:1 1 220px; }
+html[data-course="bls"].dark .bls-learn-page .card > div:first-child { color:var(--color-info) !important; background:var(--bls-soft) !important; }

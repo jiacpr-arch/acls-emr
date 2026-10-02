@@ -1,3 +1,4 @@
+import { courseMeta } from '../config/courseMode';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { guideSections } from '../data/guideContent';
@@ -40,7 +41,7 @@ export default function UserGuide() {
 
   return (
     <div className="page-container flex flex-col gap-4">
-      <PageHero title="คู่มือการใช้งาน" desc="ACLS EMR v2.0 — User Guide" />
+      <PageHero title="คู่มือการใช้งาน" desc={`${courseMeta.shortName} — เรียนรู้การใช้เมนูและเครื่องมือทีละขั้น`} />
 
       {/* Quick Links */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
@@ -147,7 +148,7 @@ export default function UserGuide() {
 
       {/* Footer */}
       <div className="text-center text-2xs text-text-muted pt-2 space-y-1">
-        <div>ACLS EMR v2.0 — JIA Trainer Center</div>
+        <div>{courseMeta.shortName} EMR v2.0 — JIA Trainer Center</div>
         <div>พัฒนาสำหรับการฝึกอบรมและบันทึกการช่วยชีวิตขั้นสูง</div>
       </div>
     </div>

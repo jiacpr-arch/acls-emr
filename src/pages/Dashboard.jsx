@@ -85,16 +85,16 @@ export default function Dashboard() {
       <div className="flex items-end justify-between" style={{ marginTop: 8 }}>
         <div>
           <div className="text-caption text-text-muted">ประวัติเคส</div>
-          <h1 className="text-display text-text-primary">Dashboard</h1>
-          <p className="text-body text-text-muted" style={{ marginTop: 4 }}>Recorded cases & analytics</p>
+          <h1 className="text-display text-text-primary">{IS_BLS ? 'ประวัติการบันทึก' : 'Dashboard'}</h1>
+          <p className="text-body text-text-muted" style={{ marginTop: 4 }}>{IS_BLS ? 'ดูประวัติและผลการบันทึกเคสของคุณ' : 'Recorded cases & analytics'}</p>
         </div>
         <div className="flex gap-2 shrink-0">
           <Link to="/compare"
             className="btn btn-ghost btn-sm">
-            <Layers size={14} strokeWidth={2} /> Compare
+            <Layers size={14} strokeWidth={2} /> {IS_BLS ? 'เปรียบเทียบ' : 'Compare'}
           </Link>
-          <Link to="/" className="btn btn-danger btn-sm">
-            <Plus size={14} strokeWidth={2.4} /> New Case
+          <Link to="/" className={`btn ${IS_BLS ? 'btn-primary' : 'btn-danger'} btn-sm`}>
+            <Plus size={14} strokeWidth={2.4} /> {IS_BLS ? 'เคสใหม่' : 'New Case'}
           </Link>
         </div>
       </div>

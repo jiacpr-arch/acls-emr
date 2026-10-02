@@ -1,3 +1,4 @@
+import { IS_BLS } from '../config/courseMode';
 import { useEffect, useState } from 'react';
 import { getAllCases } from '../db/database';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -45,7 +46,7 @@ export default function Statistics() {
           <BarChart3 size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <h1 className="text-display text-text-primary">Statistics</h1>
+          <h1 className="text-display text-text-primary">{IS_BLS ? 'สถิติเคส' : 'Statistics'}</h1>
           <p className="text-caption text-text-muted">Outcomes & training analytics</p>
         </div>
       </div>

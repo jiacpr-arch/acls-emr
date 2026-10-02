@@ -1,3 +1,4 @@
+import { courseMeta } from '../config/courseMode';
 import { useState, useEffect } from 'react';
 import {
   MessageSquare, AlertCircle, Lightbulb, AlertTriangle, Edit, Heart,
@@ -77,7 +78,7 @@ export default function Feedback() {
 
   return (
     <div className="page-container flex flex-col gap-4">
-      <PageHero title="ส่งความคิดเห็น" desc="ช่วยเราปรับปรุงแอป ACLS EMR" />
+      <PageHero title="ส่งความคิดเห็น" desc={`ช่วยเราปรับปรุงแอป ${courseMeta.shortName} EMR`} />
 
       <JiacprCourseBanner />
 
