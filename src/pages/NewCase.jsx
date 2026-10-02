@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCaseStore } from '../stores/caseStore';
 import { getActiveSession, clearActiveSession } from '../stores/caseStore';
@@ -7,6 +7,8 @@ import { t } from '../utils/i18n';
 import { IS_BLS } from '../config/courseMode';
 import CourseSplash from '../components/newcase/CourseSplash';
 import CourseHero from '../components/newcase/CourseHero';
+import ACLSLandingHero from '../components/newcase/ACLSLandingHero';
+import './aclsHome.css';
 import ACLSQuickActions from '../components/newcase/ACLSQuickActions';
 import BLSHomeQuickActions from '../components/newcase/BLSHomeQuickActions';
 import MorrooAdCard from '../components/MorrooAdCard';
@@ -33,15 +35,10 @@ export default function NewCase() {
   const mode = useSettingsStore(s => s.mode);
   const lang = useSettingsStore(s => s.language) || 'en';
   const [loading, setLoading] = useState(false);
-  const [activeSession, setActiveSession] = useState(null);
+  const [activeSession, setActiveSession] = useState(() => getActiveSession());
   const [showSplash, setShowSplash] = useState(!homeSplashSeen);
   // เส้นทางเรียนของนักเรียน (logic เดียวกับหน้า Learn) — ใช้กับการ์ด "เรียนต่อ"
   const learnPath = useLearnPath();
-
-  useEffect(() => {
-    const session = getActiveSession();
-    if (session) setActiveSession(session);
-  }, []);
 
   const handleStart = async (startMode) => {
     if (loading) return;
@@ -268,20 +265,14 @@ export default function NewCase() {
     );
   }
 
-  // ===== ACLS — new "wow" landing =====
+  // ===== ACLS home =====
   return (
-    <div className="min-h-[100dvh] bg-bg-primary">
-      {showSplash && (
-        <CourseSplash
-          onDismiss={() => { homeSplashSeen = true; setShowSplash(false); }}
-        />
-      )}
-
+    <div className="acls-home min-h-[100dvh]">
       <div
-        className="page-container pb-28 flex flex-col gap-4"
+        className="acls-home-container page-container pb-28 flex flex-col gap-4"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
-        <CourseHero isClinical={isClinical} />
+        <ACLSLandingHero isClinical={isClinical} learnPath={learnPath} onStart={handleStart} loading={loading} />
 
         {/* Emergency action — the one red accent card (firstaid 1669-card style) */}
         <button onClick={() => handleStart('rrt')} disabled={loading}
@@ -388,7 +379,7 @@ export default function NewCase() {
 
         {/* Main menu — การ์ดสีประจำโหมด (เขียว=เรียน, ม่วง=วิดีโอ, ฟ้า=Q&A)
             ตาม mapping สีของดีไซน์เดิม; Sim ใช้การ์ดเกมพื้นเข้มให้เด่นสุด */}
-        <div className="grid gap-2.5">
+        <div className="acls-home-tools grid gap-2.5">
           <GameHighlightCard
             to="/sim"
             title={t('code_sim', lang)}
@@ -428,6 +419,7 @@ export default function NewCase() {
           ))}
         </div>
 
+        <div className="acls-home-section-heading"><div><span>CODE BLUE RECORDING</span><h2>เริ่มบันทึกตามสถานการณ์</h2></div><p>ทางลัดสำหรับการบันทึกเหตุการณ์</p></div>
         {/* Quick-start templates */}
         <div className="space-y-3">
           <div className="text-overline text-text-muted px-1">เริ่มเร็วตาม pathway</div>
