@@ -2,11 +2,11 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import { t } from '../utils/i18n';
-import { IS_BLS, IS_SKILL_COURSE } from '../config/courseMode';
+import { IS_ACLS, IS_BLS, IS_SKILL_COURSE } from '../config/courseMode';
 import {
   HeartPulse, FileText, Pill, Menu,
   BarChart3, GraduationCap, Users,
-  MessageSquare, Settings, X, Award, Bell,
+  MessageSquare, Settings, X, Award, Bell, Play,
   GitBranch, Zap, Wind, Brain, Gamepad2,
 } from './ui/Icon';
 
@@ -16,6 +16,15 @@ export default function BottomTabBar() {
   const lang = useSettingsStore(s => s.language) || 'en';
   const [showMore, setShowMore] = useState(false);
   const barRef = useRef(null);
+  const moreTriggerRef = useRef(null);
+  const closeMenuRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (!IS_ACLS || !showMore) return;
+    const trigger = moreTriggerRef.current;
+    closeMenuRef.current?.focus();
+    return () => trigger?.focus();
+  }, [showMore]);
 
   // รายงานความสูงจริงของ tab bar ผ่าน --tab-bar-h ให้ .above-tab-bar ใช้ยึดตำแหน่ง
   // ความสูงจริงต่างกันตามเครื่อง (font scale, safe-area, ป้ายไทยตัดบรรทัด) —
@@ -32,7 +41,15 @@ export default function BottomTabBar() {
     return () => { ro.disconnect(); root.style.removeProperty('--tab-bar-h'); };
   }, []);
 
-  const tabs = IS_BLS
+  const tabs = IS_ACLS
+    ? [
+        { path: '/', Icon: HeartPulse, label: 'หน้าแรก' },
+        { path: '/learn', Icon: GraduationCap, label: 'เรียน' },
+        { path: '/games', Icon: Gamepad2, label: 'ฝึก' },
+        { path: '/history', Icon: FileText, label: 'ประวัติ' },
+        { key: 'more', Icon: Menu, label: 'เมนู' },
+      ]
+    : IS_BLS
     ? [
         { path: '/', Icon: HeartPulse, label: 'Home' },
         { path: '/history', Icon: FileText, label: 'ประวัติ' },
@@ -56,7 +73,27 @@ export default function BottomTabBar() {
         { key: 'more', Icon: Menu, label: 'More' },
       ];
 
-  const moreItems = IS_BLS
+  const moreItems = IS_ACLS
+    ? [
+        { group: 'เรียนรู้', path: '/learn', Icon: GraduationCap, label: 'เส้นทางเรียน' },
+        { group: 'เรียนรู้', path: '/video-lessons', Icon: Play, label: 'วิดีโอบทเรียน' },
+        { group: 'เรียนรู้', path: '/qa-acls-deep', Icon: MessageSquare, label: 'Q&A เชิงลึก' },
+        { group: 'เรียนรู้', path: '/certification', Icon: Award, label: 'ใบประกาศ' },
+        { group: 'ฝึกทักษะ', path: '/sim', Icon: HeartPulse, label: 'Code Blue Sim' },
+        { group: 'ฝึกทักษะ', path: '/recorder-game', Icon: FileText, label: 'ซ้อมบันทึก' },
+        { group: 'ฝึกทักษะ', path: '/scenarios', Icon: Brain, label: 'สอบสนามจริง' },
+        { group: 'ฝึกทักษะ', path: '/drill', Icon: Zap, label: 'Drill Timer' },
+        { group: 'เครื่องมือ', path: '/algorithm', Icon: GitBranch, label: 'Algorithms' },
+        { group: 'เครื่องมือ', path: '/drug-calc', Icon: Pill, label: 'คำนวณยา' },
+        { group: 'เครื่องมือ', path: '/statistics', Icon: BarChart3, label: 'สถิติเคส' },
+        { group: 'เครื่องมือ', path: '/compare', Icon: BarChart3, label: 'เปรียบเทียบเคส' },
+        { group: 'จัดการ', path: '/pre-course/cohort', Icon: Users, label: 'สำหรับอาจารย์' },
+        { group: 'จัดการ', path: '/guide', Icon: FileText, label: 'คู่มือ' },
+        { group: 'จัดการ', path: '/news', Icon: Bell, label: 'ข่าวสาร' },
+        { group: 'จัดการ', path: '/settings', Icon: Settings, label: 'ตั้งค่า' },
+        { group: 'จัดการ', path: '/feedback', Icon: MessageSquare, label: 'ความคิดเห็น' },
+      ]
+    : IS_BLS
     ? [
         { path: '/bls/knowledge', Icon: GraduationCap, label: 'คลังความรู้ BLS' },
         { path: '/bls/algorithm', Icon: GitBranch, label: 'Algorithm' },
@@ -99,7 +136,7 @@ export default function BottomTabBar() {
           if (tab.key === 'more') {
             const TabIcon = tab.Icon;
             return (
-              <button key="more" onClick={() => setShowMore(true)} className={showMore ? 'active' : ''}>
+              <button key="more" ref={moreTriggerRef} onClick={() => setShowMore(true)} className={showMore ? 'active' : ''}>
                 <span className="tab-icon"><TabIcon size={20} strokeWidth={2} /></span>
                 <span>{tab.label}</span>
               </button>
@@ -121,7 +158,20 @@ export default function BottomTabBar() {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
           onClick={() => setShowMore(false)}>
           <div
-            className="w-full max-w-lg bg-bg-secondary animate-slide-up"
+            className={`w-full max-w-lg bg-bg-secondary animate-slide-up ${IS_ACLS ? 'acls-more-sheet' : ''}`}
+            role={IS_ACLS ? 'dialog' : undefined}
+            aria-modal={IS_ACLS ? true : undefined}
+            aria-labelledby={IS_ACLS ? 'acls-menu-title' : undefined}
+            onKeyDown={IS_ACLS ? e => {
+              if (e.key === 'Escape') { e.preventDefault(); setShowMore(false); }
+              if (e.key === 'Tab') {
+                const buttons = e.currentTarget.querySelectorAll('button:not([disabled])');
+                const first = buttons[0];
+                const last = buttons[buttons.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+              }
+            } : undefined}
             onClick={e => e.stopPropagation()}
             style={{
               borderTopLeftRadius: 'var(--radius-3xl)',
@@ -133,15 +183,29 @@ export default function BottomTabBar() {
             {/* Drag handle */}
             <div className="w-10 h-1 bg-bg-tertiary mx-auto mt-3 mb-1" style={{ borderRadius: 99 }} />
             <div className="flex items-center justify-between px-5 pt-3 pb-2">
-              <div className="text-headline">More</div>
-              <button onClick={() => setShowMore(false)}
+              <div id="acls-menu-title" className="text-headline">{IS_ACLS ? 'เมนู ACLS' : 'More'}</div>
+              <button ref={closeMenuRef} onClick={() => setShowMore(false)}
                 className="w-8 h-8 flex items-center justify-center text-text-muted hover:bg-bg-tertiary"
                 style={{ borderRadius: 'var(--radius-full)' }}
                 aria-label="Close">
                 <X size={18} strokeWidth={2.2} />
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-2 px-4 pb-6 pt-2">
+            {IS_ACLS ? (
+              <div className="acls-more-body">
+                {['เรียนรู้', 'ฝึกทักษะ', 'เครื่องมือ', 'จัดการ'].map(group => (
+                  <section key={group} className="acls-menu-group" aria-label={group}>
+                    <h2>{group}</h2>
+                    <div>
+                      {moreItems.filter(item => item.group === group).map(item => {
+                        const ItemIcon = item.Icon;
+                        return <button key={item.path} onClick={() => { navigate(item.path); setShowMore(false); }} className={location.pathname === item.path ? 'is-active' : ''}><ItemIcon size={18} /><span>{item.label}</span></button>;
+                      })}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            ) : <div className="grid grid-cols-3 gap-2 px-4 pb-6 pt-2">
               {moreItems.map(item => {
                 const ItemIcon = item.Icon;
                 const active = location.pathname === item.path;
@@ -165,7 +229,7 @@ export default function BottomTabBar() {
                   </button>
                 );
               })}
-            </div>
+            </div>}
           </div>
         </div>
       )}
