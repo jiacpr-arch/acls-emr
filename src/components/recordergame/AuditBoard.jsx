@@ -1,19 +1,13 @@
 import { useState } from 'react';
-import { ERROR_TYPES, ERROR_TYPE_META, getAuditErrorCount } from '../../data/activeRecorderLevels';
+import { ERROR_TYPE_META, getAuditErrorCount } from '../../data/activeRecorderLevels';
 import { Check, X, AlertTriangle, Search } from 'lucide-react';
 
 // ==========================================
 // Recorder Hero — Mode B: ตรวจ Log หาข้อผิดพลาด
-// แตะบรรทัด → เลือกประเภทข้อผิดพลาด (4 แบบ) หรือ "ไม่ผิด"
+// แตะบรรทัด → บอกว่า "ผิด" หรือ "ถูกต้อง" แล้วระบบเฉลยทันที (ไม่ต้องทายประเภท)
 // gap marker ระหว่างบรรทัด = เหตุการณ์ที่อาจหายไป
 // จบเมื่อเจอครบ หรือกล่าวหาผิดครบ maxWrongPicks → onFinish(result)
 // ==========================================
-const CHOICES = [
-  ERROR_TYPES.WRONG_BUTTON,
-  ERROR_TYPES.WRONG_DATA,
-  ERROR_TYPES.MISSED,
-  ERROR_TYPES.UI_LOST,
-];
 
 export default function AuditBoard({ level, onFinish }) {
   const totalErrors = getAuditErrorCount(level);
@@ -37,21 +31,23 @@ export default function AuditBoard({ level, onFinish }) {
     setSheet({ kind: 'missing', key, item: m });
   };
 
-  const judge = (chosenType) => {
+  const judge = (guessWrong) => {
     const { kind, key, item } = sheet;
     const truth = kind === 'missing' ? item.type : item.error?.type || null;
     const isError = !!truth;
-    const correct = isError && chosenType === truth;
+    const correct = guessWrong === isError;
+    const explain = isError
+      ? (kind === 'missing' ? item.explain_th : item.error.explain_th)
+      : 'บรรทัดนี้ถูกต้องแล้ว ไม่ใช่ข้อผิดพลาด';
 
     if (correct) {
-      setFound(f => ({ ...f, [key]: { type: truth, correct: true, explain: kind === 'missing' ? item.explain_th : item.error.explain_th } }));
       setScore(s => s + 100);
     } else {
       setWrongPicks(w => w + 1);
       setScore(s => Math.max(0, s - 40));
-      // mark line so player sees they already tried it (as incorrect accusation)
-      setFound(f => ({ ...f, [key]: { type: chosenType, correct: false, explain: isError ? 'ประเภทผิด — ลองดูใหม่' : 'บรรทัดนี้ถูกต้องแล้ว ไม่ใช่ข้อผิดพลาด' } }));
     }
+    // เฉลยคำตอบที่ถูกต้องให้ทันทีไม่ว่าทายถูกหรือผิด เพื่อให้เรียนรู้จากบรรทัดนี้
+    setFound(f => ({ ...f, [key]: { type: truth, correct, explain } }));
     setSheet(null);
   };
 
@@ -153,7 +149,7 @@ export default function AuditBoard({ level, onFinish }) {
         {done ? 'ดูผลสรุป' : `ตรวจต่อ (เจอ ${foundCount}/${totalErrors}) — หรือกดจบเลย`}
       </button>
 
-      {/* Bottom sheet: เลือกประเภทข้อผิดพลาด */}
+      {/* Bottom sheet: ผิดหรือถูกต้อง */}
       {sheet && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
           onClick={() => setSheet(null)}>
@@ -161,19 +157,17 @@ export default function AuditBoard({ level, onFinish }) {
             onClick={e => e.stopPropagation()}
             style={{ borderTopLeftRadius: 'var(--radius-3xl)', borderTopRightRadius: 'var(--radius-3xl)' }}>
             <div className="text-sm font-black text-text-primary inline-flex items-center gap-1.5">
-              <AlertTriangle size={15} strokeWidth={2.4} /> บรรทัดนี้ผิดอะไร?
+              <AlertTriangle size={15} strokeWidth={2.4} /> บรรทัดนี้ผิดหรือถูก?
             </div>
             <div className="text-2xs text-text-muted mb-1">
               {sheet.kind === 'missing' ? sheet.item.text_th : `${sheet.item.time} · ${sheet.item.text_th}`}
             </div>
-            {CHOICES.map(type => (
-              <button key={type} onClick={() => judge(type)}
-                className={`w-full btn-action btn-ghost py-2.5 text-sm text-left px-4 ${ERROR_TYPE_META[type].color}`}>
-                {ERROR_TYPE_META[type].icon} {ERROR_TYPE_META[type].label_th}
-              </button>
-            ))}
-            <button onClick={() => judge('__none__')}
-              className="w-full btn-action btn-ghost py-2.5 text-sm text-text-muted">
+            <button onClick={() => judge(true)}
+              className="w-full btn-action btn-ghost py-3 text-sm text-left px-4 font-bold text-danger">
+              🚫 บรรทัดนี้ผิด
+            </button>
+            <button onClick={() => judge(false)}
+              className="w-full btn-action btn-ghost py-3 text-sm text-left px-4 text-text-muted">
               ✓ บรรทัดนี้ถูกต้อง (ไม่ผิด)
             </button>
           </div>

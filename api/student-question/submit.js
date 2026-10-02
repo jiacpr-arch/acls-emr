@@ -59,8 +59,9 @@ export default async function handler(req, res) {
   // Run the full pipeline synchronously. Vercel function maxDuration is 60s above.
   // If processing fails, we mark the row 'failed' and surface a friendly error;
   // the question itself is preserved so an admin can retry/edit later.
+  let answer = null;
   try {
-    await processStudentQuestion(id);
+    ({ answer } = await processStudentQuestion(id));
   } catch (err) {
     if (err?.code === 'ALREADY_PROCESSING') {
       // Another run holds the row — don't mark it failed under them.
@@ -89,6 +90,9 @@ export default async function handler(req, res) {
     id,
     status: 'draft_ready',
     message: 'ขอบคุณสำหรับคำถาม — ระบบสร้างคำตอบเรียบร้อย รอ admin ตรวจสอบก่อนเผยแพร่',
+    // Unreviewed AI draft, shown only to the student who asked (labelled as
+    // not yet checked). The public Q&A page still waits for admin publish.
+    answer,
   });
 }
 

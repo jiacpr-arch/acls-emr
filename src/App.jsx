@@ -2,7 +2,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { useSettingsStore } from './stores/settingsStore';
-import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, IS_DEFIB, courseMeta, QA_DEEP_PATH } from './config/courseMode';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, IS_DEFIB, IS_IV, courseMeta, QA_DEEP_PATH } from './config/courseMode';
 import { useCourseModeInit } from './hooks/useCourseModeInit';
 import Dashboard from './pages/Dashboard';
 import NewCase from './pages/NewCase';
@@ -51,11 +51,13 @@ import RhythmQuiz from './pages/RhythmQuiz';
 import SkillScenarioHub from './pages/SkillScenarioHub';
 import SkillScenario from './pages/SkillScenario';
 import NewsPage from './pages/NewsPage';
+import GoCampaign from './pages/GoCampaign';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
 import ACLSPageChrome from './components/ACLSPageChrome';
 import SiteFooter from './components/SiteFooter';
 import LineFloatButton from './components/LineFloatButton';
+import AskQuestionFab from './components/AskQuestionFab';
 import OfflineIndicator from './components/OfflineIndicator';
 import ErrorBoundary from './components/ErrorBoundary';
 import InAppBrowserGuard from './components/InAppBrowserGuard';
@@ -129,8 +131,22 @@ function App() {
   const isStudying = (/^\/pre-course\/[^/]+(\/quiz)?$/.test(location.pathname)
     && location.pathname !== '/pre-course/cohort')
     || /^\/video-lessons\/.+/.test(location.pathname);
+  // ปุ่มลอย "ถามคำถาม" — เฉพาะหน้าเนื้อหาที่นักเรียนอ่าน/ดูแล้วอาจสงสัย (ไม่ใช่หน้าทำข้อสอบ)
+  // คำถามเข้า acls_student_questions ที่หน้า admin ตรวจรองรับแค่ ACLS จึงเปิดเฉพาะ ACLS
+  const PRE_COURSE_NON_LESSON = ['cohort', 'checkin', 'schedule', 'my-qr', 'pre-test', 'post-test'];
+  const lessonMatch = location.pathname.match(/^\/pre-course\/([^/]+)$/);
+  const isVideoLesson = /^\/video-lessons\/.+/.test(location.pathname);
+  const showAskFab = IS_ACLS && (
+    (lessonMatch && !PRE_COURSE_NON_LESSON.includes(lessonMatch[1]))
+    || isVideoLesson
+    || location.pathname === '/als'
+    || location.pathname === '/algorithm'
+    || /^\/qa-acls-deep\/.+/.test(location.pathname)
+  );
   // หน้าฝึก CPR + เกมสถานการณ์ตัดสินใจ — เป็นเครื่องมือฝึกจริง ไม่ใช่หน้าขายคอร์ส
   // ปุ่ม LINE ลอยจะไปบังคำอธิบาย/ปุ่มควบคุมพอดี จึงซ่อนไว้เฉพาะหน้านี้
+  // /go/<slug> เป็นหน้าเปลี่ยนทางชั่วขณะ — ไม่ต้องโชว์ tab bar/footer ให้กระพริบ
+  const isShortlink = location.pathname.startsWith('/go/');
   const isPractice = location.pathname === '/skill-practice'
     || /^\/bls\/scenario\/.+/.test(location.pathname)
     || /^\/scenario\/.+/.test(location.pathname);
@@ -154,7 +170,7 @@ function App() {
         <Route path="/pre-course" element={<PreCourse />} />
         <Route path="/pre-course/cohort" element={<InstructorCohort />} />
         <Route path="/pre-course/checkin" element={<InstructorCheckin />} />
-        {(IS_BLS || IS_ACLS) && <Route path="/pre-course/schedule" element={<DaySchedule />} />}
+        {(IS_BLS || IS_ACLS || IS_IV) && <Route path="/pre-course/schedule" element={<DaySchedule />} />}
         <Route path="/pre-course/my-qr" element={<StudentQrCard />} />
         <Route path="/pre-course/pre-test" element={<PreTestExam />} />
         <Route path="/pre-course/post-test" element={<PostTestExam />} />
@@ -180,6 +196,8 @@ function App() {
         {/* เกม Code Blue เปิดทั้ง ACLS และ BLS/MorRoo — คลังโจทย์กรองตามโหมดเอง */}
         <Route path="/sim" element={<CodeBlueSim />} />
         <Route path="/sim-board" element={<CodeBlueLeaderboard />} />
+        {/* ลิงก์สั้นสำหรับโพสต์โซเชียล — /go/reel เด้งไป /sim พร้อมแนบ utm_* ให้เอง */}
+        <Route path="/go/:campaign" element={<GoCampaign />} />
         {IS_ACLS && <Route path="/games" element={<GamesHub />} />}
         {IS_ACLS && <Route path="/recorder-game" element={<RecorderGameHub />} />}
         {IS_ACLS && <Route path="/recorder-game/endless" element={<RecorderEndless />} />}
@@ -404,10 +422,11 @@ function App() {
       </Routes>
       </ErrorBoundary>
       {/* "เว็บในเครือเรา" footer — sibling morroo.com sites, like morroo.com */}
-      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !(IS_ACLS && location.pathname === "/") && <SiteFooter />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isShortlink && !(IS_ACLS && location.pathname === "/") && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin + recorder-game play */}
-      {!isRecording && !isAdmin && !isRecorderGamePlay && <BottomTabBar />}
-      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isPractice && <LineFloatButton />}
+      {!isRecording && !isAdmin && !isRecorderGamePlay && !isShortlink && <BottomTabBar />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isPractice && !isShortlink && <LineFloatButton />}
+      {showAskFab && <AskQuestionFab raised={isVideoLesson} />}
       <Analytics />
       <MetaPixel />
     </div>

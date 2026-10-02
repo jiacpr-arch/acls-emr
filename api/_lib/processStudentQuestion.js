@@ -1,17 +1,20 @@
 import { getSupabaseAdmin } from './supabaseAdmin.js';
 import { classifyChapter } from './classifyChapter.js';
+import { resolveLlm, chatCompletion } from './llmChat.js';
 
 const IMAGES_BUCKET = 'acls-images';
 const STORAGE_DIR = 'student-questions';
 
-const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions';
 const OPENAI_IMAGE_URL = 'https://api.openai.com/v1/images/generations';
 
 /**
  * Runs the full pipeline for one student question:
- *   DeepSeek answer  →  DeepSeek classify chapter  →  OpenAI image  →  upload  →  save
- * Updates the row in acls_student_questions in-place. Throws on hard failure
- * (the caller is responsible for writing status='failed' + error_message).
+ *   AI answer  →  AI classify chapter  →  OpenAI image  →  upload  →  save
+ * (AI = Local AI or DeepSeek — see llmChat.js)
+ * Updates the row in acls_student_questions in-place and returns { answer }
+ * so the caller can show the unreviewed draft to the student right away.
+ * Throws on hard failure (the caller is responsible for writing
+ * status='failed' + error_message).
  */
 export async function processStudentQuestion(rowId, { force = false } = {}) {
   const supabase = getSupabaseAdmin();
@@ -51,8 +54,8 @@ export async function processStudentQuestion(rowId, { force = false } = {}) {
     throw err;
   }
 
-  // 2. Get an in-depth answer from DeepSeek
-  const answer = await deepseekAnswer(row.question);
+  // 2. Get an in-depth answer from the chat model
+  const answer = await aiAnswer(row.question);
 
   // 3. Classify into one of the existing chapters (or null)
   const classification = await classifyChapter({
@@ -90,13 +93,13 @@ export async function processStudentQuestion(rowId, { force = false } = {}) {
     .update(update)
     .eq('id', rowId);
   if (upErr) throw upErr;
+  return { answer };
 }
 
-// ───────────────────────── DeepSeek ─────────────────────────
+// ───────────────────────── AI answer ─────────────────────────
 
-async function deepseekAnswer(question) {
-  const key = process.env.DEEPSEEK_API_KEY;
-  if (!key) throw new Error('DEEPSEEK_API_KEY not configured');
+async function aiAnswer(question) {
+  const llm = resolveLlm();
 
   const systemPrompt = [
     'คุณเป็นอาจารย์แพทย์ผู้เชี่ยวชาญ ACLS (Advanced Cardiac Life Support) ตามแนวทาง AHA ล่าสุด',
@@ -117,31 +120,15 @@ async function deepseekAnswer(question) {
     'ความยาวรวมประมาณ 250–600 คำ',
   ].join('\n');
 
-  const body = {
-    model: 'deepseek-chat',
+  const text = await chatCompletion(llm, {
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: question },
     ],
     temperature: 0.3,
-    max_tokens: 2000,
-  };
-
-  const resp = await fetch(DEEPSEEK_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${key}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
+    maxTokens: 4000, // headroom for <think> output from local reasoning models
   });
-  if (!resp.ok) {
-    const text = await resp.text();
-    throw new Error(`DeepSeek answer failed (${resp.status}): ${text.slice(0, 500)}`);
-  }
-  const data = await resp.json();
-  const text = data?.choices?.[0]?.message?.content?.trim();
-  if (!text) throw new Error('DeepSeek returned empty answer');
+  if (!text) throw new Error(`${llm.name} returned empty answer`);
   return text;
 }
 

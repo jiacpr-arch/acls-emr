@@ -134,6 +134,29 @@ export async function rpcGetCohortSummary(lessonIds) {
 // สถานะภาคปฏิบัติ "ของตัวเอง" ฝั่งนักเรียน (รหัสเข้าคลาส ไม่ใช่รหัสอาจารย์) —
 // ใช้ในหน้าใบประกาศนียบัตรเพื่ออัปเกรดใบทฤษฎีเป็นฉบับสมบูรณ์เมื่อเข้าครบทุกฐาน
 // + สอบปฏิบัติผ่านครบ server คืนเฉพาะแถวของนักเรียนคนนี้เท่านั้น
+// Class rule "log in with the JIA account before the exam" (supabase-cleanup/class-hub-login.sql).
+// Readable with the join code or the instructor code; only the instructor code switches it.
+export async function rpcGetClassExamPolicy(code) {
+  if (!code) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_class_exam_policy', { p_code: code });
+  return error ? { error } : { data: { requireHubLogin: data?.requireHubLogin === true } };
+}
+
+export async function rpcSetClassRequireHubLogin(value) {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('set_class_require_hub_login', { p_code: code, p_value: !!value });
+  return error ? { error } : { data: { requireHubLogin: data?.requireHubLogin === true } };
+}
+
+// Roster pks linked to a JIA account (cohort_students.hub_user_id) — ids only.
+export async function rpcGetCohortHubLinks() {
+  const code = instructorAccessCode();
+  if (!code) return { error: new Error('no_class') };
+  const { data, error } = await supabase.rpc('get_cohort_hub_links', { p_code: code });
+  return error ? { error } : { data: Array.isArray(data) ? data : [] };
+}
+
 export async function rpcGetMyPracticalStatus({ studentPk }) {
   const { classCode } = getClassContext();
   if (!classCode || !studentPk) return { error: new Error('no_class') };

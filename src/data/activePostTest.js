@@ -15,7 +15,7 @@ import {
   POST_TEST_PASS_PERCENT as ACLS_POST_TEST_PASS_PERCENT,
   POST_TEST_QUESTION_COUNT as ACLS_POST_TEST_QUESTION_COUNT,
 } from './assessment';
-import { loadExamForBank } from '../services/assessmentService';
+import { loadExamForBank, loadExamForSet } from '../services/assessmentService';
 
 // Local (non-Supabase) course, or null when the active course uses Supabase (ACLS).
 const localCourse = IS_BLS ? bls
@@ -37,9 +37,11 @@ export const pickRandomPostTestSet = localCourse ? localCourse.pickRandomPostTes
 //   bank.pass_percent / bank.shuffle_questions match the active course
 //   set:  { id, title }
 //   questions: [{ id, question, choices, correctId, explanation, topic? }]
-export async function loadActivePostTestExam({ excludeSetId = null } = {}) {
+// resume: { setId, questionIds } of an exam already in progress (see preCourseStore) — the same
+// set/questions come back so a reload mid-exam keeps the answers.
+export async function loadActivePostTestExam({ excludeSetId = null, resume = null } = {}) {
   if (localCourse) {
-    const set = localCourse.pickRandomPostTestSet(excludeSetId);
+    const set = (resume?.setId && localCourse.getPostTestSetById(resume.setId)) || localCourse.pickRandomPostTestSet(excludeSetId);
     return {
       bank: {
         pass_percent: localCourse.POST_TEST_PASS_PERCENT,
@@ -49,6 +51,11 @@ export async function loadActivePostTestExam({ excludeSetId = null } = {}) {
       set: { id: set.id, title: set.title },
       questions: set.questions,
     };
+  }
+  if (resume?.setId) {
+    try {
+      return await loadExamForSet(resume.setId, { questionIds: resume.questionIds });
+    } catch { /* set retired since — fall back to a fresh draw */ }
   }
   return loadExamForBank(POST_TEST_BANK_ID, { excludeSetId });
 }

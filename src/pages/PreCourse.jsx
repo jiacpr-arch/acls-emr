@@ -7,6 +7,7 @@ import LessonCard from '../components/precourse/LessonCard';
 import PostTestCard from '../components/precourse/PostTestCard';
 import PreTestCard from '../components/precourse/PreTestCard';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import JiaAccountCard from '../components/precourse/JiaAccountCard';
 import ClassGateModal from '../components/precourse/ClassGateModal';
 import VoucherModal from '../components/precourse/VoucherModal';
 import VoucherCard from '../components/precourse/VoucherCard';
@@ -215,6 +216,8 @@ export default function PreCourse() {
         onStartPretest={startPretest}
         onChangeStudent={() => { clearActiveStudent(); setShowIdentity(true); }}
       />
+
+      <JiaAccountCard />
 
       {classBanner}
 

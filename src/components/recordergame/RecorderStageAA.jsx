@@ -1,9 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Volume2, VolumeX } from 'lucide-react';
 import CharacterSprite from '../../game/CharacterSprite';
 import EcgStrip from '../../game/EcgStrip';
 import { CHARACTERS } from '../../game/characters';
 import { useTypewriter } from '../../hooks/recordergame/useTypewriter';
 import { RATINGS } from '../../utils/recorderGameScore';
+import {
+  isSpeechSupported, speakThai, stopSpeech, primeSpeech, loadVoicePref, saveVoicePref,
+} from '../../utils/speech';
 import './recorderAA.css';
 
 // ==========================================
@@ -36,6 +40,14 @@ function fmtClock(sec) {
 }
 const GAUGE_CELLS = 5;
 
+// โทนเสียง TTS ต่อตัวละคร — เสียงเดียวกันแต่ปรับ pitch/rate ให้พอแยกคนพูดออก
+const VOICE_STYLE = {
+  att_dech: { pitch: 0.9, rate: 1 },
+  nurse_mint: { pitch: 1.2, rate: 1.05 },
+  boy_compressor: { pitch: 0.95, rate: 1.08 },
+  fon_defib: { pitch: 1.15, rate: 1.05 },
+};
+
 export default function RecorderStageAA({
   scene = {}, narration, pendingEvent, expectedButtonId, popup,
   elapsed = 0, score = 0, streak = 0,
@@ -57,6 +69,26 @@ export default function RecorderStageAA({
   const plate = char.plate;
 
   const { html, typing } = useTypewriter(narration || '', { reducedMotion });
+
+  // ---- เสียงพูด (TTS) ----
+  const speechOK = useMemo(() => isSpeechSupported(), []);
+  const [voiceOn, setVoiceOn] = useState(() => loadVoicePref());
+  // อ่าน narration ออกเสียงเมื่อเหตุการณ์ใหม่โผล่ (บทเก่าถูก cancel ใน speakThai แล้ว)
+  // ตอน narration หาย (ผู้เล่นบันทึกทัน) ปล่อยให้พูดจนจบประโยค — ตัดกลางคำแล้วขัดหู
+  useEffect(() => {
+    if (!speechOK || !voiceOn || !narration) return;
+    speakThai(narration, VOICE_STYLE[speaker] || {});
+  }, [narration, speaker, voiceOn, speechOK]);
+  // ออกจากเวที (จบเกม/ออกกลางคัน) — หยุดพูดทันที
+  useEffect(() => () => stopSpeech(), []);
+
+  const toggleVoice = () => {
+    const next = !voiceOn;
+    setVoiceOn(next);
+    saveVoicePref(next);
+    if (next) primeSpeech(); // แตะปุ่ม = user gesture — ปลดล็อก TTS บน iOS ไปในตัว
+    else stopSpeech();
+  };
 
   // เอฟเฟกต์ flash/shake ตาม popup — defer ผ่าน setTimeout(0) (ไม่ setState ใน effect body)
   const [flashN, setFlashN] = useState(0);
@@ -92,7 +124,16 @@ export default function RecorderStageAA({
           </div>
           <div className="cbs-hud-right">
             {hudLabel && <span className="cbs-timechip">{hudLabel}</span>}
-            <span className="rgaa-scorechip">★ {score}</span>
+            <div className="flex items-center gap-1.5">
+              {speechOK && (
+                <button type="button" onClick={toggleVoice}
+                  className={`rgaa-voicebtn ${voiceOn ? '' : 'is-off'}`}
+                  aria-label={voiceOn ? 'ปิดเสียงพูด' : 'เปิดเสียงพูด'}>
+                  {voiceOn ? <Volume2 size={13} strokeWidth={2.4} /> : <VolumeX size={13} strokeWidth={2.4} />}
+                </button>
+              )}
+              <span className="rgaa-scorechip">★ {score}</span>
+            </div>
             <div className="cbs-gauge">
               <span className="cbs-gauge-label">COMBO ×{streak}</span>
               <div className="cbs-gauge-cells">

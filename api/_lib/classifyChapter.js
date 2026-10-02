@@ -1,12 +1,11 @@
-const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions';
+import { resolveLlm, chatCompletion } from './llmChat.js';
 
 /**
  * Classify a Q&A pair into one of the existing chapter ids.
  * Returns { chapterId, reason } where chapterId is null if no chapter fits.
  */
 export async function classifyChapter({ question, answer, chapters }) {
-  const key = process.env.DEEPSEEK_API_KEY;
-  if (!key) throw new Error('DEEPSEEK_API_KEY not configured');
+  const llm = resolveLlm();
   if (!chapters?.length) return { chapterId: null, reason: 'no chapters configured' };
 
   const catalog = chapters
@@ -32,28 +31,22 @@ export async function classifyChapter({ question, answer, chapters }) {
     `Answer (first 1500 chars):\n${String(answer || '').slice(0, 1500)}`,
   ].join('\n');
 
-  const resp = await fetch(DEEPSEEK_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${key}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'deepseek-chat',
+  let raw;
+  try {
+    raw = await chatCompletion(llm, {
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
       temperature: 0,
-      max_tokens: 200,
-      response_format: { type: 'json_object' },
-    }),
-  });
-  if (!resp.ok) {
-    return { chapterId: null, reason: `classify failed: ${resp.status}` };
+      maxTokens: 800, // headroom for <think> output from local reasoning models
+      json: true,
+    });
+  } catch (err) {
+    return { chapterId: null, reason: `classify failed: ${err.status ?? err.message}` };
   }
-  const data = await resp.json();
-  const raw = data?.choices?.[0]?.message?.content?.trim() || '{}';
+  // Local models don't always honour response_format — take the first {...} block.
+  raw = raw.match(/\{[\s\S]*\}/)?.[0] || raw || '{}';
   let parsed;
   try {
     parsed = JSON.parse(raw);

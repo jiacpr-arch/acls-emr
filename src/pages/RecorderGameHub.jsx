@@ -91,6 +91,7 @@ export default function RecorderGameHub() {
         to={`/recorder-game/${nextLevel.id}`}
         title={hasPlayed ? 'เล่นต่อ' : 'เริ่มที่นี่'}
         desc={`ด่าน ${nextLevel.order} · ${nextLevel.title_th}`}
+        eyebrow="Recorder Game"
         Icon={Play}
       />
 

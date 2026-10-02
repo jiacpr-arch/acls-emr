@@ -3,20 +3,21 @@
 // IS_* constants so Vite/esbuild tree-shakes the other course's data out of
 // the production bundle.
 //
-// มีเฉพาะ BLS กับ ACLS ที่มีตารางวันเรียน — คอร์สทักษะเดี่ยว (airway/defib/iv)
-// ไม่มี route นี้ (ดู HAS_DAY_SCHEDULE ที่ App.jsx ใช้ gate)
-import { IS_BLS, IS_ACLS } from '../config/courseMode';
+// BLS / ACLS / IV มีตารางวันเรียน — คอร์สทักษะเดี่ยวที่เหลือ (airway/defib)
+// ยังไม่มี route นี้ (ดู HAS_DAY_SCHEDULE ที่ App.jsx ใช้ gate)
+import { IS_BLS, IS_ACLS, IS_IV } from '../config/courseMode';
 import * as bls from './blsDaySchedule';
 import * as acls from './aclsDaySchedule';
+import * as iv from './ivDaySchedule';
 
-const src = IS_BLS ? bls : acls;
+const src = IS_BLS ? bls : IS_IV ? iv : acls;
 
 export const DAY_VARIANTS = src.DAY_VARIANTS;
 export const STATIONS = src.STATIONS;
 export const PASS_RULES = src.PASS_RULES;
 export const CONTINGENCIES = src.CONTINGENCIES;
 
-export const HAS_DAY_SCHEDULE = IS_BLS || IS_ACLS;
+export const HAS_DAY_SCHEDULE = IS_BLS || IS_ACLS || IS_IV;
 
 // "HH:MM" → นาทีนับจากเที่ยงคืน
 export function toMinutes(hhmm) {

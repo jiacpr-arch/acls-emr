@@ -18,7 +18,7 @@ const MANIFESTS = {
     name: 'ACLS EMR',
     short_name: 'ACLS',
     description: 'Advanced Cardiac Life Support Recording System',
-    theme_color: '#DC2626',
+    theme_color: '#C8102E',
     id: '/acls',
     icon: '/icon.svg',
   },

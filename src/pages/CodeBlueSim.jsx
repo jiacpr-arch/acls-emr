@@ -8,8 +8,8 @@ import {
 import { getCharacter, registerCustomCharacters } from '../game/characters';
 import { fetchCustomCharacters } from '../services/codeBlueCharacterService';
 import { usePreCourseStore } from '../stores/preCourseStore';
-import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, courseMeta, byCourse } from '../config/courseMode';
-import JiacprCourseBanner from '../components/JiacprCourseBanner';
+import { IS_BLS, IS_ACLS, IS_SKILL_COURSE, courseMeta } from '../config/courseMode';
+import { jiacprCourse } from '../data/jiacprCourse';
 import { isOpenLeague } from '../config/openLeague';
 import { getClassContext } from '../stores/classStore';
 import { enqueueGameResult } from '../db/database';
@@ -42,18 +42,12 @@ import {
 import './codeBlueSim.css';
 
 // ป้ายชื่อเกมตามโหมด — engine เดียวกัน แต่ bls.morroo.com เห็นแบรนด์/คำโปรยแบบ BLS
-// คอร์สที่ชวนไปเรียนต่อท้ายเกม (จอ debrief) ตามโหมด build —
-// โหมด skill ล็อกเวิร์กช็อปที่ตรงเรื่อง ที่เหลือให้แบนเนอร์หมุนโชว์ทั้งกลุ่ม
-const DEBRIEF_COURSE_PROPS = byCourse({
-  bls: {}, // ค่า default ของแบนเนอร์ในโหมด BLS = กลุ่ม BLS / CPR & AED อยู่แล้ว
-  acls: { group: 'ACLS' },
-  airway: { courseId: 'airway' },
-  defib: { courseId: 'defib' },
-  iv: { courseId: 'vascular' },
-});
-
 const GAME_NAME = IS_BLS ? 'BLS RESCUE' : 'CODE BLUE';
 const GAME_EYEBROW = IS_BLS ? 'BLS Rescue' : 'Code Blue';
+
+// ปุ่มทองท้ายเกม: เว็บ BLS ส่งต่อคอร์ส CPR & AED ออนไลน์ (เสียเงิน ห้ามใช้คำว่า "ฟรี")
+// เว็บอื่นเข้าบทเรียนฟรีในแอป — เนื้อหา cpr.morroo.com ไม่ตรงกับคอร์สเหล่านั้น
+const CPR_ONLINE_URL = 'https://cpr.morroo.com/?utm_source=bls-app&utm_medium=referral&utm_campaign=sim_debrief';
 
 const HISCORE_PREFIX = 'acls_codeblue_hiscore';
 const MUTE_KEY = 'acls_codeblue_muted';
@@ -1370,14 +1364,57 @@ export default function CodeBlueSim() {
               </div>
             ))}
           </div>
+          {/* soft CTA ต่อยอดการเรียน (BLS → คอร์สออนไลน์ cpr.morroo.com, เว็บอื่น → บทเรียนฟรีในแอป)
+              การขายคอร์สอบรมจริงปล่อยให้ปลายทางรับช่วงต่อ เหลือแค่ลิงก์ LINE เบาๆ */}
           <div className="cbs-course-cta">
-            <div className="cbs-tl-title">NEXT LEVEL — ต่อยอดกับการฝึกจริง</div>
+            <div className="cbs-tl-title">NEXT LEVEL — ต่อยอดจากเกมสู่ของจริง</div>
             <p className="cbs-course-cta-sub">
               {result.won
-                ? 'ในเกมคุณทำได้แล้ว — ขั้นต่อไปคือมือจริง ฝึกกับหุ่นและอาจารย์ตัวจริง พร้อมรับใบประกาศนียบัตร'
-                : 'ในเกมพลาดได้ แต่ชีวิตจริงพลาดไม่ได้ — มาฝึกกับหุ่นและอาจารย์ตัวจริงให้มั่นใจ แล้วกลับมาแก้มือ'}
+                ? `ในเกมคุณทำได้แล้ว — เก็บความรู้ให้แน่นด้วย${IS_BLS ? 'คอร์สออนไลน์' : 'บทเรียนฟรี'} แล้วไปให้สุดกับการฝึกมือจริง`
+                : 'ในเกมพลาดได้ แต่ชีวิตจริงพลาดไม่ได้ — เก็บบทเรียนให้แน่น แล้วกลับมาแก้มือ'}
             </p>
-            <JiacprCourseBanner {...DEBRIEF_COURSE_PROPS} source="sim_debrief" />
+            {IS_BLS ? (
+              <a
+                href={CPR_ONLINE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cbs-btn-learn"
+                onClick={() => track('learn_cta_click', {
+                  metaCustom: 'SimDebriefLearn',
+                  props: { source: 'sim_debrief', destination: 'cpr_online', won: result.won, scenario_id: sc.id },
+                })}
+              >
+                📖 เรียน CPR & AED ออนไลน์ต่อ — จบแล้วรับใบเซอร์
+              </a>
+            ) : (
+              <button
+                type="button"
+                className="cbs-btn-learn"
+                onClick={() => {
+                  track('learn_cta_click', {
+                    metaCustom: 'SimDebriefLearn',
+                    props: { source: 'sim_debrief', destination: 'pre_course', won: result.won, scenario_id: sc.id },
+                  });
+                  navigate('/pre-course');
+                }}
+              >
+                📖 เรียน {courseMeta.shortName} ต่อฟรี — จบแล้วสอบรับใบเซอร์
+              </button>
+            )}
+            <div className="cbs-line-hint">
+              สนใจคอร์สอบรมกับอาจารย์ตัวจริง?{' '}
+              <a
+                href={jiacprCourse.lineUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => track('contact_click', {
+                  meta: 'Contact',
+                  props: { channel: 'line', source: 'sim_debrief', value: 2500, currency: 'THB' },
+                })}
+              >
+                แชท LINE
+              </a>
+            </div>
           </div>
           <div className="cbs-debrief-actions">
             <button type="button" className="cbs-btn-main" onClick={startGame}>

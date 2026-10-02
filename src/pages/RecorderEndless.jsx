@@ -9,6 +9,7 @@ import Instructor from '../components/sim/Instructor';
 import { usePreCourseStore } from '../stores/preCourseStore';
 import { getClassContext } from '../stores/classStore';
 import { loadEndlessHiscores, saveEndlessHiscore } from '../utils/recorderGameProgress';
+import { primeSpeech } from '../utils/speech';
 import { enqueueGameResult } from '../db/database';
 import { scheduleFlush } from '../services/syncEngine';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
@@ -62,6 +63,7 @@ export default function RecorderEndless() {
   };
 
   const requestStart = () => {
+    primeSpeech(); // ปลดล็อก TTS ภายใน user gesture — จำเป็นบน iOS
     if (inClass && !activeStudent?.id) {
       startAfterIdentityRef.current = true;
       setShowIdentity(true);

@@ -14,14 +14,18 @@ import { validateVoucher } from '../config/vouchers';
 import {
   getLessonProgress,
   getAttemptsForStudent,
+  getAttemptById,
   getAttemptCount,
   saveQuizAttempt,
 } from '../db/database';
 import { submitAttempt as submitRemoteAttempt } from '../services/assessmentService';
 import { scheduleFlush } from '../services/syncEngine';
+import { gradeExamAttempt } from '../services/examGrade';
 import { track } from '../services/analytics';
 import { IS_ACLS, courseMeta } from '../config/courseMode';
 import StudentIdentityModal from '../components/precourse/StudentIdentityModal';
+import HubLoginGate from '../components/precourse/HubLoginGate';
+import { useHubLoginGate } from '../hooks/useHubLoginGate';
 import QuizQuestion from '../components/precourse/QuizQuestion';
 import LoadingCard from '../components/ui/LoadingCard';
 import ErrorCard from '../components/ui/ErrorCard';
@@ -42,6 +46,7 @@ export default function PostTestExam() {
   const voucherActive = useVoucherStore(s => !!(s.voucher?.lineConfirmed && validateVoucher(s.voucher.code)));
 
   const [showIdentity, setShowIdentity] = useState(false);
+  const hubGate = useHubLoginGate();
   const [gateChecked, setGateChecked] = useState(false);
   const [gatePassed, setGatePassed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -79,11 +84,13 @@ export default function PostTestExam() {
     let cancelled = false;
     (async () => {
       try {
-        const loaded = await loadActivePostTestExam();
+        // Resume the exam already in progress (same set + questions) — a fresh draw on reload
+        // would silently drop every answer given so far.
+        const loaded = await loadActivePostTestExam(currentPostTest?.setId ? { resume: { setId: currentPostTest.setId, questionIds: currentPostTest.questionIds } } : undefined);
         if (cancelled) return;
         setExam(loaded);
         if (!currentPostTest || currentPostTest.setId !== loaded.set.id) {
-          startPostTest(loaded.set.id);
+          startPostTest(loaded.set.id, loaded.questions.map(q => q.id));
         }
       } catch (err) {
         if (!cancelled) setLoadError(err.message || 'โหลดข้อสอบไม่สำเร็จ');
@@ -145,6 +152,15 @@ export default function PostTestExam() {
     );
   }
 
+  if (hubGate.blocked) {
+    return (
+      <div className="page-container space-y-5">
+        <Header />
+        <HubLoginGate gate={hubGate} action="สอบหลังเรียน" />
+      </div>
+    );
+  }
+
   if (loadError) {
     return (
       <div className="page-container space-y-5">
@@ -201,6 +217,12 @@ export default function PostTestExam() {
         attemptNumber,
         passPercent,
       });
+      // Server grading is what counts for the certificate: try it now (≤6 s) so an online student
+      // sees the confirmed result immediately; offline, the results page shows "รอตรวจ" and the
+      // sync engine grades it once back online.
+      try {
+        await gradeExamAttempt(await getAttemptById(attemptId), { timeoutMs: 6000 });
+      } catch { /* retried by the sync engine */ }
       scheduleFlush();
       // Meta custom event — milestone สำคัญสุด ใช้ทำ lookalike/retargeting audience
       track('post_test_completed', {
