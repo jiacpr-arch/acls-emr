@@ -17,7 +17,7 @@ import JiacprCourseBanner from '../components/JiacprCourseBanner';
 import {
   AlertTriangle, Hospital,
   BookOpen, MessageSquare, Play, GraduationCap,
-  Gamepad2, HelpCircle,
+  Gamepad2, HelpCircle, ChevronRight, Award,
 } from '../components/ui/Icon';
 import GameHighlightCard from '../components/GameHighlightCard';
 import { EmergencyCTA, LearnPathCard, MenuList } from '../components/newcase/HomeBlocks';
