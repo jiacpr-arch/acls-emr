@@ -404,7 +404,7 @@ function App() {
       </Routes>
       </ErrorBoundary>
       {/* "เว็บในเครือเรา" footer — sibling morroo.com sites, like morroo.com */}
-      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && <SiteFooter />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !(IS_ACLS && location.pathname === "/") && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin + recorder-game play */}
       {!isRecording && !isAdmin && !isRecorderGamePlay && <BottomTabBar />}
       {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isPractice && <LineFloatButton />}
