@@ -1021,3 +1021,21 @@ html[data-course='acls'] .cbs-vol-slider::-moz-range-thumb { background: #cf1430
 @media (min-width: 768px) {
   html[data-course='acls'] :is(.cbs-title, .cbs-select, .cbs-debrief) { border-inline: 1px solid #eceef1; }
 }
+
+/* Lobby/debrief controls only; in-game medical indicators retain their colors. */
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) :is(.cbs-btn-main,.cbs-btn-ghost,.cbs-icon-btn,.cbs-diff-btn,.cbs-tab,.cbs-case,.cbs-next,.cbs-dice) {
+  min-height:44px; min-width:44px; border:1.5px solid #8E6C77;
+}
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) :is(.cbs-btn-ghost,.cbs-icon-btn,.cbs-diff-btn,.cbs-tab,.cbs-case,.cbs-dice) { background:#FFF1F3; color:#24262B; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) :is(.cbs-btn-main,.cbs-next) { background:#B9141C; color:#FFF; border-color:#B9141C; box-shadow:none; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) :is(.cbs-btn-main,.cbs-next):hover { background:#961017; border-color:#961017; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) :is(.cbs-btn-ghost,.cbs-icon-btn,.cbs-diff-btn,.cbs-tab,.cbs-case,.cbs-dice):hover { background:#FFE1E5; border-color:#8E6C77; color:#24262B; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) :is(.cbs-diff-on,.cbs-tab-on) { border:2px solid #B9141C; background:#FFE1E5; color:#961017; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) button:disabled { background:#E6E0E3 !important; color:#6D6268 !important; border:1.5px dashed #6D6268 !important; opacity:1; cursor:not-allowed; box-shadow:none; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) :is(button,a):focus-visible { outline:3px solid #B9141C; outline-offset:3px; }
+html[data-course='acls'] .cbs-select .cbs-next :is(.cbs-next-eyebrow,.cbs-next-meta) { color:#FFF; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) :is(.cbs-btn-ghost,.cbs-icon-btn,.cbs-diff-btn,.cbs-tab,.cbs-case,.cbs-dice):active { background:#FFD0D7; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) :is(.cbs-btn-main,.cbs-next):active { background:#7C0D13; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) .cbs-identity-chip-btn { min-height:44px; min-width:44px; padding:10px 14px; border:1.5px solid #8E6C77; border-radius:10px; background:#FFF1F3; color:#24262B; }
+html[data-course='acls'] :is(.cbs-title,.cbs-select,.cbs-debrief) .cbs-identity-chip-btn:hover { background:#FFE1E5; }
+html[data-course='acls'] .cbs-select .cbs-case:disabled { filter:none; }

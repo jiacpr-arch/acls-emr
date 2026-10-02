@@ -63,3 +63,18 @@
 html[data-course="acls"].dark .acls-home-visual img { opacity:.38; }
 html[data-course="acls"].dark .acls-home-learn { color:#21171B; }
 @media(prefers-reduced-motion:reduce) { .acls-home-action,.acls-home-learn { transition:none; } }
+
+/* Separate secondary actions into unmistakable tap targets. */
+.acls-home-actions { gap:12px; border:0; border-radius:0; background:transparent; overflow:visible; }
+.acls-home-action, .acls-home-action + .acls-home-action { border:1.5px solid var(--acls-control-border); border-radius:14px; background:var(--acls-control-bg); }
+.acls-home-action:hover { background:var(--acls-control-hover); }
+.acls-home-action:active { background:var(--acls-control-active); }
+.acls-home-learn, html[data-course="acls"].dark .acls-home-learn { background:var(--acls-control-primary); color:var(--acls-control-on-primary); border:1.5px solid var(--acls-control-primary); box-shadow:none; }
+.acls-home-learn:hover { background:var(--acls-control-primary-hover); border-color:var(--acls-control-primary-hover); }
+.acls-home-learn:active { background:var(--acls-control-primary-active); }
+.acls-home-more { border:1.5px solid var(--acls-control-border); background:var(--acls-control-bg); }
+.acls-home-more summary:hover { background:var(--acls-control-hover); border-radius:12px; }
+.acls-home-guide { padding:9px 12px; border:1.5px solid var(--acls-control-border); border-radius:10px; background:var(--acls-control-bg); color:var(--color-text-primary); }
+@media(max-width:350px) { .acls-home-actions { gap:10px; } }
+.acls-home-action:disabled :is(.acls-action-copy strong,.acls-action-copy small,.acls-action-icon) { color:var(--acls-control-disabled-text); }
+.acls-home-action:disabled .acls-action-icon { background:transparent; }
