@@ -336,7 +336,7 @@ export default function VideoLessonDetail() {
         <div className="flex items-center justify-between gap-2">
           {/* padding/margin ต้องใส่แบบ !important — reset ที่ index.css:64 ไม่อยู่ใน layer
               จึงชนะ utility เว้นระยะของ Tailwind เสมอ (เหมือนที่โค้ดเดิมใช้ !p-3) */}
-          <span className="inline-flex items-center gap-1.5 bg-info text-white text-xs font-extrabold !px-2.5 !py-1 shrink-0"
+          <span className="learning-progress-chip inline-flex items-center gap-1.5 bg-info text-white text-xs font-extrabold !px-2.5 !py-1 shrink-0"
             style={{ borderRadius: 99 }}>
             <span className="tabular-nums">{safeStep + 1}</span>
             <span className="opacity-70">/</span>
@@ -350,7 +350,7 @@ export default function VideoLessonDetail() {
           </span>
         </div>
         <div className="progress-track !h-1.5 !mt-2">
-          <div className="progress-fill bg-info" style={{ width: `${progressPct}%` }} />
+          <div className="learning-progress-fill progress-fill bg-info" style={{ width: `${progressPct}%` }} />
         </div>
       </div>
 

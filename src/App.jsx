@@ -54,6 +54,7 @@ import NewsPage from './pages/NewsPage';
 import GoCampaign from './pages/GoCampaign';
 import RequireAdmin from './components/RequireAdmin';
 import BottomTabBar from './components/BottomTabBar';
+import ACLSPageChrome from './components/ACLSPageChrome';
 import SiteFooter from './components/SiteFooter';
 import LineFloatButton from './components/LineFloatButton';
 import AskQuestionFab from './components/AskQuestionFab';
@@ -151,7 +152,8 @@ function App() {
     || /^\/scenario\/.+/.test(location.pathname);
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
+    <div className={`min-h-screen bg-bg-primary text-text-primary ${IS_ACLS ? `acls-surface${location.pathname === '/recording' || isRecorderGamePlay ? ' acls-clinical' : ''}` : ''}`}>
+      {IS_ACLS && location.pathname !== '/' && !isRecording && !isRecorderGamePlay && <ACLSPageChrome />}
       <OfflineIndicator />
       <InAppBrowserGuard />
       <ErrorBoundary>
@@ -420,7 +422,7 @@ function App() {
       </Routes>
       </ErrorBoundary>
       {/* "เว็บในเครือเรา" footer — sibling morroo.com sites, like morroo.com */}
-      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isShortlink && <SiteFooter />}
+      {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isShortlink && !(IS_ACLS && location.pathname === "/") && <SiteFooter />}
       {/* Bottom pill bar on all pages except recording + admin + recorder-game play */}
       {!isRecording && !isAdmin && !isRecorderGamePlay && !isShortlink && <BottomTabBar />}
       {!isRecording && !isAdmin && !isStudying && !isRecorderGamePlay && !isPractice && !isShortlink && <LineFloatButton />}

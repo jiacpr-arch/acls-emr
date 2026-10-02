@@ -1,3 +1,4 @@
+import { IS_ACLS } from '../config/courseMode';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
@@ -11,7 +12,7 @@ export default function GameHighlightCard({ to, onClick, title, desc, eyebrow = 
     if (to) navigate(to);
   };
   return (
-    <button onClick={handleClick} className="monitor-card" style={style}>
+    <button onClick={handleClick} className={IS_ACLS ? "game-highlight-card monitor-card" : "monitor-card"} style={style}>
       <span className="font-mono text-2xs font-semibold uppercase" style={{ letterSpacing: '0.08em', color: 'var(--color-trace)' }}>
         ● {eyebrow}
       </span>

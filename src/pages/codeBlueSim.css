@@ -935,3 +935,89 @@ a.cbs-btn-learn { display: block; text-align: center; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   .cbs-combo, .cbs-combo-break, .cbs-combo-t6 .cbs-combo-n { animation: none !important; }
 }
+
+/* ACLS course shell: red brand on a quiet white canvas. The live scenario
+   keeps its ER stage, monitor colors and feedback cues unchanged. */
+html[data-course='acls'] .cbs-app {
+  background: #f7f7f8;
+}
+html[data-course='acls'] :is(.cbs-title, .cbs-select, .cbs-debrief) {
+  --cbs-ink: #22252b;
+  --cbs-dim: #626773;
+  --cbs-red: #cf1430;
+  --cbs-gold: #986400;
+  --cbs-green: #177348;
+  --cbs-cyan: #087a94;
+  --cbs-box-hi: #fff;
+  --cbs-box-lo: #fff;
+  max-width: 680px;
+  background: linear-gradient(160deg, #fff0f2 0%, #fff 32%, #fff 100%);
+  color: var(--cbs-ink);
+  padding-inline: clamp(20px, 5vw, 40px);
+}
+html[data-course='acls'] .cbs-title { max-width: 600px; gap: 22px; }
+html[data-course='acls'] .cbs-title h1 { text-shadow: none; font-size: clamp(36px, 9vw, 52px); line-height: 1.2; }
+html[data-course='acls'] :is(.cbs-title, .cbs-select) .cbs-gold-text { color: #cf1430; }
+html[data-course='acls'] .cbs-eyebrow { letter-spacing: .12em; }
+html[data-course='acls'] .cbs-eyebrow::before { box-shadow: none; animation: none; }
+html[data-course='acls'] .cbs-btn-main {
+  border: 1px solid #c4122e;
+  border-radius: 14px;
+  background: #dc1735;
+  box-shadow: 0 6px 18px rgb(207 20 48 / 18%);
+  padding: 16px 20px;
+  letter-spacing: 0;
+  transition: background .15s, transform .15s, box-shadow .15s;
+}
+html[data-course='acls'] .cbs-btn-main:hover { background: #be102c; box-shadow: 0 8px 24px rgb(207 20 48 / 24%); }
+html[data-course='acls'] .cbs-btn-main:active { transform: translateY(1px); }
+html[data-course='acls'] .cbs-btn-main:focus-visible { outline: 3px solid #087a94; outline-offset: 4px; }
+html[data-course='acls'] :is(.cbs-title, .cbs-select, .cbs-debrief) :is(.cbs-btn-ghost, .cbs-icon-btn, .cbs-diff-btn, .cbs-tab) {
+  border: 1px solid #d9dce2;
+  background: #fff;
+  color: #4b505b;
+  border-radius: 12px;
+}
+html[data-course='acls'] :is(.cbs-title, .cbs-select, .cbs-debrief) :is(.cbs-btn-ghost, .cbs-icon-btn, .cbs-diff-btn, .cbs-tab):hover {
+  background: #fff4f5; border-color: #d96b7d; color: #a71028;
+}
+html[data-course='acls'] :is(.cbs-title, .cbs-select) :is(.cbs-diff-on, .cbs-tab-on) {
+  background: #fff0f2; color: #b6102a; border-color: #cf1430; box-shadow: none;
+}
+html[data-course='acls'] :is(.cbs-diff-label, .cbs-diff-meta, .cbs-note, .cbs-group-prog, .cbs-track-desc, .cbs-grade-label, .cbs-metric-label, .cbs-tl-title, .cbs-tl-time, .cbs-tl-note, .cbs-etco2-cap) { color: #626773; }
+html[data-course='acls'] .cbs-diff-on .cbs-diff-meta { color: #b6102a; }
+html[data-course='acls'] :is(.cbs-case, .cbs-next, .cbs-dice, .cbs-grade-box, .cbs-metric, .cbs-badge, .cbs-identity-chip, .cbs-hiscore-chip) {
+  border: 1px solid #e0e2e7;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 18px rgb(34 37 43 / 4%);
+}
+html[data-course='acls'] .cbs-case { padding: 18px; gap: 8px; }
+html[data-course='acls'] .cbs-case:hover:not(.cbs-case-locked) { border-color: #cf1430; box-shadow: 0 6px 20px rgb(207 20 48 / 8%); }
+html[data-course='acls'] :is(.cbs-case, .cbs-next, .cbs-dice):active { transform: translateY(1px); box-shadow: none; }
+html[data-course='acls'] .cbs-case-locked { opacity: .78; }
+html[data-course='acls'] .cbs-next { border-color: #e6a3af; background: #fff0f2; padding: 16px 18px; }
+html[data-course='acls'] .cbs-next-eyebrow { color: #b6102a; letter-spacing: .02em; }
+html[data-course='acls'] .cbs-tab { border-radius: 999px; }
+html[data-course='acls'] .cbs-hiscore-chip { color: #986400; letter-spacing: .04em; }
+html[data-course='acls'] :is(.cbs-identity-chip-warn, .cbs-cert-note, .cbs-badge-on, .cbs-award-reveal) {
+  border-color: #e2c276; background: #fff9e8; box-shadow: none;
+}
+html[data-course='acls'] .cbs-badge-new { background: #fff9e8; }
+html[data-course='acls'] .cbs-select-title { line-height: 1.35; }
+html[data-course='acls'] .cbs-case-name { line-height: 1.5; }
+html[data-course='acls'] .cbs-case-desc { font-size: 13px; line-height: 1.7; }
+html[data-course='acls'] .cbs-case-list { gap: 12px; }
+html[data-course='acls'] .cbs-case-groups { gap: 26px; }
+html[data-course='acls'] .cbs-debrief.cbs-winbg { background: linear-gradient(160deg, #edf9f2, #fff 40%); }
+html[data-course='acls'] .cbs-debrief.cbs-losebg { background: linear-gradient(160deg, #fff0f2, #fff 40%); }
+html[data-course='acls'] .cbs-stamp { text-shadow: none; }
+html[data-course='acls'] .cbs-spark { background: #f5f8fa; border-color: #d9e4e9; }
+html[data-course='acls'] .cbs-spark-target { stroke: #986400; }
+html[data-course='acls'] .cbs-tl-dot::after { background: #d9dce2; }
+html[data-course='acls'] .cbs-vol-slider { background: #d9dce2; }
+html[data-course='acls'] .cbs-vol-slider::-webkit-slider-thumb { background: #cf1430; border-color: #fff; }
+html[data-course='acls'] .cbs-vol-slider::-moz-range-thumb { background: #cf1430; border-color: #fff; }
+@media (min-width: 768px) {
+  html[data-course='acls'] :is(.cbs-title, .cbs-select, .cbs-debrief) { border-inline: 1px solid #eceef1; }
+}

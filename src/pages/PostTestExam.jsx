@@ -268,7 +268,7 @@ export default function PostTestExam() {
           <span className="text-text-muted">ตอบแล้ว <strong className="text-text-primary">{answeredCount}</strong> / {questions.length}</span>
         </div>
         <div className="progress-track !h-1.5">
-          <div className="progress-fill bg-info" style={{ width: `${(answeredCount / questions.length) * 100}%` }} />
+          <div className="learning-progress-fill progress-fill bg-info" style={{ width: `${(answeredCount / questions.length) * 100}%` }} />
         </div>
       </div>
 
@@ -293,7 +293,7 @@ export default function PostTestExam() {
               <button key={q.id}
                 onClick={() => setPostTestIndex(i)}
                 className={`h-8 text-2xs font-bold transition-colors ${
-                  isCurrent ? 'bg-info text-white border border-info'
+                  isCurrent ? 'learning-progress-chip bg-info text-white border border-info'
                     : answered ? 'bg-success/15 text-success border border-success/30 hover:bg-success/25'
                     : 'bg-bg-tertiary text-text-muted border border-border hover:bg-border'
                 }`}

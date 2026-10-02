@@ -172,7 +172,7 @@ export default function LessonReader() {
     : Math.round((Math.min(safeIndex, totalSteps) / totalSteps) * 100);
 
   return (
-    <div className="page-container space-y-5">
+    <div className="lesson-reader page-container space-y-5">
       <button onClick={() => navigate('/pre-course')}
         className="btn btn-ghost btn-sm">
         <ChevronLeft size={14} strokeWidth={2.2} /> กลับไปรายการบทเรียน
@@ -180,7 +180,7 @@ export default function LessonReader() {
 
       {/* Header */}
       <div className="flex items-start gap-3">
-        <div className="w-11 h-11 inline-flex items-center justify-center bg-info/15 text-info shrink-0"
+        <div className="learning-icon w-11 h-11 inline-flex items-center justify-center bg-info/15 text-info shrink-0"
           style={{ borderRadius: 'var(--radius-md)' }}>
           <BookOpen size={22} strokeWidth={2.2} />
         </div>
@@ -204,7 +204,7 @@ export default function LessonReader() {
             </span>
           ) : (
             <span
-              className="inline-flex items-center gap-1.5 bg-info text-white text-xs font-extrabold px-2.5 py-1 shrink-0"
+              className="learning-progress-chip inline-flex items-center gap-1.5 bg-info text-white text-xs font-extrabold px-2.5 py-1 shrink-0"
               style={{ borderRadius: 99 }}
             >
               ขั้นที่ <span className="tabular-nums">{safeIndex + 1}</span>
@@ -219,7 +219,7 @@ export default function LessonReader() {
           </span>
         </div>
         <div className="progress-track !h-2">
-          <div className="progress-fill bg-info" style={{ width: `${progressPct}%` }} />
+          <div className="learning-progress-fill progress-fill bg-info" style={{ width: `${progressPct}%` }} />
         </div>
       </div>
 
@@ -233,7 +233,7 @@ export default function LessonReader() {
         const [heroImage, ...restImages] = stepImages;
         return (
           <section className="dash-card space-y-3 !p-5">
-            <div className="text-headline text-info">{step.heading}</div>
+            <div className="learning-section-title text-headline text-info">{step.heading}</div>
             {heroImage && <Figure img={heroImage} fallbackAlt={step.heading} />}
             <ReadBody body={step.body} />
             {restImages.length > 0 && (

@@ -8,12 +8,12 @@ export default function LessonCard({ lesson, read, bestScore, passed, inProgress
   const go = () => navigate(`/pre-course/${lesson.id}`);
 
   return (
-    <div className="dash-card !p-0 overflow-hidden">
+    <div className="dash-card learning-lesson-card !p-0 overflow-hidden">
       <button
         onClick={go}
         className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-bg-tertiary/50 transition-colors"
         style={{ textAlign: 'left', justifyContent: 'flex-start' }}>
-        <div className="w-10 h-10 inline-flex items-center justify-center shrink-0 bg-info/12 text-info"
+        <div className="learning-icon w-10 h-10 inline-flex items-center justify-center shrink-0 bg-info/12 text-info"
           style={{ borderRadius: 'var(--radius-md)' }}>
           <BookOpen size={18} strokeWidth={2.2} />
         </div>
@@ -47,7 +47,7 @@ export default function LessonCard({ lesson, read, bestScore, passed, inProgress
         <div className="flex-1" />
         <button
           onClick={(e) => { e.stopPropagation(); go(); }}
-          className="text-2xs font-bold px-3 py-1.5 inline-flex items-center gap-1 text-white hover:opacity-90"
+          className="learning-lesson-action text-2xs font-bold px-3 py-1.5 inline-flex items-center gap-1 text-white hover:opacity-90"
           style={{ borderRadius: 99, background: 'var(--color-info)' }}>
           {inProgress ? 'เรียนต่อ' : hasAttempt ? 'ทำใหม่' : 'เริ่มเรียน'}
         </button>
