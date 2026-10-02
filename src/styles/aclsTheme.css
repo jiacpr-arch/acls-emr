@@ -151,3 +151,43 @@ html[data-course="acls"] .acls-home-more summary:focus-visible { outline:3px sol
  html[data-course="acls"] .acls-surface:not(.acls-clinical) .tab-item { min-height:44px; }
 }
 @media(prefers-reduced-motion:reduce) { html[data-course="acls"] .acls-surface :is(button,input,textarea,select) { transition:none; } }
+
+/* A calmer hierarchy across every ACLS page: one heading, neutral surfaces,
+   consistent navigation and secondary actions. Clinical palettes stay intact. */
+html[data-course="acls"] .page-hero,
+html[data-course="acls"] .page-container > div:has(> h1):not(.page-hero),
+html[data-course="acls"] .page-container > div.flex:has(h1) {
+  border:0; border-radius:0; background:transparent; box-shadow:none;
+  padding:8px 0 18px;
+}
+html[data-course="acls"] .page-hero h1 { font-size:34px; font-weight:650; line-height:1.3; }
+html[data-course="acls"] .page-hero .text-body { font-size:14px; line-height:1.7; margin-top:8px !important; }
+html[data-course="acls"] .page-container > .space-y-2:has(>h1) { padding-bottom:12px; }
+html[data-course="acls"] .acls-page-chrome > div { min-height:64px; }
+html[data-course="acls"] .acls-page-brand strong { font-size:18px; }
+html[data-course="acls"] .acls-page-home { min-height:44px; }
+html[data-course="acls"] .acls-surface:not(.acls-clinical) .btn-ghost { border-color:var(--color-border); font-weight:500; }
+html[data-course="acls"] .bottom-pill-bar { padding-top:7px; }
+html[data-course="acls"] .bottom-pill-bar button { min-height:49px; font-size:10px; gap:5px; }
+html[data-course="acls"] .bottom-pill-bar button.active .tab-icon { background:var(--acls-brand-soft); padding:4px 17px; }
+html[data-course="acls"] .acls-more-sheet { max-height:88dvh; display:flex; flex-direction:column; }
+html[data-course="acls"] .acls-more-sheet button[aria-label="Close"] { width:44px; height:44px; flex-shrink:0; }
+.acls-more-body { padding:8px 22px 25px; overflow-y:auto; overscroll-behavior:contain; }
+.acls-menu-group + .acls-menu-group { margin-top:20px; }
+.acls-menu-group h2 { margin:0 0 10px; font-size:11px; font-weight:500; color:var(--color-text-muted); }
+.acls-menu-group > div { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.acls-menu-group button { display:flex; align-items:center; gap:10px; padding:12px; min-height:48px; border:1px solid var(--color-border); border-radius:12px; background:var(--color-bg-secondary); text-align:left; color:var(--color-text-secondary); font-size:12px; font-weight:500; }
+.acls-menu-group button svg { color:var(--acls-brand-dark); flex-shrink:0; }
+.acls-menu-group button:hover,.acls-menu-group button.is-active { background:var(--acls-brand-soft); border-color:var(--acls-brand); }
+html[data-course="acls"] .acls-learn-row { padding:15px 17px; box-shadow:none; }
+html[data-course="acls"] .acls-learn-row .text-headline { font-size:15px; font-weight:600; }
+html[data-course="acls"] .acls-learn-row .text-caption { font-size:12px; line-height:1.6; margin-top:3px; }
+html[data-course="acls"] .acls-learn-row:not(.is-next) > div:first-child { background:var(--color-bg-tertiary) !important; color:var(--color-text-secondary) !important; width:37px !important; height:37px !important; }
+html[data-course="acls"] .acls-learn-row.is-next { background:var(--acls-brand-soft); box-shadow:none !important; }
+html[data-course="acls"] .game-highlight-card { border-left:1px solid var(--color-border) !important; border-radius:16px; }
+html[data-course="acls"] .game-highlight-card .monitor-trace { height:20px; opacity:.5; }
+@media(max-width:600px) {
+ html[data-course="acls"] .page-hero h1 { font-size:29px; }
+ html[data-course="acls"] .acls-page-chrome > div { min-height:54px; }
+ html[data-course="acls"] .page-container > div.flex:has(h1) { padding:7px 0 15px; }
+}

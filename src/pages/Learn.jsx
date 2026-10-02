@@ -126,7 +126,7 @@ export default function Learn() {
     : `Study, practice, and track your ${courseMeta.shortName} progress`;
 
   return (
-    <div className="page-container flex flex-col gap-4 pb-24">
+    <div className={`page-container flex flex-col gap-4 pb-24 ${IS_ACLS ? 'acls-learn-page' : ''}`}>
       <PageHero title={t('learn', lang)} desc={learnSubtitle} />
 
       {sections.map(section => {
@@ -188,7 +188,7 @@ export default function Learn() {
                   <button
                     key={item.path}
                     onClick={() => navigate(item.path)}
-                    className="card card-hover w-full flex items-center gap-3.5"
+                    className={`card card-hover w-full flex items-center gap-3.5 ${IS_ACLS ? 'acls-learn-row' : ''} ${IS_ACLS && isNext ? 'is-next' : ''}`}
                     style={{
                       textAlign: 'left',
                       justifyContent: 'flex-start',
